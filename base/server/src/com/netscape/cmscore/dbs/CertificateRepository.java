@@ -597,9 +597,16 @@ public class CertificateRepository extends Repository {
         mTransitMaxRecords = max;
     }
 
+    public int getTransitMaxRecords() {
+        return mTransitMaxRecords;
+    }
+
     public void setTransitRecordPageSize(int size) {
         mTransitRecordPageSize = size;
+    }
 
+    public int getTransitRecordPageSize() {
+        return mTransitRecordPageSize;
     }
 
     /**
@@ -821,63 +828,6 @@ public class CertificateRepository extends Repository {
         }
 
         transitCertList(cList, CertRecord.STATUS_REVOKED_EXPIRED);
-    }
-
-    /**
-     * This transits a certificate status from INVALID to VALID
-     * if a certificate becomes valid.
-     */
-    public void transitInvalidCertificates() throws EBaseException {
-
-        Date now = new Date();
-
-        CertRecordList recList = getInvalidCertsByNotBeforeDate(now, -1 * mTransitRecordPageSize);
-
-        int size = recList.getSize();
-
-        if (size <= 0) {
-            logger.debug("index may be empty");
-            return;
-        }
-        int ltSize = recList.getSizeBeforeJumpTo();
-
-        ltSize = Math.min(ltSize, mTransitMaxRecords);
-
-        Vector<BigInteger> cList = new Vector<>(ltSize);
-
-        logger.debug("transidInValidCertificates: list size: " + size);
-        logger.debug("transitInValidCertificates: ltSize " + ltSize);
-
-        CertRecord curRec = null;
-
-        int i;
-
-        Object obj = null;
-
-        for (i = 0; i < ltSize; i++) {
-            obj = recList.getCertRecord(i);
-
-            if (obj != null) {
-                curRec = (CertRecord) obj;
-
-                Date notBefore = curRec.getNotBefore();
-
-                //logger.debug("notBefore " + notBefore.toString() + " now " + now.toString());
-                if (notBefore.after(now)) {
-                    logger.debug("Record does not qualify,notBefore " + notBefore.toString() + " date " + now.toString());
-                    continue;
-
-                }
-
-                logger.debug("transitInValid: curRec: " + i + " " + curRec.toString());
-                cList.add(curRec.getSerialNumber());
-
-            } else {
-                logger.warn("found null from getCertRecord");
-            }
-        }
-
-        transitCertList(cList, CertRecord.STATUS_VALID);
     }
 
     public void transitCertList(Vector<BigInteger> list, String newCertStatus) throws EBaseException {

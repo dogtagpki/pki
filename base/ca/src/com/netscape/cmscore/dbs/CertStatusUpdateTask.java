@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -51,6 +54,58 @@ public class CertStatusUpdateTask implements Runnable {
     }
 
     /**
+     * Updates a certificate status from INVALID to VALID
+     * if a certificate becomes valid.
+     */
+    public void updateInvalidCertificates() throws Exception {
+
+        logger.info("CertStatusUpdateTask: Updating invalid certs to valid");
+        Date now = new Date();
+
+        int pageSize = repository.getTransitRecordPageSize();
+        logger.debug("CertStatusUpdateTask: - page size: " + pageSize);
+
+        int maxRecords = repository.getTransitMaxRecords();
+        logger.debug("CertStatusUpdateTask: - max records: " + maxRecords);
+
+        CertRecordList recordList = repository.getInvalidCertsByNotBeforeDate(now, -1 * pageSize);
+
+        int totalSize = recordList.getSize();
+        logger.debug("CertStatusUpdateTask: - total size: " + totalSize);
+
+        if (totalSize <= 0) {
+            logger.debug("CertStatusUpdateTask: No invalid certs");
+            return;
+        }
+
+        int listSize = recordList.getSizeBeforeJumpTo();
+        listSize = Math.min(listSize, maxRecords);
+        logger.debug("CertStatusUpdateTask: - list size: " + listSize);
+
+        Vector<BigInteger> list = new Vector<>(listSize);
+
+        for (int i = 0; i < listSize; i++) {
+            CertRecord certRecord = recordList.getCertRecord(i);
+
+            if (certRecord == null) {
+                logger.warn("CertStatusUpdateTask: Cert record #" + i + " missing");
+                continue;
+            }
+
+            Date notBefore = certRecord.getNotBefore();
+            if (notBefore.after(now)) {
+                logger.debug("CertStatusUpdateTask: Cert record #" + i + " not yet valid");
+                continue;
+            }
+
+            logger.debug("CertStatusUpdateTask: Updating cert record #" + i + " to valid");
+            list.add(certRecord.getSerialNumber());
+        }
+
+        repository.transitCertList(list, CertRecord.STATUS_VALID);
+    }
+
+    /**
      * Updates certificate status.
      *
      * @exception EBaseException failed to update
@@ -61,7 +116,7 @@ public class CertStatusUpdateTask implements Runnable {
         // this code and CRLIssuingPoint.processRevokedCerts() are mutually exclusive
 
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_VALID_SEARCH"));
-        repository.transitInvalidCertificates();
+        updateInvalidCertificates();
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_VALID_SEARCH"));
 
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_EXPIRED_SEARCH"));
