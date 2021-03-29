@@ -314,18 +314,19 @@ public class CRLRepository extends Repository {
      * @param unrevokedCerts list of released from hold certificates
      * @exception EBaseException failed to update issuing point record
      */
-    public void updateRevokedCerts(String id,
+    public void updateRevokedCerts(
+            String id,
             Hashtable<BigInteger, RevokedCertificate> revokedCerts,
             Hashtable<BigInteger, RevokedCertificate> unrevokedCerts)
             throws EBaseException {
-        ModificationSet mods = new ModificationSet();
 
-        mods.add(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS,
-                Modification.MOD_REPLACE, revokedCerts);
-        mods.add(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS,
-                Modification.MOD_REPLACE, unrevokedCerts);
-        mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED,
-                Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
+        logger.info("CRLReposiotry: Updating revoked certificates");
+
+        ModificationSet mods = new ModificationSet();
+        mods.add(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS, Modification.MOD_REPLACE, revokedCerts);
+        mods.add(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS, Modification.MOD_REPLACE, unrevokedCerts);
+        mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED, Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
+
         modifyCRLIssuingPointRecord(id, mods);
     }
 
