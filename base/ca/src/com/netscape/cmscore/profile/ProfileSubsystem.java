@@ -73,7 +73,7 @@ public class ProfileSubsystem
 
         while (st.hasMoreTokens()) {
             String id = st.nextToken();
-            logger.info("Creating profile: " + id);
+            logger.info("ProfileSubsystem: Loading profile " + id);
 
             IConfigStore subStore = cs.getSubStore(id);
 
@@ -93,12 +93,12 @@ public class ProfileSubsystem
             createProfile(id, classid, info.getClassName(), configPath, false);
         }
 
-        logger.info("Registered profiles:");
+        logger.debug("Registered profiles:");
         Enumeration<String> ee = getProfileIds();
 
         while (ee.hasMoreElements()) {
             String id = ee.nextElement();
-            logger.info("- " + id);
+            logger.debug("- " + id);
         }
     }
 
@@ -114,7 +114,7 @@ public class ProfileSubsystem
             String configPath,
             boolean isNew) throws EProfileException {
 
-        logger.info("ProfileSubsystem: Creating " + id + " profile");
+        logger.debug("ProfileSubsystem: Creating " + id + " profile");
 
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
@@ -131,7 +131,7 @@ public class ProfileSubsystem
         }
 
         try {
-            logger.info("ProfileSubsystem: Loading " + configPath);
+            logger.debug("ProfileSubsystem: Loading " + configPath);
             IConfigStore subStoreConfig = engine.createFileConfigStore(configPath);
 
             logger.debug("ProfileSubsystem: Initializing " + className);
