@@ -622,28 +622,6 @@ public class CertificateRepository extends Repository {
     }
 
     /**
-     * Updates certificate status now. This is a blocking method.
-     *
-     * @exception EBaseException failed to update
-     */
-    public void updateCertStatus() throws EBaseException {
-
-        logger.debug("In updateCertStatus()");
-
-        logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_VALID_SEARCH"));
-        transitInvalidCertificates();
-        logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_VALID_SEARCH"));
-
-        logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_EXPIRED_SEARCH"));
-        transitValidCertificates();
-        logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_EXPIRED_SEARCH"));
-
-        logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_REVOKED_EXPIRED_SEARCH"));
-        transitRevokedExpiredCertificates();
-        logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
-    }
-
-    /**
      * Retrieves DN of this repository.
      */
     public String getDN() {

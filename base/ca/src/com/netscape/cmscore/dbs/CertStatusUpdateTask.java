@@ -22,6 +22,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.apps.CMS;
+
 public class CertStatusUpdateTask implements Runnable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertStatusUpdateTask.class);
@@ -47,12 +50,27 @@ public class CertStatusUpdateTask implements Runnable {
         executorService.scheduleWithFixedDelay(this, 0, interval, TimeUnit.SECONDS);
     }
 
+    /**
+     * Updates certificate status.
+     *
+     * @exception EBaseException failed to update
+     */
     public synchronized void updateCertStatus() throws Exception {
 
         logger.info("CertStatusUpdateTask: Updating cert status");
         // this code and CRLIssuingPoint.processRevokedCerts() are mutually exclusive
 
-        repository.updateCertStatus();
+        logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_VALID_SEARCH"));
+        repository.transitInvalidCertificates();
+        logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_VALID_SEARCH"));
+
+        logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_EXPIRED_SEARCH"));
+        repository.transitValidCertificates();
+        logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_EXPIRED_SEARCH"));
+
+        logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_REVOKED_EXPIRED_SEARCH"));
+        repository.transitRevokedExpiredCertificates();
+        logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
     }
 
     public void run() {
