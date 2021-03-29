@@ -726,60 +726,6 @@ public class CertificateRepository extends Repository {
     }
 
     /**
-     * This transits a certificate status from VALID to EXPIRED
-     * if a certificate becomes expired.
-     */
-    public void transitValidCertificates() throws EBaseException {
-
-        Date now = new Date();
-        CertRecordList recList = getValidCertsByNotAfterDate(now, -1 * mTransitRecordPageSize);
-
-        int size = recList.getSize();
-
-        if (size <= 0) {
-            logger.debug("index may be empty");
-            return;
-        }
-        int ltSize = recList.getSizeBeforeJumpTo();
-
-        ltSize = Math.min(ltSize, mTransitMaxRecords);
-
-        Vector<BigInteger> cList = new Vector<>(ltSize);
-
-        logger.debug("transidValidCertificates: list size: " + size);
-        logger.debug("transitValidCertificates: ltSize " + ltSize);
-
-        CertRecord curRec = null;
-
-        int i;
-        CertRecord obj = null;
-
-        for (i = 0; i < ltSize; i++) {
-            obj = recList.getCertRecord(i);
-
-            if (obj != null) {
-                curRec = obj;
-
-                Date notAfter = curRec.getNotAfter();
-
-                //logger.debug("notAfter " + notAfter.toString() + " now " + now.toString());
-                if (notAfter.after(now)) {
-                    logger.debug("Record does not qualify,notAfter " + notAfter.toString() + " date " + now.toString());
-                    continue;
-                }
-
-                logger.debug("transitValid: curRec: " + i + " " + curRec.toString());
-                cList.add(curRec.getSerialNumber());
-
-            } else {
-                logger.warn("found null from getCertRecord");
-            }
-        }
-
-        transitCertList(cList, CertRecord.STATUS_EXPIRED);
-    }
-
-    /**
      * This transits a certificate status from REVOKED to REVOKED_EXPIRED
      * if an revoked certificate becomes expired.
      */

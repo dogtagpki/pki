@@ -106,6 +106,58 @@ public class CertStatusUpdateTask implements Runnable {
     }
 
     /**
+     * Updates a certificate status from VALID to EXPIRED
+     * if a certificate becomes expired.
+     */
+    public void updateValidCertificates() throws Exception {
+
+        logger.info("CertStatusUpdateTask: Updating valid certs to expired");
+        Date now = new Date();
+
+        int pageSize = repository.getTransitRecordPageSize();
+        logger.debug("CertStatusUpdateTask: - page size: " + pageSize);
+
+        int maxRecords = repository.getTransitMaxRecords();
+        logger.debug("CertStatusUpdateTask: - max records: " + maxRecords);
+
+        CertRecordList recordList = repository.getValidCertsByNotAfterDate(now, -1 * pageSize);
+
+        int totalSize = recordList.getSize();
+        logger.debug("CertStatusUpdateTask: - total size: " + totalSize);
+
+        if (totalSize <= 0) {
+            logger.debug("CertStatusUpdateTask: No invalid certs");
+            return;
+        }
+
+        int listSize = recordList.getSizeBeforeJumpTo();
+        listSize = Math.min(listSize, maxRecords);
+        logger.debug("CertStatusUpdateTask: - list size: " + listSize);
+
+        Vector<BigInteger> list = new Vector<>(listSize);
+
+        for (int i = 0; i < listSize; i++) {
+            CertRecord certRecord = recordList.getCertRecord(i);
+
+            if (certRecord == null) {
+                logger.warn("CertStatusUpdateTask: Cert record #" + i + " missing");
+                continue;
+            }
+
+            Date notAfter = certRecord.getNotAfter();
+            if (notAfter.after(now)) {
+                logger.debug("CertStatusUpdateTask: Cert record #" + i + " not yet expired");
+                continue;
+            }
+
+            logger.debug("CertStatusUpdateTask: Updating cert record #" + i + " to expired");
+            list.add(certRecord.getSerialNumber());
+        }
+
+        repository.transitCertList(list, CertRecord.STATUS_EXPIRED);
+    }
+
+    /**
      * Updates certificate status.
      *
      * @exception EBaseException failed to update
@@ -120,7 +172,7 @@ public class CertStatusUpdateTask implements Runnable {
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_VALID_SEARCH"));
 
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_EXPIRED_SEARCH"));
-        repository.transitValidCertificates();
+        updateValidCertificates();
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_EXPIRED_SEARCH"));
 
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_REVOKED_EXPIRED_SEARCH"));
