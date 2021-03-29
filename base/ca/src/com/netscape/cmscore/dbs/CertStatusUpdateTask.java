@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -162,6 +163,7 @@ public class CertStatusUpdateTask implements Runnable {
     public void updateRevokedExpiredCertificates() throws EBaseException {
 
         logger.info("CertStatusUpdateTask: Updating revoked certs to expired");
+        CAEngine engine = CAEngine.getInstance();
         Date now = new Date();
 
         CertRecordList recordList = repository.getRevokedCertsByNotAfterDate(now, -1 * pageSize);
@@ -205,7 +207,7 @@ public class CertStatusUpdateTask implements Runnable {
         for (int i = 0; i < list.size(); i++) {
             BigInteger serialNumber = list.elementAt(i);
 
-            for (ICRLIssuingPoint issuingPoint : repository.getCRLIssuingPoints().values()) {
+            for (ICRLIssuingPoint issuingPoint : engine.getCRLIssuingPoints()) {
                 issuingPoint.addExpiredCert(serialNumber);
             }
         }

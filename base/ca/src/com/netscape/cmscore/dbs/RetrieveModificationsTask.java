@@ -17,19 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-import java.util.Enumeration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPEntry;
@@ -90,7 +88,7 @@ public class RetrieveModificationsTask implements Runnable {
 
         logger.info("RetrieveModificationsTask: dn: " + entry.getDN());
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
 
         LDAPAttributeSet entryAttrs = entry.getAttributeSet();
@@ -118,10 +116,7 @@ public class RetrieveModificationsTask implements Runnable {
             return;
         }
 
-        Enumeration<ICRLIssuingPoint> issuingPoints = repository.getCRLIssuingPoints().elements();
-
-        while (issuingPoints.hasMoreElements()) {
-            ICRLIssuingPoint ip = issuingPoints.nextElement();
+        for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
 
             if (ip == null) {
                 continue;

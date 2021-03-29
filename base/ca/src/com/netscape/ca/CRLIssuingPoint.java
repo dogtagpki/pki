@@ -522,10 +522,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         CAEngine engine = CAEngine.getInstance();
         mCRLRepository = engine.getCRLRepository();
-
         mCertRepository = engine.getCertificateRepository();
-        mCertRepository.addCRLIssuingPoint(mId, this);
-
         mPublisherProcessor = engine.getPublisherProcessor();
 
         //mCRLPublisher = mCA.getCRLPublisher();

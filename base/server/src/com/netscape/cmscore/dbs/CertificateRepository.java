@@ -26,7 +26,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -88,8 +87,6 @@ public class CertificateRepository extends Repository {
     private String mBaseDN;
     private String mRequestBaseDN;
     private boolean mConsistencyCheck = false;
-
-    private Hashtable<String, ICRLIssuingPoint> mCRLIssuingPoints = new Hashtable<String, ICRLIssuingPoint>();
 
     private int mBitLength = 0;
     private BigInteger mRangeSize = null;
@@ -588,17 +585,6 @@ public class CertificateRepository extends Repository {
 
     public void setConsistencyCheck(boolean ConsistencyCheck) {
         mConsistencyCheck = ConsistencyCheck;
-    }
-
-    /**
-     * register CRL Issuing Point
-     */
-    public void addCRLIssuingPoint(String id, ICRLIssuingPoint crlIssuingPoint) {
-        mCRLIssuingPoints.put(id, crlIssuingPoint);
-    }
-
-    public Hashtable<String, ICRLIssuingPoint> getCRLIssuingPoints() {
-        return mCRLIssuingPoints;
     }
 
     /**
