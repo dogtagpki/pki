@@ -2559,25 +2559,24 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     public synchronized void updateCRLNow(String signingAlgorithm)
             throws EBaseException {
 
-        logger.debug("updateCRLNow: mEnable =" + mEnable);
-        logger.debug("updateCRLNow: mEnableCRLUpdates =" + mEnableCRLUpdates);
-        logger.debug("updateCRLNow: mDoLastAutoUpdate =" + mDoLastAutoUpdate);
+        logger.info("CRLIssuingPoint: Updating " + mId);
+
+        logger.debug("CRLIssuingPoint: - enable: " + mEnable);
+        logger.debug("CRLIssuingPoint: - enable CRL updates: " + mEnableCRLUpdates);
+        logger.debug("CRLIssuingPoint: - do last auto update: " + mDoLastAutoUpdate);
 
         CAEngine engine = CAEngine.getInstance();
         if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate))
             return;
 
-        logger.debug("Updating CRL");
-        logger.info(
-            CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATE_STARTED"),
-            getId(),
-            getNextCRLNumber(),
-            Boolean.toString(isDeltaCRLEnabled()),
-            Boolean.toString(isCRLCacheEnabled()),
-            Boolean.toString(mEnableCacheRecovery),
-            Boolean.toString(mCRLCacheIsCleared),
-            mCRLCerts.size() + "," + mRevokedCerts.size() + "," + mUnrevokedCerts.size() + "," + mExpiredCerts.size()
-        );
+        logger.debug("CRLIssuingPoint: - next CRL number: " + mNextDeltaCRLNumber);
+        logger.debug("CRLIssuingPoint: - delta CRL enabled: " + isDeltaCRLEnabled());
+        logger.debug("CRLIssuingPoint: - CRL cache enabled: " + mEnableCRLCache);
+        logger.debug("CRLIssuingPoint: - cache recovery enabled: " + mCRLCacheIsCleared);
+        logger.debug("CRLIssuingPoint: - cache size: " + mCRLCerts.size());
+        logger.debug("CRLIssuingPoint: - revoked certs: " + mRevokedCerts.size());
+        logger.debug("CRLIssuingPoint: - unrevoked certs: " + mUnrevokedCerts.size());
+        logger.debug("CRLIssuingPoint: - expired certs: " + mExpiredCerts.size());
 
         mUpdatingCRL = CRL_UPDATE_STARTED;
         if (signingAlgorithm == null || signingAlgorithm.length() == 0)
