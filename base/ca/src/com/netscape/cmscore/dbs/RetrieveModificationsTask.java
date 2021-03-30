@@ -64,8 +64,11 @@ public class RetrieveModificationsTask implements Runnable {
 
         if (session != null) return;
 
+        CAEngine engine = CAEngine.getInstance();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
+
         try {
-            session = repository.getDBSubsystem().createSession();
+            session = dbSubsystem.createSession();
             results = repository.searchForModifiedCertificateRecords(session);
 
         } catch (EBaseException e) {

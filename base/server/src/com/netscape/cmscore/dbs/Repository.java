@@ -70,7 +70,7 @@ public abstract class Repository implements IRepository {
     private BigInteger mIncrementNo = null;
     private BigInteger mLowWaterMarkNo = null;
 
-    private DBSubsystem dbSubsystem;
+    protected DBSubsystem dbSubsystem;
     protected String mBaseDN;
     private boolean mInit = false;
     private int mRadix = 10;

@@ -82,7 +82,6 @@ public class CertificateRepository extends Repository {
     private static final String PROP_MINIMUM_RANDOM_BITS = "minimumRandomBits";
     private static final BigInteger BI_MINUS_ONE = (BigInteger.ZERO).subtract(BigInteger.ONE);
 
-    private DBSubsystem dbSubsystem;
     private boolean mConsistencyCheck = false;
 
     private int mBitLength = 0;
@@ -98,7 +97,6 @@ public class CertificateRepository extends Repository {
      */
     public CertificateRepository(DBSubsystem dbSubsystem, int increment) throws EDBException {
         super(dbSubsystem, increment, "ou=certificateRepository,ou=ca," + dbSubsystem.getBaseDN());
-        this.dbSubsystem = dbSubsystem;
         mDBConfig = dbSubsystem.getDBConfigStore();
     }
 
@@ -587,13 +585,6 @@ public class CertificateRepository extends Repository {
      */
     public String getDN() {
         return mBaseDN;
-    }
-
-    /**
-     * Retrieves backend database handle.
-     */
-    public DBSubsystem getDBSubsystem() {
-        return dbSubsystem;
     }
 
     /**
