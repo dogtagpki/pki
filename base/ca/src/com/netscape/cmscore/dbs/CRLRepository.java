@@ -46,14 +46,12 @@ public class CRLRepository extends Repository {
     public static final String PROP_INCREMENT = "crldbInc";
 
     private final String mLdapCRLIssuingPointName = "cn";
-    private DBSubsystem dbSubsystem;
 
     /**
      * Constructs a CRL repository.
      */
     public CRLRepository(DBSubsystem dbSubsystem, int increment) throws EDBException {
         super(dbSubsystem, increment, "ou=crlIssuingPoints,ou=ca," + dbSubsystem.getBaseDN());
-        this.dbSubsystem = dbSubsystem;
 
         /*
         DBRegistry reg = dbService.getRegistry();
@@ -73,13 +71,6 @@ public class CRLRepository extends Repository {
         reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL,
                 new ByteArrayMapper(Schema.LDAP_ATTR_CRL));
         */
-    }
-
-    /**
-     * Retrieves backend database handle.
-     */
-    public DBSubsystem getDBSubsystem() {
-        return dbSubsystem;
     }
 
     /**
