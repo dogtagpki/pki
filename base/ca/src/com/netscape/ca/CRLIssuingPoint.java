@@ -3052,17 +3052,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
             splitTimes.append(String.format(",%d,%d,%d)",deltaTime,crlTime,totalTime));
 
-            logger.info(
-                CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATED"),
-                getId(),
-                getCRLNumber(),
-                getLastUpdate(),
-                getNextUpdate(),
-                Long.toString(mCRLSize),
-                Long.toString(totalTime),
-                Long.toString(crlTime),
-                Long.toString(deltaTime) + splitTimes
-            );
+            logger.debug("CRLIssuingPoint: - CRL number: " + mCRLNumber);
+            logger.debug("CRLIssuingPoint: - last update: " + mLastUpdate);
+            logger.debug("CRLIssuingPoint: - next update: " + mNextUpdate);
+            logger.debug("CRLIssuingPoint: - CRL size: " + mCRLSize);
+            logger.debug("CRLIssuingPoint: - total time: " + totalTime);
+            logger.debug("CRLIssuingPoint: - CRL time: " + crlTime);
+            logger.debug("CRLIssuingPoint: - delta CRL time: " + deltaTime + splitTimes);
 
             logger.debug("CRLIssuingPoint: Finished Logging CRL Update to transaction log");
 
