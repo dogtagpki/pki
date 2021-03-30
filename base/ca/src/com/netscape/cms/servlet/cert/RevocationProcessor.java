@@ -374,31 +374,31 @@ public class RevocationProcessor extends CertProcessor {
 
     public void processUnrevocationRequest() throws EBaseException {
 
+        logger.info("RevocationProcessor: Processing unrevocation request " + request.getRequestId());
+        logger.debug("RevocationProcessor: - initiative: " + initiative);
+
+        logger.debug("RevocationProcessor: - certs:");
+        for (X509CertImpl cert : certificates) {
+            logger.debug("RevocationProcessor:   - serial number: " + cert.getSerialNumber().toString(16));
+            logger.debug("RevocationProcessor:   - subject: " + cert.getSubjectDN());
+        }
+
         requestQueue.processRequest(request);
+
         requestStatus = request.getRequestStatus();
+        logger.debug("RevocationProcessor: - status: " + requestStatus);
 
         String type = request.getRequestType();
+        logger.debug("RevocationProcessor: - type: " + type);
 
         if (requestStatus == RequestStatus.COMPLETE
                 || requestStatus == RequestStatus.SVC_PENDING && type.equals(IRequest.CLA_UNCERT4CRL_REQUEST)) {
 
             Integer result = request.getExtDataInInteger(IRequest.RESULT);
 
-            if (result != null && result.equals(IRequest.RES_SUCCESS)) {
-                for (X509CertImpl cert : certificates) {
-                    logUnrevoke(request, cert, "completed");
-                }
-
-            } else {
+            if (result.equals(IRequest.RES_ERROR)) {
                 String error = request.getExtDataInString(IRequest.ERROR);
-                for (X509CertImpl cert : certificates) {
-                    logUnrevoke(request, cert, "completed with error: " + error);
-                }
-            }
-
-        } else {
-            for (X509CertImpl cert : certificates) {
-                logUnrevoke(request, cert, requestStatus.toString());
+                logger.debug("RevocationProcessor: - error: " + error);
             }
         }
     }
@@ -421,18 +421,6 @@ public class RevocationProcessor extends CertProcessor {
 
         // check whether it's a self-signed we certificate
         return caCert.getSubjectDN().equals(caCert.getIssuerDN());
-    }
-
-    public void logUnrevoke(IRequest unrevocationRequest, X509Certificate cert, String status) {
-
-        logger.info(
-                AuditFormat.DOUNREVOKEFORMAT,
-                unrevocationRequest.getRequestId(),
-                initiative,
-                status,
-                cert.getSubjectDN(),
-                cert.getSerialNumber().toString(16)
-        );
     }
 
     public void auditChangeRequest(String status) {
