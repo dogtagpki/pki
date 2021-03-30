@@ -43,7 +43,6 @@ public class RequestRepository extends Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRepository.class);
 
-    DBSubsystem dbSubsystem;
     IRequestQueue mRequestQueue = null;
 
     /**
@@ -56,14 +55,12 @@ public class RequestRepository extends Repository {
      * @param dbSubsystem
      *            the LDAP database system.
      */
-    public RequestRepository(String name, int increment, DBSubsystem dbSubsystem)
-            throws EDBException {
+    public RequestRepository(String name, int increment, DBSubsystem dbSubsystem) throws EDBException {
         super(dbSubsystem, increment, "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN());
 
         // Let RequestRecord class register its
         // database mapping and object mapping values
         RequestRecord.register(dbSubsystem);
-        this.dbSubsystem = dbSubsystem;
     }
 
     public void setRequestQueue(IRequestQueue requestQueue) {
@@ -83,8 +80,7 @@ public class RequestRepository extends Repository {
     public void removeAllObjects() throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
         try {
-            IDBSearchResults sr = s.search(getBaseDN(),
-                               "(" + RequestRecord.ATTR_REQUEST_ID + "=*)");
+            IDBSearchResults sr = s.search(mBaseDN, "(" + RequestRecord.ATTR_REQUEST_ID + "=*)");
             while (sr.hasMoreElements()) {
                 RequestRecord r = (RequestRecord) sr.nextElement();
                 String name = "cn" + "=" +
