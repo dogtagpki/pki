@@ -74,13 +74,6 @@ public class CRLRepository extends Repository {
     }
 
     /**
-     * Retrieves DN of this repository.
-     */
-    public String getDN() {
-        return mBaseDN;
-    }
-
-    /**
      * Removes all objects with this repository.
      */
     public void removeAllObjects() throws EBaseException {
@@ -97,8 +90,7 @@ public class CRLRepository extends Repository {
         DBSSession s = dbSubsystem.createSession();
 
         try {
-            String name = mLdapCRLIssuingPointName + "=" +
-                    ((CRLIssuingPointRecord) rec).getId().toString() + "," + getDN();
+            String name = mLdapCRLIssuingPointName + "=" + rec.getId() + "," + mBaseDN;
 
             s.add(name, rec);
         } finally {
@@ -118,7 +110,7 @@ public class CRLRepository extends Repository {
         try {
             String[] attrs = { ICRLIssuingPointRecord.ATTR_ID, "objectclass" };
             String filter = "objectclass=" + CRLIssuingPointRecord.class.getName();
-            IDBSearchResults res = s.search(getDN(), filter, attrs);
+            IDBSearchResults res = s.search(mBaseDN, filter, attrs);
             Vector<String> v = new Vector<String>();
             while (res.hasMoreElements()) {
                 ICRLIssuingPointRecord nextelement =
@@ -150,7 +142,7 @@ public class CRLRepository extends Repository {
         try {
             s = dbSubsystem.createSession();
 
-            String name = mLdapCRLIssuingPointName + "=" + id + "," + getDN();
+            String name = mLdapCRLIssuingPointName + "=" + id + "," + mBaseDN;
             rec = (CRLIssuingPointRecord) s.read(name);
 
         } finally {
@@ -172,8 +164,7 @@ public class CRLRepository extends Repository {
 
         try {
             s = dbSubsystem.createSession();
-            String name = mLdapCRLIssuingPointName + "=" + id +
-                    "," + getDN();
+            String name = mLdapCRLIssuingPointName + "=" + id + "," + mBaseDN;
 
             if (s != null)
                 s.delete(name);
@@ -195,8 +186,7 @@ public class CRLRepository extends Repository {
         DBSSession s = dbSubsystem.createSession();
 
         try {
-            String name = mLdapCRLIssuingPointName + "=" + id +
-                    "," + getDN();
+            String name = mLdapCRLIssuingPointName + "=" + id + "," + mBaseDN;
 
             if (s != null)
                 s.modify(name, mods);
