@@ -77,7 +77,6 @@ import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertStatusUpdateTask;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.dbs.RetrieveModificationsTask;
 import com.netscape.cmscore.dbs.SerialNumberUpdateTask;
@@ -1597,10 +1596,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         IConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID);
         int increment = caConfig.getInteger(CRLRepository.PROP_INCREMENT, 5);
 
-        crlRepository = new CRLRepository(
-                DBSubsystem.getInstance(),
-                increment,
-                "ou=crlIssuingPoints, ou=ca, " + dbSubsystem.getBaseDN());
+        crlRepository = new CRLRepository(dbSubsystem, increment);
     }
 
     public void initReplicaIDRepository() throws Exception {

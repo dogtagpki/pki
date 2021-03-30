@@ -47,15 +47,12 @@ public class CRLRepository extends Repository {
 
     private final String mLdapCRLIssuingPointName = "cn";
     private DBSubsystem dbSubsystem;
-    private String mBaseDN;
 
     /**
      * Constructs a CRL repository.
      */
-    public CRLRepository(DBSubsystem dbSubsystem, int increment, String baseDN)
-            throws EDBException {
-        super(dbSubsystem, increment, baseDN);
-        mBaseDN = baseDN;
+    public CRLRepository(DBSubsystem dbSubsystem, int increment) throws EDBException {
+        super(dbSubsystem, increment, "ou=crlIssuingPoints,ou=ca," + dbSubsystem.getBaseDN());
         this.dbSubsystem = dbSubsystem;
 
         /*
