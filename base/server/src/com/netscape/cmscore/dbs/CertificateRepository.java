@@ -581,13 +581,6 @@ public class CertificateRepository extends Repository {
     }
 
     /**
-     * Retrieves DN of this repository.
-     */
-    public String getDN() {
-        return mBaseDN;
-    }
-
-    /**
      * Adds a certificate record to the repository. Each certificate
      * record contains four parts: certificate, meta-attributes,
      * issue information and revocation information.
@@ -601,7 +594,7 @@ public class CertificateRepository extends Repository {
         DBSSession s = dbSubsystem.createSession();
 
         try {
-            String name = "cn" + "=" + record.getSerialNumber() + "," + getDN();
+            String name = "cn=" + record.getSerialNumber() + "," + mBaseDN;
             logger.info("CertificateRepository: Adding certificate record " + name);
 
             X509CertImpl x509cert = (X509CertImpl) record.get(CertRecord.ATTR_X509CERT);
@@ -661,8 +654,7 @@ public class CertificateRepository extends Repository {
         DBSSession s = dbSubsystem.createSession();
 
         try {
-            String name = "cn" + "=" +
-                    record.getSerialNumber().toString() + "," + getDN();
+            String name = "cn=" + record.getSerialNumber() + "," + mBaseDN;
 
             s.add(name, record);
         } finally {
@@ -706,8 +698,7 @@ public class CertificateRepository extends Repository {
         DBSSession s = dbSubsystem.createSession();
 
         try {
-            String name = "cn" + "=" +
-                    serialNo.toString() + "," + getDN();
+            String name = "cn=" + serialNo + "," + mBaseDN;
 
             s.delete(name);
         } finally {
@@ -729,8 +720,7 @@ public class CertificateRepository extends Repository {
         CertRecord rec = null;
 
         try {
-            String name = "cn" + "=" +
-                    serialNo.toString() + "," + getDN();
+            String name = "cn=" + serialNo + "," + mBaseDN;
 
             rec = (CertRecord) s.read(name);
         } finally {
@@ -747,8 +737,7 @@ public class CertificateRepository extends Repository {
         boolean exists = true;
 
         try {
-            String name = "cn" + "=" +
-                serialNo.toString() + "," + getDN();
+            String name = "cn=" + serialNo + "," + mBaseDN;
             String attrs[] = { "DN" };
 
             rec = (CertRecord) s.read(name, attrs);
@@ -771,9 +760,8 @@ public class CertificateRepository extends Repository {
         try {
             s = dbSubsystem.createSession();
             ModificationSet mods = new ModificationSet();
-            String name = getDN();
             mods.add(IRepositoryRecord.ATTR_DESCRIPTION, Modification.MOD_REPLACE, mode);
-            s.modify(name, mods);
+            s.modify(mBaseDN, mods);
         } catch (Exception e) {
             logger.warn("CertificateRepository: setCertificateRepositoryMode: " + e.getMessage(), e);
         }
@@ -796,8 +784,7 @@ public class CertificateRepository extends Repository {
         DBSSession s = dbSubsystem.createSession();
 
         try {
-            String name = "cn" + "=" +
-                    serialNo.toString() + "," + getDN();
+            String name = "cn=" + serialNo + "," + mBaseDN;
 
             mods.add(CertRecord.ATTR_MODIFY_TIME, Modification.MOD_REPLACE,
                     new Date());
@@ -951,7 +938,7 @@ public class CertificateRepository extends Repository {
 
         logger.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
         try {
-            e = s.search(getDN(), filter, maxSize,sortAttribute);
+            e = s.search(mBaseDN, filter, maxSize,sortAttribute);
         } finally {
             if (s != null)
                 s.close();
@@ -995,7 +982,7 @@ public class CertificateRepository extends Repository {
 
         logger.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
         try {
-            e = s.search(getDN(), filter, maxSize);
+            e = s.search(mBaseDN, filter, maxSize);
         } finally {
             if (s != null)
                 s.close();
@@ -1020,7 +1007,7 @@ public class CertificateRepository extends Repository {
 
         logger.debug("searchCertificateswith time limit filter " + filter);
         try {
-            IDBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit);
+            IDBSearchResults sr = s.search(mBaseDN, filter, maxSize, timeLimit);
             while (sr.hasMoreElements()) {
                 v.add((CertRecord) sr.nextElement());
             }
@@ -1049,7 +1036,7 @@ public class CertificateRepository extends Repository {
 
         logger.debug("searchCertificateswith time limit filter " + filter);
         try {
-            IDBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit,sortAttribute);
+            IDBSearchResults sr = s.search(mBaseDN, filter, maxSize, timeLimit,sortAttribute);
             while (sr.hasMoreElements()) {
                 v.add((CertRecord) sr.nextElement());
             }
@@ -1077,7 +1064,7 @@ public class CertificateRepository extends Repository {
         DBSSession s = dbSubsystem.createSession();
         Enumeration<Object> e = null;
         try {
-            e = s.search(getDN(), filter);
+            e = s.search(mBaseDN, filter);
         } finally {
             if (s != null)
                 s.close();
@@ -1093,7 +1080,7 @@ public class CertificateRepository extends Repository {
         DBSSession s = dbSubsystem.createSession();
         Enumeration<Object> e = null;
         try {
-            e = s.search(getDN(), filter, attrs);
+            e = s.search(mBaseDN, filter, attrs);
         } finally {
             if (s != null)
                 s.close();
@@ -1205,7 +1192,7 @@ public class CertificateRepository extends Repository {
 
         try {
             IDBVirtualList<CertRecord> list = session.<CertRecord>createVirtualList(
-                    getDN(),
+                    mBaseDN,
                     filter,
                     attrs,
                     sortKey,
@@ -1275,8 +1262,13 @@ public class CertificateRepository extends Repository {
                 }
             }
 
-            IDBVirtualList<CertRecord> vlist = s.createVirtualList(getDN(), filter,
-                    attrs, jumpToVal, sortKey, pageSize);
+            IDBVirtualList<CertRecord> vlist = s.createVirtualList(
+                    mBaseDN,
+                    filter,
+                    attrs,
+                    jumpToVal,
+                    sortKey,
+                    pageSize);
 
             list = new CertRecordList(vlist);
         } finally {
@@ -1308,8 +1300,13 @@ public class CertificateRepository extends Repository {
 
         try {
 
-            IDBVirtualList<CertRecord> vlist = s.createVirtualList(getDN(), filter,
-                    attrs, jumpTo, sortKey, pageSize);
+            IDBVirtualList<CertRecord> vlist = s.createVirtualList(
+                    mBaseDN,
+                    filter,
+                    attrs,
+                    jumpTo,
+                    sortKey,
+                    pageSize);
 
             list = new CertRecordList(vlist);
         } finally {
@@ -1370,8 +1367,7 @@ public class CertificateRepository extends Repository {
         DBSSession s = dbSubsystem.createSession();
 
         try {
-            String name = "cn" + "=" + serialno +
-                    "," + getDN();
+            String name = "cn=" + serialno + "," + mBaseDN;
             ModificationSet mods = new ModificationSet();
 
             mods.add(CertRecord.ATTR_AUTO_RENEW, Modification.MOD_REPLACE,
@@ -2156,7 +2152,7 @@ public class CertificateRepository extends Repository {
     LDAPSearchResults searchForModifiedCertificateRecords(DBSSession session) throws EBaseException {
         logger.debug("Starting persistent search.");
         String filter = "(" + CertRecord.ATTR_CERT_STATUS + "=*)";
-        return session.persistentSearch(getDN(), filter, null);
+        return session.persistentSearch(mBaseDN, filter, null);
     }
 
     /**
