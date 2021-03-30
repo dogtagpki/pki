@@ -36,17 +36,11 @@ public class ReplicaIDRepository extends Repository
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ReplicaIDRepository.class);
 
-    public static final String PROP_REPLICAID_DN = "dbs.replicadn";
-
-    private String mBaseDN;
-
     /**
      * Constructs a certificate repository.
      */
-    public ReplicaIDRepository(DBSubsystem dbSubsystem, int increment, String baseDN)
-            throws EDBException {
-        super(dbSubsystem, increment, baseDN);
-        mBaseDN = baseDN;
+    public ReplicaIDRepository(DBSubsystem dbSubsystem, int increment) throws EDBException {
+        super(dbSubsystem, increment, "ou=Replica," + dbSubsystem.getBaseDN());
     }
 
     /**
@@ -65,12 +59,5 @@ public class ReplicaIDRepository extends Repository
             return null;
         }
         return ret;
-    }
-
-    /**
-     * Retrieves DN of this repository.
-     */
-    public String getDN() {
-        return mBaseDN;
     }
 }

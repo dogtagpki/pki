@@ -1603,14 +1603,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         logger.info("CAEngine: Initializing replica ID repository");
 
-        IConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID);
-
-        String replicaReposDN = caConfig.getString(ReplicaIDRepository.PROP_REPLICAID_DN, null);
-        if (replicaReposDN == null) {
-            replicaReposDN = "ou=Replica," + dbSubsystem.getBaseDN();
-        }
-
-        replicaIDRepository = new ReplicaIDRepository(dbSubsystem, 1, replicaReposDN);
+        replicaIDRepository = new ReplicaIDRepository(dbSubsystem, 1);
     }
 
     public void init() throws Exception {

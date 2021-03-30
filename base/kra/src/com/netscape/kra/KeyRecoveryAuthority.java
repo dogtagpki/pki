@@ -122,7 +122,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     private static final String PARAM_ERROR = "error";
 
     private final static String KEY_RESP_NAME = "keyRepository";
-    private static final String PROP_REPLICAID_DN = "dbs.replicadn";
 
     protected boolean mInitialized = false;
     protected KRAConfig mConfig;
@@ -427,13 +426,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         }
         initNotificationListeners();
 
-        String replicaReposDN = mConfig.getString(PROP_REPLICAID_DN, null);
-        if (replicaReposDN == null) {
-            replicaReposDN = "ou=Replica," + dbSubsystem.getBaseDN();
-        }
-
-        mReplicaRepot = new ReplicaIDRepository(
-                dbSubsystem, 1, replicaReposDN);
+        mReplicaRepot = new ReplicaIDRepository(dbSubsystem, 1);
         logger.debug("Replica Repot inited");
 
     }
