@@ -2164,45 +2164,62 @@ public class CertificateRepository extends Repository {
      */
     public RevocationInfo isCertificateRevoked(X509CertImpl cert)
             throws EBaseException {
-        RevocationInfo info = null;
 
         // 615932
-        if (cert == null)
+        if (cert == null) {
+            logger.warn("CertificateRepository: Missing certificate");
             return null;
+        }
 
+        logger.info("CertificateRepository: Checking revocation status for cert " + cert.getSerialNumber());
         CertRecord rec = readCertificateRecord(cert.getSerialNumber());
 
-        if (rec != null) {
-            if (rec.getStatus().equals(CertRecord.STATUS_REVOKED)) {
-                X500Name name = (X500Name) cert.getSubjectDN();
-                X500Name repCertName = (X500Name) rec.getCertificate().getSubjectDN();
+        if (rec == null) {
+            logger.info("CertificateRepository: Unknown certificate");
+            return null;
+        }
 
-                if (name.equals(repCertName)) {
-                    byte[] certEncoded = null;
-                    byte[] repCertEncoded = null;
+        if (!rec.getStatus().equals(CertRecord.STATUS_REVOKED)) {
+            logger.info("CertificateRepository: Certificate not revoked");
+            return null;
+        }
 
-                    try {
-                        certEncoded = cert.getEncoded();
-                        repCertEncoded = rec.getCertificate().getEncoded();
-                    } catch (Exception e) {
-                    }
+        X500Name name = (X500Name) cert.getSubjectDN();
+        X500Name repCertName = (X500Name) rec.getCertificate().getSubjectDN();
 
-                    if (certEncoded != null &&
-                            repCertEncoded != null &&
-                            certEncoded.length == repCertEncoded.length) {
-                        int i;
+        if (!name.equals(repCertName)) {
+            logger.info("CertificateRepository: Certificate subjects do not match");
+            return null;
+        }
 
-                        for (i = 0; i < certEncoded.length; i++) {
-                            if (certEncoded[i] != repCertEncoded[i])
-                                break;
-                        }
-                        if (i >= certEncoded.length) {
-                            info = (RevocationInfo) rec.getRevocationInfo();
-                        }
-                    }
-                }
+        byte[] certEncoded = null;
+        byte[] repCertEncoded = null;
+
+        try {
+            certEncoded = cert.getEncoded();
+            repCertEncoded = rec.getCertificate().getEncoded();
+        } catch (Exception e) {
+            logger.warn("Unable to parse certificate: " + e.getMessage(), e);
+        }
+
+        if (certEncoded == null || repCertEncoded == null) {
+            return null;
+        }
+
+        if (certEncoded.length != repCertEncoded.length) {
+            logger.info("CertificateRepository: Certificate lengths do not match");
+            return null;
+        }
+
+        for (int i = 0; i < certEncoded.length; i++) {
+            if (certEncoded[i] != repCertEncoded[i]) {
+                logger.info("CertificateRepository: Certificate data do not match");
+                return null;
             }
         }
+
+        RevocationInfo info = (RevocationInfo) rec.getRevocationInfo();
+        logger.info("CertificateRepository: - revocation date: " + info.getRevocationDate());
 
         return info;
     }
