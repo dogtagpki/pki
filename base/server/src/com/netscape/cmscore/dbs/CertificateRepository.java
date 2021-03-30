@@ -85,7 +85,6 @@ public class CertificateRepository extends Repository {
 
     private DBSubsystem dbSubsystem;
     private String mBaseDN;
-    private String mRequestBaseDN;
     private boolean mConsistencyCheck = false;
 
     private int mBitLength = 0;
@@ -592,14 +591,6 @@ public class CertificateRepository extends Repository {
      */
     public String getDN() {
         return mBaseDN;
-    }
-
-    public void setRequestDN(String requestDN) {
-        mRequestBaseDN = requestDN;
-    }
-
-    public String getRequestDN() {
-        return mRequestBaseDN;
     }
 
     /**
