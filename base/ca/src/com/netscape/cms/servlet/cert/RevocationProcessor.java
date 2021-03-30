@@ -311,12 +311,23 @@ public class RevocationProcessor extends CertProcessor {
 
     public void processRevocationRequest() throws EBaseException {
 
-        requestQueue.processRequest(request);
-        requestStatus = request.getRequestStatus();
+        logger.info("RevocationProcessor: Processing revocation request " + request.getRequestId());
+        logger.debug("RevocationProcessor: - initiative: " + initiative);
+        logger.debug("RevocationProcessor: - reason: " + revocationReason);
 
-        logger.debug("revokeCert: status: " + requestStatus);
+        logger.debug("RevocationProcessor: - certs:");
+        for (X509CertImpl cert : certificates) {
+            logger.debug("RevocationProcessor:   - serial number: " + cert.getSerialNumber().toString(16));
+            logger.debug("RevocationProcessor:   - subject: " + cert.getSubjectDN());
+        }
+
+        requestQueue.processRequest(request);
+
+        requestStatus = request.getRequestStatus();
+        logger.debug("RevocationProcessor: - status: " + requestStatus);
 
         String type = request.getRequestType();
+        logger.debug("RevocationProcessor: - type: " + type);
 
         // The SVC_PENDING check has been added for the Cloned CA request
         // that is meant for the Master CA. From Clone's point of view
@@ -334,13 +345,8 @@ public class RevocationProcessor extends CertProcessor {
 
                 if (svcErrors != null) {
                     for (String err : svcErrors) {
+                        logger.debug("RevocationProcessor: - error: " + err);
                         //cmsReq.setErrorDescription(err);
-                        for (X509CertImpl cert : certificates) {
-                            logRevoke(
-                                    request, cert,
-                                    "completed with error: " + err,
-                                    revocationReason.toString());
-                        }
                     }
                 }
 
@@ -348,22 +354,7 @@ public class RevocationProcessor extends CertProcessor {
             }
 
             long endTime = new Date().getTime();
-
-            // audit log the success.
-            for (X509CertImpl cert : certificates) {
-                logRevoke(request, cert,
-                        "completed",
-                        revocationReason + " time: " + (endTime - startTime));
-            }
-
-        } else {
-
-            // audit log the pending, revoked and rest
-            for (X509CertImpl cert : certificates) {
-                logRevoke(request, cert,
-                        requestStatus.toString(),
-                        revocationReason.toString());
-            }
+            logger.debug("RevocationProcessor: - time: " + (endTime - startTime));
         }
     }
 
@@ -430,19 +421,6 @@ public class RevocationProcessor extends CertProcessor {
 
         // check whether it's a self-signed we certificate
         return caCert.getSubjectDN().equals(caCert.getIssuerDN());
-    }
-
-    public void logRevoke(IRequest revocationRequest, X509Certificate cert, String status, String message) {
-
-        logger.info(
-                AuditFormat.DOREVOKEFORMAT,
-                revocationRequest.getRequestId(),
-                initiative,
-                status,
-                cert.getSubjectDN(),
-                cert.getSerialNumber().toString(16),
-                message
-        );
     }
 
     public void logUnrevoke(IRequest unrevocationRequest, X509Certificate cert, String status) {
