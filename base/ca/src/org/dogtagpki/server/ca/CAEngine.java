@@ -79,7 +79,6 @@ import com.netscape.cmscore.dbs.CertStatusUpdateTask;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
-import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.dbs.RetrieveModificationsTask;
 import com.netscape.cmscore.dbs.SerialNumberUpdateTask;
 import com.netscape.cmscore.ldap.PublisherProcessor;
@@ -1588,23 +1587,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         int increment = caConfig.getInteger(CertificateRepository.PROP_INCREMENT, 5);
         logger.info("CAEngine: - increment: " + increment);
 
-        String certRepoBaseDN = caConfig.getString(CertificateRepository.PROP_CERT_BASE_DN, null);
-        if (certRepoBaseDN == null) {
-            certRepoBaseDN = "ou=certificateRepository, ou=ca, " + dbSubsystem.getBaseDN();
-        }
-        logger.info("CAEngine: - cert repo base DN: " + certRepoBaseDN);
-
-        String reposBaseDN = caConfig.getString(Repository.PROP_BASE_DN, null);
-        if (reposBaseDN == null) {
-            reposBaseDN = "ou=certificateRepository, ou=ca, " + dbSubsystem.getBaseDN();
-        }
-        logger.info("CAEngine: - repo base DN: " + reposBaseDN);
-
-        certificateRepository = new CertificateRepository(
-                dbSubsystem,
-                certRepoBaseDN,
-                increment,
-                reposBaseDN);
+        certificateRepository = new CertificateRepository(dbSubsystem, increment);
     }
 
     public void initCrlDatabase() throws Exception {

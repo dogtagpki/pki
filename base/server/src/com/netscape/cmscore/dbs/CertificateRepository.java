@@ -68,7 +68,6 @@ public class CertificateRepository extends Repository {
     public final static int ALL_UNREVOKED_CERTS = 2;
 
     public final static String PROP_INCREMENT = "certdbInc";
-    public final static String PROP_CERT_BASE_DN = "CertificateRepositoryDN";
     public final static String PROP_TRANS_MAXRECORDS = "transitMaxRecords";
     public final static String PROP_TRANS_PAGESIZE = "transitRecordPageSize";
 
@@ -84,7 +83,6 @@ public class CertificateRepository extends Repository {
     private static final BigInteger BI_MINUS_ONE = (BigInteger.ZERO).subtract(BigInteger.ONE);
 
     private DBSubsystem dbSubsystem;
-    private String mBaseDN;
     private boolean mConsistencyCheck = false;
 
     private int mBitLength = 0;
@@ -98,10 +96,8 @@ public class CertificateRepository extends Repository {
     /**
      * Constructs a certificate repository.
      */
-    public CertificateRepository(DBSubsystem dbSubsystem, String certRepoBaseDN, int increment, String baseDN)
-            throws EDBException {
-        super(dbSubsystem, increment, baseDN);
-        mBaseDN = certRepoBaseDN;
+    public CertificateRepository(DBSubsystem dbSubsystem, int increment) throws EDBException {
+        super(dbSubsystem, increment, "ou=certificateRepository,ou=ca," + dbSubsystem.getBaseDN());
         this.dbSubsystem = dbSubsystem;
         mDBConfig = dbSubsystem.getDBConfigStore();
     }
