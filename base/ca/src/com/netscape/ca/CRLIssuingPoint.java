@@ -2903,16 +2903,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
             splitTimes.append(")");
 
-            logger.info(
-                CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
-                getId(),
-                getNextCRLNumber(),
-                getCRLNumber(),
-                getLastUpdate(),
-                getNextDeltaUpdate(),
-                Long.toString(mDeltaCRLSize),
-                Long.toString(totalTime) + splitTimes.toString()
-            );
+            logger.debug("CRLIssuingPoint: - delta CRL number: " + mNextDeltaCRLNumber);
+            logger.debug("CRLIssuingPoint: - against CRL number: " + mCRLNumber);
+            logger.debug("CRLIssuingPoint: - last update: " + mLastUpdate);
+            logger.debug("CRLIssuingPoint: - next update: " + mNextDeltaUpdate);
+            logger.debug("CRLIssuingPoint: - delta CRL size: " + mDeltaCRLSize);
+            logger.debug("CRLIssuingPoint: - total time: " + totalTime + splitTimes);
 
             signedAuditLogger.log(DeltaCRLGenerationEvent.createSuccessEvent(
                     getAuditSubjectID(),
