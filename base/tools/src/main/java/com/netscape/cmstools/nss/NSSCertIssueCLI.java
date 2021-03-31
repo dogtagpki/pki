@@ -70,7 +70,7 @@ public class NSSCertIssueCLI extends CommandCLI {
         String csrFile = cmd.getOptionValue("csr");
         String extConf = cmd.getOptionValue("ext");
         String serialNumber = cmd.getOptionValue("serial");
-        String monthsValid = cmd.getOptionValue("months-valid");
+        String monthsValid = cmd.getOptionValue("months-valid", "3");
 
         if (csrFile == null) {
             throw new Exception("Missing certificate signing request");
@@ -109,7 +109,7 @@ public class NSSCertIssueCLI extends CommandCLI {
                 issuer,
                 pkcs10,
                 serialNumber,
-                monthsValid == null ? null : new Integer(monthsValid),
+                new Integer(monthsValid),
                 extensions);
 
         String format = cmd.getOptionValue("format");

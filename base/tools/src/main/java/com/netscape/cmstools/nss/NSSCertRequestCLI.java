@@ -45,7 +45,7 @@ public class NSSCertRequestCLI extends CommandCLI {
         option.setArgName("type");
         options.addOption(option);
 
-        option = new Option(null, "key-size", true, "RSA key size (default is 2048)");
+        option = new Option(null, "key-size", true, "RSA key size (default: 2048)");
         option.setArgName("size");
         options.addOption(option);
 
@@ -53,7 +53,7 @@ public class NSSCertRequestCLI extends CommandCLI {
         option.setArgName("name");
         options.addOption(option);
 
-        option = new Option(null, "hash", true, "Hash algorithm");
+        option = new Option(null, "hash", true, "Hash algorithm (default: SHA256)");
         option.setArgName("name");
         options.addOption(option);
 
@@ -74,10 +74,10 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         String subject = cmd.getOptionValue("subject");
         String keyID = cmd.getOptionValue("key-id");
-        String keyType = cmd.getOptionValue("key-type");
-        String keySize = cmd.getOptionValue("key-size");
+        String keyType = cmd.getOptionValue("key-type", "RSA");
+        String keySize = cmd.getOptionValue("key-size", "2048");
         String curve = cmd.getOptionValue("curve");
-        String hash = cmd.getOptionValue("hash");
+        String hash = cmd.getOptionValue("hash", "SHA256");
         String extConf = cmd.getOptionValue("ext");
 
         if (subject == null) {
