@@ -55,6 +55,10 @@ public class NSSCertIssueCLI extends CommandCLI {
         option.setArgName("months");
         options.addOption(option);
 
+        option = new Option(null, "hash", true, "Serial number (default is SHA256)");
+        option.setArgName("hash");
+        options.addOption(option);
+
         option = new Option(null, "cert", true, "Certificate");
         option.setArgName("path");
         options.addOption(option);
@@ -71,6 +75,7 @@ public class NSSCertIssueCLI extends CommandCLI {
         String extConf = cmd.getOptionValue("ext");
         String serialNumber = cmd.getOptionValue("serial");
         String monthsValid = cmd.getOptionValue("months-valid", "3");
+        String hash = cmd.getOptionValue("hash", "SHA256");
 
         if (csrFile == null) {
             throw new Exception("Missing certificate signing request");
@@ -110,6 +115,7 @@ public class NSSCertIssueCLI extends CommandCLI {
                 pkcs10,
                 serialNumber,
                 new Integer(monthsValid),
+                hash,
                 extensions);
 
         String format = cmd.getOptionValue("format");

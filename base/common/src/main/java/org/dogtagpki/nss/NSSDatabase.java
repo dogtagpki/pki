@@ -1055,6 +1055,7 @@ public class NSSDatabase {
             org.mozilla.jss.crypto.X509Certificate issuer,
             PKCS10 pkcs10,
             Integer monthsValid,
+            String hash,
             Extensions extensions) throws Exception {
 
         return createCertificate(
@@ -1062,6 +1063,7 @@ public class NSSDatabase {
                 pkcs10,
                 null, // serial number
                 monthsValid,
+                hash,
                 extensions);
     }
 
@@ -1070,6 +1072,7 @@ public class NSSDatabase {
             PKCS10 pkcs10,
             String serialNumber,
             Integer monthsValid,
+            String hash,
             Extensions extensions) throws Exception {
 
         return createCertificate(
@@ -1078,6 +1081,7 @@ public class NSSDatabase {
                 pkcs10,
                 null, // serial number
                 monthsValid,
+                hash,
                 extensions);
     }
 
@@ -1087,6 +1091,7 @@ public class NSSDatabase {
             PKCS10 pkcs10,
             String serialNumber,
             Integer monthsValid,
+            String hash,
             Extensions extensions) throws Exception {
 
         Path tmpDir = null;
@@ -1126,6 +1131,11 @@ public class NSSDatabase {
                     cmd.add("-f");
                     cmd.add(passwordPath.toString());
                 }
+            }
+
+            if (hash != null) {
+                cmd.add("-Z");
+                cmd.add(hash);
             }
 
             if (issuer == null) {

@@ -43,6 +43,7 @@ public class NSSIssuer extends ACMEIssuer {
 
     NSSExtensionGenerator extGenerator;
     Integer monthsValid;
+    String hash;
 
     public void init() throws Exception {
 
@@ -78,8 +79,13 @@ public class NSSIssuer extends ACMEIssuer {
         String monthsValid = config.getParameter("monthsValid");
         if (monthsValid != null) {
             logger.info("- months valid: " + monthsValid);
-
             this.monthsValid = new Integer(monthsValid);
+        }
+
+        String hash = config.getParameter("hash");
+        if (hash != null) {
+            logger.info("- hash: " + hash);
+            this.hash = hash;
         }
 
         String extensions = config.getParameter("extensions");
@@ -108,6 +114,7 @@ public class NSSIssuer extends ACMEIssuer {
                 issuer,
                 pkcs10,
                 monthsValid,
+                hash,
                 extensions);
 
         BigInteger serialNumber = cert.getSerialNumber();
