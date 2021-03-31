@@ -68,7 +68,8 @@ public class CAConfigurator extends Configurator {
             X509CertInfo info,
             X509Key x509key,
             String[] sanHostnames,
-            boolean installAdjustValidity)
+            boolean installAdjustValidity,
+            CertificateExtensions extensions)
             throws Exception {
 
         // just need a request, no need to get into a queue
@@ -82,7 +83,7 @@ public class CAConfigurator extends Configurator {
         request.setExtData("req_seq_num", "0");
 
         request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
-        request.setExtData(EnrollProfile.REQUEST_EXTENSIONS, new CertificateExtensions());
+        request.setExtData(EnrollProfile.REQUEST_EXTENSIONS, extensions);
 
         request.setExtData("requesttype", "enrollment");
         request.setExtData("requestor_name", "");
@@ -239,13 +240,16 @@ public class CAConfigurator extends Configurator {
         IRequestQueue queue = engine.getRequestQueue();
         IRequest req = queue.newRequest("enrollment");
 
+        CertificateExtensions extensions = new CertificateExtensions();
+
         initCertRequest(
                 req,
                 profile,
                 info,
                 x509key,
                 dnsNames,
-                installAdjustValidity);
+                installAdjustValidity,
+                extensions);
 
         createCertRecord(req, profile, cert);
 
@@ -279,7 +283,15 @@ public class CAConfigurator extends Configurator {
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
 
-        X509CertInfo info = ca.createCertInfo(dn, issuerDN, keyAlgorithm, x509key, certType);
+        CertificateExtensions extensions = new CertificateExtensions();
+
+        X509CertInfo info = ca.createCertInfo(
+                dn,
+                issuerDN,
+                keyAlgorithm,
+                x509key,
+                certType,
+                extensions);
         logger.info("CAConfigurator: Cert info:\n" + info);
 
         String instanceRoot = cs.getInstanceDir();
@@ -297,7 +309,8 @@ public class CAConfigurator extends Configurator {
                 info,
                 x509key,
                 dnsNames,
-                installAdjustValidity);
+                installAdjustValidity,
+                extensions);
 
         profile.populate(req, info);
 

@@ -77,6 +77,7 @@ import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
@@ -947,7 +948,8 @@ public class CertificateAuthority
             String issuerDN,
             String keyAlgorithm,
             X509Key x509key,
-            String certType) throws Exception {
+            String certType,
+            CertificateExtensions extensions) throws Exception {
 
         logger.info("CertificateAuthority: Creating certificate info for " + subjectDN);
 
@@ -962,17 +964,41 @@ public class CertificateAuthority
         if (certType.equals("selfsign")) {
             logger.debug("CertificateAuthority: Creating new CertificateIssuerName for self-signed cert");
             CertificateIssuerName issuerName = new CertificateIssuerName(new X500Name(subjectDN));
-            return CryptoUtil.createX509CertInfo(x509key, serialNo, issuerName, subjectDN, date, date, keyAlgorithm);
+            return CryptoUtil.createX509CertInfo(
+                    x509key,
+                    serialNo,
+                    issuerName,
+                    subjectDN,
+                    date,
+                    date,
+                    keyAlgorithm,
+                    extensions);
         }
 
         if (mIssuerObj != null) {
             logger.debug("CertificateAuthority: Reusing CA's CertificateIssuerName to preserve the DN encoding for CA-signed cert");
-            return CryptoUtil.createX509CertInfo(x509key, serialNo, mIssuerObj, subjectDN, date, date, keyAlgorithm);
+            return CryptoUtil.createX509CertInfo(
+                    x509key,
+                    serialNo,
+                    mIssuerObj,
+                    subjectDN,
+                    date,
+                    date,
+                    keyAlgorithm,
+                    extensions);
         }
 
         logger.debug("CertificateAuthority: Creating new CertificateIssuerName for CA-signed cert");
         CertificateIssuerName issuerName = new CertificateIssuerName(new X500Name(issuerDN));
-        return CryptoUtil.createX509CertInfo(x509key, serialNo, issuerName, subjectDN, date, date, keyAlgorithm);
+        return CryptoUtil.createX509CertInfo(
+                x509key,
+                serialNo,
+                issuerName,
+                subjectDN,
+                date,
+                date,
+                keyAlgorithm,
+                extensions);
     }
 
     /**

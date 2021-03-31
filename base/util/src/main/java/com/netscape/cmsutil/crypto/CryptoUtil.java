@@ -1178,7 +1178,8 @@ public class CryptoUtil {
             String subjname,
             Date notBefore,
             Date notAfter,
-            String alg)
+            String alg,
+            CertificateExtensions extensions)
             throws IOException,
             CertificateException,
             InvalidKeyException,
@@ -1197,7 +1198,7 @@ public class CryptoUtil {
         info.set(X509CertInfo.VALIDITY, new CertificateValidity(notBefore, notAfter));
         info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get(alg)));
         info.set(X509CertInfo.KEY, new CertificateX509Key(x509key));
-        info.set(X509CertInfo.EXTENSIONS, new CertificateExtensions());
+        info.set(X509CertInfo.EXTENSIONS, extensions);
 
         return info;
     }
