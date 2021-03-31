@@ -119,6 +119,37 @@ jobs:
           echo "CTu,Cu,Cu" > expected
           diff actual expected
 
+      # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
+      - name: Generate SSL server cert request
+        run: |
+          pki nss-cert-request \
+              --subject "CN=pki.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr sslserver.csr
+          openssl req -text -noout -in sslserver.csr
+
+      # https://github.com/dogtagpki/pki/wiki/Issuing-SSL-Server-Certificate-with-PKI-NSS
+      - name: Issue SSL server cert
+        run: |
+          pki nss-cert-issue \
+              --issuer ca_signing \
+              --csr sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert sslserver.crt
+          openssl x509 -text -noout -in sslserver.crt
+
+      - name: Import SSL server cert
+        run: |
+          pki nss-cert-import \
+              --cert sslserver.crt \
+              sslserver
+
+      - name: Verify SSL server cert trust flags
+        run: |
+          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' > actual
+          echo "u,u,u" > expected
+          diff actual expected
+
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-hsm-test:
     name: PKI NSS CLI with HSM
