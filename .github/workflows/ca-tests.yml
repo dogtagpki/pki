@@ -76,7 +76,11 @@ jobs:
         run: docker exec pki ${PKIDIR}/ci/ds-create.sh
 
       - name: Install CA
-        run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+        run: |
+          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+          # set buffer size to 0 so that revocation takes effect immediately
+          docker exec pki pki-server ca-config-set auths.revocationChecking.bufferSize 0
+          docker exec pki pki-server restart --wait
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
@@ -98,6 +102,31 @@ jobs:
           docker exec pki pki -n caadmin ca-user-membership-add caagent "Certificate Manager Agents"
           # test the username and password
           docker exec pki pki -u caagent -w Secret.123 ca-cert-request-find
+
+      - name: Verify creating and revoking CA agent cert
+        run: |
+          # submit a cert request and capture the request ID
+          docker exec pki pki client-cert-request uid=caagent | sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" > request_id
+          # approve the cert request and capture the cert ID
+          docker exec pki pki -n caadmin ca-cert-request-approve `cat request_id` --force | sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" > cert_id
+          # assign the cert to the user
+          docker exec pki pki -n caadmin ca-user-cert-add caagent --serial `cat cert_id`
+          # import the cert into client
+          docker exec pki pki client-cert-import caagent --serial `cat cert_id`
+          # test the client certificate
+          docker exec pki pki -n caagent ca-cert-request-find
+
+          # revoke the cert
+          docker exec pki pki -n caadmin ca-cert-hold `cat cert_id` --force
+          # revoked cert should not work
+          docker exec pki pki -n caagent ca-cert-request-find || echo $? > actual
+          echo 255 > expected
+          diff actual expected
+
+          # unrevoke the cert
+          docker exec pki pki -n caadmin ca-cert-release-hold `cat cert_id` --force
+          # unrevoked cert should work again
+          docker exec pki pki -n caagent ca-cert-request-find
 
       - name: Gather artifacts
         if: always()
