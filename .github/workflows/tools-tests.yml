@@ -88,19 +88,23 @@ jobs:
           dnf copr enable -y $COPR_REPO
           dnf -y localinstall build/RPMS/*
 
+      # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
       - name: Generate CA signing cert request
         run: |
           pki nss-cert-request \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
+          openssl req -text -noout -in ca_signing.csr
 
+      # https://github.com/dogtagpki/pki/wiki/Issuing-CA-Signing-Certificate-with-PKI-NSS
       - name: Issue self-signed CA signing cert
         run: |
           pki nss-cert-issue \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
+          openssl x509 -text -noout -in ca_signing.crt
 
       - name: Import CA signing cert
         run: |
@@ -109,11 +113,11 @@ jobs:
               --trust CT,C,C \
               ca_signing
 
-      - name: Verify trust flags
+      - name: Verify CA signing cert trust flags
         run: |
-          echo "CTu,Cu,Cu" > flags1
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^ca_signing *\(\S\+\)/\1/p' > flags2
-          diff flags1 flags2
+          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' > actual
+          echo "CTu,Cu,Cu" > expected
+          diff actual expected
 
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-hsm-test:
@@ -149,6 +153,7 @@ jobs:
               --free
           softhsm2-util --show-slots
 
+      # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
       - name: Generate CA signing cert request with key in HSM
         run: |
           echo "internal=" > password.conf
@@ -157,13 +162,16 @@ jobs:
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
+          openssl req -text -noout -in ca_signing.csr
 
+      # https://github.com/dogtagpki/pki/wiki/Issuing-CA-Signing-Certificate-with-PKI-NSS
       - name: Issue self-signed CA signing cert
         run: |
           pki --token HSM -f password.conf nss-cert-issue \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
+          openssl x509 -text -noout -in ca_signing.crt
 
       - name: Import CA signing cert into internal token and HSM
         run: |
@@ -172,18 +180,18 @@ jobs:
               --trust CT,C,C \
               ca_signing
 
-      - name: Verify trust flags in internal token
+      - name: Verify CA signing cert trust flags in internal token
         run: |
-          echo "CT,C,C" > flags.internal1
-          echo "Secret.123" > password.txt
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^ca_signing *\(\S\+\)/\1/p' > flags.internal2
-          diff flags.internal1 flags.internal2
+          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' > actual
+          echo "CT,C,C" > expected
+          diff actual expected
 
-      - name: Verify trust flags in HSM
+      - name: Verify CA signing cert trust flags in HSM
         run: |
-          echo "CTu,Cu,Cu" > flags.hsm1
-          certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | sed -n 's/^HSM:ca_signing *\(\S\+\)/\1/p' > flags.hsm2
-          diff flags.hsm1 flags.hsm2
+          echo "Secret.123" > password.txt
+          certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | sed -n 's/^HSM:ca_signing\s*\(\S\+\)\s*$/\1/p' > actual
+          echo "CTu,Cu,Cu" > expected
+          diff actual expected
 
       - name: Remove HSM token
         run: softhsm2-util --delete-token --token HSM
