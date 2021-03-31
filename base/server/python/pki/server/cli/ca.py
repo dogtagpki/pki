@@ -67,9 +67,73 @@ class CACertCLI(pki.cli.CLI):
         super(CACertCLI, self).__init__(
             'cert', 'CA certificates management commands')
 
+        self.add_module(CACertFindCLI())
         self.add_module(CACertRemoveCLI())
         self.add_module(CACertChainCLI())
         self.add_module(CACertRequestCLI())
+
+
+class CACertFindCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(CACertFindCLI, self).__init__(
+            'find', 'Find certificates in CA')
+
+    def print_help(self):
+        print('Usage: pki-server ca-cert-find [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('ca')
+        if not subsystem:
+            logger.error('No CA subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        subsystem.find_certs()
 
 
 class CACertRemoveCLI(pki.cli.CLI):

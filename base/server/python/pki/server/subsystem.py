@@ -1675,6 +1675,18 @@ class CASubsystem(PKISubsystem):
 
         self.run(cmd, as_current_user=as_current_user)
 
+    def find_certs(self, as_current_user=False):
+
+        cmd = ['ca-cert-find']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def remove_cert(self, serial_number, as_current_user=False):
 
         cmd = ['ca-cert-del']
