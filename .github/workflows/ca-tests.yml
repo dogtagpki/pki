@@ -90,6 +90,15 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec pki pki -n caadmin ca-user-show caadmin
 
+      - name: Verify creating CA agent
+        run: |
+          # create a user
+          docker exec pki pki -n caadmin ca-user-add caagent --fullName "CA Agent" --password Secret.123
+          # add the user to agent group
+          docker exec pki pki -n caadmin ca-user-membership-add caagent "Certificate Manager Agents"
+          # test the username and password
+          docker exec pki pki -u caagent -w Secret.123 ca-cert-request-find
+
       - name: Gather artifacts
         if: always()
         run: |
