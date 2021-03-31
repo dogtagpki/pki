@@ -238,7 +238,7 @@ public class PKCS10Client {
 
                 pair = CryptoUtil.generateECCKeyPair(token, ecc_curve,
                        null,
-                       CryptoUtil.ECDHE_USAGES_MASK,
+                       ec_ssl_ecdh ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK,
                        ec_temporary,
                        ec_sensitive,
                        ec_extractable);
