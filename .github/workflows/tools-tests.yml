@@ -66,7 +66,7 @@ jobs:
 
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-test:
-    name: PKI NSS CLI
+    name: Testing PKI NSS CLI
     needs: build
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
@@ -89,7 +89,7 @@ jobs:
           dnf -y localinstall build/RPMS/*
 
       # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
-      - name: Generate CA signing cert request
+      - name: Create CA signing cert request with new key
         run: |
           pki nss-cert-request \
               --subject "CN=Certificate Authority" \
@@ -113,14 +113,20 @@ jobs:
               --trust CT,C,C \
               ca_signing
 
-      - name: Verify CA signing cert trust flags
-        run: |
+          # verify trust flags
+          certutil -L -d /root/.dogtag/nssdb
           certutil -L -d /root/.dogtag/nssdb | sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' > actual
           echo "CTu,Cu,Cu" > expected
           diff actual expected
 
+          # verify key type
+          certutil -K -d /root/.dogtag/nssdb
+          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:ca_signing$/\1/p' > actual
+          echo rsa > expected
+          diff actual expected
+
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
-      - name: Generate SSL server cert request
+      - name: Create SSL server cert request with new key
         run: |
           pki nss-cert-request \
               --subject "CN=pki.example.com" \
@@ -144,11 +150,66 @@ jobs:
               --cert sslserver.crt \
               sslserver
 
-      - name: Verify SSL server cert trust flags
-        run: |
+          # verify trust flags
+          certutil -L -d /root/.dogtag/nssdb
           certutil -L -d /root/.dogtag/nssdb | sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' > actual
           echo "u,u,u" > expected
           diff actual expected
+
+          # verify key type
+          certutil -K -d /root/.dogtag/nssdb
+          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:sslserver$/\1/p' > actual
+          echo rsa > expected
+          diff actual expected
+
+          # get key ID
+          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:sslserver$/\1/p' > sslserver_key_id
+
+      - name: Delete SSL server cert
+        run: |
+          certutil -D -d /root/.dogtag/nssdb -n sslserver
+          certutil -L -d /root/.dogtag/nssdb
+          certutil -K -d /root/.dogtag/nssdb
+
+      - name: Create new SSL server cert request with existing key
+        run: |
+          pki nss-cert-request \
+              --key-id `cat sslserver_key_id` \
+              --subject "CN=pki.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr new_sslserver.csr
+          openssl req -text -noout -in new_sslserver.csr
+
+      - name: Issue new SSL server cert
+        run: |
+          pki nss-cert-issue \
+              --issuer ca_signing \
+              --csr new_sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert new_sslserver.crt
+          openssl x509 -text -noout -in new_sslserver.crt
+
+      - name: Import new SSL server cert
+        run: |
+          pki nss-cert-import \
+              --cert new_sslserver.crt \
+              new_sslserver
+
+          # verify trust flags
+          certutil -L -d /root/.dogtag/nssdb
+          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^new_sslserver\s*\(\S\+\)\s*$/\1/p' > actual
+          echo "u,u,u" > expected
+          diff actual expected
+
+          # verify key type
+          certutil -K -d /root/.dogtag/nssdb
+          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:new_sslserver$/\1/p' > actual
+          echo rsa > expected
+          diff actual expected
+
+          # verify key ID
+          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:new_sslserver$/\1/p' > new_sslserver_key_id
+          diff sslserver_key_id new_sslserver_key_id
 
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-hsm-test:
