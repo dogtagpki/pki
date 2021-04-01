@@ -148,7 +148,7 @@ public class NSSDatabase {
 
     public void create(String password, boolean enableTrustPolicy) throws Exception {
 
-        logger.info("Creating NSS database in " + path);
+        logger.info("NSSDatabase: Creating NSS database in " + path);
 
         Files.createDirectories(path);
 
@@ -196,7 +196,7 @@ public class NSSDatabase {
 
     public boolean moduleExists(String name) throws Exception {
 
-        logger.info("Checking module " + name);
+        logger.info("NSSDatabase: Checking module " + name);
 
         List<String> command = new ArrayList<>();
         command.add("modutil");
@@ -235,7 +235,7 @@ public class NSSDatabase {
 
     public void addModule(String name, String library) throws Exception {
 
-        logger.info("Installing " + name + " module with " + library);
+        logger.info("NSSDatabase: Installing " + name + " module with " + library);
 
         List<String> command = new ArrayList<>();
         command.add("modutil");
@@ -368,7 +368,7 @@ public class NSSDatabase {
 
                 if (password != null) {
                     passwordPath = Files.createTempFile("nss-password-", ".txt", FILE_PERMISSIONS);
-                    logger.info("Storing password into " + passwordPath);
+                    logger.info("NSSDatabase: Storing password into " + passwordPath);
 
                     Files.write(passwordPath, password.getBytes());
 
@@ -420,13 +420,13 @@ public class NSSDatabase {
             PrintWriter stdin,
             BasicConstraintsExtension extension) throws Exception {
 
-        logger.info("Adding basic constraints extension:");
+        logger.info("NSSDatabase: Adding basic constraints extension:");
 
         cmd.add("-2");
 
         // Is this a CA certificate [y/N]?
         boolean ca = (boolean) extension.get(BasicConstraintsExtension.IS_CA);
-        logger.info("- CA: " + ca);
+        logger.info("NSSDatabase: - CA: " + ca);
         if (ca) {
             stdin.print("y");
         }
@@ -434,13 +434,13 @@ public class NSSDatabase {
 
         // Enter the path length constraint, enter to skip [<0 for unlimited path]: >
         int pathLength = (int) extension.get(BasicConstraintsExtension.PATH_LEN);
-        logger.info("- path length: " + pathLength);
+        logger.info("NSSDatabase: - path length: " + pathLength);
         stdin.print(pathLength);
         stdin.println();
 
         // Is this a critical extension [y/N]?
         if (extension.isCritical()) {
-            logger.info("- critical");
+            logger.info("NSSDatabase: - critical");
             stdin.print("y");
         }
         stdin.println();
@@ -459,7 +459,7 @@ public class NSSDatabase {
             PrintWriter stdin,
             AuthorityKeyIdentifierExtension extension) throws Exception {
 
-        logger.info("Adding AKID extension:");
+        logger.info("NSSDatabase: Adding AKID extension:");
 
         cmd.add("-3");
 
@@ -468,7 +468,7 @@ public class NSSDatabase {
 
         KeyIdentifier keyID = (KeyIdentifier) extension.get(AuthorityKeyIdentifierExtension.KEY_ID);
         String akid = "0x" + Utils.HexEncode(keyID.getIdentifier());
-        logger.info("- AKID: " + akid);
+        logger.info("NSSDatabase: - AKID: " + akid);
 
         // Enter value for the key identifier fields,enter to omit:
         stdin.println(akid);
@@ -499,13 +499,13 @@ public class NSSDatabase {
             PrintWriter stdin,
             SubjectKeyIdentifierExtension extension) throws Exception {
 
-        logger.info("Adding SKID extension:");
+        logger.info("NSSDatabase: Adding SKID extension:");
 
         cmd.add("--extSKID");
 
         KeyIdentifier keyID = (KeyIdentifier) extension.get(SubjectKeyIdentifierExtension.KEY_ID);
         String skid = "0x" + Utils.HexEncode(keyID.getIdentifier());
-        logger.info("- SKID: " + skid);
+        logger.info("NSSDatabase: - SKID: " + skid);
 
         // Enter value for the key identifier fields,enter to omit:
         stdin.println(skid);
@@ -530,7 +530,7 @@ public class NSSDatabase {
             PrintWriter stdin,
             AuthInfoAccessExtension extension) throws Exception {
 
-        logger.info("Adding AIA extension:");
+        logger.info("NSSDatabase: Adding AIA extension:");
 
         cmd.add("--extAIA");
 
@@ -540,13 +540,13 @@ public class NSSDatabase {
 
             ObjectIdentifier method = ad.getMethod();
             if (AuthInfoAccessExtension.METHOD_CA_ISSUERS.equals(method)) {
-                logger.info("- CA issuers");
+                logger.info("NSSDatabase: - CA issuers");
 
                 // Enter access method type for Authority Information Access extension:
                 stdin.println("1");
 
             } else if (AuthInfoAccessExtension.METHOD_OCSP.equals(method)) {
-                logger.info("- OCSP");
+                logger.info("NSSDatabase: - OCSP");
 
                 // Enter access method type for Authority Information Access extension:
                 stdin.println("2");
@@ -571,7 +571,7 @@ public class NSSDatabase {
                 DerValue derValue = new DerValue(new ByteArrayInputStream(bytes));
                 derValue.resetTag(DerValue.tag_IA5String);
                 String uri = derValue.getIA5String();
-                logger.info("  - URI: " + uri);
+                logger.info("NSSDatabase:   - URI: " + uri);
 
                 // Select one of the following general name type:
                 stdin.println("7");
@@ -611,56 +611,56 @@ public class NSSDatabase {
             List<String> cmd,
             KeyUsageExtension extension) throws Exception {
 
-        logger.info("Adding key usage extension:");
+        logger.info("NSSDatabase: Adding key usage extension:");
 
         cmd.add("--keyUsage");
 
         List<String> options = new ArrayList<>();
 
         if (extension.isCritical()) {
-            logger.info("- critical");
+            logger.info("NSSDatabase: - critical");
             options.add("critical");
         }
 
         Boolean digitalSignature = (Boolean) extension.get(KeyUsageExtension.DIGITAL_SIGNATURE);
         if (digitalSignature) {
-            logger.info("- digitalSignature");
+            logger.info("NSSDatabase: - digitalSignature");
             options.add("digitalSignature");
         }
 
         Boolean nonRepudiation = (Boolean) extension.get(KeyUsageExtension.NON_REPUDIATION);
         if (nonRepudiation) {
-            logger.info("- nonRepudiation");
+            logger.info("NSSDatabase: - nonRepudiation");
             options.add("nonRepudiation");
         }
 
         Boolean keyEncipherment = (Boolean) extension.get(KeyUsageExtension.KEY_ENCIPHERMENT);
         if (keyEncipherment) {
-            logger.info("- keyEncipherment");
+            logger.info("NSSDatabase: - keyEncipherment");
             options.add("keyEncipherment");
         }
 
         Boolean dataEncipherment = (Boolean) extension.get(KeyUsageExtension.DATA_ENCIPHERMENT);
         if (dataEncipherment) {
-            logger.info("- dataEncipherment");
+            logger.info("NSSDatabase: - dataEncipherment");
             options.add("dataEncipherment");
         }
 
         Boolean keyAgreement = (Boolean) extension.get(KeyUsageExtension.KEY_AGREEMENT);
         if (keyAgreement) {
-            logger.info("- keyAgreement");
+            logger.info("NSSDatabase: - keyAgreement");
             options.add("keyAgreement");
         }
 
         Boolean certSigning = (Boolean) extension.get(KeyUsageExtension.KEY_CERTSIGN);
         if (certSigning) {
-            logger.info("- certSigning");
+            logger.info("NSSDatabase: - certSigning");
             options.add("certSigning");
         }
 
         Boolean crlSigning = (Boolean) extension.get(KeyUsageExtension.CRL_SIGN);
         if (crlSigning) {
-            logger.info("- crlSigning");
+            logger.info("NSSDatabase: - crlSigning");
             options.add("crlSigning");
         }
 
@@ -680,14 +680,14 @@ public class NSSDatabase {
             List<String> cmd,
             ExtendedKeyUsageExtension extension) throws Exception {
 
-        logger.info("Adding extended key usage extension:");
+        logger.info("NSSDatabase: Adding extended key usage extension:");
 
         cmd.add("--extKeyUsage");
 
         List<String> options = new ArrayList<>();
 
         if (extension.isCritical()) {
-            logger.info("- critical");
+            logger.info("NSSDatabase: - critical");
             options.add("critical");
         }
 
@@ -696,19 +696,19 @@ public class NSSDatabase {
             ObjectIdentifier oid = e.nextElement();
 
             if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.1").equals(oid)) {
-                logger.info("- serverAuth");
+                logger.info("NSSDatabase: - serverAuth");
                 options.add("serverAuth");
 
             } else if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.2").equals(oid)) {
-                logger.info("- clientAuth");
+                logger.info("NSSDatabase: - clientAuth");
                 options.add("clientAuth");
 
             } else if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.4").equals(oid)) {
-                logger.info("- emailProtection");
+                logger.info("NSSDatabase: - emailProtection");
                 options.add("emailProtection");
 
             } else if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.9").equals(oid)) {
-                logger.info("- OCSPSigning");
+                logger.info("NSSDatabase: - OCSPSigning");
                 options.add("ocspResponder");
 
             } else {
@@ -734,7 +734,7 @@ public class NSSDatabase {
             PrintWriter stdin,
             CertificatePoliciesExtension extension) throws Exception {
 
-        logger.info("Adding certificate policies extension:");
+        logger.info("NSSDatabase: Adding certificate policies extension:");
 
         cmd.add("--extCP");
 
@@ -746,7 +746,7 @@ public class NSSDatabase {
 
             CertificatePolicyId policyID = info.getPolicyIdentifier();
             ObjectIdentifier policyOID = policyID.getIdentifier();
-            logger.info("- " + policyOID);
+            logger.info("NSSDatabase: - " + policyOID);
 
             // Enter a CertPolicy Object Identifier (dotted decimal format)
             // or "any" for AnyPolicy: >
@@ -769,7 +769,7 @@ public class NSSDatabase {
 
                         CPSuri cpsURI = (CPSuri) qualifierInfo.getQualifier();
                         String uri = cpsURI.getURI();
-                        logger.info("  - CPS: " + uri);
+                        logger.info("NSSDatabase:   - CPS: " + uri);
 
                         // Choose the type of qualifier for policy:
                         stdin.println("1");
@@ -818,19 +818,19 @@ public class NSSDatabase {
             OCSPNoCheckExtension extension,
             Path tmpDir) throws Exception {
 
-        logger.info("Adding OCSP No Check extension:");
+        logger.info("NSSDatabase: Adding OCSP No Check extension:");
 
         cmd.add("--extGeneric");
 
         ObjectIdentifier oid = extension.getExtensionId();
-        logger.info("- OID: " + oid);
+        logger.info("NSSDatabase: - OID: " + oid);
 
         boolean critical = extension.isCritical();
-        logger.info("- critical: " + critical);
+        logger.info("NSSDatabase: - critical: " + critical);
         String flag = critical ? "critical" : "not-critical";
 
         byte[] value = extension.getExtensionValue();
-        logger.info("- value: " + (value == null ? null : Utils.base64encodeSingleLine(value)));
+        logger.info("NSSDatabase: - value: " + (value == null ? null : Utils.base64encodeSingleLine(value)));
         Path file = tmpDir.resolve("ocsp-no-check.ext");
         Files.write(file, value);
 
@@ -912,26 +912,26 @@ public class NSSDatabase {
             String hash,
             Extensions extensions) throws Exception {
 
-        logger.info("Creating certificate signing request for " + subject);
+        logger.info("NSSDatabase: Creating certificate signing request for " + subject);
 
         if (tokenName != null) {
-            logger.info("- token: " + tokenName);
+            logger.info("NSSDatabase: - token: " + tokenName);
         }
 
         if (keyID != null) {
-            logger.info("- key ID: " + keyID);
+            logger.info("NSSDatabase: - key ID: " + keyID);
         }
 
         if (keyType != null) {
-            logger.info("- key type: " + keyType);
+            logger.info("NSSDatabase: - key type: " + keyType);
         }
 
         if (keySize != null) {
-            logger.info("- key size: " + keySize);
+            logger.info("NSSDatabase: - key size: " + keySize);
         }
 
         if (curve != null) {
-            logger.info("- curve: " + curve);
+            logger.info("NSSDatabase: - curve: " + curve);
         }
 
         Path tmpDir = null;
@@ -960,7 +960,7 @@ public class NSSDatabase {
 
                 if (password != null) {
                     Path passwordPath = tmpDir.resolve("password.txt");
-                    logger.info("Storing password into " + passwordPath);
+                    logger.info("NSSDatabase: Storing password into " + passwordPath);
 
                     Files.write(passwordPath, password.getBytes());
 
@@ -999,7 +999,7 @@ public class NSSDatabase {
                 }
 
                 Path noisePath = tmpDir.resolve("noise.bin");
-                logger.info("Storing noise into " + noisePath);
+                logger.info("NSSDatabase: Storing noise into " + noisePath);
 
                 byte[] bytes = new byte[2048];
                 SecureRandom random = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
@@ -1037,7 +1037,7 @@ public class NSSDatabase {
                 throw new CLIException("Command failed. RC: " + rc, rc);
             }
 
-            logger.info("Loading CSR from " + csrPath);
+            logger.info("NSSDatabase: Loading CSR from " + csrPath);
             byte[] csrBytes = Files.readAllBytes(csrPath);
             return new PKCS10(csrBytes);
 
@@ -1101,7 +1101,7 @@ public class NSSDatabase {
             Path csrPath = tmpDir.resolve("request.der");
             Path certPath = tmpDir.resolve("cert.der");
 
-            logger.info("Storing CSR into " + csrPath);
+            logger.info("NSSDatabase: Storing CSR into " + csrPath);
             Files.write(csrPath, pkcs10.toByteArray());
 
             // TODO: Use JSS to issue the certificate.
@@ -1124,7 +1124,7 @@ public class NSSDatabase {
 
                 if (password != null) {
                     Path passwordPath = tmpDir.resolve("password.txt");
-                    logger.info("Storing password into " + passwordPath);
+                    logger.info("NSSDatabase: Storing password into " + passwordPath);
 
                     Files.write(passwordPath, password.getBytes());
 
@@ -1183,7 +1183,7 @@ public class NSSDatabase {
                 throw new CLIException("Command failed. RC: " + rc, rc);
             }
 
-            logger.info("Loading certificate from " + certPath);
+            logger.info("NSSDatabase: Loading certificate from " + certPath);
             byte[] certBytes = Files.readAllBytes(certPath);
             return new X509CertImpl(certBytes);
 
@@ -1218,7 +1218,7 @@ public class NSSDatabase {
                 if (quote) sb.append('"');
             }
 
-            logger.debug(sb.toString());
+            logger.debug("NSSDatabase: " + sb);
         }
     }
 
@@ -1231,7 +1231,7 @@ public class NSSDatabase {
 
                     String line;
                     while ((line = in.readLine()) != null) {
-                        logger.info(line);
+                        logger.info("NSSDatabase: " + line);
                     }
 
                 } catch (Exception e) {
@@ -1250,7 +1250,7 @@ public class NSSDatabase {
 
                     String line;
                     while ((line = in.readLine()) != null) {
-                        logger.warn(line);
+                        logger.warn("NSSDatabase: " + line);
                     }
 
                 } catch (Exception e) {
