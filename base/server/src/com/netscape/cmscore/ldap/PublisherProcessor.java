@@ -47,6 +47,7 @@ import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -101,7 +102,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
     private String mId = null;
 
     protected ICertAuthority mAuthority = null;
-    protected LdapRequestListener mLdapRequestListener = null;
+    protected IRequestListener requestListener;
     private boolean mCreateOwnDNEntry = false;
     private boolean mInited = false;
 
@@ -119,6 +120,14 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
 
     public IConfigStore getConfigStore() {
         return mConfig;
+    }
+
+    public IRequestListener getRequestListener() {
+        return requestListener;
+    }
+
+    public void setRequestListener(IRequestListener requestListener) {
+        this.requestListener = requestListener;
     }
 
     public void init(ISubsystem authority, IConfigStore config) throws EBaseException {
@@ -396,13 +405,11 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
             logger.debug("No LdapPublishing enabled");
         }
 
-        LdapRequestListener listener = null;
-
         if (mConfig.getBoolean(PROP_ENABLE, false)) {
 
-            listener = new LdapRequestListener();
-            listener.setPublisherProcessor(this);
-            mAuthority.registerRequestListener(listener);
+            if (mAuthority != null && requestListener != null) {
+                mAuthority.registerRequestListener(requestListener);
+            }
 
             IConfigStore queueConfig = mConfig.getSubStore(PROP_QUEUE_PUBLISH_SUBSTORE);
             if (queueConfig != null) {
@@ -423,8 +430,6 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
                                                 savePublishingStatus);
             }
         }
-
-        mLdapRequestListener = listener;
     }
 
     public void shutdown() {
@@ -433,9 +438,9 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
             if (mLdapConnModule != null) {
                 mLdapConnModule.getLdapConnFactory().reset();
             }
-            if (mAuthority != null && mLdapRequestListener != null) {
+            if (mAuthority != null && requestListener != null) {
                 //mLdapRequestListener.shutdown();
-                mAuthority.removeRequestListener(mLdapRequestListener);
+                mAuthority.removeRequestListener(requestListener);
             }
         } catch (ELdapException e) {
             // ignore
