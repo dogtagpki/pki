@@ -43,7 +43,7 @@ public class LdapRequestListener implements IRequestListener {
     public void set(String name, String val) {
     }
 
-    public void setPublisherProcessor(PublisherProcessor publisherProcessor) {
+    public void setPublisherProcessor(CAPublisherProcessor publisherProcessor) {
 
         mRequestListeners.put(IRequest.ENROLLMENT_REQUEST,
                 new LdapEnrollmentListener(publisherProcessor));

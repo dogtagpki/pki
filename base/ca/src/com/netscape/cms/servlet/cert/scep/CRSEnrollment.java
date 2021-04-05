@@ -123,7 +123,7 @@ import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
-import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWCBsdr;
@@ -1189,7 +1189,7 @@ public class CRSEnrollment extends HttpServlet {
         boolean result = false;
 
         CAEngine engine = CAEngine.getInstance();
-        PublisherProcessor ldapPub = engine.getPublisherProcessor();
+        CAPublisherProcessor ldapPub = engine.getPublisherProcessor();
         if (ldapPub == null || !ldapPub.isCertPublishingEnabled()) {
             logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ERROR_CREATE_ENTRY_FROM_CEP"));
             return result;

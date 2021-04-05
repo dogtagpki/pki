@@ -65,7 +65,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.ldap.CAPublisherProcessor;
 
 /**
  * Revoke a Certificate
@@ -82,7 +82,7 @@ public class DoRevokeTPS extends CMSServlet {
     private CertificateRepository mCertDB;
     private String mFormPath = null;
     private IRequestQueue mQueue = null;
-    private PublisherProcessor mPublisherProcessor;
+    private CAPublisherProcessor mPublisherProcessor;
     private String errorString = "error=";
     private String o_status = "status=0";
     private int mTimeLimits = 30; /* in seconds */

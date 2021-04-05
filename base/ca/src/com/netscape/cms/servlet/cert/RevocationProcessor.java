@@ -52,7 +52,7 @@ import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.usrgrp.User;
 
 /**
@@ -71,7 +71,7 @@ public class RevocationProcessor extends CertProcessor {
     ICertificateAuthority authority;
     CertificateRepository repo;
     IRequestQueue requestQueue;
-    PublisherProcessor publisherProcessor;
+    CAPublisherProcessor publisherProcessor;
 
     String initiative;
     CertId serialNumber;

@@ -54,7 +54,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.ldap.CAPublisherProcessor;
 
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
@@ -73,7 +73,7 @@ public class DoUnrevoke extends CMSServlet {
     private CertificateRepository mCertDB;
 
     private String mFormPath = null;
-    private PublisherProcessor mPublisherProcessor;
+    private CAPublisherProcessor mPublisherProcessor;
 
     public DoUnrevoke() {
         super();

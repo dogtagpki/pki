@@ -116,9 +116,9 @@ public class LdapPublishModule implements IRequestListener {
         mInited = true;
     }
 
-    protected PublisherProcessor mPubProcessor;
+    protected CAPublisherProcessor mPubProcessor;
 
-    public void init(ICertAuthority authority, PublisherProcessor p,
+    public void init(ICertAuthority authority, CAPublisherProcessor p,
             IConfigStore config)
             throws EBaseException {
         if (mInited)

@@ -34,7 +34,7 @@ import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -80,7 +80,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     protected LdapBoundConnFactory mLdapConnFactory = null;
     protected String mBaseDN = null;
     protected ICertificateAuthority mCa = null;
-    protected PublisherProcessor mPublisherProcessor;
+    protected CAPublisherProcessor mPublisherProcessor;
 
     private String mId = ID;
 

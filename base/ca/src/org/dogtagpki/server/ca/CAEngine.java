@@ -80,6 +80,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.dbs.RetrieveModificationsTask;
 import com.netscape.cmscore.dbs.SerialNumberUpdateTask;
+import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRequestListener;
 import com.netscape.cmscore.ldap.PublishingConfig;
 import com.netscape.cmscore.ldap.PublisherProcessor;
@@ -132,7 +133,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     protected boolean ocspResponderByName = true;
     protected CRLPublisher crlPublisher;
-    protected PublisherProcessor publisherProcessor;
+    protected CAPublisherProcessor publisherProcessor;
 
     protected Map<String, ICRLIssuingPoint> crlIssuingPoints = new HashMap<>();
 
@@ -288,7 +289,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
      *
      * @return CA's publishing processor
      */
-    public PublisherProcessor getPublisherProcessor() {
+    public CAPublisherProcessor getPublisherProcessor() {
         return publisherProcessor;
     }
 
@@ -461,7 +462,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         CertificateAuthority hostCA = getCA();
 
-        publisherProcessor = new PublisherProcessor(CertificateAuthority.ID + "pp");
+        publisherProcessor = new CAPublisherProcessor(CertificateAuthority.ID + "pp");
 
         if (publishingConfig.getBoolean(PublisherProcessor.PROP_ENABLE, false)) {
             LdapRequestListener listener = new LdapRequestListener();

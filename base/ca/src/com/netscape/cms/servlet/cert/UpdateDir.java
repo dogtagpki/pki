@@ -60,7 +60,7 @@ import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.ldap.CAPublisherProcessor;
 
 /**
  * Update the configured LDAP server with specified objects
@@ -95,7 +95,7 @@ public class UpdateDir extends CMSServlet {
 
     private String mFormPath = null;
     private ICertificateAuthority mCA = null;
-    private PublisherProcessor mPublisherProcessor;
+    private CAPublisherProcessor mPublisherProcessor;
     private CRLRepository mCRLRepository;
     private boolean mClonedCA = false;
 

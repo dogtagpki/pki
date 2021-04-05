@@ -69,7 +69,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.ldap.CAPublisherProcessor;
 
 /**
  * Revoke a certificate with a CMC-formatted revocation request
@@ -90,7 +90,7 @@ public class CMCRevReqServlet extends CMSServlet {
     private CertificateRepository mCertDB;
     private String mFormPath = null;
     private IRequestQueue mQueue = null;
-    private PublisherProcessor mPublisherProcessor;
+    private CAPublisherProcessor mPublisherProcessor;
     private String mRequestID = null;
     private final static String REVOKE = "revoke";
     private final static String ON_HOLD = "on-hold";

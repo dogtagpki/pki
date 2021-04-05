@@ -58,6 +58,7 @@ import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldap.PublishingConfig;
@@ -91,7 +92,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
     private final static String INFO = "PublisherAdminServlet";
     public final static String NOMAPPER = "<NONE>";
-    private PublisherProcessor mProcessor;
+    private CAPublisherProcessor mProcessor;
     private IAuthority mAuth = null;
 
     public PublisherAdminServlet() {
@@ -325,7 +326,7 @@ public class PublisherAdminServlet extends AdminServlet {
         return;
     }
 
-    private IExtendedPluginInfo getExtendedPluginInfo(PublisherProcessor p) {
+    private IExtendedPluginInfo getExtendedPluginInfo(CAPublisherProcessor p) {
 
         Enumeration<String> mappers = p.getMapperInsts().keys();
         Enumeration<String> publishers = p.getPublisherInsts().keys();
@@ -371,21 +372,21 @@ public class PublisherAdminServlet extends AdminServlet {
         Object impl = null;
 
         if (implType.equals(Constants.PR_EXT_PLUGIN_IMPLTYPE_PUBLISHRULE)) {
-            PublisherProcessor p_processor = mProcessor;
+            CAPublisherProcessor p_processor = mProcessor;
 
             // Should get the registered rules from processor
             // instead of plugin
             // OLD: impl = getClassByNameAsExtendedPluginInfo(plugin.getClassPath());
             impl = getExtendedPluginInfo(p_processor);
         } else if (implType.equals(Constants.PR_EXT_PLUGIN_IMPLTYPE_MAPPER)) {
-            PublisherProcessor p_processor = mProcessor;
+            CAPublisherProcessor p_processor = mProcessor;
             Plugin plugin = p_processor.getMapperPlugins().get(implName
                     );
 
             impl = getClassByNameAsExtendedPluginInfo(plugin.getClassPath());
 
         } else if (implType.equals(Constants.PR_EXT_PLUGIN_IMPLTYPE_PUBLISHER)) {
-            PublisherProcessor p_processor = mProcessor;
+            CAPublisherProcessor p_processor = mProcessor;
             Plugin plugin = p_processor.getPublisherPlugins().get(implName);
 
             impl = getClassByNameAsExtendedPluginInfo(plugin.getClassPath());
@@ -932,7 +933,7 @@ public class PublisherAdminServlet extends AdminServlet {
             //params.add("restarted", "Publishing is restarted.");
 
             if (ldapcfg.getBoolean(PublisherProcessor.PROP_ENABLE)) {
-                ICertAuthority authority = (ICertAuthority) mProcessor.getAuthority();
+                ICertAuthority authority = mProcessor.getAuthority();
 
                 if (!(authority instanceof ICertificateAuthority))
                     return;

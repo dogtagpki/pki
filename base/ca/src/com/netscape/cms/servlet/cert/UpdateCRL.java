@@ -61,8 +61,8 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
-import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * Force the CRL to be updated now.
@@ -336,7 +336,7 @@ public class UpdateCRL extends CMSServlet {
 
         ICRLIssuingPoint crlIssuingPoint = engine.getCRLIssuingPoint(crlIssuingPointId);
         header.addStringValue("crlIssuingPoint", crlIssuingPointId);
-        PublisherProcessor lpm = engine.getPublisherProcessor();
+        CAPublisherProcessor lpm = engine.getPublisherProcessor();
 
         if (crlIssuingPoint == null) {
             logger.debug("UpdateCRL: no CRL issuing point");
@@ -529,7 +529,7 @@ public class UpdateCRL extends CMSServlet {
             }
 
             if (lpm != null && lpm.isCRLPublishingEnabled()) {
-                Enumeration<LdapRule> rules = lpm.getRules(PublisherProcessor.PROP_LOCAL_CRL);
+                Enumeration<LdapRule> rules = lpm.getRules(CAPublisherProcessor.PROP_LOCAL_CRL);
                 if (rules != null && rules.hasMoreElements()) {
                     if (publishError != null) {
                         header.addStringValue("crlPublished", "Failure");

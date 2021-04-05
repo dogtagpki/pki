@@ -77,8 +77,8 @@ import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
-import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -117,7 +117,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     /* configuration file property names */
 
-    public PublisherProcessor mPublisherProcessor;
+    public CAPublisherProcessor mPublisherProcessor;
 
     private CRLIssuingPointConfig mConfigStore;
 
@@ -3156,7 +3156,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
             if (x509crl != null &&
                     mPublisherProcessor != null && mPublisherProcessor.isCRLPublishingEnabled()) {
-                Enumeration<LdapRule> rules = mPublisherProcessor.getRules(PublisherProcessor.PROP_LOCAL_CRL);
+                Enumeration<LdapRule> rules = mPublisherProcessor.getRules(CAPublisherProcessor.PROP_LOCAL_CRL);
                 if (rules == null || !rules.hasMoreElements()) {
                     logger.debug("CRL publishing is not enabled.");
                 } else {

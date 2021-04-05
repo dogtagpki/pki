@@ -33,9 +33,9 @@ public class LdapRenewalListener implements IRequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapRenewalListener.class);
 
-    private PublisherProcessor processor;
+    private CAPublisherProcessor processor;
 
-    public LdapRenewalListener(PublisherProcessor processor) {
+    public LdapRenewalListener(CAPublisherProcessor processor) {
         this.processor = processor;
     }
 

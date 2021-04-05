@@ -34,9 +34,9 @@ public class LdapEnrollmentListener implements IRequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapEnrollmentListener.class);
 
-    private PublisherProcessor processor;
+    private CAPublisherProcessor processor;
 
-    public LdapEnrollmentListener(PublisherProcessor processor) {
+    public LdapEnrollmentListener(CAPublisherProcessor processor) {
         this.processor = processor;
     }
 

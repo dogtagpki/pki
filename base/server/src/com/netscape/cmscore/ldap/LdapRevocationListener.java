@@ -40,9 +40,9 @@ public class LdapRevocationListener implements IRequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapRevocationListener.class);
 
-    private PublisherProcessor processor;
+    private CAPublisherProcessor processor;
 
-    public LdapRevocationListener(PublisherProcessor processor) {
+    public LdapRevocationListener(CAPublisherProcessor processor) {
         this.processor = processor;
     }
 

@@ -65,7 +65,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.ldap.CAPublisherProcessor;
 
 /**
  * Takes the certificate info (serial number) and optional challenge phrase, creates a
@@ -86,7 +86,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
     private CertificateRepository mCertDB;
     private String mFormPath = null;
     private IRequestQueue mQueue = null;
-    private PublisherProcessor mPublisherProcessor;
+    private CAPublisherProcessor mPublisherProcessor;
     private String mRequestID = null;
 
     // http params
