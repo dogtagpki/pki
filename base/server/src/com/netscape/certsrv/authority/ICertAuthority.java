@@ -23,7 +23,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * Authority that handles certificates needed by the cert registration
@@ -33,14 +32,6 @@ import com.netscape.cmscore.dbs.CertificateRepository;
  * @version $Revision$ $Date$
  */
 public interface ICertAuthority extends IAuthority {
-
-    /**
-     * Retrieves the certificate repository for this authority.
-     * <P>
-     *
-     * @return the certificate repository.
-     */
-    public CertificateRepository getCertificateRepository();
 
     /**
      * Returns CA's certificate chain.

@@ -1626,11 +1626,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         boolean revoked = false;
 
-        CertificateAuthority ca = getCA();
-        CertificateRepository certRepo = ca.getCertificateRepository();
-
         try {
-            if (certRepo.isCertificateRevoked(cert) != null) {
+            if (certificateRepository.isCertificateRevoked(cert) != null) {
                 revoked = true;
                 if (mVCList != null) {
                     mVCList.update(cert, VerifiedCert.REVOKED);

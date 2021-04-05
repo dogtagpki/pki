@@ -204,7 +204,6 @@ public class CACMSAdminServlet extends CMSAdminServlet {
 
             JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             CertificateAuthority ca = engine.getCA();
-            CertificateRepository repository = ca.getCertificateRepository();
             SigningUnit signingUnit = ca.getSigningUnit();
 
             // this is the old nick name
@@ -348,6 +347,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
                 logger.warn("CACMSAdminServlet: Missing key pair");
             }
 
+            CertificateRepository repository = engine.getCertificateRepository();
             BigInteger nextSerialNo = repository.getNextSerialNumber();
 
             properties.setSerialNumber(nextSerialNo);
