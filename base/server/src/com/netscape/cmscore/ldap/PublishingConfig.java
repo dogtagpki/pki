@@ -30,4 +30,8 @@ public class PublishingConfig extends PropConfigStore {
     public PublishingPublisherConfig getPublisherConfig() {
         return getSubStore("publisher", PublishingPublisherConfig.class);
     }
+
+    public PublishingMapperConfig getMapperConfig() {
+        return getSubStore("mapper", PublishingMapperConfig.class);
+    }
 }

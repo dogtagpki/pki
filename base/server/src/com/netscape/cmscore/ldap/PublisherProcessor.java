@@ -209,7 +209,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
             mPublisherInsts.put(insName, new PublisherProxy(isEnable, publisherInst));
         }
 
-        IConfigStore mapperConfig = config.getSubStore("mapper");
+        PublishingMapperConfig mapperConfig = config.getMapperConfig();
 
         c = mapperConfig.getSubStore(PROP_IMPL);
         mImpls = c.getSubStoreNames();
