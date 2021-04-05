@@ -23,15 +23,12 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * The ARequestNotifier class implements the IRequestNotifier interface,
@@ -62,10 +59,6 @@ public class RequestNotifier implements IRequestNotifier {
     }
 
     public IRequestQueue getRequestQueue() {
-        return null;
-    }
-
-    public PublisherProcessor getPublisherProcessor() {
         return null;
     }
 
@@ -365,33 +358,8 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @return true if there are available publishing connections, false otherwise
      */
-    private boolean checkAvailablePublishingConnections() {
-
-        boolean availableConnections = false;
-        PublisherProcessor pp = getPublisherProcessor();
-
-        if (pp != null && (pp.isCertPublishingEnabled() || pp.isCRLPublishingEnabled())) {
-            ILdapConnModule ldapConnModule = pp.getLdapConnModule();
-            if (ldapConnModule != null) {
-                ILdapConnFactory ldapConnFactory = ldapConnModule.getLdapConnFactory();
-                if (ldapConnFactory != null) {
-                    logger.debug("checkAvailablePublishingConnections  maxConn: " + ldapConnFactory.maxConn() +
-                                                               "  totalConn: " + ldapConnFactory.totalConn());
-                    if (ldapConnFactory.maxConn() > ldapConnFactory.totalConn()) {
-                        availableConnections = true;
-                    }
-                } else {
-                    logger.warn("checkAvailablePublishingConnections  ldapConnFactory is not accessible");
-                }
-            } else {
-                logger.warn("checkAvailablePublishingConnections  ldapConnModule is not accessible");
-            }
-        } else {
-            logger.warn("checkAvailablePublishingConnections  PublisherProcessor is not " +
-                      ((pp != null) ? "enabled" : "accessible"));
-        }
-
-        return availableConnections;
+    public boolean checkAvailablePublishingConnections() {
+        return false;
     }
 
     /**
