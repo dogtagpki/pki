@@ -17,26 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldap;
 
-import java.math.BigInteger;
 import java.security.cert.Certificate;
 import java.util.Hashtable;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertificateRepository;
 
 public class LdapRequestListener implements IRequestListener {
 
@@ -289,111 +282,6 @@ class LdapRenewalListener implements IRequestListener {
                 results[i] = IRequest.RES_ERROR;
             }
         }
-        r.setExtData("ldapPublishStatus", results);
-        r.setExtData("ldapPublishOverAllStatus",
-                (error == true ? IRequest.RES_ERROR : IRequest.RES_SUCCESS));
-    }
-}
-
-class LdapRevocationListener implements IRequestListener {
-
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapRevocationListener.class);
-
-    private PublisherProcessor mProcessor = null;
-
-    public LdapRevocationListener(PublisherProcessor processor) {
-        mProcessor = processor;
-    }
-
-    public void init(ISubsystem sys, IConfigStore config) throws EBaseException {
-    }
-
-    public void set(String name, String val) {
-    }
-
-    public void accept(IRequest r) {
-        logger.debug("Handle publishing for revoke request id " + r.getRequestId());
-
-        // get fields in request.
-        Certificate[] certs = r.getExtDataInCertArray(IRequest.OLD_CERTS);
-
-        if (certs == null || certs.length == 0 || certs[0] == null) {
-            // no certs in revoke.
-            logger.warn("Nothing to unpublish for revocation " +
-                            "request " + r.getRequestId());
-            return;
-        }
-
-        acceptX509(r, certs);
-    }
-
-    public void acceptX509(IRequest r, Certificate[] revcerts) {
-        boolean error = false;
-        Integer results[] = new Integer[revcerts.length];
-
-        error = false;
-        for (int i = 0; i < revcerts.length; i++) {
-            X509CertImpl cert = (X509CertImpl) revcerts[i];
-
-            results[i] = IRequest.RES_ERROR;
-            try {
-                // We need the enrollment request to sort out predicate
-                BigInteger serial = cert.getSerialNumber();
-                CertRecord certRecord = null;
-                IAuthority auth = (IAuthority) mProcessor.getAuthority();
-
-                if (auth == null ||
-                        !(auth instanceof ICertificateAuthority)) {
-                    logger.warn("Trying to get a certificate from non certificate authority.");
-                } else {
-                    CertificateRepository certdb = ((ICertificateAuthority) auth).getCertificateRepository();
-
-                    if (certdb == null) {
-                        logger.warn("Cert DB is null for " + auth);
-                    } else {
-                        try {
-                            certRecord = certdb.readCertificateRecord(serial);
-                        } catch (EBaseException e) {
-                            logger.warn(CMS.getLogMessage("CMSCORE_LDAP_GET_CERT_RECORD",
-                                            serial.toString(16), e.toString()), e);
-                        }
-                    }
-                }
-
-                MetaInfo metaInfo = null;
-                String ridString = null;
-
-                if (certRecord != null)
-                    metaInfo =
-                            (MetaInfo) certRecord.get(CertRecord.ATTR_META_INFO);
-                if (metaInfo == null) {
-                    logger.warn("failed getting CertRecord.ATTR_META_INFO for cert serial number 0x" + serial.toString(16));
-                } else {
-                    ridString = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
-                }
-
-                IRequest req = null;
-
-                if (ridString != null) {
-                    RequestId rid = new RequestId(ridString);
-
-                    req = auth.getRequestQueue().findRequest(rid);
-                }
-                mProcessor.unpublishCert(cert, req);
-                results[i] = IRequest.RES_SUCCESS;
-                logger.debug("Unpublished cert serial no 0x" +
-                                cert.getSerialNumber().toString(16));
-            } catch (ELdapException e) {
-                error = true;
-                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_UNPUBLISH",
-                                cert.getSerialNumber().toString(16), e.toString()), e);
-            } catch (EBaseException e) {
-                error = true;
-                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_FIND",
-                                cert.getSerialNumber().toString(16), e.toString()), e);
-            }
-        }
-
         r.setExtData("ldapPublishStatus", results);
         r.setExtData("ldapPublishOverAllStatus",
                 (error == true ? IRequest.RES_ERROR : IRequest.RES_SUCCESS));
