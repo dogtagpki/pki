@@ -57,7 +57,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.KeyId;
-import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.listeners.EListenersException;
@@ -1413,7 +1412,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      *
      * @return replica repository
      */
-    public IReplicaIDRepository getReplicaRepository() {
+    public ReplicaIDRepository getReplicaRepository() {
         return mReplicaRepot;
     }
 

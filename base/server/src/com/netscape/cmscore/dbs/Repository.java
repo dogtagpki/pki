@@ -25,7 +25,6 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
-import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.cmscore.apps.CMS;
@@ -271,7 +270,7 @@ public abstract class Repository implements IRepository {
             mRadix = 16;
             mRepo = DBSubsystem.CERTS;
 
-        } else if (this instanceof IReplicaIDRepository) {
+        } else if (this instanceof ReplicaIDRepository) {
             logger.debug("Repository: Instance of Replica ID repository");
             mRepo = DBSubsystem.REPLICA_ID;
 

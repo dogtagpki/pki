@@ -37,13 +37,13 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.ReplicaIDRepository;
 
 /**
  * An interface represents a Certificate Authority that is
@@ -219,7 +219,7 @@ public interface ICertificateAuthority extends ISubsystem {
      *
      * @return CA's Replica ID repository
      */
-    public IReplicaIDRepository getReplicaRepository();
+    public ReplicaIDRepository getReplicaRepository();
 
     /**
      * Retrieves all request listeners.

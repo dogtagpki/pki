@@ -111,7 +111,6 @@ import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
 import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
@@ -137,6 +136,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -698,7 +698,7 @@ public class CertificateAuthority
      *
      * @return replica repository
      */
-    public IReplicaIDRepository getReplicaRepository() {
+    public ReplicaIDRepository getReplicaRepository() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getReplicaIDRepository();
     }
