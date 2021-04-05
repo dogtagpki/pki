@@ -81,6 +81,7 @@ import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.dbs.RetrieveModificationsTask;
 import com.netscape.cmscore.dbs.SerialNumberUpdateTask;
 import com.netscape.cmscore.ldap.LdapRequestListener;
+import com.netscape.cmscore.ldap.PublishingConfig;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -450,8 +451,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
-        IConfigStore publisherProcessorConfig = caConfig.getSubStore(CertificateAuthority.PROP_PUBLISH_SUBSTORE);
-        if (publisherProcessorConfig == null || publisherProcessorConfig.size() == 0) {
+        PublishingConfig publishingConfig = caConfig.getPublishingConfig();
+        if (publishingConfig == null || publishingConfig.size() == 0) {
             logger.info("CAEngine: Publisher processor disabled");
             return;
         }
@@ -462,13 +463,13 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         publisherProcessor = new PublisherProcessor(CertificateAuthority.ID + "pp");
 
-        if (publisherProcessorConfig.getBoolean(PublisherProcessor.PROP_ENABLE, false)) {
+        if (publishingConfig.getBoolean(PublisherProcessor.PROP_ENABLE, false)) {
             LdapRequestListener listener = new LdapRequestListener();
             listener.setPublisherProcessor(publisherProcessor);
             publisherProcessor.setRequestListener(listener);
         }
 
-        publisherProcessor.init(hostCA, publisherProcessorConfig);
+        publisherProcessor.init(hostCA, publishingConfig);
     }
 
     public void initCRLIssuingPoints() throws Exception {

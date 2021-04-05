@@ -66,7 +66,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public static final String PROP_INSTANCE = "instance";
     public static final String PROP_LISTENER_SUBSTORE = "listener";
     public final static String PROP_LDAP_PUBLISH_SUBSTORE = "ldappublish";
-    public final static String PROP_PUBLISH_SUBSTORE = "publish";
     public final static String PROP_ENABLE_PUBLISH = "enablePublish";
     public final static String PROP_ENABLE_LDAP_PUBLISH = "enableLdapPublish";
 

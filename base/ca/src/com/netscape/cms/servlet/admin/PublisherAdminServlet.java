@@ -27,6 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 
@@ -57,9 +58,9 @@ import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldap.LdapRule;
 import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.ldap.PublishingConfig;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
@@ -433,8 +434,8 @@ public class PublisherAdminServlet extends AdminServlet {
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         CAEngine engine = CAEngine.getInstance();
-        IConfigStore config = mAuth.getConfigStore();
-        IConfigStore publishcfg = config.getSubStore(PublisherProcessor.PROP_PUBLISH_SUBSTORE);
+        CAConfig config = engine.getConfig().getCAConfig();
+        PublishingConfig publishcfg = config.getPublishingConfig();
         IConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
         IConfigStore ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP);
 
@@ -502,10 +503,10 @@ public class PublisherAdminServlet extends AdminServlet {
             throws ServletException, IOException, EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
+        CAConfig config = engine.getConfig().getCAConfig();
 
         //Save New Settings to the config file
-        IConfigStore config = mAuth.getConfigStore();
-        IConfigStore publishcfg = config.getSubStore(PublisherProcessor.PROP_PUBLISH_SUBSTORE);
+        PublishingConfig publishcfg = config.getPublishingConfig();
         IConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
         IConfigStore ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP);
 
@@ -624,13 +625,12 @@ public class PublisherAdminServlet extends AdminServlet {
         logger.debug("PublisherAdmineServlet: in testSetLDAPDest");
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAConfig config = engine.getConfig().getCAConfig();
 
-        PKISocketConfig socketConfig = cs.getSocketConfig();
+        PKISocketConfig socketConfig = config.getSocketConfig();
 
         //Save New Settings to the config file
-        IConfigStore config = mAuth.getConfigStore();
-        IConfigStore publishcfg = config.getSubStore(PublisherProcessor.PROP_PUBLISH_SUBSTORE);
+        PublishingConfig publishcfg = config.getPublishingConfig();
         IConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
         LDAPConfig ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP, LDAPConfig.class);
         LDAPAuthenticationConfig authConfig = ldap.getAuthenticationConfig();

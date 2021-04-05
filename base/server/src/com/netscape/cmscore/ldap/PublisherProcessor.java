@@ -63,7 +63,6 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublisherProcessor.class);
 
-    public final static String PROP_PUBLISH_SUBSTORE = "publish";
     public final static String PROP_LDAP_PUBLISH_SUBSTORE = "ldappublish";
     public final static String PROP_QUEUE_PUBLISH_SUBSTORE = "queue";
 
@@ -97,7 +96,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
 
     protected LdapConnModule mLdapConnModule = null;
 
-    private IConfigStore mConfig = null;
+    private PublishingConfig mConfig;
     private IConfigStore mLdapConfig = null;
     private String mId = null;
 
@@ -118,7 +117,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         mId = id;
     }
 
-    public IConfigStore getConfigStore() {
+    public PublishingConfig getConfigStore() {
         return mConfig;
     }
 
@@ -130,7 +129,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         this.requestListener = requestListener;
     }
 
-    public void init(ISubsystem authority, IConfigStore config) throws EBaseException {
+    public void init(ISubsystem authority, PublishingConfig config) throws EBaseException {
 
         mConfig = config;
         mAuthority = (ICertAuthority) authority;

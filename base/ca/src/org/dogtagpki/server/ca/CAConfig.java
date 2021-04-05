@@ -8,6 +8,7 @@ package org.dogtagpki.server.ca;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.SimpleProperties;
+import com.netscape.cmscore.ldap.PublishingConfig;
 
 public class CAConfig extends EngineConfig {
 
@@ -17,5 +18,9 @@ public class CAConfig extends EngineConfig {
 
     public CAConfig(String name, SimpleProperties source) {
         super(name, source);
+    }
+
+    public PublishingConfig getPublishingConfig() {
+        return getSubStore("publish", PublishingConfig.class);
     }
 }
