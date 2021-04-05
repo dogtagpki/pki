@@ -26,4 +26,8 @@ public class PublishingConfig extends PropConfigStore {
     public boolean getCreateOwnDNEntry() throws EBaseException {
         return getBoolean("createOwnDNEntry", false);
     }
+
+    public PublishingPublisherConfig getPublisherConfig() {
+        return getSubStore("publisher", PublishingPublisherConfig.class);
+    }
 }

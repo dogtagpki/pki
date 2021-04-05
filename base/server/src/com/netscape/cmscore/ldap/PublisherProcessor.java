@@ -134,7 +134,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         mConfig = config;
         mAuthority = (ICertAuthority) authority;
 
-        IConfigStore publisherConfig = config.getSubStore("publisher");
+        PublishingPublisherConfig publisherConfig = config.getPublisherConfig();
 
         IConfigStore c = publisherConfig.getSubStore(PROP_IMPL);
         mCreateOwnDNEntry = mConfig.getBoolean("createOwnDNEntry", false);
