@@ -62,6 +62,7 @@ import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.realm.PKIRealm;
@@ -87,6 +88,7 @@ import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.CertRequestConstants;
+import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.JssSubsystemConfig;
@@ -162,6 +164,9 @@ public class CMSEngine implements ServletContextListener {
     public String unsecurePort;
     public String securePort;
 
+    protected RequestNotifier requestNotifier;
+    protected RequestNotifier pendingNotifier;
+
     private Map<String, StartupNotifier> startupNotifiers = new LinkedHashMap<>();
 
     private static final int PW_OK =0;
@@ -220,6 +225,58 @@ public class CMSEngine implements ServletContextListener {
 
     public JobsScheduler getJobsScheduler() {
         return jobsScheduler;
+    }
+
+    public RequestNotifier getRequestNotifier() {
+        return requestNotifier;
+    }
+
+    public void setRequestNotifier(RequestNotifier requestNotifier) {
+        this.requestNotifier = requestNotifier;
+    }
+
+    public Enumeration<String> getRequestListenerNames() {
+        return requestNotifier.getListenerNames();
+    }
+
+    public IRequestListener getRequestListener(String name) {
+        return requestNotifier.getListener(name);
+    }
+
+    public void registerRequestListener(IRequestListener listener) {
+        requestNotifier.registerListener(listener);
+    }
+
+    public void registerRequestListener(String name, IRequestListener listener) {
+        requestNotifier.registerListener(name, listener);
+    }
+
+    public void removeRequestListener(IRequestListener listener) {
+        requestNotifier.removeListener(listener);
+    }
+
+    public void removeRequestListener(String name) {
+        requestNotifier.removeListener(name);
+    }
+
+    public RequestNotifier getPendingNotifier() {
+        return pendingNotifier;
+    }
+
+    public void setPendingNotifier(RequestNotifier pendingNotifier) {
+        this.pendingNotifier = pendingNotifier;
+    }
+
+    public IRequestListener getPendingListener(String name) {
+        return pendingNotifier.getListener(name);
+    }
+
+    public void registerPendingListener(IRequestListener listener) {
+        pendingNotifier.registerListener(listener);
+    }
+
+    public void registerPendingListener(String name, IRequestListener listener) {
+        pendingNotifier.registerListener(name, listener);
     }
 
     public void loadConfig(String path) throws Exception {

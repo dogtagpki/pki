@@ -508,7 +508,7 @@ public class CertificateAuthority
      */
     public void registerRequestListener(IRequestListener listener) {
         CAEngine engine = CAEngine.getInstance();
-        engine.getRequestNotifier().registerListener(listener);
+        engine.registerRequestListener(listener);
     }
 
     /**
@@ -516,7 +516,7 @@ public class CertificateAuthority
      */
     public void registerRequestListener(String name, IRequestListener listener) {
         CAEngine engine = CAEngine.getInstance();
-        engine.getRequestNotifier().registerListener(name, listener);
+        engine.registerRequestListener(name, listener);
     }
 
     /**
@@ -524,7 +524,7 @@ public class CertificateAuthority
      */
     public void removeRequestListener(IRequestListener listener) {
         CAEngine engine = CAEngine.getInstance();
-        engine.getRequestNotifier().removeListener(listener);
+        engine.removeRequestListener(listener);
     }
 
     /**
@@ -532,7 +532,7 @@ public class CertificateAuthority
      */
     public void removeRequestListener(String name) {
         CAEngine engine = CAEngine.getInstance();
-        engine.getRequestNotifier().removeListener(name);
+        engine.removeRequestListener(name);
     }
 
     /**
@@ -540,7 +540,7 @@ public class CertificateAuthority
      */
     public void registerPendingListener(IRequestListener listener) {
         CAEngine engine = CAEngine.getInstance();
-        engine.getPendingNotifier().registerListener(listener);
+        engine.registerPendingListener(listener);
     }
 
     /**
@@ -548,7 +548,7 @@ public class CertificateAuthority
      */
     public void registerPendingListener(String name, IRequestListener listener) {
         CAEngine engine = CAEngine.getInstance();
-        engine.getPendingNotifier().registerListener(name, listener);
+        engine.registerPendingListener(name, listener);
     }
 
     /**
@@ -556,7 +556,7 @@ public class CertificateAuthority
      */
     public IRequestListener getRequestListener(String name) {
         CAEngine engine = CAEngine.getInstance();
-        return engine.getRequestNotifier().getListener(name);
+        return engine.getRequestListener(name);
     }
 
     /**
@@ -572,12 +572,12 @@ public class CertificateAuthority
      */
     public IRequestListener getPendingListener(String name) {
         CAEngine engine = CAEngine.getInstance();
-        return engine.getPendingNotifier().getListener(name);
+        return engine.getPendingListener(name);
     }
 
     public Enumeration<String> getRequestListenerNames() {
         CAEngine engine = CAEngine.getInstance();
-        return engine.getRequestNotifier().getListenerNames();
+        return engine.getRequestListenerNames();
     }
 
     /**

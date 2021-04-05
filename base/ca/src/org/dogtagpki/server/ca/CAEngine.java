@@ -112,8 +112,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     protected CAPolicy caPolicy;
     protected CAService caService;
-    protected RequestNotifier requestNotifier;
-    protected RequestNotifier pendingNotifier;
 
     protected RequestRepository requestRepository;
     protected RequestQueue requestQueue;
@@ -214,14 +212,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public CAService getCAService() {
         return caService;
-    }
-
-    public RequestNotifier getRequestNotifier() {
-        return requestNotifier;
-    }
-
-    public RequestNotifier getPendingNotifier() {
-        return pendingNotifier;
     }
 
     public RequestQueue getRequestQueue() {
