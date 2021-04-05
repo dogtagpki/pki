@@ -70,7 +70,6 @@ import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
@@ -139,8 +138,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     protected boolean mAutoRecoveryOn = false;
     protected KeyRepository mKeyDB = null;
     protected ReplicaIDRepository mReplicaRepot = null;
-    protected IRequestNotifier mNotify = null;
-    protected IRequestNotifier mPNotify = null;
     protected int mRecoveryIDCounter = 0;
     protected Hashtable<String, Hashtable<String, Object>> mRecoveryParams =
             new Hashtable<String, Hashtable<String, Object>>();
@@ -391,8 +388,12 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // setup the KRA request queue
         IService service = new KRAService(this);
 
-        mNotify = new KRANotify();
-        mPNotify = new RequestNotifier();
+        RequestNotifier requestNotifier = new KRANotify();
+        engine.setRequestNotifier(requestNotifier);
+
+        RequestNotifier pendingNotifier = new RequestNotifier();
+        engine.setPendingNotifier(pendingNotifier);
+
         RequestSubsystem reqSub = engine.getRequestSubsystem();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
@@ -403,8 +404,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 requestRepository,
                 mPolicy,
                 service,
-                mNotify,
-                mPNotify);
+                requestNotifier,
+                pendingNotifier);
 
         requestRepository.setRequestQueue(mRequestQueue);
 
@@ -1432,13 +1433,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @param l request listener
      */
     public void registerRequestListener(IRequestListener l) {
-        // it's initialized.
-        if (mNotify != null)
-            mNotify.registerListener(l);
+        KRAEngine engine = KRAEngine.getInstance();
+        engine.registerRequestListener(l);
     }
 
     public void registerPendingListener(IRequestListener l) {
-        mPNotify.registerListener(l);
+        KRAEngine engine = KRAEngine.getInstance();
+        engine.registerPendingListener(l);
     }
 
     /**
