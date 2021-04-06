@@ -25,7 +25,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
@@ -48,9 +47,7 @@ public abstract class CMSRequestDAO {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSRequestDAO.class);
 
     protected ARequestQueue queue;
-    protected IAuthority authority;
-    CMSEngine engine = CMS.getCMSEngine();
-    protected AuthzSubsystem authz = engine.getAuthzSubsystem();
+    protected AuthzSubsystem authz;
 
     private String[] vlvFilters = {
             "(requeststate=*)", "(requesttype=enrollment)",
@@ -67,10 +64,9 @@ public abstract class CMSRequestDAO {
 
     public static final String ATTR_SERIALNO = "serialNumber";
 
-    public CMSRequestDAO(String authorityName) {
+    public CMSRequestDAO() {
         CMSEngine engine = CMS.getCMSEngine();
-        authority = (IAuthority) engine.getSubsystem(authorityName);
-        queue = authority.getRequestQueue();
+        authz = engine.getAuthzSubsystem();
     }
 
     /**

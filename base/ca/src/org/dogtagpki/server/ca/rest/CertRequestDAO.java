@@ -54,7 +54,6 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.profile.ProfileSubsystem;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -65,7 +64,6 @@ public class CertRequestDAO extends CMSRequestDAO {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRequestDAO.class);
 
-    private ARequestQueue queue;
     private CertificateAuthority ca;
     ProfileSubsystem ps;
     private SecureRandom random = null;
@@ -73,17 +71,16 @@ public class CertRequestDAO extends CMSRequestDAO {
     public static final String ATTR_SERIALNO = "serialNumber";
 
     public CertRequestDAO() {
-        super("ca");
 
         CAEngine engine = CAEngine.getInstance();
-        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        queue = engine.getRequestQueue();
 
         ca = engine.getCA();
-
-        queue = ca.getRequestQueue();
         if (ca.noncesEnabled()) {
+            JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             random = jssSubsystem.getRandomNumberGenerator();
         }
+
         ps = engine.getProfileSubsystem();
     }
 

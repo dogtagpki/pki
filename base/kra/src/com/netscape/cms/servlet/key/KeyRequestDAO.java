@@ -105,10 +105,10 @@ public class KeyRequestDAO extends CMSRequestDAO {
     private IKeyService service;
 
     public KeyRequestDAO() {
-        super("kra");
         KRAEngine engine = KRAEngine.getInstance();
         kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
         repo = kra.getKeyRepository();
+        queue = kra.getRequestQueue();
         service = kra;
     }
 
