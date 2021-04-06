@@ -337,10 +337,13 @@ public class KeyRequestDAO extends CMSRequestDAO {
     }
 
     public Hashtable<String, Object> getTransientData(IRequest request) throws EBaseException {
-        Hashtable<String, Object> requestParams;
-        requestParams = ((KeyRecoveryAuthority) authority).getVolatileRequest(request.getRequestId());
+
+        KRAEngine engine = KRAEngine.getInstance();
+        KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
+
+        Hashtable<String, Object> requestParams = kra.getVolatileRequest(request.getRequestId());
         if (requestParams == null) {
-            requestParams = ((KeyRecoveryAuthority) authority).createVolatileRequest(request.getRequestId());
+            requestParams = kra.createVolatileRequest(request.getRequestId());
             if (requestParams == null) {
                 throw new EBaseException("Can not create Volatile params in createRecoveryRequest!");
             }
