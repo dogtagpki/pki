@@ -270,20 +270,6 @@ public class RequestQueue
         setModificationTime(r, d);
     }
 
-    /**
-     * Resets serial number.
-     */
-    public void resetSerialNumber(BigInteger serial) throws EBaseException {
-        mRepository.resetSerialNumber(serial);
-    }
-
-    /**
-     * Removes all objects with this repository.
-     */
-    public void removeAllObjects() throws EBaseException {
-        mRepository.removeAllObjects();
-    }
-
     public BigInteger getLastRequestIdInRange(BigInteger reqId_low_bound, BigInteger reqId_upper_bound) {
 
         String method = "RequestQueue.getLastRequestIdInRange";
@@ -624,14 +610,6 @@ public class RequestQueue
 
             System.err.println("Attr: " + name + " Value: " + h.get(name));
         }
-    }
-
-    public String getPublishingStatus() {
-        return mRepository.getPublishingStatus();
-    }
-
-    public void setPublishingStatus(String status) {
-        mRepository.setPublishingStatus(status);
     }
 }
 

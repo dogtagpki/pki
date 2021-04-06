@@ -938,20 +938,6 @@ public abstract class ARequestQueue {
     }
 
     public abstract BigInteger getLastRequestIdInRange(BigInteger reqId_low_bound, BigInteger reqId_upper_bound);
-
-    /**
-     * Resets serial number.
-     */
-    public abstract void resetSerialNumber(BigInteger serial) throws EBaseException;
-
-    /**
-     * Removes all objects with this repository.
-     */
-    public abstract void removeAllObjects() throws EBaseException;
-
-    public abstract String getPublishingStatus();
-
-    public abstract void setPublishingStatus(String status);
 }
 
 //
