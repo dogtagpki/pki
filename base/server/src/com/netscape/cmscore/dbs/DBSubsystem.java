@@ -229,26 +229,6 @@ public class DBSubsystem {
     }
 
     /**
-     * Gets minimum serial number limit in config file
-     *
-     * @param repo repo identifier
-     * @return min serial number
-     */
-    public String getMinSerialConfig(int repo) {
-        return mRepos[repo].get(PROP_MIN);
-    }
-
-    /**
-     * Gets maximum serial number limit in config file
-     *
-     * @param repo repo identifier
-     * @return max serial number
-     */
-    public String getMaxSerialConfig(int repo) {
-        return mRepos[repo].get(PROP_MAX);
-    }
-
-    /**
      * Gets minimum serial number limit in next range in config file
      *
      * @param h repository config
@@ -276,26 +256,6 @@ public class DBSubsystem {
         } else {
             return ret;
         }
-    }
-
-    /**
-     * Gets low water mark limit in config file
-     *
-     * @param repo repo identifier
-     * @return low water mark
-     */
-    public String getLowWaterMarkConfig(int repo) {
-        return mRepos[repo].get(PROP_LOW_WATER_MARK);
-    }
-
-    /**
-     * Gets range increment for next range in config file
-     *
-     * @param repo repo identifier
-     * @return range increment
-     */
-    public String getIncrementConfig(int repo) {
-        return mRepos[repo].get(PROP_INCREMENT);
     }
 
     /**
