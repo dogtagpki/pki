@@ -15,14 +15,12 @@ import com.netscape.cmscore.request.RequestNotifier;
 
 public class CANotify extends RequestNotifier {
 
-    CertificateAuthority ca;
-
-    public CANotify(CertificateAuthority ca) {
-        this.ca = ca;
+    public CANotify() {
     }
 
     public ARequestQueue getRequestQueue() {
-        return ca.getRequestQueue();
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getRequestQueue();
     }
 
     public boolean checkAvailablePublishingConnections() {

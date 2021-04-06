@@ -770,7 +770,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         caService = new CAService(hostCA);
 
         logger.info("CAEngine: Initializing CA request notifier");
-        requestNotifier = new CANotify(hostCA);
+        requestNotifier = new CANotify();
 
         logger.info("CAEngine: Initializing CA pending request notifier");
         pendingNotifier = new RequestNotifier();
