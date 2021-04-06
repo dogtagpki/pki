@@ -106,7 +106,9 @@ $ oc new-app postgresql-persistent \
     -p POSTGRESQL_DATABASE=acme
 ```
 
-Next, configure the PKI ACME responder to use the permanent database.
+Next, configure the PKI ACME responder to use the permanent database
+as described in [Configuring ACME Database](../acme/Configuring_ACME_Database.md).
+
 A sample database configuration for PKI ACME responder is available at
 [/usr/share/pki/acme/openshift/pki-acme-database.yaml](../../../base/acme/openshift/pki-acme-database.yaml).
 
@@ -136,6 +138,9 @@ $ oc rsh <pod name> \
 ```
 
 ## Deploying Permanent Realm
+
+Deploy a permanent realm, then configure the PKI ACME responder to use the permanent realm
+as described in [Configuring ACME Realm](../acme/Configuring_ACME_Realm.md).
 
 A sample realm configuration for PKI ACME responder is available at
 [/usr/share/pki/acme/openshift/pki-acme-realm.yaml](../../../base/acme/openshift/pki-acme-realm.yaml).

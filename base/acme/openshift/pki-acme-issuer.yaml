@@ -4,4 +4,14 @@ type: Opaque
 metadata:
   name: pki-acme-issuer
 stringData:
+  # NSS Issuer
+  # ----------
   class: org.dogtagpki.acme.issuer.NSSIssuer
+  #
+  # PKI Issuer
+  # ----------
+  # class: org.dogtagpki.acme.issuer.PKIIssuer
+  # url: https://pki-ca:8443
+  # profile: acmeServerCert
+  # username: caadmin
+  # password: Secret.123
