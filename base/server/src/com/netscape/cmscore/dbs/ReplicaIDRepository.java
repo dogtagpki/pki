@@ -20,6 +20,7 @@ package com.netscape.cmscore.dbs;
 import java.math.BigInteger;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.apps.DatabaseConfig;
 
 /**
  * A class represents a replica repository. It
@@ -37,12 +38,36 @@ public class ReplicaIDRepository extends Repository {
      * Constructs a certificate repository.
      */
     public ReplicaIDRepository(DBSubsystem dbSubsystem, int increment) throws EBaseException {
+
         super(
                 dbSubsystem,
                 increment,
                 "ou=Replica," + dbSubsystem.getBaseDN(),
-                10,
-                dbSubsystem.getRepositoryConfig(DBSubsystem.REPLICA_ID));
+                10);
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        repositoryConfig.put(DBSubsystem.NAME, "requests");
+        repositoryConfig.put(DBSubsystem.PROP_BASEDN, dbConfig.getReplicaDN());
+        repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getReplicaRangeDN());
+
+        repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_REPLICA_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_MIN, dbConfig.getBeginReplicaNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_MAX_NAME, DBSubsystem.PROP_MAX_REPLICA_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_MAX, dbConfig.getEndReplicaNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN_NAME, DBSubsystem.PROP_NEXT_MIN_REPLICA_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN, dbConfig.getNextBeginReplicaNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX_NAME, DBSubsystem.PROP_NEXT_MAX_REPLICA_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX, dbConfig.getNextEndReplicaNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK_NAME, DBSubsystem.PROP_REPLICA_LOW_WATER_MARK);
+        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK, dbConfig.getReplicaLowWaterMark());
+
+        repositoryConfig.put(DBSubsystem.PROP_INCREMENT_NAME, DBSubsystem.PROP_REPLICA_INCREMENT);
+        repositoryConfig.put(DBSubsystem.PROP_INCREMENT, dbConfig.getReplicaIncrement());
     }
 
     /**

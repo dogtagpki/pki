@@ -32,7 +32,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
@@ -45,6 +44,7 @@ import com.netscape.certsrv.dbs.certdb.RenewableCertificateCollection;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.security.JssSubsystem;
 
@@ -88,7 +88,7 @@ public class CertificateRepository extends Repository {
     private int mMinRandomBitLength = 4;
     private int mMaxCollisionRecoverySteps = 10;
     private int mMaxCollisionRecoveryRegenerations = 3;
-    private IConfigStore mDBConfig = null;
+    private DatabaseConfig mDBConfig = null;
     private boolean mForceModeChange = false;
 
     /**
@@ -100,10 +100,31 @@ public class CertificateRepository extends Repository {
                 dbSubsystem,
                 increment,
                 "ou=certificateRepository,ou=ca," + dbSubsystem.getBaseDN(),
-                16,
-                dbSubsystem.getRepositoryConfig(DBSubsystem.CERTS));
+                16);
 
         mDBConfig = dbSubsystem.getDBConfigStore();
+
+        repositoryConfig.put(DBSubsystem.NAME, "certs");
+        repositoryConfig.put(DBSubsystem.PROP_BASEDN, mDBConfig.getSerialDN());
+        repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, mDBConfig.getSerialRangeDN());
+
+        repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_SERIAL_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_MIN, mDBConfig.getBeginSerialNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_MAX_NAME, DBSubsystem.PROP_MAX_SERIAL_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_MAX, mDBConfig.getEndSerialNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN_NAME, DBSubsystem.PROP_NEXT_MIN_SERIAL_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN, mDBConfig.getNextBeginSerialNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX_NAME, DBSubsystem.PROP_NEXT_MAX_SERIAL_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX, mDBConfig.getNextEndSerialNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK_NAME, DBSubsystem.PROP_SERIAL_LOW_WATER_MARK);
+        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK, mDBConfig.getSerialLowWaterMark());
+
+        repositoryConfig.put(DBSubsystem.PROP_INCREMENT_NAME, DBSubsystem.PROP_SERIAL_INCREMENT);
+        repositoryConfig.put(DBSubsystem.PROP_INCREMENT, mDBConfig.getSerialIncrement());
     }
 
     /**

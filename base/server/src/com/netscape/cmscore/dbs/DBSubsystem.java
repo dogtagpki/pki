@@ -123,26 +123,26 @@ public class DBSubsystem {
     public static final String PROP_INFINITE_SERIAL_NUMBER = "1000000000";
     public static final String PROP_INFINITE_REQUEST_NUMBER = "1000000000";
     public static final String PROP_INFINITE_REPLICA_NUMBER = "1000";
-    private static final String PROP_BASEDN = "basedn";
+    public static final String PROP_BASEDN = "basedn";
     private static final String PROP_LDAP = "ldap";
     private static final String PROP_NEXT_RANGE = "nextRange";
     public static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";
 
     // hash keys
-    private static final String NAME = "name";
+    public static final String NAME = "name";
     public static final String PROP_MIN = "min";
-    private static final String PROP_MIN_NAME = "min_name";
+    public static final String PROP_MIN_NAME = "min_name";
     public static final String PROP_MAX = "max";
-    private static final String PROP_MAX_NAME = "max_name";
-    private static final String PROP_NEXT_MIN = "next_min";
-    private static final String PROP_NEXT_MIN_NAME = "next_min_name";
-    private static final String PROP_NEXT_MAX = "next_max";
-    private static final String PROP_NEXT_MAX_NAME = "next_max_name";
+    public static final String PROP_MAX_NAME = "max_name";
+    public static final String PROP_NEXT_MIN = "next_min";
+    public static final String PROP_NEXT_MIN_NAME = "next_min_name";
+    public static final String PROP_NEXT_MAX = "next_max";
+    public static final String PROP_NEXT_MAX_NAME = "next_max_name";
     public static final String PROP_LOW_WATER_MARK = "lowWaterMark";
-    private static final String PROP_LOW_WATER_MARK_NAME = "lowWaterMark_name";
+    public static final String PROP_LOW_WATER_MARK_NAME = "lowWaterMark_name";
     public static final String PROP_INCREMENT = "increment";
-    private static final String PROP_INCREMENT_NAME = "increment_name";
-    private static final String PROP_RANGE_DN = "rangeDN";
+    public static final String PROP_INCREMENT_NAME = "increment_name";
+    public static final String PROP_RANGE_DN = "rangeDN";
 
     // singleton enforcement
 
@@ -518,84 +518,6 @@ public class DBSubsystem {
 
             mEnableSerialMgmt = mDBConfig.getEnableSerialManagement();
             logger.debug("DBSubsystem: init()  mEnableSerialMgmt="+mEnableSerialMgmt);
-
-            // populate the certs hash entry
-            Hashtable<String, String> certs = new Hashtable<String, String>();
-            certs.put(NAME, "certs");
-            certs.put(PROP_BASEDN, mDBConfig.getSerialDN());
-            certs.put(PROP_RANGE_DN, mDBConfig.getSerialRangeDN());
-
-            certs.put(PROP_MIN_NAME, PROP_MIN_SERIAL_NUMBER);
-            certs.put(PROP_MIN, mDBConfig.getBeginSerialNumber());
-
-            certs.put(PROP_MAX_NAME, PROP_MAX_SERIAL_NUMBER);
-            certs.put(PROP_MAX, mDBConfig.getEndSerialNumber());
-
-            certs.put(PROP_NEXT_MIN_NAME, PROP_NEXT_MIN_SERIAL_NUMBER);
-            certs.put(PROP_NEXT_MIN, mDBConfig.getNextBeginSerialNumber());
-
-            certs.put(PROP_NEXT_MAX_NAME, PROP_NEXT_MAX_SERIAL_NUMBER);
-            certs.put(PROP_NEXT_MAX, mDBConfig.getNextEndSerialNumber());
-
-            certs.put(PROP_LOW_WATER_MARK_NAME, PROP_SERIAL_LOW_WATER_MARK);
-            certs.put(PROP_LOW_WATER_MARK, mDBConfig.getSerialLowWaterMark());
-
-            certs.put(PROP_INCREMENT_NAME, PROP_SERIAL_INCREMENT);
-            certs.put(PROP_INCREMENT, mDBConfig.getSerialIncrement());
-
-            mRepos[CERTS] = certs;
-
-            // populate the requests hash entry
-            Hashtable<String, String> requests = new Hashtable<String, String>();
-            requests.put(NAME, "requests");
-            requests.put(PROP_BASEDN, mDBConfig.getRequestDN());
-            requests.put(PROP_RANGE_DN, mDBConfig.getRequestRangeDN());
-
-            requests.put(PROP_MIN_NAME, PROP_MIN_REQUEST_NUMBER);
-            requests.put(PROP_MIN, mDBConfig.getBeginRequestNumber());
-
-            requests.put(PROP_MAX_NAME, PROP_MAX_REQUEST_NUMBER);
-            requests.put(PROP_MAX, mDBConfig.getEndRequestNumber());
-
-            requests.put(PROP_NEXT_MIN_NAME, PROP_NEXT_MIN_REQUEST_NUMBER);
-            requests.put(PROP_NEXT_MIN, mDBConfig.getNextBeginRequestNumber());
-
-            requests.put(PROP_NEXT_MAX_NAME, PROP_NEXT_MAX_REQUEST_NUMBER);
-            requests.put(PROP_NEXT_MAX, mDBConfig.getNextEndRequestNumber());
-
-            requests.put(PROP_LOW_WATER_MARK_NAME, PROP_REQUEST_LOW_WATER_MARK);
-            requests.put(PROP_LOW_WATER_MARK, mDBConfig.getRequestLowWaterMark());
-
-            requests.put(PROP_INCREMENT_NAME, PROP_REQUEST_INCREMENT);
-            requests.put(PROP_INCREMENT, mDBConfig.getRequestIncrement());
-
-            mRepos[REQUESTS] = requests;
-
-            // populate replica ID hash entry
-            Hashtable<String, String> replicaID = new Hashtable<String, String>();
-            replicaID.put(NAME, "requests");
-            replicaID.put(PROP_BASEDN, mDBConfig.getReplicaDN());
-            replicaID.put(PROP_RANGE_DN, mDBConfig.getReplicaRangeDN());
-
-            replicaID.put(PROP_MIN_NAME, PROP_MIN_REPLICA_NUMBER);
-            replicaID.put(PROP_MIN, mDBConfig.getBeginReplicaNumber());
-
-            replicaID.put(PROP_MAX_NAME, PROP_MAX_REPLICA_NUMBER);
-            replicaID.put(PROP_MAX, mDBConfig.getEndReplicaNumber());
-
-            replicaID.put(PROP_NEXT_MIN_NAME, PROP_NEXT_MIN_REPLICA_NUMBER);
-            replicaID.put(PROP_NEXT_MIN, mDBConfig.getNextBeginReplicaNumber());
-
-            replicaID.put(PROP_NEXT_MAX_NAME, PROP_NEXT_MAX_REPLICA_NUMBER);
-            replicaID.put(PROP_NEXT_MAX, mDBConfig.getNextEndReplicaNumber());
-
-            replicaID.put(PROP_LOW_WATER_MARK_NAME, PROP_REPLICA_LOW_WATER_MARK);
-            replicaID.put(PROP_LOW_WATER_MARK, mDBConfig.getReplicaLowWaterMark());
-
-            replicaID.put(PROP_INCREMENT_NAME, PROP_REPLICA_INCREMENT);
-            replicaID.put(PROP_INCREMENT, mDBConfig.getReplicaIncrement());
-
-            mRepos[REPLICA_ID] = replicaID;
 
             // initialize registry
             mRegistry = new LDAPRegistry();

@@ -74,7 +74,7 @@ public abstract class Repository implements IRepository {
     private boolean mInit = false;
 
     private int mRadix;
-    Hashtable<String, String> repositoryConfig;
+    protected Hashtable<String, String> repositoryConfig = new Hashtable<>();
 
     private BigInteger mLastSerialNo = null;
 
@@ -86,14 +86,12 @@ public abstract class Repository implements IRepository {
             DBSubsystem dbSubsystem,
             int increment,
             String baseDN,
-            int radix,
-            Hashtable<String, String> repositoryConfig) {
+            int radix) {
 
         this.dbSubsystem = dbSubsystem;
         this.BI_INCREMENT = new BigInteger(Integer.toString(increment));
         this.mBaseDN = baseDN;
         this.mRadix = radix;
-        this.repositoryConfig = repositoryConfig;
     }
 
     /**

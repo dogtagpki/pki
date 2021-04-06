@@ -25,7 +25,7 @@ public class RequestQueueTest extends CMSBaseTestCase {
         dbSubsystem = DBSubsystem.getInstance();
         request = new RequestStub();
 
-        requestRepository = new RequestRepository("", 1, dbSubsystem);
+        requestRepository = new RequestRepository("", 1, dbSubsystem, null);
 
         queue = new RequestQueue(
                 dbSubsystem,

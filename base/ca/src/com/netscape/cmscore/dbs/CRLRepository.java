@@ -29,6 +29,7 @@ import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.cmscore.apps.DatabaseConfig;
 
 /**
  * A class represents a CRL repository. It stores all the
@@ -56,8 +57,31 @@ public class CRLRepository extends Repository {
                 dbSubsystem,
                 increment,
                 "ou=crlIssuingPoints,ou=ca," + dbSubsystem.getBaseDN(),
-                10,
-                dbSubsystem.getRepositoryConfig(DBSubsystem.REQUESTS));
+                10);
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        repositoryConfig.put(DBSubsystem.NAME, "requests");
+        repositoryConfig.put(DBSubsystem.PROP_BASEDN, dbConfig.getRequestDN());
+        repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getRequestRangeDN());
+
+        repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_REQUEST_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_MIN, dbConfig.getBeginRequestNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_MAX_NAME, DBSubsystem.PROP_MAX_REQUEST_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_MAX, dbConfig.getEndRequestNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN_NAME, DBSubsystem.PROP_NEXT_MIN_REQUEST_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN, dbConfig.getNextBeginRequestNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX_NAME, DBSubsystem.PROP_NEXT_MAX_REQUEST_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX, dbConfig.getNextEndRequestNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK_NAME, DBSubsystem.PROP_REQUEST_LOW_WATER_MARK);
+        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK, dbConfig.getRequestLowWaterMark());
+
+        repositoryConfig.put(DBSubsystem.PROP_INCREMENT_NAME, DBSubsystem.PROP_REQUEST_INCREMENT);
+        repositoryConfig.put(DBSubsystem.PROP_INCREMENT, dbConfig.getRequestIncrement());
 
         /*
         DBRegistry reg = dbService.getRegistry();

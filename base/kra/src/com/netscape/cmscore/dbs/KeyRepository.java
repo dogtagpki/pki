@@ -32,6 +32,7 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.cmscore.apps.DatabaseConfig;
 
 /**
  * A class represents a Key repository. This is the container of
@@ -55,14 +56,35 @@ public class KeyRepository extends Repository implements IKeyRepository {
      */
     public KeyRepository(DBSubsystem dbSubsystem, int increment, String baseDN) throws EBaseException {
 
-        // KeyRepository uses the same configuration parameters as CertificateRepository.
-        // This is OK because they are on separate subsystems.
         super(
                 dbSubsystem,
                 increment,
                 baseDN,
-                16,
-                dbSubsystem.getRepositoryConfig(DBSubsystem.CERTS));
+                16);
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        repositoryConfig.put(DBSubsystem.NAME, "certs");
+        repositoryConfig.put(DBSubsystem.PROP_BASEDN, dbConfig.getSerialDN());
+        repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getSerialRangeDN());
+
+        repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_SERIAL_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_MIN, dbConfig.getBeginSerialNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_MAX_NAME, DBSubsystem.PROP_MAX_SERIAL_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_MAX, dbConfig.getEndSerialNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN_NAME, DBSubsystem.PROP_NEXT_MIN_SERIAL_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN, dbConfig.getNextBeginSerialNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX_NAME, DBSubsystem.PROP_NEXT_MAX_SERIAL_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX, dbConfig.getNextEndSerialNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK_NAME, DBSubsystem.PROP_SERIAL_LOW_WATER_MARK);
+        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK, dbConfig.getSerialLowWaterMark());
+
+        repositoryConfig.put(DBSubsystem.PROP_INCREMENT_NAME, DBSubsystem.PROP_SERIAL_INCREMENT);
+        repositoryConfig.put(DBSubsystem.PROP_INCREMENT, dbConfig.getSerialIncrement());
 
         // register key record schema
         DBRegistry reg = dbSubsystem.getRegistry();

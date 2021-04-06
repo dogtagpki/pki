@@ -18,6 +18,7 @@
 package com.netscape.cmscore.request;
 
 import java.math.BigInteger;
+import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBSearchResults;
@@ -25,6 +26,7 @@ import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.Repository;
@@ -60,8 +62,50 @@ public class RequestRepository extends Repository {
                 dbSubsystem,
                 increment,
                 "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN(),
-                10,
-                dbSubsystem.getRepositoryConfig(DBSubsystem.REQUESTS));
+                10);
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        repositoryConfig.put(DBSubsystem.NAME, "requests");
+        repositoryConfig.put(DBSubsystem.PROP_BASEDN, dbConfig.getRequestDN());
+        repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getRequestRangeDN());
+
+        repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_REQUEST_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_MIN, dbConfig.getBeginRequestNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_MAX_NAME, DBSubsystem.PROP_MAX_REQUEST_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_MAX, dbConfig.getEndRequestNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN_NAME, DBSubsystem.PROP_NEXT_MIN_REQUEST_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN, dbConfig.getNextBeginRequestNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX_NAME, DBSubsystem.PROP_NEXT_MAX_REQUEST_NUMBER);
+        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX, dbConfig.getNextEndRequestNumber());
+
+        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK_NAME, DBSubsystem.PROP_REQUEST_LOW_WATER_MARK);
+        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK, dbConfig.getRequestLowWaterMark());
+
+        repositoryConfig.put(DBSubsystem.PROP_INCREMENT_NAME, DBSubsystem.PROP_REQUEST_INCREMENT);
+        repositoryConfig.put(DBSubsystem.PROP_INCREMENT, dbConfig.getRequestIncrement());
+
+        // Let RequestRecord class register its
+        // database mapping and object mapping values
+        RequestRecord.register(dbSubsystem);
+    }
+
+    public RequestRepository(
+            String name,
+            int increment,
+            DBSubsystem dbSubsystem,
+            Hashtable<String, String> repositoryConfig) throws EBaseException {
+
+        super(
+                dbSubsystem,
+                increment,
+                "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN(),
+                10);
+
+        this.repositoryConfig = repositoryConfig;
 
         // Let RequestRecord class register its
         // database mapping and object mapping values
