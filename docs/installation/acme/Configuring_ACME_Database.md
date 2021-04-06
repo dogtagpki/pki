@@ -45,7 +45,7 @@ when retrieving or updating the ACME configuration properties,
 which may increase the load on the database.
 Some databases might provide an ACME configuration monitor to reduce the load on the database.
 
-## Configuring In-Memory Database
+## Configuring ACME with In-Memory Database
 
 The ACME responder can be configured with an in-memory database.
 
@@ -67,88 +67,12 @@ class=org.dogtagpki.acme.database.InMemoryDatabase
 
 There are no parameters to configure for in-memory database.
 
-## Configuring DS Database
+## Configuring ACME with DS Database
 
 The ACME responder can be configured with a DS database.
+See [Configuring ACME with DS Database](Configuring-ACME-with-DS-Database.adoc).
 
-First, add the ACME DS schema by importing [/usr/share/pki/acme/database/ds/schema.ldif](../../../base/acme/database/ds/schema.ldif) with the following command:
-
-```
-$ ldapmodify -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/database/ds/schema.ldif
-```
-
-Next, create the ACME DS indexes by importing [/usr/share/pki/acme/database/ds/index.ldif](../../../base/acme/database/ds/index.ldif) with the following command:
-
-```
-$ ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/database/ds/index.ldif
-```
-
-**Note:** By default the `index.ldif` will use `userroot` as the DS backend.
-
-If necessary, the database can be reindexed by importing [/usr/share/pki/acme/database/ds/indextask.ldif](../../../base/acme/database/ds/indextask.ldif) with the following command:
-
-```
-$ ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/database/ds/indextask.ldif
-```
-
-The progress of the reindex task can be monitored with the following command:
-
-```
-$ ldapsearch -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -b "cn=acme,cn=index,cn=tasks,cn=config"
-```
-
-Once the indexes are ready, create the ACME subtree by importing
-[/usr/share/pki/acme/database/ds/create.ldif](../../../base/acme/database/ds/create.ldif) with the following command:
-
-```
-$ ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/database/ds/create.ldif
-```
-
-**Note:** By default the `create.ldif` will create the subtree under `dc=pki,dc=example,dc=com` which is mapped to `userroot` DS backend.
-
-A sample DS database configuration is available at
-[/usr/share/pki/acme/database/ds/database.conf](../../../base/acme/database/ds/database.conf).
-
-To use the DS database, copy the sample database.conf into the /etc/pki/pki-tomcat/acme folder,
-or execute the following command to customize some of the parameters:
-
-```
-$ pki-server acme-database-mod --type ds \
-    -DbindPassword=Secret.123
-```
-
-Customize the configuration as needed. In a standalone ACME deployment, the database.conf should look like the following:
-
-```
-class=org.dogtagpki.acme.database.DSDatabase
-url=ldap://<hostname>:389
-authType=BasicAuth
-bindDN=cn=Directory Manager
-bindPassword=Secret.123
-baseDN=dc=acme,dc=pki,dc=example,dc=com
-```
-
-In a shared CA and ACME deployment, the database.conf should look like the following:
-
-```
-class=org.dogtagpki.acme.database.DSDatabase
-configFile=conf/ca/CS.cfg
-baseDN=dc=acme,dc=pki,dc=example,dc=com
-```
-
-The DS database provides an ACME configuration monitor using search persistence.
-It can be enabled with the following parameter:
-
-```
-monitor.enabled=true
-```
-
-## Configuring OpenLDAP Database
+## Configuring ACME with OpenLDAP Database
 
 The ACME responder can be configured with an OpenLDAP database.
 
@@ -191,7 +115,7 @@ bindPassword=Secret.123
 baseDN=dc=acme,dc=pki,dc=example,dc=com
 ```
 
-## Configuring PosgreSQL Database
+## Configuring ACME with PosgreSQL Database
 
 The ACME responder can be configured with a PostgreSQL database.
 

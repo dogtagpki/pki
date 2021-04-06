@@ -4,7 +4,22 @@ type: Opaque
 metadata:
   name: pki-acme-realm
 stringData:
+  # In-Memory Realm
+  # ---------------
   class: org.dogtagpki.acme.realm.InMemoryRealm
+  #
+  # DS Realm
+  # --------
+  # class: org.dogtagpki.acme.realm.DSRealm
+  # url: ldap://ds:389
+  # authType: BasicAuth
+  # bindDN: cn=Directory Manager
+  # bindPassword: Secret.123
+  # usersDN: ou=people,dc=acme,dc=pki,dc=example,dc=com
+  # groupsDN: ou=groups,dc=acme,dc=pki,dc=example,dc=com
+  #
+  # PostgreSQL Realm
+  # ----------------
   # class: org.dogtagpki.acme.realm.PostgreSQLRealm
   # password: Secret.123
   # url: jdbc:postgresql://postgresql:5432/acme
