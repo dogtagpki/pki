@@ -149,7 +149,7 @@ public class CMSEngine implements ServletContextListener {
     private PluginRegistry pluginRegistry = new PluginRegistry();
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
     protected JssSubsystem jssSubsystem = JssSubsystem.getInstance();
-    protected DBSubsystem dbSubsystem = DBSubsystem.getInstance();
+    protected DBSubsystem dbSubsystem = new DBSubsystem();
     protected UGSubsystem ugSubsystem = new UGSubsystem();
     protected OidLoaderSubsystem oidLoaderSubsystem = OidLoaderSubsystem.getInstance();
     protected X500NameSubsystem x500NameSubsystem = X500NameSubsystem.getInstance();

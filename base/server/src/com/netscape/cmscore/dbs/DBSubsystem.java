@@ -144,26 +144,6 @@ public class DBSubsystem {
     public static final String PROP_INCREMENT_NAME = "increment_name";
     public static final String PROP_RANGE_DN = "rangeDN";
 
-    // singleton enforcement
-
-    private static DBSubsystem mInstance = new DBSubsystem();
-
-    public static DBSubsystem getInstance() {
-        return mInstance;
-    }
-
-    /**
-     * This method is used for unit tests. It allows the underlying instance
-     * to be stubbed out.
-     *
-     * @param dbSubsystem The stubbed out subsystem to override with.
-     */
-    public static void setInstance(DBSubsystem dbSubsystem) {
-        mInstance = dbSubsystem;
-    }
-
-    // end singleton enforcement.
-
     /**
      * Constructs database subsystem.
      */

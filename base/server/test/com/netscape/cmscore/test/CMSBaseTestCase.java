@@ -16,7 +16,7 @@ import junit.framework.TestCase;
  * (like the CMS logging system).
  */
 public abstract class CMSBaseTestCase extends TestCase {
-    DBSubsystemStub db;
+    protected DBSubsystemStub dbSubsystem;
     DBRegistry registry;
     DBSSession session;
 
@@ -25,11 +25,9 @@ public abstract class CMSBaseTestCase extends TestCase {
     }
 
     public final void setUp() throws Exception {
-        db = new DBSubsystemStub();
+        dbSubsystem = new DBSubsystemStub();
         registry = new DBRegistry();
         session = new DBSSession();
-
-        DBSubsystem.setInstance(db);
 
         cmsTestSetUp();
     }

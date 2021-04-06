@@ -5,14 +5,12 @@ import java.util.Collections;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public class RequestQueueTest extends CMSBaseTestCase {
-    DBSubsystem dbSubsystem;
     RequestStub request;
     RequestRepository requestRepository;
     RequestQueue queue;
@@ -22,7 +20,7 @@ public class RequestQueueTest extends CMSBaseTestCase {
     }
 
     public void cmsTestSetUp() throws Exception {
-        dbSubsystem = DBSubsystem.getInstance();
+
         request = new RequestStub();
 
         requestRepository = new RequestRepository("", 1, dbSubsystem, null);
