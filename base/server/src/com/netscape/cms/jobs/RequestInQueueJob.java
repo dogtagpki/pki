@@ -30,12 +30,12 @@ import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.IRequestList;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * A job for the Jobs Scheduler. This job checks in the internal ldap
@@ -56,7 +56,7 @@ public class RequestInQueueJob extends AJobBase
     protected static final String PROP_SUBSYSTEM_ID = "subsystemId";
 
     IAuthority mSub = null;
-    IRequestQueue mReqQ = null;
+    ARequestQueue mReqQ = null;
     private boolean mSummary = false;
 
     /* Holds configuration parameters accepted by this implementation.

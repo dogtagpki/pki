@@ -69,7 +69,6 @@ import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
@@ -86,6 +85,7 @@ import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.KeyStatusUpdateTask;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
@@ -129,7 +129,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     protected String mId = null;
 
     protected RequestRepository requestRepository;
-    protected IRequestQueue mRequestQueue = null;
+    protected ARequestQueue mRequestQueue = null;
 
     protected TransportKeyUnit mTransportKeyUnit = null;
     protected StorageKeyUnit mStorageKeyUnit = null;
@@ -784,7 +784,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         String auditRequesterID = auditRequesterID();
         String auditPublicKey = auditPublicKey(rec);
 
-        IRequestQueue queue = null;
+        ARequestQueue queue = null;
         IRequest r = null;
 
         // ensure that any low-level exceptions are reported
@@ -853,7 +853,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         RequestId auditRecoveryID = null;
         String auditSubjectID = auditSubjectID();
 
-        IRequestQueue queue = null;
+        ARequestQueue queue = null;
         IRequest r = null;
 
         try {
@@ -897,7 +897,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     public boolean isApprovedAsyncKeyRecovery(String reqID)
             throws EBaseException {
-        IRequestQueue queue = null;
+        ARequestQueue queue = null;
         IRequest r = null;
 
         queue = getRequestQueue();
@@ -914,7 +914,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     public String getInitAgentAsyncKeyRecovery(String reqID)
             throws EBaseException {
-        IRequestQueue queue = null;
+        ARequestQueue queue = null;
         IRequest r = null;
 
         queue = getRequestQueue();
@@ -944,7 +944,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
-        IRequestQueue queue = null;
+        ARequestQueue queue = null;
         IRequest r = null;
 
         // check if the uid is in the specified group
@@ -1025,7 +1025,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         String auditPublicKey = auditPublicKey(cert);
         String auditAgents = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 
-        IRequestQueue queue = null;
+        ARequestQueue queue = null;
         IRequest r = null;
         Hashtable<String, Object> params = null;
 
@@ -1146,7 +1146,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         String auditAgents = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         KeyId keyID = null;
 
-        IRequestQueue queue = null;
+        ARequestQueue queue = null;
         IRequest r = null;
         Hashtable<String, Object> params = null;
 
@@ -1225,7 +1225,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             Credential creds[], String password,
             X509CertImpl cert,
             String delivery) throws EBaseException {
-        IRequestQueue queue = getRequestQueue();
+        ARequestQueue queue = getRequestQueue();
         IRequest r = queue.newRequest("recovery");
 
         r.setExtData(RecoveryService.ATTR_SERIALNO, kid);
@@ -1288,7 +1288,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             encryptionChain, X509CertImpl signingCert,
             X509CertImpl transportCert,
             X500Name ownerName) throws EBaseException {
-        IRequestQueue queue = getRequestQueue();
+        ARequestQueue queue = getRequestQueue();
         IRequest r = queue.newRequest("recovery");
 
         ByteArrayOutputStream certChainOut = new ByteArrayOutputStream();
@@ -1393,7 +1393,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      *
      * @return request repository
      */
-    public IRequestQueue getRequestQueue() {
+    public ARequestQueue getRequestQueue() {
         return mRequestQueue;
     }
 

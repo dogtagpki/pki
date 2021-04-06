@@ -37,7 +37,6 @@ import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -47,6 +46,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -85,7 +85,7 @@ public class QueryReq extends CMSServlet {
 
     // variables
     private IReqParser mParser = null;
-    private IRequestQueue mQueue = null;
+    private ARequestQueue mQueue = null;
     private String mFormPath = null;
     private int mMaxReturns = 2000;
 

@@ -37,7 +37,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.profile.common.Profile;
@@ -48,6 +47,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * Toggle the approval state of a profile
@@ -227,7 +227,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
                 return;
             }
-            IRequestQueue queue = authority.getRequestQueue();
+            ARequestQueue queue = authority.getRequestQueue();
 
             if (queue == null) {
                 logger.error("ProfileApproveServlet: Request Queue of " + mAuthorityId + " not found");

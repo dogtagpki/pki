@@ -27,14 +27,14 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.base.IAttrSet;
-
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.IAttrSet;
 
 /**
  * An interface that defines abilities of request objects,
@@ -312,7 +312,7 @@ public interface IRequest extends Serializable {
     /**
      * Sets the "sourceId" for this request. The request must be updated
      * in the database for this change to take effect. This can be done
-     * by calling IRequestQueue.update() or by performing one of the
+     * by calling ARequestQueue.update() or by performing one of the
      * other operations like processRequest or approveRequest.
      *
      * @param id source id for this request
@@ -365,7 +365,7 @@ public interface IRequest extends Serializable {
 
     /**
      * Gets the time this request was last modified (defined
-     * as updated in the queue) (See IRequestQueue.update)
+     * as updated in the queue) (See ARequestQueue.update)
      *
      * @return request last modification time
      */

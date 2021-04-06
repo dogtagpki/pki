@@ -63,7 +63,6 @@ import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.realm.PKIRealm;
 import com.netscape.cms.servlet.csadmin.Configurator;
@@ -87,6 +86,7 @@ import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.CertRequestConstants;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestSubsystem;
@@ -1520,8 +1520,8 @@ public class CMSEngine implements ServletContextListener {
         return pid;
     }
 
-    private IRequestQueue getReqQueue() {
-        IRequestQueue queue = null;
+    private ARequestQueue getReqQueue() {
+        ARequestQueue queue = null;
 
         try {
             IRegistrationAuthority ra = (IRegistrationAuthority) subsystems.get("ra");
@@ -1570,7 +1570,7 @@ public class CMSEngine implements ServletContextListener {
 
         boolean revoked = false;
 
-        IRequestQueue queue = getReqQueue();
+        ARequestQueue queue = getReqQueue();
         if (queue != null) {
             IRequest checkRevReq = null;
 

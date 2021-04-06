@@ -25,7 +25,6 @@ import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -44,7 +43,7 @@ public class RequestRepository extends Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRepository.class);
 
-    IRequestQueue mRequestQueue = null;
+    ARequestQueue mRequestQueue = null;
 
     /**
      * Create a request repository that uses the LDAP database
@@ -112,7 +111,7 @@ public class RequestRepository extends Repository {
         RequestRecord.register(dbSubsystem);
     }
 
-    public void setRequestQueue(IRequestQueue requestQueue) {
+    public void setRequestQueue(ARequestQueue requestQueue) {
         this.mRequestQueue = requestQueue;
     }
 

@@ -370,12 +370,6 @@ public class RequestQueue
 
     }
 
-    /**
-     * Implements IRequestQueue.findRequestBySourceId
-     * <p>
-     *
-     * @see com.netscape.certsrv.request.IRequestQueue#findRequestBySourceId
-     */
     public RequestId findRequestBySourceId(String id) {
         IRequestList irl = findRequestsBySourceId(id);
 
@@ -385,12 +379,6 @@ public class RequestQueue
         return irl.nextRequestId();
     }
 
-    /**
-     * Implements IRequestQueue.findRequestsBySourceId
-     * <p>
-     *
-     * @see com.netscape.certsrv.request.IRequestQueue#findRequestsBySourceId
-     */
     public IRequestList findRequestsBySourceId(String id) {
         IDBSearchResults results = null;
         DBSSession dbs = null;
@@ -555,16 +543,10 @@ public class RequestQueue
         return new SearchEnumeration(this, results);
     }
 
-    /*
-     * Implements IRequestQueue.getPagedRequests
-     */
     public IRequestVirtualList getPagedRequests(int pageSize) {
         return getPagedRequestsByFilter("(requestId=*)", pageSize, "requestId");
     }
 
-    /*
-     * Implements IRequestQueue.getPagedRequestsByFilter
-     */
     public IRequestVirtualList
             getPagedRequestsByFilter(String filter, int pageSize, String sortKey) {
         return getPagedRequestsByFilter(null, filter, pageSize, sortKey);

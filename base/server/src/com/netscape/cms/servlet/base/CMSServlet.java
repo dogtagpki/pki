@@ -78,7 +78,6 @@ import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
@@ -105,6 +104,7 @@ import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -236,7 +236,7 @@ public abstract class CMSServlet extends HttpServlet {
     // the authority, RA, CA, KRA this servlet is serving.
     protected IAuthority mAuthority = null;
     protected ICertificateAuthority certAuthority;
-    protected IRequestQueue mRequestQueue = null;
+    protected ARequestQueue mRequestQueue = null;
 
     // system logger.
     protected LogSource mLogCategory = ILogger.S_OTHER;

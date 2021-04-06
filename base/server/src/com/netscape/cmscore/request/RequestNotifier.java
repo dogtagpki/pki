@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 
@@ -58,7 +57,7 @@ public class RequestNotifier implements IRequestNotifier {
         mPublishingQueuePriority = Thread.currentThread().getPriority();
     }
 
-    public IRequestQueue getRequestQueue() {
+    public ARequestQueue getRequestQueue() {
         return null;
     }
 
@@ -89,7 +88,7 @@ public class RequestNotifier implements IRequestNotifier {
             mPublishingQueuePriority = Thread.currentThread().getPriority();
         }
 
-        IRequestQueue requestQueue = getRequestQueue();
+        ARequestQueue requestQueue = getRequestQueue();
 
         if (mIsPublishingQueueEnabled && mSavePublishingStatus > 0 && requestQueue != null) {
             mPublishingStatus = requestQueue.getPublishingStatus();
@@ -178,7 +177,7 @@ public class RequestNotifier implements IRequestNotifier {
 
     public void updatePublishingStatus(String id) {
 
-        IRequestQueue requestQueue = getRequestQueue();
+        ARequestQueue requestQueue = getRequestQueue();
 
         if (requestQueue != null) {
             synchronized (publishingCounterMonitor) {
@@ -211,7 +210,7 @@ public class RequestNotifier implements IRequestNotifier {
         if (mSearchForRequests && mRequests.size() == 1) {
 
             id = mRequests.elementAt(0);
-            IRequestQueue requestQueue = getRequestQueue();
+            ARequestQueue requestQueue = getRequestQueue();
 
             if (id != null && requestQueue != null) {
                 logger.debug("getRequest  request id=" + id);
@@ -266,7 +265,7 @@ public class RequestNotifier implements IRequestNotifier {
             id = mRequests.elementAt(0);
             if (id != null) {
                 logger.debug("getRequest  getting request: " + id);
-                IRequestQueue requestQueue = getRequestQueue();
+                ARequestQueue requestQueue = getRequestQueue();
 
                 if (requestQueue != null) {
                     try {
@@ -317,7 +316,7 @@ public class RequestNotifier implements IRequestNotifier {
         if (mNotifierThreads.size() > 0) {
             mNotifierThreads.remove(notifierThread);
             if (mNotifierThreads.size() == 0) {
-                IRequestQueue requestQueue = getRequestQueue();
+                ARequestQueue requestQueue = getRequestQueue();
                 requestQueue.setPublishingStatus("-1");
             }
         }

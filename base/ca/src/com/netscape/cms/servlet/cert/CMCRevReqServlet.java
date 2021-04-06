@@ -56,7 +56,6 @@ import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -70,6 +69,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * Revoke a certificate with a CMC-formatted revocation request
@@ -89,7 +89,7 @@ public class CMCRevReqServlet extends CMSServlet {
 
     private CertificateRepository mCertDB;
     private String mFormPath = null;
-    private IRequestQueue mQueue = null;
+    private ARequestQueue mQueue = null;
     private CAPublisherProcessor mPublisherProcessor;
     private String mRequestID = null;
     private final static String REVOKE = "revoke";

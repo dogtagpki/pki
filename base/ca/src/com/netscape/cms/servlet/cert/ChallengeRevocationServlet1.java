@@ -51,7 +51,6 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -66,6 +65,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * Takes the certificate info (serial number) and optional challenge phrase, creates a
@@ -85,7 +85,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
     private CertificateRepository mCertDB;
     private String mFormPath = null;
-    private IRequestQueue mQueue = null;
+    private ARequestQueue mQueue = null;
     private CAPublisherProcessor mPublisherProcessor;
     private String mRequestID = null;
 

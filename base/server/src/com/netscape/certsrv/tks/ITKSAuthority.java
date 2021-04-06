@@ -18,7 +18,7 @@
 package com.netscape.certsrv.tks;
 
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * An interface represents a Registration Authority that is
@@ -44,7 +44,7 @@ public interface ITKSAuthority extends ISubsystem {
      *
      * @return RA's request queue
      */
-    public IRequestQueue getRequestQueue();
+    public ARequestQueue getRequestQueue();
 
     /**
      * Returns the nickname of the RA certificate.

@@ -34,12 +34,12 @@ import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * An interface represents key recovery authority. The
@@ -86,7 +86,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      *
      * @return request repository
      */
-    public IRequestQueue getRequestQueue();
+    public ARequestQueue getRequestQueue();
 
     /**
      * Retrieves the key repository. The key repository

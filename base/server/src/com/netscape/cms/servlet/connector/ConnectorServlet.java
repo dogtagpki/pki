@@ -64,7 +64,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -76,6 +75,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * Connector servlet
@@ -422,7 +422,7 @@ public class ConnectorServlet extends CMSServlet {
         IPKIMessage replymsg = null;
 
         try {
-            IRequestQueue queue = mAuthority.getRequestQueue();
+            ARequestQueue queue = mAuthority.getRequestQueue();
             String srcid = source + ":" + msg.getReqId();
             logger.debug(method + "srcid =" + srcid);
 

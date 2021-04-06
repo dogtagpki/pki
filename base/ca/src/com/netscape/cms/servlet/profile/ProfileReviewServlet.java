@@ -38,7 +38,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
@@ -52,6 +51,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -176,7 +176,7 @@ public class ProfileReviewServlet extends ProfileServlet {
             outputTemplate(request, response, args);
             return;
         }
-        IRequestQueue queue = authority.getRequestQueue();
+        ARequestQueue queue = authority.getRequestQueue();
 
         if (queue == null) {
             logger.error("ProfileReviewServlet: Request Queue of " + mAuthorityId + " not found");

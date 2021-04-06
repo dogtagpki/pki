@@ -111,7 +111,6 @@ import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
@@ -125,6 +124,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWCBsdr;
 import com.netscape.cmscore.util.Debug;
@@ -1102,7 +1102,7 @@ public class CRSEnrollment extends HttpServlet {
 
         /* Check if certificate request has been completed */
 
-        IRequestQueue rq = ca.getRequestQueue();
+        ARequestQueue rq = ca.getRequestQueue();
         IRequest foundRequest = null;
 
         Enumeration<RequestId> rids = rq.findRequestsBySourceId(txid);
@@ -1788,7 +1788,7 @@ public class CRSEnrollment extends HttpServlet {
 
         }
 
-        IRequestQueue rq = ca.getRequestQueue();
+        ARequestQueue rq = ca.getRequestQueue();
         IRequest pkiReq = rq.newRequest(IRequest.ENROLLMENT_REQUEST);
 
         AuthToken token = (AuthToken) req.get(AUTH_TOKEN);

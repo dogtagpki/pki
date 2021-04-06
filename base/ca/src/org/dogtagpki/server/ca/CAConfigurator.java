@@ -37,7 +37,6 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
@@ -51,6 +50,7 @@ import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CAConfigurator extends Configurator {
@@ -237,7 +237,7 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         CertInfoProfile profile = new CertInfoProfile(profileConfig);
 
-        IRequestQueue queue = engine.getRequestQueue();
+        ARequestQueue queue = engine.getRequestQueue();
         IRequest req = queue.newRequest("enrollment");
 
         CertificateExtensions extensions = new CertificateExtensions();
@@ -300,7 +300,7 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         CertInfoProfile profile = new CertInfoProfile(profileConfig);
 
-        IRequestQueue queue = engine.getRequestQueue();
+        ARequestQueue queue = engine.getRequestQueue();
         IRequest req = queue.newRequest("enrollment");
 
         initCertRequest(

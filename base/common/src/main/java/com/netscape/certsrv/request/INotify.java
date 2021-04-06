@@ -20,7 +20,7 @@ package com.netscape.certsrv.request;
 /**
  * The INotify interface defines operations that are invoked
  * when a request is completely processed. A class implementing
- * this interface may be registered with a IRequestQueue.
+ * this interface may be registered with an ARequestQueue.
  * The interface will be invoked when a request is completely
  * serviced by the IService object.
  *

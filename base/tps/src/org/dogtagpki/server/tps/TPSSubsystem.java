@@ -49,7 +49,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -57,6 +56,7 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -320,7 +320,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     }
 
     @Override
-    public IRequestQueue getRequestQueue() {
+    public ARequestQueue getRequestQueue() {
         return null;
     }
 

@@ -39,11 +39,11 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * An interface represents a Certificate Authority that is
@@ -114,7 +114,7 @@ public interface ICertificateAuthority extends ISubsystem {
      *
      * @return CA's request queue
      */
-    public IRequestQueue getRequestQueue();
+    public ARequestQueue getRequestQueue();
 
     /**
      * Retrieves the policy processor of this certificate authority.

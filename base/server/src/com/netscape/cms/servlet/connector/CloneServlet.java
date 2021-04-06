@@ -31,8 +31,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthManager;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -48,7 +48,6 @@ import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -59,6 +58,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * Clone servlet - part of the Clone Authority (CLA)
@@ -302,7 +302,7 @@ public class CloneServlet extends CMSServlet {
             String source, String sourceUserId, IPKIMessage msg, IAuthToken token)
             throws EBaseException {
         IPKIMessage replymsg = null;
-        IRequestQueue queue = mAuthority.getRequestQueue();
+        ARequestQueue queue = mAuthority.getRequestQueue();
         String srcid = source + ":" + msg.getReqId();
 
         logger.info("CloneServlet: processRequest");

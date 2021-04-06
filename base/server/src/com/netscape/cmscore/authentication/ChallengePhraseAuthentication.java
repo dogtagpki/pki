@@ -38,12 +38,12 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * Challenge phrase based authentication.
@@ -253,7 +253,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
              * ra, build a request and send through the connection for
              * authentication
              */
-            IRequestQueue queue = getReqQueue();
+            ARequestQueue queue = getReqQueue();
 
             if (queue != null) {
                 IRequest checkChallengeReq = null;
@@ -368,10 +368,10 @@ public class ChallengePhraseAuthentication implements AuthManager {
         return mConfig;
     }
 
-    private IRequestQueue getReqQueue() {
+    private ARequestQueue getReqQueue() {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IRequestQueue queue = null;
+        ARequestQueue queue = null;
 
         try {
             IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);

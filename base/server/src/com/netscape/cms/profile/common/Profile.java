@@ -37,7 +37,6 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -48,6 +47,7 @@ import com.netscape.cms.profile.updater.IProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.registry.PluginRegistry;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * This class implements a basic profile. A profile contains
@@ -392,7 +392,7 @@ public abstract class Profile {
      *
      * @return request queue
      */
-    public abstract IRequestQueue getRequestQueue();
+    public abstract ARequestQueue getRequestQueue();
 
     /**
      * Retrieves the configuration store of this profile.

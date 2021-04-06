@@ -33,11 +33,11 @@ import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 
 /**
@@ -51,7 +51,7 @@ public class Resender implements IResender {
     public static final int MINUTE = 60;
 
     protected IAuthority mAuthority = null;
-    IRequestQueue mQueue = null;
+    ARequestQueue mQueue = null;
     protected IRemoteAuthority mDest = null;
     ScheduledExecutorService executorService;
 

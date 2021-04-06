@@ -69,7 +69,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -80,6 +79,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * Check the status of a certificate request
@@ -101,7 +101,7 @@ public class CheckRequest extends CMSServlet {
     private final static String TPL_FILE = "requestStatus.template";
 
     // variables
-    private IRequestQueue mQueue = null;
+    private ARequestQueue mQueue = null;
     private String mFormPath = null;
     private String mAuthorityId = null;
 

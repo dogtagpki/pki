@@ -39,7 +39,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -47,6 +46,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * Search for certificates matching complex query filter
@@ -65,7 +65,7 @@ public class SearchReqs extends CMSServlet {
     private final static String OUT_CURRENTCOUNT = "currentRecordCount";
     private final static int MAX_RESULTS = 1000;
 
-    private IRequestQueue mQueue = null;
+    private ARequestQueue mQueue = null;
     private IReqParser mParser = null;
     private String mFormPath = null;
     private int mMaxReturns = MAX_RESULTS;

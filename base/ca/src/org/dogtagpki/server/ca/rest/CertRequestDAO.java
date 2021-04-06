@@ -41,7 +41,6 @@ import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.profile.common.Profile;
@@ -55,6 +54,7 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -65,7 +65,7 @@ public class CertRequestDAO extends CMSRequestDAO {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRequestDAO.class);
 
-    private IRequestQueue queue;
+    private ARequestQueue queue;
     private CertificateAuthority ca;
     ProfileSubsystem ps;
     private SecureRandom random = null;

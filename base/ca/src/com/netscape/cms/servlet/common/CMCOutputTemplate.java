@@ -92,7 +92,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
@@ -103,6 +102,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -855,7 +855,7 @@ public class CMCOutputTemplate {
                         String requestId = new String(reqId.toByteArray());
 
                         CertificateAuthority ca = engine.getCA();
-                        IRequestQueue queue = ca.getRequestQueue();
+                        ARequestQueue queue = ca.getRequestQueue();
                         IRequest r = queue.findRequest(new RequestId(requestId));
                         if (r != null) {
                             RequestStatus status = r.getRequestStatus();
@@ -1344,7 +1344,7 @@ public class CMCOutputTemplate {
                             entryExtn);
                     RevokedCertImpl[] revCertImpls = new RevokedCertImpl[1];
                     revCertImpls[0] = revCertImpl;
-                    IRequestQueue queue = ca.getRequestQueue();
+                    ARequestQueue queue = ca.getRequestQueue();
                     IRequest revReq = queue.newRequest(IRequest.REVOCATION_REQUEST);
                     auditReqID = revReq.getRequestId().toString();
                     revReq.setExtData(IRequest.CERT_INFO, revCertImpls);

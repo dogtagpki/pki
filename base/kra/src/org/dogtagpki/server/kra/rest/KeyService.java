@@ -66,13 +66,13 @@ import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataStatusChangeEvent;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.kra.KeyRecoveryAuthority;
 
@@ -90,7 +90,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
     private KeyRepository repo;
     private KeyRecoveryAuthority kra;
-    private IRequestQueue queue;
+    private ARequestQueue queue;
     private IKeyService service;
 
     //parameters for auditing

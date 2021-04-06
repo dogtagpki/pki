@@ -35,7 +35,6 @@ import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -43,6 +42,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.notification.EmailFormProcessor;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * a job for the Jobs Scheduler. This job checks in the internal ldap
@@ -66,7 +66,7 @@ public class PublishCertsJob extends AJobBase
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublishCertsJob.class);
 
     CertificateAuthority mCa;
-    IRequestQueue mReqQ = null;
+    ARequestQueue mReqQ = null;
     CertificateRepository mRepository;
     CAPublisherProcessor mPublisherProcessor;
     private boolean mSummary = false;

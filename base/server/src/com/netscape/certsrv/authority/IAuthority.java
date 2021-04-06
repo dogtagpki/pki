@@ -19,7 +19,7 @@ package com.netscape.certsrv.authority;
 
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * Authority interface.
@@ -34,7 +34,7 @@ public interface IAuthority extends ISubsystem {
      *
      * @return the request queue.
      */
-    public IRequestQueue getRequestQueue();
+    public ARequestQueue getRequestQueue();
 
     /**
      * Registers request completed class.

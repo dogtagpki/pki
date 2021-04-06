@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -27,8 +28,8 @@ import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestScheduler;
+import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
@@ -37,26 +38,35 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 /**
- * The ARequestQueue class is an abstract class that implements
- * most portions of the IRequestQueue interface. This includes
- * the state engine as defined for processing IRequest objects.
+ * This class represents the request queue within the
+ * certificate server. This class implements the state
+ * engine for processing request objects.
+ * <p>
+ * There are several queues, such as KRA and CA requests.
+ * Each of these request queues has a defined
+ * set of policies, a notification service (for request
+ * completion) and a service routine. The request queue
+ * provides an interface for creating and viewing requests,
+ * as well as performing operations on them.
  * <p>
  * !Put state machine description here!
  * <p>
- * This class defines several abstract protected functions that need to be defined by the concrete implementation. In
- * particular, this class does not implement the operations for storing requests persistantly.
+ * This class defines several abstract protected functions
+ * that need to be defined by the concrete implementation.
+ * In particular, this class does not implement the operations
+ * for storing requests persistently.
  * <p>
- * This class also provides several accessor functions for setting fields in the IRequest object. These functions are
- * provided as an aid to saving and restoring the state in the database.
+ * This class also provides several accessor functions for
+ * setting fields in the request object. These functions are
+ * provided for saving and restoring the state in the database.
  * <p>
- * This class also implements the locking operations specified by the IRequestQueue interface.
+ * This class also implements the locking operations.
  * <p>
  *
  * @author thayes
  * @version $Revision$ $Date$
  */
-public abstract class ARequestQueue
-        implements IRequestQueue {
+public abstract class ARequestQueue {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ARequestQueue.class);
 
@@ -64,6 +74,24 @@ public abstract class ARequestQueue
      * global request version for tracking request changes.
      */
     public final static String REQUEST_VERSION = "1.0.0";
+
+    // RequestIDTable mTable = new RequestIDTable();
+
+    IPolicy mPolicy;
+    IService mService;
+    INotify mNotify;
+    INotify mPendingNotify;
+
+    IRequestScheduler mRequestScheduler;
+
+    // Constructor
+    protected ARequestQueue(IPolicy policy, IService service, INotify notify,
+            INotify pendingNotify) {
+        mPolicy = policy;
+        mService = service;
+        mNotify = notify;
+        mPendingNotify = pendingNotify;
+    }
 
     /**
      * Create a new (unique) RequestId. (abstract)
@@ -225,15 +253,31 @@ public abstract class ARequestQueue
         return r;
     }
 
+    /**
+     * Creates a new request object. A request id is
+     * assigned to it - see IRequest.getRequestId, and
+     * the status is set to RequestStatus.BEGIN
+     * <p>
+     * The request is LOCKED. The caller MUST release the request object by calling releaseRequest().
+     * <p>
+     * TODO: provide other required values (such as type and sourceId)
+     *
+     * @param requestType request type
+     * @return new request
+     * @exception EBaseException failed to create new request
+     */
     public IRequest newRequest(String requestType) throws EBaseException {
         return newRequest(requestType, false);
     }
 
     /**
-     * Implements IRequestQueue.newRequest
-     * <p>
+     * Create a new Request object and assign a request ID.
+     * See newRequest() for details.
      *
-     * @see IRequestQueue#newRequest
+     * @param requestType - request type
+     * @param ephemeral - is the request ephemeral?
+     * @return new request
+     * @exception EBaseException failed to create new request
      */
     public IRequest newRequest(String requestType, boolean ephemeral)
             throws EBaseException {
@@ -273,10 +317,17 @@ public abstract class ARequestQueue
     }
 
     /**
-     * Implements IRequestQueue.cloneRequest
+     * Clones a request object. A new request id is assigned
+     * and all attributes of the request is copied to cloned request,
+     * except for the sourceID of the original request
+     * (remote authority's request Id).
      * <p>
+     * The cloned request that is returned is LOCKED. The caller MUST release the request object by calling
+     * releaseRequest().
      *
-     * @see IRequestQueue#cloneRequest
+     * @param r request to be cloned
+     * @return cloned request
+     * @exception EBaseException failed to clone request
      */
     public IRequest cloneRequest(IRequest r)
             throws EBaseException {
@@ -304,10 +355,15 @@ public abstract class ARequestQueue
     }
 
     /**
-     * Implements IRequestQueue.findRequest
+     * Gets the Request corresponding to id.
+     * Returns null if the id does not correspond
+     * to a valid request id.
      * <p>
+     * Errors may be generated for other conditions.
      *
-     * @see IRequestQueue#findRequest
+     * @param id request id
+     * @return found request
+     * @exception EBaseException failed to access request queue
      */
     public IRequest findRequest(RequestId id)
             throws EBaseException {
@@ -322,21 +378,31 @@ public abstract class ARequestQueue
         return r;
     }
 
-    private IRequestScheduler mRequestScheduler = null;
-
+    /**
+     * Sets request scheduler.
+     *
+     * @param scheduler request scheduler
+     */
     public void setRequestScheduler(IRequestScheduler scheduler) {
         mRequestScheduler = scheduler;
     }
 
+    /**
+     * Gets request scheduler.
+     *
+     * @return request scheduler
+     */
     public IRequestScheduler getRequestScheduler() {
         return mRequestScheduler;
     }
 
     /**
-     * Implements IRequestQueue.processRequest
-     * <p>
+     * Begins processing for this request. This call
+     * is valid only on requests with status BEGIN
+     * An error is generated for other cases.
      *
-     * @see IRequestQueue#processRequest
+     * @param req request to be processed
+     * @exception EBaseException failed to process request
      */
     public final void processRequest(IRequest r)
             throws EBaseException {
@@ -364,10 +430,16 @@ public abstract class ARequestQueue
     }
 
     /**
-     * Implements IRequestQueue.markRequestPending
+     * Puts a new request into the PENDING state. This call is
+     * only valid for requests with status BEGIN. An error is
+     * generated for other cases.
      * <p>
+     * This call might be used by agent servlets that want to copy a previous request, and resubmit it. By putting it
+     * into PENDING state, the normal agent screens can be used for further processing.
      *
-     * @see IRequestQueue#markRequestPending
+     * @param req
+     *            the request to mark PENDING
+     * @exception EBaseException failed to mark request as pending
      */
     public final void markRequestPending(IRequest r)
             throws EBaseException {
@@ -388,10 +460,17 @@ public abstract class ARequestQueue
     }
 
     /**
-     * Implements IRequestQueue.cloneAndMarkPending
+     * Clones a request object and mark it pending. A new request id is assigned
+     * and all attributes of the request is copied to cloned request,
+     * except for the sourceID of the original request
+     * (remote authority's request Id).
      * <p>
+     * The cloned request that is returned is LOCKED. The caller MUST release the request object by calling
+     * releaseRequest().
      *
-     * @see IRequestQueue#cloneAndMarkPending
+     * @param r request to be cloned
+     * @return cloned request mark PENDING
+     * @exception EBaseException failed to clone or mark request
      */
     public IRequest cloneAndMarkPending(IRequest r)
             throws EBaseException {
@@ -402,10 +481,19 @@ public abstract class ARequestQueue
     }
 
     /**
-     * Implements IRequestQueue.approveRequest
+     * Approves a request. The request must be locked.
      * <p>
+     * This call will fail if: the request is not in PENDING state the policy modules do not accept the request
+     * <p>
+     * If the policy modules reject the request, then the request will remain in the PENDING state. Messages from the
+     * policy module can be display to the agent to indicate the source of the problem.
+     * <p>
+     * The request processing code adds an AgentApproval to this request that contains the authentication id of the
+     * agent. This data is retrieved from the Session object (qv).
      *
-     * @see IRequestQueue#approveRequest
+     * @param request
+     *            the request that is being approved
+     * @exception EBaseException failed to approve request
      */
     public final void approveRequest(IRequest r)
             throws EBaseException {
@@ -446,10 +534,16 @@ public abstract class ARequestQueue
     }
 
     /**
-     * Implements IRequestQueue.rejectRequest
+     * Rejects a request. The request must be locked.
      * <p>
+     * This call will fail if: the request is not in PENDING state
+     * <p>
+     * The agent servlet (or other application) may wish to store AgentMessage values to indicate the reason for the
+     * action
      *
-     * @see IRequestQueue#rejectRequest
+     * @param request
+     *            the request that is being rejected
+     * @exception EBaseException failed to reject request
      */
     public final void rejectRequest(IRequest r)
             throws EBaseException {
@@ -468,10 +562,16 @@ public abstract class ARequestQueue
     }
 
     /**
-     * Implments IRequestQueue.cancelRequest
+     * Cancels a request. The request must be locked.
      * <p>
+     * This call will fail if: the request is not in PENDING state
+     * <p>
+     * The agent servlet (or other application) may wish to store AgentMessage values to indicate the reason for the
+     * action
      *
-     * @see IRequestQueue#cancelRequest
+     * @param request
+     *            the request that is being canceled
+     * @exception EBaseException failed to cancel request
      */
     public final void cancelRequest(IRequest r)
             throws EBaseException {
@@ -484,11 +584,20 @@ public abstract class ARequestQueue
     }
 
     /**
-     * caller must lock request and release request
+     * Marks as serviced after destination authority has serviced request.
+     * Used by connector.
+     *
+     * Caller must lock request and release request.
+     *
+     * @param r request
      */
     public final void markAsServiced(IRequest r) {
         setRequestStatus(r, RequestStatus.COMPLETE);
-        updateRequest(r);
+        try {
+            updateRequest(r);
+        } catch (EBaseException e) {
+            throw new RuntimeException(e);
+        }
 
         if (mNotify != null)
             mNotify.notify(r);
@@ -497,42 +606,126 @@ public abstract class ARequestQueue
     }
 
     /**
-     * Implements IRequestQueue.listRequests
+     * Returns an enumerator that lists all RequestIds in the
+     * queue. The caller should use the RequestIds to locate
+     * each request by calling findRequest().
+     * <p>
+     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
+     * object.
      * <p>
      * Should be overridden by the specialized class if a more efficient method is available for implementing this
      * operation.
-     * <P>
      *
-     * @see IRequestQueue#listRequests
+     * @return request list
      */
     public IRequestList listRequests() {
         return new RequestList(getRawList());
     }
 
     /**
-     * Implements IRequestQueue.listRequestsByStatus
+     * Returns an enumerator that lists all RequestIds for requests
+     * that are in the given status. For example, all the PENDING
+     * requests could be listed by specifying RequestStatus.PENDING
+     * as the <i>status</i> argument
+     * <p>
+     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
+     * object.
      * <p>
      * Should be overridden by the specialized class if a more efficient method is available for implementing this
      * operation.
-     * <P>
      *
-     * @see IRequestQueue#listRequestsByStatus
+     * @param status request status
+     * @return request list
      */
     public IRequestList listRequestsByStatus(RequestStatus s) {
         return new RequestListByStatus(getRawList(), s, this);
     }
 
+    public abstract IRequestList listRequestsByFilter(String filter);
+
     /**
-     * Implements IRequestQueue.releaseRequest
+     * Returns an enumerator that lists all RequestIds for requests
+     * that match the filter.
+     * <p>
+     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
+     * object.
+     *
+     * @param filter search filter
+     * @param maxSize max size to return
+     * @return request list
+     */
+    public abstract IRequestList listRequestsByFilter(String filter, int maxSize);
+
+    /**
+     * Returns an enumerator that lists all RequestIds for requests
+     * that match the filter.
+     * <p>
+     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
+     * object.
+     *
+     * @param filter search filter
+     * @param maxSize max size to return
+     * @param timeLimit timeout value for the search
+     * @return request list
+     */
+    public abstract IRequestList listRequestsByFilter(String filter, int maxSize, int timeLimit);
+
+    /**
+     * Gets requests that are pending on handling by the service
      * <p>
      *
-     * @see IRequestQueue#releaseRequest
+     * @return list of pending requests
+     */
+    // public IRequestList listServicePendingRequests();
+
+    /**
+     * Locates a request from the SourceId.
+     *
+     * @param id
+     *            a unique identifier for the record that is based on the source
+     *            of the request, and possibly an identify assigned by the source.
+     * @return
+     *         The requestid corresponding to this source id. null is
+     *         returned if the source id does not exist.
+     */
+    public abstract RequestId findRequestBySourceId(String id);
+
+    /**
+     * Locates all requests with a particular SourceId.
+     * <p>
+     *
+     * @param id
+     *            an identifier for the record that is based on the source
+     *            of the request
+     * @return
+     *         A list of requests corresponding to this source id. null is
+     *         returned if the source id does not exist.
+     */
+    public abstract IRequestList findRequestsBySourceId(String id);
+
+    /**
+     * Releases the LOCK on a request obtained from findRequest() or
+     * newRequest()
+     * <p>
+     *
+     * @param r request
      */
     public final void releaseRequest(IRequest request) {
         // mTable.unlock(request.getRequestId());
     }
 
-    public void updateRequest(IRequest r) {
+    /**
+     * Updates the request in the permanent data store.
+     * <p>
+     * This call can be made after changing a value like source id or owner, to force the new value to be written.
+     * <p>
+     * The request must be locked to make this call.
+     *
+     * @param request
+     *            the request that is being updated
+     * @exception EBaseException failed to update request
+     */
+    public void updateRequest(IRequest r) throws EBaseException {
         // defualt is to really update ldap
         String delayLDAPCommit = r.getExtDataInString("delayLDAPCommit");
         ((Request) r).mModificationTime = new Date();
@@ -649,6 +842,8 @@ public abstract class ARequestQueue
     }
 
     /**
+     * Resends requests
+     *
      * New non-blocking recover method.
      */
     public void recover() {
@@ -659,6 +854,56 @@ public abstract class ARequestQueue
             t.start();
         }
     }
+    /**
+     * Gets a pageable list of IRequest entries in this queue.
+     *
+     * @param pageSize page size
+     * @return request list
+     */
+    public abstract IRequestVirtualList getPagedRequests(int pageSize);
+
+    /**
+     * Gets a pageable list of IRequest entries in this queue.
+     *
+     * @param filter search filter
+     * @param pageSize page size
+     * @param sortKey the attributes to sort by
+     * @return request list
+     */
+    public abstract IRequestVirtualList getPagedRequestsByFilter(String filter,
+                                                        int pageSize,
+                                                        String sortKey);
+
+    /**
+     * Gets a pageable list of IRequest entries in this queue.
+     *
+     * @param fromId request id to start with
+     * @param filter search filter
+     * @param pageSize page size
+     * @param sortKey the attributes to sort by
+     * @return request list
+     */
+    public abstract IRequestVirtualList getPagedRequestsByFilter(RequestId fromId,
+                                                        String filter,
+                                                        int pageSize,
+                                                        String sortKey);
+
+    /**
+     * Gets a pageable list of IRequest entries in this queue. This
+     * jumps right to the end of the list
+     *
+     * @param fromId request id to start with
+     * @param jumpToEnd jump to end of list (set fromId to null)
+     * @param filter search filter
+     * @param pageSize page size
+     * @param sortKey the attributes to sort by
+     * @return request list
+     */
+    public abstract IRequestVirtualList getPagedRequestsByFilter(RequestId fromId,
+                                   boolean jumpToEnd, String filter,
+                                   int pageSize,
+                                   String sortKey);
+
 
     /**
      * recover from a crash. Resends all requests that are in
@@ -689,26 +934,30 @@ public abstract class ARequestQueue
         }
     }
 
+    /**
+     * Retrieves the notifier for pending request.
+     *
+     * @return notifier for pending request
+     */
     public INotify getPendingNotify() {
         return mPendingNotify;
     }
 
-    // Constructor
-    protected ARequestQueue(IPolicy policy, IService service, INotify notify,
-            INotify pendingNotify) {
-        mPolicy = policy;
-        mService = service;
-        mNotify = notify;
-        mPendingNotify = pendingNotify;
-    }
+    public abstract BigInteger getLastRequestIdInRange(BigInteger reqId_low_bound, BigInteger reqId_upper_bound);
 
-    // Instance variables
-    // RequestIDTable mTable = new RequestIDTable();
+    /**
+     * Resets serial number.
+     */
+    public abstract void resetSerialNumber(BigInteger serial) throws EBaseException;
 
-    IPolicy mPolicy;
-    IService mService;
-    INotify mNotify;
-    INotify mPendingNotify;
+    /**
+     * Removes all objects with this repository.
+     */
+    public abstract void removeAllObjects() throws EBaseException;
+
+    public abstract String getPublishingStatus();
+
+    public abstract void setPublishingStatus(String status);
 }
 
 //

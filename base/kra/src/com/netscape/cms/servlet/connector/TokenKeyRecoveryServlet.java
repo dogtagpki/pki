@@ -35,11 +35,11 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * TokenKeyRecoveryServlet
@@ -148,7 +148,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
      */
     private void processTokenKeyRecovery(HttpServletRequest req,
             HttpServletResponse resp) throws EBaseException {
-        IRequestQueue queue = mAuthority.getRequestQueue();
+        ARequestQueue queue = mAuthority.getRequestQueue();
         IRequest thisreq = null;
 
         //        IConfigStore sconfig = CMS.getConfigStore();

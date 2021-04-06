@@ -119,7 +119,6 @@ import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.util.IStatsSubsystem;
@@ -138,6 +137,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
@@ -498,7 +498,7 @@ public class CertificateAuthority
     /**
      * return CA's request queue processor
      */
-    public IRequestQueue getRequestQueue() {
+    public ARequestQueue getRequestQueue() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getRequestQueue();
     }

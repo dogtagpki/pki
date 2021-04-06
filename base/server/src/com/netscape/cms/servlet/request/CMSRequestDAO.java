@@ -31,12 +31,12 @@ import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
+import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * @author alee
@@ -47,7 +47,7 @@ public abstract class CMSRequestDAO {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSRequestDAO.class);
 
-    protected IRequestQueue queue;
+    protected ARequestQueue queue;
     protected IAuthority authority;
     CMSEngine engine = CMS.getCMSEngine();
     protected AuthzSubsystem authz = engine.getAuthzSubsystem();

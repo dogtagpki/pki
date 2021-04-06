@@ -21,14 +21,13 @@ import java.util.Enumeration;
 
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 
 public class RequestListByStatus implements IRequestList {
 
     protected RequestStatus mStatus;
-    protected IRequestQueue mQueue;
+    protected ARequestQueue mQueue;
     protected Enumeration<RequestId> mEnumeration;
     protected RequestId mNext;
 
@@ -60,7 +59,7 @@ public class RequestListByStatus implements IRequestList {
         return next;
     }
 
-    public RequestListByStatus(Enumeration<RequestId> e, RequestStatus s, IRequestQueue q) {
+    public RequestListByStatus(Enumeration<RequestId> e, RequestStatus s, ARequestQueue q) {
         mEnumeration = e;
         mStatus = s;
         mQueue = q;

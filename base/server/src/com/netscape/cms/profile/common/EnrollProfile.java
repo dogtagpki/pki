@@ -125,13 +125,13 @@ import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -258,7 +258,7 @@ public abstract class EnrollProfile extends Profile {
 
     public abstract IAuthority getAuthority();
 
-    public IRequestQueue getRequestQueue() {
+    public ARequestQueue getRequestQueue() {
         IAuthority authority = getAuthority();
 
         return authority.getRequestQueue();
@@ -657,7 +657,7 @@ public abstract class EnrollProfile extends Profile {
         // }
         String method = "EnrollProfile: submit: ";
 
-        IRequestQueue queue = getRequestQueue();
+        ARequestQueue queue = getRequestQueue();
         String msg = "";
         logger.debug(method + "begins");
 
@@ -1294,7 +1294,7 @@ public abstract class EnrollProfile extends Profile {
 
         OCTET_STRING witness_os = decPop.getWitness();
 
-        IRequestQueue reqQueue = getRequestQueue();
+        ARequestQueue reqQueue = getRequestQueue();
         IRequest req = null;
         try {
             req = reqQueue.findRequest(new RequestId(reqIdBI));
