@@ -12,6 +12,7 @@ import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.RequestNotifier;
+import com.netscape.cmscore.request.RequestRepository;
 
 public class CANotify extends RequestNotifier {
 
@@ -21,6 +22,11 @@ public class CANotify extends RequestNotifier {
     public ARequestQueue getRequestQueue() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getRequestQueue();
+    }
+
+    public RequestRepository getRequestRepository() {
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getRequestRepository();
     }
 
     public boolean checkAvailablePublishingConnections() {

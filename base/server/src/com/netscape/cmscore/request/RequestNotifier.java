@@ -61,6 +61,10 @@ public class RequestNotifier implements IRequestNotifier {
         return null;
     }
 
+    public RequestRepository getRequestRepository() {
+        return null;
+    }
+
     public void setPublishingQueue(boolean isPublishingQueueEnabled,
                                     int publishingQueuePriorityLevel,
                                     int maxNumberOfPublishingThreads,
@@ -88,10 +92,10 @@ public class RequestNotifier implements IRequestNotifier {
             mPublishingQueuePriority = Thread.currentThread().getPriority();
         }
 
-        ARequestQueue requestQueue = getRequestQueue();
+        RequestRepository requestRepository = getRequestRepository();
 
-        if (mIsPublishingQueueEnabled && mSavePublishingStatus > 0 && requestQueue != null) {
-            mPublishingStatus = requestQueue.getPublishingStatus();
+        if (mIsPublishingQueueEnabled && mSavePublishingStatus > 0 && requestRepository != null) {
+            mPublishingStatus = requestRepository.getPublishingStatus();
             try {
                 BigInteger status = new BigInteger(mPublishingStatus);
                 if (status.compareTo(BigInteger.ZERO) > -1) {
@@ -177,13 +181,13 @@ public class RequestNotifier implements IRequestNotifier {
 
     public void updatePublishingStatus(String id) {
 
-        ARequestQueue requestQueue = getRequestQueue();
+        RequestRepository requestRepository = getRequestRepository();
 
-        if (requestQueue != null) {
+        if (requestRepository != null) {
             synchronized (publishingCounterMonitor) {
                 if (mSavePublishingCounter == 0) {
                     logger.debug("updatePublishingStatus  requestId: " + id);
-                    requestQueue.setPublishingStatus(id);
+                    requestRepository.setPublishingStatus(id);
                 }
                 mSavePublishingCounter++;
                 logger.debug("updatePublishingStatus  mSavePublishingCounter: " + mSavePublishingCounter +
@@ -316,8 +320,10 @@ public class RequestNotifier implements IRequestNotifier {
         if (mNotifierThreads.size() > 0) {
             mNotifierThreads.remove(notifierThread);
             if (mNotifierThreads.size() == 0) {
-                ARequestQueue requestQueue = getRequestQueue();
-                requestQueue.setPublishingStatus("-1");
+                RequestRepository requestRepository = getRequestRepository();
+                if (requestRepository != null) {
+                    requestRepository.setPublishingStatus("-1");
+                }
             }
         }
         logger.debug("Number of publishing threads: " + mNotifierThreads.size());
