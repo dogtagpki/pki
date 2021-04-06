@@ -80,7 +80,7 @@ public class DBSubsystem {
     private DBRegistry mRegistry = null;
     private String mBaseDN = null;
 
-    private Hashtable<String, String>[] mRepos = null;
+    private Hashtable<String, String>[] mRepos = new Hashtable[DBSubsystem.NUM_REPOS];
 
     private BigInteger mNextSerialConfig = null;
     private boolean mEnableSerialMgmt = false;
@@ -130,17 +130,17 @@ public class DBSubsystem {
 
     // hash keys
     private static final String NAME = "name";
-    private static final String PROP_MIN = "min";
+    public static final String PROP_MIN = "min";
     private static final String PROP_MIN_NAME = "min_name";
-    private static final String PROP_MAX = "max";
+    public static final String PROP_MAX = "max";
     private static final String PROP_MAX_NAME = "max_name";
     private static final String PROP_NEXT_MIN = "next_min";
     private static final String PROP_NEXT_MIN_NAME = "next_min_name";
     private static final String PROP_NEXT_MAX = "next_max";
     private static final String PROP_NEXT_MAX_NAME = "next_max_name";
-    private static final String PROP_LOW_WATER_MARK = "lowWaterMark";
+    public static final String PROP_LOW_WATER_MARK = "lowWaterMark";
     private static final String PROP_LOW_WATER_MARK_NAME = "lowWaterMark_name";
-    private static final String PROP_INCREMENT = "increment";
+    public static final String PROP_INCREMENT = "increment";
     private static final String PROP_INCREMENT_NAME = "increment_name";
     private static final String PROP_RANGE_DN = "rangeDN";
 
@@ -224,6 +224,10 @@ public class DBSubsystem {
         mDBConfig.setNextSerialNumber(serial.toString(16));
     }
 
+    public Hashtable<String, String> getRepositoryConfig(int repositoryID) {
+        return mRepos[repositoryID];
+    }
+
     /**
      * Gets minimum serial number limit in config file
      *
@@ -247,11 +251,11 @@ public class DBSubsystem {
     /**
      * Gets minimum serial number limit in next range in config file
      *
-     * @param repo repo identifier
+     * @param h repository config
      * @return min serial number in next range
      */
-    public String getNextMinSerialConfig(int repo) {
-        String ret = mRepos[repo].get(PROP_NEXT_MIN);
+    public String getNextMinSerialConfig(Hashtable<String, String> h) {
+        String ret = h.get(PROP_NEXT_MIN);
         if (ret.equals("-1")) {
             return null;
         } else {
@@ -262,11 +266,11 @@ public class DBSubsystem {
     /**
      * Gets maximum serial number limit in next range in config file
      *
-     * @param repo repo identifier
+     * @param h repository config
      * @return max serial number in next range
      */
-    public String getNextMaxSerialConfig(int repo) {
-        String ret = mRepos[repo].get(PROP_NEXT_MAX);
+    public String getNextMaxSerialConfig(Hashtable<String, String> h) {
+        String ret = h.get(PROP_NEXT_MAX);
         if (ret.equals("-1")) {
             return null;
         } else {
@@ -297,17 +301,16 @@ public class DBSubsystem {
     /**
      * Sets maximum serial number limit in config file
      *
-     * @param repo repo identifier
+     * @param h repository config
      * @param serial max serial number
      * @exception EBaseException failed to set
      */
-    public void setMaxSerialConfig(int repo, String serial)
+    public void setMaxSerialConfig(Hashtable<String, String> h, String serial)
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        Hashtable<String, String> h = mRepos[repo];
         logger.debug("DBSubsystem: Setting max serial number for " + h.get(NAME) + ": " + serial);
 
         //persist to file
@@ -315,23 +318,21 @@ public class DBSubsystem {
         cs.commit(false);
 
         h.put(PROP_MAX, serial);
-        mRepos[repo] = h;
     }
 
     /**
      * Sets minimum serial number limit in config file
      *
-     * @param repo repo identifier
+     * @param h repository config
      * @param serial min serial number
      * @exception EBaseException failed to set
      */
-    public void setMinSerialConfig(int repo, String serial)
+    public void setMinSerialConfig(Hashtable<String, String> h, String serial)
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        Hashtable<String, String> h = mRepos[repo];
         logger.debug("DBSubsystem: Setting min serial number for " + h.get(NAME) + ": " + serial);
 
         //persist to file
@@ -339,23 +340,21 @@ public class DBSubsystem {
         cs.commit(false);
 
         h.put(PROP_MIN, serial);
-        mRepos[repo] = h;
     }
 
     /**
      * Sets maximum serial number limit for next range in config file
      *
-     * @param repo repo identifier
+     * @param h repository config
      * @param serial max serial number for next range
      * @exception EBaseException failed to set
      */
-    public void setNextMaxSerialConfig(int repo, String serial)
+    public void setNextMaxSerialConfig(Hashtable<String, String> h, String serial)
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        Hashtable<String, String> h = mRepos[repo];
         if (serial == null) {
             logger.debug("DBSubsystem: Removing next max " + h.get(NAME) + " number");
             mDBConfig.remove(h.get(PROP_NEXT_MAX_NAME));
@@ -371,24 +370,21 @@ public class DBSubsystem {
         } else {
             h.put(PROP_NEXT_MAX, serial);
         }
-
-        mRepos[repo] = h;
     }
 
     /**
      * Sets minimum serial number limit for next range in config file
      *
-     * @param repo repo identifier
+     * @param h repository config
      * @param serial min serial number for next range
      * @exception EBaseException failed to set
      */
-    public void setNextMinSerialConfig(int repo, String serial)
+    public void setNextMinSerialConfig(Hashtable<String, String> h, String serial)
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        Hashtable<String, String> h = mRepos[repo];
         if (serial == null) {
             logger.debug("DBSubsystem: Removing next min " + h.get(NAME) + " number");
             mDBConfig.remove(h.get(PROP_NEXT_MIN_NAME));
@@ -404,8 +400,6 @@ public class DBSubsystem {
         } else {
             h.put(PROP_NEXT_MIN, serial);
         }
-
-        mRepos[repo] = h;
     }
 
     /**
@@ -413,10 +407,10 @@ public class DBSubsystem {
      * Increments the nextRange attribute and allocates
      * this range to the current instance by creating a pkiRange object.
      *
-     * @param repo repo identifier
+     * @param h repository config
      * @return start of next range
      */
-    public String getNextRange(int repo) {
+    public String getNextRange(Hashtable<String, String> h) {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
@@ -424,7 +418,6 @@ public class DBSubsystem {
         LDAPConnection conn = null;
         String nextRange = null;
         try {
-            Hashtable<String, String> h = mRepos[repo];
             conn = mLdapConnFactory.getConn();
             String dn = h.get(PROP_BASEDN) + "," + mBaseDN;
             String rangeDN = h.get(PROP_RANGE_DN) + "," + mBaseDN;
@@ -497,10 +490,10 @@ public class DBSubsystem {
      * When the next number is requested, if the number of certs is still
      * below the low water mark, then a new range will be requested.
      *
-     * @param repo repo identifier
+     * @param h repository config
      * @return true if range conflict, false otherwise
      */
-    public boolean hasRangeConflict(int repo) {
+    public boolean hasRangeConflict(Hashtable<String, String> h) {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
@@ -508,11 +501,10 @@ public class DBSubsystem {
         LDAPConnection conn = null;
         boolean conflict = false;
         try {
-            String nextRangeStart = getNextMinSerialConfig(repo);
+            String nextRangeStart = getNextMinSerialConfig(h);
             if (nextRangeStart == null) {
                 return false;
             }
-            Hashtable<String, String> h = mRepos[repo];
             conn = mLdapConnFactory.getConn();
             String rangedn = h.get(PROP_RANGE_DN) + "," + mBaseDN;
             String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
@@ -557,7 +549,6 @@ public class DBSubsystem {
             throws EBaseException {
 
         mDBConfig = config;
-        mRepos = new Hashtable[DBSubsystem.NUM_REPOS];
 
         mConfig = config.getSubStore(PROP_LDAP, LDAPConfig.class);
         try {

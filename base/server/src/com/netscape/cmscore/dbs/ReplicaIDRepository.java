@@ -42,7 +42,7 @@ public class ReplicaIDRepository extends Repository {
                 increment,
                 "ou=Replica," + dbSubsystem.getBaseDN(),
                 10,
-                DBSubsystem.REPLICA_ID);
+                dbSubsystem.getRepositoryConfig(DBSubsystem.REPLICA_ID));
     }
 
     /**

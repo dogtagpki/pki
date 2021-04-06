@@ -61,7 +61,7 @@ public class RequestRepository extends Repository {
                 increment,
                 "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN(),
                 10,
-                DBSubsystem.REQUESTS);
+                dbSubsystem.getRepositoryConfig(DBSubsystem.REQUESTS));
 
         // Let RequestRecord class register its
         // database mapping and object mapping values

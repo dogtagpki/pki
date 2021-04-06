@@ -101,7 +101,7 @@ public class CertificateRepository extends Repository {
                 increment,
                 "ou=certificateRepository,ou=ca," + dbSubsystem.getBaseDN(),
                 16,
-                DBSubsystem.CERTS);
+                dbSubsystem.getRepositoryConfig(DBSubsystem.CERTS));
 
         mDBConfig = dbSubsystem.getDBConfigStore();
     }

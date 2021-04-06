@@ -18,6 +18,7 @@
 package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
+import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
@@ -73,7 +74,7 @@ public abstract class Repository implements IRepository {
     private boolean mInit = false;
 
     private int mRadix;
-    private int mRepo;
+    Hashtable<String, String> repositoryConfig;
 
     private BigInteger mLastSerialNo = null;
 
@@ -86,13 +87,13 @@ public abstract class Repository implements IRepository {
             int increment,
             String baseDN,
             int radix,
-            int repositoryID) {
+            Hashtable<String, String> repositoryConfig) {
 
         this.dbSubsystem = dbSubsystem;
         this.BI_INCREMENT = new BigInteger(Integer.toString(increment));
         this.mBaseDN = baseDN;
         this.mRadix = radix;
-        this.mRepo = repositoryID;
+        this.repositoryConfig = repositoryConfig;
     }
 
     /**
@@ -263,12 +264,12 @@ public abstract class Repository implements IRepository {
 
         logger.debug("Repository: in InitCache");
 
-        mMinSerial = dbSubsystem.getMinSerialConfig(mRepo);
-        mMaxSerial = dbSubsystem.getMaxSerialConfig(mRepo);
-        mNextMinSerial = dbSubsystem.getNextMinSerialConfig(mRepo);
-        mNextMaxSerial = dbSubsystem.getNextMaxSerialConfig(mRepo);
-        String increment = dbSubsystem.getIncrementConfig(mRepo);
-        String lowWaterMark = dbSubsystem.getLowWaterMarkConfig(mRepo);
+        mMinSerial = repositoryConfig.get(DBSubsystem.PROP_MIN);
+        mMaxSerial = repositoryConfig.get(DBSubsystem.PROP_MAX);
+        mNextMinSerial = dbSubsystem.getNextMinSerialConfig(repositoryConfig);
+        mNextMaxSerial = dbSubsystem.getNextMaxSerialConfig(repositoryConfig);
+        String increment = repositoryConfig.get(DBSubsystem.PROP_INCREMENT);
+        String lowWaterMark = repositoryConfig.get(DBSubsystem.PROP_LOW_WATER_MARK);
 
         logger.debug("Repository: minSerial:" + mMinSerial + " maxSerial: " + mMaxSerial);
         logger.debug("Repository: nextMinSerial: " + ((mNextMinSerial == null)? "" : mNextMinSerial) +
@@ -485,10 +486,10 @@ public abstract class Repository implements IRepository {
         mCounter = BigInteger.ZERO;
 
         // persist the changes
-        dbSubsystem.setMinSerialConfig(mRepo, mMinSerialNo.toString(mRadix));
-        dbSubsystem.setMaxSerialConfig(mRepo, mMaxSerialNo.toString(mRadix));
-        dbSubsystem.setNextMinSerialConfig(mRepo, null);
-        dbSubsystem.setNextMaxSerialConfig(mRepo, null);
+        dbSubsystem.setMinSerialConfig(repositoryConfig, mMinSerialNo.toString(mRadix));
+        dbSubsystem.setMaxSerialConfig(repositoryConfig, mMaxSerialNo.toString(mRadix));
+        dbSubsystem.setNextMinSerialConfig(repositoryConfig, null);
+        dbSubsystem.setNextMaxSerialConfig(repositoryConfig, null);
     }
 
     /**
@@ -540,7 +541,7 @@ public abstract class Repository implements IRepository {
 
         if ((numsAvail.compareTo(mLowWaterMarkNo) < 0) && (!engine.isPreOpMode())) {
             logger.debug("Repository: Requesting next range");
-            String nextRange = dbSubsystem.getNextRange(mRepo);
+            String nextRange = dbSubsystem.getNextRange(repositoryConfig);
             logger.debug("Repository: next range: " + nextRange);
 
             mNextMinSerialNo = new BigInteger(nextRange, mRadix);
@@ -550,20 +551,20 @@ public abstract class Repository implements IRepository {
                 logger.debug("Repository: Next min serial number: " + mNextMinSerialNo.toString(mRadix));
                 mNextMaxSerialNo = mNextMinSerialNo.add(mIncrementNo).subtract(BigInteger.ONE);
                 numsAvail = numsAvail.add(mIncrementNo);
-                dbSubsystem.setNextMinSerialConfig(mRepo, mNextMinSerialNo.toString(mRadix));
-                dbSubsystem.setNextMaxSerialConfig(mRepo, mNextMaxSerialNo.toString(mRadix));
+                dbSubsystem.setNextMinSerialConfig(repositoryConfig, mNextMinSerialNo.toString(mRadix));
+                dbSubsystem.setNextMaxSerialConfig(repositoryConfig, mNextMaxSerialNo.toString(mRadix));
             }
         }
 
         if (numsInRange.compareTo(mLowWaterMarkNo) < 0) {
             // check for a replication error
             logger.debug("Checking for a range conflict");
-            if (dbSubsystem.hasRangeConflict(mRepo)) {
+            if (dbSubsystem.hasRangeConflict(repositoryConfig)) {
                 logger.debug("Range Conflict found! Removing next range.");
                 mNextMaxSerialNo = null;
                 mNextMinSerialNo = null;
-                dbSubsystem.setNextMinSerialConfig(mRepo, null);
-                dbSubsystem.setNextMaxSerialConfig(mRepo, null);
+                dbSubsystem.setNextMinSerialConfig(repositoryConfig, null);
+                dbSubsystem.setNextMaxSerialConfig(repositoryConfig, null);
             }
         }
     }

@@ -62,7 +62,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
                 increment,
                 baseDN,
                 16,
-                DBSubsystem.CERTS);
+                dbSubsystem.getRepositoryConfig(DBSubsystem.CERTS));
 
         // register key record schema
         DBRegistry reg = dbSubsystem.getRegistry();

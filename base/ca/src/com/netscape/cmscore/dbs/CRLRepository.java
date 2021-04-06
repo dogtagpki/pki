@@ -57,7 +57,7 @@ public class CRLRepository extends Repository {
                 increment,
                 "ou=crlIssuingPoints,ou=ca," + dbSubsystem.getBaseDN(),
                 10,
-                DBSubsystem.REQUESTS);
+                dbSubsystem.getRepositoryConfig(DBSubsystem.REQUESTS));
 
         /*
         DBRegistry reg = dbService.getRegistry();
