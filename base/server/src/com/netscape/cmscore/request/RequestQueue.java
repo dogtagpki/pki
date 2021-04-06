@@ -28,7 +28,6 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
@@ -643,13 +642,6 @@ public class RequestQueue
 
             System.err.println("Attr: " + name + " Value: " + h.get(name));
         }
-    }
-
-    /*
-     * return request repository
-     */
-    public IRepository getRequestRepository() {
-        return mRepository;
     }
 
     public String getPublishingStatus() {

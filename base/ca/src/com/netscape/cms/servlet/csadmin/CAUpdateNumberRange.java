@@ -31,7 +31,7 @@ public class CAUpdateNumberRange extends UpdateNumberRange {
         CertificateAuthority ca = engine.getCA();
 
         if (type.equals("request")) {
-            return ca.getRequestQueue().getRequestRepository();
+            return engine.getRequestRepository();
 
         } else if (type.equals("serialNo")) {
             return engine.getCertificateRepository();

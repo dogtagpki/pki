@@ -82,8 +82,8 @@ import com.netscape.cmscore.dbs.RetrieveModificationsTask;
 import com.netscape.cmscore.dbs.SerialNumberUpdateTask;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRequestListener;
-import com.netscape.cmscore.ldap.PublishingConfig;
 import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.ldap.PublishingConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -215,6 +215,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public CAService getCAService() {
         return caService;
+    }
+
+    public RequestRepository getRequestRepository() {
+        return requestRepository;
     }
 
     public RequestQueue getRequestQueue() {

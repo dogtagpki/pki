@@ -20,7 +20,6 @@ package com.netscape.certsrv.request;
 import java.math.BigInteger;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.repository.IRepository;
 
 /**
  * The IRequestQueue interface defines the operations on
@@ -401,13 +400,6 @@ public interface IRequestQueue {
      * Removes all objects with this repository.
      */
     public void removeAllObjects() throws EBaseException;
-
-    /**
-     * Gets request repository.
-     *
-     * @return request repository
-     */
-    public IRepository getRequestRepository();
 
     public String getPublishingStatus();
 
