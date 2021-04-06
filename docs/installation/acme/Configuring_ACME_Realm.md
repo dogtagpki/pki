@@ -41,7 +41,7 @@ Enter the base DN for the ACME groups subtree.
 If the command is invoked with `--type` parameter, it will create a new configuration based on the specified type.
 If the command is invoked with other parameters, it will update the specified parameters.
 
-## Configuring In-Memory Realm
+## Configuring ACME with In-Memory Realm
 
 The ACME responder can be configured with an in-memory realm.
 
@@ -63,53 +63,12 @@ username=admin
 password=Secret.123
 ```
 
-## Configuring DS Realm
+## Configuring ACME with DS Realm
 
 The ACME responder can be configured with a DS realm.
+See [Configuring ACME with DS Realm](Configuring-ACME-with-DS-Realm.adoc).
 
-Prepare subtrees for ACME users and groups in DS.
-A sample LDIF file is available at [/usr/share/pki/acme/realm/ds/create.ldif](../../../base/acme/realm/ds/create.ldif).
-This example uses dc=acme,dc=pki,dc=example,dc=com as the base DN.
-Import the file with the following command:
-
-```
-$ ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/realm/ds/create.ldif
-```
-
-A sample DS realm configuration is available at
-[/usr/share/pki/acme/realm/ds/realm.conf](../../../base/acme/realm/ds/realm.conf).
-
-To use the DS realm, copy the sample realm.conf into the /etc/pki/pki-tomcat/acme folder,
-or execute the following command to customize some of the parameters:
-
-```
-$ pki-server acme-realm-mod --type ds \
-    -DbindPassword=Secret.123
-```
-
-Customize the configuration as needed. In a standalone ACME deployment, the realm.conf should look like the following:
-
-```
-class=org.dogtagpki.acme.realm.DSRealm
-url=ldap://<hostname>:389
-authType=BasicAuth
-bindDN=cn=Directory Manager
-bindPassword=Secret.123
-usersDN=ou=people,dc=acme,dc=pki,dc=example,dc=com
-groupsDN=ou=groups,dc=acme,dc=pki,dc=example,dc=com
-```
-
-In a shared CA and ACME deployment, the realm.conf should look like the following:
-
-```
-class=org.dogtagpki.acme.realm.DSRealm
-configFile=conf/ca/CS.cfg
-usersDN=ou=people,dc=ca,dc=pki,dc=example,dc=com
-groupsDN=ou=groups,dc=ca,dc=pki,dc=example,dc=com
-```
-
-## Configuring PosgreSQL Realm
+## Configuring ACME with PosgreSQL Realm
 
 The ACME responder can be configured with a PostgreSQL realm.
 
@@ -144,5 +103,4 @@ password=Secret.123
 
 * [Configuring PKI ACME Responder](https://www.dogtagpki.org/wiki/Configuring_PKI_ACME_Responder)
 * [Installing PKI ACME Responder](Installing_PKI_ACME_Responder.md)
-* [Managing DS Realm](../../admin/acme/Managing_DS_Realm.adoc)
 * [Managing PostgreSQL Realm](../../admin/acme/Managing_PostgreSQL_Realm.adoc)
