@@ -20,7 +20,6 @@ package com.netscape.cmscore.request;
 import java.math.BigInteger;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -55,8 +54,14 @@ public class RequestRepository extends Repository {
      * @param dbSubsystem
      *            the LDAP database system.
      */
-    public RequestRepository(String name, int increment, DBSubsystem dbSubsystem) throws EDBException {
-        super(dbSubsystem, increment, "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN());
+    public RequestRepository(String name, int increment, DBSubsystem dbSubsystem) throws EBaseException {
+
+        super(
+                dbSubsystem,
+                increment,
+                "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN(),
+                10,
+                DBSubsystem.REQUESTS);
 
         // Let RequestRecord class register its
         // database mapping and object mapping values

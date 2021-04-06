@@ -24,7 +24,6 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.cmscore.apps.CMS;
@@ -72,8 +71,9 @@ public abstract class Repository implements IRepository {
     protected DBSubsystem dbSubsystem;
     protected String mBaseDN;
     private boolean mInit = false;
-    private int mRadix = 10;
-    private int mRepo = -1;
+
+    private int mRadix;
+    private int mRepo;
 
     private BigInteger mLastSerialNo = null;
 
@@ -81,12 +81,18 @@ public abstract class Repository implements IRepository {
      * Constructs a repository.
      * <P>
      */
-    public Repository(DBSubsystem dbSubsystem, int increment, String baseDN)
-            throws EDBException {
-        this.dbSubsystem = dbSubsystem;
-        mBaseDN = baseDN;
+    public Repository(
+            DBSubsystem dbSubsystem,
+            int increment,
+            String baseDN,
+            int radix,
+            int repositoryID) {
 
-        BI_INCREMENT = new BigInteger(Integer.toString(increment));
+        this.dbSubsystem = dbSubsystem;
+        this.BI_INCREMENT = new BigInteger(Integer.toString(increment));
+        this.mBaseDN = baseDN;
+        this.mRadix = radix;
+        this.mRepo = repositoryID;
     }
 
     /**
@@ -254,31 +260,8 @@ public abstract class Repository implements IRepository {
     private void initCache() throws EBaseException {
 
         mNext = getSerialNumber();
-        mRadix = 10;
 
         logger.debug("Repository: in InitCache");
-
-        if (this instanceof CertificateRepository) {
-            logger.debug("Repository: Instance of Certificate Repository.");
-            mRadix = 16;
-            mRepo = DBSubsystem.CERTS;
-
-        } else if (this instanceof IKeyRepository) {
-            // Key Repository uses the same configuration parameters as Certificate
-            // Repository.  This is ok because they are on separate subsystems.
-            logger.debug("Repository: Instance of Key Repository");
-            mRadix = 16;
-            mRepo = DBSubsystem.CERTS;
-
-        } else if (this instanceof ReplicaIDRepository) {
-            logger.debug("Repository: Instance of Replica ID repository");
-            mRepo = DBSubsystem.REPLICA_ID;
-
-        } else {
-            // CRLRepository subclasses this too, but does not use serial number stuff
-            logger.debug("Repository: Instance of Request Repository or CRLRepository.");
-            mRepo = DBSubsystem.REQUESTS;
-        }
 
         mMinSerial = dbSubsystem.getMinSerialConfig(mRepo);
         mMaxSerial = dbSubsystem.getMaxSerialConfig(mRepo);

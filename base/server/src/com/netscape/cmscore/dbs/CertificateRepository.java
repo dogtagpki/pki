@@ -35,7 +35,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
@@ -95,8 +94,15 @@ public class CertificateRepository extends Repository {
     /**
      * Constructs a certificate repository.
      */
-    public CertificateRepository(DBSubsystem dbSubsystem, int increment) throws EDBException {
-        super(dbSubsystem, increment, "ou=certificateRepository,ou=ca," + dbSubsystem.getBaseDN());
+    public CertificateRepository(DBSubsystem dbSubsystem, int increment) throws EBaseException {
+
+        super(
+                dbSubsystem,
+                increment,
+                "ou=certificateRepository,ou=ca," + dbSubsystem.getBaseDN(),
+                16,
+                DBSubsystem.CERTS);
+
         mDBConfig = dbSubsystem.getDBConfigStore();
     }
 

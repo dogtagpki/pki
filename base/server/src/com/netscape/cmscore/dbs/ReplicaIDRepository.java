@@ -20,7 +20,6 @@ package com.netscape.cmscore.dbs;
 import java.math.BigInteger;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.EDBException;
 
 /**
  * A class represents a replica repository. It
@@ -37,8 +36,13 @@ public class ReplicaIDRepository extends Repository {
     /**
      * Constructs a certificate repository.
      */
-    public ReplicaIDRepository(DBSubsystem dbSubsystem, int increment) throws EDBException {
-        super(dbSubsystem, increment, "ou=Replica," + dbSubsystem.getBaseDN());
+    public ReplicaIDRepository(DBSubsystem dbSubsystem, int increment) throws EBaseException {
+        super(
+                dbSubsystem,
+                increment,
+                "ou=Replica," + dbSubsystem.getBaseDN(),
+                10,
+                DBSubsystem.REPLICA_ID);
     }
 
     /**

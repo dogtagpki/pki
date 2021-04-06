@@ -26,7 +26,6 @@ import java.util.Vector;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -46,13 +45,6 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRepository.class);
 
-    protected DBSubsystem dbSubsystem;
-
-    /**
-     * Internal constants
-     */
-    private String mBaseDN = null;
-
     /**
      * Constructs a key repository. It checks if the key repository
      * does exist. If not, it creates the repository.
@@ -61,11 +53,16 @@ public class KeyRepository extends Repository implements IKeyRepository {
      * @param service db service
      * @exception EBaseException failed to setup key repository
      */
-    public KeyRepository(DBSubsystem dbSubsystem, int increment, String baseDN)
-            throws EDBException {
-        super(dbSubsystem, increment, baseDN);
-        mBaseDN = baseDN;
-        this.dbSubsystem = dbSubsystem;
+    public KeyRepository(DBSubsystem dbSubsystem, int increment, String baseDN) throws EBaseException {
+
+        // KeyRepository uses the same configuration parameters as CertificateRepository.
+        // This is OK because they are on separate subsystems.
+        super(
+                dbSubsystem,
+                increment,
+                baseDN,
+                16,
+                DBSubsystem.CERTS);
 
         // register key record schema
         DBRegistry reg = dbSubsystem.getRegistry();

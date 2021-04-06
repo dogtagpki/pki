@@ -25,7 +25,6 @@ import java.util.Vector;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -50,8 +49,15 @@ public class CRLRepository extends Repository {
     /**
      * Constructs a CRL repository.
      */
-    public CRLRepository(DBSubsystem dbSubsystem, int increment) throws EDBException {
-        super(dbSubsystem, increment, "ou=crlIssuingPoints,ou=ca," + dbSubsystem.getBaseDN());
+    public CRLRepository(DBSubsystem dbSubsystem, int increment) throws EBaseException {
+
+        // CRLRepository does not use serial number stuff
+        super(
+                dbSubsystem,
+                increment,
+                "ou=crlIssuingPoints,ou=ca," + dbSubsystem.getBaseDN(),
+                10,
+                DBSubsystem.REQUESTS);
 
         /*
         DBRegistry reg = dbService.getRegistry();
