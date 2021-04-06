@@ -106,13 +106,13 @@ public abstract class ARequestQueue {
      *                indicates that creation of the new id could not be completed.
      * @see RequestId
      */
-    protected abstract RequestId newRequestId()
+    public abstract RequestId newRequestId()
             throws EBaseException;
 
     /**
      * Create a new synchronous request ID
      */
-    protected abstract RequestId newEphemeralRequestId();
+    public abstract RequestId newEphemeralRequestId();
 
     /**
      * Read a request from the persistant store. (abstract)
@@ -267,32 +267,26 @@ public abstract class ARequestQueue {
      * @exception EBaseException failed to create new request
      */
     public IRequest newRequest(String requestType) throws EBaseException {
-        return newRequest(requestType, false);
+        RequestId requestID = newRequestId();
+        return newRequest(requestID, requestType);
     }
 
     /**
      * Create a new Request object and assign a request ID.
      * See newRequest() for details.
      *
+     * @param requestID - request ID
      * @param requestType - request type
-     * @param ephemeral - is the request ephemeral?
      * @return new request
      * @exception EBaseException failed to create new request
      */
-    public IRequest newRequest(String requestType, boolean ephemeral)
-            throws EBaseException {
+    public IRequest newRequest(RequestId requestID, String requestType) throws EBaseException {
+
         if (requestType == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_REQUEST_TYPE", "null"));
         }
 
-        RequestId rId = null;
-        if(! ephemeral) {
-            rId = newRequestId();
-        } else {
-            rId = newEphemeralRequestId();
-        }
-
-        IRequest r = createRequest(rId, requestType);
+        IRequest r = createRequest(requestID, requestType);
 
         // Commented out the lock call because unlock is never called.
         // mTable.lock(rId);
@@ -311,7 +305,7 @@ public abstract class ARequestQueue {
 
         // expose requestId to policy so that it can be
         // used with predicate
-        r.setExtData("requestId", rId.toString());
+        r.setExtData("requestId", requestID.toString());
 
         return r;
     }

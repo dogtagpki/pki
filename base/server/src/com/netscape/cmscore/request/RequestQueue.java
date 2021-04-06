@@ -94,8 +94,8 @@ public class RequestQueue
     }
 
     // ARequestQueue.newRequestId
-    protected RequestId newRequestId()
-            throws EBaseException {
+    public RequestId newRequestId() throws EBaseException {
+
         // get the next request Id
         BigInteger next = mRepository.getNextSerialNumber();
 
@@ -104,7 +104,7 @@ public class RequestQueue
         return rid;
     }
 
-    protected RequestId newEphemeralRequestId() {
+    public RequestId newEphemeralRequestId() {
 
         CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();

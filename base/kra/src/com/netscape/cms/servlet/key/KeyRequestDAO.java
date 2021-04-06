@@ -201,7 +201,16 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new BadRequestException("Can not archive already active existing key!");
         }
 
-        IRequest request = queue.newRequest(IRequest.SECURITY_DATA_ENROLLMENT_REQUEST, kra.isEphemeral(realm));
+        boolean ephemeral = kra.isEphemeral(realm);
+
+        RequestId requestID;
+        if (ephemeral) {
+            requestID = queue.newEphemeralRequestId();
+        } else {
+            requestID = queue.newRequestId();
+        }
+
+        IRequest request = queue.newRequest(requestID, IRequest.SECURITY_DATA_ENROLLMENT_REQUEST);
 
         if (pkiArchiveOptions != null) {
             request.setExtData(REQUEST_ARCHIVE_OPTIONS, pkiArchiveOptions);
@@ -268,7 +277,14 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new UnauthorizedException("Agent not authorized by realm", e);
         }
 
-        IRequest request = queue.newRequest(IRequest.SECURITY_DATA_RECOVERY_REQUEST, ephemeral);
+        RequestId requestID;
+        if (ephemeral) {
+            requestID = queue.newEphemeralRequestId();
+        } else {
+            requestID = queue.newRequestId();
+        }
+
+        IRequest request = queue.newRequest(requestID, IRequest.SECURITY_DATA_RECOVERY_REQUEST);
 
         if (rec.getRealm() != null) {
             request.setRealm(rec.getRealm());
