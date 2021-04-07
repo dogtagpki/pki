@@ -95,12 +95,10 @@ public abstract class Repository implements IRepository {
     public Repository(
             DBSubsystem dbSubsystem,
             int increment,
-            String baseDN,
             int radix) {
 
         this.dbSubsystem = dbSubsystem;
         this.BI_INCREMENT = new BigInteger(Integer.toString(increment));
-        this.mBaseDN = baseDN;
         this.mRadix = radix;
     }
 
@@ -643,9 +641,8 @@ public abstract class Repository implements IRepository {
         try {
             LDAPConnection conn = session.getConnection();
 
-            String dn = repositoryConfig.get(DBSubsystem.PROP_BASEDN) + "," + dbSubsystem.getBaseDN();
-            logger.info("Repository: Reading entry " + dn);
-            LDAPEntry entry = conn.read(dn);
+            logger.info("Repository: Reading entry " + mBaseDN);
+            LDAPEntry entry = conn.read(mBaseDN);
 
             LDAPAttribute attr = entry.getAttribute(DBSubsystem.PROP_NEXT_RANGE);
             if (attr == null) {
@@ -670,8 +667,8 @@ public abstract class Repository implements IRepository {
                     new LDAPModification(LDAPModification.ADD, attrNextRange)
             };
 
-            logger.info("Repository: Modifying entry " + dn);
-            conn.modify(dn, mods);
+            logger.info("Repository: Modifying entry " + mBaseDN);
+            conn.modify(mBaseDN, mods);
 
             // Add new range object
 

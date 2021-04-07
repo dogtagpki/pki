@@ -112,7 +112,6 @@ public class DBSubsystem {
     public static final String PROP_INFINITE_SERIAL_NUMBER = "1000000000";
     public static final String PROP_INFINITE_REQUEST_NUMBER = "1000000000";
     public static final String PROP_INFINITE_REPLICA_NUMBER = "1000";
-    public static final String PROP_BASEDN = "basedn";
     private static final String PROP_LDAP = "ldap";
     public static final String PROP_NEXT_RANGE = "nextRange";
     public static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";

@@ -99,12 +99,15 @@ public class CertificateRepository extends Repository {
         super(
                 dbSubsystem,
                 increment,
-                "ou=certificateRepository,ou=ca," + dbSubsystem.getBaseDN(),
                 16);
+
+        logger.info("CertificateRepository: Initializing certificate repository");
 
         mDBConfig = dbSubsystem.getDBConfigStore();
 
-        repositoryConfig.put(DBSubsystem.PROP_BASEDN, mDBConfig.getSerialDN());
+        mBaseDN = mDBConfig.getSerialDN() + "," + dbSubsystem.getBaseDN();
+        logger.info("CertificateRepository: - base DN: " + mBaseDN);
+
         repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, mDBConfig.getSerialRangeDN());
 
         repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_SERIAL_NUMBER);

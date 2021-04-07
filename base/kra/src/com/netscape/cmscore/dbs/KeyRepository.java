@@ -54,17 +54,20 @@ public class KeyRepository extends Repository implements IKeyRepository {
      * @param service db service
      * @exception EBaseException failed to setup key repository
      */
-    public KeyRepository(DBSubsystem dbSubsystem, int increment, String baseDN) throws EBaseException {
+    public KeyRepository(DBSubsystem dbSubsystem, int increment) throws EBaseException {
 
         super(
                 dbSubsystem,
                 increment,
-                baseDN,
                 16);
+
+        logger.info("KeyRepository: Initializing key repository");
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
-        repositoryConfig.put(DBSubsystem.PROP_BASEDN, dbConfig.getSerialDN());
+        mBaseDN = dbConfig.getSerialDN() + "," + dbSubsystem.getBaseDN();
+        logger.info("KeyRepository: - base DN: " + mBaseDN);
+
         repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getSerialRangeDN());
 
         repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_SERIAL_NUMBER);

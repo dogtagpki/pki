@@ -49,23 +49,23 @@ public class RequestRepository extends Repository {
      * Create a request repository that uses the LDAP database
      * <p>
      *
-     * @param name
-     *            the name of the repository. This String is used to
-     *            construct the DN for the repository's LDAP entry.
      * @param dbSubsystem
      *            the LDAP database system.
      */
-    public RequestRepository(String name, int increment, DBSubsystem dbSubsystem) throws EBaseException {
+    public RequestRepository(DBSubsystem dbSubsystem, int increment) throws EBaseException {
 
         super(
                 dbSubsystem,
                 increment,
-                "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN(),
                 10);
+
+        logger.info("RequestRepository: Initializing request repository");
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
-        repositoryConfig.put(DBSubsystem.PROP_BASEDN, dbConfig.getRequestDN());
+        mBaseDN = dbConfig.getRequestDN() + "," + dbSubsystem.getBaseDN();
+        logger.info("RequestRepository: - base DN: " + mBaseDN);
+
         repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getRequestRangeDN());
 
         repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_REQUEST_NUMBER);
@@ -92,15 +92,13 @@ public class RequestRepository extends Repository {
     }
 
     public RequestRepository(
-            String name,
-            int increment,
             DBSubsystem dbSubsystem,
+            int increment,
             Hashtable<String, String> repositoryConfig) throws EBaseException {
 
         super(
                 dbSubsystem,
                 increment,
-                "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN(),
                 10);
 
         this.repositoryConfig = repositoryConfig;

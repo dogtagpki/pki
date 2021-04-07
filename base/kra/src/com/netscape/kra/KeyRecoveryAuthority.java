@@ -119,8 +119,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     private static final String PARAM_PK12 = "pk12";
     private static final String PARAM_ERROR = "error";
 
-    private final static String KEY_RESP_NAME = "keyRepository";
-
     protected boolean mInitialized = false;
     protected KRAConfig mConfig;
     protected KRAPolicy mPolicy = null;
@@ -302,11 +300,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // create key repository
         int keydb_inc = mConfig.getInteger(PROP_KEYDB_INC, 5);
 
-        mKeyDB = new KeyRepository(dbSubsystem,
-                    keydb_inc,
-                    "ou=" + KEY_RESP_NAME + ",ou=" +
-                            getId() + "," +
-                            dbSubsystem.getBaseDN());
+        mKeyDB = new KeyRepository(dbSubsystem, keydb_inc);
 
         // read transport key from internal database
         mTransportKeyUnit = new TransportKeyUnit();
@@ -396,7 +390,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         RequestSubsystem reqSub = engine.getRequestSubsystem();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
-        requestRepository = new RequestRepository(getId(), reqdb_inc, dbSubsystem);
+        requestRepository = new RequestRepository(dbSubsystem, reqdb_inc);
 
         mRequestQueue = new RequestQueue(
                 dbSubsystem,

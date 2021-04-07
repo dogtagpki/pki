@@ -783,7 +783,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         String schedulerClass = caConfig.getString("requestSchedulerClass", null);
         logger.info("CAEngine: - scheduler: " + schedulerClass);
 
-        requestRepository = new RequestRepository(CertificateAuthority.ID, increment, dbSubsystem);
+        requestRepository = new RequestRepository(dbSubsystem, increment);
 
         requestQueue = new RequestQueue(
                 dbSubsystem,
