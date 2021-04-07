@@ -440,6 +440,9 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
      * @param publishingType Type for which to retrieve rule list.
      */
     public Enumeration<LdapRule> getRules(String publishingType) {
+
+        logger.info("PublisherProcessor: Getting " + publishingType + " publishing rules");
+
         Vector<LdapRule> rules = new Vector<>();
         Enumeration<String> e = mRuleInsts.keys();
 
@@ -447,32 +450,44 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
             String name = e.nextElement();
 
             if (name == null) {
-                logger.trace("rule name is " + "null");
+                logger.warn("Missing publishing rule name");
                 return null;
-            } else {
-                logger.trace("rule name is " + name);
             }
+
+            logger.info("PublisherProcessor: - name: " + name);
 
             //this is the only rule we support now
-            LdapRule rule = (mRuleInsts.get(name));
+            LdapRule rule = mRuleInsts.get(name);
 
-            if (rule.enabled() && publishingType.equals(rule.getType())) {
-                // check if the predicate match
-                ILdapExpression exp = rule.getPredicate();
-
-                try {
-                    SessionContext sc = SessionContext.getContext();
-
-                    if (exp != null && !exp.evaluate(sc))
-                        continue;
-                } catch (Exception ex) {
-                    // do nothing
-                }
-                rules.addElement(rule);
-                logger.trace("added rule " + name + " for " + publishingType);
+            logger.info("PublisherProcessor:   enabled: " + rule.enabled());
+            if (!rule.enabled()) {
+                continue;
             }
 
+            logger.info("PublisherProcessor:   type: " + rule.getType());
+            if (!publishingType.equals(rule.getType())) {
+                continue;
+            }
+
+            // check if the predicate match
+            ILdapExpression exp = rule.getPredicate();
+            logger.info("PublisherProcessor:   predicate: " + exp);
+
+            try {
+                SessionContext sc = SessionContext.getContext();
+
+                if (exp != null && !exp.evaluate(sc)) {
+                    logger.info("PublisherProcessor:   predicate => false");
+                    continue;
+                }
+
+            } catch (Exception ex) {
+                logger.warn("PublisherProcessor: " + ex.getMessage(), ex);
+            }
+
+            rules.addElement(rule);
         }
+
         return rules.elements();
     }
 
@@ -483,9 +498,12 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
      * @param req Corresponding publish request.
      */
     public Enumeration<LdapRule> getRules(String publishingType, IRequest req) {
+
         if (req == null) {
             return getRules(publishingType);
         }
+
+        logger.info("PublisherProcessor: Getting " + publishingType + " publishing rules for request " + req.getRequestId());
 
         Vector<LdapRule> rules = new Vector<>();
         Enumeration<LdapRule> e = mRuleInsts.elements();
@@ -493,24 +511,35 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
         while (e.hasMoreElements()) {
             //this is the only rule we support now
             LdapRule rule = e.nextElement();
+            logger.info("PublisherProcessor: - name: " + rule.getInstanceName());
 
-            if (rule.enabled() && publishingType.equals(rule.getType())) {
-                // check if the predicate match
-                ILdapExpression exp = rule.getPredicate();
-
-                try {
-                    if (exp != null && !exp.evaluate(req))
-                        continue;
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-                rules.addElement(rule);
-                logger.trace("added rule " + rule.getInstanceName() + " for " + publishingType +
-                            " request: " + req.getRequestId());
+            logger.info("PublisherProcessor:   enabled: " + rule.enabled());
+            if (!rule.enabled()) {
+                continue;
             }
 
+            logger.info("PublisherProcessor:   type: " + rule.getType());
+            if (!publishingType.equals(rule.getType())) {
+                continue;
+            }
+
+            // check if the predicate match
+            ILdapExpression exp = rule.getPredicate();
+            logger.info("PublisherProcessor:   predicate: " + exp);
+
+            try {
+                if (exp != null && !exp.evaluate(req)) {
+                    logger.info("PublisherProcessor:   predicate => false");
+                    continue;
+                }
+
+            } catch (Exception ex) {
+                logger.warn("PublisherProcessor: " + ex.getMessage(), ex);
+            }
+
+            rules.addElement(rule);
         }
+
         return rules.elements();
     }
 
