@@ -172,10 +172,12 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
      * @param obj the object to map.
      * @exception ELdapException if any LDAP exceptions occured.
      */
-    public String map(LDAPConnection conn, IRequest req, Object obj)
-            throws ELdapException {
-        if (conn == null)
+    public String map(LDAPConnection conn, IRequest req, Object obj) throws ELdapException {
+
+        if (conn == null) {
             return null;
+        }
+
         String dn = null;
 
         try {
@@ -184,11 +186,13 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
                 logger.error(CMS.getLogMessage("PUBLISH_DN_NOT_FORMED"));
                 String s1 = "";
 
-                if (req != null)
+                if (req != null) {
                     s1 = req.getRequestId().toString();
-                throw new ELdapException(
-                        CMS.getUserMessage("CMS_LDAP_NO_DN_MATCH", s1));
+                }
+
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_DN_MATCH", s1));
             }
+
             int scope = LDAPv2.SCOPE_BASE;
             String filter = "(objectclass=*)";
 
@@ -197,8 +201,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
             logger.info("LdapSimpleMap: searching for dn: " + dn + " filter: " + filter + " scope: base");
 
-            LDAPSearchResults results =
-                    conn.search(dn, scope, filter, attrs, false);
+            LDAPSearchResults results = conn.search(dn, scope, filter, attrs, false);
             LDAPEntry entry = results.next();
 
             if (results.hasMoreElements()) {
