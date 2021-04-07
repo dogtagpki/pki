@@ -69,8 +69,12 @@ public class RequestRepository extends Repository {
         rangeDN = dbConfig.getRequestRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.info("RequestRepository: - range DN: " + rangeDN);
 
-        repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_REQUEST_NUMBER);
-        repositoryConfig.put(DBSubsystem.PROP_MIN, dbConfig.getBeginRequestNumber());
+        minSerialName = DBSubsystem.PROP_MIN_REQUEST_NUMBER;
+        String minSerial = dbConfig.getBeginRequestNumber();
+        if (minSerial != null) {
+            mMinSerialNo = new BigInteger(minSerial, mRadix);
+        }
+        logger.info("RequestRepository: - min serial: " + mMinSerialNo);
 
         repositoryConfig.put(DBSubsystem.PROP_MAX_NAME, DBSubsystem.PROP_MAX_REQUEST_NUMBER);
         repositoryConfig.put(DBSubsystem.PROP_MAX, dbConfig.getEndRequestNumber());

@@ -54,8 +54,12 @@ public class ReplicaIDRepository extends Repository {
         rangeDN = dbConfig.getReplicaRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.info("ReplicaIDRepository: - range DN: " + rangeDN);
 
-        repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_REPLICA_NUMBER);
-        repositoryConfig.put(DBSubsystem.PROP_MIN, dbConfig.getBeginReplicaNumber());
+        minSerialName = DBSubsystem.PROP_MIN_REPLICA_NUMBER;
+        String minSerial = dbConfig.getBeginReplicaNumber();
+        if (minSerial != null) {
+            mMinSerialNo = new BigInteger(minSerial, mRadix);
+        }
+        logger.info("ReplicaIDRepository: - min serial: " + mMinSerialNo);
 
         repositoryConfig.put(DBSubsystem.PROP_MAX_NAME, DBSubsystem.PROP_MAX_REPLICA_NUMBER);
         repositoryConfig.put(DBSubsystem.PROP_MAX, dbConfig.getEndReplicaNumber());
@@ -84,7 +88,7 @@ public class ReplicaIDRepository extends Repository {
                 || serial_upper_bound == null || serial_low_bound.compareTo(serial_upper_bound) >= 0) {
             return null;
         }
-        BigInteger ret = new BigInteger(getMinSerial());
+        BigInteger ret = getMinSerial();
         if ((ret == null) || (ret.compareTo(serial_upper_bound) > 0) || (ret.compareTo(serial_low_bound) < 0)) {
             return null;
         }

@@ -64,14 +64,15 @@ public abstract class Repository implements IRepository {
     // the serialNo attribute stored in db
     private BigInteger mNext = null;
 
+    protected String minSerialName;
+    protected BigInteger mMinSerialNo;
+
     private String mMaxSerial = null;
-    private String mMinSerial = null;
     private String mNextMaxSerial = null;
     private String mNextMinSerial = null;
 
     protected boolean mEnableRandomSerialNumbers = false;
     protected BigInteger mCounter = null;
-    protected BigInteger mMinSerialNo = null;
     protected BigInteger mMaxSerialNo = null;
     private BigInteger mNextMinSerialNo = null;
     private BigInteger mNextMaxSerialNo = null;
@@ -84,7 +85,7 @@ public abstract class Repository implements IRepository {
     protected String rangeDN;
     private boolean mInit = false;
 
-    private int mRadix;
+    protected int mRadix;
     protected Hashtable<String, String> repositoryConfig = new Hashtable<>();
 
     private BigInteger mLastSerialNo = null;
@@ -254,8 +255,8 @@ public abstract class Repository implements IRepository {
      *
      * @return minimum serial number
      */
-    public String getMinSerial() {
-        return mMinSerial;
+    public BigInteger getMinSerial() {
+        return mMinSerialNo;
     }
 
     protected void setLastSerialNo(BigInteger lastSN) {
@@ -299,20 +300,16 @@ public abstract class Repository implements IRepository {
 
         logger.debug("Repository: in InitCache");
 
-        mMinSerial = repositoryConfig.get(DBSubsystem.PROP_MIN);
         mMaxSerial = repositoryConfig.get(DBSubsystem.PROP_MAX);
         mNextMinSerial = getNextMinSerialConfig();
         mNextMaxSerial = getNextMaxSerialConfig();
         String increment = repositoryConfig.get(DBSubsystem.PROP_INCREMENT);
         String lowWaterMark = repositoryConfig.get(DBSubsystem.PROP_LOW_WATER_MARK);
 
-        logger.debug("Repository: minSerial:" + mMinSerial + " maxSerial: " + mMaxSerial);
+        logger.debug("Repository: maxSerial: " + mMaxSerial);
         logger.debug("Repository: nextMinSerial: " + ((mNextMinSerial == null)? "" : mNextMinSerial) +
                              " nextMaxSerial: " + ((mNextMaxSerial == null) ? "" : mNextMaxSerial));
         logger.debug("Repository: increment:" + increment + " lowWaterMark: " + lowWaterMark);
-
-        if (mMinSerial != null)
-            mMinSerialNo = new BigInteger(mMinSerial, mRadix);
 
         if (mMaxSerial != null)
             mMaxSerialNo = new BigInteger(mMaxSerial, mRadix);
@@ -511,21 +508,19 @@ public abstract class Repository implements IRepository {
     /**
      * Sets minimum serial number limit in config file
      *
-     * @param serial min serial number
      * @exception EBaseException failed to set
      */
-    public void setMinSerialConfig(String serial) throws EBaseException {
+    public void setMinSerialConfig() throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
+        String serial = mMinSerialNo.toString(mRadix);
         logger.debug("Repository: Setting min serial number: " + serial);
 
-        dbConfig.putString(repositoryConfig.get(DBSubsystem.PROP_MIN_NAME), serial);
+        dbConfig.putString(minSerialName, serial);
         cs.commit(false);
-
-        repositoryConfig.put(DBSubsystem.PROP_MIN, serial);
     }
 
     /**
@@ -619,7 +614,7 @@ public abstract class Repository implements IRepository {
         mCounter = BigInteger.ZERO;
 
         // persist the changes
-        setMinSerialConfig(mMinSerialNo.toString(mRadix));
+        setMinSerialConfig();
         setMaxSerialConfig(mMaxSerialNo.toString(mRadix));
         setNextMinSerialConfig(null);
         setNextMaxSerialConfig(null);
