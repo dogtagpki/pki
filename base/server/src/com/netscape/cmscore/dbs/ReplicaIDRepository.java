@@ -47,7 +47,6 @@ public class ReplicaIDRepository extends Repository {
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
-        repositoryConfig.put(DBSubsystem.NAME, "requests");
         repositoryConfig.put(DBSubsystem.PROP_BASEDN, dbConfig.getReplicaDN());
         repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getReplicaRangeDN());
 

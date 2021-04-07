@@ -104,7 +104,6 @@ public class CertificateRepository extends Repository {
 
         mDBConfig = dbSubsystem.getDBConfigStore();
 
-        repositoryConfig.put(DBSubsystem.NAME, "certs");
         repositoryConfig.put(DBSubsystem.PROP_BASEDN, mDBConfig.getSerialDN());
         repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, mDBConfig.getSerialRangeDN());
 

@@ -118,7 +118,6 @@ public class DBSubsystem {
     public static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";
 
     // hash keys
-    public static final String NAME = "name";
     public static final String PROP_MIN = "min";
     public static final String PROP_MIN_NAME = "min_name";
     public static final String PROP_MAX = "max";

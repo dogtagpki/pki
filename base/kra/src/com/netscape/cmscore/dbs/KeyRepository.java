@@ -64,7 +64,6 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
-        repositoryConfig.put(DBSubsystem.NAME, "certs");
         repositoryConfig.put(DBSubsystem.PROP_BASEDN, dbConfig.getSerialDN());
         repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getSerialRangeDN());
 

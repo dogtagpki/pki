@@ -61,7 +61,6 @@ public class CRLRepository extends Repository {
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
-        repositoryConfig.put(DBSubsystem.NAME, "requests");
         repositoryConfig.put(DBSubsystem.PROP_BASEDN, dbConfig.getRequestDN());
         repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getRequestRangeDN());
 
