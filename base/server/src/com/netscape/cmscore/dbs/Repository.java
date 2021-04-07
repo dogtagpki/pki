@@ -514,6 +514,64 @@ public abstract class Repository implements IRepository {
     }
 
     /**
+     * Sets minimum serial number limit for next range in config file
+     *
+     * @param serial min serial number for next range
+     * @exception EBaseException failed to set
+     */
+    public void setNextMinSerialConfig(String serial) throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        if (serial == null) {
+            logger.debug("Repository: Removing next min number");
+            dbConfig.remove(repositoryConfig.get(DBSubsystem.PROP_NEXT_MIN_NAME));
+        } else {
+            logger.debug("Repository: Setting next min number: " + serial);
+            dbConfig.putString(repositoryConfig.get(DBSubsystem.PROP_NEXT_MIN_NAME), serial);
+        }
+
+        cs.commit(false);
+
+        if (serial == null) {
+            repositoryConfig.remove(DBSubsystem.PROP_NEXT_MIN);
+        } else {
+            repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN, serial);
+        }
+    }
+
+    /**
+     * Sets maximum serial number limit for next range in config file
+     *
+     * @param serial max serial number for next range
+     * @exception EBaseException failed to set
+     */
+    public void setNextMaxSerialConfig(String serial) throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        if (serial == null) {
+            logger.debug("Repository: Removing next max number");
+            dbConfig.remove(repositoryConfig.get(DBSubsystem.PROP_NEXT_MAX_NAME));
+        } else {
+            logger.debug("Repository: Setting next max number: " + serial);
+            dbConfig.putString(repositoryConfig.get(DBSubsystem.PROP_NEXT_MAX_NAME), serial);
+        }
+
+        cs.commit(false);
+
+        if (serial == null) {
+            repositoryConfig.remove(DBSubsystem.PROP_NEXT_MAX);
+        } else {
+            repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX, serial);
+        }
+    }
+
+    /**
      * Switch to the next range and persist the changes.
      */
     private void switchToNextRange() throws EBaseException {
@@ -528,8 +586,8 @@ public abstract class Repository implements IRepository {
         // persist the changes
         setMinSerialConfig(mMinSerialNo.toString(mRadix));
         setMaxSerialConfig(mMaxSerialNo.toString(mRadix));
-        dbSubsystem.setNextMinSerialConfig(repositoryConfig, null);
-        dbSubsystem.setNextMaxSerialConfig(repositoryConfig, null);
+        setNextMinSerialConfig(null);
+        setNextMaxSerialConfig(null);
     }
 
     /**
@@ -591,8 +649,9 @@ public abstract class Repository implements IRepository {
                 logger.debug("Repository: Next min serial number: " + mNextMinSerialNo.toString(mRadix));
                 mNextMaxSerialNo = mNextMinSerialNo.add(mIncrementNo).subtract(BigInteger.ONE);
                 numsAvail = numsAvail.add(mIncrementNo);
-                dbSubsystem.setNextMinSerialConfig(repositoryConfig, mNextMinSerialNo.toString(mRadix));
-                dbSubsystem.setNextMaxSerialConfig(repositoryConfig, mNextMaxSerialNo.toString(mRadix));
+
+                setNextMinSerialConfig(mNextMinSerialNo.toString(mRadix));
+                setNextMaxSerialConfig(mNextMaxSerialNo.toString(mRadix));
             }
         }
 
@@ -603,8 +662,9 @@ public abstract class Repository implements IRepository {
                 logger.debug("Range Conflict found! Removing next range.");
                 mNextMaxSerialNo = null;
                 mNextMinSerialNo = null;
-                dbSubsystem.setNextMinSerialConfig(repositoryConfig, null);
-                dbSubsystem.setNextMaxSerialConfig(repositoryConfig, null);
+
+                setNextMinSerialConfig(null);
+                setNextMaxSerialConfig(null);
             }
         }
     }

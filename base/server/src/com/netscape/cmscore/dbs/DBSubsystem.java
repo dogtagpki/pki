@@ -229,66 +229,6 @@ public class DBSubsystem {
     }
 
     /**
-     * Sets maximum serial number limit for next range in config file
-     *
-     * @param h repository config
-     * @param serial max serial number for next range
-     * @exception EBaseException failed to set
-     */
-    public void setNextMaxSerialConfig(Hashtable<String, String> h, String serial)
-            throws EBaseException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
-        if (serial == null) {
-            logger.debug("DBSubsystem: Removing next max " + h.get(NAME) + " number");
-            mDBConfig.remove(h.get(PROP_NEXT_MAX_NAME));
-        } else {
-            logger.debug("DBSubsystem: Setting next max " + h.get(NAME) + " number: " + serial);
-            mDBConfig.putString(h.get(PROP_NEXT_MAX_NAME), serial);
-        }
-
-        cs.commit(false);
-
-        if (serial == null) {
-            h.remove(PROP_NEXT_MAX);
-        } else {
-            h.put(PROP_NEXT_MAX, serial);
-        }
-    }
-
-    /**
-     * Sets minimum serial number limit for next range in config file
-     *
-     * @param h repository config
-     * @param serial min serial number for next range
-     * @exception EBaseException failed to set
-     */
-    public void setNextMinSerialConfig(Hashtable<String, String> h, String serial)
-            throws EBaseException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
-        if (serial == null) {
-            logger.debug("DBSubsystem: Removing next min " + h.get(NAME) + " number");
-            mDBConfig.remove(h.get(PROP_NEXT_MIN_NAME));
-        } else {
-            logger.debug("DBSubsystem: Setting next min " + h.get(NAME) + " number: " + serial);
-            mDBConfig.putString(h.get(PROP_NEXT_MIN_NAME), serial);
-        }
-
-        cs.commit(false);
-
-        if (serial == null) {
-            h.remove(PROP_NEXT_MIN);
-        } else {
-            h.put(PROP_NEXT_MIN, serial);
-        }
-    }
-
-    /**
      * Gets start of next range from database.
      * Increments the nextRange attribute and allocates
      * this range to the current instance by creating a pkiRange object.
