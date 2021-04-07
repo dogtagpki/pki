@@ -134,8 +134,14 @@ public class CertificateRepository extends Repository {
         }
         logger.info("CertificateRepository: - next min serial: " + mNextMinSerialNo);
 
-        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX_NAME, DBSubsystem.PROP_NEXT_MAX_SERIAL_NUMBER);
-        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX, mDBConfig.getNextEndSerialNumber());
+        nextMaxSerialName = DBSubsystem.PROP_NEXT_MAX_SERIAL_NUMBER;
+        String nextMaxSerial = mDBConfig.getNextEndSerialNumber();
+        if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
+            mNextMaxSerialNo = null;
+        } else {
+            mNextMaxSerialNo = new BigInteger(nextMaxSerial, mRadix);
+        }
+        logger.info("CertificateRepository: - next max serial: " + mNextMaxSerialNo);
 
         repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK_NAME, DBSubsystem.PROP_SERIAL_LOW_WATER_MARK);
         repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK, mDBConfig.getSerialLowWaterMark());

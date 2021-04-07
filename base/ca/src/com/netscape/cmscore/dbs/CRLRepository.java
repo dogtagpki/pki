@@ -91,8 +91,14 @@ public class CRLRepository extends Repository {
         }
         logger.info("CRLRepository: - next min serial: " + mNextMinSerialNo);
 
-        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX_NAME, DBSubsystem.PROP_NEXT_MAX_REQUEST_NUMBER);
-        repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX, dbConfig.getNextEndRequestNumber());
+        nextMaxSerialName = DBSubsystem.PROP_NEXT_MAX_REQUEST_NUMBER;
+        String nextMaxSerial = dbConfig.getNextEndRequestNumber();
+        if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
+            mNextMaxSerialNo = null;
+        } else {
+            mNextMaxSerialNo = new BigInteger(nextMaxSerial, mRadix);
+        }
+        logger.info("CRLRepository: - next max serial: " + mNextMaxSerialNo);
 
         repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK_NAME, DBSubsystem.PROP_REQUEST_LOW_WATER_MARK);
         repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK, dbConfig.getRequestLowWaterMark());

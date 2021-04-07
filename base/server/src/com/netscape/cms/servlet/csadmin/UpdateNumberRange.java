@@ -229,7 +229,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
                     logger.info("UpdateNumberRange:   Next range current end: " + endNum);
                     logger.info("UpdateNumberRange:   Next range new end: " + newEndNum);
 
-                    repo.setNextMaxSerial(newEndNum.toString(radix));
+                    repo.setNextMaxSerial(newEndNum);
                     dbConfig.putString(nextEndConfig, newEndNum.toString(radix));
                     beginNum = newEndNum.add(BigInteger.ONE);
 

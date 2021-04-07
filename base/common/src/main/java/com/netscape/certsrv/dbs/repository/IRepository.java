@@ -66,7 +66,7 @@ public interface IRepository {
      * @param serial maximum number
      * @exception EBaseException failed to set maximum serial number in next range
      */
-    public void setNextMaxSerial(String serial) throws EBaseException;
+    public void setNextMaxSerial(BigInteger serial) throws EBaseException;
 
     /**
      * Checks to see if a new range is needed, or if we have reached the end of the
