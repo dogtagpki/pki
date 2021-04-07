@@ -124,10 +124,13 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
      * @param dn dn of the entry to publish the certificate
      * @param certObj the certificate object.
      */
-    public void publish(LDAPConnection conn, String dn, Object certObj)
-            throws ELdapException {
-        if (conn == null)
+    public void publish(LDAPConnection conn, String dn, Object certObj) throws ELdapException {
+
+        if (conn == null) {
             return;
+        }
+
+        logger.info("LdapUserCertPublisher: Publishing to " + dn);
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
@@ -167,8 +170,9 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
             logger.warn("LdapUserCertPublisher: Failed to create alt connection " + e.getMessage(), e);
         }
 
-        if (!(certObj instanceof X509Certificate))
+        if (!(certObj instanceof X509Certificate)) {
             throw new IllegalArgumentException("Illegal arg to publish");
+        }
 
         X509Certificate cert = (X509Certificate) certObj;
 
