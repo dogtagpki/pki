@@ -102,16 +102,18 @@ public class LdapRule implements IExtendedPluginInfo {
         // Read the predicate expression if any associated
         // with the rule
         String exp = config.getString(PublisherProcessor.PROP_PREDICATE, null);
+        logger.info("LdapRule: predicate: " + exp);
 
-        if (exp != null)
+        if (exp != null) {
             exp = exp.trim();
+        }
+
         if (exp != null && exp.length() > 0) {
             ILdapExpression filterExp = LdapPredicateParser.parse(exp);
-
             setPredicate(filterExp);
         }
-        //if (mProcessor == null) System.out.println("null");
 
+        //if (mProcessor == null) System.out.println("null");
     }
 
     /**
@@ -133,15 +135,16 @@ public class LdapRule implements IExtendedPluginInfo {
         // Read the predicate expression if any associated
         // with the rule
         String exp = config.getString(PublisherProcessor.PROP_PREDICATE, null);
+        logger.info("LdapRule: predicate: " + exp);
 
-        if (exp != null)
+        if (exp != null) {
             exp = exp.trim();
-        if (exp != null && exp.length() > 0) {
-            ILdapExpression filterExp = LdapPredicateParser.parse(exp);
-
-            setPredicate(filterExp);
         }
 
+        if (exp != null && exp.length() > 0) {
+            ILdapExpression filterExp = LdapPredicateParser.parse(exp);
+            setPredicate(filterExp);
+        }
     }
 
     /**
