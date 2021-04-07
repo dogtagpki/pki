@@ -69,18 +69,12 @@ public class DBSubsystem {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSubsystem.class);
 
     public final static String ID = "dbs";
-    public final static int CERTS = 0;
-    public final static int REQUESTS = 1;
-    public final static int REPLICA_ID = 2;
-    public final static int NUM_REPOS = 3;
 
     private LDAPConfig mConfig;
     private DatabaseConfig mDBConfig;
     private LdapBoundConnFactory mLdapConnFactory = null;
     private DBRegistry mRegistry = null;
     private String mBaseDN = null;
-
-    private Hashtable<String, String>[] mRepos = new Hashtable[DBSubsystem.NUM_REPOS];
 
     private BigInteger mNextSerialConfig = null;
     private boolean mEnableSerialMgmt = false;
@@ -202,10 +196,6 @@ public class DBSubsystem {
             throws EBaseException {
         logger.info("DBSubsystem: Setting next serial number: 0x" + serial.toString(16));
         mDBConfig.setNextSerialNumber(serial.toString(16));
-    }
-
-    public Hashtable<String, String> getRepositoryConfig(int repositoryID) {
-        return mRepos[repositoryID];
     }
 
     /**
