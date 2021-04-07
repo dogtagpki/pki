@@ -81,17 +81,6 @@ jobs:
       - name: Install OCSP
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ocsp.cfg -s OCSP -v
 
-      - name: Gather config files
-        if: always()
-        run: docker exec pki tar cvf ${PKIDIR}/pki-conf.tar -C / etc/pki
-
-      - name: Upload config files
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: pki-conf-${{ matrix.os }}
-          path: pki-conf.tar
-
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
 
@@ -104,6 +93,19 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec pki pki -n caadmin ocsp-user-show ocspadmin
 
+      - name: Gather artifacts
+        if: always()
+        run: |
+          mkdir -p /tmp/pki/dirsrv/conf
+          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
+          mkdir -p /tmp/pki/dirsrv/logs
+          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
+          mkdir -p /tmp/pki/pki/conf
+          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
+          mkdir -p /tmp/pki/pki/logs
+          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
+          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+
       - name: Remove OCSP
         run: docker exec pki pkidestroy -i pki-tomcat -s OCSP -v
 
@@ -113,18 +115,13 @@ jobs:
       - name: Remove DS
         run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Gather log files
-        if: always()
-        run: |
-          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec pki tar cvf ${PKIDIR}/pki-logs.tar -C / var/log/pki
-
-      - name: Upload log files
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-logs-${{ matrix.os }}
-          path: pki-logs.tar
+          name: ocsp-${{ matrix.os }}
+          path: |
+            /tmp/pki/
 
   # docs/installation/ocsp/Installing_OCSP_with_External_Certificates.md
   ocsp-external-certs-test:
@@ -246,17 +243,6 @@ jobs:
         run: |
           docker exec ocsp pkispawn -f /usr/share/pki/server/examples/installation/ocsp-external-certs-step2.cfg -s OCSP -v
 
-      - name: Gather config files from OCSP container
-        if: always()
-        run: docker exec ocsp tar cvf ${PKIDIR}/ocsp-external-certs-conf.tar -C / etc/pki
-
-      - name: Upload config files from OCSP container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: ocsp-external-certs-conf-${{ matrix.os }}
-          path: ocsp-external-certs-conf.tar
-
       - name: Run PKI healthcheck
         run: docker exec ocsp pki-healthcheck --debug
 
@@ -268,6 +254,32 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ocsp/pkcs12_password.conf
           docker exec ocsp pki -n ocspadmin ocsp-user-show ocspadmin
 
+      - name: Gather artifacts from CA container
+        if: always()
+        run: |
+          mkdir -p /tmp/ca/dirsrv/conf
+          docker cp ca:/etc/dirsrv/slapd-localhost/. /tmp/ca/dirsrv/conf
+          mkdir -p /tmp/ca/dirsrv/logs
+          docker cp ca:/var/log/dirsrv/slapd-localhost/. /tmp/ca/dirsrv/logs
+          mkdir -p /tmp/ca/pki/conf
+          docker cp ca:/var/lib/pki/pki-tomcat/conf/. /tmp/ca/pki/conf
+          mkdir -p /tmp/ca/pki/logs
+          docker cp ca:/var/lib/pki/pki-tomcat/logs/. /tmp/ca/pki/logs
+          docker exec ca journalctl -u pki-tomcatd@pki-tomcat > /tmp/ca/pki/logs/systemd.log
+
+      - name: Gather artifacts from OCSP container
+        if: always()
+        run: |
+          mkdir -p /tmp/ocsp/dirsrv/conf
+          docker cp ocsp:/etc/dirsrv/slapd-localhost/. /tmp/ocsp/dirsrv/conf
+          mkdir -p /tmp/ocsp/dirsrv/logs
+          docker cp ocsp:/var/log/dirsrv/slapd-localhost/. /tmp/ocsp/dirsrv/logs
+          mkdir -p /tmp/ocsp/pki/conf
+          docker cp ocsp:/var/lib/pki/pki-tomcat/conf/. /tmp/ocsp/pki/conf
+          mkdir -p /tmp/ocsp/pki/logs
+          docker cp ocsp:/var/lib/pki/pki-tomcat/logs/. /tmp/ocsp/pki/logs
+          docker exec ocsp journalctl -u pki-tomcatd@pki-tomcat > /tmp/ocsp/pki/logs/systemd.log
+
       - name: Remove OCSP from OCSP container
         run: docker exec ocsp pkidestroy -i pki-tomcat -s OCSP -v
 
@@ -276,19 +288,6 @@ jobs:
 
       - name: Disconnect OCSP container from network
         run: docker network disconnect example ocsp
-
-      - name: Gather log files from OCSP container
-        if: always()
-        run: |
-          docker exec ocsp bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec ocsp tar cvf ${PKIDIR}/ocsp-external-certs-logs.tar -C / var/log/pki
-
-      - name: Upload log files from OCSP container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: ocsp-external-certs-logs-${{ matrix.os }}
-          path: ocsp-external-certs-logs.tar
 
       - name: Remove CA from CA container
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
@@ -299,21 +298,24 @@ jobs:
       - name: Disconnect CA container from network
         run: docker network disconnect example ca
 
-      - name: Gather log files from CA container
-        if: always()
-        run: |
-          docker exec ca bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec ca tar cvf ${PKIDIR}/ca-external-certs-logs.tar -C / var/log/pki
+      - name: Remove network
+        run: docker network rm example
 
-      - name: Upload log files from CA container
+      - name: Upload artifacts from CA container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-external-certs-logs-${{ matrix.os }}
-          path: ca-external-certs-logs.tar
+          name: ocsp-external-certs-ca-${{ matrix.os }}
+          path: |
+            /tmp/ca/
 
-      - name: Remove network
-        run: docker network rm example
+      - name: Upload artifacts from OCSP container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ocsp-external-certs-ocsp-${{ matrix.os }}
+          path: |
+            /tmp/ocsp/
 
   # docs/installation/ocsp/Installing_OCSP_Clone.md
   ocsp-clone-test:
@@ -365,17 +367,6 @@ jobs:
       - name: Install primary OCSP in primary container
         run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/ocsp.cfg -s OCSP -v
 
-      - name: Gather config files from primary container
-        if: always()
-        run: docker exec primary tar cvf ${PKIDIR}/primary-conf.tar -C / etc/pki
-
-      - name: Upload config files from primary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: primary-conf-${{ matrix.os }}
-          path: primary-conf.tar
-
       - name: Setup secondary container
         run: |
           IMAGE=pki-runner \
@@ -405,17 +396,6 @@ jobs:
           docker exec primary pki-server ocsp-clone-prepare --pkcs12-file ${PKIDIR}/ocsp-certs.p12 --pkcs12-password Secret.123
           docker exec secondary cp ${PKIDIR}/ocsp-certs.p12 .
           docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ocsp-clone.cfg -s OCSP -v
-
-      - name: Gather config files from secondary container
-        if: always()
-        run: docker exec secondary tar cvf ${PKIDIR}/secondary-conf.tar -C / etc/pki
-
-      - name: Upload config files from secondary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: secondary-conf-${{ matrix.os }}
-          path: secondary-conf.tar
 
       - name: Verify OCSP admin in secondary container
         run: |
@@ -457,17 +437,6 @@ jobs:
           docker exec tertiary cp ${PKIDIR}/ocsp-certs.p12 .
           docker exec tertiary pkispawn -f /usr/share/pki/server/examples/installation/ocsp-clone-of-clone.cfg -s OCSP -v
 
-      - name: Gather config files from tertiary container
-        if: always()
-        run: docker exec tertiary tar cvf ${PKIDIR}/tertiary-conf.tar -C / etc/pki
-
-      - name: Upload config files from tertiary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: tertiary-conf-${{ matrix.os }}
-          path: tertiary-conf.tar
-
       - name: Verify OCSP admin in tertiary container
         run: |
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
@@ -475,6 +444,45 @@ jobs:
               --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec tertiary pki -n caadmin ocsp-user-show ocspadmin
+
+      - name: Gather artifacts from primary container
+        if: always()
+        run: |
+          mkdir -p /tmp/primary/dirsrv/conf
+          docker cp primary:/etc/dirsrv/slapd-localhost/. /tmp/primary/dirsrv/conf
+          mkdir -p /tmp/primary/dirsrv/logs
+          docker cp primary:/var/log/dirsrv/slapd-localhost/. /tmp/primary/dirsrv/logs
+          mkdir -p /tmp/primary/pki/conf
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/. /tmp/primary/pki/conf
+          mkdir -p /tmp/primary/pki/logs
+          docker cp primary:/var/lib/pki/pki-tomcat/logs/. /tmp/primary/pki/logs
+          docker exec primary journalctl -u pki-tomcatd@pki-tomcat > /tmp/primary/pki/logs/systemd.log
+
+      - name: Gather artifacts from secondary container
+        if: always()
+        run: |
+          mkdir -p /tmp/secondary/dirsrv/conf
+          docker cp secondary:/etc/dirsrv/slapd-localhost/. /tmp/secondary/dirsrv/conf
+          mkdir -p /tmp/secondary/dirsrv/logs
+          docker cp secondary:/var/log/dirsrv/slapd-localhost/. /tmp/secondary/dirsrv/logs
+          mkdir -p /tmp/secondary/pki/conf
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/. /tmp/secondary/pki/conf
+          mkdir -p /tmp/secondary/pki/logs
+          docker cp secondary:/var/lib/pki/pki-tomcat/logs/. /tmp/secondary/pki/logs
+          docker exec secondary journalctl -u pki-tomcatd@pki-tomcat > /tmp/secondary/pki/logs/systemd.log
+
+      - name: Gather artifacts from tertiary container
+        if: always()
+        run: |
+          mkdir -p /tmp/tertiary/dirsrv/conf
+          docker cp tertiary:/etc/dirsrv/slapd-localhost/. /tmp/tertiary/dirsrv/conf
+          mkdir -p /tmp/tertiary/dirsrv/logs
+          docker cp tertiary:/var/log/dirsrv/slapd-localhost/. /tmp/tertiary/dirsrv/logs
+          mkdir -p /tmp/tertiary/pki/conf
+          docker cp tertiary:/var/lib/pki/pki-tomcat/conf/. /tmp/tertiary/pki/conf
+          mkdir -p /tmp/tertiary/pki/logs
+          docker cp tertiary:/var/lib/pki/pki-tomcat/logs/. /tmp/tertiary/pki/logs
+          docker exec tertiary journalctl -u pki-tomcatd@pki-tomcat > /tmp/tertiary/pki/logs/systemd.log
 
       - name: Remove OCSP from tertiary container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s OCSP -v
@@ -488,19 +496,6 @@ jobs:
       - name: Disconnect tertiary container from network
         run: docker network disconnect example tertiary
 
-      - name: Gather log files from tertiary container
-        if: always()
-        run: |
-          docker exec tertiary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec tertiary tar cvf ${PKIDIR}/tertiary-logs.tar -C / var/log/pki
-
-      - name: Upload log files from tertiary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: tertiary-logs-${{ matrix.os }}
-          path: tertiary-logs.tar
-
       - name: Remove OCSP from secondary container
         run: docker exec secondary pkidestroy -i pki-tomcat -s OCSP -v
 
@@ -512,19 +507,6 @@ jobs:
 
       - name: Disconnect secondary container from network
         run: docker network disconnect example secondary
-
-      - name: Gather log files from secondary container
-        if: always()
-        run: |
-          docker exec secondary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec secondary tar cvf ${PKIDIR}/secondary-logs.tar -C / var/log/pki
-
-      - name: Upload log files from secondary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: secondary-logs-${{ matrix.os }}
-          path: secondary-logs.tar
 
       - name: Remove OCSP from primary container
         run: docker exec primary pkidestroy -i pki-tomcat -s OCSP -v
@@ -541,18 +523,29 @@ jobs:
       - name: Remove network
         run: docker network rm example
 
-      - name: Gather log files from primary container
-        if: always()
-        run: |
-          docker exec primary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec primary tar cvf ${PKIDIR}/primary-logs.tar -C / var/log/pki
-
-      - name: Upload log files from primary container
+      - name: Upload artifacts from primary container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: primary-logs-${{ matrix.os }}
-          path: primary-logs.tar
+          name: ocsp-clone-primary-${{ matrix.os }}
+          path: |
+            /tmp/primary/
+
+      - name: Upload artifacts from secondary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ocsp-clone-secondary-${{ matrix.os }}
+          path: |
+            /tmp/secondary/
+
+      - name: Upload artifacts from tertiary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ocsp-clone-tertiary-${{ matrix.os }}
+          path: |
+            /tmp/tertiary/
 
   ocsp-standalone-test:
     name: Installing Standalone OCSP
@@ -660,16 +653,18 @@ jobs:
         run: |
           docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ocsp-standalone-step2.cfg -s OCSP -v
 
-      - name: Gather config files
+      - name: Gather artifacts
         if: always()
-        run: docker exec pki tar cvf ${PKIDIR}/ocsp-standalone-conf.tar -C / etc/pki
-
-      - name: Upload config files
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: ocsp-standalone-conf-${{ matrix.os }}
-          path: ocsp-standalone-conf.tar
+        run: |
+          mkdir -p /tmp/pki/dirsrv/conf
+          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
+          mkdir -p /tmp/pki/dirsrv/logs
+          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
+          mkdir -p /tmp/pki/pki/conf
+          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
+          mkdir -p /tmp/pki/pki/logs
+          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
+          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
 
       # TODO: Fix DogtagOCSPConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
@@ -689,15 +684,10 @@ jobs:
       - name: Remove DS
         run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Gather log files
-        if: always()
-        run: |
-          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec pki tar cvf ${PKIDIR}/ocsp-standalone-logs.tar -C / var/log/pki
-
-      - name: Upload log files
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ocsp-standalone-logs-${{ matrix.os }}
-          path: ocsp-standalone-logs.tar
+          name: ocsp-standalone-${{ matrix.os }}
+          path: |
+            /tmp/pki/
