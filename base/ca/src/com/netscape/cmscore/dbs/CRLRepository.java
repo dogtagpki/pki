@@ -65,7 +65,8 @@ public class CRLRepository extends Repository {
         mBaseDN = "ou=crlIssuingPoints,ou=ca," + dbSubsystem.getBaseDN();
         logger.info("CRLRepository: - base DN: " + mBaseDN);
 
-        repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getRequestRangeDN());
+        rangeDN = dbConfig.getRequestRangeDN() + "," + dbSubsystem.getBaseDN();
+        logger.info("CRLRepository: - range DN: " + rangeDN);
 
         repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_REQUEST_NUMBER);
         repositoryConfig.put(DBSubsystem.PROP_MIN, dbConfig.getBeginRequestNumber());

@@ -66,7 +66,8 @@ public class RequestRepository extends Repository {
         mBaseDN = dbConfig.getRequestDN() + "," + dbSubsystem.getBaseDN();
         logger.info("RequestRepository: - base DN: " + mBaseDN);
 
-        repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getRequestRangeDN());
+        rangeDN = dbConfig.getRequestRangeDN() + "," + dbSubsystem.getBaseDN();
+        logger.info("RequestRepository: - range DN: " + rangeDN);
 
         repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_REQUEST_NUMBER);
         repositoryConfig.put(DBSubsystem.PROP_MIN, dbConfig.getBeginRequestNumber());

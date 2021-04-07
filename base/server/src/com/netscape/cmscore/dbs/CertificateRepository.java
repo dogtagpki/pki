@@ -108,7 +108,8 @@ public class CertificateRepository extends Repository {
         mBaseDN = mDBConfig.getSerialDN() + "," + dbSubsystem.getBaseDN();
         logger.info("CertificateRepository: - base DN: " + mBaseDN);
 
-        repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, mDBConfig.getSerialRangeDN());
+        rangeDN = mDBConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
+        logger.info("CertificateRepository: - range DN: " + rangeDN);
 
         repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_SERIAL_NUMBER);
         repositoryConfig.put(DBSubsystem.PROP_MIN, mDBConfig.getBeginSerialNumber());

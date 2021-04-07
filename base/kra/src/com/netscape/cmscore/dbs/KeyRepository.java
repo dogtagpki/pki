@@ -68,7 +68,8 @@ public class KeyRepository extends Repository implements IKeyRepository {
         mBaseDN = dbConfig.getSerialDN() + "," + dbSubsystem.getBaseDN();
         logger.info("KeyRepository: - base DN: " + mBaseDN);
 
-        repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getSerialRangeDN());
+        rangeDN = dbConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
+        logger.info("KeyRepository: - range DN: " + rangeDN);
 
         repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_SERIAL_NUMBER);
         repositoryConfig.put(DBSubsystem.PROP_MIN, dbConfig.getBeginSerialNumber());

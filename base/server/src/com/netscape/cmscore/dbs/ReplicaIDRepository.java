@@ -51,7 +51,8 @@ public class ReplicaIDRepository extends Repository {
         mBaseDN = dbConfig.getReplicaDN() + "," + dbSubsystem.getBaseDN();
         logger.info("ReplicaIDRepository: - base DN: " + mBaseDN);
 
-        repositoryConfig.put(DBSubsystem.PROP_RANGE_DN, dbConfig.getReplicaRangeDN());
+        rangeDN = dbConfig.getReplicaRangeDN() + "," + dbSubsystem.getBaseDN();
+        logger.info("ReplicaIDRepository: - range DN: " + rangeDN);
 
         repositoryConfig.put(DBSubsystem.PROP_MIN_NAME, DBSubsystem.PROP_MIN_REPLICA_NUMBER);
         repositoryConfig.put(DBSubsystem.PROP_MIN, dbConfig.getBeginReplicaNumber());

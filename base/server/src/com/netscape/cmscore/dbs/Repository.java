@@ -81,6 +81,7 @@ public abstract class Repository implements IRepository {
 
     protected DBSubsystem dbSubsystem;
     protected String mBaseDN;
+    protected String rangeDN;
     private boolean mInit = false;
 
     private int mRadix;
@@ -681,7 +682,6 @@ public abstract class Repository implements IRepository {
             attrs.add(new LDAPAttribute("host", cs.getHostname()));
             attrs.add(new LDAPAttribute("securePort", engine.getEESSLPort()));
 
-            String rangeDN = repositoryConfig.get(DBSubsystem.PROP_RANGE_DN) + "," + dbSubsystem.getBaseDN();
             String dn2 = "cn=" + nextRange + "," + rangeDN;
             LDAPEntry rangeEntry = new LDAPEntry(dn2, attrs);
 
@@ -725,7 +725,6 @@ public abstract class Repository implements IRepository {
 
             logger.info("Repository: Searching for conflicting entries");
 
-            String rangeDN = repositoryConfig.get(DBSubsystem.PROP_RANGE_DN) + "," + dbSubsystem.getBaseDN();
             String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
                     cs.getHostname() + ")(SecurePort=" + engine.getEESSLPort() +
                     ")(beginRange=" + nextRangeStart + "))";
