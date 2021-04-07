@@ -36,6 +36,9 @@ import com.netscape.cmscore.util.AssertionException;
  * @version $Revision$, $Date$
  */
 public class LdapSimpleExpression implements ILdapExpression {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapSimpleExpression.class);
+
     private String mPfx;
     private String mVar;
     private String mVal;
@@ -115,8 +118,8 @@ public class LdapSimpleExpression implements ILdapExpression {
             hasWildCard = false;
     }
 
-    public boolean evaluate(SessionContext sc)
-            throws ELdapException {
+    public boolean evaluate(SessionContext sc) throws ELdapException {
+
         Object givenVal;
 
         try {
@@ -145,6 +148,7 @@ public class LdapSimpleExpression implements ILdapExpression {
             }
         }
 
+        logger.debug("LdapSimpleExpression: " + mVar + ": " + givenVal);
         // Debug.trace("mVar: " + mVar + ",Given Value: " + givenVal + ", Value to compare with: " + mVal);
         boolean result = false;
 
@@ -216,16 +220,18 @@ public class LdapSimpleExpression implements ILdapExpression {
         return result;
     }
 
-    private boolean matchStringValue(String givenVal)
-            throws ELdapException {
+    private boolean matchStringValue(String givenVal) throws ELdapException {
+
         boolean result;
 
         switch (mOp) {
         case OP_EQUAL:
-            if (hasWildCard)
+            if (hasWildCard) {
                 result = (givenVal.indexOf(mPartialMatch) >= 0);
-            else
+            } else {
+                logger.debug("LdapSimpleExpression: Comparing string " + givenVal + " against " + mVal);
                 result = givenVal.equalsIgnoreCase(mVal);
+            }
             break;
 
         case OP_NEQUAL:
