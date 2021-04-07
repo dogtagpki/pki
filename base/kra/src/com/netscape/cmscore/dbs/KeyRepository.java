@@ -103,8 +103,10 @@ public class KeyRepository extends Repository implements IKeyRepository {
         }
         logger.info("KeyRepository: - next max serial: " + mNextMaxSerialNo);
 
-        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK_NAME, DBSubsystem.PROP_SERIAL_LOW_WATER_MARK);
-        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK, dbConfig.getSerialLowWaterMark());
+        String lowWaterMark = dbConfig.getSerialLowWaterMark();
+        if (lowWaterMark != null) {
+            mLowWaterMarkNo = new BigInteger(lowWaterMark, mRadix);
+        }
 
         repositoryConfig.put(DBSubsystem.PROP_INCREMENT_NAME, DBSubsystem.PROP_SERIAL_INCREMENT);
         repositoryConfig.put(DBSubsystem.PROP_INCREMENT, dbConfig.getSerialIncrement());

@@ -117,8 +117,6 @@ public class DBSubsystem {
     public static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";
 
     // hash keys
-    public static final String PROP_LOW_WATER_MARK = "lowWaterMark";
-    public static final String PROP_LOW_WATER_MARK_NAME = "lowWaterMark_name";
     public static final String PROP_INCREMENT = "increment";
     public static final String PROP_INCREMENT_NAME = "increment_name";
 

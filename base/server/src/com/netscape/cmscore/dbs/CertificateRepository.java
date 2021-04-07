@@ -143,8 +143,10 @@ public class CertificateRepository extends Repository {
         }
         logger.info("CertificateRepository: - next max serial: " + mNextMaxSerialNo);
 
-        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK_NAME, DBSubsystem.PROP_SERIAL_LOW_WATER_MARK);
-        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK, mDBConfig.getSerialLowWaterMark());
+        String lowWaterMark = mDBConfig.getSerialLowWaterMark();
+        if (lowWaterMark != null) {
+            mLowWaterMarkNo = new BigInteger(lowWaterMark, mRadix);
+        }
 
         repositoryConfig.put(DBSubsystem.PROP_INCREMENT_NAME, DBSubsystem.PROP_SERIAL_INCREMENT);
         repositoryConfig.put(DBSubsystem.PROP_INCREMENT, mDBConfig.getSerialIncrement());

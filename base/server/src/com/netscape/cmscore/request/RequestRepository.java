@@ -101,8 +101,10 @@ public class RequestRepository extends Repository {
         }
         logger.info("RequestRepository: - next max serial: " + mNextMaxSerialNo);
 
-        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK_NAME, DBSubsystem.PROP_REQUEST_LOW_WATER_MARK);
-        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK, dbConfig.getRequestLowWaterMark());
+        String lowWaterMark = dbConfig.getRequestLowWaterMark();
+        if (lowWaterMark != null) {
+            mLowWaterMarkNo = new BigInteger(lowWaterMark, mRadix);
+        }
 
         repositoryConfig.put(DBSubsystem.PROP_INCREMENT_NAME, DBSubsystem.PROP_REQUEST_INCREMENT);
         repositoryConfig.put(DBSubsystem.PROP_INCREMENT, dbConfig.getRequestIncrement());

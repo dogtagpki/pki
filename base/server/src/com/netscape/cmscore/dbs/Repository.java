@@ -80,7 +80,7 @@ public abstract class Repository implements IRepository {
     protected BigInteger mCounter = null;
 
     private BigInteger mIncrementNo = null;
-    private BigInteger mLowWaterMarkNo = null;
+    protected BigInteger mLowWaterMarkNo;
 
     protected DBSubsystem dbSubsystem;
     protected String mBaseDN;
@@ -265,12 +265,8 @@ public abstract class Repository implements IRepository {
         logger.debug("Repository: in InitCache");
 
         String increment = repositoryConfig.get(DBSubsystem.PROP_INCREMENT);
-        String lowWaterMark = repositoryConfig.get(DBSubsystem.PROP_LOW_WATER_MARK);
 
-        logger.debug("Repository: increment:" + increment + " lowWaterMark: " + lowWaterMark);
-
-        if (lowWaterMark != null)
-            mLowWaterMarkNo = new BigInteger(lowWaterMark, mRadix);
+        logger.debug("Repository: increment:" + increment);
 
         if (increment != null)
             mIncrementNo = new BigInteger(increment, mRadix);

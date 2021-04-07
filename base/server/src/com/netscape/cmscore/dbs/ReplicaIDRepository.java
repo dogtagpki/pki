@@ -86,8 +86,10 @@ public class ReplicaIDRepository extends Repository {
         }
         logger.info("ReplicaIDRepository: - next max serial: " + mNextMaxSerialNo);
 
-        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK_NAME, DBSubsystem.PROP_REPLICA_LOW_WATER_MARK);
-        repositoryConfig.put(DBSubsystem.PROP_LOW_WATER_MARK, dbConfig.getReplicaLowWaterMark());
+        String lowWaterMark = dbConfig.getReplicaLowWaterMark();
+        if (lowWaterMark != null) {
+            mLowWaterMarkNo = new BigInteger(lowWaterMark, mRadix);
+        }
 
         repositoryConfig.put(DBSubsystem.PROP_INCREMENT_NAME, DBSubsystem.PROP_REPLICA_INCREMENT);
         repositoryConfig.put(DBSubsystem.PROP_INCREMENT, dbConfig.getReplicaIncrement());
