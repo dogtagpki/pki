@@ -68,8 +68,14 @@ public class ReplicaIDRepository extends Repository {
         }
         logger.info("ReplicaIDRepository: - max serial: " + mMaxSerialNo);
 
-        repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN_NAME, DBSubsystem.PROP_NEXT_MIN_REPLICA_NUMBER);
-        repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN, dbConfig.getNextBeginReplicaNumber());
+        nextMinSerialName = DBSubsystem.PROP_NEXT_MIN_REPLICA_NUMBER;
+        String nextMinSerial = dbConfig.getNextBeginReplicaNumber();
+        if (nextMinSerial == null || nextMinSerial.equals("-1")) {
+            mNextMinSerialNo = null;
+        } else {
+            mNextMinSerialNo = new BigInteger(nextMinSerial, mRadix);
+        }
+        logger.info("ReplicaIDRepository: - next min serial: " + mNextMinSerialNo);
 
         repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX_NAME, DBSubsystem.PROP_NEXT_MAX_REPLICA_NUMBER);
         repositoryConfig.put(DBSubsystem.PROP_NEXT_MAX, dbConfig.getNextEndReplicaNumber());

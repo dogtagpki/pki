@@ -70,12 +70,13 @@ public abstract class Repository implements IRepository {
     protected String maxSerialName;
     protected BigInteger mMaxSerialNo;
 
+    protected String nextMinSerialName;
+    protected BigInteger mNextMinSerialNo;
+
     private String mNextMaxSerial = null;
-    private String mNextMinSerial = null;
 
     protected boolean mEnableRandomSerialNumbers = false;
     protected BigInteger mCounter = null;
-    private BigInteger mNextMinSerialNo = null;
     private BigInteger mNextMaxSerialNo = null;
 
     private BigInteger mIncrementNo = null;
@@ -263,20 +264,6 @@ public abstract class Repository implements IRepository {
     }
 
     /**
-     * Gets minimum serial number limit in next range in config file
-     *
-     * @return min serial number in next range
-     */
-    public String getNextMinSerialConfig() {
-        String ret = repositoryConfig.get(DBSubsystem.PROP_NEXT_MIN);
-        if (ret.equals("-1")) {
-            return null;
-        } else {
-            return ret;
-        }
-    }
-
-    /**
      * Gets maximum serial number limit in next range in config file
      *
      * @return max serial number in next range
@@ -299,17 +286,12 @@ public abstract class Repository implements IRepository {
 
         logger.debug("Repository: in InitCache");
 
-        mNextMinSerial = getNextMinSerialConfig();
         mNextMaxSerial = getNextMaxSerialConfig();
         String increment = repositoryConfig.get(DBSubsystem.PROP_INCREMENT);
         String lowWaterMark = repositoryConfig.get(DBSubsystem.PROP_LOW_WATER_MARK);
 
-        logger.debug("Repository: nextMinSerial: " + ((mNextMinSerial == null)? "" : mNextMinSerial) +
-                             " nextMaxSerial: " + ((mNextMaxSerial == null) ? "" : mNextMaxSerial));
+        logger.debug("Repository: nextMaxSerial: " + ((mNextMaxSerial == null) ? "" : mNextMaxSerial));
         logger.debug("Repository: increment:" + increment + " lowWaterMark: " + lowWaterMark);
-
-        if (mNextMinSerial != null)
-            mNextMinSerialNo = new BigInteger(mNextMinSerial, mRadix);
 
         if (mNextMaxSerial != null)
             mNextMaxSerialNo = new BigInteger(mNextMaxSerial, mRadix);
@@ -538,30 +520,24 @@ public abstract class Repository implements IRepository {
     /**
      * Sets minimum serial number limit for next range in config file
      *
-     * @param serial min serial number for next range
      * @exception EBaseException failed to set
      */
-    public void setNextMinSerialConfig(String serial) throws EBaseException {
+    public void setNextMinSerialConfig() throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
-        if (serial == null) {
+        if (mNextMinSerialNo == null) {
             logger.debug("Repository: Removing next min number");
-            dbConfig.remove(repositoryConfig.get(DBSubsystem.PROP_NEXT_MIN_NAME));
+            dbConfig.remove(nextMinSerialName);
         } else {
+            String serial = mNextMinSerialNo.toString(mRadix);
             logger.debug("Repository: Setting next min number: " + serial);
-            dbConfig.putString(repositoryConfig.get(DBSubsystem.PROP_NEXT_MIN_NAME), serial);
+            dbConfig.putString(nextMinSerialName, serial);
         }
 
         cs.commit(false);
-
-        if (serial == null) {
-            repositoryConfig.remove(DBSubsystem.PROP_NEXT_MIN);
-        } else {
-            repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN, serial);
-        }
     }
 
     /**
@@ -608,7 +584,7 @@ public abstract class Repository implements IRepository {
         // persist the changes
         setMinSerialConfig();
         setMaxSerialConfig();
-        setNextMinSerialConfig(null);
+        setNextMinSerialConfig();
         setNextMaxSerialConfig(null);
     }
 
@@ -696,8 +672,7 @@ public abstract class Repository implements IRepository {
      */
     public boolean hasRangeConflict() throws EBaseException {
 
-        String nextRangeStart = getNextMinSerialConfig();
-        if (nextRangeStart == null) {
+        if (mNextMinSerialNo == null) {
             return false;
         }
 
@@ -714,7 +689,7 @@ public abstract class Repository implements IRepository {
 
             String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
                     cs.getHostname() + ")(SecurePort=" + engine.getEESSLPort() +
-                    ")(beginRange=" + nextRangeStart + "))";
+                    ")(beginRange=" + mMinSerialNo.toString(mRadix) + "))";
 
             LDAPSearchResults results = conn.search(rangeDN, LDAPv3.SCOPE_SUB, filter, null, false);
 
@@ -797,7 +772,7 @@ public abstract class Repository implements IRepository {
                 mNextMaxSerialNo = mNextMinSerialNo.add(mIncrementNo).subtract(BigInteger.ONE);
                 numsAvail = numsAvail.add(mIncrementNo);
 
-                setNextMinSerialConfig(mNextMinSerialNo.toString(mRadix));
+                setNextMinSerialConfig();
                 setNextMaxSerialConfig(mNextMaxSerialNo.toString(mRadix));
             }
         }
@@ -810,7 +785,7 @@ public abstract class Repository implements IRepository {
                 mNextMaxSerialNo = null;
                 mNextMinSerialNo = null;
 
-                setNextMinSerialConfig(null);
+                setNextMinSerialConfig();
                 setNextMaxSerialConfig(null);
             }
         }
