@@ -29,6 +29,8 @@ import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.DatabaseConfig;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * A class represents a generic repository. It maintains unique
@@ -472,10 +474,50 @@ public abstract class Repository implements IRepository {
     }
 
     /**
+     * Sets minimum serial number limit in config file
+     *
+     * @param serial min serial number
+     * @exception EBaseException failed to set
+     */
+    public void setMinSerialConfig(String serial) throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        logger.debug("Repository: Setting min serial number: " + serial);
+
+        dbConfig.putString(repositoryConfig.get(DBSubsystem.PROP_MIN_NAME), serial);
+        cs.commit(false);
+
+        repositoryConfig.put(DBSubsystem.PROP_MIN, serial);
+    }
+
+    /**
+     * Sets maximum serial number limit in config file
+     *
+     * @param serial max serial number
+     * @exception EBaseException failed to set
+     */
+    public void setMaxSerialConfig(String serial) throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        logger.debug("Repository: Setting max serial number: " + serial);
+
+        dbConfig.putString(repositoryConfig.get(DBSubsystem.PROP_MAX_NAME), serial);
+        cs.commit(false);
+
+        repositoryConfig.put(DBSubsystem.PROP_MAX, serial);
+    }
+
+    /**
      * Switch to the next range and persist the changes.
      */
-    private void switchToNextRange()
-            throws EBaseException {
+    private void switchToNextRange() throws EBaseException {
+
         mMinSerialNo = mNextMinSerialNo;
         mMaxSerialNo = mNextMaxSerialNo;
         mLastSerialNo = mMinSerialNo;
@@ -484,8 +526,8 @@ public abstract class Repository implements IRepository {
         mCounter = BigInteger.ZERO;
 
         // persist the changes
-        dbSubsystem.setMinSerialConfig(repositoryConfig, mMinSerialNo.toString(mRadix));
-        dbSubsystem.setMaxSerialConfig(repositoryConfig, mMaxSerialNo.toString(mRadix));
+        setMinSerialConfig(mMinSerialNo.toString(mRadix));
+        setMaxSerialConfig(mMaxSerialNo.toString(mRadix));
         dbSubsystem.setNextMinSerialConfig(repositoryConfig, null);
         dbSubsystem.setNextMaxSerialConfig(repositoryConfig, null);
     }

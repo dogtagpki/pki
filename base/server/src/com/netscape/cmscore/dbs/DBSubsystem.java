@@ -229,50 +229,6 @@ public class DBSubsystem {
     }
 
     /**
-     * Sets maximum serial number limit in config file
-     *
-     * @param h repository config
-     * @param serial max serial number
-     * @exception EBaseException failed to set
-     */
-    public void setMaxSerialConfig(Hashtable<String, String> h, String serial)
-            throws EBaseException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
-        logger.debug("DBSubsystem: Setting max serial number for " + h.get(NAME) + ": " + serial);
-
-        //persist to file
-        mDBConfig.putString(h.get(PROP_MAX_NAME), serial);
-        cs.commit(false);
-
-        h.put(PROP_MAX, serial);
-    }
-
-    /**
-     * Sets minimum serial number limit in config file
-     *
-     * @param h repository config
-     * @param serial min serial number
-     * @exception EBaseException failed to set
-     */
-    public void setMinSerialConfig(Hashtable<String, String> h, String serial)
-            throws EBaseException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
-        logger.debug("DBSubsystem: Setting min serial number for " + h.get(NAME) + ": " + serial);
-
-        //persist to file
-        mDBConfig.putString(h.get(PROP_MIN_NAME), serial);
-        cs.commit(false);
-
-        h.put(PROP_MIN, serial);
-    }
-
-    /**
      * Sets maximum serial number limit for next range in config file
      *
      * @param h repository config
