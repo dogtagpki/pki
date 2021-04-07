@@ -43,11 +43,9 @@ import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSchema;
-import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPObjectClassSchema;
 import netscape.ldap.LDAPSchema;
 import netscape.ldap.LDAPSearchResults;
@@ -119,7 +117,7 @@ public class DBSubsystem {
     public static final String PROP_INFINITE_REPLICA_NUMBER = "1000";
     public static final String PROP_BASEDN = "basedn";
     private static final String PROP_LDAP = "ldap";
-    private static final String PROP_NEXT_RANGE = "nextRange";
+    public static final String PROP_NEXT_RANGE = "nextRange";
     public static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";
 
     // hash keys
@@ -226,88 +224,6 @@ public class DBSubsystem {
         } else {
             return ret;
         }
-    }
-
-    /**
-     * Gets start of next range from database.
-     * Increments the nextRange attribute and allocates
-     * this range to the current instance by creating a pkiRange object.
-     *
-     * @param h repository config
-     * @return start of next range
-     */
-    public String getNextRange(Hashtable<String, String> h) {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
-        LDAPConnection conn = null;
-        String nextRange = null;
-        try {
-            conn = mLdapConnFactory.getConn();
-            String dn = h.get(PROP_BASEDN) + "," + mBaseDN;
-            String rangeDN = h.get(PROP_RANGE_DN) + "," + mBaseDN;
-
-            logger.debug("DBSubsystem: retrieving " + dn);
-            LDAPEntry entry = conn.read(dn);
-
-            LDAPAttribute attr = entry.getAttribute(PROP_NEXT_RANGE);
-            if (attr == null) {
-                throw new Exception("Missing Attribute" + PROP_NEXT_RANGE + "in Entry " + dn);
-            }
-            nextRange = attr.getStringValues().nextElement();
-
-            BigInteger nextRangeNo = new BigInteger(nextRange);
-            BigInteger incrementNo = new BigInteger(h.get(PROP_INCREMENT));
-            String newNextRange = nextRangeNo.add(incrementNo).toString();
-
-            // To make sure attrNextRange always increments, first delete the current value and then
-            // increment.  Two operations in the same transaction
-            LDAPAttribute attrNextRange = new LDAPAttribute(PROP_NEXT_RANGE, newNextRange);
-            LDAPModification[] mods = {
-                    new LDAPModification(LDAPModification.DELETE, attr),
-                    new LDAPModification(LDAPModification.ADD, attrNextRange) };
-
-            logger.debug("DBSubsystem: updating " + PROP_NEXT_RANGE + " from " + nextRange + " to " + newNextRange);
-
-            conn.modify(dn, mods);
-
-            // Add new range object
-            String endRange = nextRangeNo.add(incrementNo).subtract(BigInteger.ONE).toString();
-            LDAPAttributeSet attrs = new LDAPAttributeSet();
-            attrs.add(new LDAPAttribute("objectClass", "top"));
-            attrs.add(new LDAPAttribute("objectClass", "pkiRange"));
-            attrs.add(new LDAPAttribute("beginRange", nextRange));
-            attrs.add(new LDAPAttribute("endRange", endRange));
-            attrs.add(new LDAPAttribute("cn", nextRange));
-            attrs.add(new LDAPAttribute("host", cs.getHostname()));
-            attrs.add(new LDAPAttribute("securePort", engine.getEESSLPort()));
-            String dn2 = "cn=" + nextRange + "," + rangeDN;
-            LDAPEntry rangeEntry = new LDAPEntry(dn2, attrs);
-
-            logger.debug("DBSubsystem: adding new range object: " + dn2);
-
-            conn.add(rangeEntry);
-
-            logger.debug("DBSubsystem: getNextRange  Next range has been added: " +
-                      nextRange + " - " + endRange);
-
-        } catch (Exception e) {
-            logger.warn("DBSubsystem: Unable to get next range: " + e.getMessage(), e);
-            nextRange = null;
-
-        } finally {
-            try {
-                if ((conn != null) && (mLdapConnFactory != null)) {
-                    logger.debug("Releasing ldap connection");
-                    mLdapConnFactory.returnConn(conn);
-                }
-            } catch (Exception e) {
-                logger.warn("Error releasing the ldap connection: " + e.getMessage(), e);
-            }
-        }
-
-        return nextRange;
     }
 
     /**

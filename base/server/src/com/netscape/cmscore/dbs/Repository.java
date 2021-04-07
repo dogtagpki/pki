@@ -32,6 +32,12 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPModification;
+
 /**
  * A class represents a generic repository. It maintains unique
  * serial number within repository.
@@ -591,6 +597,82 @@ public abstract class Repository implements IRepository {
     }
 
     /**
+     * Gets start of next range from database.
+     * Increments the nextRange attribute and allocates
+     * this range to the current instance by creating a pkiRange object.
+     *
+     * @return start of next range
+     */
+    public String getNextRange() throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
+        LDAPSession session = (LDAPSession) dbSubsystem.createSession();
+
+        try {
+            LDAPConnection conn = session.getConnection();
+
+            String dn = repositoryConfig.get(DBSubsystem.PROP_BASEDN) + "," + dbSubsystem.getBaseDN();
+            logger.info("Repository: Reading entry " + dn);
+            LDAPEntry entry = conn.read(dn);
+
+            LDAPAttribute attr = entry.getAttribute(DBSubsystem.PROP_NEXT_RANGE);
+            if (attr == null) {
+                throw new Exception("Missing attribute" + DBSubsystem.PROP_NEXT_RANGE);
+            }
+
+            String nextRange = attr.getStringValues().nextElement();
+            BigInteger nextRangeNo = new BigInteger(nextRange);
+            BigInteger incrementNo = new BigInteger(repositoryConfig.get(DBSubsystem.PROP_INCREMENT));
+            BigInteger newNextRangeNo = nextRangeNo.add(incrementNo);
+            String newNextRange = newNextRangeNo.toString();
+            String endRange = newNextRangeNo.subtract(BigInteger.ONE).toString();
+
+            logger.info("Repository: Updating " + DBSubsystem.PROP_NEXT_RANGE + " from " + nextRange + " to " + newNextRange);
+
+            // To make sure attrNextRange always increments, first delete the current value and then increment.
+            // Two operations in the same transaction
+
+            LDAPAttribute attrNextRange = new LDAPAttribute(DBSubsystem.PROP_NEXT_RANGE, newNextRange);
+            LDAPModification[] mods = {
+                    new LDAPModification(LDAPModification.DELETE, attr),
+                    new LDAPModification(LDAPModification.ADD, attrNextRange)
+            };
+
+            logger.info("Repository: Modifying entry " + dn);
+            conn.modify(dn, mods);
+
+            // Add new range object
+
+            LDAPAttributeSet attrs = new LDAPAttributeSet();
+            attrs.add(new LDAPAttribute("objectClass", "top"));
+            attrs.add(new LDAPAttribute("objectClass", "pkiRange"));
+            attrs.add(new LDAPAttribute("beginRange", nextRange));
+            attrs.add(new LDAPAttribute("endRange", endRange));
+            attrs.add(new LDAPAttribute("cn", nextRange));
+            attrs.add(new LDAPAttribute("host", cs.getHostname()));
+            attrs.add(new LDAPAttribute("securePort", engine.getEESSLPort()));
+
+            String rangeDN = repositoryConfig.get(DBSubsystem.PROP_RANGE_DN) + "," + dbSubsystem.getBaseDN();
+            String dn2 = "cn=" + nextRange + "," + rangeDN;
+            LDAPEntry rangeEntry = new LDAPEntry(dn2, attrs);
+
+            logger.info("Repository: Adding entry " + dn2);
+            conn.add(rangeEntry);
+
+            return nextRange;
+
+        } catch (Exception e) {
+            logger.warn("Repository: Unable to get next range: " + e.getMessage(), e);
+            return null;
+
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Checks to see if a new range is needed, or if we have reached the end of the
      * current range, or if a range conflict has occurred.
      *
@@ -639,7 +721,7 @@ public abstract class Repository implements IRepository {
 
         if ((numsAvail.compareTo(mLowWaterMarkNo) < 0) && (!engine.isPreOpMode())) {
             logger.debug("Repository: Requesting next range");
-            String nextRange = dbSubsystem.getNextRange(repositoryConfig);
+            String nextRange = getNextRange();
             logger.debug("Repository: next range: " + nextRange);
 
             mNextMinSerialNo = new BigInteger(nextRange, mRadix);

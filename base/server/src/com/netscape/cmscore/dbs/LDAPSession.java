@@ -78,6 +78,10 @@ public class LDAPSession extends DBSSession {
         }
     }
 
+    public LDAPConnection getConnection() {
+        return mConn;
+    }
+
     /**
      * Closes this session.
      */
