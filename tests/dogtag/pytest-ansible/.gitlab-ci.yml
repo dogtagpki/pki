@@ -19,7 +19,6 @@ stages:
   - triggers
   - web
   - schedules
-  allow_failure: true
   artifacts:
     paths:
     - $CI_PROJECT_DIR/*_junit.xml
