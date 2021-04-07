@@ -238,8 +238,8 @@ public abstract class UpdateNumberRange extends CMSServlet {
                     logger.info("UpdateNumberRange: Transferring from the end of the current range");
 
                     BigInteger newEndNum = beginNum.subtract(BigInteger.ONE);
+                    repo.setMaxSerial(newEndNum);
                     String newValStr = newEndNum.toString(radix);
-                    repo.setMaxSerial(newEndNum.toString(radix));
                     dbConfig.putString(endNumConfig, newValStr);
 
                     logger.info("UpdateNumberRange: New current range: " + nextSerial + ".." + newEndNum);

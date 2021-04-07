@@ -117,8 +117,6 @@ public class DBSubsystem {
     public static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";
 
     // hash keys
-    public static final String PROP_MAX = "max";
-    public static final String PROP_MAX_NAME = "max_name";
     public static final String PROP_NEXT_MIN = "next_min";
     public static final String PROP_NEXT_MIN_NAME = "next_min_name";
     public static final String PROP_NEXT_MAX = "next_max";

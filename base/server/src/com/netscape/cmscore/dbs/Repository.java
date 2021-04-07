@@ -67,13 +67,14 @@ public abstract class Repository implements IRepository {
     protected String minSerialName;
     protected BigInteger mMinSerialNo;
 
-    private String mMaxSerial = null;
+    protected String maxSerialName;
+    protected BigInteger mMaxSerialNo;
+
     private String mNextMaxSerial = null;
     private String mNextMinSerial = null;
 
     protected boolean mEnableRandomSerialNumbers = false;
     protected BigInteger mCounter = null;
-    protected BigInteger mMaxSerialNo = null;
     private BigInteger mNextMinSerialNo = null;
     private BigInteger mNextMaxSerialNo = null;
 
@@ -114,6 +115,10 @@ public abstract class Repository implements IRepository {
      */
     public String getBaseDN() {
         return mBaseDN;
+    }
+
+    public int getRadix() {
+        return mRadix;
     }
 
     /**
@@ -201,8 +206,8 @@ public abstract class Repository implements IRepository {
      *
      * @return maximum serial number
      */
-    public String getMaxSerial() {
-        return mMaxSerial;
+    public BigInteger getMaxSerial() {
+        return mMaxSerialNo;
     }
 
     /**
@@ -211,15 +216,9 @@ public abstract class Repository implements IRepository {
      * @param serial maximum number
      * @exception EBaseException failed to set maximum serial number
      */
-    public synchronized void setMaxSerial(String serial) throws EBaseException {
-        BigInteger maxSerial = null;
-        logger.debug("Repository:setMaxSerial " + serial);
-
-        maxSerial = new BigInteger(serial, mRadix);
-        if (maxSerial != null) {
-            mMaxSerial = serial;
-            mMaxSerialNo = maxSerial;
-        }
+    public synchronized void setMaxSerial(BigInteger serial) throws EBaseException {
+        logger.debug("Repository: Setting max serial to " + serial);
+        mMaxSerialNo = serial;
     }
 
     /**
@@ -300,19 +299,14 @@ public abstract class Repository implements IRepository {
 
         logger.debug("Repository: in InitCache");
 
-        mMaxSerial = repositoryConfig.get(DBSubsystem.PROP_MAX);
         mNextMinSerial = getNextMinSerialConfig();
         mNextMaxSerial = getNextMaxSerialConfig();
         String increment = repositoryConfig.get(DBSubsystem.PROP_INCREMENT);
         String lowWaterMark = repositoryConfig.get(DBSubsystem.PROP_LOW_WATER_MARK);
 
-        logger.debug("Repository: maxSerial: " + mMaxSerial);
         logger.debug("Repository: nextMinSerial: " + ((mNextMinSerial == null)? "" : mNextMinSerial) +
                              " nextMaxSerial: " + ((mNextMaxSerial == null) ? "" : mNextMaxSerial));
         logger.debug("Repository: increment:" + increment + " lowWaterMark: " + lowWaterMark);
-
-        if (mMaxSerial != null)
-            mMaxSerialNo = new BigInteger(mMaxSerial, mRadix);
 
         if (mNextMinSerial != null)
             mNextMinSerialNo = new BigInteger(mNextMinSerial, mRadix);
@@ -526,21 +520,19 @@ public abstract class Repository implements IRepository {
     /**
      * Sets maximum serial number limit in config file
      *
-     * @param serial max serial number
      * @exception EBaseException failed to set
      */
-    public void setMaxSerialConfig(String serial) throws EBaseException {
+    public void setMaxSerialConfig() throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
+        String serial = mMaxSerialNo.toString(mRadix);
         logger.debug("Repository: Setting max serial number: " + serial);
 
-        dbConfig.putString(repositoryConfig.get(DBSubsystem.PROP_MAX_NAME), serial);
+        dbConfig.putString(maxSerialName, serial);
         cs.commit(false);
-
-        repositoryConfig.put(DBSubsystem.PROP_MAX, serial);
     }
 
     /**
@@ -615,7 +607,7 @@ public abstract class Repository implements IRepository {
 
         // persist the changes
         setMinSerialConfig();
-        setMaxSerialConfig(mMaxSerialNo.toString(mRadix));
+        setMaxSerialConfig();
         setNextMinSerialConfig(null);
         setNextMaxSerialConfig(null);
     }

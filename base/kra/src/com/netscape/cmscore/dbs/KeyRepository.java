@@ -78,8 +78,12 @@ public class KeyRepository extends Repository implements IKeyRepository {
         }
         logger.info("KeyRepository: - min serial: " + mMinSerialNo);
 
-        repositoryConfig.put(DBSubsystem.PROP_MAX_NAME, DBSubsystem.PROP_MAX_SERIAL_NUMBER);
-        repositoryConfig.put(DBSubsystem.PROP_MAX, dbConfig.getEndSerialNumber());
+        maxSerialName = DBSubsystem.PROP_MAX_SERIAL_NUMBER;
+        String maxSerial = dbConfig.getEndSerialNumber();
+        if (maxSerial != null) {
+            mMaxSerialNo = new BigInteger(maxSerial, mRadix);
+        }
+        logger.info("KeyRepository: - max serial: " + mMaxSerialNo);
 
         repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN_NAME, DBSubsystem.PROP_NEXT_MIN_SERIAL_NUMBER);
         repositoryConfig.put(DBSubsystem.PROP_NEXT_MIN, dbConfig.getNextBeginSerialNumber());

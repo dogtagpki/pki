@@ -667,18 +667,20 @@ public class CertificateAuthority
     public String getMaxSerial() {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
-        String serial = certificateRepository.getMaxSerial();
+        BigInteger serial = certificateRepository.getMaxSerial();
 
-        if (serial != null)
-            return serial;
-        else
+        if (serial != null) {
+            return serial.toString(certificateRepository.getRadix());
+        } else {
             return "";
+        }
     }
 
     public void setMaxSerial(String serial) throws EBaseException {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
-        certificateRepository.setMaxSerial(serial);
+        BigInteger maxSerial = new BigInteger(serial, certificateRepository.getRadix());
+        certificateRepository.setMaxSerial(maxSerial);
     }
 
     /**
