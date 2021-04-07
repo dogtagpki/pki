@@ -48,8 +48,6 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPObjectClassSchema;
 import netscape.ldap.LDAPSchema;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv3;
 
 /**
  * A class represents the database subsystem that manages
@@ -224,58 +222,6 @@ public class DBSubsystem {
         } else {
             return ret;
         }
-    }
-
-    /**
-     * Determines if a range conflict has been observed in database.
-     * If so, delete the conflict entry and remove the next range.
-     * When the next number is requested, if the number of certs is still
-     * below the low water mark, then a new range will be requested.
-     *
-     * @param h repository config
-     * @return true if range conflict, false otherwise
-     */
-    public boolean hasRangeConflict(Hashtable<String, String> h) {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
-        LDAPConnection conn = null;
-        boolean conflict = false;
-        try {
-            String nextRangeStart = getNextMinSerialConfig(h);
-            if (nextRangeStart == null) {
-                return false;
-            }
-            conn = mLdapConnFactory.getConn();
-            String rangedn = h.get(PROP_RANGE_DN) + "," + mBaseDN;
-            String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
-                    cs.getHostname() + ")(SecurePort=" + engine.getEESSLPort() +
-                    ")(beginRange=" + nextRangeStart + "))";
-            LDAPSearchResults results = conn.search(rangedn, LDAPv3.SCOPE_SUB,
-                    filter, null, false);
-
-            while (results.hasMoreElements()) {
-                conflict = true;
-                LDAPEntry entry = results.next();
-                String dn = entry.getDN();
-                logger.debug("Deleting conflict entry:" + dn);
-                conn.delete(dn);
-            }
-        } catch (Exception e) {
-            logger.warn("DBSubsystem: Error while checking next range: " + e.getMessage(), e);
-        } finally {
-            try {
-                if ((conn != null) && (mLdapConnFactory != null)) {
-                    logger.debug("Releasing ldap connection");
-                    mLdapConnFactory.returnConn(conn);
-                }
-            } catch (Exception e) {
-                logger.warn("Error releasing the ldap connection" + e.getMessage(), e);
-            }
-        }
-
-        return conflict;
     }
 
     /**

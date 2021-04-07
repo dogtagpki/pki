@@ -37,6 +37,8 @@ import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv3;
 
 /**
  * A class represents a generic repository. It maintains unique
@@ -673,6 +675,58 @@ public abstract class Repository implements IRepository {
     }
 
     /**
+     * Determines if a range conflict has been observed in database.
+     * If so, delete the conflicting entries and remove the next range.
+     * When the next number is requested, if the number of certs is still
+     * below the low water mark, then a new range will be requested.
+     *
+     * @return true if range conflict, false otherwise
+     */
+    public boolean hasRangeConflict() throws EBaseException {
+
+        String nextRangeStart = dbSubsystem.getNextMinSerialConfig(repositoryConfig);
+        if (nextRangeStart == null) {
+            return false;
+        }
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
+        LDAPSession session = (LDAPSession) dbSubsystem.createSession();
+        boolean conflict = false;
+
+        try {
+            LDAPConnection conn = session.getConnection();
+
+            logger.info("Repository: Searching for conflicting entries");
+
+            String rangeDN = repositoryConfig.get(DBSubsystem.PROP_RANGE_DN) + "," + dbSubsystem.getBaseDN();
+            String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
+                    cs.getHostname() + ")(SecurePort=" + engine.getEESSLPort() +
+                    ")(beginRange=" + nextRangeStart + "))";
+
+            LDAPSearchResults results = conn.search(rangeDN, LDAPv3.SCOPE_SUB, filter, null, false);
+
+            while (results.hasMoreElements()) {
+                conflict = true;
+                LDAPEntry entry = results.next();
+                String dn = entry.getDN();
+
+                logger.info("Repository: Deleting entry " + dn);
+                conn.delete(dn);
+            }
+
+        } catch (Exception e) {
+            logger.warn("Repository: Unable to check next range: " + e.getMessage(), e);
+
+        } finally {
+            session.close();
+        }
+
+        return conflict;
+    }
+
+    /**
      * Checks to see if a new range is needed, or if we have reached the end of the
      * current range, or if a range conflict has occurred.
      *
@@ -740,7 +794,7 @@ public abstract class Repository implements IRepository {
         if (numsInRange.compareTo(mLowWaterMarkNo) < 0) {
             // check for a replication error
             logger.debug("Checking for a range conflict");
-            if (dbSubsystem.hasRangeConflict(repositoryConfig)) {
+            if (hasRangeConflict()) {
                 logger.debug("Range Conflict found! Removing next range.");
                 mNextMaxSerialNo = null;
                 mNextMinSerialNo = null;
