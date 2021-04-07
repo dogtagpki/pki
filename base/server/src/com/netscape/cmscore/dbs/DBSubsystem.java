@@ -18,7 +18,6 @@
 package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
-import java.util.Hashtable;
 
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 
@@ -192,36 +191,6 @@ public class DBSubsystem {
             throws EBaseException {
         logger.info("DBSubsystem: Setting next serial number: 0x" + serial.toString(16));
         mDBConfig.setNextSerialNumber(serial.toString(16));
-    }
-
-    /**
-     * Gets minimum serial number limit in next range in config file
-     *
-     * @param h repository config
-     * @return min serial number in next range
-     */
-    public String getNextMinSerialConfig(Hashtable<String, String> h) {
-        String ret = h.get(PROP_NEXT_MIN);
-        if (ret.equals("-1")) {
-            return null;
-        } else {
-            return ret;
-        }
-    }
-
-    /**
-     * Gets maximum serial number limit in next range in config file
-     *
-     * @param h repository config
-     * @return max serial number in next range
-     */
-    public String getNextMaxSerialConfig(Hashtable<String, String> h) {
-        String ret = h.get(PROP_NEXT_MAX);
-        if (ret.equals("-1")) {
-            return null;
-        } else {
-            return ret;
-        }
     }
 
     /**

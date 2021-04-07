@@ -264,6 +264,34 @@ public abstract class Repository implements IRepository {
     }
 
     /**
+     * Gets minimum serial number limit in next range in config file
+     *
+     * @return min serial number in next range
+     */
+    public String getNextMinSerialConfig() {
+        String ret = repositoryConfig.get(DBSubsystem.PROP_NEXT_MIN);
+        if (ret.equals("-1")) {
+            return null;
+        } else {
+            return ret;
+        }
+    }
+
+    /**
+     * Gets maximum serial number limit in next range in config file
+     *
+     * @return max serial number in next range
+     */
+    public String getNextMaxSerialConfig() {
+        String ret = repositoryConfig.get(DBSubsystem.PROP_NEXT_MAX);
+        if (ret.equals("-1")) {
+            return null;
+        } else {
+            return ret;
+        }
+    }
+
+    /**
      * init serial number cache
      */
     private void initCache() throws EBaseException {
@@ -274,8 +302,8 @@ public abstract class Repository implements IRepository {
 
         mMinSerial = repositoryConfig.get(DBSubsystem.PROP_MIN);
         mMaxSerial = repositoryConfig.get(DBSubsystem.PROP_MAX);
-        mNextMinSerial = dbSubsystem.getNextMinSerialConfig(repositoryConfig);
-        mNextMaxSerial = dbSubsystem.getNextMaxSerialConfig(repositoryConfig);
+        mNextMinSerial = getNextMinSerialConfig();
+        mNextMaxSerial = getNextMaxSerialConfig();
         String increment = repositoryConfig.get(DBSubsystem.PROP_INCREMENT);
         String lowWaterMark = repositoryConfig.get(DBSubsystem.PROP_LOW_WATER_MARK);
 
@@ -684,7 +712,7 @@ public abstract class Repository implements IRepository {
      */
     public boolean hasRangeConflict() throws EBaseException {
 
-        String nextRangeStart = dbSubsystem.getNextMinSerialConfig(repositoryConfig);
+        String nextRangeStart = getNextMinSerialConfig();
         if (nextRangeStart == null) {
             return false;
         }
