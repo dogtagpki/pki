@@ -79,7 +79,7 @@ public abstract class Repository implements IRepository {
     protected boolean mEnableRandomSerialNumbers = false;
     protected BigInteger mCounter = null;
 
-    private BigInteger mIncrementNo = null;
+    protected BigInteger mIncrementNo;
     protected BigInteger mLowWaterMarkNo;
 
     protected DBSubsystem dbSubsystem;
@@ -263,13 +263,6 @@ public abstract class Repository implements IRepository {
         mNext = getSerialNumber();
 
         logger.debug("Repository: in InitCache");
-
-        String increment = repositoryConfig.get(DBSubsystem.PROP_INCREMENT);
-
-        logger.debug("Repository: increment:" + increment);
-
-        if (increment != null)
-            mIncrementNo = new BigInteger(increment, mRadix);
 
         logger.info("Repository: Getting last serial number in range " + mMinSerialNo + ".." + mMaxSerialNo);
         BigInteger theSerialNo = getLastSerialNumberInRange(mMinSerialNo, mMaxSerialNo);
@@ -578,8 +571,7 @@ public abstract class Repository implements IRepository {
 
             String nextRange = attr.getStringValues().nextElement();
             BigInteger nextRangeNo = new BigInteger(nextRange);
-            BigInteger incrementNo = new BigInteger(repositoryConfig.get(DBSubsystem.PROP_INCREMENT));
-            BigInteger newNextRangeNo = nextRangeNo.add(incrementNo);
+            BigInteger newNextRangeNo = nextRangeNo.add(mIncrementNo);
             String newNextRange = newNextRangeNo.toString();
             String endRange = newNextRangeNo.subtract(BigInteger.ONE).toString();
 

@@ -106,8 +106,10 @@ public class RequestRepository extends Repository {
             mLowWaterMarkNo = new BigInteger(lowWaterMark, mRadix);
         }
 
-        repositoryConfig.put(DBSubsystem.PROP_INCREMENT_NAME, DBSubsystem.PROP_REQUEST_INCREMENT);
-        repositoryConfig.put(DBSubsystem.PROP_INCREMENT, dbConfig.getRequestIncrement());
+        String incrementNo = dbConfig.getRequestIncrement();
+        if (incrementNo != null) {
+            mIncrementNo = new BigInteger(incrementNo, mRadix);
+        }
 
         // Let RequestRecord class register its
         // database mapping and object mapping values

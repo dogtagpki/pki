@@ -148,8 +148,10 @@ public class CertificateRepository extends Repository {
             mLowWaterMarkNo = new BigInteger(lowWaterMark, mRadix);
         }
 
-        repositoryConfig.put(DBSubsystem.PROP_INCREMENT_NAME, DBSubsystem.PROP_SERIAL_INCREMENT);
-        repositoryConfig.put(DBSubsystem.PROP_INCREMENT, mDBConfig.getSerialIncrement());
+        String incrementNo = mDBConfig.getSerialIncrement();
+        if (incrementNo != null) {
+            mIncrementNo = new BigInteger(incrementNo, mRadix);
+        }
     }
 
     /**

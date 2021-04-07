@@ -116,10 +116,6 @@ public class DBSubsystem {
     public static final String PROP_NEXT_RANGE = "nextRange";
     public static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";
 
-    // hash keys
-    public static final String PROP_INCREMENT = "increment";
-    public static final String PROP_INCREMENT_NAME = "increment_name";
-
     /**
      * Constructs database subsystem.
      */

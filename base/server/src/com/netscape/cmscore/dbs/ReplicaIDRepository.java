@@ -91,8 +91,10 @@ public class ReplicaIDRepository extends Repository {
             mLowWaterMarkNo = new BigInteger(lowWaterMark, mRadix);
         }
 
-        repositoryConfig.put(DBSubsystem.PROP_INCREMENT_NAME, DBSubsystem.PROP_REPLICA_INCREMENT);
-        repositoryConfig.put(DBSubsystem.PROP_INCREMENT, dbConfig.getReplicaIncrement());
+        String incrementNo = dbConfig.getReplicaIncrement();
+        if (incrementNo != null) {
+            mIncrementNo = new BigInteger(incrementNo, mRadix);
+        }
     }
 
     /**
