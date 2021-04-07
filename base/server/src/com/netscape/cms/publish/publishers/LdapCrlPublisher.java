@@ -152,10 +152,10 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
      * Replaces the CRL in the certificateRevocationList attribute.
      * CRL's are published as a DER encoded blob.
      */
-    public void publish(LDAPConnection conn, String dn, Object crlObj)
-            throws ELdapException {
+    public void publish(LDAPConnection conn, String dn, Object crlObj) throws ELdapException {
+
         if (conn == null) {
-            logger.warn("publish CRL: no LDAP connection");
+            logger.warn("LdapCrlPublisher: No LDAP connection");
             return;
         }
 
@@ -207,16 +207,24 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
         LDAPConstraints constraints = null;
         try {
             byte[] crlEnc = ((X509CRL) crlObj).getEncoded();
-            logger.info("publish CRL: " + dn);
+            logger.info("LdapCrlPublisher: Retrieving attributes from " + dn);
 
             /* search for attribute names to determine existence of attributes */
             LDAPSearchResults res = null;
             if (mCrlAttr.equals(LDAP_CRL_ATTR)) {
-                res = conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)",
-                        new String[] { LDAP_CACERT_ATTR, LDAP_ARL_ATTR }, true);
+                res = conn.search(
+                        dn,
+                        LDAPv2.SCOPE_BASE,
+                        "(objectclass=*)",
+                        new String[] { LDAP_CACERT_ATTR, LDAP_ARL_ATTR },
+                        true);
             } else {
-                res = conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)",
-                        new String[] { LDAP_CRL_ATTR, LDAP_CACERT_ATTR, LDAP_ARL_ATTR }, true);
+                res = conn.search(
+                        dn,
+                        LDAPv2.SCOPE_BASE,
+                        "(objectclass=*)",
+                        new String[] { LDAP_CRL_ATTR, LDAP_CACERT_ATTR, LDAP_ARL_ATTR },
+                        true);
             }
 
             LDAPEntry entry = res.next();
@@ -224,10 +232,15 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
             LDAPAttribute certs = entry.getAttribute(LDAP_CACERT_ATTR);
             LDAPAttribute arls = entry.getAttribute(LDAP_ARL_ATTR);
 
+            logger.info("LdapCrlPublisher: Retrieving object classes from " + dn);
             /* get object class values */
-            LDAPSearchResults res1 = null;
-            res1 = conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)",
-                    new String[] { "objectclass" }, false);
+            LDAPSearchResults res1 = conn.search(
+                    dn,
+                    LDAPv2.SCOPE_BASE,
+                    "(objectclass=*)",
+                    new String[] { "objectclass" },
+                    false);
+
             LDAPEntry entry1 = res1.next();
             LDAPAttribute ocs = entry1.getAttribute("objectclass");
 
@@ -235,31 +248,40 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
             String[] oclist = mCrlObjectClass.split(",");
             boolean attrsAdded = false;
+
             for (int i = 0; i < oclist.length; i++) {
                 String oc = oclist[i].trim();
+
                 boolean hasoc = LdapUserCertPublisher.StringValueExists(ocs, oc);
+
                 if (!hasoc) {
-                    logger.info("LdapCrlPublisher: Adding CRL objectclass " + oc + " to " + dn);
-                    modSet.add(LDAPModification.ADD,
-                            new LDAPAttribute("objectclass", oc));
+                    logger.info("LdapCrlPublisher: Adding objectclass " + oc);
+                    modSet.add(LDAPModification.ADD, new LDAPAttribute("objectclass", oc));
 
                     if ((!attrsAdded) && oc.equalsIgnoreCase("certificationAuthority")) {
-                        // add MUST attributes
-                        if (arls == null)
-                            modSet.add(LDAPModification.ADD,
-                                    new LDAPAttribute(LDAP_ARL_ATTR, ""));
-                        if (certs == null)
-                            modSet.add(LDAPModification.ADD,
-                                    new LDAPAttribute(LDAP_CACERT_ATTR, ""));
 
-                        if ((crls == null) && (!mCrlAttr.equals(LDAP_CRL_ATTR)))
-                            modSet.add(LDAPModification.ADD,
-                                    new LDAPAttribute(LDAP_CRL_ATTR, ""));
+                        // add MUST attributes
+                        if (arls == null) {
+                            logger.info("LdapCrlPublisher: Adding attribute " + LDAP_ARL_ATTR);
+                            modSet.add(LDAPModification.ADD, new LDAPAttribute(LDAP_ARL_ATTR, ""));
+                        }
+
+                        if (certs == null) {
+                            logger.info("LdapCrlPublisher: Adding attribute " + LDAP_CACERT_ATTR);
+                            modSet.add(LDAPModification.ADD, new LDAPAttribute(LDAP_CACERT_ATTR, ""));
+                        }
+
+                        if (crls == null && !mCrlAttr.equals(LDAP_CRL_ATTR)) {
+                            logger.info("LdapCrlPublisher: Adding attribute " + LDAP_CRL_ATTR);
+                            modSet.add(LDAPModification.ADD, new LDAPAttribute(LDAP_CRL_ATTR, ""));
+                        }
+
                         attrsAdded = true;
                     }
                 }
             }
 
+            logger.info("LdapCrlPublisher: Replacing attribute " + mCrlAttr);
             modSet.add(LDAPModification.REPLACE, new LDAPAttribute(mCrlAttr, crlEnc));
 
             // delete objectclasses that have been deleted from config
@@ -276,9 +298,8 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                         }
                     }
                     if (!match && hasoc) {
-                        logger.info("LdapCrlPublisher: Deleting CRL objectclass " + deloc + " from " + dn);
-                        modSet.add(LDAPModification.DELETE,
-                                new LDAPAttribute("objectclass", deloc));
+                        logger.info("LdapCrlPublisher: Deleting objectclass " + deloc);
+                        modSet.add(LDAPModification.DELETE, new LDAPAttribute("objectclass", deloc));
                     }
                 }
             }
@@ -306,9 +327,8 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 logger.debug("CRLDEBUG - constraints not set");
             }
 
-            logger.debug("CRLDEBUG - about to modify CRL");
+            logger.info("LdapCrlPublisher: Modifying " + dn);
             conn.modify(dn, modSet);
-            logger.debug("CRLDEBUG - finished modify CRL");
 
         } catch (CRLException e) {
             logger.error(CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()), e);
@@ -340,7 +360,6 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 }
             }
         }
-
     }
 
     /**
