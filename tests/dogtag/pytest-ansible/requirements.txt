@@ -1,4 +1,4 @@
-ansible==2.9.13
+ansible==2.10.0
 pytest-ansible==2.2.3
 pytest-ansible-playbook
 pytest-logger
