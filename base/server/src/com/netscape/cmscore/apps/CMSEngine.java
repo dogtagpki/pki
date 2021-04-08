@@ -60,7 +60,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestStatus;
@@ -1542,21 +1541,8 @@ public class CMSEngine implements ServletContextListener {
         return pid;
     }
 
-    private ARequestQueue getReqQueue() {
-        ARequestQueue queue = null;
-
-        try {
-            IRegistrationAuthority ra = (IRegistrationAuthority) subsystems.get("ra");
-
-            if (ra != null) {
-                queue = ra.getRequestQueue();
-            }
-
-        } catch (Exception e) {
-            logger.warn(CMS.getLogMessage("CMSCORE_AUTH_AGENT_REQUEST_QUEUE"), e);
-        }
-
-        return queue;
+    private RequestQueue getReqQueue() {
+        return requestQueue;
     }
 
     public VerifiedCerts mVCList = null;

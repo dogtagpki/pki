@@ -37,7 +37,6 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
@@ -45,6 +44,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * SSL client based authentication.
@@ -243,22 +243,9 @@ public class SSLClientCertAuthentication implements AuthManager {
         return mRequiredCreds;
     }
 
-    private ARequestQueue getReqQueue() {
-
+    private RequestQueue getReqQueue() {
         CMSEngine engine = CMS.getCMSEngine();
-        ARequestQueue queue = null;
-
-        try {
-            IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
-
-            if (ra != null) {
-                queue = ra.getRequestQueue();
-            }
-        } catch (Exception e) {
-            logger.warn("Unable to get access to the request queue: " + e.getMessage(), e);
-        }
-
-        return queue;
+        return engine.getRequestQueue();
     }
 
     /**

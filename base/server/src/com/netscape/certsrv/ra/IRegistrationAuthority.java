@@ -25,7 +25,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * An interface represents a Registration Authority that is
@@ -51,13 +50,6 @@ public interface IRegistrationAuthority extends ISubsystem {
     public final static String PROP_CERT_ISSUED_SUBSTORE = "certIssued";
     public final static String PROP_CERT_REVOKED_SUBSTORE = "certRevoked";
     public final static String PROP_REQ_IN_Q_SUBSTORE = "requestInQ";
-
-    /**
-     * Retrieves the request queue of this registration authority.
-     *
-     * @return RA's request queue
-     */
-    public ARequestQueue getRequestQueue();
 
     /**
      * Retrieves the policy processor of this registration authority.
