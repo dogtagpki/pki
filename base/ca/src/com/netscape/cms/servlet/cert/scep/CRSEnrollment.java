@@ -1667,6 +1667,7 @@ public class CRSEnrollment extends HttpServlet {
     private IRequest postRequest(HttpServletRequest httpReq, CRSPKIMessage req, CRSPKIMessage crsResp)
             throws Exception {
 
+        CAEngine engine = CAEngine.getInstance();
         X500Name subject = (X500Name) req.get(SUBJECTNAME);
 
         if (mCreateEntry) {
@@ -1769,14 +1770,14 @@ public class CRSEnrollment extends HttpServlet {
             logger.debug("CRSEnrollment: Submitting request");
             try {
                 profile.submit(authToken, reqs[0]);
-                profile.getRequestQueue().markAsServiced(reqs[0]);
+                engine.getRequestQueue().markAsServiced(reqs[0]);
                 logger.debug("CRSEnrollment: Request marked as serviced");
             } catch (EDeferException e) {
                 crsResp.setPKIStatus(CRSPKIMessage.mStatus_PENDING);
                 reqs[0].setRequestStatus(RequestStatus.PENDING);
                 //profile.getRequestQueue().rejectRequest(reqs[0]);
                 // need to notify
-                INotify notify = profile.getRequestQueue().getPendingNotify();
+                INotify notify = engine.getRequestQueue().getPendingNotify();
                 if (notify != null) {
                     notify.notify(reqs[0]);
                 }

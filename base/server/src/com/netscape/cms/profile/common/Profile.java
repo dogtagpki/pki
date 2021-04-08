@@ -47,7 +47,6 @@ import com.netscape.cms.profile.updater.IProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.registry.PluginRegistry;
-import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * This class implements a basic profile. A profile contains
@@ -384,15 +383,6 @@ public abstract class Profile {
         }
         logger.debug("Profile: done init");
     }
-
-    /**
-     * Retrieves the request queue that is associated with
-     * this profile. The request queue is for creating
-     * new requests.
-     *
-     * @return request queue
-     */
-    public abstract ARequestQueue getRequestQueue();
 
     /**
      * Retrieves the configuration store of this profile.

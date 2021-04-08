@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.ExternalAuthToken;
@@ -223,6 +224,8 @@ public class CertProcessor extends CAProcessor {
         String errorCode = null;
         String errorReason = null;
 
+        CAEngine engine = CAEngine.getInstance();
+
         for (IRequest req : reqs) {
             try {
                 // reset the "auditRequesterID"
@@ -264,7 +267,7 @@ public class CertProcessor extends CAProcessor {
 
                 req.setRequestStatus(RequestStatus.PENDING);
                 // need to notify
-                INotify notify = profile.getRequestQueue().getPendingNotify();
+                INotify notify = engine.getRequestQueue().getPendingNotify();
                 if (notify != null) {
                     notify.notify(req);
                 }
@@ -312,9 +315,9 @@ public class CertProcessor extends CAProcessor {
                 logger.info("Updating certificate request");
 
                 if (errorCode == null) {
-                    profile.getRequestQueue().markAsServiced(req);
+                    engine.getRequestQueue().markAsServiced(req);
                 } else {
-                    profile.getRequestQueue().updateRequest(req);
+                    engine.getRequestQueue().updateRequest(req);
                 }
 
             } catch (EBaseException e) {

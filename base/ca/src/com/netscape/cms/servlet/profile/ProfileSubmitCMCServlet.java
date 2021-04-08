@@ -673,7 +673,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 logger.debug("ProfileSubmitCMCServlet: revocation request");
                 isRevoke = true;
             } else {
-            provedReq = profile.getRequestQueue().findRequest(new RequestId(reqID.toString()));
+            provedReq = engine.getRequestQueue().findRequest(new RequestId(reqID.toString()));
             if (provedReq == null) {
 
                 Integer nums = (Integer) (context.get("numOfControls"));
@@ -894,7 +894,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     logger.warn("ProfileSubmitCMCServlet: set request to PENDING");
                     reqs[k].setRequestStatus(RequestStatus.PENDING);
                     // need to notify
-                    INotify notify = profile.getRequestQueue().getPendingNotify();
+                    INotify notify = engine.getRequestQueue().getPendingNotify();
                     if (notify != null) {
                         notify.notify(reqs[k]);
                     }
@@ -917,7 +917,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     logger.warn("ProfileSubmitCMCServlet: popRequired; set request to PENDING");
                     reqs[k].setRequestStatus(RequestStatus.PENDING);
                     // need to notify
-                    INotify notify = profile.getRequestQueue().getPendingNotify();
+                    INotify notify = engine.getRequestQueue().getPendingNotify();
                     if (notify != null) {
                         notify.notify(reqs[k]);
                     }
@@ -937,9 +937,9 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
                 try {
                     if (errorCode == null) {
-                        profile.getRequestQueue().markAsServiced(reqs[k]);
+                        engine.getRequestQueue().markAsServiced(reqs[k]);
                     } else {
-                        profile.getRequestQueue().updateRequest(reqs[k]);
+                        engine.getRequestQueue().updateRequest(reqs[k]);
                     }
                 } catch (EBaseException e) {
                     logger.warn("ProfileSubmitCMCServlet: updateRequest " +
@@ -1015,11 +1015,11 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 }
 
                 if (errorCode == null) {
-                    profile.getRequestQueue().markAsServiced(provedReq);
+                    engine.getRequestQueue().markAsServiced(provedReq);
                     logger.debug("ProfileSubmitCMCServlet: provedReq set to complete");
                 } else {
                     error_codes[0] = Integer.parseInt(errorCode);
-                    profile.getRequestQueue().updateRequest(provedReq);
+                    engine.getRequestQueue().updateRequest(provedReq);
                     logger.warn("ProfileSubmitCMCServlet: provedReq updateRequest");
                     audit(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,

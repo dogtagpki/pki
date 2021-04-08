@@ -131,7 +131,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -257,12 +257,6 @@ public abstract class EnrollProfile extends Profile {
     }
 
     public abstract IAuthority getAuthority();
-
-    public ARequestQueue getRequestQueue() {
-        IAuthority authority = getAuthority();
-
-        return authority.getRequestQueue();
-    }
 
     /**
      * Creates request.
@@ -446,10 +440,11 @@ public abstract class EnrollProfile extends Profile {
 
     public IRequest createEnrollmentRequest() throws EProfileException {
 
+        CMSEngine engine = CMS.getCMSEngine();
         IRequest req = null;
 
         try {
-            req = getRequestQueue().newRequest("enrollment");
+            req = engine.getRequestQueue().newRequest("enrollment");
             logger.info("EnrollProfile: Creating ernrollment request " + req.getRequestId());
 
             setDefaultCertInfo(req);
@@ -657,7 +652,8 @@ public abstract class EnrollProfile extends Profile {
         // }
         String method = "EnrollProfile: submit: ";
 
-        ARequestQueue queue = getRequestQueue();
+        CMSEngine engine = CMS.getCMSEngine();
+        RequestQueue queue = engine.getRequestQueue();
         String msg = "";
         logger.debug(method + "begins");
 
@@ -1294,7 +1290,8 @@ public abstract class EnrollProfile extends Profile {
 
         OCTET_STRING witness_os = decPop.getWitness();
 
-        ARequestQueue reqQueue = getRequestQueue();
+        CMSEngine engine = CMS.getCMSEngine();
+        RequestQueue reqQueue = engine.getRequestQueue();
         IRequest req = null;
         try {
             req = reqQueue.findRequest(new RequestId(reqIdBI));
@@ -1332,7 +1329,6 @@ public abstract class EnrollProfile extends Profile {
             return null;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         ICertificateAuthority authority = (ICertificateAuthority) getAuthority();
