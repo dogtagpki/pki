@@ -247,7 +247,7 @@ public class SymKeyGenService implements IService {
                 clientKeyId, new KeyId(serialNo), "None");
 
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
-        mKRA.getRequestQueue().updateRequest(request);
+        engine.getRequestQueue().updateRequest(request);
 
         return true;
     }

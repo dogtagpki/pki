@@ -108,7 +108,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         KRAEngine engine = KRAEngine.getInstance();
         kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
         repo = kra.getKeyRepository();
-        queue = kra.getRequestQueue();
+        queue = engine.getRequestQueue();
         service = kra;
     }
 

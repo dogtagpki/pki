@@ -367,7 +367,7 @@ public class AsymKeyGenService implements IService {
                     clientKeyId, new KeyId(serialNo), "None");
         }
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
-        kra.getRequestQueue().updateRequest(request);
+        engine.getRequestQueue().updateRequest(request);
         return true;
     }
 

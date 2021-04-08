@@ -19,6 +19,8 @@ package com.netscape.kra;
 
 import java.math.BigInteger;
 
+import org.dogtagpki.server.kra.KRAEngine;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.logging.ILogger;
@@ -75,9 +77,11 @@ public class SecurityDataRecoveryService implements IService {
         RequestId requestID = request.getRequestId();
         String approvers = request.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
 
+        KRAEngine engine = KRAEngine.getInstance();
+
         try {
             processor.recover(request);
-            kra.getRequestQueue().updateRequest(request);
+            engine.getRequestQueue().updateRequest(request);
             auditRecoveryRequestProcessed(
                     auditSubjectID,
                     ILogger.SUCCESS,

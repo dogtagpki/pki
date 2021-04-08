@@ -665,7 +665,7 @@ public class EnrollmentService implements IService {
 
         // update request
         logger.info("KRA updating request");
-        mKRA.getRequestQueue().updateRequest(request);
+        engine.getRequestQueue().updateRequest(request);
 
         if (statsSub != null) {
             statsSub.endTiming("archival");

@@ -713,7 +713,7 @@ public class RecoveryService implements IService {
         }
         */
         // update request
-        mKRA.getRequestQueue().updateRequest(request);
+        engine.getRequestQueue().updateRequest(request);
     }
 
     /**
@@ -881,7 +881,7 @@ public class RecoveryService implements IService {
         }
 
         // update request
-        mKRA.getRequestQueue().updateRequest(request);
+        engine.getRequestQueue().updateRequest(request);
     }
 
     /**

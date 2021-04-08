@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
 
+import org.dogtagpki.server.kra.KRAEngine;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
@@ -53,8 +55,12 @@ public class SecurityDataService implements IService {
      */
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
+
         processor.archive(request);
-        kra.getRequestQueue().updateRequest(request);
+
+        KRAEngine engine = KRAEngine.getInstance();
+        engine.getRequestQueue().updateRequest(request);
+
         return true;
     }
 }
