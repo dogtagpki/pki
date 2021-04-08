@@ -18,7 +18,6 @@
 package com.netscape.certsrv.tks;
 
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * An interface represents a Registration Authority that is
@@ -38,13 +37,6 @@ public interface ITKSAuthority extends ISubsystem {
     //public final static String PROP_LDAP_PUBLISH_SUBSTORE = "ldappublish";
     public final static String PROP_CONNECTOR = "connector";
     public final static String PROP_NEW_NICKNAME = "newNickname";
-
-    /**
-     * Retrieves the request queue of this registration authority.
-     *
-     * @return RA's request queue
-     */
-    public ARequestQueue getRequestQueue();
 
     /**
      * Returns the nickname of the RA certificate.
