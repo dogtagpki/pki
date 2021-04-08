@@ -246,7 +246,7 @@ public class RequestQueue
     }
 
     IRequest makeRequest(RequestRecord record) {
-        IRequest r = createRequest(record.mRequestId, record.mRequestType);
+        Request r = new Request(record.mRequestId);
 
         try {
             // convert (copy) fields

@@ -226,20 +226,6 @@ public abstract class ARequestQueue {
     }
 
     /**
-     * protected access for creating a new Request object
-     * <p>
-     *
-     * @param id
-     *            The identifier for the new request
-     * @return
-     *         A new request object. The caller should fill in other data
-     *         values from the datastore.
-     */
-    protected final IRequest createRequest(RequestId id, String requestType) {
-        return new Request(id);
-    }
-
-    /**
      * Creates a new request object. A request id is
      * assigned to it - see IRequest.getRequestId, and
      * the status is set to RequestStatus.BEGIN
@@ -272,7 +258,7 @@ public abstract class ARequestQueue {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_REQUEST_TYPE", "null"));
         }
 
-        IRequest r = createRequest(requestID, requestType);
+        Request r = new Request(requestID);
 
         // Commented out the lock call because unlock is never called.
         // mTable.lock(rId);
