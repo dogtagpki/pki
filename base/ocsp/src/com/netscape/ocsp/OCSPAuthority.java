@@ -65,7 +65,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.KeyHashID;
@@ -574,16 +573,6 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      */
     public SigningUnit getSigningUnit() {
         return mSigningUnit;
-    }
-
-    /**
-     * Retrieves the request queue for the Authority.
-     * <P>
-     *
-     * @return the request queue.
-     */
-    public ARequestQueue getRequestQueue() {
-        return null;
     }
 
     /**
