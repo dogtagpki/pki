@@ -147,7 +147,13 @@ public class RequestQueue extends ARequestQueue {
          setModificationTime(r, record.mModifyTime);
          setCreationTime(r, record.mCreateTime);
          */
-        return makeRequest(record);
+
+        try {
+            return record.toRequest();
+        } catch (EBaseException e) {
+            logger.error("RequestQueue: " + e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     protected void addRequest(IRequest r) throws EBaseException {
@@ -237,15 +243,6 @@ public class RequestQueue extends ARequestQueue {
                     dbs.close();
                 } catch (EBaseException e) {
                 }
-        }
-    }
-
-    IRequest makeRequest(RequestRecord record) {
-        try {
-            return record.toRequest();
-        } catch (EBaseException e) {
-            logger.warn("RequestQueue: " + e.getMessage(), e);
-            throw new RuntimeException(e);
         }
     }
 
@@ -369,7 +366,7 @@ public class RequestQueue extends ARequestQueue {
         if (results == null || !results.hasMoreElements())
             return null;
 
-        return new SearchEnumeration(this, results);
+        return new SearchEnumeration(results);
 
     }
 
@@ -394,7 +391,7 @@ public class RequestQueue extends ARequestQueue {
         if (results == null)
             return null;
 
-        return new SearchEnumeration(this, results);
+        return new SearchEnumeration(results);
     }
 
     /**
@@ -420,7 +417,7 @@ public class RequestQueue extends ARequestQueue {
         if (results == null)
             return null;
 
-        return new SearchEnumeration(this, results);
+        return new SearchEnumeration(results);
     }
 
     /**
@@ -446,7 +443,7 @@ public class RequestQueue extends ARequestQueue {
         if (results == null)
             return null;
 
-        return new SearchEnumeration(this, results);
+        return new SearchEnumeration(results);
     }
 
     /**
@@ -472,7 +469,7 @@ public class RequestQueue extends ARequestQueue {
         if (results == null)
             return null;
 
-        return new SearchEnumeration(this, results);
+        return new SearchEnumeration(results);
     }
 
     public IRequestList listRequestsByStatus(RequestStatus s) {
@@ -505,7 +502,7 @@ public class RequestQueue extends ARequestQueue {
         if (results == null)
             return null;
 
-        return new SearchEnumeration(this, results);
+        return new SearchEnumeration(results);
     }
 
     public IRequestVirtualList
@@ -570,7 +567,7 @@ public class RequestQueue extends ARequestQueue {
             return null;
         }
 
-        return new ListEnumeration(this, results);
+        return new ListEnumeration(results);
     }
 
     /*

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.request.IRequest;
@@ -24,11 +25,11 @@ import com.netscape.certsrv.request.IRequestVirtualList;
 
 public class ListEnumeration implements IRequestVirtualList {
 
-    protected RequestQueue queue;
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ListEnumeration.class);
+
     protected IDBVirtualList<IDBObj> list;
 
-    public ListEnumeration(RequestQueue queue, IDBVirtualList<IDBObj> list) {
-        this.queue = queue;
+    public ListEnumeration(IDBVirtualList<IDBObj> list) {
         this.list = list;
     }
 
@@ -39,7 +40,12 @@ public class ListEnumeration implements IRequestVirtualList {
             return null;
         }
 
-        return queue.makeRequest(record);
+        try {
+            return record.toRequest();
+        } catch (EBaseException e) {
+            logger.error("ListEnumeration: " + e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     public int getCurrentIndex() {

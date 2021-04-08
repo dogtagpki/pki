@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
@@ -24,11 +25,11 @@ import com.netscape.certsrv.request.RequestId;
 
 public class SearchEnumeration implements IRequestList {
 
-    protected RequestQueue queue;
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SearchEnumeration.class);
+
     protected IDBSearchResults results;
 
-    public SearchEnumeration(RequestQueue queue, IDBSearchResults results) {
-        this.queue = queue;
+    public SearchEnumeration(IDBSearchResults results) {
         this.results = results;
     }
 
@@ -51,10 +52,6 @@ public class SearchEnumeration implements IRequestList {
         return nextRequestId();
     }
 
-    public SearchEnumeration(IDBSearchResults r) {
-        results = r;
-    }
-
     public Object nextRequest() {
         Object object = results.nextElement();
 
@@ -69,7 +66,12 @@ public class SearchEnumeration implements IRequestList {
     public IRequest nextRequestObject() {
         RequestRecord record = (RequestRecord) nextRequest();
         if (record != null) {
-            return queue.makeRequest(record);
+            try {
+                return record.toRequest();
+            } catch (EBaseException e) {
+                logger.error("SearchEnumeration: " + e.getMessage(), e);
+                throw new RuntimeException(e);
+            }
         }
         return null;
     }
