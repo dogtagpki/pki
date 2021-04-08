@@ -61,8 +61,6 @@ public abstract class Repository implements IRepository {
     private BigInteger BI_INCREMENT = null;
     // (the next serialNo to be issued) - 1
     private BigInteger mSerialNo = null;
-    // the serialNo attribute stored in db
-    private BigInteger mNext = null;
 
     protected String minSerialName;
     protected BigInteger mMinSerialNo;
@@ -245,8 +243,6 @@ public abstract class Repository implements IRepository {
      */
     private void initCache() throws EBaseException {
 
-        mNext = getSerialNumber();
-
         logger.debug("Repository: in InitCache");
 
         logger.info("Repository: Getting last serial number in range " + mMinSerialNo + ".." + mMaxSerialNo);
@@ -330,7 +326,6 @@ public abstract class Repository implements IRepository {
         dbSubsystem.setNextSerialConfig(num);
 
         mSerialNo = num.subtract(BigInteger.ONE);
-        mNext = num.add(BI_INCREMENT);
     }
 
     /**
