@@ -21,7 +21,6 @@ import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.ldap.IRequestMod;
 
 /**
  * The RequestAttr class defines the methods used
@@ -41,7 +40,7 @@ abstract class RequestAttr {
 
     abstract Object get(RequestRecord r);
 
-    abstract void read(IRequestMod a, IRequest r, RequestRecord rr);
+    abstract void read(IRequest r, RequestRecord rr);
 
     abstract void add(IRequest r, RequestRecord rr);
 

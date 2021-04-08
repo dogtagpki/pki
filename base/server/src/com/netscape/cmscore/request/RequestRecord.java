@@ -232,7 +232,7 @@ public class RequestRecord implements IDBObj {
         storeExtDataIntoRequest(r);
 
         for (int i = 0; i < mRequestA.length; i++) {
-            mRequestA[i].read(a, r, this);
+            mRequestA[i].read(r, this);
         }
     }
 
