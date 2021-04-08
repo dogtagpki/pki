@@ -171,7 +171,7 @@ public class CAProcessor extends Processor {
             throw new EBaseException("CAProcessor: authority is null");
         }
 
-        queue = authority.getRequestQueue();
+        queue = engine.getRequestQueue();
         if (queue == null) {
             throw new EBaseException("CAProcessor: cannot get request queue");
         }

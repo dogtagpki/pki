@@ -104,13 +104,7 @@ public class GetBySerial extends CMSServlet {
         mTemplates.remove(ICMSRequest.SUCCESS);
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority mCa = engine.getCA();
-
-        if (mCa == null) {
-            return;
-        }
-
-        mReqQ = mCa.getRequestQueue();
+        mReqQ = engine.getRequestQueue();
     }
 
     /**

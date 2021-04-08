@@ -642,13 +642,14 @@ class CertRecProcessor implements IElementProcessor {
             }
         }
 
+        CAEngine engine = CAEngine.getInstance();
         IRequest req = null;
 
         if (ridString != null) {
             RequestId rid = new RequestId(ridString);
 
             try {
-                req = mJob.mCA.getRequestQueue().findRequest(rid);
+                req = engine.getRequestQueue().findRequest(rid);
             } catch (Exception e) {
                 // it is ok not to be able to get the request. The main reason
                 // to get the request is to retrieve the requestor's email.

@@ -123,8 +123,7 @@ public class UnpublishExpiredJob extends AJobBase
 
         CAEngine engine = CAEngine.getInstance();
         mCa = engine.getCA();
-
-        mReqQ = mCa.getRequestQueue();
+        mReqQ = engine.getRequestQueue();
         mRepository = engine.getCertificateRepository();
         mPublisherProcessor = engine.getPublisherProcessor();
 

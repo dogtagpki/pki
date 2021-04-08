@@ -137,7 +137,6 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.profile.ProfileSubsystem;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
@@ -493,14 +492,6 @@ public class CertificateAuthority
         } catch (Exception e) {
             throw new EBaseException(e);
         }
-    }
-
-    /**
-     * return CA's request queue processor
-     */
-    public ARequestQueue getRequestQueue() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getRequestQueue();
     }
 
     /**
