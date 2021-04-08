@@ -89,6 +89,8 @@ import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.CertRequestConstants;
 import com.netscape.cmscore.request.RequestNotifier;
+import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.JssSubsystemConfig;
@@ -150,6 +152,10 @@ public class CMSEngine implements ServletContextListener {
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
     protected JssSubsystem jssSubsystem = JssSubsystem.getInstance();
     protected DBSubsystem dbSubsystem = new DBSubsystem();
+
+    protected RequestRepository requestRepository;
+    protected RequestQueue requestQueue;
+
     protected UGSubsystem ugSubsystem = new UGSubsystem();
     protected OidLoaderSubsystem oidLoaderSubsystem = OidLoaderSubsystem.getInstance();
     protected X500NameSubsystem x500NameSubsystem = X500NameSubsystem.getInstance();
@@ -197,6 +203,22 @@ public class CMSEngine implements ServletContextListener {
 
     public DBSubsystem getDBSubsystem() {
         return dbSubsystem;
+    }
+
+    public RequestRepository getRequestRepository() {
+        return requestRepository;
+    }
+
+    public void setRequestRepository(RequestRepository requestRepository) {
+        this.requestRepository = requestRepository;
+    }
+
+    public RequestQueue getRequestQueue() {
+        return requestQueue;
+    }
+
+    public void setRequestQueue(RequestQueue requestQueue) {
+        this.requestQueue = requestQueue;
     }
 
     public UGSubsystem getUGSubsystem() {

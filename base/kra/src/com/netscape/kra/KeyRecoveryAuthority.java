@@ -126,9 +126,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     protected boolean mQueueRequests = false;
     protected String mId = null;
 
-    protected RequestRepository requestRepository;
-    protected ARequestQueue mRequestQueue = null;
-
     protected TransportKeyUnit mTransportKeyUnit = null;
     protected StorageKeyUnit mStorageKeyUnit = null;
     protected Hashtable<String, Credential[]> mAutoRecovery = new Hashtable<String, Credential[]>();
@@ -266,6 +263,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         logger.info("KeyRecoveryAuthority: Starting key status update task");
 
+        RequestRepository requestRepository = engine.getRequestRepository();
         keyStatusUpdateTask = new KeyStatusUpdateTask(mKeyDB, requestRepository, interval);
         keyStatusUpdateTask.start();
     }
@@ -390,17 +388,19 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         RequestSubsystem reqSub = engine.getRequestSubsystem();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
-        requestRepository = new RequestRepository(dbSubsystem);
+        RequestRepository requestRepository = new RequestRepository(dbSubsystem);
+        engine.setRequestRepository(requestRepository);
 
-        mRequestQueue = new RequestQueue(
+        RequestQueue requestQueue = new RequestQueue(
                 dbSubsystem,
                 requestRepository,
                 mPolicy,
                 service,
                 requestNotifier,
                 pendingNotifier);
+        engine.setRequestQueue(requestQueue);
 
-        requestRepository.setRequestQueue(mRequestQueue);
+        requestRepository.setRequestQueue(requestQueue);
 
         startKeyStatusUpdate();
 
@@ -413,7 +413,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 IRequestScheduler scheduler = (IRequestScheduler)
                         Class.forName(schedulerClass).newInstance();
 
-                mRequestQueue.setRequestScheduler(scheduler);
+                requestQueue.setRequestScheduler(scheduler);
             } catch (Exception e) {
                 // do nothing here
             }
@@ -453,9 +453,12 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     public void startup() throws EBaseException {
         logger.debug("KeyRecoveryAuthority startup() begins");
 
-        if (mRequestQueue != null) {
+        KRAEngine engine = KRAEngine.getInstance();
+        RequestQueue requestQueue = engine.getRequestQueue();
+
+        if (requestQueue != null) {
             // setup administration operations if everything else is fine
-            mRequestQueue.recover();
+            requestQueue.recover();
             logger.debug("KeyRecoveryAuthority startup() call request Q recover");
 
             // Note that we use our instance id for registration.
@@ -1378,7 +1381,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     public RequestRepository getRequestRepository() {
-        return requestRepository;
+        KRAEngine engine = KRAEngine.getInstance();
+        return engine.getRequestRepository();
     }
 
     /**
@@ -1387,8 +1391,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      *
      * @return request repository
      */
-    public ARequestQueue getRequestQueue() {
-        return mRequestQueue;
+    public RequestQueue getRequestQueue() {
+        KRAEngine engine = KRAEngine.getInstance();
+        return engine.getRequestQueue();
     }
 
     /**

@@ -116,9 +116,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected CAPolicy caPolicy;
     protected CAService caService;
 
-    protected RequestRepository requestRepository;
-    protected RequestQueue requestQueue;
-
     protected CertificateVersion defaultCertVersion;
     protected long defaultCertValidity;
     protected boolean enablePastCATime;
@@ -215,14 +212,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public CAService getCAService() {
         return caService;
-    }
-
-    public RequestRepository getRequestRepository() {
-        return requestRepository;
-    }
-
-    public RequestQueue getRequestQueue() {
-        return requestQueue;
     }
 
     /**
