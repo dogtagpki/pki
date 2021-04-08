@@ -359,32 +359,8 @@ public class RequestRecord implements IDBObj {
      * NOTE: Eventually, all attributes should be done here.  Currently
      *   only the last ones added are implemented this way.
      */
-    static RequestAttr mRequestA[] = {
+    static RequestAttr[] mRequestA = { new RequestType() };
 
-    new RequestAttr(IRequest.ATTR_REQUEST_TYPE,
-                new StringMapper(Schema.LDAP_ATTR_REQUEST_TYPE)) {
-        void set(RequestRecord r, Object o) {
-            r.mRequestType = (String) o;
-        }
-
-        Object get(RequestRecord r) {
-            return r.mRequestType;
-        }
-
-        void read(IRequestMod a, IRequest r, RequestRecord rr) {
-            r.setRequestType(rr.mRequestType);
-        }
-
-        void add(IRequest r, RequestRecord rr) {
-            rr.mRequestType = r.getRequestType();
-        }
-
-        void mod(ModificationSet mods, IRequest r) {
-            addmod(mods, r.getRequestType());
-        }
-    }
-
-    };
     static {
         mAttrs.add(ATTR_REQUEST_ID);
         mAttrs.add(ATTR_REQUEST_STATE);
