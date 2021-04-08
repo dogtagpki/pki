@@ -10,18 +10,12 @@ import org.dogtagpki.server.ca.CAEngine;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestRepository;
 
 public class CANotify extends RequestNotifier {
 
     public CANotify() {
-    }
-
-    public ARequestQueue getRequestQueue() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getRequestQueue();
     }
 
     public RequestRepository getRequestRepository() {

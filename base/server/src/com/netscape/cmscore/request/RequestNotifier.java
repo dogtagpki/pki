@@ -28,6 +28,8 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * The ARequestNotifier class implements the IRequestNotifier interface,
@@ -55,10 +57,6 @@ public class RequestNotifier implements IRequestNotifier {
 
     public RequestNotifier() {
         mPublishingQueuePriority = Thread.currentThread().getPriority();
-    }
-
-    public ARequestQueue getRequestQueue() {
-        return null;
     }
 
     public RequestRepository getRequestRepository() {
@@ -210,11 +208,13 @@ public class RequestNotifier implements IRequestNotifier {
         IRequest r = null;
         String id = null;
 
+        CMSEngine engine = CMS.getCMSEngine();
+
         logger.debug("getRequest  mRequests=" + mRequests.size() + "  mSearchForRequests=" + mSearchForRequests);
         if (mSearchForRequests && mRequests.size() == 1) {
 
             id = mRequests.elementAt(0);
-            ARequestQueue requestQueue = getRequestQueue();
+            RequestQueue requestQueue = engine.getRequestQueue();
 
             if (id != null && requestQueue != null) {
                 logger.debug("getRequest  request id=" + id);
@@ -269,7 +269,7 @@ public class RequestNotifier implements IRequestNotifier {
             id = mRequests.elementAt(0);
             if (id != null) {
                 logger.debug("getRequest  getting request: " + id);
-                ARequestQueue requestQueue = getRequestQueue();
+                RequestQueue requestQueue = engine.getRequestQueue();
 
                 if (requestQueue != null) {
                     try {
