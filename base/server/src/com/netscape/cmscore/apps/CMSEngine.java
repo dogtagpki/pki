@@ -85,7 +85,6 @@ import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.CertRequestConstants;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
@@ -1541,10 +1540,6 @@ public class CMSEngine implements ServletContextListener {
         return pid;
     }
 
-    private RequestQueue getReqQueue() {
-        return requestQueue;
-    }
-
     public VerifiedCerts mVCList = null;
     private int mVCListSize = 0;
 
@@ -1578,12 +1573,11 @@ public class CMSEngine implements ServletContextListener {
 
         boolean revoked = false;
 
-        ARequestQueue queue = getReqQueue();
-        if (queue != null) {
+        if (requestQueue != null) {
             IRequest checkRevReq = null;
 
             try {
-                checkRevReq = queue.newRequest(CertRequestConstants.GETREVOCATIONINFO_REQUEST);
+                checkRevReq = requestQueue.newRequest(CertRequestConstants.GETREVOCATIONINFO_REQUEST);
                 checkRevReq.setExtData(IRequest.REQ_TYPE, CertRequestConstants.GETREVOCATIONINFO_REQUEST);
                 checkRevReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_RA);
 
@@ -1594,7 +1588,7 @@ public class CMSEngine implements ServletContextListener {
 
                 checkRevReq.setExtData(IRequest.ISSUED_CERTS, agentCerts);
 
-                queue.processRequest(checkRevReq);
+                requestQueue.processRequest(checkRevReq);
 
                 RequestStatus status = checkRevReq.getRequestStatus();
 
