@@ -42,7 +42,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.RequestQueue;
 
 /**
@@ -253,7 +252,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
              * ra, build a request and send through the connection for
              * authentication
              */
-            ARequestQueue queue = getReqQueue();
+            RequestQueue queue = engine.getRequestQueue();
 
             if (queue != null) {
                 IRequest checkChallengeReq = null;
@@ -366,11 +365,6 @@ public class ChallengePhraseAuthentication implements AuthManager {
      */
     public AuthManagerConfig getConfigStore() {
         return mConfig;
-    }
-
-    private RequestQueue getReqQueue() {
-        CMSEngine engine = CMS.getCMSEngine();
-        return engine.getRequestQueue();
     }
 
     private String hashPassword(String pwd) {
