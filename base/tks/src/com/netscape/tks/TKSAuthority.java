@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.cmscore.request.ARequestQueue;
 
 public class TKSAuthority implements IAuthority, ISubsystem {
 
@@ -38,16 +37,6 @@ public class TKSAuthority implements IAuthority, ISubsystem {
     private TKSConfig mConfig;
     protected String mId = null;
     public static final String PROP_NICKNAME = "nickName";
-
-    /**
-     * Retrieves the request queue for the Authority.
-     * <P>
-     *
-     * @return the request queue.
-     */
-    public ARequestQueue getRequestQueue() {
-        return null;
-    }
 
     /**
      * Registers request completed class.
