@@ -31,7 +31,7 @@ public class KRAUpdateNumberRange extends UpdateNumberRange {
         KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
 
         if (type.equals("request")) {
-            return kra.getRequestRepository();
+            return engine.getRequestRepository();
 
         } else if (type.equals("serialNo")) {
             return kra.getKeyRepository();

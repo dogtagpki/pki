@@ -1383,11 +1383,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         return mPolicy;
     }
 
-    public RequestRepository getRequestRepository() {
-        KRAEngine engine = KRAEngine.getInstance();
-        return engine.getRequestRepository();
-    }
-
     /**
      * Retrieves the key repository. The key repository
      * stores archived keys.
