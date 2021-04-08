@@ -3,10 +3,9 @@ package com.netscape.cmscore.request;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
+import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.dbs.DBRegistry;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -40,22 +39,21 @@ public class RequestRecordTest extends CMSBaseTestCase {
     public void testGetExtData() {
         Hashtable<String, Object> hash = new Hashtable<String, Object>();
 
-        assertNotSame(hash, requestRecord.get(IRequestRecord.ATTR_EXT_DATA));
+        assertNotSame(hash, requestRecord.get(RequestRecord.ATTR_EXT_DATA));
         requestRecord.mExtData = hash;
-        assertSame(hash, requestRecord.get(IRequestRecord.ATTR_EXT_DATA));
+        assertSame(hash, requestRecord.get(RequestRecord.ATTR_EXT_DATA));
     }
 
     public void testSetExtData() {
         Hashtable<String, Object> hash = new Hashtable<String, Object>();
 
         assertNotSame(requestRecord.mExtData, hash);
-        requestRecord.set(IRequestRecord.ATTR_EXT_DATA, hash);
+        requestRecord.set(RequestRecord.ATTR_EXT_DATA, hash);
         assertSame(requestRecord.mExtData, hash);
     }
 
     public void testGetElements() {
-        assertTrue(TestHelper.enumerationContains(requestRecord.getElements(),
-                           IRequestRecord.ATTR_EXT_DATA));
+        assertTrue(TestHelper.enumerationContains(requestRecord.getElements(), RequestRecord.ATTR_EXT_DATA));
     }
 
     public void testAddExtData() throws EBaseException {
@@ -78,7 +76,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         extDataHashValue.put("red", "rum");
         extDataHashValue.put("blue", "gin");
         extData.put("hashkey", extDataHashValue);
-        requestRecord.set(IRequestRecord.ATTR_EXT_DATA, extData);
+        requestRecord.set(RequestRecord.ATTR_EXT_DATA, extData);
         requestRecord.mRequestType = "foo";
 
         requestRecord.read(new RequestModDefaultStub(), request);
@@ -121,7 +119,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         public Object addExtDataObject = null;
 
         public void add(String name, int op, Object value) {
-            if (IRequestRecord.ATTR_EXT_DATA.equals(name)) {
+            if (RequestRecord.ATTR_EXT_DATA.equals(name)) {
                 addCalledWithExtData = true;
                 addExtDataObject = value;
             }
@@ -152,7 +150,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         }
 
         public void registerAttribute(String ufName, DBAttrMapper mapper) throws EDBException {
-            if (IRequestRecord.ATTR_EXT_DATA.equals(ufName)) {
+            if (RequestRecord.ATTR_EXT_DATA.equals(ufName)) {
                 registerCalledWithExtAttr = true;
                 extAttrMapper = mapper;
             }

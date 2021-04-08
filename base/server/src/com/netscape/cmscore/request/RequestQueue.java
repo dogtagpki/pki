@@ -32,7 +32,6 @@ import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
-import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
@@ -371,7 +370,7 @@ public class RequestQueue
 
         // Need only the requestid in the result of the search
         // TODO: generic search returning RequestId
-        String filter = "(" + IRequestRecord.ATTR_SOURCE_ID + "=" + id + ")";
+        String filter = "(" + RequestRecord.ATTR_SOURCE_ID + "=" + id + ")";
 
         try {
             dbs = dbSubsystem.createSession();
@@ -504,8 +503,8 @@ public class RequestQueue
             String f1;
             String f2;
 
-            f1 = "(" + IRequestRecord.ATTR_REQUEST_STATE + "=" + s + ")";
-            f2 = "(" + IRequestRecord.ATTR_REQUEST_ID + "=*)";
+            f1 = "(" + RequestRecord.ATTR_REQUEST_STATE + "=" + s + ")";
+            f2 = "(" + RequestRecord.ATTR_REQUEST_ID + "=*)";
 
             f1 = "(&" + f1 + f2 + ")";
 

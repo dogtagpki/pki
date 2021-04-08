@@ -23,7 +23,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 
@@ -290,7 +289,7 @@ public class ExtAttrDynMapper extends DBDynAttrMapper {
             String[] values = attr.getStringValueArray();
 
             if (values.length != 1) {
-                RequestId requestID = ((IRequestRecord) parent).getRequestId();
+                RequestId requestID = ((RequestRecord) parent).getRequestId();
                 String message = "Output Mapping Error in request ID " +
                         requestID + " : " +
                         "more than one value returned for " +
@@ -305,7 +304,7 @@ public class ExtAttrDynMapper extends DBDynAttrMapper {
             }
 
             if (subTypes.length != 1) {
-                RequestId requestID = ((IRequestRecord) parent).getRequestId();
+                RequestId requestID = ((RequestRecord) parent).getRequestId();
                 String message = "Output Mapping Error in request ID " +
                         requestID + " : " +
                         "more than one subType returned for " +
@@ -316,7 +315,7 @@ public class ExtAttrDynMapper extends DBDynAttrMapper {
 
             Object value = ht.get(keyName);
             if (value != null && !(value instanceof Hashtable)) {
-                RequestId requestID = ((IRequestRecord) parent).getRequestId();
+                RequestId requestID = ((RequestRecord) parent).getRequestId();
                 String message = "Output Mapping Error in request ID " +
                         requestID + " : " +
                         "combined no-subtype and subtype data for key " +

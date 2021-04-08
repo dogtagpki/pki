@@ -7,8 +7,8 @@ import java.util.Enumeration;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.cmscore.request.DBDynAttrMapper;
+import com.netscape.cmscore.request.RequestRecord;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 import com.netscape.cmscore.test.TestHelper;
 
@@ -40,8 +40,8 @@ public class DBRegistryTest extends CMSBaseTestCase {
         try {
             registry.registerObjectClass(requestRecordStub.getClass().getName(),
                     new String[] { "ocvalue" });
-            registry.registerAttribute(IRequestRecord.ATTR_EXT_DATA, extAttrMapper);
-            registry.registerAttribute(IRequestRecord.ATTR_SOURCE_ID,
+            registry.registerAttribute(RequestRecord.ATTR_EXT_DATA, extAttrMapper);
+            registry.registerAttribute(RequestRecord.ATTR_SOURCE_ID,
                     new StringMapper("sourceIdOut"));
             registry.registerDynamicMapper(extAttrMapper);
         } catch (EDBException e) {
@@ -58,8 +58,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
 
     public void testMapObject() throws EBaseException {
         assertFalse(extAttrMapper.mapObjectCalled);
-        registry.mapObject(null, IRequestRecord.ATTR_EXT_DATA, null,
-                new LDAPAttributeSet());
+        registry.mapObject(null, RequestRecord.ATTR_EXT_DATA, null, new LDAPAttributeSet());
         assertTrue(extAttrMapper.mapObjectCalled);
     }
 
@@ -68,7 +67,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
                 "extData-foo",
                 "extData-foo12",
                 "EXTDATA-bar;baz",
-                IRequestRecord.ATTR_SOURCE_ID
+                RequestRecord.ATTR_SOURCE_ID
         };
         String outAttrs[] = registry.getLDAPAttributes(inAttrs);
 
@@ -90,7 +89,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
         registry.createLDAPAttributeSet(requestRecordStub);
         assertTrue(requestRecordStub.getCalled);
         assertEquals(requestRecordStub.getCalledWith,
-                IRequestRecord.ATTR_EXT_DATA);
+                RequestRecord.ATTR_EXT_DATA);
 
         // This asserts that mapObject() is called and makes it down to the
         // extDataDynAttrMapper.mapObjectToLDAPAttributeSet() call.
@@ -155,7 +154,7 @@ class RequestRecordStub extends RequestRecordDefaultStub {
      */
     private static final long serialVersionUID = 2155124580267335995L;
 
-    String[] attrs = new String[] { IRequestRecord.ATTR_EXT_DATA };
+    String[] attrs = new String[] { RequestRecord.ATTR_EXT_DATA };
 
     boolean getCalled = false;
     String getCalledWith = null;

@@ -5,16 +5,15 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.dbs.RequestRecordDefaultStub;
+import com.netscape.cmscore.test.CMSBaseTestCase;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
-
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequestRecord;
-import com.netscape.certsrv.request.RequestId;
-import com.netscape.cmscore.dbs.RequestRecordDefaultStub;
-import com.netscape.cmscore.test.CMSBaseTestCase;
 
 public class ExtAttrDynMapperTest extends CMSBaseTestCase {
 
@@ -178,12 +177,10 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
 
         RequestRecordStub requestRecord = new RequestRecordStub();
 
-        mapper.mapLDAPAttributeSetToObject(attrs, IRequestRecord.ATTR_EXT_DATA,
-                requestRecord);
+        mapper.mapLDAPAttributeSetToObject(attrs, RequestRecord.ATTR_EXT_DATA, requestRecord);
 
         assertEquals(1, requestRecord.setCallCounter);
-        Hashtable<?, ?> extData = (Hashtable<?, ?>) requestRecord.extAttrData.get(
-                IRequestRecord.ATTR_EXT_DATA);
+        Hashtable<?, ?> extData = (Hashtable<?, ?>) requestRecord.extAttrData.get(RequestRecord.ATTR_EXT_DATA);
         assertNotNull(extData);
 
         assertEquals(2, extData.keySet().size());
@@ -210,12 +207,10 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
 
         requestRecord = new RequestRecordStub();
 
-        mapper.mapLDAPAttributeSetToObject(attrs, IRequestRecord.ATTR_EXT_DATA,
-                requestRecord);
+        mapper.mapLDAPAttributeSetToObject(attrs, RequestRecord.ATTR_EXT_DATA, requestRecord);
 
         assertEquals(1, requestRecord.setCallCounter);
-        extData = (Hashtable<?, ?>) requestRecord.extAttrData.get(
-                IRequestRecord.ATTR_EXT_DATA);
+        extData = (Hashtable<?, ?>) requestRecord.extAttrData.get(RequestRecord.ATTR_EXT_DATA);
         assertNotNull(extData);
 
         assertTrue(extData.containsKey("o;key1"));
@@ -250,8 +245,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         requestRecord = new RequestRecordStub();
 
         try {
-            mapper.mapLDAPAttributeSetToObject(attrs, IRequestRecord.ATTR_EXT_DATA,
-                    requestRecord);
+            mapper.mapLDAPAttributeSetToObject(attrs, RequestRecord.ATTR_EXT_DATA, requestRecord);
             fail("Should have thrown EBaseException on illegal data");
         } catch (EBaseException e) {
             // good
@@ -260,13 +254,13 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
     }
 
     static class RequestRecordStub extends RequestRecordDefaultStub {
-        private static final long serialVersionUID = 4106967075497999274L;
+
         Hashtable<String, Object> extAttrData = new Hashtable<String, Object>();
         int setCallCounter = 0;
 
         public void set(String name, Object o) {
             setCallCounter++;
-            if (IRequestRecord.ATTR_EXT_DATA.equals(name)) {
+            if (RequestRecord.ATTR_EXT_DATA.equals(name)) {
                 extAttrData.put(name, o);
             }
         }

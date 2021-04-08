@@ -31,7 +31,6 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.ldap.IRequestMod;
@@ -42,14 +41,29 @@ import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.StringMapper;
 
-//
-// A request record is the stored version of a request.
-// It has a set of attributes that are mapped into LDAP
-// attributes for actual directory operations.
-//
-public class RequestRecord implements IRequestRecord, IDBObj {
+/**
+ * A request record is the stored version of a request.
+ * It has a set of attributes that are mapped into LDAP
+ * attributes for actual directory operations.
+ */
+public class RequestRecord implements IDBObj {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRecord.class);
+
+    public final static String ATTR_REQUEST_ID = "requestId";
+    public final static String ATTR_REQUEST_STATE = "requestState";
+    public final static String ATTR_CREATE_TIME = "requestCreateTime";
+    public final static String ATTR_MODIFY_TIME = "requestModifyTime";
+    public final static String ATTR_SOURCE_ID = "requestSourceId";
+    public final static String ATTR_REQUEST_OWNER = "requestOwner";
+    public final static String ATTR_REQUEST_TYPE = "requestType";
+
+    // Placeholder for ExtAttr data.  this attribute is not in LDAP, but
+    // is used to trigger the ExtAttrDynMapper during conversion between LDAP
+    // and the RequestRecord.
+    public final static String ATTR_EXT_DATA = "requestExtData";
+
+    public final static String ATTR_REALM = "realm";
 
     RequestId mRequestId;
     RequestStatus mRequestState;
@@ -61,80 +75,126 @@ public class RequestRecord implements IRequestRecord, IDBObj {
     Hashtable<String, Object> mExtData;
     String realm;
 
+    /**
+     * Gets the request ID.
+     *
+     * @return request ID
+     */
     public RequestId getRequestId() {
         return mRequestId;
     }
 
+    /**
+     * Gets attribute names of the request.
+     *
+     * @return list of attribute names
+     */
     public Enumeration<String> getAttrNames() {
         return mAttrTable.keys();
     }
 
-    // IDBObj.get
+    /**
+     * Gets the request attribute value by the name.
+     *
+     * @param name attribute name
+     * @return attribute value
+     */
     public Object get(String name) {
-        if (name.equals(IRequestRecord.ATTR_REQUEST_ID))
+        if (name.equals(ATTR_REQUEST_ID)) {
             return mRequestId;
-        else if (name.equals(IRequestRecord.ATTR_REQUEST_STATE))
-            return mRequestState;
-        else if (name.equals(IRequestRecord.ATTR_REQUEST_TYPE))
-            return mRequestType;
-        else if (name.equals(IRequestRecord.ATTR_MODIFY_TIME))
-            return mModifyTime;
-        else if (name.equals(IRequestRecord.ATTR_CREATE_TIME))
-            return mCreateTime;
-        else if (name.equals(IRequestRecord.ATTR_SOURCE_ID))
-            return mSourceId;
-        else if (name.equals(IRequestRecord.ATTR_REQUEST_OWNER))
-            return mOwner;
-        else if (name.equals(IRequestRecord.ATTR_EXT_DATA))
-            return mExtData;
-        else if (name.equals(IRequestRecord.ATTR_REALM))
-            return realm;
-        else {
-            RequestAttr ra = mAttrTable.get(name);
 
-            if (ra != null)
+        } else if (name.equals(ATTR_REQUEST_STATE)) {
+            return mRequestState;
+
+        } else if (name.equals(ATTR_REQUEST_TYPE)) {
+            return mRequestType;
+
+        } else if (name.equals(ATTR_MODIFY_TIME)) {
+            return mModifyTime;
+
+        } else if (name.equals(ATTR_CREATE_TIME)) {
+            return mCreateTime;
+
+        } else if (name.equals(ATTR_SOURCE_ID)) {
+            return mSourceId;
+
+        } else if (name.equals(ATTR_REQUEST_OWNER)) {
+            return mOwner;
+
+        } else if (name.equals(ATTR_EXT_DATA)) {
+            return mExtData;
+
+        } else if (name.equals(ATTR_REALM)) {
+            return realm;
+
+        } else {
+            RequestAttr ra = mAttrTable.get(name);
+            if (ra != null) {
                 return ra.get(this);
+            }
         }
 
         return null;
     }
 
-    // IDBObj.set
+    /**
+     * Sets new attribute for the request.
+     *
+     * @param name attribute name
+     * @param o attribute value
+     */
     @SuppressWarnings("unchecked")
     public void set(String name, Object o) {
-        if (name.equals(IRequestRecord.ATTR_REQUEST_ID))
+        if (name.equals(ATTR_REQUEST_ID)) {
             mRequestId = (RequestId) o;
-        else if (name.equals(IRequestRecord.ATTR_REQUEST_STATE))
-            mRequestState = (RequestStatus) o;
-        else if (name.equals(IRequestRecord.ATTR_REQUEST_TYPE))
-            mRequestType = (String) o;
-        else if (name.equals(IRequestRecord.ATTR_CREATE_TIME))
-            mCreateTime = (Date) o;
-        else if (name.equals(IRequestRecord.ATTR_MODIFY_TIME))
-            mModifyTime = (Date) o;
-        else if (name.equals(IRequestRecord.ATTR_SOURCE_ID))
-            mSourceId = (String) o;
-        else if (name.equals(IRequestRecord.ATTR_REQUEST_OWNER))
-            mOwner = (String) o;
-        else if (name.equals(IRequestRecord.ATTR_REALM))
-            realm = (String) o;
-        else if (name.equals(IRequestRecord.ATTR_EXT_DATA))
-            mExtData = (Hashtable<String, Object>) o;
-        else {
-            RequestAttr ra = mAttrTable.get(name);
 
-            if (ra != null)
+        } else if (name.equals(ATTR_REQUEST_STATE)) {
+            mRequestState = (RequestStatus) o;
+
+        } else if (name.equals(ATTR_REQUEST_TYPE)) {
+            mRequestType = (String) o;
+
+        } else if (name.equals(ATTR_CREATE_TIME)) {
+            mCreateTime = (Date) o;
+
+        } else if (name.equals(ATTR_MODIFY_TIME)) {
+            mModifyTime = (Date) o;
+
+        } else if (name.equals(ATTR_SOURCE_ID)) {
+            mSourceId = (String) o;
+
+        } else if (name.equals(ATTR_REQUEST_OWNER)) {
+            mOwner = (String) o;
+
+        } else if (name.equals(ATTR_REALM)) {
+            realm = (String) o;
+
+        } else if (name.equals(ATTR_EXT_DATA)) {
+            mExtData = (Hashtable<String, Object>) o;
+
+        } else {
+            RequestAttr ra = mAttrTable.get(name);
+            if (ra != null) {
                 ra.set(this, o);
+            }
         }
     }
 
-    // IDBObj.delete
+    /**
+     * Removes attribute from the request.
+     *
+     * @param name attribute name
+     */
     public void delete(String name)
             throws EBaseException {
         throw new EBaseException("Invalid call to delete");
     }
 
-    // IDBObj.getElements
+    /**
+     * Gets attribute list of the request.
+     *
+     * @return attribute list
+     */
     public Enumeration<String> getElements() {
         return mAttrs.elements();
     }
@@ -178,25 +238,16 @@ public class RequestRecord implements IRequestRecord, IDBObj {
 
     static void mod(ModificationSet mods, IRequest r) throws EBaseException {
         //
-        mods.add(IRequestRecord.ATTR_REQUEST_STATE,
-                Modification.MOD_REPLACE, r.getRequestStatus());
-
-        mods.add(IRequestRecord.ATTR_SOURCE_ID,
-                Modification.MOD_REPLACE, r.getSourceId());
-
-        mods.add(IRequestRecord.ATTR_REQUEST_OWNER,
-                Modification.MOD_REPLACE, r.getRequestOwner());
-
-        mods.add(IRequestRecord.ATTR_MODIFY_TIME,
-                Modification.MOD_REPLACE, r.getModificationTime());
-
-        mods.add(IRequestRecord.ATTR_EXT_DATA,
-                Modification.MOD_REPLACE, loadExtDataFromRequest(r));
+        mods.add(ATTR_REQUEST_STATE, Modification.MOD_REPLACE, r.getRequestStatus());
+        mods.add(ATTR_SOURCE_ID, Modification.MOD_REPLACE, r.getSourceId());
+        mods.add(ATTR_REQUEST_OWNER, Modification.MOD_REPLACE, r.getRequestOwner());
+        mods.add(ATTR_MODIFY_TIME, Modification.MOD_REPLACE, r.getModificationTime());
+        mods.add(ATTR_EXT_DATA, Modification.MOD_REPLACE, loadExtDataFromRequest(r));
 
         // TODO(alee) - realm cannot be changed once set.  Can the code be refactored to eliminate
         // the next few lines?
         if (r.getRealm() != null) {
-            mods.add(IRequestRecord.ATTR_REALM, Modification.MOD_REPLACE, r.getRealm());
+            mods.add(ATTR_REALM, Modification.MOD_REPLACE, r.getRealm());
         }
 
         for (int i = 0; i < mRequestA.length; i++) {
@@ -210,25 +261,19 @@ public class RequestRecord implements IRequestRecord, IDBObj {
 
         reg.registerObjectClass(RequestRecord.class.getName(), mOC);
 
-        reg.registerAttribute(IRequestRecord.ATTR_REQUEST_ID, new RequestIdMapper());
-        reg.registerAttribute(IRequestRecord.ATTR_REQUEST_STATE, new RequestStateMapper());
-        reg.registerAttribute(IRequestRecord.ATTR_CREATE_TIME,
-                new DateMapper(Schema.LDAP_ATTR_CREATE_TIME));
-        reg.registerAttribute(IRequestRecord.ATTR_MODIFY_TIME,
-                new DateMapper(Schema.LDAP_ATTR_MODIFY_TIME));
-        reg.registerAttribute(IRequestRecord.ATTR_SOURCE_ID,
-                new StringMapper(Schema.LDAP_ATTR_SOURCE_ID));
-        reg.registerAttribute(IRequestRecord.ATTR_REQUEST_OWNER,
-                new StringMapper(Schema.LDAP_ATTR_REQUEST_OWNER));
-        reg.registerAttribute(IRequestRecord.ATTR_REALM,
-                new StringMapper(Schema.LDAP_ATTR_REALM));
+        reg.registerAttribute(ATTR_REQUEST_ID, new RequestIdMapper());
+        reg.registerAttribute(ATTR_REQUEST_STATE, new RequestStateMapper());
+        reg.registerAttribute(ATTR_CREATE_TIME, new DateMapper(Schema.LDAP_ATTR_CREATE_TIME));
+        reg.registerAttribute(ATTR_MODIFY_TIME, new DateMapper(Schema.LDAP_ATTR_MODIFY_TIME));
+        reg.registerAttribute(ATTR_SOURCE_ID, new StringMapper(Schema.LDAP_ATTR_SOURCE_ID));
+        reg.registerAttribute(ATTR_REQUEST_OWNER, new StringMapper(Schema.LDAP_ATTR_REQUEST_OWNER));
+        reg.registerAttribute(ATTR_REALM, new StringMapper(Schema.LDAP_ATTR_REALM));
         ExtAttrDynMapper extAttrMapper = new ExtAttrDynMapper();
-        reg.registerAttribute(IRequestRecord.ATTR_EXT_DATA, extAttrMapper);
+        reg.registerAttribute(ATTR_EXT_DATA, extAttrMapper);
         reg.registerDynamicMapper(extAttrMapper);
 
         for (int i = 0; i < mRequestA.length; i++) {
             RequestAttr ra = mRequestA[i];
-
             reg.registerAttribute(ra.mAttrName, ra.mMapper);
         }
     }
@@ -341,14 +386,14 @@ public class RequestRecord implements IRequestRecord, IDBObj {
 
     };
     static {
-        mAttrs.add(IRequestRecord.ATTR_REQUEST_ID);
-        mAttrs.add(IRequestRecord.ATTR_REQUEST_STATE);
-        mAttrs.add(IRequestRecord.ATTR_CREATE_TIME);
-        mAttrs.add(IRequestRecord.ATTR_MODIFY_TIME);
-        mAttrs.add(IRequestRecord.ATTR_SOURCE_ID);
-        mAttrs.add(IRequestRecord.ATTR_REQUEST_OWNER);
-        mAttrs.add(IRequestRecord.ATTR_REALM);
-        mAttrs.add(IRequestRecord.ATTR_EXT_DATA);
+        mAttrs.add(ATTR_REQUEST_ID);
+        mAttrs.add(ATTR_REQUEST_STATE);
+        mAttrs.add(ATTR_CREATE_TIME);
+        mAttrs.add(ATTR_MODIFY_TIME);
+        mAttrs.add(ATTR_SOURCE_ID);
+        mAttrs.add(ATTR_REQUEST_OWNER);
+        mAttrs.add(ATTR_REALM);
+        mAttrs.add(ATTR_EXT_DATA);
 
         for (int i = 0; i < mRequestA.length; i++) {
             RequestAttr ra = mRequestA[i];

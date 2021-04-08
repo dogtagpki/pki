@@ -40,7 +40,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.request.IRequestList;
-import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -51,6 +50,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestRecord;
 
 /**
  * Provide statistical queries of request and certificate records.
@@ -301,14 +301,14 @@ public class Monitor extends CMSServlet {
                 }
 
                 if (mQueue != null) {
-                    filter = Filter(IRequestRecord.ATTR_CREATE_TIME, startTime, endTime);
+                    filter = Filter(RequestRecord.ATTR_CREATE_TIME, startTime, endTime);
 
                     IRequestList reqList = mQueue.listRequestsByFilter(filter);
 
                     int count = 0;
 
                     while (reqList != null && reqList.hasMoreElements()) {
-                        IRequestRecord rec = (IRequestRecord) reqList.nextRequest();
+                        RequestRecord rec = (RequestRecord) reqList.nextRequest();
 
                         if (rec != null) {
                             if (count == 0) {
