@@ -94,12 +94,9 @@ public class CertificateRepository extends Repository {
     /**
      * Constructs a certificate repository.
      */
-    public CertificateRepository(DBSubsystem dbSubsystem, int increment) throws EBaseException {
+    public CertificateRepository(DBSubsystem dbSubsystem) throws EBaseException {
 
-        super(
-                dbSubsystem,
-                increment,
-                16);
+        super(dbSubsystem, 16);
 
         logger.info("CertificateRepository: Initializing certificate repository");
 

@@ -50,13 +50,10 @@ public class CRLRepository extends Repository {
     /**
      * Constructs a CRL repository.
      */
-    public CRLRepository(DBSubsystem dbSubsystem, int increment) throws EBaseException {
+    public CRLRepository(DBSubsystem dbSubsystem) throws EBaseException {
 
         // CRLRepository does not use serial number stuff
-        super(
-                dbSubsystem,
-                increment,
-                10);
+        super(dbSubsystem, 10);
 
         logger.info("CRLRepository: Initializing CRL repository");
 

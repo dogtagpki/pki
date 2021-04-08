@@ -52,12 +52,9 @@ public class RequestRepository extends Repository {
      * @param dbSubsystem
      *            the LDAP database system.
      */
-    public RequestRepository(DBSubsystem dbSubsystem, int increment) throws EBaseException {
+    public RequestRepository(DBSubsystem dbSubsystem) throws EBaseException {
 
-        super(
-                dbSubsystem,
-                increment,
-                10);
+        super(dbSubsystem, 10);
 
         logger.info("RequestRepository: Initializing request repository");
 
@@ -118,13 +115,9 @@ public class RequestRepository extends Repository {
 
     public RequestRepository(
             DBSubsystem dbSubsystem,
-            int increment,
             Hashtable<String, String> repositoryConfig) throws EBaseException {
 
-        super(
-                dbSubsystem,
-                increment,
-                10);
+        super(dbSubsystem, 10);
 
         this.repositoryConfig = repositoryConfig;
 

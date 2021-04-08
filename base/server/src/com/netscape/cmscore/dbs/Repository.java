@@ -58,7 +58,6 @@ public abstract class Repository implements IRepository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Repository.class);
 
-    private BigInteger BI_INCREMENT = null;
     // (the next serialNo to be issued) - 1
     private BigInteger mSerialNo = null;
 
@@ -94,13 +93,8 @@ public abstract class Repository implements IRepository {
      * Constructs a repository.
      * <P>
      */
-    public Repository(
-            DBSubsystem dbSubsystem,
-            int increment,
-            int radix) {
-
+    public Repository(DBSubsystem dbSubsystem, int radix) {
         this.dbSubsystem = dbSubsystem;
-        this.BI_INCREMENT = new BigInteger(Integer.toString(increment));
         this.mRadix = radix;
     }
 

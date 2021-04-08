@@ -54,12 +54,9 @@ public class KeyRepository extends Repository implements IKeyRepository {
      * @param service db service
      * @exception EBaseException failed to setup key repository
      */
-    public KeyRepository(DBSubsystem dbSubsystem, int increment) throws EBaseException {
+    public KeyRepository(DBSubsystem dbSubsystem) throws EBaseException {
 
-        super(
-                dbSubsystem,
-                increment,
-                16);
+        super(dbSubsystem, 16);
 
         logger.info("KeyRepository: Initializing key repository");
 

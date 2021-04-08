@@ -93,7 +93,7 @@ public class CACertFindCLI extends CommandCLI {
         logger.info("- increment: " + increment);
 
         try {
-            CertificateRepository certificateRepository = new CertificateRepository(dbSubsystem, increment);
+            CertificateRepository certificateRepository = new CertificateRepository(dbSubsystem);
 
             CertRecordList list = certificateRepository.findCertRecordsInList(filter, null, "serialno", size);
             int total = list.getSize();

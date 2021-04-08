@@ -783,7 +783,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         String schedulerClass = caConfig.getString("requestSchedulerClass", null);
         logger.info("CAEngine: - scheduler: " + schedulerClass);
 
-        requestRepository = new RequestRepository(dbSubsystem, increment);
+        requestRepository = new RequestRepository(dbSubsystem);
 
         requestQueue = new RequestQueue(
                 dbSubsystem,
@@ -1590,7 +1590,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         int increment = caConfig.getInteger(CertificateRepository.PROP_INCREMENT, 5);
         logger.info("CAEngine: - increment: " + increment);
 
-        certificateRepository = new CertificateRepository(dbSubsystem, increment);
+        certificateRepository = new CertificateRepository(dbSubsystem);
     }
 
     public void initCrlDatabase() throws Exception {
@@ -1600,14 +1600,14 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         IConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID);
         int increment = caConfig.getInteger(CRLRepository.PROP_INCREMENT, 5);
 
-        crlRepository = new CRLRepository(dbSubsystem, increment);
+        crlRepository = new CRLRepository(dbSubsystem);
     }
 
     public void initReplicaIDRepository() throws Exception {
 
         logger.info("CAEngine: Initializing replica ID repository");
 
-        replicaIDRepository = new ReplicaIDRepository(dbSubsystem, 1);
+        replicaIDRepository = new ReplicaIDRepository(dbSubsystem);
     }
 
     public void init() throws Exception {

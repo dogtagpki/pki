@@ -300,7 +300,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // create key repository
         int keydb_inc = mConfig.getInteger(PROP_KEYDB_INC, 5);
 
-        mKeyDB = new KeyRepository(dbSubsystem, keydb_inc);
+        mKeyDB = new KeyRepository(dbSubsystem);
 
         // read transport key from internal database
         mTransportKeyUnit = new TransportKeyUnit();
@@ -390,7 +390,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         RequestSubsystem reqSub = engine.getRequestSubsystem();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
-        requestRepository = new RequestRepository(dbSubsystem, reqdb_inc);
+        requestRepository = new RequestRepository(dbSubsystem);
 
         mRequestQueue = new RequestQueue(
                 dbSubsystem,
@@ -420,7 +420,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         }
         initNotificationListeners();
 
-        mReplicaRepot = new ReplicaIDRepository(dbSubsystem, 1);
+        mReplicaRepot = new ReplicaIDRepository(dbSubsystem);
         logger.debug("Replica Repot inited");
 
     }
