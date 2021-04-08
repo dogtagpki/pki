@@ -236,21 +236,7 @@ public abstract class ARequestQueue {
      *         values from the datastore.
      */
     protected final IRequest createRequest(RequestId id, String requestType) {
-        Request r;
-
-        /*
-         * Determine the specialized class to create for this type
-         *
-         * TODO: this set of classes is an example only.  The real set
-         *   needs to be determined and implemented.
-         */
-        if (requestType != null && requestType.equals("enrollment")) {
-            r = new EnrollmentRequest(id);
-        } else {
-            r = new Request(id);
-        }
-
-        return r;
+        return new Request(id);
     }
 
     /**
