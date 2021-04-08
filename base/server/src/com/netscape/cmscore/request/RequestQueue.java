@@ -241,16 +241,12 @@ public class RequestQueue extends ARequestQueue {
     }
 
     IRequest makeRequest(RequestRecord record) {
-        Request r = new Request(record.mRequestId);
-
         try {
-            // convert (copy) fields
-            record.read(r);
+            return record.toRequest();
         } catch (EBaseException e) {
             logger.warn("RequestQueue: " + e.getMessage(), e);
+            throw new RuntimeException(e);
         }
-
-        return r;
     }
 
     public BigInteger getLastRequestIdInRange(BigInteger reqId_low_bound, BigInteger reqId_upper_bound) {

@@ -345,6 +345,12 @@ public class RequestRecord implements IDBObj {
         }
     }
 
+    public Request toRequest() throws EBaseException {
+        Request record = new Request(mRequestId);
+        read(record);
+        return record;
+    }
+
     protected static Vector<String> mAttrs = new Vector<String>();
 
     static Hashtable<String, RequestAttr> mAttrTable = new Hashtable<String, RequestAttr>();
