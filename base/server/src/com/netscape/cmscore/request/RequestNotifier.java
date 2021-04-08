@@ -59,10 +59,6 @@ public class RequestNotifier implements IRequestNotifier {
         mPublishingQueuePriority = Thread.currentThread().getPriority();
     }
 
-    public RequestRepository getRequestRepository() {
-        return null;
-    }
-
     public void setPublishingQueue(boolean isPublishingQueueEnabled,
                                     int publishingQueuePriorityLevel,
                                     int maxNumberOfPublishingThreads,
@@ -90,7 +86,8 @@ public class RequestNotifier implements IRequestNotifier {
             mPublishingQueuePriority = Thread.currentThread().getPriority();
         }
 
-        RequestRepository requestRepository = getRequestRepository();
+        CMSEngine engine = CMS.getCMSEngine();
+        RequestRepository requestRepository = engine.getRequestRepository();
 
         if (mIsPublishingQueueEnabled && mSavePublishingStatus > 0 && requestRepository != null) {
             mPublishingStatus = requestRepository.getPublishingStatus();
@@ -179,7 +176,8 @@ public class RequestNotifier implements IRequestNotifier {
 
     public void updatePublishingStatus(String id) {
 
-        RequestRepository requestRepository = getRequestRepository();
+        CMSEngine engine = CMS.getCMSEngine();
+        RequestRepository requestRepository = engine.getRequestRepository();
 
         if (requestRepository != null) {
             synchronized (publishingCounterMonitor) {
@@ -320,7 +318,8 @@ public class RequestNotifier implements IRequestNotifier {
         if (mNotifierThreads.size() > 0) {
             mNotifierThreads.remove(notifierThread);
             if (mNotifierThreads.size() == 0) {
-                RequestRepository requestRepository = getRequestRepository();
+                CMSEngine engine = CMS.getCMSEngine();
+                RequestRepository requestRepository = engine.getRequestRepository();
                 if (requestRepository != null) {
                     requestRepository.setPublishingStatus("-1");
                 }
