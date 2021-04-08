@@ -56,7 +56,6 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -317,10 +316,6 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     @Override
     public TPSConfig getConfigStore() {
         return config;
-    }
-
-    public ARequestQueue getRequestQueue() {
-        return null;
     }
 
     @Override
