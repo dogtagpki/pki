@@ -39,7 +39,6 @@ import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
-import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * An interface represents key recovery authority. The
@@ -79,14 +78,6 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
     public X500Name getX500Name();
 
     public IRepository getRequestRepository();
-
-    /**
-     * Retrieves KRA request repository.
-     * <P>
-     *
-     * @return request repository
-     */
-    public ARequestQueue getRequestQueue();
 
     /**
      * Retrieves the key repository. The key repository
