@@ -19,7 +19,6 @@ package com.netscape.cmscore.request;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -36,7 +35,6 @@ import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.request.ldap.IRequestMod;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -44,9 +42,7 @@ import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 
-public class RequestQueue
-        extends ARequestQueue
-        implements IRequestMod {
+public class RequestQueue extends ARequestQueue {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestQueue.class);
 
@@ -255,18 +251,6 @@ public class RequestQueue
         }
 
         return r;
-    }
-
-    public void modRequestStatus(IRequest r, RequestStatus s) {
-        setRequestStatus(r, s);
-    }
-
-    public void modCreationTime(IRequest r, Date d) {
-        setCreationTime(r, d);
-    }
-
-    public void modModificationTime(IRequest r, Date d) {
-        setModificationTime(r, d);
     }
 
     public BigInteger getLastRequestIdInRange(BigInteger reqId_low_bound, BigInteger reqId_upper_bound) {
