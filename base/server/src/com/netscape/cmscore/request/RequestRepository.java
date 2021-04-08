@@ -131,13 +131,6 @@ public class RequestRepository extends Repository {
     }
 
     /**
-     * Resets serial number.
-     */
-    public void resetSerialNumber(BigInteger serial) throws EBaseException {
-        setTheSerialNumber(serial);
-    }
-
-    /**
      * Removes all objects with this repository.
      */
     public void removeAllObjects() throws EBaseException {

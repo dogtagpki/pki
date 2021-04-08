@@ -23,10 +23,7 @@ import java.util.Hashtable;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.Modification;
-import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepository;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
@@ -112,24 +109,6 @@ public abstract class Repository implements IRepository {
 
     public int getRadix() {
         return mRadix;
-    }
-
-    /**
-     * Resets serial number.
-     */
-    public void resetSerialNumber(BigInteger serial) throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
-
-        try {
-            String name = mBaseDN;
-            ModificationSet mods = new ModificationSet();
-            mods.add(IRepositoryRecord.ATTR_SERIALNO,
-                    Modification.MOD_REPLACE, serial);
-            s.modify(name, mods);
-        } finally {
-            if (s != null)
-                s.close();
-        }
     }
 
     /**

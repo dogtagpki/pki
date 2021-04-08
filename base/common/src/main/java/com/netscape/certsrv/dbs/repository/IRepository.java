@@ -40,11 +40,6 @@ public interface IRepository {
     public BigInteger getNextSerialNumber() throws EBaseException;
 
     /**
-     * Resets serial number.
-     */
-    public void resetSerialNumber(BigInteger serial) throws EBaseException;
-
-    /**
      * Retrieves the next serial number without increasing the serial number.
      *
      * @return serial number
