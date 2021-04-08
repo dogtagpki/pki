@@ -47,12 +47,19 @@ import com.netscape.cmscore.dbs.StringMapper;
 // It has a set of attributes that are mapped into LDAP
 // attributes for actual directory operations.
 //
-public class RequestRecord
-        extends ARequestRecord
-        implements IRequestRecord, IDBObj {
+public class RequestRecord implements IRequestRecord, IDBObj {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRecord.class);
-    private static final long serialVersionUID = 8044665107558872084L;
+
+    RequestId mRequestId;
+    RequestStatus mRequestState;
+    Date mCreateTime;
+    Date mModifyTime;
+    String mSourceId;
+    String mOwner;
+    String mRequestType;
+    Hashtable<String, Object> mExtData;
+    String realm;
 
     public RequestId getRequestId() {
         return mRequestId;
@@ -311,19 +318,19 @@ public class RequestRecord
 
     new RequestAttr(IRequest.ATTR_REQUEST_TYPE,
                 new StringMapper(Schema.LDAP_ATTR_REQUEST_TYPE)) {
-        void set(ARequestRecord r, Object o) {
+        void set(RequestRecord r, Object o) {
             r.mRequestType = (String) o;
         }
 
-        Object get(ARequestRecord r) {
+        Object get(RequestRecord r) {
             return r.mRequestType;
         }
 
-        void read(IRequestMod a, IRequest r, ARequestRecord rr) {
+        void read(IRequestMod a, IRequest r, RequestRecord rr) {
             r.setRequestType(rr.mRequestType);
         }
 
-        void add(IRequest r, ARequestRecord rr) {
+        void add(IRequest r, RequestRecord rr) {
             rr.mRequestType = r.getRequestType();
         }
 

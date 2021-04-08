@@ -37,13 +37,13 @@ abstract class RequestAttr {
      *
      */
 
-    abstract void set(ARequestRecord r, Object o);
+    abstract void set(RequestRecord r, Object o);
 
-    abstract Object get(ARequestRecord r);
+    abstract Object get(RequestRecord r);
 
-    abstract void read(IRequestMod a, IRequest r, ARequestRecord rr);
+    abstract void read(IRequestMod a, IRequest r, RequestRecord rr);
 
-    abstract void add(IRequest r, ARequestRecord rr);
+    abstract void add(IRequest r, RequestRecord rr);
 
     abstract void mod(ModificationSet mods, IRequest r);
 
