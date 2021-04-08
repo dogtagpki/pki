@@ -848,13 +848,6 @@ public abstract class ARequestQueue {
             t.start();
         }
     }
-    /**
-     * Gets a pageable list of IRequest entries in this queue.
-     *
-     * @param pageSize page size
-     * @return request list
-     */
-    public abstract IRequestVirtualList getPagedRequests(int pageSize);
 
     /**
      * Gets a pageable list of IRequest entries in this queue.

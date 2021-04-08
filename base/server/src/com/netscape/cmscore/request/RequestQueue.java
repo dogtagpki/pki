@@ -529,10 +529,6 @@ public class RequestQueue
         return new SearchEnumeration(this, results);
     }
 
-    public IRequestVirtualList getPagedRequests(int pageSize) {
-        return getPagedRequestsByFilter("(requestId=*)", pageSize, "requestId");
-    }
-
     public IRequestVirtualList
             getPagedRequestsByFilter(String filter, int pageSize, String sortKey) {
         return getPagedRequestsByFilter(null, filter, pageSize, sortKey);
