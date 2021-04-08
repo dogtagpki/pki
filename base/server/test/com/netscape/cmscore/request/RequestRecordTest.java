@@ -7,6 +7,7 @@ import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.dbs.DBRegistry;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.test.CMSBaseTestCase;
@@ -78,8 +79,9 @@ public class RequestRecordTest extends CMSBaseTestCase {
         extData.put("hashkey", extDataHashValue);
         requestRecord.set(RequestRecord.ATTR_EXT_DATA, extData);
         requestRecord.mRequestType = "foo";
+        requestRecord.set(RequestRecord.ATTR_REQUEST_STATE, RequestStatus.BEGIN);
 
-        requestRecord.read(new RequestModDefaultStub(), request);
+        requestRecord.read(request);
 
         // the request stores other attributes inside its mExtData when some
         // of its setters are called, so we have to compare manually.

@@ -249,7 +249,7 @@ public class RequestQueue
 
         try {
             // convert (copy) fields
-            record.read(this, r);
+            record.read(r);
         } catch (EBaseException e) {
             logger.warn("RequestQueue: " + e.getMessage(), e);
         }

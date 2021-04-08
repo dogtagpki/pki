@@ -33,7 +33,6 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.request.ldap.IRequestMod;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBRegistry;
@@ -222,12 +221,12 @@ public class RequestRecord implements IDBObj {
         }
     }
 
-    void read(IRequestMod a, IRequest r) throws EBaseException {
-        a.modRequestStatus(r, mRequestState);
+    void read(IRequest r) throws EBaseException {
+        r.setRequestStatus(mRequestState);
         r.setSourceId(mSourceId);
         r.setRequestOwner(mOwner);
-        a.modModificationTime(r, mModifyTime);
-        a.modCreationTime(r, mCreateTime);
+        r.setModificationTime(mModifyTime);
+        r.setCreationTime(mCreateTime);
         r.setRealm(realm);
         storeExtDataIntoRequest(r);
 
