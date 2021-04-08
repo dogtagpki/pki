@@ -127,7 +127,7 @@ public class CMCRevReqServlet extends CMSServlet {
         }
 
         mPublisherProcessor = engine.getPublisherProcessor();
-        mQueue = mAuthority.getRequestQueue();
+        mQueue = engine.getRequestQueue();
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
     }

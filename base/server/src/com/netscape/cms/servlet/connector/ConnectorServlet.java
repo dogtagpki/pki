@@ -75,7 +75,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
-import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * Connector servlet
@@ -419,10 +419,11 @@ public class ConnectorServlet extends CMSServlet {
             auditRequesterID = ILogger.UNIDENTIFIED;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         IPKIMessage replymsg = null;
 
         try {
-            ARequestQueue queue = mAuthority.getRequestQueue();
+            RequestQueue queue = engine.getRequestQueue();
             String srcid = source + ":" + msg.getReqId();
             logger.debug(method + "srcid =" + srcid);
 

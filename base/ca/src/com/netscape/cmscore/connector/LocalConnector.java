@@ -19,6 +19,8 @@ package com.netscape.cmscore.connector;
 
 import java.util.Hashtable;
 
+import org.dogtagpki.server.ca.CAEngine;
+
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -30,7 +32,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmsutil.http.HttpResponse;
 
 public class LocalConnector implements IConnector {
@@ -60,7 +62,8 @@ public class LocalConnector implements IConnector {
         logger.debug("send request type " + r.getRequestType() + " status=" + r.getRequestStatus());
         logger.debug("to " + mDest.getId() + " id=" + r.getRequestId());
 
-        ARequestQueue destQ = mDest.getRequestQueue();
+        CAEngine engine = CAEngine.getInstance();
+        RequestQueue destQ = engine.getRequestQueue();
         IRequest destreq = destQ.newRequest(r.getRequestType());
 
         logger.debug("local connector dest req " +
@@ -132,7 +135,8 @@ public class LocalConnector implements IConnector {
         public void accept(IRequest destreq) {
             logger.debug("dest " + mDest.getId() + " done with " + destreq.getRequestId());
 
-            ARequestQueue sourceQ = mSource.getRequestQueue();
+            CAEngine engine = CAEngine.getInstance();
+            RequestQueue sourceQ = engine.getRequestQueue();
             // accept requests that only belong to us.
             // XXX review death scenarios here. - If system dies anywhere
             // here need to check all requests at next server startup.

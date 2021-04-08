@@ -48,7 +48,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.profile.ProfileSubsystem;
-import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * Retrieve detailed information of a particular profile.
@@ -155,7 +155,7 @@ public class ProfileSelectServlet extends ProfileServlet {
             outputTemplate(request, response, args);
             return;
         }
-        ARequestQueue queue = authority.getRequestQueue();
+        RequestQueue queue = engine.getRequestQueue();
 
         if (queue == null) {
             logger.error("ProfileSelectServlet: Request Queue of " + mAuthorityId + " not found");

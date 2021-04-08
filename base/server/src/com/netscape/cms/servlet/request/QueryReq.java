@@ -45,6 +45,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -107,8 +108,11 @@ public class QueryReq extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
+
         super.init(sc);
-        mQueue = mAuthority.getRequestQueue();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        mQueue = engine.getRequestQueue();
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
         try {

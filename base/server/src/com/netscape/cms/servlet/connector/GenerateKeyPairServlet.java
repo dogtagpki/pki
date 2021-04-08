@@ -41,7 +41,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
-import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * GenerateKeyPairServlet
@@ -128,7 +128,9 @@ public class GenerateKeyPairServlet extends CMSServlet {
      */
     private void processServerSideKeyGen(HttpServletRequest req,
             HttpServletResponse resp) throws EBaseException {
-        ARequestQueue queue = mAuthority.getRequestQueue();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        RequestQueue queue = engine.getRequestQueue();
         IRequest thisreq = null;
 
         boolean missingParam = false;

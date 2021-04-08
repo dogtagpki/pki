@@ -51,6 +51,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.request.ARequestQueue;
 
 /**
@@ -88,7 +89,8 @@ public class GetCertFromRequest extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mTemplates.remove(ICMSRequest.SUCCESS);
-        mQueue = mAuthority.getRequestQueue();
+        CMSEngine engine = CMS.getCMSEngine();
+        mQueue = engine.getRequestQueue();
         try {
             String tmp = sc.getInitParameter(
                     PROP_IMPORT);
@@ -273,6 +275,8 @@ class CertFrRequestFiller extends ImportCertsTemplateFiller {
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e)
             throws Exception {
+
+        CMSEngine engine = CMS.getCMSEngine();
         CMSTemplateParams tparams =
                 super.getTemplateParams(cmsReq, authority, locale, e);
         String reqId = cmsReq.getHttpParams().getValueAsString(
@@ -281,7 +285,7 @@ class CertFrRequestFiller extends ImportCertsTemplateFiller {
         tparams.getHeader().addStringValue(GetCertFromRequest.REQUEST_ID, reqId);
 
         if (reqId != null) {
-            IRequest r = authority.getRequestQueue().findRequest(new RequestId(reqId));
+            IRequest r = engine.getRequestQueue().findRequest(new RequestId(reqId));
             if (r != null) {
                 boolean noCertImport = true;
                 String certType = r.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);

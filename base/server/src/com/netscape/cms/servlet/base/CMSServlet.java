@@ -307,7 +307,7 @@ public abstract class CMSServlet extends HttpServlet {
                 certAuthority = (ICertificateAuthority) mAuthority;
         }
         if (mAuthority != null)
-            mRequestQueue = mAuthority.getRequestQueue();
+            mRequestQueue = engine.getRequestQueue();
 
         // set default templates.
         setDefaultTemplates(sc);

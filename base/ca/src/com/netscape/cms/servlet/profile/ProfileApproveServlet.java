@@ -47,7 +47,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
-import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * Toggle the approval state of a profile
@@ -227,7 +227,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
                 return;
             }
-            ARequestQueue queue = authority.getRequestQueue();
+            RequestQueue queue = engine.getRequestQueue();
 
             if (queue == null) {
                 logger.error("ProfileApproveServlet: Request Queue of " + mAuthorityId + " not found");

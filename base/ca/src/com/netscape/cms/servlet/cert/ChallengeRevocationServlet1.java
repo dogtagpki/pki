@@ -121,7 +121,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         }
 
         mPublisherProcessor = engine.getPublisherProcessor();
-        mQueue = mAuthority.getRequestQueue();
+        mQueue = engine.getRequestQueue();
     }
 
     /**

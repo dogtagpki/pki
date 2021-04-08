@@ -95,7 +95,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             mCertDB = engine.getCertificateRepository();
         }
         mPublisherProcessor = engine.getPublisherProcessor();
-        mQueue = mAuthority.getRequestQueue();
+        mQueue = engine.getRequestQueue();
 
         mTemplates.remove(ICMSRequest.SUCCESS);
         mRenderResult = false;

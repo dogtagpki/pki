@@ -94,8 +94,11 @@ public class ProcessReq extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
+
         super.init(sc);
-        mQueue = mAuthority.getRequestQueue();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        mQueue = engine.getRequestQueue();
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
         String tmp = sc.getInitParameter(PROP_PARSER);

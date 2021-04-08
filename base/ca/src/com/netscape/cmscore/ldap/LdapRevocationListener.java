@@ -20,6 +20,7 @@ package com.netscape.cmscore.ldap;
 import java.math.BigInteger;
 import java.security.cert.Certificate;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -70,6 +71,8 @@ public class LdapRevocationListener implements IRequestListener {
 
     public void acceptX509(IRequest r, Certificate[] revcerts) {
 
+        CAEngine engine = CAEngine.getInstance();
+
         Integer[] results = new Integer[revcerts.length];
         Integer status = IRequest.RES_SUCCESS;
 
@@ -82,7 +85,7 @@ public class LdapRevocationListener implements IRequestListener {
                 // We need the enrollment request to sort out predicate
                 BigInteger serial = cert.getSerialNumber();
                 CertRecord certRecord = null;
-                IAuthority auth = (IAuthority) processor.getAuthority();
+                IAuthority auth = processor.getAuthority();
 
                 if (auth == null || !(auth instanceof ICertificateAuthority)) {
                     logger.warn("LdapRevocationListener: Trying to get a cert from non cert authority");
@@ -117,7 +120,7 @@ public class LdapRevocationListener implements IRequestListener {
 
                 if (ridString != null) {
                     RequestId rid = new RequestId(ridString);
-                    req = auth.getRequestQueue().findRequest(rid);
+                    req = engine.getRequestQueue().findRequest(rid);
                 }
 
                 processor.unpublishCert(cert, req);

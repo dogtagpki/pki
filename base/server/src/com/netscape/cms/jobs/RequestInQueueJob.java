@@ -130,7 +130,7 @@ public class RequestInQueueJob extends AJobBase
             return;
         }
 
-        mReqQ = mSub.getRequestQueue();
+        mReqQ = engine.getRequestQueue();
 
         mCron = mConfig.getString(IJobCron.PROP_CRON);
         if (mCron == null) {

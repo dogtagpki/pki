@@ -319,7 +319,6 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         return config;
     }
 
-    @Override
     public ARequestQueue getRequestQueue() {
         return null;
     }

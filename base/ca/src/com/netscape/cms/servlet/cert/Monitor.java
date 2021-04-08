@@ -101,7 +101,7 @@ public class Monitor extends CMSServlet {
             mCertDB = engine.getCertificateRepository();
             mAuthName = ca.getX500Name();
         }
-        mQueue = mAuthority.getRequestQueue();
+        mQueue = engine.getRequestQueue();
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 

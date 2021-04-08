@@ -208,7 +208,7 @@ public class ProcessCertReq extends CMSServlet {
                 }
             }
 
-            mQueue = mAuthority.getRequestQueue();
+            mQueue = engine.getRequestQueue();
             mPublisherProcessor = engine.getPublisherProcessor();
 
             mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;

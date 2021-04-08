@@ -58,7 +58,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
-import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * Clone servlet - part of the Clone Authority (CLA)
@@ -302,7 +302,8 @@ public class CloneServlet extends CMSServlet {
             String source, String sourceUserId, IPKIMessage msg, IAuthToken token)
             throws EBaseException {
         IPKIMessage replymsg = null;
-        ARequestQueue queue = mAuthority.getRequestQueue();
+        CMSEngine engine = CMS.getCMSEngine();
+        RequestQueue queue = engine.getRequestQueue();
         String srcid = source + ":" + msg.getReqId();
 
         logger.info("CloneServlet: processRequest");

@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -124,8 +125,11 @@ public class CheckRequest extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
+
         super.init(sc);
-        mQueue = mAuthority.getRequestQueue();
+
+        CAEngine engine = CAEngine.getInstance();
+        mQueue = engine.getRequestQueue();
         mAuthorityId = mAuthority.getId();
         mFormPath = "/" + mAuthorityId + "/" + TPL_FILE;
 

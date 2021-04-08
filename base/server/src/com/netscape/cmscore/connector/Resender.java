@@ -71,7 +71,8 @@ public class Resender implements IResender {
 
     public Resender(IAuthority authority, String nickName, String clientCiphers, IRemoteAuthority dest) {
         mAuthority = authority;
-        mQueue = mAuthority.getRequestQueue();
+        CMSEngine engine = CMS.getCMSEngine();
+        mQueue = engine.getRequestQueue();
         mDest = dest;
         mNickName = nickName;
         mClientCiphers = clientCiphers;
@@ -81,7 +82,8 @@ public class Resender implements IResender {
             IAuthority authority, String nickName, String clientCiphers,
             IRemoteAuthority dest, int interval) {
         mAuthority = authority;
-        mQueue = mAuthority.getRequestQueue();
+        CMSEngine engine = CMS.getCMSEngine();
+        mQueue = engine.getRequestQueue();
         mDest = dest;
         mNickName = nickName;
         mClientCiphers = clientCiphers;
@@ -91,7 +93,8 @@ public class Resender implements IResender {
 
     // must be done after a subsystem 'start' so queue is initialized.
     private void initRequests() {
-        mQueue = mAuthority.getRequestQueue();
+        CMSEngine engine = CMS.getCMSEngine();
+        mQueue = engine.getRequestQueue();
         // get all requests in mAuthority that are still pending.
         IRequestList list =
                 mQueue.listRequestsByStatus(RequestStatus.SVC_PENDING);
