@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -89,6 +89,7 @@ public class SearchReqs extends CMSServlet {
         // override success to render own template.
         mTemplates.remove(ICMSRequest.SUCCESS);
 
+        CAEngine engine = CAEngine.getInstance();
         ISubsystem sub = mAuthority;
         IConfigStore authConfig = sub.getConfigStore();
 
@@ -100,10 +101,7 @@ public class SearchReqs extends CMSServlet {
             }
         }
 
-        if (mAuthority instanceof ICertificateAuthority) {
-            ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
-            mQueue = ca.getRequestQueue();
-        }
+        mQueue = engine.getRequestQueue();
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 

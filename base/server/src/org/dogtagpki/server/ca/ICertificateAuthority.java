@@ -43,7 +43,6 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
-import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * An interface represents a Certificate Authority that is
@@ -108,13 +107,6 @@ public interface ICertificateAuthority extends ISubsystem {
      * @return CA's certificate repository
      */
     public CertificateRepository getCertificateRepository();
-
-    /**
-     * Retrieves the request queue of this certificate authority.
-     *
-     * @return CA's request queue
-     */
-    public ARequestQueue getRequestQueue();
 
     /**
      * Retrieves the policy processor of this certificate authority.

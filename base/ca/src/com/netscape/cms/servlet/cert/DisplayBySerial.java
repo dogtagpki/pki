@@ -257,6 +257,8 @@ public class DisplayBySerial extends CMSServlet {
             b64CertOnly = true;
         }
 
+        CAEngine engine = CAEngine.getInstance();
+
         try {
             CertRecord rec = mCertDB.readCertificateRecord(seq);
             if (rec == null) {
@@ -317,8 +319,7 @@ public class DisplayBySerial extends CMSServlet {
                     String rid = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
 
                     if (rid != null && mAuthority instanceof ICertificateAuthority) {
-                        IRequest r =
-                                ((ICertificateAuthority) mAuthority).getRequestQueue().findRequest(new RequestId(rid));
+                        IRequest r = engine.getRequestQueue().findRequest(new RequestId(rid));
                         String certType = r.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
 
                         if (certType != null && certType.equals(IRequest.CLIENT_CERT)) {

@@ -103,6 +103,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
         logger.debug("CAEnrollProfile: execute request ID " + requestId.toString());
 
+        CAEngine engine = CAEngine.getInstance();
         ICertificateAuthority ca = (ICertificateAuthority) getAuthority();
 
         ICAService caService = (ICAService) ca.getCAService();
@@ -176,7 +177,7 @@ public class CAEnrollProfile extends EnrollProfile {
                             if ((request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) { //Todo
                                 logger.debug(method + "set request status: REJECTED");
                                 request.setRequestStatus(RequestStatus.REJECTED);
-                                ca.getRequestQueue().updateRequest(request);
+                                engine.getRequestQueue().updateRequest(request);
                             }
                             throw new ERejectException(
                                     request.getError(getLocale(request)));
@@ -252,7 +253,7 @@ public class CAEnrollProfile extends EnrollProfile {
                                 if ((request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
                                     logger.error("CAEnrollProfile: execute set request status: REJECTED");
                                     request.setRequestStatus(RequestStatus.REJECTED);
-                                    ca.getRequestQueue().updateRequest(request);
+                                    engine.getRequestQueue().updateRequest(request);
                                 }
                                 throw new ERejectException(
                                     request.getError(getLocale(request)));
@@ -376,7 +377,7 @@ public class CAEnrollProfile extends EnrollProfile {
                             if ((request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) { //Todo
                                 logger.debug(method + "set request status: REJECTED");
                                 request.setRequestStatus(RequestStatus.REJECTED);
-                                ca.getRequestQueue().updateRequest(request);
+                                engine.getRequestQueue().updateRequest(request);
                             }
                             throw new ERejectException(
                                     request.getError(getLocale(request)));

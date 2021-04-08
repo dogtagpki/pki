@@ -78,7 +78,7 @@ import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
-import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -2152,7 +2152,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             String filter = "(requeststate=complete)";
             logger.debug("recoverCRLCache  mFirstUnsaved=" + mFirstUnsaved + "  filter=" + filter);
 
-            ARequestQueue mQueue = mCA.getRequestQueue();
+            CAEngine engine = CAEngine.getInstance();
+            RequestQueue mQueue = engine.getRequestQueue();
 
             IRequestVirtualList list = mQueue.getPagedRequestsByFilter(
                         new RequestId(mFirstUnsaved), filter, 500, "requestId");

@@ -99,8 +99,7 @@ public class RevocationProcessor extends CertProcessor {
 
         CAEngine engine = CAEngine.getInstance();
         repo = engine.getCertificateRepository();
-
-        requestQueue = authority.getRequestQueue();
+        requestQueue = engine.getRequestQueue();
         publisherProcessor = engine.getPublisherProcessor();
     }
 
