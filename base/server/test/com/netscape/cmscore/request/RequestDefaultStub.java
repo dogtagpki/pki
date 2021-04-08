@@ -7,17 +7,17 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.base.IAttrSet;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestStatus;
-
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.IAttrSet;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestStatus;
 
 /**
  * Default testing stub for the IRequest interface.
@@ -62,8 +62,14 @@ public class RequestDefaultStub implements IRequest {
         return null;
     }
 
+    public void setCreationTime(Date date) {
+    }
+
     public Date getModificationTime() {
         return null;
+    }
+
+    public void setModificationTime(Date date) {
     }
 
     public void set(String type, Object value) {

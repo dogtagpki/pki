@@ -363,6 +363,8 @@ public interface IRequest extends Serializable {
      */
     Date getCreationTime();
 
+    void setCreationTime(Date date);
+
     /**
      * Gets the time this request was last modified (defined
      * as updated in the queue) (See ARequestQueue.update)
@@ -370,6 +372,8 @@ public interface IRequest extends Serializable {
      * @return request last modification time
      */
     Date getModificationTime();
+
+    void setModificationTime(Date date);
 
     /*
      * Attribute names for performing searches.

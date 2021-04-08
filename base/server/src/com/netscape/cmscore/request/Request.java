@@ -150,6 +150,10 @@ public class Request implements IRequest {
         return mCreationTime;
     }
 
+    public void setCreationTime(Date date) {
+        mCreationTime = date;
+    }
+
     public String getContext() {
         return mContext;
     }
@@ -161,6 +165,10 @@ public class Request implements IRequest {
     // IRequest.getModificationTime
     public Date getModificationTime() {
         return mModificationTime;
+    }
+
+    public void setModificationTime(Date date) {
+        mModificationTime = date;
     }
 
     /**
