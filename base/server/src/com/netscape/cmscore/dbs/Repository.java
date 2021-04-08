@@ -178,7 +178,6 @@ public abstract class Repository implements IRepository {
 
                 if (obj != null) {
                     serial = serial.add(BigInteger.ONE);
-                    setSerialNumber(serial);
                 }
             } catch (EBaseException e) {
                 // do nothing
@@ -186,20 +185,6 @@ public abstract class Repository implements IRepository {
             mInit = true;
         }
         return serial;
-    }
-
-    /**
-     * Updates the serial number to the specified in db.
-     * <P>
-     *
-     * @param num serial number
-     */
-    protected void setSerialNumber(BigInteger num) throws EBaseException {
-
-        logger.debug("Repository:setSerialNumber " + num.toString());
-
-        return;
-
     }
 
     /**
@@ -346,7 +331,6 @@ public abstract class Repository implements IRepository {
 
         mSerialNo = num.subtract(BigInteger.ONE);
         mNext = num.add(BI_INCREMENT);
-        setSerialNumber(mNext);
     }
 
     /**
