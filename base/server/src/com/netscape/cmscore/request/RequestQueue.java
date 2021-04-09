@@ -84,6 +84,32 @@ public class RequestQueue extends ARequestQueue {
         return newRequest(requestID, requestType);
     }
 
+    public IRequest cloneRequest(IRequest request) throws EBaseException {
+
+        // 1. check for valid state. (Are any invalid ?)
+        RequestStatus requestStatus = request.getRequestStatus();
+
+        if (requestStatus == RequestStatus.BEGIN)
+            throw new EBaseException("Invalid Status");
+
+        // 2. create new request
+        String requestType = request.getRequestType();
+        IRequest clone = newRequest(requestType);
+
+        // 3. copy all attributes of original request to clone and modify.
+        // source id (from remote authority) is not copied.
+        // TODO: set the original request id to some place in the request.
+        clone.copyContents(request);
+
+        // NOT_UPDATED mean request is in memory and has
+        // not been serialized to database yet. An add
+        // operation is required to serialize a NOT_UPDATED
+        // request.
+        clone.setExtData("dbStatus", "NOT_UPDATED");
+
+        return clone;
+    }
+
     protected IRequest readRequest(RequestId id) {
         RequestRecord record;
 
