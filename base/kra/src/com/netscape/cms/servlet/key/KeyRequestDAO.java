@@ -67,6 +67,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -201,13 +202,15 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new BadRequestException("Can not archive already active existing key!");
         }
 
+        KRAEngine engine = KRAEngine.getInstance();
+        RequestRepository requestRepository = engine.getRequestRepository();
         boolean ephemeral = kra.isEphemeral(realm);
 
         RequestId requestID;
         if (ephemeral) {
             requestID = queue.newEphemeralRequestId();
         } else {
-            requestID = queue.newRequestId();
+            requestID = requestRepository.createRequestID();
         }
 
         IRequest request = queue.newRequest(requestID, IRequest.SECURITY_DATA_ENROLLMENT_REQUEST);
@@ -277,11 +280,14 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new UnauthorizedException("Agent not authorized by realm", e);
         }
 
+        KRAEngine engine = KRAEngine.getInstance();
+        RequestRepository requestRepository = engine.getRequestRepository();
+
         RequestId requestID;
         if (ephemeral) {
             requestID = queue.newEphemeralRequestId();
         } else {
-            requestID = queue.newRequestId();
+            requestID = requestRepository.createRequestID();
         }
 
         IRequest request = queue.newRequest(requestID, IRequest.SECURITY_DATA_RECOVERY_REQUEST);

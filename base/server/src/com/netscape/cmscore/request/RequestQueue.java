@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -84,17 +83,6 @@ public class RequestQueue extends ARequestQueue {
         this.mBaseDN = requestRepository.getBaseDN();
     }
 
-    // ARequestQueue.newRequestId
-    public RequestId newRequestId() throws EBaseException {
-
-        // get the next request Id
-        BigInteger next = mRepository.getNextSerialNumber();
-
-        RequestId rid = new RequestId(next);
-
-        return rid;
-    }
-
     public RequestId newEphemeralRequestId() {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -103,6 +91,11 @@ public class RequestQueue extends ARequestQueue {
         SecureRandom random = jssSubsystem.getRandomNumberGenerator();
         long id = System.currentTimeMillis() * 10000 + random.nextInt(10000);
         return new RequestId(id);
+    }
+
+    public IRequest newRequest(String requestType) throws EBaseException {
+        RequestId requestID = mRepository.createRequestID();
+        return newRequest(requestID, requestType);
     }
 
     protected IRequest readRequest(RequestId id) {

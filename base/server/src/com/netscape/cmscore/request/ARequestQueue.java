@@ -92,22 +92,6 @@ public abstract class ARequestQueue {
     }
 
     /**
-     * Create a new (unique) RequestId. (abstract)
-     * <p>
-     * This method must be implemented by the specialized class to generate a new id from data in the persistant store.
-     * This id is used to create a new request object.
-     * <p>
-     *
-     * @return
-     *         a new RequestId object.
-     * @exception EBaseException
-     *                indicates that creation of the new id could not be completed.
-     * @see RequestId
-     */
-    public abstract RequestId newRequestId()
-            throws EBaseException;
-
-    /**
      * Create a new synchronous request ID
      */
     public abstract RequestId newEphemeralRequestId();
@@ -236,10 +220,7 @@ public abstract class ARequestQueue {
      * @return new request
      * @exception EBaseException failed to create new request
      */
-    public IRequest newRequest(String requestType) throws EBaseException {
-        RequestId requestID = newRequestId();
-        return newRequest(requestID, requestType);
-    }
+    public abstract IRequest newRequest(String requestType) throws EBaseException;
 
     /**
      * Create a new Request object and assign a request ID.

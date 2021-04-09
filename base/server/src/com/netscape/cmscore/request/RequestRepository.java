@@ -132,6 +132,11 @@ public class RequestRepository extends Repository {
         RequestRecord.register(dbSubsystem);
     }
 
+    public RequestId createRequestID() throws EBaseException {
+        BigInteger nextSerialNumber = getNextSerialNumber();
+        return new RequestId(nextSerialNumber);
+    }
+
     /**
      * Removes all objects with this repository.
      */
