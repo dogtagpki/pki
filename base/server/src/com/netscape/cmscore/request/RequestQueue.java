@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -211,6 +212,26 @@ public class RequestQueue extends ARequestQueue {
                 } catch (EBaseException e) {
                 }
         }
+    }
+
+    public void updateRequest(IRequest request) throws EBaseException {
+
+        String name = getUserIdentity();
+        if (name != null) {
+            request.setExtData(IRequest.UPDATED_BY, name);
+        }
+
+        String delayLDAPCommit = request.getExtDataInString("delayLDAPCommit");
+        ((Request) request).mModificationTime = new Date();
+
+        if (delayLDAPCommit != null && delayLDAPCommit.equals("true")) {
+            // delay writing to LDAP
+            return;
+        }
+
+        // TODO: use a state flag to determine whether to call
+        // addRequest or modifyRequest (see newRequest as well)
+        modifyRequest(request);
     }
 
     public RequestId findRequestBySourceId(String id) {

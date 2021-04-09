@@ -575,23 +575,7 @@ public abstract class ARequestQueue {
      *            the request that is being updated
      * @exception EBaseException failed to update request
      */
-    public void updateRequest(IRequest r) throws EBaseException {
-        // defualt is to really update ldap
-        String delayLDAPCommit = r.getExtDataInString("delayLDAPCommit");
-        ((Request) r).mModificationTime = new Date();
-
-        String name = getUserIdentity();
-
-        if (name != null)
-            r.setExtData(IRequest.UPDATED_BY, name);
-
-        // by default, write request to LDAP
-        if (delayLDAPCommit == null || !delayLDAPCommit.equals("true")) {
-            // TODO: use a state flag to determine whether to call
-            // addRequest or modifyRequest (see newRequest as well)
-            modifyRequest(r);
-        } // else: delay the write to ldap
-    }
+    public abstract void updateRequest(IRequest r) throws EBaseException;
 
     // PRIVATE functions
 
