@@ -88,6 +88,7 @@ import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * performs face-to-face enrollment.
@@ -276,8 +277,10 @@ public class HashEnrollServlet extends CMSServlet {
         IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
 
-        // create enrollment request in request queue.
-        IRequest req = mRequestQueue.newRequest(IRequest.ENROLLMENT_REQUEST);
+        // create enrollment request in request repository
+        CAEngine engine = CAEngine.getInstance();
+        RequestRepository requestRepository = engine.getRequestRepository();
+        IRequest req = requestRepository.createRequest(IRequest.ENROLLMENT_REQUEST);
 
         /*
          * === certAuth based enroll ===
@@ -329,7 +332,6 @@ public class HashEnrollServlet extends CMSServlet {
         saveHttpHeaders(httpReq, req);
         saveHttpParams(httpParams, req);
 
-        CAEngine engine = CAEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         CertificateRepository cr = engine.getCertificateRepository();
 

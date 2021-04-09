@@ -43,6 +43,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * Challenge phrase based authentication.
@@ -252,13 +253,11 @@ public class ChallengePhraseAuthentication implements AuthManager {
              * ra, build a request and send through the connection for
              * authentication
              */
+            RequestRepository requestRepository = engine.getRequestRepository();
             RequestQueue queue = engine.getRequestQueue();
 
             if (queue != null) {
-                IRequest checkChallengeReq = null;
-
-                checkChallengeReq =
-                        queue.newRequest(IRequest.REVOCATION_CHECK_CHALLENGE_REQUEST);
+                IRequest checkChallengeReq = requestRepository.createRequest(IRequest.REVOCATION_CHECK_CHALLENGE_REQUEST);
                 checkChallengeReq.setExtData(CHALLENGE_PHRASE, challenge);
                 // pass just serial number instead of whole cert
                 if (serialNum != null)

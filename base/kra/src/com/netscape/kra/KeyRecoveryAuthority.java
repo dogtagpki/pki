@@ -779,13 +779,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         String auditPublicKey = auditPublicKey(rec);
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestQueue queue = engine.getRequestQueue();
+        RequestRepository requestRepository = engine.getRequestRepository();
         IRequest r = null;
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            r = queue.newRequest(KRAService.ENROLLMENT);
+            r = requestRepository.createRequest(KRAService.ENROLLMENT);
 
             audit(SecurityDataArchivalRequestEvent.createSuccessEvent(
                         auditSubjectID,
@@ -808,6 +808,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         try {
             if (r != null) {
                 r.setExtData(EnrollmentService.ATTR_KEY_RECORD, rec.getSerialNumber());
+                RequestQueue queue = engine.getRequestQueue();
                 queue.processRequest(r);
             }
 
@@ -847,11 +848,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         String auditSubjectID = auditSubjectID();
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestQueue queue = engine.getRequestQueue();
+        RequestRepository requestRepository = engine.getRequestRepository();
         IRequest r = null;
 
         try {
-            r = queue.newRequest(KRAService.RECOVERY);
+            r = requestRepository.createRequest(KRAService.RECOVERY);
 
             r.setExtData(RecoveryService.ATTR_SERIALNO, kid);
             r.setExtData(RecoveryService.ATTR_USER_CERT, cert);
@@ -859,6 +860,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             r.setExtData(IRequest.ATTR_APPROVE_AGENTS, agent);
             r.setRequestStatus(RequestStatus.PENDING);
             r.setRealm(realm);
+            RequestQueue queue = engine.getRequestQueue();
             queue.updateRequest(r);
             auditRecoveryID = r.getRequestId();
 
@@ -1017,7 +1019,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         String auditAgents = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestQueue queue = engine.getRequestQueue();
+        RequestRepository requestRepository = engine.getRequestRepository();
 
         IRequest r = null;
         Hashtable<String, Object> params = null;
@@ -1026,7 +1028,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            r = queue.newRequest(KRAService.RECOVERY);
+            r = requestRepository.createRequest(KRAService.RECOVERY);
 
             // set transient parameters
             params = createVolatileRequest(r.getRequestId());
@@ -1069,6 +1071,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
+            RequestQueue queue = engine.getRequestQueue();
             queue.processRequest(r);
 
             if (r.getExtDataInString(IRequest.ERROR) == null) {
@@ -1220,14 +1223,17 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             String delivery) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestQueue queue = engine.getRequestQueue();
+        RequestRepository requestRepository = engine.getRequestRepository();
 
-        IRequest r = queue.newRequest("recovery");
+        IRequest r = requestRepository.createRequest("recovery");
         r.setExtData(RecoveryService.ATTR_SERIALNO, kid);
         r.setExtData(RecoveryService.ATTR_TRANSPORT_PWD, password);
         r.setExtData(RecoveryService.ATTR_USER_CERT, cert);
         r.setExtData(RecoveryService.ATTR_DELIVERY, delivery);
+
+        RequestQueue queue = engine.getRequestQueue();
         queue.processRequest(r);
+
         return r;
     }
 
@@ -1285,9 +1291,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             X500Name ownerName) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestQueue queue = engine.getRequestQueue();
 
-        IRequest r = queue.newRequest("recovery");
+        RequestRepository requestRepository = engine.getRequestRepository();
+        IRequest r = requestRepository.createRequest("recovery");
 
         ByteArrayOutputStream certChainOut = new ByteArrayOutputStream();
         try {
@@ -1310,7 +1316,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             logger.warn("Error encoding X500Name for owner name", e);
         }
 
+        RequestQueue queue = engine.getRequestQueue();
         queue.processRequest(r);
+
         return r;
     }
 

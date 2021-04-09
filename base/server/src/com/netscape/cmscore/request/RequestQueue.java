@@ -79,11 +79,6 @@ public class RequestQueue extends ARequestQueue {
         this.mBaseDN = requestRepository.getBaseDN();
     }
 
-    public IRequest newRequest(String requestType) throws EBaseException {
-        RequestId requestID = mRepository.createRequestID();
-        return mRepository.createRequest(requestID, requestType);
-    }
-
     public IRequest cloneRequest(IRequest request) throws EBaseException {
 
         // 1. check for valid state. (Are any invalid ?)
@@ -94,7 +89,7 @@ public class RequestQueue extends ARequestQueue {
 
         // 2. create new request
         String requestType = request.getRequestType();
-        IRequest clone = newRequest(requestType);
+        IRequest clone = mRepository.createRequest(requestType);
 
         // 3. copy all attributes of original request to clone and modify.
         // source id (from remote authority) is not copied.

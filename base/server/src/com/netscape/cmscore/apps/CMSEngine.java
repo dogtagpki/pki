@@ -1577,7 +1577,7 @@ public class CMSEngine implements ServletContextListener {
             IRequest checkRevReq = null;
 
             try {
-                checkRevReq = requestQueue.newRequest(CertRequestConstants.GETREVOCATIONINFO_REQUEST);
+                checkRevReq = requestRepository.createRequest(CertRequestConstants.GETREVOCATIONINFO_REQUEST);
                 checkRevReq.setExtData(IRequest.REQ_TYPE, CertRequestConstants.GETREVOCATIONINFO_REQUEST);
                 checkRevReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_RA);
 

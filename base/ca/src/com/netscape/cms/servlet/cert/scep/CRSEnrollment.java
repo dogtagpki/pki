@@ -125,6 +125,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWCBsdr;
 import com.netscape.cmscore.util.Debug;
@@ -1790,8 +1791,8 @@ public class CRSEnrollment extends HttpServlet {
 
         }
 
-        RequestQueue rq = engine.getRequestQueue();
-        IRequest pkiReq = rq.newRequest(IRequest.ENROLLMENT_REQUEST);
+        RequestRepository requestRepository = engine.getRequestRepository();
+        IRequest pkiReq = requestRepository.createRequest(IRequest.ENROLLMENT_REQUEST);
 
         AuthToken token = (AuthToken) req.get(AUTH_TOKEN);
         if (token != null) {
@@ -1826,6 +1827,7 @@ public class CRSEnrollment extends HttpServlet {
 
         pkiReq.setSourceId(req.getTransactionID());
 
+        RequestQueue rq = engine.getRequestQueue();
         rq.processRequest(pkiReq);
 
         crsResp.setPKIStatus(CRSPKIMessage.mStatus_SUCCESS);

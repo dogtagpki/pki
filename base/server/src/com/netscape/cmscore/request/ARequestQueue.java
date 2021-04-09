@@ -203,21 +203,6 @@ public abstract class ARequestQueue {
     }
 
     /**
-     * Creates a new request object. A request id is
-     * assigned to it - see IRequest.getRequestId, and
-     * the status is set to RequestStatus.BEGIN
-     * <p>
-     * The request is LOCKED. The caller MUST release the request object by calling releaseRequest().
-     * <p>
-     * TODO: provide other required values (such as type and sourceId)
-     *
-     * @param requestType request type
-     * @return new request
-     * @exception EBaseException failed to create new request
-     */
-    public abstract IRequest newRequest(String requestType) throws EBaseException;
-
-    /**
      * Clones a request object. A new request id is assigned
      * and all attributes of the request is copied to cloned request,
      * except for the sourceID of the original request

@@ -58,6 +58,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -231,7 +232,8 @@ public class RevocationServlet extends CMSServlet {
                         CertificateRepository.ALL_UNREVOKED_CERTS);
 
         } else if (mAuthority instanceof IRegistrationAuthority) {
-            IRequest req = mRequestQueue.newRequest(IRequest.GETCERTS_REQUEST);
+            RequestRepository requestRepository = engine.getRequestRepository();
+            IRequest req = requestRepository.createRequest(IRequest.GETCERTS_REQUEST);
             String filter = "(&(" + CertRecord.ATTR_X509CERT + "." +
                     X509CertInfo.SUBJECT + "=" +
                     old_cert.getSubjectDN().toString() + ")(|(" +

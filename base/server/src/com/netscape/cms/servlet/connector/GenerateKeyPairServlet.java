@@ -42,6 +42,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * GenerateKeyPairServlet
@@ -130,6 +131,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
             HttpServletResponse resp) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        RequestRepository requestRepository = engine.getRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
         IRequest thisreq = null;
 
@@ -192,7 +194,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
         }
 
         if (!missingParam) {
-            thisreq = queue.newRequest(IRequest.NETKEY_KEYGEN_REQUEST);
+            thisreq = requestRepository.createRequest(IRequest.NETKEY_KEYGEN_REQUEST);
 
             thisreq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_NETKEY_RA);
             thisreq.setExtData(IRequest.NETKEY_ATTR_CUID, rCUID);

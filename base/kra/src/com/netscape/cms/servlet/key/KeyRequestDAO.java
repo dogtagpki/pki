@@ -446,7 +446,9 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new BadRequestException("Invalid key size for this algorithm");
         }
 
-        IRequest request = queue.newRequest(IRequest.SYMKEY_GENERATION_REQUEST);
+        KRAEngine engine = KRAEngine.getInstance();
+        RequestRepository requestRepository = engine.getRequestRepository();
+        IRequest request = requestRepository.createRequest(IRequest.SYMKEY_GENERATION_REQUEST);
 
         request.setExtData(IRequest.KEY_GEN_ALGORITHM, algName);
         request.setExtData(IRequest.KEY_GEN_SIZE, keySize);
@@ -535,7 +537,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
             }
         }
 
-        IRequest request = queue.newRequest(IRequest.ASYMKEY_GENERATION_REQUEST);
+        RequestRepository requestRepository = engine.getRequestRepository();
+        IRequest request = requestRepository.createRequest(IRequest.ASYMKEY_GENERATION_REQUEST);
 
         request.setExtData(IRequest.KEY_GEN_ALGORITHM, algName);
         request.setExtData(IRequest.KEY_GEN_SIZE, keySize);

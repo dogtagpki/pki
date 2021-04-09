@@ -132,6 +132,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -444,7 +445,8 @@ public abstract class EnrollProfile extends Profile {
         IRequest req = null;
 
         try {
-            req = engine.getRequestQueue().newRequest("enrollment");
+            RequestRepository requestRepository = engine.getRequestRepository();
+            req = requestRepository.createRequest("enrollment");
             logger.info("EnrollProfile: Creating ernrollment request " + req.getRequestId());
 
             setDefaultCertInfo(req);

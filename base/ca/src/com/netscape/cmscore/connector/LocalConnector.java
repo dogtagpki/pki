@@ -33,6 +33,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.http.HttpResponse;
 
 public class LocalConnector implements IConnector {
@@ -63,8 +64,8 @@ public class LocalConnector implements IConnector {
         logger.debug("to " + mDest.getId() + " id=" + r.getRequestId());
 
         CAEngine engine = CAEngine.getInstance();
-        RequestQueue destQ = engine.getRequestQueue();
-        IRequest destreq = destQ.newRequest(r.getRequestType());
+        RequestRepository requestRepository = engine.getRequestRepository();
+        IRequest destreq = requestRepository.createRequest(r.getRequestType());
 
         logger.debug("local connector dest req " +
                 destreq.getRequestId() + " created for source rId " + r.getRequestId());
@@ -97,6 +98,7 @@ public class LocalConnector implements IConnector {
         // processed (when LocalConnListener is being called).
         mSourceReqs.put(r.getRequestId().toString(), r);
         try {
+            RequestQueue destQ = engine.getRequestQueue();
             destQ.processRequest(destreq);
         } catch (EBaseException ex) {
             throw ex;

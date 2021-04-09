@@ -53,6 +53,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.usrgrp.User;
 
 /**
@@ -288,7 +289,9 @@ public class RevocationProcessor extends CertProcessor {
 
     public void createRevocationRequest() throws EBaseException {
 
-        request = requestQueue.newRequest(IRequest.REVOCATION_REQUEST);
+        CAEngine engine = CAEngine.getInstance();
+        RequestRepository requestRepository = engine.getRequestRepository();
+        request = requestRepository.createRequest(IRequest.REVOCATION_REQUEST);
 
         request.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
 
@@ -359,7 +362,9 @@ public class RevocationProcessor extends CertProcessor {
 
     public void createUnrevocationRequest() throws EBaseException {
 
-        request = requestQueue.newRequest(IRequest.UNREVOCATION_REQUEST);
+        CAEngine engine = CAEngine.getInstance();
+        RequestRepository requestRepository = engine.getRequestRepository();
+        request = requestRepository.createRequest(IRequest.UNREVOCATION_REQUEST);
 
         request.setExtData(IRequest.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
 

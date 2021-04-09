@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
@@ -55,6 +56,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * Certificate Renewal
@@ -203,7 +205,9 @@ public class RenewalServlet extends CMSServlet {
             // get ready to send request to request queue.
             X509CertInfo new_certInfo = null;
 
-            req = mRequestQueue.newRequest(IRequest.RENEWAL_REQUEST);
+            CAEngine engine = CAEngine.getInstance();
+            RequestRepository requestRepository = engine.getRequestRepository();
+            req = requestRepository.createRequest(IRequest.RENEWAL_REQUEST);
             req.setExtData(IRequest.OLD_SERIALS, new BigInteger[] { old_serial_no });
             if (old_cert != null) {
                 req.setExtData(IRequest.OLD_CERTS,

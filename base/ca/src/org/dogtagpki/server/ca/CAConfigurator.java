@@ -50,7 +50,8 @@ import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CAConfigurator extends Configurator {
@@ -237,8 +238,8 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         CertInfoProfile profile = new CertInfoProfile(profileConfig);
 
-        ARequestQueue queue = engine.getRequestQueue();
-        IRequest req = queue.newRequest("enrollment");
+        RequestRepository requestRepository = engine.getRequestRepository();
+        IRequest req = requestRepository.createRequest("enrollment");
 
         CertificateExtensions extensions = new CertificateExtensions();
 
@@ -257,6 +258,8 @@ public class CAConfigurator extends Configurator {
 
         // update the locally created request for renewal
         updateLocalRequest(req, certRequest, certRequestType, subjectName);
+
+        RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(req);
     }
 
@@ -300,8 +303,8 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         CertInfoProfile profile = new CertInfoProfile(profileConfig);
 
-        ARequestQueue queue = engine.getRequestQueue();
-        IRequest req = queue.newRequest("enrollment");
+        RequestRepository requestRepository = engine.getRequestRepository();
+        IRequest req = requestRepository.createRequest("enrollment");
 
         initCertRequest(
                 req,
@@ -328,6 +331,8 @@ public class CAConfigurator extends Configurator {
 
         // update the locally created request for renewal
         updateLocalRequest(req, certRequest, certRequestType, subjectName);
+
+        RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(req);
 
         return cert;

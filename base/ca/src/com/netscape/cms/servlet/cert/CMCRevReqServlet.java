@@ -70,6 +70,7 @@ import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * Revoke a certificate with a CMC-formatted revocation request
@@ -244,8 +245,8 @@ public class CMCRevReqServlet extends CMSServlet {
             } else if (mAuthority instanceof IRegistrationAuthority) {
                 IRequest getCertsChallengeReq = null;
 
-                getCertsChallengeReq = mQueue.newRequest(
-                            GETCERTS_FOR_CHALLENGE_REQUEST);
+                RequestRepository requestRepository = engine.getRequestRepository();
+                getCertsChallengeReq = requestRepository.createRequest(GETCERTS_FOR_CHALLENGE_REQUEST);
                 getCertsChallengeReq.setExtData(SERIALNO_ARRAY, serialNoArray);
                 mQueue.processRequest(getCertsChallengeReq);
                 RequestStatus status = getCertsChallengeReq.getRequestStatus();
@@ -537,11 +538,12 @@ public class CMCRevReqServlet extends CMSServlet {
                 certSerialNumbers[i] = oldCerts[i].getSerialNumber();
             }
 
+            RequestRepository requestRepository = engine.getRequestRepository();
             IRequest revReq = null;
             if (revReason != null && revReason == RevocationReason.REMOVE_FROM_CRL) {
-                revReq = mQueue.newRequest(IRequest.UNREVOCATION_REQUEST);
+                revReq = requestRepository.createRequest(IRequest.UNREVOCATION_REQUEST);
             } else {
-                revReq = mQueue.newRequest(IRequest.REVOCATION_REQUEST);
+                revReq = requestRepository.createRequest(IRequest.REVOCATION_REQUEST);
             }
 
             audit(new CertStatusChangeRequestEvent(

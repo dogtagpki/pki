@@ -178,6 +178,11 @@ public class RequestRepository extends Repository {
         return request;
     }
 
+    public IRequest createRequest(String requestType) throws EBaseException {
+        RequestId requestID = createRequestID();
+        return createRequest(requestID, requestType);
+    }
+
     /**
      * Removes all objects with this repository.
      */

@@ -76,6 +76,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * Connector servlet
@@ -420,6 +421,8 @@ public class ConnectorServlet extends CMSServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
+        RequestRepository requestRepository = engine.getRequestRepository();
+
         IPKIMessage replymsg = null;
 
         try {
@@ -495,7 +498,7 @@ public class ConnectorServlet extends CMSServlet {
             }
 
             // if not found process request.
-            thisreq = queue.newRequest(msg.getReqType());
+            thisreq = requestRepository.createRequest(msg.getReqType());
             // debug
             // CertUtils.printRequestContent(thisreq);
 
