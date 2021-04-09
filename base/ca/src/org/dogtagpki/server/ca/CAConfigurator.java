@@ -190,7 +190,7 @@ public class CAConfigurator extends Configurator {
         meta.set(CertRecord.META_REQUEST_ID, request.getRequestId().toString());
         meta.set(CertRecord.META_PROFILE_ID, profile.getProfileIDMapping());
 
-        CertRecord record = cr.createCertRecord(cert.getSerialNumber(), cert, meta);
+        CertRecord record = new CertRecord(cert.getSerialNumber(), cert, meta);
         cr.addCertificateRecord(record);
     }
 

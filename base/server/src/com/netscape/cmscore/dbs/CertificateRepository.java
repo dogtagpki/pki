@@ -19,7 +19,6 @@ package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
@@ -32,7 +31,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBSearchResults;
@@ -149,18 +147,6 @@ public class CertificateRepository extends Repository {
         if (incrementNo != null) {
             mIncrementNo = new BigInteger(incrementNo, mRadix);
         }
-    }
-
-    /**
-     * Creates certificate record.
-     *
-     * @param id serial number
-     * @param cert certificate
-     * @param meta meta information
-     * @return certificate record
-     */
-    public CertRecord createCertRecord(BigInteger id, Certificate cert, MetaInfo meta) {
-        return new CertRecord(id, cert, meta);
     }
 
     /**

@@ -400,7 +400,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
                 }
             }
 
-            CertRecord certRecord = repository.createCertRecord(signedCert.getSerialNumber(), signedCert, null);
+            CertRecord certRecord = new CertRecord(signedCert.getSerialNumber(), signedCert, null);
             repository.addCertificateRecord(certRecord);
 
             if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
