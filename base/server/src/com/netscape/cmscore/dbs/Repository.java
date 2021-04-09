@@ -22,7 +22,6 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -79,7 +78,6 @@ public abstract class Repository implements IRepository {
     protected DBSubsystem dbSubsystem;
     protected String mBaseDN;
     protected String rangeDN;
-    private boolean mInit = false;
 
     protected int mRadix;
     protected Hashtable<String, String> repositoryConfig = new Hashtable<>();
@@ -109,53 +107,6 @@ public abstract class Repository implements IRepository {
 
     public int getRadix() {
         return mRadix;
-    }
-
-    /**
-     * Retrieves the next serial number attr in db.
-     * <P>
-     *
-     * @return next serial number
-     */
-    protected BigInteger getSerialNumber() throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
-
-        logger.debug("Repository: getSerialNumber()");
-        RepositoryRecord rec = null;
-
-        try {
-            if (s != null)
-                rec = (RepositoryRecord) s.read(mBaseDN);
-        } finally {
-            if (s != null)
-                s.close();
-        }
-
-        if (rec == null) {
-            logger.error("Repository::getSerialNumber() - "
-                     + "- rec is null!");
-            throw new EBaseException("rec is null");
-        }
-
-        BigInteger serial = rec.getSerialNumber();
-        logger.debug("Repository: getSerialNumber  serial=" + serial);
-
-        if (!mInit) {
-            // cms may crash after issue a cert but before update
-            // the serial number record
-            try {
-                IDBObj obj = s.read("cn=" +
-                        serial + "," + mBaseDN);
-
-                if (obj != null) {
-                    serial = serial.add(BigInteger.ONE);
-                }
-            } catch (EBaseException e) {
-                // do nothing
-            }
-            mInit = true;
-        }
-        return serial;
     }
 
     /**
