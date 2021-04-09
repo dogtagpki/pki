@@ -81,7 +81,7 @@ public class RequestQueue extends ARequestQueue {
 
     public IRequest newRequest(String requestType) throws EBaseException {
         RequestId requestID = mRepository.createRequestID();
-        return newRequest(requestID, requestType);
+        return mRepository.createRequest(requestID, requestType);
     }
 
     public IRequest cloneRequest(IRequest request) throws EBaseException {

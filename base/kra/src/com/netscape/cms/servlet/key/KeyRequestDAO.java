@@ -207,7 +207,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         boolean ephemeral = kra.isEphemeral(realm);
         RequestId requestID = requestRepository.createRequestID(ephemeral);
-        IRequest request = queue.newRequest(requestID, IRequest.SECURITY_DATA_ENROLLMENT_REQUEST);
+        IRequest request = requestRepository.createRequest(requestID, IRequest.SECURITY_DATA_ENROLLMENT_REQUEST);
 
         if (pkiArchiveOptions != null) {
             request.setExtData(REQUEST_ARCHIVE_OPTIONS, pkiArchiveOptions);
@@ -278,7 +278,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         RequestRepository requestRepository = engine.getRequestRepository();
 
         RequestId requestID = requestRepository.createRequestID(ephemeral);
-        IRequest request = queue.newRequest(requestID, IRequest.SECURITY_DATA_RECOVERY_REQUEST);
+        IRequest request = requestRepository.createRequest(requestID, IRequest.SECURITY_DATA_RECOVERY_REQUEST);
 
         if (rec.getRealm() != null) {
             request.setRealm(rec.getRealm());

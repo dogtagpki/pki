@@ -218,45 +218,6 @@ public abstract class ARequestQueue {
     public abstract IRequest newRequest(String requestType) throws EBaseException;
 
     /**
-     * Create a new Request object and assign a request ID.
-     * See newRequest() for details.
-     *
-     * @param requestID - request ID
-     * @param requestType - request type
-     * @return new request
-     * @exception EBaseException failed to create new request
-     */
-    public IRequest newRequest(RequestId requestID, String requestType) throws EBaseException {
-
-        if (requestType == null) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_REQUEST_TYPE", "null"));
-        }
-
-        Request r = new Request(requestID);
-
-        // Commented out the lock call because unlock is never called.
-        // mTable.lock(rId);
-
-        // TODO: move this to the first update. This will require
-        // some state information to track the current state.
-        r.setRequestType(requestType);
-        r.setExtData(IRequest.REQ_VERSION, REQUEST_VERSION);
-
-        // NOT_UPDATED mean request is in memory and has
-        // not been serialized to database yet. An add
-        // operation is required to serialize a NOT_UPDATED
-        // request.
-        r.setExtData("dbStatus", "NOT_UPDATED");
-        // addRequest(r);
-
-        // expose requestId to policy so that it can be
-        // used with predicate
-        r.setExtData("requestId", requestID.toString());
-
-        return r;
-    }
-
-    /**
      * Clones a request object. A new request id is assigned
      * and all attributes of the request is copied to cloned request,
      * except for the sourceID of the original request

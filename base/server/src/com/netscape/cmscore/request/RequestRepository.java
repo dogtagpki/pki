@@ -154,6 +154,30 @@ public class RequestRepository extends Repository {
         return new RequestId(id);
     }
 
+    public IRequest createRequest(RequestId requestID, String requestType) throws EBaseException {
+
+        if (requestType == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_REQUEST_TYPE", "null"));
+        }
+
+        Request request = new Request(requestID);
+
+        // TODO: move this to the first update. This will require
+        // some state information to track the current state.
+        request.setRequestType(requestType);
+        request.setExtData(IRequest.REQ_VERSION, RequestQueue.REQUEST_VERSION);
+
+        // NOT_UPDATED mean request is in memory and has not been serialized to database yet.
+        // An add operation is required to serialize a NOT_UPDATED request.
+        request.setExtData("dbStatus", "NOT_UPDATED");
+
+        // expose requestId to policy so that it can be
+        // used with predicate
+        request.setExtData("requestId", requestID.toString());
+
+        return request;
+    }
+
     /**
      * Removes all objects with this repository.
      */
