@@ -203,6 +203,41 @@ public class RequestRepository extends Repository {
         }
     }
 
+    public void modifyRequest(IRequest request) throws EBaseException {
+
+        ModificationSet mods = new ModificationSet();
+        RequestRecord.mod(mods, request);
+
+        // mods.add(IRequestRecord.ATTR_REQUEST_STATE,
+        // Modification.MOD_REPLACE, r.getRequestStatus());
+
+        // mods.add(IRequestRecord.ATTR_SOURCE_ID,
+        // Modification.MOD_REPLACE, r.getSourceId());
+
+        // mods.add(IRequestRecord.ATTR_REQUEST_OWNER,
+        // Modification.MOD_REPLACE, r.getRequestOwner());
+
+        // mods.add(IRequestRecord.ATTR_MODIFY_TIME,
+        // Modification.MOD_REPLACE, r.getModificationTime());
+
+        // Hashtable ht = RequestRecord.loadAttrs(r);
+        // mods.add(RequestRecord.ATTR_REQUEST_ATTRS, Modification.MOD_REPLACE, ht);
+
+        DBSSession dbs = dbSubsystem.createSession();
+
+        try {
+            String dn = "cn" + "=" + request.getRequestId() + "," + mBaseDN;
+            dbs.modify(dn, mods);
+
+        } catch (EBaseException e) {
+            logger.warn("RequestRepository: " + e.getMessage(), e);
+            throw e;
+
+        } finally {
+            dbs.close();
+        }
+    }
+
     /**
      * Removes all objects with this repository.
      */

@@ -115,20 +115,6 @@ public abstract class ARequestQueue {
     protected abstract IRequest readRequest(RequestId id);
 
     /**
-     * Modify the request in the store. (abstract)
-     * <p>
-     * Update the persistant copy of this request with the current values in the object.
-     * <p>
-     * Currently there are no hints for what has changed, so the entire request should be updated.
-     * <p>
-     *
-     * @param request
-     * @exception EBaseException
-     *                TODO: this is not implemented yet
-     */
-    protected abstract void modifyRequest(IRequest request);
-
-    /**
      * Get complete list of RequestId values found i this
      * queue.
      * <p>

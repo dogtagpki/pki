@@ -23,7 +23,6 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBSearchResults;
-import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
@@ -153,67 +152,6 @@ public class RequestQueue extends ARequestQueue {
         }
     }
 
-    protected void modifyRequest(IRequest r) {
-        String dbStatus = r.getExtDataInString("dbStatus");
-
-        if (!dbStatus.equals("UPDATED")) {
-            try {
-                r.setExtData("dbStatus", "UPDATED");
-                mRepository.addRequest(r);
-            } catch (EBaseException e) {
-                System.out.println(e.toString());
-            }
-            return;
-        }
-
-        ModificationSet mods = new ModificationSet();
-
-        try {
-            RequestRecord.mod(mods, r);
-        } catch (EBaseException e) {
-            logger.warn("RequestQueue: " + e.getMessage(), e);
-        }
-
-        /*
-         //
-         mods.add(IRequestRecord.ATTR_REQUEST_STATE,
-         Modification.MOD_REPLACE, r.getRequestStatus());
-
-         mods.add(IRequestRecord.ATTR_SOURCE_ID,
-         Modification.MOD_REPLACE, r.getSourceId());
-
-         mods.add(IRequestRecord.ATTR_REQUEST_OWNER,
-         Modification.MOD_REPLACE, r.getRequestOwner());
-
-         mods.add(IRequestRecord.ATTR_MODIFY_TIME,
-         Modification.MOD_REPLACE, r.getModificationTime());
-
-         java.util.Hashtable ht = RequestRecord.loadAttrs(r);
-         mods.add(RequestRecord.ATTR_REQUEST_ATTRS,
-         Modification.MOD_REPLACE, ht);
-         */
-
-        // String name = Schema.LDAP_ATTR_REQUEST_ID + "=" +
-        String name = "cn" + "=" +
-                r.getRequestId() + "," + mBaseDN;
-
-        DBSSession dbs = null;
-
-        try {
-            dbs = dbSubsystem.createSession();
-            dbs.modify(name, mods);
-        } catch (EBaseException e) {
-            logger.warn("RequestQueue: " + e.getMessage(), e);
-        } finally {
-            // Close session - ignoring errors (UTIL)
-            if (dbs != null)
-                try {
-                    dbs.close();
-                } catch (EBaseException e) {
-                }
-        }
-    }
-
     public void updateRequest(IRequest request) throws EBaseException {
 
         String name = getUserIdentity();
@@ -231,7 +169,15 @@ public class RequestQueue extends ARequestQueue {
 
         // TODO: use a state flag to determine whether to call
         // addRequest or modifyRequest (see newRequest as well)
-        modifyRequest(request);
+
+        String dbStatus = request.getExtDataInString("dbStatus");
+        if (dbStatus.equals("UPDATED")) {
+            mRepository.modifyRequest(request);
+            return;
+        }
+
+        request.setExtData("dbStatus", "UPDATED");
+        mRepository.addRequest(request);
     }
 
     public RequestId findRequestBySourceId(String id) {
