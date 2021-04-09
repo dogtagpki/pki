@@ -23,15 +23,12 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBSearchResults;
-import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
-import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -416,60 +413,6 @@ public class RequestQueue extends ARequestQueue {
             return null;
 
         return new SearchEnumeration(results);
-    }
-
-    public IRequestVirtualList
-            getPagedRequestsByFilter(RequestId from, boolean jumpToEnd, String filter, int pageSize,
-                    String sortKey) {
-        IDBVirtualList<IDBObj> results = null;
-        DBSSession dbs = null;
-
-        try {
-            dbs = dbSubsystem.createSession();
-        } catch (EBaseException e) {
-            return null;
-        }
-
-        try {
-
-            if (from == null) {
-                results = dbs.createVirtualList(mBaseDN, filter, (String[]) null,
-                            sortKey, pageSize);
-            } else {
-                int len = from.toString().length();
-                String internalRequestId = null;
-
-                if (jumpToEnd) {
-                    internalRequestId = "99";
-                } else {
-                    if (len > 9) {
-                        internalRequestId = Integer.toString(len) + from.toString();
-                    } else {
-                        internalRequestId = "0" + Integer.toString(len) +
-                                from.toString();
-                    }
-                }
-
-                results = dbs.createVirtualList(mBaseDN, filter, (String[]) null,
-                            internalRequestId, sortKey, pageSize);
-            }
-        } catch (EBaseException e) {
-            return null;
-        } finally {
-            try {
-                dbs.close();
-            } catch (EBaseException e) {
-            }
-        }
-
-        try {
-            results.setSortKey(sortKey);
-        } catch (EBaseException e) {//XXX
-            System.out.println(e.toString());
-            return null;
-        }
-
-        return new ListEnumeration(results);
     }
 
     /*

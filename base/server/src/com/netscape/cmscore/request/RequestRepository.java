@@ -21,11 +21,14 @@ import java.math.BigInteger;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBSearchResults;
+import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -154,6 +157,68 @@ public class RequestRepository extends Repository {
         }
     }
 
+    /**
+     * Gets a pageable list of IRequest entries in this queue. This
+     * jumps right to the end of the list.
+     *
+     * @param fromID request id to start with
+     * @param jumpToEnd jump to end of list (set fromID to null)
+     * @param filter search filter
+     * @param pageSize page size
+     * @param sortKey the attributes to sort by
+     * @return request list
+     */
+    public IRequestVirtualList getPagedRequestsByFilter(
+            RequestId fromID,
+            boolean jumpToEnd,
+            String filter,
+            int pageSize,
+            String sortKey) throws EBaseException {
+
+        DBSSession session = dbSubsystem.createSession();
+        IDBVirtualList<IDBObj> results;
+
+        try {
+            if (fromID == null) {
+                results = session.createVirtualList(
+                        mBaseDN,
+                        filter,
+                        (String[]) null,
+                        sortKey,
+                        pageSize);
+
+            } else {
+                String internalRequestID;
+
+                if (jumpToEnd) {
+                    internalRequestID = "99";
+                } else {
+                    int length = fromID.toString().length();
+                    if (length > 9) {
+                        internalRequestID = "" + length + fromID;
+                    } else {
+                        internalRequestID = "0" + length + fromID;
+                    }
+                }
+
+                results = session.createVirtualList(
+                        mBaseDN,
+                        filter,
+                        (String[]) null,
+                        internalRequestID,
+                        sortKey,
+                        pageSize);
+            }
+
+        } finally {
+            session.close();
+        }
+
+        results.setSortKey(sortKey);
+
+        return new ListEnumeration(results);
+    }
+
     public BigInteger getLastSerialNumberInRange(BigInteger min, BigInteger max) throws EBaseException {
 
         logger.info("RequestRepository: Getting last serial number in range");
@@ -181,7 +246,7 @@ public class RequestRepository extends Repository {
         logger.info("RequestRepository: - from ID: " + fromID);
 
         logger.info("RequestRepository: Searching for requests");
-        ListEnumeration recList = (ListEnumeration) mRequestQueue.getPagedRequestsByFilter(
+        ListEnumeration recList = (ListEnumeration) getPagedRequestsByFilter(
                 fromID,
                 false,
                 filter,

@@ -48,6 +48,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -406,6 +407,8 @@ public class QueryReq extends CMSServlet {
             int count,
             BigInteger marker) {
 
+        CMSEngine engine = CMS.getCMSEngine();
+
         ArgBlock header = new ArgBlock();
         ArgBlock context = new ArgBlock();
         CMSTemplateParams argset = new CMSTemplateParams(header, context);
@@ -425,7 +428,8 @@ public class QueryReq extends CMSServlet {
             }
 
             RequestId id = new RequestId(marker);
-            IRequestVirtualList list = mQueue.getPagedRequestsByFilter(
+            RequestRepository requestRepository = engine.getRequestRepository();
+            IRequestVirtualList list = requestRepository.getPagedRequestsByFilter(
                     id,
                     jumptoend,
                     filter,

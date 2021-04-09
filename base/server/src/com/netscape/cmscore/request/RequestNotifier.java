@@ -212,16 +212,23 @@ public class RequestNotifier implements IRequestNotifier {
         if (mSearchForRequests && mRequests.size() == 1) {
 
             id = mRequests.elementAt(0);
-            RequestQueue requestQueue = engine.getRequestQueue();
+            RequestRepository requestRepository = engine.getRequestRepository();
 
-            if (id != null && requestQueue != null) {
+            if (id != null && requestRepository != null) {
                 logger.debug("getRequest  request id=" + id);
-                IRequestVirtualList list = requestQueue.getPagedRequestsByFilter(
-                        new RequestId(id),
-                        false,
-                        "(requeststate=complete)",
-                        mMaxRequests,
-                        "requestId");
+
+                IRequestVirtualList list;
+                try {
+                    list = requestRepository.getPagedRequestsByFilter(
+                            new RequestId(id),
+                            false,
+                            "(requeststate=complete)",
+                            mMaxRequests,
+                            "requestId");
+
+                } catch (EBaseException e) {
+                    throw new RuntimeException(e);
+                }
 
                 int s = list.getSize() - list.getCurrentIndex();
                 logger.debug("getRequest  list size: " + s);

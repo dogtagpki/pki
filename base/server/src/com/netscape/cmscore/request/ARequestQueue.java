@@ -28,7 +28,6 @@ import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestScheduler;
-import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
@@ -819,23 +818,6 @@ public abstract class ARequestQueue {
             t.start();
         }
     }
-
-    /**
-     * Gets a pageable list of IRequest entries in this queue. This
-     * jumps right to the end of the list
-     *
-     * @param fromId request id to start with
-     * @param jumpToEnd jump to end of list (set fromId to null)
-     * @param filter search filter
-     * @param pageSize page size
-     * @param sortKey the attributes to sort by
-     * @return request list
-     */
-    public abstract IRequestVirtualList getPagedRequestsByFilter(RequestId fromId,
-                                   boolean jumpToEnd, String filter,
-                                   int pageSize,
-                                   String sortKey);
-
 
     /**
      * recover from a crash. Resends all requests that are in

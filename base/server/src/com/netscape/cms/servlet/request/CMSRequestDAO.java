@@ -36,6 +36,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * @author alee
@@ -90,6 +91,8 @@ public abstract class CMSRequestDAO {
 
         logger.info("CMSRequestDAO: Searching for requests with filter " + filter);
 
+        CMSEngine engine = CMS.getCMSEngine();
+
         CMSRequestInfos ret = new CMSRequestInfos();
         int totalSize = 0;
         int current = 0;
@@ -98,8 +101,13 @@ public abstract class CMSRequestDAO {
 
             logger.debug("CMSRequestDAO: performing VLV search");
 
-            IRequestVirtualList vlvlist = queue.getPagedRequestsByFilter(start, false, filter,
-                    pageSize + 1, "requestId");
+            RequestRepository requestRepository = engine.getRequestRepository();
+            IRequestVirtualList vlvlist = requestRepository.getPagedRequestsByFilter(
+                    start,
+                    false,
+                    filter,
+                    pageSize + 1,
+                    "requestId");
 
             totalSize = vlvlist.getSize();
             logger.debug("CMSRequestDAO: total: " + totalSize);
