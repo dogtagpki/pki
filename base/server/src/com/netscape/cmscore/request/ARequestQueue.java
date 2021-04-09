@@ -131,21 +131,6 @@ public abstract class ARequestQueue {
     abstract protected Enumeration<RequestId> getRawList();
 
     /**
-     * protected access for setting the current state of a request.
-     * <p>
-     *
-     * @param request
-     *            The request to be modified.
-     * @param status
-     *            The new value for the request status.
-     */
-    protected final void setRequestStatus(IRequest request, RequestStatus status) {
-        Request r = (Request) request;
-
-        r.setRequestStatus(status);
-    }
-
-    /**
      * protected access for setting the modification time of a request.
      * <p>
      *
@@ -289,7 +274,7 @@ public abstract class ARequestQueue {
         // a request PENDING does NOT invoke the PENDING notifiers.
         // To change this, just call stateEngine at the completion of this
         // routine.
-        setRequestStatus(r, RequestStatus.PENDING);
+        r.setRequestStatus(RequestStatus.PENDING);
 
         updateRequest(r);
         stateEngine(r);
@@ -357,7 +342,7 @@ public abstract class ARequestQueue {
         PolicyResult pr = mPolicy.apply(r);
 
         if (pr == PolicyResult.ACCEPTED) {
-            setRequestStatus(r, RequestStatus.APPROVED);
+            r.setRequestStatus(RequestStatus.APPROVED);
         } else if (pr == PolicyResult.DEFERRED ||
                 pr == PolicyResult.REJECTED) {
         }
@@ -390,7 +375,7 @@ public abstract class ARequestQueue {
             throw new EBaseException("Invalid Status");
 
         // 2. Change state
-        setRequestStatus(r, RequestStatus.REJECTED);
+        r.setRequestStatus(RequestStatus.REJECTED);
         updateRequest(r);
 
         // 3. Continue processing
@@ -411,7 +396,7 @@ public abstract class ARequestQueue {
      */
     public final void cancelRequest(IRequest r)
             throws EBaseException {
-        setRequestStatus(r, RequestStatus.CANCELED);
+        r.setRequestStatus(RequestStatus.CANCELED);
         updateRequest(r);
 
         stateEngine(r);
@@ -428,7 +413,7 @@ public abstract class ARequestQueue {
      * @param r request
      */
     public final void markAsServiced(IRequest r) {
-        setRequestStatus(r, RequestStatus.COMPLETE);
+        r.setRequestStatus(RequestStatus.COMPLETE);
         try {
             updateRequest(r);
         } catch (EBaseException e) {
@@ -579,11 +564,11 @@ public abstract class ARequestQueue {
                     pr = mPolicy.apply(r);
 
                 if (pr == PolicyResult.ACCEPTED) {
-                    setRequestStatus(r, RequestStatus.APPROVED);
+                    r.setRequestStatus(RequestStatus.APPROVED);
                 } else if (pr == PolicyResult.DEFERRED) {
-                    setRequestStatus(r, RequestStatus.PENDING);
+                    r.setRequestStatus(RequestStatus.PENDING);
                 } else {
-                    setRequestStatus(r, RequestStatus.REJECTED);
+                    r.setRequestStatus(RequestStatus.REJECTED);
                 }
 
                 // if policy accepts the request, the request
@@ -606,9 +591,9 @@ public abstract class ARequestQueue {
                 // Completed requests call the notifier and are done. Others
                 // wait for the serviceComplete call.
                 if (svcComplete) {
-                    setRequestStatus(r, RequestStatus.COMPLETE);
+                    r.setRequestStatus(RequestStatus.COMPLETE);
                 } else {
-                    setRequestStatus(r, RequestStatus.SVC_PENDING);
+                    r.setRequestStatus(RequestStatus.SVC_PENDING);
                 }
 
                 updateRequest(r);
