@@ -28,7 +28,6 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
@@ -39,7 +38,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.InstallToken;
-import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.csadmin.BootstrapProfile;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.Configurator;
@@ -56,35 +54,6 @@ public class CAConfigurator extends Configurator {
 
     public CAConfigurator(CMSEngine engine) {
         super(engine);
-    }
-
-    /**
-     * Update local cert request with the actual request.
-     */
-    public void updateLocalRequest(
-            IRequest req,
-            byte[] certReq,
-            String reqType,
-            String subjectName
-            ) throws Exception {
-
-        logger.info("CAConfigurator: Updating request " + req.getRequestId());
-
-        if (subjectName != null) {
-            logger.debug("CAConfigurator: - subject: " + subjectName);
-            req.setExtData("subject", subjectName);
-            new X500Name(subjectName); // check for errors
-        }
-
-        logger.debug("CAConfigurator: - type:\n" + reqType);
-        req.setExtData("cert_request_type", reqType);
-
-        if (certReq != null) {
-            String b64Certreq = CryptoUtil.base64Encode(certReq);
-            String pemCertreq = CryptoUtil.reqFormat(b64Certreq);
-            logger.debug("CAConfigurator: - request:\n" + pemCertreq);
-            req.setExtData("cert_request", pemCertreq);
-        }
     }
 
     @Override
@@ -145,10 +114,12 @@ public class CAConfigurator extends Configurator {
                 installAdjustValidity,
                 extensions);
 
-        req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
-
-        // update the locally created request for renewal
-        updateLocalRequest(req, certRequest, certRequestType, subjectName);
+        engine.updateCertRequest(
+                req,
+                certRequestType,
+                certRequest,
+                subjectName,
+                cert);
 
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(req);
@@ -224,10 +195,12 @@ public class CAConfigurator extends Configurator {
 
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
 
-        req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
-
-        // update the locally created request for renewal
-        updateLocalRequest(req, certRequest, certRequestType, subjectName);
+        engine.updateCertRequest(
+                req,
+                certRequestType,
+                certRequest,
+                subjectName,
+                cert);
 
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(req);

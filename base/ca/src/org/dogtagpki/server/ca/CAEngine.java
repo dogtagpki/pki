@@ -99,6 +99,7 @@ import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -1684,6 +1685,34 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         }
 
         request.setRequestStatus(RequestStatus.COMPLETE);
+    }
+
+    public void updateCertRequest(
+            IRequest request,
+            String certRequestType,
+            byte[] certRequest,
+            String subjectName,
+            X509CertImpl cert) throws Exception {
+
+        logger.info("CAEngine: Updating cert request " + request.getRequestId());
+
+        logger.debug("CAEngine: - type: " + certRequestType);
+        request.setExtData("cert_request_type", certRequestType);
+
+        if (certRequest != null) {
+            String b64Certreq = CryptoUtil.base64Encode(certRequest);
+            String pemCertreq = CryptoUtil.reqFormat(b64Certreq);
+            logger.debug("CAEngine: - request:\n" + pemCertreq);
+            request.setExtData("cert_request", pemCertreq);
+        }
+
+        if (subjectName != null) {
+            logger.debug("CAEngine: - subject: " + subjectName);
+            new X500Name(subjectName); // check for errors
+            request.setExtData("subject", subjectName);
+        }
+
+        request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
     }
 
     public boolean isRevoked(X509Certificate[] certificates) {
