@@ -71,7 +71,6 @@ public class DBSubsystem {
     private DBRegistry mRegistry = null;
     private String mBaseDN = null;
 
-    private BigInteger mNextSerialConfig = null;
     private boolean mEnableSerialMgmt = false;
 
     public static final String PROP_ENABLE_SERIAL_NUMBER_RECOVERY =
@@ -166,10 +165,6 @@ public class DBSubsystem {
         mEnableSerialMgmt = v;
     }
 
-    public BigInteger getNextSerialConfig() {
-        return mNextSerialConfig;
-    }
-
     public void setNextSerialConfig(BigInteger serial)
             throws EBaseException {
         logger.info("DBSubsystem: Setting next serial number: 0x" + serial.toString(16));
@@ -193,8 +188,6 @@ public class DBSubsystem {
         mConfig = config.getSubStore(PROP_LDAP, LDAPConfig.class);
         try {
             mBaseDN = mConfig.getBaseDN("o=NetscapeCertificateServer");
-
-            mNextSerialConfig = new BigInteger(mDBConfig.getNextSerialNumber(), 16);
 
             mEnableSerialMgmt = mDBConfig.getEnableSerialManagement();
             logger.debug("DBSubsystem: init()  mEnableSerialMgmt="+mEnableSerialMgmt);
