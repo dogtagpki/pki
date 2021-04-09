@@ -35,7 +35,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.system.AdminSetupRequest;
@@ -174,26 +173,6 @@ public class CAConfigurator extends Configurator {
         }
     }
 
-    public void createCertRecord(
-            IRequest request,
-            CertInfoProfile profile,
-            X509CertImpl cert)
-            throws Exception {
-
-        logger.info("CAConfigurator: Creating cert record " +
-                cert.getSerialNumber() + ": " + cert.getSubjectDN());
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository cr = engine.getCertificateRepository();
-
-        MetaInfo meta = new MetaInfo();
-        meta.set(CertRecord.META_REQUEST_ID, request.getRequestId().toString());
-        meta.set(CertRecord.META_PROFILE_ID, profile.getProfileIDMapping());
-
-        CertRecord record = new CertRecord(cert.getSerialNumber(), cert, meta);
-        cr.addCertificateRecord(record);
-    }
-
     @Override
     public void importCert(
             X509Key x509key,
@@ -252,8 +231,6 @@ public class CAConfigurator extends Configurator {
                 installAdjustValidity,
                 extensions);
 
-        createCertRecord(req, profile, cert);
-
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
 
         // update the locally created request for renewal
@@ -261,6 +238,13 @@ public class CAConfigurator extends Configurator {
 
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(req);
+
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+        CertRecord certRecord = certificateRepository.createCertRecord(
+                req.getRequestId(),
+                profile.getProfileIDMapping(),
+                cert);
+        certificateRepository.addCertificateRecord(certRecord);
     }
 
     public X509CertImpl createLocalCert(
@@ -325,7 +309,6 @@ public class CAConfigurator extends Configurator {
         }
 
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
-        createCertRecord(req, profile, cert);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
 
@@ -334,6 +317,13 @@ public class CAConfigurator extends Configurator {
 
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(req);
+
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+        CertRecord certRecord = certificateRepository.createCertRecord(
+                req.getRequestId(),
+                profile.getProfileIDMapping(),
+                cert);
+        certificateRepository.addCertificateRecord(certRecord);
 
         return cert;
     }

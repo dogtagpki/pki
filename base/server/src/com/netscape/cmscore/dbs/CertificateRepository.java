@@ -31,6 +31,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBSearchResults;
@@ -40,6 +41,7 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.certdb.RenewableCertificateCollection;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
@@ -615,6 +617,20 @@ public class CertificateRepository extends Repository {
 
     public void setConsistencyCheck(boolean ConsistencyCheck) {
         mConsistencyCheck = ConsistencyCheck;
+    }
+
+    public CertRecord createCertRecord(
+            RequestId requestID,
+            String profileIDMapping,
+            X509CertImpl cert) throws Exception {
+
+        logger.info("CertificateRepository: Creating cert record " + cert.getSerialNumber() + ": " + cert.getSubjectDN());
+
+        MetaInfo meta = new MetaInfo();
+        meta.set(CertRecord.META_REQUEST_ID, requestID.toString());
+        meta.set(CertRecord.META_PROFILE_ID, profileIDMapping);
+
+        return new CertRecord(cert.getSerialNumber(), cert, meta);
     }
 
     /**
