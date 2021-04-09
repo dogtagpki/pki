@@ -25,7 +25,12 @@ import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.Repository;
@@ -149,27 +154,73 @@ public class RequestRepository extends Repository {
         }
     }
 
-    public BigInteger getLastSerialNumberInRange(BigInteger min, BigInteger max) {
+    public BigInteger getLastSerialNumberInRange(BigInteger min, BigInteger max) throws EBaseException {
 
-        logger.debug("RequestRepository: in getLastSerialNumberInRange: min " + min + " max " + max);
+        logger.info("RequestRepository: Getting last serial number in range");
+        logger.info("RequestRepository: - min: " + min);
+        logger.info("RequestRepository: - max: " + max);
 
-        logger.debug("RequestRepository: mRequestQueue " + mRequestQueue);
-
-        BigInteger ret = null;
-
-        if (mRequestQueue == null) {
-
-            logger.warn("RequestRepository:  mRequestQueue is null.");
-
-        } else {
-
-            logger.debug("RequestRepository: about to call mRequestQueue.getLastRequestIdInRange");
-            ret = mRequestQueue.getLastRequestIdInRange(min, max);
-
+        if (min == null || max == null || min.compareTo(max) >= 0) {
+            logger.warn("RequestRepository: Bad upper and lower bound range");
+            return null;
         }
 
-        return ret;
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig config = engine.getConfig();
+        String csType = config.getString("cs.type");
 
+        String filter = null;
+        if("KRA".equals(csType)) {
+            filter = "(&(" + "requeststate" + "=*" + ")(!(realm=*)))";
+        } else {
+            filter = "(" + "requeststate" + "=*" + ")";
+        }
+        logger.info("RequestRepository: - filter: " + filter);
+
+        RequestId fromID = new RequestId(max);
+        logger.info("RequestRepository: - from ID: " + fromID);
+
+        logger.info("RequestRepository: Searching for requests");
+        ListEnumeration recList = (ListEnumeration) mRequestQueue.getPagedRequestsByFilter(
+                fromID,
+                filter,
+                5 * -1,
+                "requestId");
+
+        int size = recList.getSize();
+        logger.info("RequestRepository: - size: " + size);
+
+        int ltSize = recList.getSizeBeforeJumpTo();
+        logger.info("RequestRepository: - size before jump: " + ltSize);
+
+        if (size <= 0) {
+            BigInteger requestID = min.subtract(BigInteger.ONE);
+            logger.info("RequestRepository: There are no requests, returning " + requestID);
+            return requestID;
+        }
+
+        logger.info("RequestRepository: Requests:");
+        for (int i = 0; i < 5; i++) {
+            IRequest request = recList.getElementAt(i);
+
+            if (request == null) {
+                continue;
+            }
+
+            BigInteger requestID = request.getRequestId().toBigInteger();
+            logger.info("RequestRepository: - request ID: " + requestID);
+
+            // if request ID within range, return it
+            if (requestID.compareTo(min) >= 0 && requestID.compareTo(max) <= 0) {
+                logger.info("RequestRepository: Found last request ID: " + requestID);
+                return requestID;
+            }
+        }
+
+        BigInteger requestID = min.subtract(BigInteger.ONE);
+        logger.info("RequestRepository: No request found, returning " + requestID);
+
+        return requestID;
     }
 
     public String getPublishingStatus() {

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -901,8 +900,6 @@ public abstract class ARequestQueue {
     public INotify getPendingNotify() {
         return mPendingNotify;
     }
-
-    public abstract BigInteger getLastRequestIdInRange(BigInteger reqId_low_bound, BigInteger reqId_upper_bound);
 }
 
 //

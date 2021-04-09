@@ -37,7 +37,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -244,92 +243,6 @@ public class RequestQueue extends ARequestQueue {
                 } catch (EBaseException e) {
                 }
         }
-    }
-
-    public BigInteger getLastRequestIdInRange(BigInteger reqId_low_bound, BigInteger reqId_upper_bound) {
-
-        String method = "RequestQueue.getLastRequestIdInRange";
-        logger.debug(method + ": low " + reqId_low_bound + " high " + reqId_upper_bound);
-        if (reqId_low_bound == null || reqId_upper_bound == null || reqId_low_bound.compareTo(reqId_upper_bound) >= 0) {
-            logger.warn(method + ": bad upper and lower bound range.");
-            return null;
-        }
-
-        String filter = null;
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig config = engine.getConfig();
-        String csType = null;
-
-        try {
-            csType = config.getString("cs.type");
-        } catch (EBaseException e) { }
-
-        if("KRA".equals(csType))
-            filter = "(&(" + "requeststate" + "=*" + ")(!(realm=*)))";
-        else
-            filter = "(" + "requeststate" + "=*" + ")";
-
-        RequestId fromId = new RequestId(reqId_upper_bound);
-
-        logger.debug(method + ": filter " + filter + " fromId " + fromId);
-        ListEnumeration recList = (ListEnumeration) getPagedRequestsByFilter(fromId, filter, 5 * -1, "requestId");
-
-        int size = recList.getSize();
-
-        logger.debug(method + ": size   " + size);
-
-        int ltSize = recList.getSizeBeforeJumpTo();
-
-        logger.debug(method +": " + ltSize);
-
-        if (size <= 0) {
-            logger.debug(method + ":  request list is empty.");
-
-            BigInteger ret = new BigInteger(reqId_low_bound.toString(10));
-
-            ret = ret.add(new BigInteger("-1"));
-
-            logger.debug(method +": returning " + ret);
-            return ret;
-        }
-
-        IRequest curRec = null;
-
-        RequestId curId = null;
-
-        String reqId = null;
-
-        for (int i = 0; i < 5; i++) {
-            curRec = recList.getElementAt(i);
-
-            if (curRec != null) {
-
-                curId = curRec.getRequestId();
-
-                reqId = curId.toString();
-
-                logger.debug("RequestQueue: curReqId: " + reqId);
-
-                BigInteger curIdInt = new BigInteger(reqId);
-
-                if (((curIdInt.compareTo(reqId_low_bound) == 0) || (curIdInt.compareTo(reqId_low_bound) == 1)) &&
-                        ((curIdInt.compareTo(reqId_upper_bound) == 0) || (curIdInt.compareTo(reqId_upper_bound) == -1))) {
-                    logger.debug(method + " : returning value " + curIdInt);
-                    return curIdInt;
-                }
-
-            }
-
-        }
-
-        BigInteger ret = new BigInteger(reqId_low_bound.toString(10));
-
-        ret = ret.add(new BigInteger("-1"));
-
-        logger.debug("RequestQueue:getLastRequestIdInRange: returning " + ret);
-        return ret;
-
     }
 
     public RequestId findRequestBySourceId(String id) {
