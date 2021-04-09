@@ -782,8 +782,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
                 requestNotifier,
                 pendingNotifier);
 
-        requestRepository.setRequestQueue(requestQueue);
-
         if (schedulerClass != null) {
             IRequestScheduler scheduler = (IRequestScheduler) Class.forName(schedulerClass).newInstance();
             requestQueue.setRequestScheduler(scheduler);

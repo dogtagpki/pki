@@ -51,8 +51,6 @@ public class RequestRepository extends Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRepository.class);
 
-    ARequestQueue mRequestQueue = null;
-
     /**
      * Create a request repository that uses the LDAP database
      * <p>
@@ -132,10 +130,6 @@ public class RequestRepository extends Repository {
         // Let RequestRecord class register its
         // database mapping and object mapping values
         RequestRecord.register(dbSubsystem);
-    }
-
-    public void setRequestQueue(ARequestQueue requestQueue) {
-        this.mRequestQueue = requestQueue;
     }
 
     /**

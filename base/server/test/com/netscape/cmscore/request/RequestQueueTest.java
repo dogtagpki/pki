@@ -32,8 +32,6 @@ public class RequestQueueTest extends CMSBaseTestCase {
                 null,
                 null,
                 null);
-
-        requestRepository.setRequestQueue(queue);
     }
 
     public void cmsTestTearDown() {

@@ -399,8 +399,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 pendingNotifier);
         engine.setRequestQueue(requestQueue);
 
-        requestRepository.setRequestQueue(requestQueue);
-
         startKeyStatusUpdate();
 
         // init request scheduler if configured
