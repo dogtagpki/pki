@@ -183,6 +183,26 @@ public class RequestRepository extends Repository {
         return createRequest(requestID, requestType);
     }
 
+    public void addRequest(IRequest request) throws EBaseException {
+
+        RequestRecord requestRecord = new RequestRecord();
+        requestRecord.add(request);
+
+        DBSSession dbs = dbSubsystem.createSession();
+
+        try {
+            String dn = "cn" + "=" + requestRecord.mRequestId + "," + mBaseDN;
+            dbs.add(dn, requestRecord);
+
+        } catch (EBaseException e) {
+            logger.error("RequestRepository: " + e.getMessage(), e);
+            throw e;
+
+        } finally {
+            dbs.close();
+        }
+    }
+
     /**
      * Removes all objects with this repository.
      */

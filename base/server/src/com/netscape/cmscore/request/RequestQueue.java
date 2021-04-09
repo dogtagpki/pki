@@ -152,42 +152,13 @@ public class RequestQueue extends ARequestQueue {
         }
     }
 
-    protected void addRequest(IRequest r) throws EBaseException {
-        // setup to call dbs.add(name, IAttrSet)
-        RequestRecord record = new RequestRecord();
-
-        record.add(r);
-
-        // compute the name of the object
-        // String name = Schema.LDAP_ATTR_REQUEST_ID + "=" +
-        String name = "cn" + "=" +
-                record.mRequestId + "," + mBaseDN;
-
-        DBSSession dbs = null;
-
-        try {
-            dbs = dbSubsystem.createSession();
-            dbs.add(name, record);
-        } catch (EBaseException e) {
-            logger.error("RequestQueue: " + e.getMessage(), e);
-            throw e;
-        } finally {
-            // Close session - ignoring errors (UTIL)
-            if (dbs != null)
-                try {
-                    dbs.close();
-                } catch (EBaseException e) {
-                }
-        }
-    }
-
     protected void modifyRequest(IRequest r) {
         String dbStatus = r.getExtDataInString("dbStatus");
 
         if (!dbStatus.equals("UPDATED")) {
             try {
                 r.setExtData("dbStatus", "UPDATED");
-                addRequest(r);
+                mRepository.addRequest(r);
             } catch (EBaseException e) {
                 System.out.println(e.toString());
             }

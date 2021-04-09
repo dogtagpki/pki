@@ -43,7 +43,7 @@ public class RequestQueueTest extends CMSBaseTestCase {
 
     public void testAddRequest() throws EBaseException {
         assertFalse(request.getExtDataKeysCalled);
-        queue.addRequest(request);
+        requestRepository.addRequest(request);
         assertTrue(request.getExtDataKeysCalled);
     }
 

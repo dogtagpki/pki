@@ -115,19 +115,6 @@ public abstract class ARequestQueue {
     protected abstract IRequest readRequest(RequestId id);
 
     /**
-     * Add the request to the store. (abstract)
-     * <p>
-     * This function is called when a new request immediately after creating a new request.
-     * <p>
-     *
-     * @param request
-     *            the request to add.
-     * @exception EBaseException
-     *                TODO: this is not implemented yet
-     */
-    protected abstract void addRequest(IRequest request) throws EBaseException;
-
-    /**
      * Modify the request in the store. (abstract)
      * <p>
      * Update the persistant copy of this request with the current values in the object.
