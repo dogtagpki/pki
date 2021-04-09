@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-import java.security.SecureRandom;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -31,11 +30,8 @@ import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.security.JssSubsystem;
 
 public class RequestQueue extends ARequestQueue {
 
@@ -81,16 +77,6 @@ public class RequestQueue extends ARequestQueue {
         this.dbSubsystem = dbSubsystem;
         this.mRepository = requestRepository;
         this.mBaseDN = requestRepository.getBaseDN();
-    }
-
-    public RequestId newEphemeralRequestId() {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
-
-        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
-        long id = System.currentTimeMillis() * 10000 + random.nextInt(10000);
-        return new RequestId(id);
     }
 
     public IRequest newRequest(String requestType) throws EBaseException {

@@ -92,11 +92,6 @@ public abstract class ARequestQueue {
     }
 
     /**
-     * Create a new synchronous request ID
-     */
-    public abstract RequestId newEphemeralRequestId();
-
-    /**
      * Read a request from the persistant store. (abstract)
      * <p>
      * This function is called to create the in-memory version of a request object.
