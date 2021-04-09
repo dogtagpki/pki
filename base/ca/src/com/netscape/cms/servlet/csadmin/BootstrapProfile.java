@@ -27,9 +27,9 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.EnrollDefault;
 
-public class CertInfoProfile {
+public class BootstrapProfile {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertInfoProfile.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BootstrapProfile.class);
 
     private Vector<EnrollDefault> mDefaults = new Vector<EnrollDefault>();
     private String mName = null;
@@ -38,7 +38,7 @@ public class CertInfoProfile {
     private String mProfileIDMapping = null;
     private String mProfileSetIDMapping = null;
 
-    public CertInfoProfile(IConfigStore config) throws Exception {
+    public BootstrapProfile(IConfigStore config) throws Exception {
         mID = config.getString("id");
         mName = config.getString("name");
         mDescription = config.getString("description");
@@ -55,7 +55,7 @@ public class CertInfoProfile {
                 init(config.getSubStore(id + ".default"), def);
                 mDefaults.addElement(def);
             } catch (Exception e) {
-                logger.warn("CertInfoProfile: Unable to create CertInfoPolicyDefault: " + e.getMessage(), e);
+                logger.warn("BootstrapProfile: Unable to create PolicyDefault: " + e.getMessage(), e);
             }
         }
     }
@@ -65,7 +65,7 @@ public class CertInfoProfile {
         try {
             def.init(config);
         } catch (Exception e) {
-            logger.warn("CertInfoProfile: Unable to initialize CertInfoPolicyDefault: " + e.getMessage(), e);
+            logger.warn("BootstrapProfile: Unable to initialize PolicyDefault: " + e.getMessage(), e);
         }
     }
 
@@ -89,19 +89,15 @@ public class CertInfoProfile {
         return mProfileSetIDMapping;
     }
 
-    public void populate(X509CertInfo info) throws Exception {
-        populate(null /* request */, info);
-    }
-
     public void populate(IRequest request, X509CertInfo info) throws Exception {
         Enumeration<EnrollDefault> e1 = mDefaults.elements();
         while (e1.hasMoreElements()) {
             EnrollDefault def = e1.nextElement();
             try {
-                logger.debug("CertInfoProfile: Populating certificate with " + def.getClass().getName());
+                logger.debug("BootstrapProfile: Populating cert with " + def.getClass().getName());
                 def.populate(request, info);
             } catch (Exception e) {
-                logger.error("CertInfoProfile: Unable to populate certificate: " + e, e);
+                logger.error("BootstrapProfile: Unable to populate cert: " + e.getMessage(), e);
                 throw e;
             }
         }

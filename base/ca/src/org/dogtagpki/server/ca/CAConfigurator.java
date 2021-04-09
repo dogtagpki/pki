@@ -41,8 +41,8 @@ import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cms.servlet.csadmin.BootstrapProfile;
 import com.netscape.cms.servlet.csadmin.Cert;
-import com.netscape.cms.servlet.csadmin.CertInfoProfile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
@@ -64,7 +64,7 @@ public class CAConfigurator extends Configurator {
      */
     public void initCertRequest(
             IRequest request,
-            CertInfoProfile profile,
+            BootstrapProfile profile,
             X509CertInfo info,
             X509Key x509key,
             String[] sanHostnames,
@@ -215,7 +215,7 @@ public class CAConfigurator extends Configurator {
         String configurationRoot = cs.getString("configurationRoot");
 
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
-        CertInfoProfile profile = new CertInfoProfile(profileConfig);
+        BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
         RequestRepository requestRepository = engine.getRequestRepository();
         IRequest req = requestRepository.createRequest("enrollment");
@@ -285,7 +285,7 @@ public class CAConfigurator extends Configurator {
         String configurationRoot = cs.getString("configurationRoot");
 
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
-        CertInfoProfile profile = new CertInfoProfile(profileConfig);
+        BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
         RequestRepository requestRepository = engine.getRequestRepository();
         IRequest req = requestRepository.createRequest("enrollment");
