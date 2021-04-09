@@ -419,17 +419,6 @@ public class RequestQueue extends ARequestQueue {
     }
 
     public IRequestVirtualList
-            getPagedRequestsByFilter(String filter, int pageSize, String sortKey) {
-        return getPagedRequestsByFilter(null, filter, pageSize, sortKey);
-    }
-
-    public IRequestVirtualList
-            getPagedRequestsByFilter(RequestId from, String filter, int pageSize,
-                    String sortKey) {
-        return getPagedRequestsByFilter(from, false, filter, pageSize, sortKey);
-    }
-
-    public IRequestVirtualList
             getPagedRequestsByFilter(RequestId from, boolean jumpToEnd, String filter, int pageSize,
                     String sortKey) {
         IDBVirtualList<IDBObj> results = null;

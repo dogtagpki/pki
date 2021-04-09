@@ -821,32 +821,6 @@ public abstract class ARequestQueue {
     }
 
     /**
-     * Gets a pageable list of IRequest entries in this queue.
-     *
-     * @param filter search filter
-     * @param pageSize page size
-     * @param sortKey the attributes to sort by
-     * @return request list
-     */
-    public abstract IRequestVirtualList getPagedRequestsByFilter(String filter,
-                                                        int pageSize,
-                                                        String sortKey);
-
-    /**
-     * Gets a pageable list of IRequest entries in this queue.
-     *
-     * @param fromId request id to start with
-     * @param filter search filter
-     * @param pageSize page size
-     * @param sortKey the attributes to sort by
-     * @return request list
-     */
-    public abstract IRequestVirtualList getPagedRequestsByFilter(RequestId fromId,
-                                                        String filter,
-                                                        int pageSize,
-                                                        String sortKey);
-
-    /**
      * Gets a pageable list of IRequest entries in this queue. This
      * jumps right to the end of the list
      *

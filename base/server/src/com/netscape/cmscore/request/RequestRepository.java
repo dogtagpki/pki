@@ -183,6 +183,7 @@ public class RequestRepository extends Repository {
         logger.info("RequestRepository: Searching for requests");
         ListEnumeration recList = (ListEnumeration) mRequestQueue.getPagedRequestsByFilter(
                 fromID,
+                false,
                 filter,
                 5 * -1,
                 "requestId");

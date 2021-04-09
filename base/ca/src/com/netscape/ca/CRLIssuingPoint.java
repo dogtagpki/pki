@@ -2156,7 +2156,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             RequestQueue mQueue = engine.getRequestQueue();
 
             IRequestVirtualList list = mQueue.getPagedRequestsByFilter(
-                        new RequestId(mFirstUnsaved), filter, 500, "requestId");
+                        new RequestId(mFirstUnsaved),
+                        false,
+                        filter,
+                        500,
+                        "requestId");
+
             logger.debug("recoverCRLCache  size=" + list.getSize() + "  index=" + list.getCurrentIndex());
 
             CertRecordProcessor cp = new CertRecordProcessor(mCRLCerts, this, mAllowExtensions);
