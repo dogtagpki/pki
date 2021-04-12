@@ -34,7 +34,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.Repository;
@@ -53,6 +52,8 @@ public class RequestRepository extends Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRepository.class);
 
+    protected String filter;
+
     /**
      * Create a request repository that uses the LDAP database
      * <p>
@@ -60,11 +61,14 @@ public class RequestRepository extends Repository {
      * @param dbSubsystem
      *            the LDAP database system.
      */
-    public RequestRepository(DBSubsystem dbSubsystem) throws EBaseException {
+    public RequestRepository(DBSubsystem dbSubsystem, String filter) throws EBaseException {
 
         super(dbSubsystem, 10);
 
+        this.filter = filter;
+
         logger.info("RequestRepository: Initializing request repository");
+        logger.info("RequestRepository: - filter: " + filter);
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
@@ -123,10 +127,12 @@ public class RequestRepository extends Repository {
 
     public RequestRepository(
             DBSubsystem dbSubsystem,
+            String filter,
             Hashtable<String, String> repositoryConfig) throws EBaseException {
 
         super(dbSubsystem, 10);
 
+        this.filter = filter;
         this.repositoryConfig = repositoryConfig;
 
         // Let RequestRecord class register its
@@ -329,18 +335,6 @@ public class RequestRepository extends Repository {
             logger.warn("RequestRepository: Bad upper and lower bound range");
             return null;
         }
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig config = engine.getConfig();
-        String csType = config.getString("cs.type");
-
-        String filter = null;
-        if("KRA".equals(csType)) {
-            filter = "(&(" + "requeststate" + "=*" + ")(!(realm=*)))";
-        } else {
-            filter = "(" + "requeststate" + "=*" + ")";
-        }
-        logger.info("RequestRepository: - filter: " + filter);
 
         RequestId fromID = new RequestId(max);
         logger.info("RequestRepository: - from ID: " + fromID);

@@ -85,6 +85,7 @@ import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.KeyStatusUpdateTask;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
+import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
@@ -387,7 +388,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         RequestSubsystem reqSub = engine.getRequestSubsystem();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
-        RequestRepository requestRepository = new RequestRepository(dbSubsystem);
+        RequestRepository requestRepository = new KeyRequestRepository(dbSubsystem);
         engine.setRequestRepository(requestRepository);
 
         RequestQueue requestQueue = new RequestQueue(

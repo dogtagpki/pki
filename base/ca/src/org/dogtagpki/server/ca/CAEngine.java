@@ -96,9 +96,9 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -780,7 +780,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         String schedulerClass = caConfig.getString("requestSchedulerClass", null);
         logger.info("CAEngine: - scheduler: " + schedulerClass);
 
-        requestRepository = new RequestRepository(dbSubsystem);
+        requestRepository = new CertRequestRepository(dbSubsystem);
 
         requestQueue = new RequestQueue(
                 dbSubsystem,
