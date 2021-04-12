@@ -126,17 +126,6 @@ jobs:
           docker exec pki pki-server acme-realm-mod --type ds
           docker exec pki pki-server acme-deploy --wait
 
-      - name: Gather config files from PKI container
-        if: always()
-        run: docker exec pki tar cvf ${PKIDIR}/pki-conf.tar -C / etc/pki
-
-      - name: Upload config files from PKI container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: pki-conf-${{ matrix.os }}
-          path: pki-conf.tar
-
       - name: Run PKI healthcheck in PKI container
         run: docker exec pki pki-healthcheck --debug
 
@@ -195,6 +184,12 @@ jobs:
               --server http://pki.example.com:8080/acme/directory \
               --non-interactive
 
+      - name: Gather artifacts from PKI container
+        if: always()
+        run: |
+          ci/ds-artifacts-save.sh pki
+          ci/pki-artifacts-save.sh pki
+
       - name: Remove ACME from PKI container
         run: |
           docker exec pki pki-server acme-undeploy --wait
@@ -206,18 +201,13 @@ jobs:
       - name: Remove DS from PKI container
         run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Gather log files from PKI container
-        if: always()
-        run: |
-          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec pki tar cvf ${PKIDIR}/pki-logs.tar -C / var/log/pki
-
-      - name: Upload log files from PKI container
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-logs-${{ matrix.os }}
-          path: pki-logs.tar
+          name: acme-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/pki
 
   # This test verifies that in a cluster the baseURL parameter can be used
   # to replace a server with another server without affecting the client.
@@ -291,17 +281,6 @@ jobs:
           docker exec pki bash -c "echo baseURL=http://server1.example.com:8080/acme >> /etc/pki/pki-tomcat/acme/engine.conf"
           docker exec pki pki-server acme-deploy --wait
 
-      - name: Gather config files from PKI container
-        if: always()
-        run: docker exec pki tar cvf ${PKIDIR}/switchover-conf.tar -C / etc/pki
-
-      - name: Upload config files from PKI container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: switchover-conf-${{ matrix.os }}
-          path: switchover-conf.tar
-
       - name: Run client container
         run: |
           IMAGE=pki-runner \
@@ -373,6 +352,12 @@ jobs:
               --server http://pki.example.com:8080/acme/directory \
               --non-interactive
 
+      - name: Gather artifacts from PKI container
+        if: always()
+        run: |
+          ci/ds-artifacts-save.sh pki
+          ci/pki-artifacts-save.sh pki
+
       - name: Remove ACME from PKI container
         run: |
           docker exec pki pki-server acme-undeploy --wait
@@ -384,18 +369,13 @@ jobs:
       - name: Remove DS from PKI container
         run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Gather log files from PKI container
-        if: always()
-        run: |
-          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec pki tar cvf ${PKIDIR}/switchover-logs.tar -C / var/log/pki
-
-      - name: Upload log files from PKI container
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: switchover-logs-${{ matrix.os }}
-          path: switchover-logs.tar
+          name: acme-switchover-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/pki
 
   # docs/installation/podman/Deploying_PKI_ACME_Responder_on_Podman.md
   acme-container-test:
@@ -437,12 +417,12 @@ jobs:
       - name: Run ACME container
         run: |
           docker run \
-              --name pki-acme \
+              --name server \
               --detach \
               pki-acme
 
       - name: Connect ACME container to network
-        run: docker network connect example pki-acme --alias pki.example.com
+        run: docker network connect example server --alias pki.example.com
 
       - name: Run client container
         run: |
@@ -493,18 +473,29 @@ jobs:
               --server http://pki.example.com:8080/acme/directory \
               --non-interactive
 
-      - name: Gather log files
+      - name: Gather artifacts from server container
         if: always()
         run: |
-          mkdir -p /tmp/logs/server
-          docker cp pki-acme:/var/lib/tomcats/pki/logs/. /tmp/logs/server
-          docker logs pki-acme > /tmp/logs/server/pki-acme.log
-          mkdir -p /tmp/logs/client
-          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/logs/client
+          mkdir -p /tmp/artifacts/server/var/lib
+          docker cp server:/var/lib/tomcats /tmp/artifacts/server/var/lib
+          docker logs server > /tmp/artifacts/server/container.log
 
-      - name: Upload log files
+      - name: Gather artifacts from client container
+        if: always()
+        run: |
+          mkdir -p /tmp/artifacts/client/var/log/letsencrypt
+          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
+
+      - name: Upload artifacts from server container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-acme-logs-${{ matrix.os }}
-          path: /tmp/logs
+          name: acme-container-server-${{ matrix.os }}
+          path: /tmp/artifacts/server
+
+      - name: Upload artifacts from client container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: acme-container-client-${{ matrix.os }}
+          path: /tmp/artifacts/client
