@@ -131,15 +131,8 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          mkdir -p /tmp/pki/dirsrv/conf
-          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
-          mkdir -p /tmp/pki/dirsrv/logs
-          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
-          mkdir -p /tmp/pki/pki/conf
-          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
-          mkdir -p /tmp/pki/pki/logs
-          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
-          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh pki
+          ci/pki-artifacts-save.sh pki
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
@@ -153,8 +146,7 @@ jobs:
         with:
           name: ca-${{ matrix.os }}
           path: |
-            /tmp/pki/dirsrv/
-            /tmp/pki/pki/
+            /tmp/artifacts/pki
 
   # docs/installation/ca/Installing_CA_with_ECC.md
   ca-ecc-test:
@@ -228,15 +220,8 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          mkdir -p /tmp/pki/dirsrv/conf
-          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
-          mkdir -p /tmp/pki/dirsrv/logs
-          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
-          mkdir -p /tmp/pki/pki/conf
-          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
-          mkdir -p /tmp/pki/pki/logs
-          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
-          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh pki
+          ci/pki-artifacts-save.sh pki
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
@@ -250,8 +235,7 @@ jobs:
         with:
           name: ca-ecc-${{ matrix.os }}
           path: |
-            /tmp/pki/dirsrv/
-            /tmp/pki/pki/
+            /tmp/artifacts/pki
 
   # docs/installation/ca/Installing_Subordinate_CA.md
   subca-test:
@@ -333,18 +317,17 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec subordinate pki -n caadmin ca-user-show caadmin
 
+      - name: Gather artifacts from root container
+        if: always()
+        run: |
+          ci/ds-artifacts-save.sh root
+          ci/pki-artifacts-save.sh root
+
       - name: Gather artifacts from subordinate container
         if: always()
         run: |
-          mkdir -p /tmp/subordinate/dirsrv/conf
-          docker cp subordinate:/etc/dirsrv/slapd-localhost/. /tmp/subordinate/dirsrv/conf
-          mkdir -p /tmp/subordinate/dirsrv/logs
-          docker cp subordinate:/var/log/dirsrv/slapd-localhost/. /tmp/subordinate/dirsrv/logs
-          mkdir -p /tmp/subordinate/pki/conf
-          docker cp subordinate:/var/lib/pki/pki-tomcat/conf/. /tmp/subordinate/pki/conf
-          mkdir -p /tmp/subordinate/pki/logs
-          docker cp subordinate:/var/lib/pki/pki-tomcat/logs/. /tmp/subordinate/pki/logs
-          docker exec subordinate journalctl -u pki-tomcatd@pki-tomcat > /tmp/subordinate/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh subordinate
+          ci/pki-artifacts-save.sh subordinate
 
       - name: Remove subordinate CA from subordinate container
         run: docker exec subordinate pkidestroy -i pki-tomcat -s CA -v
@@ -354,19 +337,6 @@ jobs:
 
       - name: Disconnect subordinate container from network
         run: docker network disconnect example subordinate
-
-      - name: Gather artifacts from root container
-        if: always()
-        run: |
-          mkdir -p /tmp/root/dirsrv/conf
-          docker cp root:/etc/dirsrv/slapd-localhost/. /tmp/root/dirsrv/conf
-          mkdir -p /tmp/root/dirsrv/logs
-          docker cp root:/var/log/dirsrv/slapd-localhost/. /tmp/root/dirsrv/logs
-          mkdir -p /tmp/root/pki/conf
-          docker cp root:/var/lib/pki/pki-tomcat/conf/. /tmp/root/pki/conf
-          mkdir -p /tmp/root/pki/logs
-          docker cp root:/var/lib/pki/pki-tomcat/logs/. /tmp/root/pki/logs
-          docker exec root journalctl -u pki-tomcatd@pki-tomcat > /tmp/root/pki/logs/systemd.log
 
       - name: Remove root CA from root container
         run: docker exec root pkidestroy -i pki-tomcat -s CA -v
@@ -386,8 +356,7 @@ jobs:
         with:
           name: ca-root-${{ matrix.os }}
           path: |
-            /tmp/root/dirsrv/
-            /tmp/root/pki/
+            /tmp/artifacts/root
 
       - name: Upload artifacts from subordinate container
         if: always()
@@ -395,8 +364,7 @@ jobs:
         with:
           name: ca-subordinate-${{ matrix.os }}
           path: |
-            /tmp/subordinate/dirsrv/
-            /tmp/subordinate/pki/
+            /tmp/artifacts/subordinate
 
   # docs/installation/ca/Installing_CA_with_External_CA_Signing_Certificate.md
   ca-external-cert-test:
@@ -475,15 +443,8 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          mkdir -p /tmp/pki/dirsrv/conf
-          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
-          mkdir -p /tmp/pki/dirsrv/logs
-          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
-          mkdir -p /tmp/pki/pki/conf
-          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
-          mkdir -p /tmp/pki/pki/logs
-          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
-          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh pki
+          ci/pki-artifacts-save.sh pki
 
       - name: Remove subordinate CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
@@ -497,8 +458,7 @@ jobs:
         with:
           name: ca-external-cert-${{ matrix.os }}
           path: |
-            /tmp/pki/dirsrv/
-            /tmp/pki/pki/
+            /tmp/artifacts/pki
 
   # docs/installation/ca/Installing_CA_with_Existing_Keys_in_Internal_Token.md
   ca-existing-certs-test:
@@ -630,15 +590,8 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          mkdir -p /tmp/pki/dirsrv/conf
-          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
-          mkdir -p /tmp/pki/dirsrv/logs
-          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
-          mkdir -p /tmp/pki/pki/conf
-          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
-          mkdir -p /tmp/pki/pki/logs
-          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
-          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh pki
+          ci/pki-artifacts-save.sh pki
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
@@ -652,8 +605,7 @@ jobs:
         with:
           name: ca-existing-certs-${{ matrix.os }}
           path: |
-            /tmp/pki/dirsrv/
-            /tmp/pki/pki/
+            /tmp/artifacts/pki
 
   # docs/installation/ca/Installing_CA_Clone.md
   ca-clone-test:
@@ -702,19 +654,6 @@ jobs:
       - name: Install CA in primary container
         run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
 
-      - name: Gather artifacts from primary container
-        if: always()
-        run: |
-          mkdir -p /tmp/primary/dirsrv/conf
-          docker cp primary:/etc/dirsrv/slapd-localhost/. /tmp/primary/dirsrv/conf
-          mkdir -p /tmp/primary/dirsrv/logs
-          docker cp primary:/var/log/dirsrv/slapd-localhost/. /tmp/primary/dirsrv/logs
-          mkdir -p /tmp/primary/pki/conf
-          docker cp primary:/var/lib/pki/pki-tomcat/conf/. /tmp/primary/pki/conf
-          mkdir -p /tmp/primary/pki/logs
-          docker cp primary:/var/lib/pki/pki-tomcat/logs/. /tmp/primary/pki/logs
-          docker exec primary journalctl -u pki-tomcatd@pki-tomcat > /tmp/primary/pki/logs/systemd.log
-
       - name: Setup secondary container
         run: |
           IMAGE=pki-runner \
@@ -749,19 +688,6 @@ jobs:
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec secondary pki -n caadmin ca-user-show caadmin
 
-      - name: Gather artifacts from secondary container
-        if: always()
-        run: |
-          mkdir -p /tmp/secondary/dirsrv/conf
-          docker cp secondary:/etc/dirsrv/slapd-localhost/. /tmp/secondary/dirsrv/conf
-          mkdir -p /tmp/secondary/dirsrv/logs
-          docker cp secondary:/var/log/dirsrv/slapd-localhost/. /tmp/secondary/dirsrv/logs
-          mkdir -p /tmp/secondary/pki/conf
-          docker cp secondary:/var/lib/pki/pki-tomcat/conf/. /tmp/secondary/pki/conf
-          mkdir -p /tmp/secondary/pki/logs
-          docker cp secondary:/var/lib/pki/pki-tomcat/logs/. /tmp/secondary/pki/logs
-          docker exec secondary journalctl -u pki-tomcatd@pki-tomcat > /tmp/secondary/pki/logs/systemd.log
-
       - name: Setup tertiary container
         run: |
           IMAGE=pki-runner \
@@ -794,18 +720,23 @@ jobs:
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec tertiary pki -n caadmin ca-user-show caadmin
 
+      - name: Gather artifacts from primary container
+        if: always()
+        run: |
+          ci/ds-artifacts-save.sh primary
+          ci/pki-artifacts-save.sh primary
+
+      - name: Gather artifacts from secondary container
+        if: always()
+        run: |
+          ci/ds-artifacts-save.sh secondary
+          ci/pki-artifacts-save.sh secondary
+
       - name: Gather artifacts from tertiary container
         if: always()
         run: |
-          mkdir -p /tmp/tertiary/dirsrv/conf
-          docker cp tertiary:/etc/dirsrv/slapd-localhost/. /tmp/tertiary/dirsrv/conf
-          mkdir -p /tmp/tertiary/dirsrv/logs
-          docker cp tertiary:/var/log/dirsrv/slapd-localhost/. /tmp/tertiary/dirsrv/logs
-          mkdir -p /tmp/tertiary/pki/conf
-          docker cp tertiary:/var/lib/pki/pki-tomcat/conf/. /tmp/tertiary/pki/conf
-          mkdir -p /tmp/tertiary/pki/logs
-          docker cp tertiary:/var/lib/pki/pki-tomcat/logs/. /tmp/tertiary/pki/logs
-          docker exec tertiary journalctl -u pki-tomcatd@pki-tomcat > /tmp/tertiary/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh tertiary
+          ci/pki-artifacts-save.sh tertiary
 
       - name: Remove CA from tertiary container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
@@ -843,8 +774,7 @@ jobs:
         with:
           name: ca-clone-primary-${{ matrix.os }}
           path: |
-            /tmp/primary/dirsrv/
-            /tmp/primary/pki/
+            /tmp/artifacts/primary
 
       - name: Upload artifacts from secondary container
         if: always()
@@ -852,8 +782,7 @@ jobs:
         with:
           name: ca-clone-secondary-${{ matrix.os }}
           path: |
-            /tmp/secondary/dirsrv/
-            /tmp/secondary/pki/
+            /tmp/artifacts/secondary
 
       - name: Upload artifacts from tertiary container
         if: always()
@@ -861,8 +790,7 @@ jobs:
         with:
           name: ca-clone-tertiary-${{ matrix.os }}
           path: |
-            /tmp/tertiary/dirsrv/
-            /tmp/tertiary/pki/
+            /tmp/artifacts/tertiary
 
   # docs/installation/ca/Installing_CA_with_Secure_Database_Connection.md
   ca-secure-ds-test:
@@ -991,15 +919,8 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          mkdir -p /tmp/pki/dirsrv/conf
-          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
-          mkdir -p /tmp/pki/dirsrv/logs
-          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
-          mkdir -p /tmp/pki/pki/conf
-          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
-          mkdir -p /tmp/pki/pki/logs
-          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
-          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh pki
+          ci/pki-artifacts-save.sh pki
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
@@ -1013,8 +934,7 @@ jobs:
         with:
           name: ca-secure-ds-${{ matrix.os }}
           path: |
-            /tmp/pki/dirsrv/
-            /tmp/pki/pki/
+            /tmp/artifacts/pki
 
   # docs/installation/ca/Installing_CA_Clone.md
   # docs/installation/ca/Installing_CA_with_Secure_Database_Connection.md
@@ -1147,19 +1067,6 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec primary pki -n caadmin ca-user-show caadmin
 
-      - name: Gather artifacts from primary container
-        if: always()
-        run: |
-          mkdir -p /tmp/primary/dirsrv/conf
-          docker cp primary:/etc/dirsrv/slapd-localhost/. /tmp/primary/dirsrv/conf
-          mkdir -p /tmp/primary/dirsrv/logs
-          docker cp primary:/var/log/dirsrv/slapd-localhost/. /tmp/primary/dirsrv/logs
-          mkdir -p /tmp/primary/pki/conf
-          docker cp primary:/var/lib/pki/pki-tomcat/conf/. /tmp/primary/pki/conf
-          mkdir -p /tmp/primary/pki/logs
-          docker cp primary:/var/lib/pki/pki-tomcat/logs/. /tmp/primary/pki/logs
-          docker exec primary journalctl -u pki-tomcatd@pki-tomcat > /tmp/primary/pki/logs/systemd.log
-
       - name: Run secondary container
         run: |
           IMAGE=pki-runner \
@@ -1262,18 +1169,17 @@ jobs:
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec secondary pki -n caadmin ca-user-show caadmin
 
+      - name: Gather artifacts from primary container
+        if: always()
+        run: |
+          ci/ds-artifacts-save.sh primary
+          ci/pki-artifacts-save.sh primary
+
       - name: Gather CA artifacts from secondary container
         if: always()
         run: |
-          mkdir -p /tmp/secondary/dirsrv/conf
-          docker cp secondary:/etc/dirsrv/slapd-localhost/. /tmp/secondary/dirsrv/conf
-          mkdir -p /tmp/secondary/dirsrv/logs
-          docker cp secondary:/var/log/dirsrv/slapd-localhost/. /tmp/secondary/dirsrv/logs
-          mkdir -p /tmp/secondary/pki/conf
-          docker cp secondary:/var/lib/pki/pki-tomcat/conf/. /tmp/secondary/pki/conf
-          mkdir -p /tmp/secondary/pki/logs
-          docker cp secondary:/var/lib/pki/pki-tomcat/logs/. /tmp/secondary/pki/logs
-          docker exec secondary journalctl -u pki-tomcatd@pki-tomcat > /tmp/secondary/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh secondary
+          ci/pki-artifacts-save.sh secondary
 
       - name: Remove CA from secondary container
         run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
@@ -1293,8 +1199,7 @@ jobs:
         with:
           name: ca-secure-ds-primary-${{ matrix.os }}
           path: |
-            /tmp/primary/dirsrv/
-            /tmp/primary/pki/
+            /tmp/artifacts/primary
 
       - name: Upload artifacts from secondary container
         if: always()
@@ -1302,5 +1207,4 @@ jobs:
         with:
           name: ca-secure-ds-secondary-${{ matrix.os }}
           path: |
-            /tmp/secondary/dirsrv/
-            /tmp/secondary/pki/
+            /tmp/artifacts/secondary
