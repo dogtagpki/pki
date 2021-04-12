@@ -87,17 +87,6 @@ jobs:
       - name: Install TPS
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/tps.cfg -s TPS -v
 
-      - name: Gather config files
-        if: always()
-        run: docker exec pki tar cvf ${PKIDIR}/pki-conf.tar -C / etc/pki
-
-      - name: Upload config files
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: pki-conf-${{ matrix.os }}
-          path: pki-conf.tar
-
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
 
@@ -162,6 +151,12 @@ jobs:
           docker exec pki bash -c "pki -n caadmin tps-token-show $CUID | sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' > ${PKIDIR}/actual"
           diff expected actual
 
+      - name: Gather artifacts
+        if: always()
+        run: |
+          ci/ds-artifacts-save.sh pki
+          ci/pki-artifacts-save.sh pki
+
       - name: Remove TPS
         run: docker exec pki pkidestroy -i pki-tomcat -s TPS -v
 
@@ -177,18 +172,13 @@ jobs:
       - name: Remove DS
         run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Gather log files
-        if: always()
-        run: |
-          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec pki tar cvf ${PKIDIR}/pki-logs.tar -C / var/log/pki
-
-      - name: Upload log files
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-logs-${{ matrix.os }}
-          path: pki-logs.tar
+          name: tps-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/pki
 
   # docs/installation/tps/Installing_TPS_Clone.md
   # This test installs DS, CA, KRA, TKS, and TPS in the primary container,
@@ -248,17 +238,6 @@ jobs:
       - name: Install TPS in primary container
         run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/tps.cfg -s TPS -v
 
-      - name: Gather config files from primary container
-        if: always()
-        run: docker exec primary tar cvf ${PKIDIR}/primary-conf.tar -C / etc/pki
-
-      - name: Upload config files from primary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: primary-conf-${{ matrix.os }}
-          path: primary-conf.tar
-
       - name: Setup secondary container
         run: |
           IMAGE=pki-runner \
@@ -301,17 +280,6 @@ jobs:
           docker exec secondary cp ${PKIDIR}/tps-certs.p12 .
           docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/tps-clone.cfg -s TPS -v
 
-      - name: Gather config files from secondary container
-        if: always()
-        run: docker exec secondary tar cvf ${PKIDIR}/secondary-conf.tar -C / etc/pki
-
-      - name: Upload config files from secondary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: secondary-conf-${{ matrix.os }}
-          path: secondary-conf.tar
-
       - name: Verify admin user
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
@@ -321,6 +289,18 @@ jobs:
               --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec secondary pki -n caadmin tps-user-show tpsadmin
+
+      - name: Gather artifacts from primary container
+        if: always()
+        run: |
+          ci/ds-artifacts-save.sh primary
+          ci/pki-artifacts-save.sh primary
+
+      - name: Gather artifacts from secondary container
+        if: always()
+        run: |
+          ci/ds-artifacts-save.sh secondary
+          ci/pki-artifacts-save.sh secondary
 
       - name: Remove TPS from secondary container
         run: docker exec secondary pkidestroy -i pki-tomcat -s TPS -v
@@ -339,19 +319,6 @@ jobs:
 
       - name: Disconnect secondary container from network
         run: docker network disconnect example secondary
-
-      - name: Gather log files from secondary container
-        if: always()
-        run: |
-          docker exec secondary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec secondary tar cvf ${PKIDIR}/secondary-logs.tar -C / var/log/pki
-
-      - name: Upload log files from secondary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: secondary-logs-${{ matrix.os }}
-          path: secondary-logs.tar
 
       - name: Remove TPS from primary container
         run: docker exec primary pkidestroy -i pki-tomcat -s TPS -v
@@ -374,15 +341,18 @@ jobs:
       - name: Remove network
         run: docker network rm example
 
-      - name: Gather log files from primary container
-        if: always()
-        run: |
-          docker exec primary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec primary tar cvf ${PKIDIR}/primary-logs.tar -C / var/log/pki
-
-      - name: Upload log files from primary container
+      - name: Upload artifacts from primary container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: primary-logs-${{ matrix.os }}
-          path: primary-logs.tar
+          name: tps-clone-primary-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/primary
+
+      - name: Upload artifacts from secondary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: tps-clone-secondary-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/secondary
