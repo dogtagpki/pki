@@ -102,15 +102,8 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          mkdir -p /tmp/pki/dirsrv/conf
-          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
-          mkdir -p /tmp/pki/dirsrv/logs
-          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
-          mkdir -p /tmp/pki/pki/conf
-          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
-          mkdir -p /tmp/pki/pki/logs
-          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
-          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh pki
+          ci/pki-artifacts-save.sh pki
 
       - name: Remove KRA
         run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
@@ -127,8 +120,7 @@ jobs:
         with:
           name: kra-${{ matrix.os }}
           path: |
-            /tmp/pki/dirsrv/
-            /tmp/pki/pki/
+            /tmp/artifacts/pki
 
   # docs/installation/kra/Installing_KRA_on_Separate_Instance.md
   kra-separate-test:
@@ -228,28 +220,14 @@ jobs:
       - name: Gather artifacts from CA container
         if: always()
         run: |
-          mkdir -p /tmp/ca/dirsrv/conf
-          docker cp ca:/etc/dirsrv/slapd-localhost/. /tmp/ca/dirsrv/conf
-          mkdir -p /tmp/ca/dirsrv/logs
-          docker cp ca:/var/log/dirsrv/slapd-localhost/. /tmp/ca/dirsrv/logs
-          mkdir -p /tmp/ca/pki/conf
-          docker cp ca:/var/lib/pki/pki-tomcat/conf/. /tmp/ca/pki/conf
-          mkdir -p /tmp/ca/pki/logs
-          docker cp ca:/var/lib/pki/pki-tomcat/logs/. /tmp/ca/pki/logs
-          docker exec ca journalctl -u pki-tomcatd@pki-tomcat > /tmp/ca/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh ca
+          ci/pki-artifacts-save.sh ca
 
       - name: Gather artifacts from KRA container
         if: always()
         run: |
-          mkdir -p /tmp/kra/dirsrv/conf
-          docker cp kra:/etc/dirsrv/slapd-localhost/. /tmp/kra/dirsrv/conf
-          mkdir -p /tmp/kra/dirsrv/logs
-          docker cp kra:/var/log/dirsrv/slapd-localhost/. /tmp/kra/dirsrv/logs
-          mkdir -p /tmp/kra/pki/conf
-          docker cp kra:/var/lib/pki/pki-tomcat/conf/. /tmp/kra/pki/conf
-          mkdir -p /tmp/kra/pki/logs
-          docker cp kra:/var/lib/pki/pki-tomcat/logs/. /tmp/kra/pki/logs
-          docker exec kra journalctl -u pki-tomcatd@pki-tomcat > /tmp/kra/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh kra
+          ci/pki-artifacts-save.sh kra
 
       - name: Remove KRA from KRA container
         run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
@@ -278,8 +256,7 @@ jobs:
         with:
           name: kra-separate-ca-${{ matrix.os }}
           path: |
-            /tmp/ca/dirsrv/
-            /tmp/ca/pki/
+            /tmp/artifacts/ca
 
       - name: Upload artifacts from KRA container
         if: always()
@@ -287,8 +264,7 @@ jobs:
         with:
           name: kra-separate-kra-${{ matrix.os }}
           path: |
-            /tmp/kra/dirsrv/
-            /tmp/kra/pki/
+            /tmp/artifacts/kra
 
   # docs/installation/kra/Installing_KRA_with_External_Certificates.md
   kra-external-certs-test:
@@ -439,28 +415,14 @@ jobs:
       - name: Gather artifacts from CA container
         if: always()
         run: |
-          mkdir -p /tmp/ca/dirsrv/conf
-          docker cp ca:/etc/dirsrv/slapd-localhost/. /tmp/ca/dirsrv/conf
-          mkdir -p /tmp/ca/dirsrv/logs
-          docker cp ca:/var/log/dirsrv/slapd-localhost/. /tmp/ca/dirsrv/logs
-          mkdir -p /tmp/ca/pki/conf
-          docker cp ca:/var/lib/pki/pki-tomcat/conf/. /tmp/ca/pki/conf
-          mkdir -p /tmp/ca/pki/logs
-          docker cp ca:/var/lib/pki/pki-tomcat/logs/. /tmp/ca/pki/logs
-          docker exec ca journalctl -u pki-tomcatd@pki-tomcat > /tmp/ca/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh ca
+          ci/pki-artifacts-save.sh ca
 
       - name: Gather artifacts from KRA container
         if: always()
         run: |
-          mkdir -p /tmp/kra/dirsrv/conf
-          docker cp kra:/etc/dirsrv/slapd-localhost/. /tmp/kra/dirsrv/conf
-          mkdir -p /tmp/kra/dirsrv/logs
-          docker cp kra:/var/log/dirsrv/slapd-localhost/. /tmp/kra/dirsrv/logs
-          mkdir -p /tmp/kra/pki/conf
-          docker cp kra:/var/lib/pki/pki-tomcat/conf/. /tmp/kra/pki/conf
-          mkdir -p /tmp/kra/pki/logs
-          docker cp kra:/var/lib/pki/pki-tomcat/logs/. /tmp/kra/pki/logs
-          docker exec kra journalctl -u pki-tomcatd@pki-tomcat > /tmp/kra/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh kra
+          ci/pki-artifacts-save.sh kra
 
       - name: Remove KRA from KRA container
         run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
@@ -489,8 +451,7 @@ jobs:
         with:
           name: kra-external-certs-ca-${{ matrix.os }}
           path: |
-            /tmp/ca/dirsrv/
-            /tmp/ca/pki/
+            /tmp/artifacts/ca
 
       - name: Upload artifacts from KRA container
         if: always()
@@ -498,8 +459,7 @@ jobs:
         with:
           name: kra-external-certs-kra-${{ matrix.os }}
           path: |
-            /tmp/kra/dirsrv/
-            /tmp/kra/pki/
+            /tmp/artifacts/kra
 
   # docs/installation/kra/Installing_KRA_Clone.md
   kra-clone-test:
@@ -632,41 +592,20 @@ jobs:
       - name: Gather artifacts from primary container
         if: always()
         run: |
-          mkdir -p /tmp/primary/dirsrv/conf
-          docker cp primary:/etc/dirsrv/slapd-localhost/. /tmp/primary/dirsrv/conf
-          mkdir -p /tmp/primary/dirsrv/logs
-          docker cp primary:/var/log/dirsrv/slapd-localhost/. /tmp/primary/dirsrv/logs
-          mkdir -p /tmp/primary/pki/conf
-          docker cp primary:/var/lib/pki/pki-tomcat/conf/. /tmp/primary/pki/conf
-          mkdir -p /tmp/primary/pki/logs
-          docker cp primary:/var/lib/pki/pki-tomcat/logs/. /tmp/primary/pki/logs
-          docker exec primary journalctl -u pki-tomcatd@pki-tomcat > /tmp/primary/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh primary
+          ci/pki-artifacts-save.sh primary
 
       - name: Gather artifacts from secondary container
         if: always()
         run: |
-          mkdir -p /tmp/secondary/dirsrv/conf
-          docker cp secondary:/etc/dirsrv/slapd-localhost/. /tmp/secondary/dirsrv/conf
-          mkdir -p /tmp/secondary/dirsrv/logs
-          docker cp secondary:/var/log/dirsrv/slapd-localhost/. /tmp/secondary/dirsrv/logs
-          mkdir -p /tmp/secondary/pki/conf
-          docker cp secondary:/var/lib/pki/pki-tomcat/conf/. /tmp/secondary/pki/conf
-          mkdir -p /tmp/secondary/pki/logs
-          docker cp secondary:/var/lib/pki/pki-tomcat/logs/. /tmp/secondary/pki/logs
-          docker exec secondary journalctl -u pki-tomcatd@pki-tomcat > /tmp/secondary/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh secondary
+          ci/pki-artifacts-save.sh secondary
 
       - name: Gather artifacts from tertiary container
         if: always()
         run: |
-          mkdir -p /tmp/tertiary/dirsrv/conf
-          docker cp tertiary:/etc/dirsrv/slapd-localhost/. /tmp/tertiary/dirsrv/conf
-          mkdir -p /tmp/tertiary/dirsrv/logs
-          docker cp tertiary:/var/log/dirsrv/slapd-localhost/. /tmp/tertiary/dirsrv/logs
-          mkdir -p /tmp/tertiary/pki/conf
-          docker cp tertiary:/var/lib/pki/pki-tomcat/conf/. /tmp/tertiary/pki/conf
-          mkdir -p /tmp/tertiary/pki/logs
-          docker cp tertiary:/var/lib/pki/pki-tomcat/logs/. /tmp/tertiary/pki/logs
-          docker exec tertiary journalctl -u pki-tomcatd@pki-tomcat > /tmp/tertiary/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh tertiary
+          ci/pki-artifacts-save.sh tertiary
 
       - name: Remove KRA from tertiary container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s KRA -v
@@ -713,8 +652,7 @@ jobs:
         with:
           name: kra-clone-primary-${{ matrix.os }}
           path: |
-            /tmp/primary/dirsrv/
-            /tmp/primary/pki/
+            /tmp/artifacts/primary
 
       - name: Upload artifacts from secondary container
         if: always()
@@ -722,8 +660,7 @@ jobs:
         with:
           name: kra-clone-secondary-${{ matrix.os }}
           path: |
-            /tmp/secondary/dirsrv/
-            /tmp/secondary/pki/
+            /tmp/artifacts/secondary
 
       - name: Upload artifacts from tertiary container
         if: always()
@@ -731,8 +668,7 @@ jobs:
         with:
           name: kra-clone-tertiary-${{ matrix.os }}
           path: |
-            /tmp/tertiary/dirsrv/
-            /tmp/tertiary/pki/
+            /tmp/artifacts/tertiary
 
   kra-standalone-test:
     name: Installing Standalone KRA
@@ -864,15 +800,8 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          mkdir -p /tmp/pki/dirsrv/conf
-          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
-          mkdir -p /tmp/pki/dirsrv/logs
-          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
-          mkdir -p /tmp/pki/pki/conf
-          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
-          mkdir -p /tmp/pki/pki/logs
-          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
-          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+          ci/ds-artifacts-save.sh pki
+          ci/pki-artifacts-save.sh pki
 
       - name: Remove KRA
         run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
@@ -886,5 +815,4 @@ jobs:
         with:
           name: kra-standalone-${{ matrix.os }}
           path: |
-            /tmp/pki/dirsrv/
-            /tmp/pki/pki/
+            /tmp/artifacts/pki
