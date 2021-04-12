@@ -27,11 +27,16 @@
       pause:
         minutes: 1
 
-    - name: Uncomment database lines from file
-      replace:
+    - name: Add postgress entry for pki-acme
+      blockinfile:
         path: /usr/share/pki/acme/openshift/pki-acme-database.yaml
-        regexp: '# '
-        replace: ''
+        insertafter: 'stringData:'
+        block: |
+          #postgress database entry
+            class: org.dogtagpki.acme.database.PostgreSQLDatabase
+            password: {{variable.POSTGRES_PASSWORD}}
+            user: {{variable.POSTGRES_USER}}
+            url: jdbc:postgresql://postgresql:{{variable.POSTGRES_PORT}}/acme
 
     - name: Removing InMemoryDatabase entry
       replace:
