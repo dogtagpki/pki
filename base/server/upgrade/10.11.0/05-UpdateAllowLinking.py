@@ -6,6 +6,7 @@
 from __future__ import absolute_import
 import logging
 from lxml import etree
+import os
 
 import pki
 import pki.server
@@ -30,6 +31,9 @@ class UpdateAllowLinking(pki.server.upgrade.PKIServerUpgradeScriptlet):
         self.update_context_xml(subsystem.context_xml)
 
     def update_context_xml(self, context_xml):
+
+        if not os.path.exists(context_xml):
+            return
 
         logger.info('Updating %s', context_xml)
         self.backup(context_xml)
