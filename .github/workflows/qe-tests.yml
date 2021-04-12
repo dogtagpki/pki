@@ -109,19 +109,31 @@ jobs:
               -qsvvv \
               tests/dogtag/pytest-ansible/pytest/sanity/test_role_users.py
 
-      - name: Gather log files from master container
+      - name: Gather artifacts
         if: always()
         run: |
-          docker exec pki1 bash -c "journalctl -u pki-tomcatd@topology-02-CA > /var/log/pki/topology-02-CA/systemd.log"
-          docker exec pki1 bash -c "journalctl -u pki-tomcatd@topology-02-KRA > /var/log/pki/topology-02-KRA/systemd.log"
-          docker exec pki1 bash -c "journalctl -u pki-tomcatd@topology-02-OCSP > /var/log/pki/topology-02-OCSP/systemd.log"
-          docker exec pki1 bash -c "journalctl -u pki-tomcatd@topology-02-TKS > /var/log/pki/topology-02-TKS/systemd.log"
-          docker exec pki1 bash -c "journalctl -u pki-tomcatd@topology-02-TPS > /var/log/pki/topology-02-TPS/systemd.log"
-          docker exec pki1 tar cvf ${PKIDIR}/pki1-logs.tar -C / var/log/pki
+          ci/ds-artifacts-save.sh pki1 topology-02-testingmaster
+          mkdir -p /tmp/artifacts/pki1/etc/pki
+          mkdir -p /tmp/artifacts/pki1/var/log
+          docker exec pki1 ls -la /etc/pki
+          docker cp pki1:/etc/pki/pki.conf /tmp/artifacts/pki1/etc/pki
+          docker cp pki1:/etc/pki/topology-02-CA /tmp/artifacts/pki1/etc/pki
+          docker cp pki1:/etc/pki/topology-02-KRA /tmp/artifacts/pki1/etc/pki
+          docker cp pki1:/etc/pki/topology-02-OCSP /tmp/artifacts/pki1/etc/pki
+          docker cp pki1:/etc/pki/topology-02-TKS /tmp/artifacts/pki1/etc/pki
+          docker cp pki1:/etc/pki/topology-02-TPS /tmp/artifacts/pki1/etc/pki
+          docker exec pki1 ls -la /var/log/pki
+          docker cp pki1:/var/log/pki /tmp/artifacts/pki1/var/log
+          docker exec pki1 journalctl -u pki-tomcatd@topology-02-CA > /tmp/artifacts/pki1/var/log/pki/topology-02-CA/systemd.log
+          docker exec pki1 journalctl -u pki-tomcatd@topology-02-KRA > /tmp/artifacts/pki1/var/log/pki/topology-02-KRA/systemd.log
+          docker exec pki1 journalctl -u pki-tomcatd@topology-02-OCSP > /tmp/artifacts/pki1/var/log/pki/topology-02-OCSP/systemd.log
+          docker exec pki1 journalctl -u pki-tomcatd@topology-02-TKS > /tmp/artifacts/pki1/var/log/pki/topology-02-TKS/systemd.log
+          docker exec pki1 journalctl -u pki-tomcatd@topology-02-TPS > /tmp/artifacts/pki1/var/log/pki/topology-02-TPS/systemd.log
 
-      - name: Upload log files from master container
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki1-logs-${{ matrix.os }}
-          path: pki1-logs.tar
+          name: sanity-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/pki1
