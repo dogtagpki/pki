@@ -1836,11 +1836,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 pair = CryptoUtil.generateECCKeyPair(
                         token,
                         keyCurve /* ECC_curve default */,
-                        null,
-                        CryptoUtil.ECDH_USAGES_MASK,
                         tp /* temporary */,
                         sp ? 1 : 0 /* sensitive */,
-                        ep ? 1 : 0 /* extractable */);
+                        ep ? 1 : 0 /* extractable */,
+                        null,
+                        CryptoUtil.ECDH_USAGES_MASK);
                 logger.debug("NetkeyKeygenService: after key pair generation" );
             } catch (Exception e) {
                 logger.warn("NetkeyKeygenService: key pair generation with exception: " + e.getMessage(), e);

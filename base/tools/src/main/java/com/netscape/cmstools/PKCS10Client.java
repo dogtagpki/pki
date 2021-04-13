@@ -236,12 +236,14 @@ public class PKCS10Client {
 
             }  else if (alg.equals("ec")) {
 
-                pair = CryptoUtil.generateECCKeyPair(token, ecc_curve,
-                       null,
-                       ec_ssl_ecdh ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK,
-                       ec_temporary,
-                       ec_sensitive,
-                       ec_extractable);
+                pair = CryptoUtil.generateECCKeyPair(
+                        token,
+                        ecc_curve,
+                        ec_temporary,
+                        ec_sensitive,
+                        ec_extractable,
+                        null,
+                        ec_ssl_ecdh ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK);
                 if (pair == null) {
                     System.out.println("PKCS10Client: pair null.");
                     System.exit(1);

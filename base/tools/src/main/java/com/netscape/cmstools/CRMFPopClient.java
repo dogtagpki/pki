@@ -669,11 +669,11 @@ public class CRMFPopClient {
         return CryptoUtil.generateECCKeyPair(
                 token,
                 curve,
-                null,
-                sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK,
                 temporary,
                 sensitive,
-                extractable);
+                extractable,
+                null,
+                sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK);
     }
 
     public CertRequest createCertRequest(

@@ -649,7 +649,7 @@ public class CryptoUtil {
             KeyPairGeneratorSpi.Usage[] usageMask
             ) throws Exception {
 
-        return generateECCKeyPair(token, keySize, usageOps, usageMask, false, -1, -1);
+        return generateECCKeyPair(token, keySize, false, -1, -1, usageOps, usageMask);
     }
 
     /*
@@ -659,12 +659,11 @@ public class CryptoUtil {
     public static KeyPair generateECCKeyPair(
             CryptoToken token,
             int keysize,
-            KeyPairGeneratorSpi.Usage[] usage_ops,
-            KeyPairGeneratorSpi.Usage[] usage_mask,
             boolean temporary,
             int sensitive,
-            int extractable
-            ) throws Exception {
+            int extractable,
+            KeyPairGeneratorSpi.Usage[] usage_ops,
+            KeyPairGeneratorSpi.Usage[] usage_mask) throws Exception {
 
         logger.info("CryptoUtil: Generating ECC key pair");
 
@@ -722,11 +721,11 @@ public class CryptoUtil {
         return generateECCKeyPair(
                 token,
                 curveName,
-                usageOps,
-                usageMask,
                 false,
                 -1,
-                -1);
+                -1,
+                usageOps,
+                usageMask);
     }
 
     /*
@@ -736,12 +735,11 @@ public class CryptoUtil {
     public static KeyPair generateECCKeyPair(
             CryptoToken token,
             String curveName,
-            KeyPairGeneratorSpi.Usage[] usage_ops,
-            KeyPairGeneratorSpi.Usage[] usage_mask,
             boolean temporary,
             int sensitive,
-            int extractable
-            ) throws Exception {
+            int extractable,
+            KeyPairGeneratorSpi.Usage[] usage_ops,
+            KeyPairGeneratorSpi.Usage[] usage_mask) throws Exception {
 
         logger.info("CryptoUtil: Generating ECC key pair");
 
