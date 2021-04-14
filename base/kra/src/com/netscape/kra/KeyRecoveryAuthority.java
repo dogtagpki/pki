@@ -263,7 +263,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         logger.info("KeyRecoveryAuthority: Starting key status update task");
 
-        RequestRepository requestRepository = engine.getRequestRepository();
+        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
         keyStatusUpdateTask = new KeyStatusUpdateTask(mKeyDB, requestRepository, interval);
         keyStatusUpdateTask.start();
     }
@@ -780,7 +780,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         String auditPublicKey = auditPublicKey(rec);
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestRepository requestRepository = engine.getRequestRepository();
+        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
         IRequest r = null;
 
         // ensure that any low-level exceptions are reported
@@ -849,7 +849,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         String auditSubjectID = auditSubjectID();
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestRepository requestRepository = engine.getRequestRepository();
+        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
         IRequest r = null;
 
         try {
@@ -1020,7 +1020,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         String auditAgents = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestRepository requestRepository = engine.getRequestRepository();
+        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
 
         IRequest r = null;
         Hashtable<String, Object> params = null;
@@ -1224,7 +1224,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             String delivery) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestRepository requestRepository = engine.getRequestRepository();
+        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
 
         IRequest r = requestRepository.createRequest("recovery");
         r.setExtData(RecoveryService.ATTR_SERIALNO, kid);
@@ -1293,7 +1293,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         KRAEngine engine = KRAEngine.getInstance();
 
-        RequestRepository requestRepository = engine.getRequestRepository();
+        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
         IRequest r = requestRepository.createRequest("recovery");
 
         ByteArrayOutputStream certChainOut = new ByteArrayOutputStream();

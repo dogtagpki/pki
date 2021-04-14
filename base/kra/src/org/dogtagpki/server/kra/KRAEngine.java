@@ -27,6 +27,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 @WebListener
@@ -50,6 +51,10 @@ public class KRAEngine extends CMSEngine implements ServletContextListener {
 
     public KRAConfigurator createConfigurator() throws Exception {
         return new KRAConfigurator(this);
+    }
+
+    public KeyRequestRepository getKeyRequestRepository() {
+        return (KeyRequestRepository) requestRepository;
     }
 
     public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {

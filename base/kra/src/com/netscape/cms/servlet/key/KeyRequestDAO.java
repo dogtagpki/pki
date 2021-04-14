@@ -67,7 +67,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.dbs.KeyRepository;
-import com.netscape.cmscore.request.RequestRepository;
+import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -203,7 +203,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestRepository requestRepository = engine.getRequestRepository();
+        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
 
         boolean ephemeral = kra.isEphemeral(realm);
         RequestId requestID = requestRepository.createRequestID(ephemeral);
@@ -275,7 +275,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestRepository requestRepository = engine.getRequestRepository();
+        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
 
         RequestId requestID = requestRepository.createRequestID(ephemeral);
         IRequest request = requestRepository.createRequest(requestID, IRequest.SECURITY_DATA_RECOVERY_REQUEST);
@@ -447,7 +447,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestRepository requestRepository = engine.getRequestRepository();
+        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
         IRequest request = requestRepository.createRequest(IRequest.SYMKEY_GENERATION_REQUEST);
 
         request.setExtData(IRequest.KEY_GEN_ALGORITHM, algName);
@@ -537,7 +537,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             }
         }
 
-        RequestRepository requestRepository = engine.getRequestRepository();
+        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
         IRequest request = requestRepository.createRequest(IRequest.ASYMKEY_GENERATION_REQUEST);
 
         request.setExtData(IRequest.KEY_GEN_ALGORITHM, algName);

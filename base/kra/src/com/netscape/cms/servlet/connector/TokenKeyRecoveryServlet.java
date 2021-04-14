@@ -39,8 +39,8 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
+import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * TokenKeyRecoveryServlet
@@ -150,7 +150,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
     private void processTokenKeyRecovery(HttpServletRequest req,
             HttpServletResponse resp) throws EBaseException {
         KRAEngine engine = KRAEngine.getInstance();
-        RequestRepository requestRepository = engine.getRequestRepository();
+        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
         IRequest thisreq = null;
 

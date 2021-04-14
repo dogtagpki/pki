@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.connector.IRemoteRequest;
+import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
@@ -41,8 +42,8 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
+import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * GenerateKeyPairServlet
@@ -130,8 +131,8 @@ public class GenerateKeyPairServlet extends CMSServlet {
     private void processServerSideKeyGen(HttpServletRequest req,
             HttpServletResponse resp) throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        RequestRepository requestRepository = engine.getRequestRepository();
+        KRAEngine engine = KRAEngine.getInstance();
+        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
         IRequest thisreq = null;
 
