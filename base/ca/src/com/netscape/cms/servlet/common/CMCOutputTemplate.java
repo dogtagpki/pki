@@ -102,8 +102,8 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -1344,7 +1344,7 @@ public class CMCOutputTemplate {
                             entryExtn);
                     RevokedCertImpl[] revCertImpls = new RevokedCertImpl[1];
                     revCertImpls[0] = revCertImpl;
-                    RequestRepository requestRepository = engine.getRequestRepository();
+                    CertRequestRepository requestRepository = engine.getCertRequestRepository();
                     IRequest revReq = requestRepository.createRequest(IRequest.REVOCATION_REQUEST);
                     auditReqID = revReq.getRequestId().toString();
                     revReq.setExtData(IRequest.CERT_INFO, revCertImpls);

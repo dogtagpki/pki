@@ -66,7 +66,7 @@ import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.request.ARequestQueue;
-import com.netscape.cmscore.request.RequestRepository;
+import com.netscape.cmscore.request.CertRequestRepository;
 
 /**
  * Takes the certificate info (serial number) and optional challenge phrase, creates a
@@ -220,7 +220,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             } else if (mAuthority instanceof IRegistrationAuthority) {
                 IRequest getCertsChallengeReq = null;
 
-                RequestRepository requestRepository = engine.getRequestRepository();
+                CertRequestRepository requestRepository = engine.getCertRequestRepository();
                 getCertsChallengeReq = requestRepository.createRequest(GETCERTS_FOR_CHALLENGE_REQUEST);
                 getCertsChallengeReq.setExtData(SERIALNO_ARRAY, serialNoArray);
                 mQueue.processRequest(getCertsChallengeReq);
@@ -456,7 +456,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 revCertImpls[i] = revCertImplsV.elementAt(i);
             }
 
-            RequestRepository requestRepository = engine.getRequestRepository();
+            CertRequestRepository requestRepository = engine.getCertRequestRepository();
             IRequest revReq = requestRepository.createRequest(IRequest.REVOCATION_REQUEST);
 
             revReq.setExtData(IRequest.CERT_INFO, revCertImpls);

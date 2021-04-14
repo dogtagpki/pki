@@ -32,8 +32,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.http.HttpResponse;
 
 public class LocalConnector implements IConnector {
@@ -64,7 +64,7 @@ public class LocalConnector implements IConnector {
         logger.debug("to " + mDest.getId() + " id=" + r.getRequestId());
 
         CAEngine engine = CAEngine.getInstance();
-        RequestRepository requestRepository = engine.getRequestRepository();
+        CertRequestRepository requestRepository = engine.getCertRequestRepository();
         IRequest destreq = requestRepository.createRequest(r.getRequestType());
 
         logger.debug("local connector dest req " +

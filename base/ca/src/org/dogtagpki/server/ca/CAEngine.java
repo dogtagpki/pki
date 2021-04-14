@@ -202,6 +202,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         connectionFactory.init(socketConfig, ldapConfig, getPasswordStore());
     }
 
+    public CertRequestRepository getCertRequestRepository() {
+        return (CertRequestRepository) requestRepository;
+    }
+
     public CertificateRepository getCertificateRepository() {
         return certificateRepository;
     }

@@ -78,7 +78,7 @@ import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
-import com.netscape.cmscore.request.RequestRepository;
+import com.netscape.cmscore.request.CertRequestRepository;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -2153,7 +2153,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             logger.debug("recoverCRLCache  mFirstUnsaved=" + mFirstUnsaved + "  filter=" + filter);
 
             CAEngine engine = CAEngine.getInstance();
-            RequestRepository requestRepository = engine.getRequestRepository();
+            CertRequestRepository requestRepository = engine.getCertRequestRepository();
 
             IRequestVirtualList list = requestRepository.getPagedRequestsByFilter(
                         new RequestId(mFirstUnsaved),

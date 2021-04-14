@@ -56,7 +56,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.request.RequestRepository;
+import com.netscape.cmscore.request.CertRequestRepository;
 
 /**
  * Certificate Renewal
@@ -206,7 +206,7 @@ public class RenewalServlet extends CMSServlet {
             X509CertInfo new_certInfo = null;
 
             CAEngine engine = CAEngine.getInstance();
-            RequestRepository requestRepository = engine.getRequestRepository();
+            CertRequestRepository requestRepository = engine.getCertRequestRepository();
             req = requestRepository.createRequest(IRequest.RENEWAL_REQUEST);
             req.setExtData(IRequest.OLD_SERIALS, new BigInteger[] { old_serial_no });
             if (old_cert != null) {
