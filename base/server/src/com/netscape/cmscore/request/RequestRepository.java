@@ -22,6 +22,7 @@ import java.security.SecureRandom;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
@@ -197,7 +198,7 @@ public class RequestRepository extends Repository {
         DBSSession dbs = dbSubsystem.createSession();
 
         try {
-            String dn = "cn" + "=" + requestRecord.mRequestId + "," + mBaseDN;
+            String dn = "cn=" + requestRecord.mRequestId + "," + mBaseDN;
             dbs.add(dn, requestRecord);
 
         } catch (EBaseException e) {
@@ -207,6 +208,26 @@ public class RequestRepository extends Repository {
         } finally {
             dbs.close();
         }
+    }
+
+    public IRequest readRequest(RequestId id) throws EBaseException {
+
+        String name = "cn=" + id + "," + mBaseDN;
+
+        DBSSession dbs = dbSubsystem.createSession();
+        RequestRecord record;
+
+        try {
+            record = (RequestRecord) dbs.read(name);
+
+        } catch (EDBRecordNotFoundException e) {
+            return null;
+
+        } finally {
+            dbs.close();
+        }
+
+        return record.toRequest();
     }
 
     public void modifyRequest(IRequest request) throws EBaseException {
@@ -232,7 +253,7 @@ public class RequestRepository extends Repository {
         DBSSession dbs = dbSubsystem.createSession();
 
         try {
-            String dn = "cn" + "=" + request.getRequestId() + "," + mBaseDN;
+            String dn = "cn=" + request.getRequestId() + "," + mBaseDN;
             dbs.modify(dn, mods);
 
         } catch (EBaseException e) {
@@ -253,8 +274,7 @@ public class RequestRepository extends Repository {
             IDBSearchResults sr = s.search(mBaseDN, "(" + RequestRecord.ATTR_REQUEST_ID + "=*)");
             while (sr.hasMoreElements()) {
                 RequestRecord r = (RequestRecord) sr.nextElement();
-                String name = "cn" + "=" +
-                        r.getRequestId().toString() + "," + getBaseDN();
+                String name = "cn=" + r.getRequestId() + "," + mBaseDN;
                 s.delete(name);
             }
         } finally {

@@ -105,51 +105,8 @@ public class RequestQueue extends ARequestQueue {
         return clone;
     }
 
-    protected IRequest readRequest(RequestId id) {
-        RequestRecord record;
-
-        // String name = Schema.LDAP_ATTR_REQUEST_ID + "=" +
-        String name = "cn" + "=" +
-                id + "," + mBaseDN;
-
-        Object obj = null;
-        DBSSession dbs = null;
-
-        try {
-            dbs = dbSubsystem.createSession();
-            obj = dbs.read(name);
-        } catch (EBaseException e) {
-            logger.warn("RequestQueue: " + e.getMessage(), e);
-        } finally {
-            // Close session - ignoring errors (UTIL)
-            if (dbs != null)
-                try {
-                    dbs.close();
-                } catch (EBaseException e) {
-                }
-        }
-
-        // TODO Errors!!!
-        if (obj == null || !(obj instanceof RequestRecord))
-            return null;
-
-        record = (RequestRecord) obj;
-
-        /*
-         setRequestStatus(r, record.mRequestState);
-         r.setSourceId(record.mSourceId);
-         r.setRequestOwner(record.mOwner);
-         record.storeAttrs(r, record.mRequestAttrs);
-         setModificationTime(r, record.mModifyTime);
-         setCreationTime(r, record.mCreateTime);
-         */
-
-        try {
-            return record.toRequest();
-        } catch (EBaseException e) {
-            logger.error("RequestQueue: " + e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
+    public IRequest findRequest(RequestId id) throws EBaseException {
+        return mRepository.readRequest(id);
     }
 
     public void updateRequest(IRequest request) throws EBaseException {

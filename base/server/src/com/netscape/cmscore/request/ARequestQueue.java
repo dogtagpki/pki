@@ -92,29 +92,6 @@ public abstract class ARequestQueue {
     }
 
     /**
-     * Read a request from the persistant store. (abstract)
-     * <p>
-     * This function is called to create the in-memory version of a request object.
-     * <p>
-     * The implementation of this object can use the createRequest member function to create a new instance of an
-     * IRequest, and use the setRequestStatus, setCreationTime and setModificationTime functions to set those values.
-     * <p>
-     *
-     * @param id
-     *            the id of the request to read.
-     * @return
-     *         a new IRequest object. null is returned if the object cannot
-     *         be located.
-     * @exception EBaseException
-     *                TODO: this is not implemented yet
-     * @see #createRequest
-     * @see #setRequestStatus
-     * @see #setModificationTime
-     * @see #setCreationTime
-     */
-    protected abstract IRequest readRequest(RequestId id);
-
-    /**
      * Get complete list of RequestId values found i this
      * queue.
      * <p>
@@ -186,18 +163,7 @@ public abstract class ARequestQueue {
      * @return found request
      * @exception EBaseException failed to access request queue
      */
-    public IRequest findRequest(RequestId id)
-            throws EBaseException {
-        IRequest r;
-
-        // mTable.lock(id);
-
-        r = readRequest(id);
-
-        // if (r == null) mTable.unlock(id);
-
-        return r;
-    }
+    public abstract IRequest findRequest(RequestId id)  throws EBaseException;
 
     /**
      * Sets request scheduler.
