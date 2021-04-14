@@ -18,9 +18,11 @@
 package org.dogtagpki.server.ca;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.Principal;
+import java.util.Date;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
@@ -28,6 +30,8 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
@@ -134,8 +138,7 @@ public class CAConfigurator extends Configurator {
 
     public X509CertImpl createLocalCert(
             String certType,
-            String dn,
-            String issuerDN,
+            String subjectDN,
             String keyAlgorithm,
             KeyPair keyPair,
             X509Key x509key,
@@ -148,22 +151,44 @@ public class CAConfigurator extends Configurator {
             String subjectName) throws Exception {
 
         logger.info("CAConfigurator: Creating local certificate");
-        logger.info("CAConfigurator: - subject DN: " + dn);
-        logger.info("CAConfigurator: - issuer DN: " + issuerDN);
-        logger.info("CAConfigurator: - key algorithm: " + keyAlgorithm);
 
+        Date date = new Date();
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
+
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+        BigInteger serialNumber = certificateRepository.getNextSerialNumber();
+        logger.info("CAConfigurator: - serial number: 0x" + serialNumber.toString(16));
+
+        CertificateIssuerName issuerName;
+        java.security.PrivateKey signingPrivateKey;
+
+        if (certType.equals("selfsign")) {
+            // create new issuer object for self-signed cert
+            issuerName = new CertificateIssuerName(new X500Name(subjectDN));
+            signingPrivateKey = keyPair.getPrivate();
+
+        } else {
+            // use CA's issuer object to preserve DN encoding
+            CertificateAuthority ca = engine.getCA();
+            issuerName = ca.getIssuerObj();
+            signingPrivateKey = ca.getSigningUnit().getPrivateKey();
+        }
+
+        logger.info("CAConfigurator: - subject DN: " + subjectDN);
+        logger.info("CAConfigurator: - issuer DN: " + issuerName);
 
         CertificateExtensions extensions = new CertificateExtensions();
 
-        X509CertInfo info = ca.createCertInfo(
-                dn,
-                issuerDN,
-                keyAlgorithm,
+        X509CertInfo info = CryptoUtil.createX509CertInfo(
                 x509key,
-                certType,
+                serialNumber,
+                issuerName,
+                subjectDN,
+                date,
+                date,
+                keyAlgorithm,
                 extensions);
+
         logger.info("CAConfigurator: Cert info:\n" + info);
 
         String instanceRoot = cs.getInstanceDir();
@@ -186,13 +211,6 @@ public class CAConfigurator extends Configurator {
 
         profile.populate(req, info);
 
-        java.security.PrivateKey signingPrivateKey;
-        if (certType.equals("selfsign")) {
-            signingPrivateKey = keyPair.getPrivate();
-        } else {
-            signingPrivateKey = ca.getSigningUnit().getPrivateKey();
-        }
-
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
 
         engine.updateCertRequest(
@@ -205,7 +223,6 @@ public class CAConfigurator extends Configurator {
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(req);
 
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
         CertRecord certRecord = certificateRepository.createCertRecord(
                 req.getRequestId(),
                 profile.getProfileIDMapping(),
@@ -302,9 +319,7 @@ public class CAConfigurator extends Configurator {
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String certType = preopConfig.getString("cert.admin.type", "local");
-
         String dn = preopConfig.getString("cert.admin.dn");
-        String issuerDN = preopConfig.getString("cert.signing.dn", "");
 
         String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
         String profileFile = cs.getString("profile.caAdminCert.config");
@@ -356,7 +371,6 @@ public class CAConfigurator extends Configurator {
         return createLocalCert(
                 certType,
                 dn,
-                issuerDN,
                 keyAlgorithm,
                 keyPair,
                 x509key,

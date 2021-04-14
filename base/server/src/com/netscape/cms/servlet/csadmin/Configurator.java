@@ -421,8 +421,7 @@ public class Configurator {
 
     public X509CertImpl createLocalCert(
             String certType,
-            String dn,
-            String issuerDN,
+            String subjectDN,
             String keyAlgorithm,
             KeyPair keyPair,
             X509Key x509key,
@@ -759,8 +758,6 @@ public class Configurator {
                 && !(clone && tag.equals("sslserver"))
                 && (certType.equals("selfsign") || certType.equals("local"))) {
 
-            String issuerDN = preopConfig.getString("cert.signing.dn", "");
-
             String certRequestType = "pkcs10";
             String subjectName = null;
             X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
@@ -777,7 +774,6 @@ public class Configurator {
             certImpl = createLocalCert(
                     certType,
                     dn,
-                    issuerDN,
                     keyAlgorithm,
                     keyPair,
                     x509key,
