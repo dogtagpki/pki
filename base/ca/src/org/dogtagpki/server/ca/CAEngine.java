@@ -1695,7 +1695,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             IRequest request,
             String certRequestType,
             byte[] certRequest,
-            String subjectName,
+            X500Name subjectName,
             X509CertImpl cert) throws Exception {
 
         logger.info("CAEngine: Updating cert request " + request.getRequestId());
@@ -1712,8 +1712,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         if (subjectName != null) {
             logger.debug("CAEngine: - subject: " + subjectName);
-            new X500Name(subjectName); // check for errors
-            request.setExtData("subject", subjectName);
+            request.setExtData("subject", subjectName.toString());
         }
 
         request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);

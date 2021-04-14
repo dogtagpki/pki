@@ -1148,7 +1148,7 @@ public class CryptoUtil {
         }
     }
 
-    public static String getSubjectName(SEQUENCE crmfMsgs)
+    public static X500Name getSubjectName(SEQUENCE crmfMsgs)
             throws IOException {
         int nummsgs = crmfMsgs.size();
         if (nummsgs <= 0) {
@@ -1162,8 +1162,7 @@ public class CryptoUtil {
         n.encode(subjectEncStream);
 
         byte[] b = subjectEncStream.toByteArray();
-        X500Name subject = new X500Name(b);
-        return subject.toString();
+        return new X500Name(b);
     }
 
     /**

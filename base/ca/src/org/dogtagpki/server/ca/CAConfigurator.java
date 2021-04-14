@@ -69,7 +69,7 @@ public class CAConfigurator extends Configurator {
             boolean installAdjustValidity,
             String certRequestType,
             byte[] certRequest,
-            String subjectName) throws Exception {
+            X500Name subjectName) throws Exception {
 
         logger.info("CAConfigurator: Importing certificate and request into database");
         logger.info("CAConfigurator: - subject DN: " + cert.getSubjectDN());
@@ -148,7 +148,7 @@ public class CAConfigurator extends Configurator {
             String signingAlgorithm,
             String certRequestType,
             byte[] certRequest,
-            String subjectName) throws Exception {
+            X500Name subjectName) throws Exception {
 
         logger.info("CAConfigurator: Creating local certificate");
 
@@ -319,7 +319,7 @@ public class CAConfigurator extends Configurator {
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String certType = preopConfig.getString("cert.admin.type", "local");
-        String dn = preopConfig.getString("cert.admin.dn");
+        String subjectDN = request.getAdminSubjectDN();
 
         String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
         String profileFile = cs.getString("profile.caAdminCert.config");
@@ -334,7 +334,7 @@ public class CAConfigurator extends Configurator {
         byte[] binRequest = Utils.base64decode(certRequest);
 
         String certRequestType = request.getAdminCertRequestType();
-        String subjectName = request.getAdminSubjectDN();
+        X500Name subjectName;
         X509Key x509key;
 
         if (certRequestType.equals("crmf")) {
@@ -344,6 +344,7 @@ public class CAConfigurator extends Configurator {
 
         } else if (certRequestType.equals("pkcs10")) {
             PKCS10 pkcs10 = new PKCS10(binRequest);
+            subjectName = pkcs10.getSubjectName();
             x509key = pkcs10.getSubjectPublicKeyInfo();
 
         } else {
@@ -370,7 +371,7 @@ public class CAConfigurator extends Configurator {
 
         return createLocalCert(
                 certType,
-                dn,
+                subjectDN,
                 keyAlgorithm,
                 keyPair,
                 x509key,

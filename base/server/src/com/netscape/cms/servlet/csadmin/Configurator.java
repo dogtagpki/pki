@@ -41,6 +41,7 @@ import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
@@ -431,7 +432,7 @@ public class Configurator {
             String signingAlgorithm,
             String certRequestType,
             byte[] certRequest,
-            String subjectName) throws Exception {
+            X500Name subjectName) throws Exception {
 
         return null;
     }
@@ -609,7 +610,7 @@ public class Configurator {
             boolean installAdjustValidity,
             String certRequestType,
             byte[] certRequest,
-            String subjectName) throws Exception {
+            X500Name subjectName) throws Exception {
     }
 
     public void loadCert(
@@ -630,7 +631,7 @@ public class Configurator {
 
         boolean installAdjustValidity = !tag.equals("signing");
         String certRequestType = "pkcs10";
-        String subjectName = null;
+        X500Name subjectName = null;
 
         PKCS10 pkcs10 = new PKCS10(binCertRequest);
         X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
@@ -731,7 +732,7 @@ public class Configurator {
             }
         }
 
-        String dn = preopConfig.getString("cert." + tag + ".dn");
+        String subjectDN = certData.getSubjectDN();
         String keyAlgorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
         String extOID = preopConfig.getString("cert." + tag + ".ext.oid", null);
         String extData = preopConfig.getString("cert." + tag + ".ext.data", null);
@@ -744,7 +745,7 @@ public class Configurator {
         byte[] binCertRequest = createCertRequest(
                 tag,
                 keyPair,
-                dn,
+                subjectDN,
                 keyAlgorithm,
                 extOID,
                 extData,
@@ -759,7 +760,7 @@ public class Configurator {
                 && (certType.equals("selfsign") || certType.equals("local"))) {
 
             String certRequestType = "pkcs10";
-            String subjectName = null;
+            X500Name subjectName = null;
             X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
 
             boolean installAdjustValidity = !tag.equals("signing");
@@ -773,7 +774,7 @@ public class Configurator {
 
             certImpl = createLocalCert(
                     certType,
-                    dn,
+                    subjectDN,
                     keyAlgorithm,
                     keyPair,
                     x509key,
