@@ -322,6 +322,25 @@ public class RequestRepository extends Repository {
         return new SearchEnumeration(results);
     }
 
+    public IRequestList listRequestsByFilter(String filter, int maxSize, int timeLimit) throws EBaseException {
+
+        DBSSession dbs = dbSubsystem.createSession();
+        IDBSearchResults results = null;
+
+        try {
+            results = dbs.search(mBaseDN, filter, maxSize, timeLimit);
+
+        } finally {
+            dbs.close();
+        }
+
+        if (results == null) {
+            return null;
+        }
+
+        return new SearchEnumeration(results);
+    }
+
     /**
      * Gets a pageable list of IRequest entries in this queue. This
      * jumps right to the end of the list.

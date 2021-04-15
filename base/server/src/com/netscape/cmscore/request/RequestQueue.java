@@ -199,32 +199,6 @@ public class RequestQueue extends ARequestQueue {
         return new SearchEnumeration(results);
     }
 
-    /**
-     */
-    public IRequestList listRequestsByFilter(String f, int maxSize, int timeLimit) {
-        IDBSearchResults results = null;
-        DBSSession dbs = null;
-
-        try {
-            dbs = dbSubsystem.createSession();
-            results = dbs.search(mBaseDN, f, maxSize, timeLimit);
-        } catch (EBaseException e) {
-            logger.warn("RequestQueue: " + e.getMessage(), e);
-        } finally {
-            // Close session - ignoring errors (UTIL)
-            if (dbs != null)
-                try {
-                    dbs.close();
-                } catch (EBaseException e) {
-                }
-        }
-
-        if (results == null)
-            return null;
-
-        return new SearchEnumeration(results);
-    }
-
     public IRequestList listRequestsByStatus(RequestStatus s) {
         IDBSearchResults results = null;
         DBSSession dbs = null;

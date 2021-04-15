@@ -47,6 +47,7 @@ public abstract class CMSRequestDAO {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSRequestDAO.class);
 
+    protected RequestRepository requestRepository;
     protected ARequestQueue queue;
     protected AuthzSubsystem authz;
 
@@ -132,7 +133,7 @@ public abstract class CMSRequestDAO {
             // The non-vlv requests are indexed, but are not paginated.
             // We should think about whether they should be, or if we need to
             // limit the number of results returned.
-            IRequestList requests = queue.listRequestsByFilter(filter, maxResults, maxTime);
+            IRequestList requests = requestRepository.listRequestsByFilter(filter, maxResults, maxTime);
 
             if (requests == null) {
                 return ret;

@@ -73,6 +73,7 @@ public class CertRequestDAO extends CMSRequestDAO {
     public CertRequestDAO() {
 
         CAEngine engine = CAEngine.getInstance();
+        requestRepository = engine.getRequestRepository();
         queue = engine.getRequestQueue();
 
         ca = engine.getCA();

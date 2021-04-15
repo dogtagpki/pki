@@ -429,20 +429,6 @@ public abstract class ARequestQueue {
     }
 
     /**
-     * Returns an enumerator that lists all RequestIds for requests
-     * that match the filter.
-     * <p>
-     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
-     * object.
-     *
-     * @param filter search filter
-     * @param maxSize max size to return
-     * @param timeLimit timeout value for the search
-     * @return request list
-     */
-    public abstract IRequestList listRequestsByFilter(String filter, int maxSize, int timeLimit);
-
-    /**
      * Gets requests that are pending on handling by the service
      * <p>
      *
