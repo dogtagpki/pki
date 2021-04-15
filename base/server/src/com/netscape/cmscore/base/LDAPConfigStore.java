@@ -58,11 +58,6 @@ public class LDAPConfigStore extends ConfigStorage {
     private LDAPAttribute[] createAttrs;
 
     /**
-     *
-     */
-    private static final long serialVersionUID = 3642124526598175633L;
-
-    /**
      * Constructs an LDAP configuration store.
      * <P>
      *

@@ -68,8 +68,6 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     public final static Logger logger = LoggerFactory.getLogger(PropConfigStore.class);
 
-    private static final long serialVersionUID = 4714108964096659077L;
-
     protected static final String PROP_SUBSTORES = "substores";
 
     /**

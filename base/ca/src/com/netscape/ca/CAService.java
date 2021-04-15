@@ -1282,12 +1282,10 @@ class serviceIssue implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceIssue.class);
 
-    private ICertificateAuthority mCA;
     private CAService mService;
 
     public serviceIssue(CAService service) {
         mService = service;
-        mCA = mService.getCA();
     }
 
     public boolean service(IRequest request)
@@ -1372,12 +1370,10 @@ class serviceRenewal implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceRenewal.class);
 
-    private ICertificateAuthority mCA;
     private CAService mService;
 
     public serviceRenewal(CAService service) {
         mService = service;
-        mCA = mService.getCA();
     }
 
     public boolean service(IRequest request)
@@ -1538,12 +1534,8 @@ class serviceRenewal implements IServant {
 }
 
 class getCertsForChallenge implements IServant {
-    private ICertificateAuthority mCA;
-    private CAService mService;
 
     public getCertsForChallenge(CAService service) {
-        mService = service;
-        mCA = mService.getCA();
     }
 
     public boolean service(IRequest request)
@@ -1619,13 +1611,9 @@ class serviceCheckChallenge implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceCheckChallenge.class);
 
-    private ICertificateAuthority mCA;
-    private CAService mService;
     private MessageDigest mSHADigest = null;
 
     public serviceCheckChallenge(CAService service) {
-        mService = service;
-        mCA = mService.getCA();
         try {
             mSHADigest = MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException e) {
@@ -1739,12 +1727,10 @@ class serviceRevoke implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceRevoke.class);
 
-    private ICertificateAuthority mCA;
     private CAService mService;
 
     public serviceRevoke(CAService service) {
         mService = service;
-        mCA = mService.getCA();
     }
 
     public boolean service(IRequest request)
@@ -1834,12 +1820,10 @@ class serviceUnrevoke implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceUnrevoke.class);
 
-    private ICertificateAuthority mCA;
     private CAService mService;
 
     public serviceUnrevoke(CAService service) {
         mService = service;
-        mCA = mService.getCA();
     }
 
     public boolean service(IRequest request)
@@ -1951,12 +1935,7 @@ class serviceGetCRL implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceGetCRL.class);
 
-    private ICertificateAuthority mCA;
-    private CAService mService;
-
     public serviceGetCRL(CAService service) {
-        mService = service;
-        mCA = mService.getCA();
     }
 
     public boolean service(IRequest request)
@@ -1991,12 +1970,8 @@ class serviceGetCRL implements IServant {
 }
 
 class serviceGetRevocationInfo implements IServant {
-    private ICertificateAuthority mCA;
-    private CAService mService;
 
     public serviceGetRevocationInfo(CAService service) {
-        mService = service;
-        mCA = mService.getCA();
     }
 
     public boolean service(IRequest request)
@@ -2033,12 +2008,8 @@ class serviceGetRevocationInfo implements IServant {
 }
 
 class serviceGetCertificates implements IServant {
-    private ICertificateAuthority mCA;
-    private CAService mService;
 
     public serviceGetCertificates(CAService service) {
-        mService = service;
-        mCA = mService.getCA();
     }
 
     public boolean service(IRequest request)
@@ -2069,12 +2040,7 @@ class serviceCert4Crl implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceCert4Crl.class);
 
-    private ICertificateAuthority mCA;
-    private CAService mService;
-
     public serviceCert4Crl(CAService service) {
-        mService = service;
-        mCA = mService.getCA();
     }
 
     public boolean service(IRequest request)
@@ -2154,12 +2120,7 @@ class serviceUnCert4Crl implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceUnCert4Crl.class);
 
-    private ICertificateAuthority mCA;
-    private CAService mService;
-
     public serviceUnCert4Crl(CAService service) {
-        mService = service;
-        mCA = mService.getCA();
     }
 
     public boolean service(IRequest request)

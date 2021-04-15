@@ -43,11 +43,9 @@ public class SecurityDataRecoveryService implements IService {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDataRecoveryService.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    private KeyRecoveryAuthority kra;
     private SecurityDataProcessor processor = null;
 
     public SecurityDataRecoveryService(KeyRecoveryAuthority kra) {
-        this.kra = kra;
         processor = new SecurityDataProcessor(kra);
     }
 

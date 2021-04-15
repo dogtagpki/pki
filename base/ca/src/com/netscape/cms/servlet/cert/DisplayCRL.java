@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
@@ -72,7 +71,6 @@ public class DisplayCRL extends CMSServlet {
     //private final static String OUT_ERROR = "errorDetails";
 
     private String mFormPath = null;
-    private ICertificateAuthority mCA = null;
 
     /**
      * Constructs DisplayCRL servlet.
@@ -89,9 +87,6 @@ public class DisplayCRL extends CMSServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        if (mAuthority instanceof ICertificateAuthority) {
-            mCA = (ICertificateAuthority) mAuthority;
-        }
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
         if (mOutputTemplatePath != null)

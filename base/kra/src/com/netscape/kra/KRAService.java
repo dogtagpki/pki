@@ -52,14 +52,12 @@ public class KRAService implements IService {
 
 
     // private variables
-    private KeyRecoveryAuthority mKRA;
     private Hashtable<String, IService> mServices = new Hashtable<String, IService>();
 
     /**
      * Constructs KRA service.
      */
     public KRAService(KeyRecoveryAuthority kra) {
-        mKRA = kra;
         mServices.put(ENROLLMENT, new EnrollmentService(kra));
         mServices.put(RECOVERY, new RecoveryService(kra));
         mServices.put(NETKEY_KEYGEN, new NetkeyKeygenService(kra));

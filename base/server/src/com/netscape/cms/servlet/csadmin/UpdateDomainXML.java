@@ -48,8 +48,7 @@ public class UpdateDomainXML extends CMSServlet {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDomainXML.class);
 
     private static final long serialVersionUID = 4059169588555717548L;
-    private final static String SUCCESS = "0";
-    private final static String FAILED = "1";
+
     public UpdateDomainXML() {
         super();
     }
@@ -76,7 +75,6 @@ public class UpdateDomainXML extends CMSServlet {
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
         logger.debug("UpdateDomainXML: processing...");
-        String status = SUCCESS;
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
@@ -183,6 +181,7 @@ public class UpdateDomainXML extends CMSServlet {
 
         SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(cmsReq.getHttpReq()));
 
+        String status;
         if ((operation != null) && (operation.equals("remove"))) {
             status = processor.removeHost(type, host, sport);
 

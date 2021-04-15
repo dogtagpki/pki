@@ -76,7 +76,6 @@ public class AgentCertAuthentication implements AuthManager,
     private String mImplName = null;
     private AuthManagerConfig mConfig;
 
-    private UGSubsystem mUGSub = null;
     private CertUserLocator mCULocator = null;
 
     public AgentCertAuthentication() {
@@ -97,8 +96,6 @@ public class AgentCertAuthentication implements AuthManager,
         mImplName = implName;
         mConfig = config;
 
-        CMSEngine engine = CMS.getCMSEngine();
-        mUGSub = engine.getUGSubsystem();
         mCULocator = new ExactMatchCertUserLocator();
     }
 

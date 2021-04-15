@@ -31,12 +31,10 @@ import com.netscape.certsrv.request.IService;
  */
 public class SecurityDataService implements IService {
 
-    private KeyRecoveryAuthority kra;
     private SecurityDataProcessor processor = null;
 
     public SecurityDataService(KeyRecoveryAuthority kra) {
         processor = new SecurityDataProcessor(kra);
-        this.kra = kra;
     }
 
     /**

@@ -79,7 +79,6 @@ public class UpdateCRL extends CMSServlet {
     private static Vector<String> mTesting = new Vector<String>();
 
     private String mFormPath = null;
-    private ICertificateAuthority mCA = null;
 
     /**
      * Constructs UpdateCRL servlet.
@@ -95,8 +94,6 @@ public class UpdateCRL extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        if (mAuthority instanceof ICertificateAuthority)
-            mCA = (ICertificateAuthority) mAuthority;
 
         // override success to do output orw own template.
         mTemplates.remove(ICMSRequest.SUCCESS);
