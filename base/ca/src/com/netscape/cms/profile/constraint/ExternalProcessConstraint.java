@@ -152,8 +152,8 @@ public class ExternalProcessConstraint extends EnrollConstraint {
             if (timedOut)
                 p.destroyForcibly();
             else
-                stdout = IOUtils.toString(p.getInputStream());
-                stderr = IOUtils.toString(p.getErrorStream());
+                stdout = IOUtils.toString(p.getInputStream(), "UTF-8");
+                stderr = IOUtils.toString(p.getErrorStream(), "UTF-8");
         } catch (Throwable e) {
             String msg =
                 "Caught exception while executing command: " + this.executable;
