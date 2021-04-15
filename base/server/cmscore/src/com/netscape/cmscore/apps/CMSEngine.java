@@ -287,9 +287,8 @@ public class CMSEngine implements ICMSEngine {
 
     private static final int PW_OK =0;
     private static final int PW_BAD_SETUP = 1;
-    private static final int PW_INVALID_PASSWORD = 2;
+    private static final int PW_INVALID_CREDENTIALS = 2;
     private static final int PW_CANNOT_CONNECT = 3;
-    private static final int PW_NO_USER = 4;
     private static final int PW_MAX_ATTEMPTS = 3;
 
 
@@ -365,7 +364,7 @@ public class CMSEngine implements ICMSEngine {
 
         for (String tag : tags) {
             int iteration = 0;
-            int result = PW_INVALID_PASSWORD;
+            int result = PW_INVALID_CREDENTIALS;
             String binddn;
             String authType;
             LdapConnInfo connInfo = null;
@@ -450,10 +449,10 @@ public class CMSEngine implements ICMSEngine {
                 String passwd = mPasswordStore.getPassword(tag, iteration);
                 result = testLDAPConnection(tag, connInfo, binddn, passwd);
                 iteration++;
-            } while ((result == PW_INVALID_PASSWORD) && (iteration < PW_MAX_ATTEMPTS));
+            } while ((result == PW_INVALID_CREDENTIALS) && (iteration < PW_MAX_ATTEMPTS));
 
             if (result != PW_OK) {
-                if ((result == PW_NO_USER) && (tag.equals("replicationdb"))) {
+                if ((result == PW_INVALID_CREDENTIALS) && (tag.equals("replicationdb"))) {
                     System.out.println(
                         "CMSEngine: init(): password test execution failed for replicationdb" +
                         "with NO_SUCH_USER.  This may not be a latest instance.  Ignoring ..");
@@ -473,8 +472,10 @@ public class CMSEngine implements ICMSEngine {
     public int testLDAPConnection(String name, LdapConnInfo info, String binddn, String pwd) {
         int ret = PW_OK;
 
-        if (StringUtils.isEmpty(pwd))
-            return PW_INVALID_PASSWORD;
+        if (StringUtils.isEmpty(pwd)) {
+            return PW_INVALID_CREDENTIALS;
+        }
+
 
         String host = info.getHost();
         int port = info.getPort();
@@ -488,12 +489,9 @@ public class CMSEngine implements ICMSEngine {
         } catch (LDAPException e) {
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
-                System.out.println("testLDAPConnection: The specified user " + binddn + " does not exist");
-                ret = PW_NO_USER;
-                break;
             case LDAPException.INVALID_CREDENTIALS:
                 System.out.println("testLDAPConnection: Invalid Password");
-                ret = PW_INVALID_PASSWORD;
+                ret = PW_INVALID_CREDENTIALS;
                 break;
             default:
                 System.out.println("testLDAPConnection: Unable to connect to " + name + ": " + e);
