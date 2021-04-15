@@ -87,7 +87,7 @@ public class CMSConfigCert extends CGITask {
         _consoleInfo.put("arguments", data);
 
 		// Send Random value for RNG entropy
-        data.put(ConfigConstants.PR_CMS_SEED, new Long(WizardBasePanel.mSeed).toString());
+        data.put(ConfigConstants.PR_CMS_SEED, Long.valueOf(WizardBasePanel.mSeed).toString());
 
 	    boolean status = false; // return value
 

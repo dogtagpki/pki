@@ -408,7 +408,7 @@ public class DoRevoke extends CMSServlet {
                 for (String s : nonces.split(",")) {
                     String[] elements = s.split(":");
                     BigInteger serialNumber = new BigInteger(elements[0].trim());
-                    Long nonce = new Long(elements[1].trim());
+                    Long nonce = Long.valueOf(elements[1].trim());
                     nonceMap.put(serialNumber, nonce);
                 }
             }

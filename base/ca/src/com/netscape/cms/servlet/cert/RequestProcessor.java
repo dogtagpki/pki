@@ -117,7 +117,7 @@ public class RequestProcessor extends CertProcessor {
                     throw new BadRequestException("Missing nonce.");
                 }
 
-                Long nonce = new Long(requestNonce.trim());
+                Long nonce = Long.valueOf(requestNonce.trim());
                 validateNonce(request, "cert-request", id, nonce);
             }
 

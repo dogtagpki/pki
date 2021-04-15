@@ -115,8 +115,7 @@ class WIIntroPage extends WizardBasePanel implements IWizardPanel {
         if (ready) {
             rawData = ConfigConstants.TASKID+"="+TaskId.TASK_TOKEN_INFO;
             rawData = rawData+"&"+ConfigConstants.OPTYPE+"="+OpDef.OP_READ;
-            rawData = rawData+"&"+ConfigConstants.PR_CMS_SEED+"="+
-              (new Long(WizardBasePanel.mSeed).toString());
+            rawData = rawData+"&"+ConfigConstants.PR_CMS_SEED+"="+Long.valueOf(WizardBasePanel.mSeed);
 
             ready = send(rawData, wizardInfo);
         }

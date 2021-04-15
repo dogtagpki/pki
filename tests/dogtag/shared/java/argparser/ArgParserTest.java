@@ -16,6 +16,8 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.util.Vector;
 
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+
 /**
  * Testing class for the class ArgParser. Executing the <code>main</code>
  * method of this class will perform a suite of tests to help verify correct
@@ -930,24 +932,24 @@ public class ArgParserTest
 
 	   tests = new MTest[]
 	    { 
-	      new MTest("-intarg 1", new Long(1) ),
+	      new MTest("-intarg 1", Long.valueOf(1) ),
 	      new MTest("-intarg 3", new MErr ('r', "3") ),
 	      new MTest("-intarg 9", new MErr ('r', "9") ),
-	      new MTest("-intarg 11", new Long(11) ),
-	      new MTest("-intarg 18", new Long(18)),
-	      new MTest("-intarg 22", new Long(22)),
-	      new MTest("-intarg 25", new Long(25)),
-	      new MTest("-intarg 27", new Long(27)),
-	      new MTest("-intarg 33", new Long(33)),
-	      new MTest("-intarg 35", new Long(35)),
+	      new MTest("-intarg 11", Long.valueOf(11) ),
+	      new MTest("-intarg 18", Long.valueOf(18)),
+	      new MTest("-intarg 22", Long.valueOf(22)),
+	      new MTest("-intarg 25", Long.valueOf(25)),
+	      new MTest("-intarg 27", Long.valueOf(27)),
+	      new MTest("-intarg 33", Long.valueOf(33)),
+	      new MTest("-intarg 35", Long.valueOf(35)),
 	      new MTest("-intarg 38", new MErr ('r', "38") ),
 	      new MTest("-intarg 45", new MErr ('r', "45")),
-	      new MTest("-intarg 46", new Long(46)),
+	      new MTest("-intarg 46", Long.valueOf(46)),
 	      new MTest("-intarg 48", new MErr ('r', "48")),
 	      new MTest("-intarg 100", new MErr ('r', "100")),
 	      new MTest("-intarg 0xbeef", new MErr ('r', "0xbeef")),
 	      new MTest("-intarg 0x2f", new Long (0x2f)),
-	      new MTest("-intarg 041", new Long(041) ),
+	      new MTest("-intarg 041", Long.valueOf(041) ),
 	    };
 	   test.checkMatches (tests, MULTI_WORD);
 	   
@@ -1070,14 +1072,14 @@ public class ArgParserTest
 	   tests = new MTest[]
 	    { 
 	      new MTest ("-foo=-51", new MErr('r',"-51")),
-	      new MTest ("-foo=-0x32", new Long(-0x32)),
+	      new MTest ("-foo=-0x32", Long.valueOf(-0x32)),
 	      new MTest ("-foo=-0x33", new MErr('r',"-0x33")),
 	      new MTest ("-foo=-0777", new MErr('r',"-0777")),
-	      new MTest ("-foo=-07", new Long(-07)),
-	      new MTest ("-foo=0", new Long(0)),
-	      new MTest ("-foo=100", new Long(100)),
-	      new MTest ("-foo=0x5e", new Long(0x5e)),
-	      new MTest ("-foo=066", new Long(066)),
+	      new MTest ("-foo=-07", Long.valueOf(-07)),
+	      new MTest ("-foo=0", Long.valueOf(0)),
+	      new MTest ("-foo=100", Long.valueOf(100)),
+	      new MTest ("-foo=0x5e", Long.valueOf(0x5e)),
+	      new MTest ("-foo=066", Long.valueOf(066)),
 	      new MTest ("-foo=06677", new MErr('r',"06677")),
 	      new MTest ("-foo=0xbeef", new MErr('r',"0xbeef")),
 	      new MTest ("-foo=foo", new MErr('m',"foo")),
@@ -1088,14 +1090,14 @@ public class ArgParserTest
 	   test.checkAdd ("-foo2=%i", ih, 'i', 1, "-foo2=", null, "", null);
 	   tests = new MTest[]
 	    { 
-	      new MTest ("-foo2=-51", new Long(-51)),
-	      new MTest ("-foo2=-0x33", new Long(-0x33)),
-	      new MTest ("-foo2=-0777", new Long(-0777)),
-	      new MTest ("-foo2=06677", new Long(06677)),
-	      new MTest ("-foo2=0xbeef", new Long(0xbeef)),
+	      new MTest ("-foo2=-51", Long.valueOf(-51)),
+	      new MTest ("-foo2=-0x33", Long.valueOf(-0x33)),
+	      new MTest ("-foo2=-0777", Long.valueOf(-0777)),
+	      new MTest ("-foo2=06677", Long.valueOf(06677)),
+	      new MTest ("-foo2=0xbeef", Long.valueOf(0xbeef)),
 	      new MTest ("-foo2=foo", new MErr('m',"foo")),
 	      new MTest ("-foo2=-51d", new MErr('m',"-51d")),
-	      new MTest ("-foo2=-51", new Long(-51)),
+	      new MTest ("-foo2=-51", Long.valueOf(-51)),
 	    };
 	   test.checkMatches (tests, ONE_WORD);
 
@@ -1121,9 +1123,9 @@ public class ArgParserTest
 	   test.checkMatches (tests, MULTI_WORD);
 	   test.checkAdd ("-foov %i", vec,'i',1,"-foov ",null,"",null);
 	   tests = new MTest[]
-	    { new MTest ("-foov 11", new Long(11), 0),
-	      new MTest ("-foov 12", new Long(12), 1),
-	      new MTest ("-foov 13", new Long(13), 2),
+	    { new MTest ("-foov 11", Long.valueOf(11), 0),
+	      new MTest ("-foov 12", Long.valueOf(12), 1),
+	      new MTest ("-foov 13", Long.valueOf(13), 2),
 	    };
 	   vec.clear();
 	   test.checkMatches (tests, MULTI_WORD);
@@ -1154,11 +1156,11 @@ public class ArgParserTest
 	      new MTest ("-oct=-063", new MErr('r',"-063")),
 	      new MTest ("-oct=-0x32", new MErr('m',"-0x32")),
 	      new MTest ("-oct=-0777", new MErr('r',"-0777")),
-	      new MTest ("-oct=-07", new Long(-07)),
-	      new MTest ("-oct=0", new Long(0)),
-	      new MTest ("-oct=100", new Long(64)),
+	      new MTest ("-oct=-07", Long.valueOf(-07)),
+	      new MTest ("-oct=0", Long.valueOf(0)),
+	      new MTest ("-oct=100", Long.valueOf(64)),
 	      new MTest ("-oct=0xae", new MErr('m',"0xae")),
-	      new MTest ("-oct=66", new Long(066)),
+	      new MTest ("-oct=66", Long.valueOf(066)),
 	      new MTest ("-oct=06677", new MErr('r',"06677")),
 	      new MTest ("-oct=0xbeef", new MErr('m',"0xbeef")),
 	      new MTest ("-oct=foo", new MErr('m',"foo")),
@@ -1170,9 +1172,9 @@ public class ArgParserTest
 	   test.checkAdd ("-oct2=%o", ih, 'o', 1, "-oct2=", null, "", null);
 	   tests = new MTest[]
 	    {
-	      new MTest ("-oct2=-063", new Long(-063)),
-	      new MTest ("-oct2=-0777", new Long(-0777)),
-	      new MTest ("-oct2=06677", new Long(06677)),
+	      new MTest ("-oct2=-063", Long.valueOf(-063)),
+	      new MTest ("-oct2=-0777", Long.valueOf(-0777)),
+	      new MTest ("-oct2=06677", Long.valueOf(06677)),
 	    };
 	   test.checkMatches (tests, ONE_WORD);
 
@@ -1188,11 +1190,11 @@ public class ArgParserTest
 	      new MTest ("-dec=-063", new MErr('r',"-063")),
 	      new MTest ("-dec=-0x32", new MErr('m',"-0x32")),
 	      new MTest ("-dec=-0777", new MErr('r',"-0777")),
-	      new MTest ("-dec=-07", new Long(-07)),
-	      new MTest ("-dec=0", new Long(0)),
-	      new MTest ("-dec=100", new Long(100)),
+	      new MTest ("-dec=-07", Long.valueOf(-07)),
+	      new MTest ("-dec=0", Long.valueOf(0)),
+	      new MTest ("-dec=100", Long.valueOf(100)),
 	      new MTest ("-dec=0xae", new MErr('m',"0xae")),
-	      new MTest ("-dec=66", new Long(66)),
+	      new MTest ("-dec=66", Long.valueOf(66)),
 	      new MTest ("-dec=06677", new MErr('r',"06677")),
 	      new MTest ("-dec=0xbeef", new MErr('m',"0xbeef")),
 	      new MTest ("-dec=foo", new MErr('m',"foo")),
@@ -1203,9 +1205,9 @@ public class ArgParserTest
 	   test.checkAdd ("-dec2=%d", ih, 'd', 1, "-dec2=", null, "", null);
 	   tests = new MTest[]
 	    { 
-	      new MTest ("-dec2=-063", new Long(-63)),
-	      new MTest ("-dec2=-0777", new Long(-777)),
-	      new MTest ("-dec2=06677", new Long(6677)),
+	      new MTest ("-dec2=-063", Long.valueOf(-63)),
+	      new MTest ("-dec2=-0777", Long.valueOf(-777)),
+	      new MTest ("-dec2=06677", Long.valueOf(6677)),
 	    };
 	   test.checkMatches (tests, ONE_WORD);
 
@@ -1218,13 +1220,13 @@ public class ArgParserTest
 	   
 	   tests = new MTest[]
 	    {
-	      new MTest ("-hex=-06", new Long(-0x6)),
+	      new MTest ("-hex=-06", Long.valueOf(-0x6)),
 	      new MTest ("-hex=-0x3g2", new MErr('m',"-0x3g2")),
 	      new MTest ("-hex=-0777", new MErr('r',"-0777")),
-	      new MTest ("-hex=-017", new Long(-0x17)),
-	      new MTest ("-hex=0", new Long(0)),
-	      new MTest ("-hex=64", new Long(0x64)),
-	      new MTest ("-hex=5e", new Long(0x5e)),
+	      new MTest ("-hex=-017", Long.valueOf(-0x17)),
+	      new MTest ("-hex=0", Long.valueOf(0)),
+	      new MTest ("-hex=64", Long.valueOf(0x64)),
+	      new MTest ("-hex=5e", Long.valueOf(0x5e)),
 	      new MTest ("-hex=66", new MErr('r',"66")),
 	      new MTest ("-hex=06677", new MErr('r',"06677")),
 	      new MTest ("-hex=0xbeef", new MErr('m',"0xbeef")),
@@ -1238,10 +1240,10 @@ public class ArgParserTest
 	   test.checkAdd ("-hex2=%x", ih, 'x', 1, "-hex2=", null, "", null);
 	   tests = new MTest[]
 	    {
-	      new MTest ("-hex2=-0777", new Long(-0x777)),
-	      new MTest ("-hex2=66", new Long(0x66)),
-	      new MTest ("-hex2=06677", new Long(0x6677)),
-	      new MTest ("-hex2=-51d", new Long(-0x51d)),
+	      new MTest ("-hex2=-0777", Long.valueOf(-0x777)),
+	      new MTest ("-hex2=66", Long.valueOf(0x66)),
+	      new MTest ("-hex2=06677", Long.valueOf(0x6677)),
+	      new MTest ("-hex2=-51d", Long.valueOf(-0x51d)),
 	    };
 	   test.checkMatches (tests, ONE_WORD);
 

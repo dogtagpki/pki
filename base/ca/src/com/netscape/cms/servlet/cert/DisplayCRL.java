@@ -313,11 +313,11 @@ public class DisplayCRL extends CMSServlet {
                     long lPageStart = 0L;
                     long lPageSize = 0L;
                     try {
-                        lPageStart = new Long(pageStart).longValue();
+                        lPageStart = Long.valueOf(pageStart).longValue();
                     } catch (NumberFormatException e) {
                     }
                     try {
-                        lPageSize = new Long(pageSize).longValue();
+                        lPageSize = Long.valueOf(pageSize).longValue();
                     } catch (NumberFormatException e) {
                     }
 

@@ -134,8 +134,7 @@ class WITokenLogonPage extends WizardBasePanel implements IWizardPanel {
         rawData = rawData+"&"+ConfigConstants.OPTYPE+"="+OpDef.OP_MODIFY;
         rawData = rawData+"&"+ConfigConstants.PR_TOKEN_NAME+"="+tokenname;
         rawData = rawData+"&"+ConfigConstants.PR_TOKEN_PASSWD+"="+pwd;
-        rawData = rawData+"&"+ConfigConstants.PR_CMS_SEED+"="+
-          (new Long(WizardBasePanel.mSeed).toString());
+        rawData = rawData+"&"+ConfigConstants.PR_CMS_SEED+"="+Long.valueOf(WizardBasePanel.mSeed);
 
         startProgressStatus();
         boolean ready = send(rawData, wizardInfo);

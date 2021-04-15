@@ -121,6 +121,6 @@ public class LongMapper extends DBAttrMapper {
         String s = i.substring(2);
 
         // possibly check length
-        return new Long(s);
+        return Long.valueOf(s);
     }
 }

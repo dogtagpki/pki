@@ -69,7 +69,7 @@ public class ACMERetention {
             if (StringUtils.isEmpty(value)) {
                 length = null;
             } else {
-                length = new Long(value);
+                length = Long.valueOf(value);
             }
 
         } else if (key.equals("unit")) {

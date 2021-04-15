@@ -142,7 +142,7 @@ public class AgentApprovals
                 if (parts.length != 2) {
                     return null;
                 }
-                Long epoch = new Long(parts[0]);
+                Long epoch = Long.valueOf(parts[0]);
                 Date date = new Date(epoch.longValue());
 
                 AgentApproval approval = new AgentApproval(parts[1]);

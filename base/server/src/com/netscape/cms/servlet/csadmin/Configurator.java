@@ -170,7 +170,7 @@ public class Configurator {
          * The default sleep time is 5s.
          */
         if (null == sleep || sleep <= 0) {
-            sleep = new Long(5);
+            sleep = Long.valueOf(5);
         }
 
         logger.debug("Logged into security domain; sleeping for " + sleep + "s");

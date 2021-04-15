@@ -116,8 +116,7 @@ class WIInternalDBPage extends WizardBasePanel implements IWizardPanel {
 
         String rawData = ConfigConstants.TASKID+"="+TaskId.TASK_CREATE_INTERNALDB;
         rawData = rawData+"&"+ConfigConstants.OPTYPE+"="+OpDef.OP_MODIFY;
-        rawData = rawData+"&"+ConfigConstants.PR_CMS_SEED+"="+
-          (new Long(WizardBasePanel.mSeed).toString());
+        rawData = rawData+"&"+ConfigConstants.PR_CMS_SEED+"="+Long.valueOf(WizardBasePanel.mSeed);
 		// remote database
         rawData = rawData+"&"+ConfigConstants.PR_HOST+"="
           +mRMHostText.getText();
