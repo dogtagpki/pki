@@ -188,8 +188,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
 
             // instantiate and init the job
             try {
-                IJob job = (IJob)
-                        Class.forName(classPath).newInstance();
+                IJob job = (IJob) Class.forName(classPath).getDeclaredConstructor().newInstance();
                 IConfigStore jconfig = c.getSubStore(jobName);
 
                 job.init(this, jobName, implName, jconfig);
@@ -197,21 +196,13 @@ public class JobsScheduler implements Runnable, ISubsystem {
                 // register the job
                 mJobs.put(jobName, job);
 
-            } catch (ClassNotFoundException e) {
-                logger.error(CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()), e);
-                throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", classPath), e);
-
-            } catch (IllegalAccessException e) {
-                logger.error(CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()), e);
-                throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", classPath), e);
-
-            } catch (InstantiationException e) {
-                logger.error(CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()), e);
-                throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", classPath), e);
-
             } catch (EBaseException e) {
                 logger.error(CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()), e);
                 throw e;
+
+            } catch (Exception e) {
+                logger.error(CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()), e);
+                throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", classPath), e);
             }
         }
 
@@ -527,25 +518,14 @@ public class JobsScheduler implements Runnable, ISubsystem {
 
         logger.trace("JobsScheduler: className = " + className);
         try {
-            IJob jobInst = (IJob)
-                    Class.forName(className).newInstance();
+            IJob jobInst = (IJob) Class.forName(className).getDeclaredConstructor().newInstance();
             logger.trace("JobsScheduler: class instantiated");
             return (jobInst.getConfigParams());
 
-        } catch (InstantiationException e) {
+        } catch (Exception e) {
             logger.error(CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
             logger.error("JobsScheduler: class NOT instantiated: " + e.getMessage(), e);
-            throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className));
-
-        } catch (ClassNotFoundException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
-            logger.error("JobsScheduler: class NOT instantiated: " + e.getMessage(), e);
-            throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className));
-
-        } catch (IllegalAccessException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
-            logger.error("JobsScheduler: class NOT instantiated: " + e.getMessage(), e);
-            throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className));
+            throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className), e);
         }
     }
 

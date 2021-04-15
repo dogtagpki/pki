@@ -1175,23 +1175,8 @@ public class PublisherAdminServlet extends AdminServlet {
         ILdapMapper mapperInst = null;
 
         try {
-            mapperInst = (ILdapMapper) Class.forName(className).newInstance();
-        } catch (ClassNotFoundException e) {
-            // cleanup
-            instancesConfig.removeSubStore(id);
-            sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
-                            .toString(),
-                    null, resp);
-            return;
-        } catch (InstantiationException e) {
-            instancesConfig.removeSubStore(id);
-            sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
-                            .toString(),
-                    null, resp);
-            return;
-        } catch (IllegalAccessException e) {
+            mapperInst = (ILdapMapper) Class.forName(className).getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
                     new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
@@ -1252,8 +1237,7 @@ public class PublisherAdminServlet extends AdminServlet {
             String desc = "unknown";
 
             try {
-                ILdapMapper lp = (ILdapMapper)
-                        Class.forName(c).newInstance();
+                ILdapMapper lp = (ILdapMapper) Class.forName(c).getDeclaredConstructor().newInstance();
 
                 desc = lp.getDescription();
             } catch (Exception exp) {
@@ -1574,24 +1558,8 @@ public class PublisherAdminServlet extends AdminServlet {
         ILdapMapper newMgrInst = null;
 
         try {
-            newMgrInst = (ILdapMapper)
-                    Class.forName(className).newInstance();
-        } catch (ClassNotFoundException e) {
-            // cleanup
-            restore(instancesConfig, id, saveParams);
-            sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
-                            .toString(),
-                    null, resp);
-            return;
-        } catch (InstantiationException e) {
-            restore(instancesConfig, id, saveParams);
-            sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
-                            .toString(),
-                    null, resp);
-            return;
-        } catch (IllegalAccessException e) {
+            newMgrInst = (ILdapMapper) Class.forName(className).getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
                     new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
@@ -1805,23 +1773,8 @@ public class PublisherAdminServlet extends AdminServlet {
         LdapRule ruleInst = null;
 
         try {
-            ruleInst = (LdapRule) Class.forName(className).newInstance();
-        } catch (ClassNotFoundException e) {
-            // cleanup
-            instancesConfig.removeSubStore(id);
-            sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
-                            .toString(),
-                    null, resp);
-            return;
-        } catch (InstantiationException e) {
-            instancesConfig.removeSubStore(id);
-            sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
-                            .toString(),
-                    null, resp);
-            return;
-        } catch (IllegalAccessException e) {
+            ruleInst = (LdapRule) Class.forName(className).getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
                     new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
@@ -1882,8 +1835,7 @@ public class PublisherAdminServlet extends AdminServlet {
             String desc = "unknown";
 
             try {
-                LdapRule lp = (LdapRule)
-                        Class.forName(c).newInstance();
+                LdapRule lp = (LdapRule) Class.forName(c).getDeclaredConstructor().newInstance();
 
                 desc = lp.getDescription();
             } catch (Exception exp) {
@@ -2202,23 +2154,8 @@ public class PublisherAdminServlet extends AdminServlet {
         LdapRule newRuleInst = null;
 
         try {
-            newRuleInst = (LdapRule) Class.forName(className).newInstance();
-        } catch (ClassNotFoundException e) {
-            // cleanup
-            restore(instancesConfig, id, saveParams);
-            sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
-                            .toString(),
-                    null, resp);
-            return;
-        } catch (InstantiationException e) {
-            restore(instancesConfig, id, saveParams);
-            sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
-                            .toString(),
-                    null, resp);
-            return;
-        } catch (IllegalAccessException e) {
+            newRuleInst = (LdapRule) Class.forName(className).getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
                     new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
@@ -2443,23 +2380,8 @@ public class PublisherAdminServlet extends AdminServlet {
         ILdapPublisher publisherInst = null;
 
         try {
-            publisherInst = (ILdapPublisher) Class.forName(className).newInstance();
-        } catch (ClassNotFoundException e) {
-            // cleanup
-            instancesConfig.removeSubStore(id);
-            sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
-                            .toString(),
-                    null, resp);
-            return;
-        } catch (InstantiationException e) {
-            instancesConfig.removeSubStore(id);
-            sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
-                            .toString(),
-                    null, resp);
-            return;
-        } catch (IllegalAccessException e) {
+            publisherInst = (ILdapPublisher) Class.forName(className).getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
                     new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
@@ -2521,8 +2443,7 @@ public class PublisherAdminServlet extends AdminServlet {
             String desc = "unknown";
 
             try {
-                ILdapPublisher lp = (ILdapPublisher)
-                        Class.forName(c).newInstance();
+                ILdapPublisher lp = (ILdapPublisher) Class.forName(c).getDeclaredConstructor().newInstance();
 
                 desc = lp.getDescription();
             } catch (Exception exp) {
@@ -2896,23 +2817,8 @@ public class PublisherAdminServlet extends AdminServlet {
         ILdapPublisher newMgrInst = null;
 
         try {
-            newMgrInst = (ILdapPublisher) Class.forName(className).newInstance();
-        } catch (ClassNotFoundException e) {
-            // cleanup
-            restore(instancesConfig, id, saveParams);
-            sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
-                            .toString(),
-                    null, resp);
-            return;
-        } catch (InstantiationException e) {
-            restore(instancesConfig, id, saveParams);
-            sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
-                            .toString(),
-                    null, resp);
-            return;
-        } catch (IllegalAccessException e) {
+            newMgrInst = (ILdapPublisher) Class.forName(className).getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
                     new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))

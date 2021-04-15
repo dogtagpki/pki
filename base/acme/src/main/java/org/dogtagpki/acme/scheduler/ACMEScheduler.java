@@ -48,7 +48,7 @@ public class ACMEScheduler {
             String className = taskConfig.getClassName();
             Class<ACMETask> taskClass = (Class<ACMETask>) Class.forName(className);
 
-            ACMETask task = taskClass.newInstance();
+            ACMETask task = taskClass.getDeclaredConstructor().newInstance();
             task.setConfig(taskConfig);
             task.init();
 

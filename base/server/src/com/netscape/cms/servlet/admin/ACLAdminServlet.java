@@ -628,7 +628,7 @@ public class ACLAdminServlet extends AdminServlet {
             IAccessEvaluator evaluator = null;
 
             try {
-                evaluator = (IAccessEvaluator) Class.forName(classPath).newInstance();
+                evaluator = (IAccessEvaluator) Class.forName(classPath).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 logger.error("ACLAdminServlet: " + e.getMessage(), e);
 

@@ -257,7 +257,7 @@ public class AuthSubsystem implements ISubsystem {
             AuthManager authMgrInst = null;
 
             try {
-                authMgrInst = (AuthManager) Class.forName(className).newInstance();
+                authMgrInst = (AuthManager) Class.forName(className).getDeclaredConstructor().newInstance();
                 authMgrInst.init(instName, implName, authMgrConfig);
                 enabled = true;
 
@@ -392,18 +392,10 @@ public class AuthSubsystem implements ISubsystem {
         String className = plugin.getClassPath();
 
         try {
-            authMgrInst = (AuthManager)
-                    Class.forName(className).newInstance();
+            authMgrInst = (AuthManager) Class.forName(className).getDeclaredConstructor().newInstance();
             return (authMgrInst.getConfigParams());
 
-        } catch (InstantiationException e) {
-            logger.error("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_NOT_CREATED", e.toString()), e);
-            throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
-        } catch (ClassNotFoundException e) {
-            logger.error("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_NOT_CREATED", e.toString()), e);
-            throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
-
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             logger.error("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_NOT_CREATED", e.toString()), e);
             throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
         }
@@ -483,7 +475,7 @@ public class AuthSubsystem implements ISubsystem {
         AuthManager authMgrInst = null;
 
         try {
-            authMgrInst = (AuthManager) Class.forName(classpath).newInstance();
+            authMgrInst = (AuthManager) Class.forName(classpath).getDeclaredConstructor().newInstance();
             return (authMgrInst);
         } catch (Exception e) {
             logger.warn("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_NOT_CREATED", e.toString()), e);

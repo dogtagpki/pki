@@ -605,7 +605,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             // create temporary profile to verify profile configuration
             Profile tempProfile;
             try {
-                tempProfile = (Profile) Class.forName(className).newInstance();
+                tempProfile = (Profile) Class.forName(className).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 String message = "Unable to create profile: " + e.getMessage();
                 logger.error(message, e);
@@ -738,7 +738,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                 registry.getPluginInfo("profile", classId).getClassName();
             Profile tempProfile;
             try {
-                tempProfile = (Profile) Class.forName(className).newInstance();
+                tempProfile = (Profile) Class.forName(className).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new PKIException(
                     "Error instantiating profile class: " + className);

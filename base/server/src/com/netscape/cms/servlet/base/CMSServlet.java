@@ -1107,8 +1107,7 @@ public abstract class CMSServlet extends HttpServlet {
         ICMSTemplateFiller filler = null;
 
         try {
-            filler = (ICMSTemplateFiller)
-                    Class.forName(fillerClass).newInstance();
+            filler = (ICMSTemplateFiller) Class.forName(fillerClass).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             if ((e instanceof RuntimeException)) {
                 throw (RuntimeException) e;

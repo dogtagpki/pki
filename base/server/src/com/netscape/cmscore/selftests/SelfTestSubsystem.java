@@ -1290,7 +1290,7 @@ public class SelfTestSubsystem
                             loggerValue);
                 }
 
-                Object o = Class.forName(loggerValue).newInstance();
+                Object o = Class.forName(loggerValue).getDeclaredConstructor().newInstance();
 
                 if (!(o instanceof ILogEventListener)) {
                     // NOTE:  These messages can only be logged to the
@@ -1486,7 +1486,7 @@ public class SelfTestSubsystem
             Object o;
 
             try {
-                o = Class.forName(instanceValue).newInstance();
+                o = Class.forName(instanceValue).getDeclaredConstructor().newInstance();
 
                 if (!(o instanceof ISelfTest)) {
                     log(mLogger,

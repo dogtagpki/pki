@@ -230,7 +230,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             // Verify if the class is a valid implementation of
             // IPolicyRule
             try {
-                Object o = Class.forName(clPath).newInstance();
+                Object o = Class.forName(clPath).getDeclaredConstructor().newInstance();
 
                 if (!(o instanceof IEnrollmentPolicy) &&
                         !(o instanceof IRenewalPolicy) &&
@@ -317,8 +317,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             String classpath = regPolicy.getClassPath();
 
             try {
-                rule = (IPolicyRule)
-                        Class.forName(classpath).newInstance();
+                rule = (IPolicyRule) Class.forName(classpath).getDeclaredConstructor().newInstance();
                 rule.setInstanceName(instanceName);
                 rule.init(this, c);
             } catch (Throwable e) {
@@ -468,8 +467,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 RegisteredPolicy regPolicy = enum1.nextElement();
 
                 // Make an Instance of it
-                IPolicyRule ruleImpl = (IPolicyRule)
-                        Class.forName(regPolicy.getClassPath()).newInstance();
+                IPolicyRule ruleImpl = (IPolicyRule) Class.forName(regPolicy.getClassPath()).getDeclaredConstructor().newInstance();
 
                 impls.addElement(ruleImpl);
             }
@@ -505,7 +503,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         IPolicyRule impl = null;
 
         try {
-            impl = (IPolicyRule) Class.forName(regImpl.getClassPath()).newInstance();
+            impl = (IPolicyRule) Class.forName(regImpl.getClassPath()).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             logger.warn("Unable to get policy implementation: " + e.getMessage(), e);
         }
@@ -582,10 +580,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         Object impl = null;
 
         try {
-            impl = Class.forName(classPath).newInstance();
+            impl = Class.forName(classPath).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
-            throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL",
-                        id));
+            throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL", id), e);
         }
 
         // Does the class implement one of the four interfaces?
@@ -1034,8 +1031,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             for (int i = 0; i < mSystemDefaults.length; i++) {
                 String defRuleName = mSystemDefaults[i].substring(
                         mSystemDefaults[i].lastIndexOf('.') + 1);
-                IPolicyRule defRule = (IPolicyRule)
-                        Class.forName(mSystemDefaults[i]).newInstance();
+                IPolicyRule defRule = (IPolicyRule) Class.forName(mSystemDefaults[i]).getDeclaredConstructor().newInstance();
                 IConfigStore ruleConfig =
                         mConfig.getSubStore(PROP_DEF_POLICIES + "." + defRuleName);
 
@@ -1216,7 +1212,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
             try {
                 Class<?> clazz = Class.forName(mSystemDefaults[i]);
-                Object o = clazz.newInstance();
+                Object o = clazz.getDeclaredConstructor().newInstance();
 
                 if (!(o instanceof IPolicyRule)) {
                     throw new EPolicyException(className + " does not implement IPolicyRule");

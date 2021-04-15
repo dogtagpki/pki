@@ -408,8 +408,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         if (schedulerClass != null) {
             try {
-                IRequestScheduler scheduler = (IRequestScheduler)
-                        Class.forName(schedulerClass).newInstance();
+                IRequestScheduler scheduler = (IRequestScheduler) Class.forName(schedulerClass).getDeclaredConstructor().newInstance();
 
                 requestQueue.setRequestScheduler(scheduler);
             } catch (Exception e) {
@@ -1450,7 +1449,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                                 "com.netscape.cms.listeners.RequestInQListener");
 
                 try {
-                    mReqInQListener = (IRequestListener) Class.forName(requestInQListenerClassName).newInstance();
+                    mReqInQListener = (IRequestListener) Class.forName(requestInQListenerClassName).getDeclaredConstructor().newInstance();
                     mReqInQListener.init(this, nc);
                 } catch (Exception e1) {
                     logger.warn(CMS.getLogMessage("CMSCORE_KRA_REGISTER_LISTENER", requestInQListenerClassName), e1);

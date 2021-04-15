@@ -55,7 +55,7 @@ public interface IPasswordStore {
         Class<? extends IPasswordStore> clazz = Class.forName(className)
                 .asSubclass(IPasswordStore.class);
 
-        IPasswordStore ps = clazz.newInstance();
+        IPasswordStore ps = clazz.getDeclaredConstructor().newInstance();
         ps.setId(psc.getID());
         ps.init(fileName);
 

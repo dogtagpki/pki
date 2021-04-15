@@ -60,14 +60,12 @@ public class SubsystemLoader {
             if (className == null)
                 break;
             try {
-                ISubsystem sub = (ISubsystem) Class.forName(
-                        className).newInstance();
+                ISubsystem sub = (ISubsystem) Class.forName(className).getDeclaredConstructor().newInstance();
 
                 sub.setId(id);
                 v.addElement(sub);
             } catch (Exception e) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED", className));
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_LOAD_FAILED", className), e);
             }
         }
         return v;

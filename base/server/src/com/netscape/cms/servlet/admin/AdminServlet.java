@@ -1004,7 +1004,7 @@ public class AdminServlet extends HttpServlet {
 
         try {
             // here is the new dummy obj created
-            Object o = Class.forName(className).newInstance();
+            Object o = Class.forName(className).getDeclaredConstructor().newInstance();
 
             epi = (IExtendedPluginInfo) o;
         } catch (Exception e) {

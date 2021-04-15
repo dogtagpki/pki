@@ -290,7 +290,7 @@ public class ACMEEngine implements ServletContextListener {
         String className = databaseConfig.getClassName();
         Class<ACMEDatabase> databaseClass = (Class<ACMEDatabase>) Class.forName(className);
 
-        database = databaseClass.newInstance();
+        database = databaseClass.getDeclaredConstructor().newInstance();
         database.setConfig(databaseConfig);
         database.init();
     }
@@ -321,7 +321,7 @@ public class ACMEEngine implements ServletContextListener {
             String className = validatorConfig.getClassName();
             Class<ACMEValidator> validatorClass = (Class<ACMEValidator>) Class.forName(className);
 
-            ACMEValidator validator = validatorClass.newInstance();
+            ACMEValidator validator = validatorClass.getDeclaredConstructor().newInstance();
             validator.setConfig(validatorConfig);
             validator.init();
 
@@ -351,7 +351,7 @@ public class ACMEEngine implements ServletContextListener {
         String className = issuerConfig.getClassName();
         Class<ACMEIssuer> issuerClass = (Class<ACMEIssuer>) Class.forName(className);
 
-        issuer = issuerClass.newInstance();
+        issuer = issuerClass.getDeclaredConstructor().newInstance();
         issuer.setConfig(issuerConfig);
         issuer.init();
     }
@@ -402,7 +402,7 @@ public class ACMEEngine implements ServletContextListener {
             configSourceClass =
                 (Class<ACMEEngineConfigSource>) Class.forName(className);
         }
-        engineConfigSource = configSourceClass.newInstance();
+        engineConfigSource = configSourceClass.getDeclaredConstructor().newInstance();
 
         // We pass to the ConfigSource only the callbacks needed to set
         // the configuration (Consumer<T>).  This abstraction ensures the
@@ -455,7 +455,7 @@ public class ACMEEngine implements ServletContextListener {
         String className = realmConfig.getClassName();
         Class<ACMERealm> realmClass = (Class<ACMERealm>) Class.forName(className);
 
-        realm = realmClass.newInstance();
+        realm = realmClass.getDeclaredConstructor().newInstance();
         realm.setConfig(realmConfig);
         realm.init();
 

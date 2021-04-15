@@ -810,43 +810,8 @@ public class LogAdminServlet extends AdminServlet {
             ILogEventListener logInst = null;
 
             try {
-                logInst = (ILogEventListener) Class.forName(className).newInstance();
-            } catch (ClassNotFoundException e) {
-                // cleanup
-                instancesConfig.removeSubStore(id);
-
-                // store a message in the signed audit log file
-                if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-
-                    audit(new ConfigSignedAuditEvent(
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditParams(req)));
-                }
-
-                sendResponse(ERROR,
-                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className))
-                                .toString(),
-                        null, resp);
-                return;
-            } catch (InstantiationException e) {
-                instancesConfig.removeSubStore(id);
-
-                // store a message in the signed audit log file
-                if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-
-                    audit(new ConfigSignedAuditEvent(
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditParams(req)));
-                }
-
-                sendResponse(ERROR,
-                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className))
-                                .toString(),
-                        null, resp);
-                return;
-            } catch (IllegalAccessException e) {
+                logInst = (ILogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
                 instancesConfig.removeSubStore(id);
 
                 // store a message in the signed audit log file
@@ -989,8 +954,7 @@ public class LogAdminServlet extends AdminServlet {
             String desc = "unknown";
 
             try {
-                ILogEventListener lp = (ILogEventListener)
-                        Class.forName(c).newInstance();
+                ILogEventListener lp = (ILogEventListener) Class.forName(c).getDeclaredConstructor().newInstance();
 
                 desc = lp.getDescription();
             } catch (Exception exp) {
@@ -1677,109 +1641,8 @@ public class LogAdminServlet extends AdminServlet {
             ILogEventListener newMgrInst = null;
 
             try {
-                newMgrInst = (ILogEventListener)
-                        Class.forName(className).newInstance();
-            } catch (ClassNotFoundException e) {
-                // check to see if the log file path parameter was changed
-                newLogPath = auditCheckLogPath(req);
-
-                // check to see if the log expiration time parameter was changed
-                // newExpirationTime = auditCheckLogExpirationTime(req);
-
-                // cleanup
-                restore(instancesConfig, id, saveParams);
-
-                // store a message in the signed audit log file
-                // (regardless of logType)
-                if (!(newLogPath.equals(origLogPath))) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.LOG_PATH_CHANGE,
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                logType,
-                                newLogPath);
-
-                    audit(auditMessage);
-                }
-
-                // store a message in the signed audit log file
-                // (regardless of logType)
-                /*
-                if (!(newExpirationTime.equals(origExpirationTime))) {
-                    auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                logType,
-                                newExpirationTime);
-
-                    audit(auditMessage);
-                }*/
-
-                // store a message in the signed audit log file
-                if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-
-                    audit(new ConfigSignedAuditEvent(
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditParams(req)));
-                }
-
-                sendResponse(ERROR,
-                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className))
-                                .toString(),
-                        null, resp);
-                return;
-            } catch (InstantiationException e) {
-                // check to see if the log file path parameter was changed
-                newLogPath = auditCheckLogPath(req);
-
-                // check to see if the log expiration time parameter was changed
-                //newExpirationTime = auditCheckLogExpirationTime(req);
-
-                restore(instancesConfig, id, saveParams);
-
-                // store a message in the signed audit log file
-                // (regardless of logType)
-                if (!(newLogPath.equals(origLogPath))) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.LOG_PATH_CHANGE,
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                logType,
-                                newLogPath);
-
-                    audit(auditMessage);
-                }
-
-                // store a message in the signed audit log file
-                // (regardless of logType)
-                /*if (!(newExpirationTime.equals(origExpirationTime))) {
-                    auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                logType,
-                                newExpirationTime);
-
-                    audit(auditMessage);
-                }*/
-
-                // store a message in the signed audit log file
-                if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-
-                    audit(new ConfigSignedAuditEvent(
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditParams(req)));
-                }
-
-                sendResponse(ERROR,
-                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className))
-                                .toString(),
-                        null, resp);
-                return;
-            } catch (IllegalAccessException e) {
+                newMgrInst = (ILogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
                 // check to see if the log file path parameter was changed
                 newLogPath = auditCheckLogPath(req);
 

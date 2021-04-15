@@ -122,8 +122,7 @@ public class LogSubsystem implements ILogSubsystem {
             ILogEventListener logInst = null;
 
             try {
-                logInst = (ILogEventListener)
-                        Class.forName(className).newInstance();
+                logInst = (ILogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
                 IConfigStore pConfig =
                         c.getSubStore(insName);
 
@@ -246,20 +245,13 @@ public class LogSubsystem implements ILogSubsystem {
         String className = plugin.getClassPath();
 
         try {
-            LogInst = (ILogEventListener)
-                    Class.forName(className).newInstance();
+            LogInst = (ILogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
             Vector<String> v = LogInst.getDefaultParams();
 
             return v;
-        } catch (InstantiationException e) {
-            throw new ELogException(
-                    CMS.getUserMessage("CMS_LOG_LOAD_CLASS_FAIL", className));
-        } catch (ClassNotFoundException e) {
-            throw new ELogException(
-                    CMS.getUserMessage("CMS_LOG_LOAD_CLASS_FAIL", className));
-        } catch (IllegalAccessException e) {
-            throw new ELogException(
-                    CMS.getUserMessage("CMS_LOG_LOAD_CLASS_FAIL", className));
+
+        } catch (Exception e) {
+            throw new ELogException(CMS.getUserMessage("CMS_LOG_LOAD_CLASS_FAIL", className), e);
         }
     }
 

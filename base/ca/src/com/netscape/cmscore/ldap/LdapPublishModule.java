@@ -225,8 +225,7 @@ public class LdapPublishModule implements IRequestListener {
                 mapperClassName = mapperConf.getString(PROP_CLASS, null);
                 if (mapperClassName != null && mapperClassName.length() > 0) {
                     logger.debug("mapper " + mapperClassName + " for " + certType);
-                    mapper = (ILdapPlugin)
-                            Class.forName(mapperClassName).newInstance();
+                    mapper = (ILdapPlugin) Class.forName(mapperClassName).getDeclaredConstructor().newInstance();
                     mapper.init(mapperConf);
                 }
                 publisherConf = current.getSubStore(PROP_PUBLISHER);
@@ -234,39 +233,18 @@ public class LdapPublishModule implements IRequestListener {
                 if (publisherClassName != null &&
                         publisherClassName.length() > 0) {
                     logger.debug("publisher " + publisherClassName + " for " + certType);
-                    publisher = (ILdapPlugin)
-                            Class.forName(publisherClassName).newInstance();
+                    publisher = (ILdapPlugin) Class.forName(publisherClassName).getDeclaredConstructor().newInstance();
                     publisher.init(publisherConf);
                 }
                 mMappers.put(certType, new LdapMappers(mapper, publisher));
 
-            } catch (ClassNotFoundException e) {
-                String missingClass = mapperClassName +
-                        ((publisherClassName == null) ? "" :
-                                (" or " + publisherClassName));
-
-                logger.error(CMS.getLogMessage("CMSCORE_LDAP_FIND_CLASS", missingClass), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_CLASS_NOT_FOUND", missingClass), e);
-
-            } catch (InstantiationException e) {
-                String badInstance = mapperClassName +
-                        ((publisherClassName == null) ? "" :
-                                (" or " + publisherClassName));
-
-                logger.error(CMS.getLogMessage("CMSCORE_LDAP_INST_CLASS", badInstance, certType), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INSTANTIATING_CLASS_FAILED", badInstance), e);
-
-            } catch (IllegalAccessException e) {
-                String badInstance = mapperClassName +
-                        ((publisherClassName == null) ? "" :
-                                (" or " + publisherClassName));
-
-                logger.error(CMS.getLogMessage("CMSCORE_LDAP_INSUFFICIENT_CREDENTIALS", badInstance, certType), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INSUFFICIENT_CREDENTIALS", certType), e);
-
             } catch (EBaseException e) {
                 logger.error(CMS.getLogMessage("CMSCORE_LDAP_INIT_ERROR", certType, e.toString()), e);
                 throw e;
+
+            } catch (Exception e) {
+                logger.error(CMS.getLogMessage("CMSCORE_LDAP_INIT_ERROR", certType, e.toString()), e);
+                throw new EBaseException(e);
             }
         }
         mInited = true;

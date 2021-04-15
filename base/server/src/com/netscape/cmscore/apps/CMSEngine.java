@@ -350,7 +350,7 @@ public class CMSEngine implements ServletContextListener {
             String className = instanceConfig.getString("class");
             Class<? extends StartupNotifier> clazz =
                 Class.forName(className).asSubclass(StartupNotifier.class);
-            StartupNotifier sn = clazz.newInstance();
+            StartupNotifier sn = clazz.getDeclaredConstructor().newInstance();
             sn.init(instanceConfig);
             startupNotifiers.put(id, sn);
         }
@@ -810,7 +810,7 @@ public class CMSEngine implements ServletContextListener {
             String className = subsystemConfig.getClassName();
             boolean enabled = subsystemConfig.isEnabled();
 
-            ISubsystem subsystem = (ISubsystem) Class.forName(className).newInstance();
+            ISubsystem subsystem = (ISubsystem) Class.forName(className).getDeclaredConstructor().newInstance();
 
             SubsystemInfo subsystemInfo = new SubsystemInfo(id);
             subsystemInfo.setEnabled(enabled);
@@ -1149,8 +1149,7 @@ public class CMSEngine implements ServletContextListener {
         try {
             String className = mConfig.getString("notificationClassName",
                     "com.netscape.cms.notification.MailNotification");
-            IMailNotification notification = (IMailNotification)
-                    Class.forName(className).newInstance();
+            IMailNotification notification = (IMailNotification) Class.forName(className).getDeclaredConstructor().newInstance();
 
             return notification;
         } catch (Exception e) {
@@ -1162,8 +1161,7 @@ public class CMSEngine implements ServletContextListener {
         try {
             String className = mConfig.getString("passwordCheckerClass",
                     "com.netscape.cms.password.PasswordChecker");
-            IPasswordCheck check = (IPasswordCheck)
-                    Class.forName(className).newInstance();
+            IPasswordCheck check = (IPasswordCheck) Class.forName(className).getDeclaredConstructor().newInstance();
 
             return check;
         } catch (Exception e) {
@@ -1187,16 +1185,10 @@ public class CMSEngine implements ServletContextListener {
         }
 
         try {
-            tokenClass = (ISharedToken) Class.forName(name).newInstance();
+            tokenClass = (ISharedToken) Class.forName(name).getDeclaredConstructor().newInstance();
             logger.debug(method + "Shared Secret plugin class retrieved");
-        } catch (ClassNotFoundException e) {
-            logger.warn(method + " Failed to find class name: " + name);
-            return null;
-        } catch (InstantiationException e) {
-            logger.warn("EnrollProfile: Failed to instantiate class: " + name);
-            return null;
-        } catch (IllegalAccessException e) {
-            logger.warn(method + " Illegal access: " + name);
+        } catch (Exception e) {
+            logger.warn("CMSEngine: " + e.getMessage(), e);
             return null;
         }
 

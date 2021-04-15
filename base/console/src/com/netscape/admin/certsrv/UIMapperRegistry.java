@@ -92,12 +92,11 @@ public class UIMapperRegistry {
      *
      * @param certAttrClassName certificate attribute name
      */
-    public static IUIMapper getCertAttrUI(String certAttrClassName)
-        throws InstantiationException, IllegalAccessException, ClassNotFoundException
+    public static IUIMapper getCertAttrUI(String certAttrClassName) throws Exception
     {
         String mapperClassName = mAttrContent.get(certAttrClassName);
         Class<?> mapClass = Class.forName(mapperClassName);
-        IUIMapper instance = (IUIMapper) mapClass.newInstance();
+        IUIMapper instance = (IUIMapper) mapClass.getDeclaredConstructor().newInstance();
         return instance;
     }
 

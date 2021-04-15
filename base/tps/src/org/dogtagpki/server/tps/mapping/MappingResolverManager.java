@@ -101,11 +101,10 @@ public class MappingResolverManager
             String resolverClass = resolverInfo.getClassName();
             BaseMappingResolver resolver = null;
             try {
-                resolver = (BaseMappingResolver)
-                        Class.forName(resolverClass).newInstance();
+                resolver = (BaseMappingResolver) Class.forName(resolverClass).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 logger.error(method + " resolver plugin Class.forName " + resolverClass + ": " + e.getMessage(), e);
-                throw new EBaseException(e.toString());
+                throw new EBaseException(e);
             }
             resolver.init(prInst);
             addResolver(prInst, resolver);

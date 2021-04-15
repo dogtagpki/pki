@@ -58,7 +58,7 @@ public class CMSStartServlet extends HttpServlet {
             engineClass = Class.forName(className);
 
             logger.debug("CMSStartServlet: Creating CMS engine: " + engineClass.getName());
-            engine = (CMSEngine) engineClass.newInstance();
+            engine = (CMSEngine) engineClass.getDeclaredConstructor().newInstance();
 
             engine.start();
 

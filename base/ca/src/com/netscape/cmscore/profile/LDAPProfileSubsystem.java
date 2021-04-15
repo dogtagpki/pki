@@ -247,7 +247,7 @@ public class LDAPProfileSubsystem
                 subStoreConfig.load(data);
 
             logger.debug("LDAPProfileSubsystem: initing " + className);
-            Profile profile = (Profile) Class.forName(className).newInstance();
+            Profile profile = (Profile) Class.forName(className).getDeclaredConstructor().newInstance();
             profile.setId(id);
             profile.init(subStoreConfig);
             mProfiles.put(id, profile);

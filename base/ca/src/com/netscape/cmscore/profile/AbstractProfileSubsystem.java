@@ -128,10 +128,9 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         String className = info.getClassName();
         Profile newProfile = null;
         try {
-            newProfile = (Profile) Class.forName(className).newInstance();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            throw new EProfileException("Could not instantiate class '"
-                    + classId + "' for profile '" + id + "': " + e);
+            newProfile = (Profile) Class.forName(className).getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new EProfileException("Could not instantiate class '" + classId + "' for profile '" + id + "': " + e.getMessage(), e);
         }
         newProfile.setId(id);
         try {

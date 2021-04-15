@@ -418,7 +418,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             }
 
             String className = plugin.getClassPath();
-            IRequestListener listener = (IRequestListener) Class.forName(className).newInstance();
+            IRequestListener listener = (IRequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
 
             // listener.init(id, pluginName, instanceConfig);
             listener.init(hostCA, instanceConfig);
@@ -448,7 +448,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         logger.info("CAEngine: - class: " + className);
 
         Class<CRLPublisher> publisherClass = (Class<CRLPublisher>) Class.forName(className);
-        crlPublisher = publisherClass.newInstance();
+        crlPublisher = publisherClass.getDeclaredConstructor().newInstance();
         crlPublisher.init(hostCA, crlPublisherConfig);
     }
 
@@ -513,7 +513,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             String className = ipConfig.getClassName();
             Class<CRLIssuingPoint> clazz = (Class<CRLIssuingPoint>) Class.forName(className);
 
-            CRLIssuingPoint issuingPoint = clazz.newInstance();
+            CRLIssuingPoint issuingPoint = clazz.getDeclaredConstructor().newInstance();
             issuingPoint.init(hostCA, id, ipConfig);
 
             crlIssuingPoints.put(id, issuingPoint);
@@ -598,7 +598,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
                 "certificateIssuedListenerClassName",
                 "com.netscape.cms.listeners.CertificateIssuedListener");
 
-        certIssuedListener = (IRequestListener) Class.forName(className).newInstance();
+        certIssuedListener = (IRequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
         certIssuedListener.init(hostCA, listenerConfig);
     }
 
@@ -620,7 +620,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
                 "certificateIssuedListenerClassName",
                 "com.netscape.cms.listeners.CertificateRevokedListener");
 
-        certRevokedListener = (IRequestListener) Class.forName(className).newInstance();
+        certRevokedListener = (IRequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
         certRevokedListener.init(hostCA, listenerConfig);
     }
 
@@ -642,7 +642,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
                 "certificateIssuedListenerClassName",
                 "com.netscape.cms.listeners.RequestInQListener");
 
-        requestInQueueListener = (IRequestListener) Class.forName(className).newInstance();
+        requestInQueueListener = (IRequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
         requestInQueueListener.init(hostCA, listenerConfig);
     }
 
@@ -795,7 +795,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
                 pendingNotifier);
 
         if (schedulerClass != null) {
-            IRequestScheduler scheduler = (IRequestScheduler) Class.forName(schedulerClass).newInstance();
+            IRequestScheduler scheduler = (IRequestScheduler) Class.forName(schedulerClass).getDeclaredConstructor().newInstance();
             requestQueue.setRequestScheduler(scheduler);
         }
 
@@ -1142,7 +1142,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
                 keyRetriever = clazz.getDeclaredConstructor(IConfigStore.class).newInstance(keyRetrieverConfig);
 
             } catch (NoSuchMethodException | SecurityException | IllegalAccessException e) {
-                keyRetriever = clazz.newInstance();
+                keyRetriever = clazz.getDeclaredConstructor().newInstance();
             }
 
         } catch (Exception e) {

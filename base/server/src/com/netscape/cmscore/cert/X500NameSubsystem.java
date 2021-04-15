@@ -161,11 +161,9 @@ public class X500NameSubsystem implements ISubsystem {
             AVAValueConverter convClass = null;
 
             try {
-                convClass = (AVAValueConverter)
-                        Class.forName(className).newInstance();
+                convClass = (AVAValueConverter) Class.forName(className).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_LOAD_CLASS_FAILED", className, e.toString()));
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_LOAD_CLASS_FAILED", className, e.toString()), e);
             }
             globalMap.addNameOID(name, oid, convClass);
             logger.trace(ID + ": Loaded " + name + " " + oid + " " + className);

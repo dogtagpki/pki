@@ -124,7 +124,7 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
         String className = ocspConfig.getString(IOCSPAuthority.PROP_STORE + "." + storeID + ".class");
         IConfigStore storeConfig = ocspConfig.getSubStore(IOCSPAuthority.PROP_STORE + "." + storeID);
 
-        IDefStore store = (IDefStore) Class.forName(className).newInstance();
+        IDefStore store = (IDefStore) Class.forName(className).getDeclaredConstructor().newInstance();
         store.init(storeConfig, dbSubsystem);
 
         // (1) need to normalize (sort) the chain

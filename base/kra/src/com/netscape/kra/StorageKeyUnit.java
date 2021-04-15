@@ -34,7 +34,6 @@ import javax.crypto.BadPaddingException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.server.kra.KRAEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -70,6 +69,7 @@ import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -697,7 +697,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         try {
             String className = mConfig.getString("share_class",
                                        "com.netscape.cms.shares.OldShare");
-            s = (IShare) Class.forName(className).newInstance();
+            s = (IShare) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             logger.warn("Loading Shares error " + e.getMessage(), e);
         }
@@ -1043,7 +1043,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         try {
             String className = mConfig.getString("joinshares_class",
                                        "com.netscape.cms.shares.OldJoinShares");
-            j = (IJoinShares) Class.forName(className).newInstance();
+            j = (IJoinShares) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             logger.warn("JoinShares error " + e.getMessage(), e);
         }

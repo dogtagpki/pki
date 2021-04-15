@@ -50,8 +50,7 @@ public class BootstrapProfile {
             String c = config.getString(id + ".default.class");
             try {
                 /* load defaults */
-                EnrollDefault def = (EnrollDefault)
-                        Class.forName(c).newInstance();
+                EnrollDefault def = (EnrollDefault) Class.forName(c).getDeclaredConstructor().newInstance();
                 init(config.getSubStore(id + ".default"), def);
                 mDefaults.addElement(def);
             } catch (Exception e) {

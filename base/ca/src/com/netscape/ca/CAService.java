@@ -245,8 +245,7 @@ public class CAService implements ICAService, IService {
 
         if (extConnector != null) {
             try {
-                connector = (IConnector)
-                        Class.forName(extConnector).newInstance();
+                connector = (IConnector) Class.forName(extConnector).getDeclaredConstructor().newInstance();
                 // connector.start() will be called later on
                 return connector;
             } catch (Exception e) {

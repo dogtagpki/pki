@@ -144,7 +144,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
             ILdapPublisher publisherInst = null;
 
             try {
-                publisherInst = (ILdapPublisher) Class.forName(className).newInstance();
+                publisherInst = (ILdapPublisher) Class.forName(className).getDeclaredConstructor().newInstance();
                 IConfigStore pConfig = c.getSubStore(insName);
 
                 publisherInst.init(pConfig);
@@ -216,7 +216,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
             ILdapMapper mapperInst = null;
 
             try {
-                mapperInst = (ILdapMapper) Class.forName(className).newInstance();
+                mapperInst = (ILdapMapper) Class.forName(className).getDeclaredConstructor().newInstance();
                 IConfigStore mConfig = c.getSubStore(insName);
 
                 mapperInst.init(mConfig);
@@ -286,8 +286,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
             try {
                 LdapRule ruleInst = null;
 
-                ruleInst = (LdapRule)
-                        Class.forName(className).newInstance();
+                ruleInst = (LdapRule) Class.forName(className).getDeclaredConstructor().newInstance();
                 mConfig = c.getSubStore(insName);
                 ruleInst.init(this, mConfig);
                 ruleInst.setInstanceName(insName);
@@ -570,20 +569,14 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
         String className = plugin.getClassPath();
 
         try {
-            mapperInst = (ILdapMapper)
-                    Class.forName(className).newInstance();
+            mapperInst = (ILdapMapper) Class.forName(className).getDeclaredConstructor().newInstance();
             Vector<String> v = mapperInst.getDefaultParams();
 
             return v;
-        } catch (InstantiationException e) {
+
+        } catch (Exception e) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_MAPPER", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
-        } catch (ClassNotFoundException e) {
-            logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_MAPPER", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
-        } catch (IllegalAccessException e) {
-            logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_MAPPER", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className), e);
         }
     }
 
@@ -634,20 +627,14 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
         String className = plugin.getClassPath();
 
         try {
-            publisherInst = (ILdapPublisher)
-                    Class.forName(className).newInstance();
+            publisherInst = (ILdapPublisher) Class.forName(className).getDeclaredConstructor().newInstance();
             Vector<String> v = publisherInst.getDefaultParams();
 
             return v;
-        } catch (InstantiationException e) {
+
+        } catch (Exception e) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_PUBLISHER", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
-        } catch (ClassNotFoundException e) {
-            logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_PUBLISHER", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
-        } catch (IllegalAccessException e) {
-            logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_PUBLISHER", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className), e);
         }
     }
 
@@ -788,20 +775,15 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
         String className = plugin.getClassPath();
 
         try {
-            ruleInst = (LdapRule) Class.forName(className).newInstance();
+            ruleInst = (LdapRule) Class.forName(className).getDeclaredConstructor().newInstance();
 
             Vector<String> v = ruleInst.getDefaultParams();
 
             return v;
-        } catch (InstantiationException e) {
+
+        } catch (Exception e) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
-        } catch (ClassNotFoundException e) {
-            logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
-        } catch (IllegalAccessException e) {
-            logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className), e);
         }
     }
 
@@ -830,19 +812,14 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
         String className = plugin.getClassPath();
 
         try {
-            ruleInst = (LdapRule) Class.forName(className).newInstance();
+            ruleInst = (LdapRule) Class.forName(className).getDeclaredConstructor().newInstance();
             Vector<String> v = ruleInst.getInstanceParams();
 
             return v;
-        } catch (InstantiationException e) {
+
+        } catch (Exception e) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
-        } catch (ClassNotFoundException e) {
-            logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
-        } catch (IllegalAccessException e) {
-            logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className), e);
         }
     }
 

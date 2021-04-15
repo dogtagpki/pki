@@ -212,7 +212,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 						Class<?> c =
 							ClassLoaderUtil.getClass(mConsoleInfo,
 													 sJavaClassName);
-						TaskObject task = (TaskObject)c.newInstance();
+						TaskObject task = (TaskObject) c.getDeclaredConstructor().newInstance();
 						ConsoleInfo taskConsoleInfo =
 							(ConsoleInfo)mConsoleInfo.clone();
 						taskConsoleInfo.setCurrentDN(findEntry.getDN());

@@ -94,7 +94,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
@@ -830,24 +829,13 @@ public class CertificateAuthority
             try {
                 issuingPointClassName = c.getClassName();
                 issuingPointClass = (Class<CRLIssuingPoint>) Class.forName(issuingPointClassName);
-                issuingPoint = issuingPointClass.newInstance();
+                issuingPoint = issuingPointClass.getDeclaredConstructor().newInstance();
                 issuingPoint.init(this, id, c);
 
                 engine.addCRLIssuingPoint(id, issuingPoint);
 
-            } catch (EPropertyNotFound e) {
-                crlSubStore.removeSubStore(id);
-                return false;
-            } catch (EBaseException e) {
-                crlSubStore.removeSubStore(id);
-                return false;
-            } catch (ClassNotFoundException e) {
-                crlSubStore.removeSubStore(id);
-                return false;
-            } catch (InstantiationException e) {
-                crlSubStore.removeSubStore(id);
-                return false;
-            } catch (IllegalAccessException e) {
+            } catch (Exception e) {
+                logger.error("CertificateAuthority: " + e.getMessage(), e);
                 crlSubStore.removeSubStore(id);
                 return false;
             }

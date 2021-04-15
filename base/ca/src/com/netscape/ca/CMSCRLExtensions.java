@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ca;
 
-import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -381,7 +380,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                     Class<ICMSCRLExtension> crlExtClass = (Class<ICMSCRLExtension>) Class.forName(extClass);
 
                     if (crlExtClass != null) {
-                        ICMSCRLExtension cmsCRLExt = crlExtClass.newInstance();
+                        ICMSCRLExtension cmsCRLExt = crlExtClass.getDeclaredConstructor().newInstance();
 
                         if (cmsCRLExt != null) {
                             String id = cmsCRLExt.getCRLExtOID();
@@ -392,17 +391,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                         }
                     }
 
-                } catch (ClassCastException e) {
-                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INCORRECT_CLASS", extClass, e.toString()), e);
-
-                } catch (ClassNotFoundException e) {
-                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_FOUND", extClass, e.toString()), e);
-
-                } catch (InstantiationException e) {
-                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_INST", extClass, e.toString()), e);
-
-                } catch (IllegalAccessException e) {
-                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_ACCESS", extClass, e.toString()), e);
+                } catch (Exception e) {
+                    logger.warn("CMSCRLExtensions: " + e.getMessage(), e);
                 }
 
             } else {
@@ -477,7 +467,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 Class<ICMSCRLExtension> extClass = (Class<ICMSCRLExtension>) Class.forName(name);
 
                 if (extClass != null) {
-                    ICMSCRLExtension cmsCRLExt = extClass.newInstance();
+                    ICMSCRLExtension cmsCRLExt = extClass.getDeclaredConstructor().newInstance();
 
                     if (cmsCRLExt != null) {
                         if (ext != null) {
@@ -497,20 +487,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                     }
                 }
 
-            } catch (ClassCastException e) {
-                logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INCORRECT_CLASS", name, e.toString()), e);
-
-            } catch (ClassNotFoundException e) {
-                logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_FOUND", name, e.toString()), e);
-
-            } catch (InstantiationException e) {
-                logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_INST", name, e.toString()), e);
-
-            } catch (IllegalAccessException e) {
-                logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_ACCESS", name, e.toString()), e);
-
-            } catch (IOException e) {
-                logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_ADD", name, e.toString()), e);
+            } catch (Exception e) {
+                logger.warn("CMSCRLExtensions: " + e.getMessage(), e);
             }
         }
     }
@@ -556,21 +534,15 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                         Class<?> extClass = Class.forName(name);
 
                         if (extClass != null) {
-                            ICMSCRLExtension cmsCRLExt = (ICMSCRLExtension) extClass.newInstance();
+                            ICMSCRLExtension cmsCRLExt = (ICMSCRLExtension) extClass.getDeclaredConstructor().newInstance();
 
                             if (cmsCRLExt != null) {
                                 cmsCRLExt.getConfigParams(mCRLExtConfig.getSubStore(id), nvp);
                             }
                         }
 
-                    } catch (ClassNotFoundException e) {
-                        logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_FOUND", name, e.toString()), e);
-
-                    } catch (InstantiationException e) {
-                        logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_INST", name, e.toString()), e);
-
-                    } catch (IllegalAccessException e) {
-                        logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_ACCESS", name, e.toString()), e);
+                    } catch (Exception e) {
+                        logger.warn("CMSCRLExtensions: " + e.getMessage(), e);
                     }
 
                     int i = name.lastIndexOf('.');

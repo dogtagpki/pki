@@ -139,8 +139,7 @@ public class AuthzSubsystem implements ISubsystem {
                 IAuthzManager authzMgrInst = null;
 
                 try {
-                    authzMgrInst = (IAuthzManager)
-                            Class.forName(className).newInstance();
+                    authzMgrInst = (IAuthzManager) Class.forName(className).getDeclaredConstructor().newInstance();
 
                     authzMgrInst.init(insName, implName, authzMgrConfig);
                     isEnable = true;
@@ -298,16 +297,9 @@ public class AuthzSubsystem implements ISubsystem {
         String className = plugin.getClassPath();
 
         try {
-            authzMgrInst = (IAuthzManager)
-                    Class.forName(className).newInstance();
+            authzMgrInst = (IAuthzManager) Class.forName(className).getDeclaredConstructor().newInstance();
             return (authzMgrInst.getConfigParams());
-        } catch (InstantiationException e) {
-            logger.error("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()), e);
-            throw new EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
-        } catch (ClassNotFoundException e) {
-            logger.error("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()), e);
-            throw new EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             logger.error("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()), e);
             throw new EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
         }
@@ -387,7 +379,7 @@ public class AuthzSubsystem implements ISubsystem {
         IAuthzManager authzMgrInst = null;
 
         try {
-            authzMgrInst = (IAuthzManager) Class.forName(classpath).newInstance();
+            authzMgrInst = (IAuthzManager) Class.forName(classpath).getDeclaredConstructor().newInstance();
             return (authzMgrInst);
         } catch (Exception e) {
             logger.warn("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()), e);

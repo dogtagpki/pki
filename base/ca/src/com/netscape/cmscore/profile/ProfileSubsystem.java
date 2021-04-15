@@ -135,7 +135,7 @@ public class ProfileSubsystem
             IConfigStore subStoreConfig = engine.createFileConfigStore(configPath);
 
             logger.debug("ProfileSubsystem: Initializing " + className);
-            Profile profile = (Profile) Class.forName(className).newInstance();
+            Profile profile = (Profile) Class.forName(className).getDeclaredConstructor().newInstance();
             profile.setId(id);
             profile.init(subStoreConfig);
 

@@ -78,7 +78,7 @@ public class AgentPolicy extends APolicyRule
                 @SuppressWarnings("unchecked")
                 Class<APolicyRule> c = (Class<APolicyRule>) Class.forName(className);
 
-                Object o = c.newInstance();
+                Object o = c.getDeclaredConstructor().newInstance();
 
                 if (!(o instanceof APolicyRule)) {
                     throw new EPolicyException(

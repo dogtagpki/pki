@@ -279,7 +279,7 @@ public abstract class Profile {
 
             EnrollInput input = null;
             try {
-                input = (EnrollInput) Class.forName(inputClass).newInstance();
+                input = (EnrollInput) Class.forName(inputClass).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 // throw Exception
                 logger.error("Profile: input plugin Class.forName " + inputClass + " " + e.getMessage(), e);
@@ -309,8 +309,7 @@ public abstract class Profile {
             ProfileOutput output = null;
 
             try {
-                output = (ProfileOutput)
-                        Class.forName(outputClass).newInstance();
+                output = (ProfileOutput) Class.forName(outputClass).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 // throw Exception
                 logger.error("Profile: output plugin Class.forName " +
@@ -340,8 +339,7 @@ public abstract class Profile {
             IProfileUpdater updater = null;
 
             try {
-                updater = (IProfileUpdater)
-                        Class.forName(updaterClass).newInstance();
+                updater = (IProfileUpdater) Class.forName(updaterClass).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 // throw Exception
                 logger.error("Profile: updater plugin Class.forName " +
@@ -711,8 +709,7 @@ public abstract class Profile {
         ProfileOutput output = null;
 
         try {
-            output = (ProfileOutput)
-                    Class.forName(outputClass).newInstance();
+            output = (ProfileOutput) Class.forName(outputClass).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             // throw Exception
             logger.warn(e.getMessage(), e);
@@ -813,7 +810,7 @@ public abstract class Profile {
 
         EnrollInput input = null;
         try {
-            input = (EnrollInput) Class.forName(inputClass).newInstance();
+            input = (EnrollInput) Class.forName(inputClass).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             // throw Exception
             logger.warn(e.getMessage(), e);
@@ -1049,8 +1046,7 @@ public abstract class Profile {
         PolicyDefault def = null;
 
         try {
-            def = (PolicyDefault)
-                    Class.forName(defaultClass).newInstance();
+            def = (PolicyDefault) Class.forName(defaultClass).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             // throw Exception
             logger.warn(method + " default policy " +
@@ -1077,8 +1073,7 @@ public abstract class Profile {
         logger.debug(method + " loading constraint class " + constraintClass);
         PolicyConstraint constraint = null;
         try {
-            constraint = (PolicyConstraint)
-                    Class.forName(constraintClass).newInstance();
+            constraint = (PolicyConstraint) Class.forName(constraintClass).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             // throw Exception
             logger.warn(method + " constraint policy " +

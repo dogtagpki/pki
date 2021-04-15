@@ -500,7 +500,7 @@ public class LDAPRegistry extends DBRegistry {
         Class<?> c = (Class<?>) no.getObject();
 
         try {
-            IDBObj obj = (IDBObj) c.newInstance();
+            IDBObj obj = (IDBObj) c.getDeclaredConstructor().newInstance();
             Enumeration<String> ee = obj.getSerializableAttrNames();
 
             while (ee.hasMoreElements()) {

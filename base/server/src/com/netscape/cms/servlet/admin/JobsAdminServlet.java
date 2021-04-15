@@ -452,23 +452,8 @@ public class JobsAdminServlet extends AdminServlet {
         IJob jobsInst = null;
 
         try {
-            jobsInst = (IJob) Class.forName(className).newInstance();
-        } catch (ClassNotFoundException e) {
-            // cleanup
-            instancesConfig.removeSubStore(id);
-            sendResponse(ERROR,
-                    new EJobsException(
-                            CMS.getUserMessage(getLocale(req), "CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
-                    null, resp);
-            return;
-        } catch (InstantiationException e) {
-            instancesConfig.removeSubStore(id);
-            sendResponse(ERROR,
-                    new EJobsException(
-                            CMS.getUserMessage(getLocale(req), "CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
-                    null, resp);
-            return;
-        } catch (IllegalAccessException e) {
+            jobsInst = (IJob) Class.forName(className).getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
                     new EJobsException(
@@ -868,23 +853,8 @@ public class JobsAdminServlet extends AdminServlet {
         IJob newJobInst = null;
 
         try {
-            newJobInst = (IJob) Class.forName(className).newInstance();
-        } catch (ClassNotFoundException e) {
-            // cleanup
-            restore(instancesConfig, id, saveParams);
-            sendResponse(ERROR,
-                    new EJobsException(
-                            CMS.getUserMessage(getLocale(req), "CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
-                    null, resp);
-            return;
-        } catch (InstantiationException e) {
-            restore(instancesConfig, id, saveParams);
-            sendResponse(ERROR,
-                    new EJobsException(
-                            CMS.getUserMessage(getLocale(req), "CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
-                    null, resp);
-            return;
-        } catch (IllegalAccessException e) {
+            newJobInst = (IJob) Class.forName(className).getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
                     new EJobsException(

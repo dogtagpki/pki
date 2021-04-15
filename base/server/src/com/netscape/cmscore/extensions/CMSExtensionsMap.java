@@ -68,23 +68,11 @@ public class CMSExtensionsMap {
             CMSExtension ext = null;
 
             try {
-                ext = (CMSExtension) Class.forName(className).newInstance();
+                ext = (CMSExtension) Class.forName(className).getDeclaredConstructor().newInstance();
                 ext.init(c);
                 addExt(ext);
-            } catch (ClassNotFoundException e) {
-                throw new EExtensionsException(
-                        CMS.getUserMessage("CMS_EXTENSION_CLASS_NOT_FOUND", className));
-            } catch (IllegalAccessException e) {
-                throw new EExtensionsException(
-                        CMS.getUserMessage("CMS_EXTENSION_INSTANTIATE_ERROR",
-                                className, e.toString()));
-            } catch (InstantiationException e) {
-                throw new EExtensionsException(
-                        CMS.getUserMessage("CMS_EXTENSION_INSTANTIATE_ERROR",
-                                className, e.toString()));
-            } catch (ClassCastException e) {
-                throw new EExtensionsException(
-                        CMS.getUserMessage("CMS_EXTENSION_INVALID_IMPL", className));
+            } catch (Exception e) {
+                throw new EExtensionsException("CMSExtensionsMap: " + e.getMessage(), e);
             }
         }
     }

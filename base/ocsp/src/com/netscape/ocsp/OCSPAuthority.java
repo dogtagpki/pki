@@ -158,7 +158,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
                 while (ids.hasMoreElements()) {
                     String id = ids.nextElement();
                     String className = mConfig.getString(PROP_STORE + "." + id + ".class", null);
-                    IOCSPStore store = (IOCSPStore) Class.forName(className).newInstance();
+                    IOCSPStore store = (IOCSPStore) Class.forName(className).getDeclaredConstructor().newInstance();
                     IConfigStore cfg = mConfig.getSubStore(PROP_STORE + "." + id);
 
                     store.init(cfg, dbSubsystem);
@@ -169,13 +169,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
                     }
                 }
 
-            } catch (ClassNotFoundException e) {
-                logger.warn(CMS.getLogMessage("CMSCORE_OCSP_SIGNING_UNIT", e.toString()), e);
-
-            } catch (InstantiationException e) {
-                logger.warn(CMS.getLogMessage("CMSCORE_OCSP_SIGNING_UNIT", e.toString()), e);
-
-            } catch (IllegalAccessException e) {
+            } catch (Exception e) {
                 logger.warn(CMS.getLogMessage("CMSCORE_OCSP_SIGNING_UNIT", e.toString()), e);
             }
 

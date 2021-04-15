@@ -141,8 +141,7 @@ public abstract class AAclAuthz implements IAuthzManager {
 
             // instantiate evaluator
             try {
-                evaluator =
-                        (IAccessEvaluator) Class.forName(evalClassPath).newInstance();
+                evaluator = (IAccessEvaluator) Class.forName(evalClassPath).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new EACLsException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL",
                             evalClassPath));

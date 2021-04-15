@@ -264,8 +264,7 @@ public class RegistryAdminServlet extends AdminServlet {
         try {
             IPluginInfo info = registry.getPluginInfo("defaultPolicy", id);
             String className = info.getClassName();
-            PolicyDefault policyDefaultClass = (PolicyDefault)
-                    Class.forName(className).newInstance();
+            PolicyDefault policyDefaultClass = (PolicyDefault) Class.forName(className).getDeclaredConstructor().newInstance();
 
             if (policyDefaultClass != null) {
                 Enumeration<String> impls = registry.getIds("constraintPolicy");
@@ -274,8 +273,7 @@ public class RegistryAdminServlet extends AdminServlet {
                     String constraintID = impls.nextElement();
                     IPluginInfo constraintInfo = registry.getPluginInfo(
                             "constraintPolicy", constraintID);
-                    PolicyConstraint policyConstraintClass = (PolicyConstraint)
-                            Class.forName(constraintInfo.getClassName()).newInstance();
+                    PolicyConstraint policyConstraintClass = (PolicyConstraint) Class.forName(constraintInfo.getClassName()).getDeclaredConstructor().newInstance();
 
                     logger.debug("RegistryAdminServlet: getSUpportedConstraint " + constraintInfo.getClassName());
 
@@ -322,8 +320,7 @@ public class RegistryAdminServlet extends AdminServlet {
         IConfigTemplate template = null;
 
         try {
-            template = (IConfigTemplate)
-                    Class.forName(className).newInstance();
+            template = (IConfigTemplate) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
         }
         if (template != null) {

@@ -26,11 +26,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthManagerProxy;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -754,43 +754,8 @@ public class AuthAdminServlet extends AdminServlet {
             AuthManager authMgrInst = null;
 
             try {
-                authMgrInst = (AuthManager) Class.forName(className).newInstance();
-            } catch (ClassNotFoundException e) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_AUTH,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
-
-                // cleanup
-                instancesConfig.removeSubStore(id);
-                sendResponse(
-                        ERROR,
-                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL",
-                                className)).toString(),
-                        null, resp);
-                return;
-            } catch (InstantiationException e) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_AUTH,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
-
-                instancesConfig.removeSubStore(id);
-                sendResponse(
-                        ERROR,
-                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL",
-                                className)).toString(),
-                        null, resp);
-                return;
-            } catch (IllegalAccessException e) {
+                authMgrInst = (AuthManager) Class.forName(className).getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CONFIG_AUTH,
@@ -1536,43 +1501,8 @@ public class AuthAdminServlet extends AdminServlet {
             AuthManager newMgrInst = null;
 
             try {
-                newMgrInst = (AuthManager) Class.forName(className).newInstance();
-            } catch (ClassNotFoundException e) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_AUTH,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
-
-                // cleanup
-                restore(instancesConfig, id, saveParams);
-                sendResponse(
-                        ERROR,
-                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL",
-                                className)).toString(),
-                        null, resp);
-                return;
-            } catch (InstantiationException e) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_AUTH,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
-
-                restore(instancesConfig, id, saveParams);
-                sendResponse(
-                        ERROR,
-                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL",
-                                className)).toString(),
-                        null, resp);
-                return;
-            } catch (IllegalAccessException e) {
+                newMgrInst = (AuthManager) Class.forName(className).getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CONFIG_AUTH,
