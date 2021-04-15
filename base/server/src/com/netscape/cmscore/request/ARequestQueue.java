@@ -487,7 +487,7 @@ public abstract class ARequestQueue {
 
     // PRIVATE functions
 
-    private final void stateEngine(IRequest r)
+    protected final void stateEngine(IRequest r)
             throws EBaseException {
         boolean complete = false;
 
@@ -601,30 +601,7 @@ public abstract class ARequestQueue {
      * recover from a crash. Resends all requests that are in
      * the APPROVED state.
      */
-    public void recoverWillBlock() {
-        // Get a list of all requests that are APPROVED
-        IRequestList list = listRequestsByStatus(RequestStatus.APPROVED);
-
-        while (list != null && list.hasMoreElements()) {
-            RequestId rid = list.nextRequestId();
-            IRequest request;
-
-            try {
-                request = findRequest(rid);
-
-                //if (request == null) log_error
-
-                // Recheck the status - should be the same!!
-                if (request.getRequestStatus() == RequestStatus.APPROVED) {
-                    stateEngine(request);
-                }
-
-                releaseRequest(request);
-            } catch (EBaseException e) {
-                // log
-            }
-        }
-    }
+    public abstract void recoverWillBlock();
 
     /**
      * Retrieves the notifier for pending request.

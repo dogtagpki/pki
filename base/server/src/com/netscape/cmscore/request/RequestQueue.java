@@ -245,4 +245,35 @@ public class RequestQueue extends ARequestQueue {
             System.err.println("Attr: " + name + " Value: " + h.get(name));
         }
     }
+
+    /**
+     * Recovers from a crash. Resends all requests that are in
+     * the APPROVED state.
+     */
+    public void recoverWillBlock() {
+
+        IRequestList list = listRequestsByStatus(RequestStatus.APPROVED);
+
+        if (list == null) {
+            return;
+        }
+
+        while (list.hasMoreElements()) {
+            RequestId requestID = list.nextRequestId();
+
+            try {
+                IRequest request = mRepository.readRequest(requestID);
+
+                // Recheck the status - should be the same!!
+                if (request.getRequestStatus() == RequestStatus.APPROVED) {
+                    stateEngine(request);
+                }
+
+                releaseRequest(request);
+
+            } catch (EBaseException e) {
+                logger.warn("RequestQueue: " + e.getMessage(), e);
+            }
+        }
+    }
 }
