@@ -47,6 +47,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * Search for certificates matching complex query filter
@@ -65,6 +66,7 @@ public class SearchReqs extends CMSServlet {
     private final static String OUT_CURRENTCOUNT = "currentRecordCount";
     private final static int MAX_RESULTS = 1000;
 
+    private RequestRepository requestRepository;
     private ARequestQueue mQueue = null;
     private IReqParser mParser = null;
     private String mFormPath = null;
@@ -101,6 +103,7 @@ public class SearchReqs extends CMSServlet {
             }
         }
 
+        requestRepository = engine.getRequestRepository();
         mQueue = engine.getRequestQueue();
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
@@ -274,7 +277,7 @@ public class SearchReqs extends CMSServlet {
             }
             IRequestList list = (timeLimit > 0) ?
                     mQueue.listRequestsByFilter(newfilter, maxResults, timeLimit) :
-                    mQueue.listRequestsByFilter(newfilter, maxResults);
+                    requestRepository.listRequestsByFilter(newfilter, maxResults);
 
             int count = 0;
 
