@@ -315,7 +315,7 @@ public class CloneServlet extends CMSServlet {
         IRequest thisreq = null;
 
         if (thisreqid != null) {
-            thisreq = queue.findRequest(thisreqid);
+            thisreq = requestRepository.readRequest(thisreqid);
             if (thisreq == null) {
                 // strange case.
                 String errormsg = "Cannot find request in request queue " + thisreqid;

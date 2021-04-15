@@ -105,6 +105,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -236,6 +237,7 @@ public abstract class CMSServlet extends HttpServlet {
     // the authority, RA, CA, KRA this servlet is serving.
     protected IAuthority mAuthority = null;
     protected ICertificateAuthority certAuthority;
+    protected RequestRepository requestRepository;
     protected ARequestQueue mRequestQueue = null;
 
     // system logger.
@@ -306,6 +308,9 @@ public abstract class CMSServlet extends HttpServlet {
             if (mAuthority instanceof ICertificateAuthority)
                 certAuthority = (ICertificateAuthority) mAuthority;
         }
+
+        requestRepository = engine.getRequestRepository();
+
         if (mAuthority != null)
             mRequestQueue = engine.getRequestQueue();
 

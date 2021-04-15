@@ -458,7 +458,7 @@ public class UpdateDir extends CMSServlet {
 
                         if (ridString != null) {
                             RequestId rid = new RequestId(ridString);
-                            r = engine.getRequestQueue().findRequest(rid);
+                            r = requestRepository.readRequest(rid);
                         }
 
                         try {
@@ -572,8 +572,7 @@ public class UpdateDir extends CMSServlet {
 
                         if (ridString != null) {
                             RequestId rid = new RequestId(ridString);
-
-                            r = engine.getRequestQueue().findRequest(rid);
+                            r = requestRepository.readRequest(rid);
                         }
 
                         try {
@@ -678,8 +677,7 @@ public class UpdateDir extends CMSServlet {
 
                         if (ridString != null) {
                             RequestId rid = new RequestId(ridString);
-
-                            r = engine.getRequestQueue().findRequest(rid);
+                            r = requestRepository.readRequest(rid);
                         }
 
                         try {

@@ -487,7 +487,7 @@ public class DoRevoke extends CMSServlet {
                 }
 
                 if (reqIdStr != null && reqIdStr.length() > 0 && certSerialNumbers.size() > 0) {
-                    IRequest certReq = mRequestQueue.findRequest(new RequestId(reqIdStr));
+                    IRequest certReq = requestRepository.readRequest(new RequestId(reqIdStr));
                     X509CertImpl[] certs = certReq.getExtDataInCertArray(IRequest.OLD_CERTS);
                     boolean authorized = false;
 

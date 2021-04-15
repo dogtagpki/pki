@@ -673,7 +673,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 logger.debug("ProfileSubmitCMCServlet: revocation request");
                 isRevoke = true;
             } else {
-            provedReq = engine.getRequestQueue().findRequest(new RequestId(reqID.toString()));
+            provedReq = requestRepository.readRequest(new RequestId(reqID.toString()));
             if (provedReq == null) {
 
                 Integer nums = (Integer) (context.get("numOfControls"));

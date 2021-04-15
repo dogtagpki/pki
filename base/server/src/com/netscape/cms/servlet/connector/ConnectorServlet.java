@@ -76,7 +76,6 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
 import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * Connector servlet
@@ -421,7 +420,6 @@ public class ConnectorServlet extends CMSServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        RequestRepository requestRepository = engine.getRequestRepository();
 
         IPKIMessage replymsg = null;
 
@@ -436,7 +434,7 @@ public class ConnectorServlet extends CMSServlet {
 
             if (thisreqid != null) {
                 logger.debug(method + "thisreqid not null:" + thisreqid);
-                thisreq = queue.findRequest(thisreqid);
+                thisreq = requestRepository.readRequest(thisreqid);
                 if (thisreq == null) {
                     // strange case.
                     String errormsg = "Cannot find request in request queue " +

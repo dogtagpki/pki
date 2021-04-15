@@ -174,7 +174,7 @@ public class GetCertFromRequest extends CMSServlet {
                     CMS.getUserMessage(getLocale(httpReq), "CMS_BASE_INVALID_NUMBER_FORMAT_1", CMSTemplate.escapeJavaScriptStringHTML(requestId)), e);
         }
 
-        IRequest r = mQueue.findRequest(new RequestId(requestId));
+        IRequest r = requestRepository.readRequest(new RequestId(requestId));
 
         if (r == null) {
             logger.error(CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND", requestId));

@@ -192,7 +192,7 @@ public class ProfileReviewServlet extends ProfileServlet {
 
         logger.debug("ProfileReviewServlet: requestId=" + requestId);
         try {
-            req = queue.findRequest(new RequestId(requestId));
+            req = requestRepository.readRequest(new RequestId(requestId));
         } catch (EBaseException e) {
             // request not found
             logger.warn("ProfileReviewServlet: request not found requestId=" + requestId + ": " + e.getMessage(), e);

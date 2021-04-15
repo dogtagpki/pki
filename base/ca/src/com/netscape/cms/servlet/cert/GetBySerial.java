@@ -181,7 +181,7 @@ public class GetBySerial extends CMSServlet {
                     if (metai != null) {
                         String reqId = (String) metai.get(CertRecord.META_REQUEST_ID);
                         RequestId rid = new RequestId(reqId);
-                        IRequest creq = mReqQ.findRequest(rid);
+                        IRequest creq = requestRepository.readRequest(rid);
                         if (creq != null) {
                             String reqOwner = creq.getRequestOwner();
                             if (reqOwner != null) {

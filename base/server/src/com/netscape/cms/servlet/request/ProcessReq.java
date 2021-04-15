@@ -235,7 +235,7 @@ public class ProcessReq extends CMSServlet {
         header.addBigIntegerValue("seqNum", seqNum, 10);
 
         CMSEngine engine = CMS.getCMSEngine();
-        IRequest r = mQueue.findRequest(new RequestId(seqNum));
+        IRequest r = requestRepository.readRequest(new RequestId(seqNum));
 
         if (r != null) {
             if (doAssign != null) {

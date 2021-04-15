@@ -284,7 +284,7 @@ public class CheckRequest extends CMSServlet {
                     CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT_1",CMSTemplate.escapeJavaScriptStringHTML( requestId)));
         }
 
-        IRequest r = mQueue.findRequest(new RequestId(requestId));
+        IRequest r = requestRepository.readRequest(new RequestId(requestId));
 
         if (r == null) {
             logger.error(CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND_1", requestId));
