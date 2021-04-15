@@ -126,6 +126,7 @@ import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWCBsdr;
 import com.netscape.cmscore.util.Debug;
@@ -1104,6 +1105,7 @@ public class CRSEnrollment extends HttpServlet {
         /* Check if certificate request has been completed */
 
         CAEngine engine = CAEngine.getInstance();
+        RequestRepository requestRepository = engine.getRequestRepository();
         RequestQueue rq = engine.getRequestQueue();
         IRequest foundRequest = null;
 
@@ -1118,7 +1120,7 @@ public class CRSEnrollment extends HttpServlet {
                 continue;
             }
 
-            IRequest request = rq.findRequest(rid);
+            IRequest request = requestRepository.readRequest(rid);
             if (request == null) {
                 continue;
             }

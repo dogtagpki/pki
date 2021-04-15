@@ -153,19 +153,6 @@ public abstract class ARequestQueue {
     public abstract IRequest cloneRequest(IRequest r) throws EBaseException;
 
     /**
-     * Gets the Request corresponding to id.
-     * Returns null if the id does not correspond
-     * to a valid request id.
-     * <p>
-     * Errors may be generated for other conditions.
-     *
-     * @param id request id
-     * @return found request
-     * @exception EBaseException failed to access request queue
-     */
-    public abstract IRequest findRequest(RequestId id)  throws EBaseException;
-
-    /**
      * Sets request scheduler.
      *
      * @param scheduler request scheduler
@@ -424,9 +411,7 @@ public abstract class ARequestQueue {
      * @param status request status
      * @return request list
      */
-    public IRequestList listRequestsByStatus(RequestStatus s) {
-        return new RequestListByStatus(getRawList(), s, this);
-    }
+    public abstract IRequestList listRequestsByStatus(RequestStatus s);
 
     /**
      * Gets requests that are pending on handling by the service

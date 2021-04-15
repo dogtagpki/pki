@@ -278,11 +278,11 @@ public class RequestNotifier implements IRequestNotifier {
             id = mRequests.elementAt(0);
             if (id != null) {
                 logger.debug("getRequest  getting request: " + id);
-                RequestQueue requestQueue = engine.getRequestQueue();
+                RequestRepository requestRepository = engine.getRequestRepository();
 
-                if (requestQueue != null) {
+                if (requestRepository != null) {
                     try {
-                        r = requestQueue.findRequest(new RequestId(id));
+                        r = requestRepository.readRequest(new RequestId(id));
                         mRequests.remove(0);
                         logger.debug("getRequest  request " + id + ((r != null) ? " found" : " not found"));
                         //updatePublishingStatus(id);

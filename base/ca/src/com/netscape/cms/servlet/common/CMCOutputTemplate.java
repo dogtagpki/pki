@@ -104,6 +104,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -841,6 +842,7 @@ public class CMCOutputTemplate {
             SEQUENCE controlSeq, int bpid) {
 
         CAEngine engine = CAEngine.getInstance();
+        RequestRepository requestRepository = engine.getRequestRepository();
 
         if (attr != null) {
             SET values = attr.getValues();
@@ -855,8 +857,7 @@ public class CMCOutputTemplate {
                                         ASN1Util.encode(values.elementAt(i)));
                         String requestId = new String(reqId.toByteArray());
 
-                        RequestQueue queue = engine.getRequestQueue();
-                        IRequest r = queue.findRequest(new RequestId(requestId));
+                        IRequest r = requestRepository.readRequest(new RequestId(requestId));
                         if (r != null) {
                             RequestStatus status = r.getRequestStatus();
                             if (status.equals(RequestStatus.PENDING)) {

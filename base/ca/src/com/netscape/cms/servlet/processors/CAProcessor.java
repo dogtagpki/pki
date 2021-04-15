@@ -69,6 +69,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -132,6 +133,7 @@ public class CAProcessor extends Processor {
     protected AuthzSubsystem authz;
     protected UGSubsystem ug;
     protected CertUserLocator ul;
+    protected RequestRepository requestRepository;
     protected ARequestQueue queue;
     protected ProfileSubsystem ps;
     protected CertificateRepository certdb;
@@ -170,6 +172,8 @@ public class CAProcessor extends Processor {
         if (authority == null) {
             throw new EBaseException("CAProcessor: authority is null");
         }
+
+        requestRepository = engine.getRequestRepository();
 
         queue = engine.getRequestQueue();
         if (queue == null) {
@@ -243,7 +247,7 @@ public class CAProcessor extends Processor {
      ******************************************/
 
     public IRequest getRequest(String rid) throws EBaseException {
-        IRequest request = queue.findRequest(new RequestId(rid));
+        IRequest request = requestRepository.readRequest(new RequestId(rid));
         return request;
     }
 
@@ -261,7 +265,7 @@ public class CAProcessor extends Processor {
             return null;
         }
 
-        IRequest request = queue.findRequest(new RequestId(rid));
+        IRequest request = requestRepository.readRequest(new RequestId(rid));
         return request;
     }
 

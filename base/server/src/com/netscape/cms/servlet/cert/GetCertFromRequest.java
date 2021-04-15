@@ -285,7 +285,7 @@ class CertFrRequestFiller extends ImportCertsTemplateFiller {
         tparams.getHeader().addStringValue(GetCertFromRequest.REQUEST_ID, reqId);
 
         if (reqId != null) {
-            IRequest r = engine.getRequestQueue().findRequest(new RequestId(reqId));
+            IRequest r = engine.getRequestRepository().readRequest(new RequestId(reqId));
             if (r != null) {
                 boolean noCertImport = true;
                 String certType = r.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);

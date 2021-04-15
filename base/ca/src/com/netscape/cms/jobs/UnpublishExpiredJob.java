@@ -43,6 +43,7 @@ import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * a job for the Jobs Scheduler. This job checks in the internal ldap
@@ -64,6 +65,7 @@ public class UnpublishExpiredJob extends AJobBase
         implements IJob, Runnable, IExtendedPluginInfo {
 
     CertificateAuthority mCa;
+    RequestRepository requestRepository;
     ARequestQueue mReqQ = null;
     CertificateRepository mRepository;
     CAPublisherProcessor mPublisherProcessor;
@@ -123,6 +125,7 @@ public class UnpublishExpiredJob extends AJobBase
 
         CAEngine engine = CAEngine.getInstance();
         mCa = engine.getCA();
+        requestRepository = engine.getRequestRepository();
         mReqQ = engine.getRequestQueue();
         mRepository = engine.getCertificateRepository();
         mPublisherProcessor = engine.getPublisherProcessor();
@@ -258,7 +261,7 @@ public class UnpublishExpiredJob extends AJobBase
                 IRequest req = null;
 
                 try {
-                    req = mReqQ.findRequest(rid);
+                    req = requestRepository.readRequest(rid);
                     if (req != null) {
                         if (mSummary == true)
                             buildItemParams(req);

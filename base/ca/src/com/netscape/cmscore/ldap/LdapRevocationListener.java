@@ -120,7 +120,7 @@ public class LdapRevocationListener implements IRequestListener {
 
                 if (ridString != null) {
                     RequestId rid = new RequestId(ridString);
-                    req = engine.getRequestQueue().findRequest(rid);
+                    req = engine.getRequestRepository().readRequest(rid);
                 }
 
                 processor.unpublishCert(cert, req);

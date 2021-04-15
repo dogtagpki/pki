@@ -1293,10 +1293,10 @@ public abstract class EnrollProfile extends Profile {
         OCTET_STRING witness_os = decPop.getWitness();
 
         CMSEngine engine = CMS.getCMSEngine();
-        RequestQueue reqQueue = engine.getRequestQueue();
+        RequestRepository requestRepository = engine.getRequestRepository();
         IRequest req = null;
         try {
-            req = reqQueue.findRequest(new RequestId(reqIdBI));
+            req = requestRepository.readRequest(new RequestId(reqIdBI));
         } catch (Exception e) {
             msg = method + "after findRequest: " + e.getMessage();
             logger.warn(msg, e);

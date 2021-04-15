@@ -27,6 +27,7 @@ import com.netscape.certsrv.request.RequestStatus;
 public class RequestListByStatus implements IRequestList {
 
     protected RequestStatus mStatus;
+    protected RequestRepository requestRepository;
     protected ARequestQueue mQueue;
     protected Enumeration<RequestId> mEnumeration;
     protected RequestId mNext;
@@ -59,9 +60,15 @@ public class RequestListByStatus implements IRequestList {
         return next;
     }
 
-    public RequestListByStatus(Enumeration<RequestId> e, RequestStatus s, ARequestQueue q) {
+    public RequestListByStatus(
+            Enumeration<RequestId> e,
+            RequestStatus s,
+            RequestRepository requestRepository,
+            ARequestQueue q) {
+
         mEnumeration = e;
         mStatus = s;
+        this.requestRepository = requestRepository;
         mQueue = q;
 
         update();
@@ -79,7 +86,7 @@ public class RequestListByStatus implements IRequestList {
             rId = mEnumeration.nextElement();
 
             try {
-                IRequest r = mQueue.findRequest(rId);
+                IRequest r = requestRepository.readRequest(rId);
 
                 if (r.getRequestStatus() == mStatus)
                     mNext = rId;

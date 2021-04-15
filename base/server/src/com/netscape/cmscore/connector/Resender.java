@@ -38,6 +38,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 
 /**
@@ -51,6 +52,7 @@ public class Resender implements IResender {
     public static final int MINUTE = 60;
 
     protected IAuthority mAuthority = null;
+    protected RequestRepository requestRepository;
     ARequestQueue mQueue = null;
     protected IRemoteAuthority mDest = null;
     ScheduledExecutorService executorService;
@@ -72,6 +74,7 @@ public class Resender implements IResender {
     public Resender(IAuthority authority, String nickName, String clientCiphers, IRemoteAuthority dest) {
         mAuthority = authority;
         CMSEngine engine = CMS.getCMSEngine();
+        requestRepository = engine.getRequestRepository();
         mQueue = engine.getRequestQueue();
         mDest = dest;
         mNickName = nickName;
@@ -83,6 +86,7 @@ public class Resender implements IResender {
             IRemoteAuthority dest, int interval) {
         mAuthority = authority;
         CMSEngine engine = CMS.getCMSEngine();
+        requestRepository = engine.getRequestRepository();
         mQueue = engine.getRequestQueue();
         mDest = dest;
         mNickName = nickName;
@@ -93,8 +97,6 @@ public class Resender implements IResender {
 
     // must be done after a subsystem 'start' so queue is initialized.
     private void initRequests() {
-        CMSEngine engine = CMS.getCMSEngine();
-        mQueue = engine.getRequestQueue();
         // get all requests in mAuthority that are still pending.
         IRequestList list =
                 mQueue.listRequestsByStatus(RequestStatus.SVC_PENDING);
@@ -169,7 +171,7 @@ public class Resender implements IResender {
             logger.debug("resend processing request id " + rid);
 
             try {
-                r = mQueue.findRequest(rid);
+                r = requestRepository.readRequest(rid);
             } catch (EBaseException e) {
                 // XXX bad case. should we remove the rid now ?
                 logger.warn(CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_FOUND", rid.toString()), e);

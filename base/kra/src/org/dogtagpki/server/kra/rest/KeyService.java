@@ -73,6 +73,7 @@ import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.kra.KeyRecoveryAuthority;
 
@@ -90,6 +91,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
     private KeyRepository repo;
     private KeyRecoveryAuthority kra;
+    private RequestRepository requestRepository;
     private ARequestQueue queue;
     private IKeyService service;
 
@@ -103,6 +105,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         KRAEngine engine = KRAEngine.getInstance();
         kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
         repo = kra.getKeyRepository();
+        requestRepository = engine.getRequestRepository();
         queue = engine.getRequestQueue();
         service = kra;
     }
@@ -162,7 +165,7 @@ public class KeyService extends SubsystemService implements KeyResource {
             auditInfo += ";requestID=" + requestId;
 
             try {
-                request = queue.findRequest(requestId);
+                request = requestRepository.readRequest(requestId);
             } catch (EBaseException e) {
                 auditRetrieveKeyError(e.getMessage());
                 throw new PKIException(e.getMessage(), e);
@@ -758,7 +761,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         RequestId reqId = data.getRequestId();
 
         // confirm request exists
-        IRequest request = queue.findRequest(reqId);
+        IRequest request = requestRepository.readRequest(reqId);
 
         if (request == null) {
             throw new HTTPGoneException("Request not found: " + reqId);

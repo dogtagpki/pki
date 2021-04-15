@@ -894,9 +894,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestQueue queue = engine.getRequestQueue();
+        RequestRepository requestRepository = engine.getRequestRepository();
 
-        IRequest r = queue.findRequest(new RequestId(reqID));
+        IRequest r = requestRepository.readRequest(new RequestId(reqID));
         if ((r.getRequestStatus() == RequestStatus.APPROVED)) {
             return true;
         } else {
@@ -911,9 +911,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
-        RequestQueue queue = engine.getRequestQueue();
+        RequestRepository requestRepository = engine.getRequestRepository();
 
-        IRequest r = queue.findRequest(new RequestId(reqID));
+        IRequest r = requestRepository.readRequest(new RequestId(reqID));
 
         String agents = r.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
         if (agents != null) {
@@ -947,8 +947,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_NOT_EXIST"));
         }
 
+        RequestRepository requestRepository = engine.getRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
-        IRequest r = queue.findRequest(new RequestId(reqID));
+        IRequest r = requestRepository.readRequest(new RequestId(reqID));
 
         String agents = r.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
         if (agents != null) {
@@ -1142,13 +1143,14 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         KeyId keyID = null;
 
         KRAEngine engine = KRAEngine.getInstance();
+        RequestRepository requestRepository = engine.getRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
 
         IRequest r = null;
         Hashtable<String, Object> params = null;
 
         logger.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery()");
-        r = queue.findRequest(new RequestId(reqID));
+        r = requestRepository.readRequest(new RequestId(reqID));
 
         auditAgents = r.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
         BigInteger serialNumber = r.getExtDataInBigInteger("serialNumber");

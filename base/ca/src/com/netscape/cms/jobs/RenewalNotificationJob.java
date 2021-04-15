@@ -649,7 +649,7 @@ class CertRecProcessor implements IElementProcessor {
             RequestId rid = new RequestId(ridString);
 
             try {
-                req = engine.getRequestQueue().findRequest(rid);
+                req = engine.getRequestRepository().readRequest(rid);
             } catch (Exception e) {
                 // it is ok not to be able to get the request. The main reason
                 // to get the request is to retrieve the requestor's email.
