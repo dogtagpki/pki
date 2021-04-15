@@ -917,7 +917,7 @@ public class KeyClient extends Client {
         SymKeyGenerationRequest data = new SymKeyGenerationRequest();
         data.setClientKeyId(clientKeyId);
         data.setKeyAlgorithm(keyAlgorithm);
-        data.setKeySize(new Integer(keySize));
+        data.setKeySize(Integer.valueOf(keySize));
         data.setUsages(usages);
         data.setTransWrappedSessionKey(transWrappedSessionKey);
 

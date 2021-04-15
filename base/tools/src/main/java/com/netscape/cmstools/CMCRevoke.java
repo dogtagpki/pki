@@ -363,7 +363,7 @@ public class CMCRevoke {
                     new ANY((new X500Name(iValue)).getEncoded()),
                     new INTEGER(sValue),
                     //org.mozilla.jss.pkix.cmc.RevokeRequest.unspecified,
-                    new ENUMERATED((new Integer(mValue)).longValue()),
+                    new ENUMERATED(Integer.valueOf(mValue).longValue()),
                     null,
                     (tValue != null) ? new OCTET_STRING(tValue.getBytes()) : null,
                     (cValue != null) ? new UTF8String(cValue.toCharArray()) : null);

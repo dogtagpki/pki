@@ -229,7 +229,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
              * Note: serverKeygen and !serverKeygen returns different set of
              * response values so "missing" might not be bad
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
             if (value == null) {
                 logger.debug(method + ": Status not found.");
@@ -347,7 +347,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
              * When a value is not found in response, keep going so we know
              * what else is missing
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
             if (value == null) {
                 logger.debug(method + ": Status not found.");
@@ -457,7 +457,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
              * Note: serverKeygen and !serverKeygen returns different set of
              * response values so "missing" might not be bad
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
             if (value == null) {
                 logger.debug(method + ": Status not found.");
@@ -582,7 +582,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
              * When a value is not found in response, keep going so we know
              * what else is missing
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
 
             logger.debug(method +": got status = " + value);
@@ -665,7 +665,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
              * When a value is not found in response, keep going so we know
              * what else is missing
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
 
             logger.debug(method + ": got status = " + value);

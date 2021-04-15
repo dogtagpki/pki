@@ -79,7 +79,7 @@ public class NSSIssuer extends ACMEIssuer {
         String monthsValid = config.getParameter("monthsValid");
         if (monthsValid != null) {
             logger.info("- months valid: " + monthsValid);
-            this.monthsValid = new Integer(monthsValid);
+            this.monthsValid = Integer.valueOf(monthsValid);
         }
 
         String hash = config.getParameter("hash");

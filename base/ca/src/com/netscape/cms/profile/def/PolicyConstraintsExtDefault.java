@@ -132,7 +132,7 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
                 if (ext == null) {
                     return;
                 }
-                Integer num = new Integer(value);
+                Integer num = Integer.valueOf(value);
 
                 ext.set(PolicyConstraintsExtension.REQUIRE, num);
             } else if (name.equals(VAL_INHIBIT_POLICY_MAPPING)) {
@@ -143,7 +143,7 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
                 if (ext == null) {
                     return;
                 }
-                Integer num = new Integer(value);
+                Integer num = Integer.valueOf(value);
 
                 ext.set(PolicyConstraintsExtension.INHIBIT, num);
             } else {

@@ -450,7 +450,7 @@ class CertPolicy {
                 nums = new int[numsVector.size()];
 
                 for (int i = 0; i < numsVector.size(); i++) {
-                    Integer ii = new Integer(numsVector.elementAt(i));
+                    Integer ii = Integer.valueOf(numsVector.elementAt(i));
 
                     nums[i] = ii.intValue();
                 }

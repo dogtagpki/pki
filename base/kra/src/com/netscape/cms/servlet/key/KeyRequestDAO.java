@@ -425,7 +425,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         if (keySize == null) {
-            keySize = new Integer(0);
+            keySize = Integer.valueOf(0);
         }
 
         if (StringUtils.isBlank(algName)) {
@@ -434,7 +434,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
                         "Invalid request.  Must specify key algorithm if size is specified");
             }
             algName = KeyRequestResource.AES_ALGORITHM;
-            keySize = new Integer(128);
+            keySize = Integer.valueOf(128);
         }
 
         KeyGenAlgorithm alg = SYMKEY_GEN_ALGORITHMS.get(algName);

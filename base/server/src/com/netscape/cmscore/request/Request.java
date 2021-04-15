@@ -348,7 +348,7 @@ public class Request implements IRequest {
         Integer[] intArray = new Integer[stringArray.length];
         for (int index = 0; index < stringArray.length; index++) {
             try {
-                intArray[index] = new Integer(stringArray[index]);
+                intArray[index] = Integer.valueOf(stringArray[index]);
             } catch (NumberFormatException e) {
                 return null;
             }

@@ -73,7 +73,7 @@ public class ACMESchedulerConfig {
             String value = entry.getValue().toString();
 
             if (key.equals("threads")) {
-                schedulerConfig.setThreads(new Integer(value));
+                schedulerConfig.setThreads(Integer.valueOf(value));
                 continue;
             }
 
@@ -93,13 +93,13 @@ public class ACMESchedulerConfig {
                 taskConfig.setClassName(value);
 
             } else if (param.equals("initialDelay")) {
-                taskConfig.setInitialDelay(new Integer(value));
+                taskConfig.setInitialDelay(Integer.valueOf(value));
 
             } else if (param.equals("delay")) {
-                taskConfig.setDelay(new Integer(value));
+                taskConfig.setDelay(Integer.valueOf(value));
 
             } else if (param.equals("interval")) {
-                taskConfig.setInterval(new Integer(value));
+                taskConfig.setInterval(Integer.valueOf(value));
 
             } else if (param.equals("unit")) {
                 taskConfig.setUnit(TimeUnit.valueOf(value));

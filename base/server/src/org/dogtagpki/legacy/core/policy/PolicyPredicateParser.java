@@ -197,7 +197,7 @@ public class PolicyPredicateParser {
          * req.set("o", "airius.com");
          * req.set("certtype", "client");
          * req.set("request", "issuance");
-         * req.set("id", new Integer(10));
+         * req.set("id", Integer.valueOf(10));
          * req.set("dualcerts", Boolean.valueOf(true));
          *
          * Vector v = new Vector();

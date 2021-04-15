@@ -204,7 +204,7 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
             }
 
             try {
-                Integer num = new Integer(mPortText.getText().trim());
+                Integer num = Integer.valueOf(mPortText.getText().trim());
             } catch (NumberFormatException e) {
                 setErrorMessage("NUMBERFORMAT");
                 return false;
@@ -226,7 +226,7 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
                 return false;
             }
             try {
-                Integer num = new Integer(port);
+                Integer num = Integer.valueOf(port);
             } catch (NumberFormatException e) {
                 setErrorMessage("NUMBERFORMAT");
                 return false;

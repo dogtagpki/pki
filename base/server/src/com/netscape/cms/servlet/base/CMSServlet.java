@@ -1520,7 +1520,7 @@ public abstract class CMSServlet extends HttpServlet {
         CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         SecureRandom rnd = jssSubsystem.getRandomNumberGenerator();
-        String salt = new Integer(rnd.nextInt()).toString();
+        String salt = Integer.valueOf(rnd.nextInt()).toString();
         return salt;
     }
 

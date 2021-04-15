@@ -77,7 +77,7 @@ public class HTTPClient
 			System.out.println("Attempting to connect to: " + hostname + ":" +
 							portnumber);
 
-			Integer x = new Integer(portnumber);
+			Integer x = Integer.valueOf(portnumber);
 			int port = x.intValue();
 
 			Socket socket = new Socket(hostname, port);

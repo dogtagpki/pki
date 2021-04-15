@@ -113,7 +113,7 @@ class WIExistingDBPage extends WizardBasePanel implements IWizardPanel {
         }
 
         try {
-            Integer num = new Integer(rmport);
+            Integer num = Integer.valueOf(rmport);
         } catch (NumberFormatException e) {
             setErrorMessage("NUMBERFORMAT");
             return false;

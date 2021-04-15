@@ -114,7 +114,7 @@ public class NSSCertIssueCLI extends CommandCLI {
                 issuer,
                 pkcs10,
                 serialNumber,
-                new Integer(monthsValid),
+                Integer.valueOf(monthsValid),
                 hash,
                 extensions);
 

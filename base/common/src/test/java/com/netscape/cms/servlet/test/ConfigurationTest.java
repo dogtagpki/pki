@@ -544,7 +544,7 @@ public class ConfigurationTest {
             throws NoSuchAlgorithmException, TokenException, IOException, InvalidBERException {
         KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
-        Integer x = new Integer(keysize);
+        Integer x = Integer.valueOf(keysize);
         int key_len = x.intValue();
 
         kg.initialize(key_len);

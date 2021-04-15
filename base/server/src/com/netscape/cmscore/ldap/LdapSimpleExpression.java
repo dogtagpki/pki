@@ -270,7 +270,7 @@ public class LdapSimpleExpression implements ILdapExpression {
         int givenVal = intVal.intValue();
 
         try {
-            storedVal = new Integer(mVal).intValue();
+            storedVal = Integer.valueOf(mVal).intValue();
         } catch (Exception e) {
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INVALID_ATTR_VALUE", mVal));
 

@@ -313,7 +313,7 @@ public class ConnectorServlet extends CMSServlet {
         try {
             info = request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
-            //   request.set(IEnrollProfile.REQUEST_SEQ_NUM, new Integer("0"));
+            //   request.set(IEnrollProfile.REQUEST_SEQ_NUM, Integer.valueOf("0"));
             CertificateX509Key certKey = (CertificateX509Key) info.get(X509CertInfo.KEY);
             if (certKey != null) {
                 byteStream = new ByteArrayOutputStream();

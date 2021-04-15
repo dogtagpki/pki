@@ -475,7 +475,7 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
                     return null;
                 } else {
                     if (t > t0) {
-                        listedTimes.addElement(new Integer(t));
+                        listedTimes.addElement(Integer.valueOf(t));
                         t0 = t;
                     } else {
                         return null;

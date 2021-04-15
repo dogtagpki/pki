@@ -474,9 +474,7 @@ public class LDAPProfileSubsystem
                          * entries).  In that case AsyncLoader has a watchdog
                          * timer to interrupt waiting threads.
                          */
-                        loader.setNumItems(new Integer(
-                            entry.getAttribute("numSubordinates")
-                                .getStringValueArray()[0]));
+                        loader.setNumItems(Integer.valueOf(entry.getAttribute("numSubordinates").getStringValueArray()[0]));
                         continue;
                     }
 

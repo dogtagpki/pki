@@ -99,9 +99,7 @@ public class AuthorityMonitor implements Runnable {
                          * watchdog timer to interrupt waiting threads after it
                          * times out.
                          */
-                        engine.getLoader().setNumItems(new Integer(
-                            entry.getAttribute("numSubordinates")
-                                .getStringValueArray()[0]));
+                        engine.getLoader().setNumItems(Integer.valueOf(entry.getAttribute("numSubordinates").getStringValueArray()[0]));
                         continue;
                     }
 

@@ -168,7 +168,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
              * Note: serverKeygen and !serverKeygen returns different set of
              *     response values so "missing" might not be bad
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 logger.debug("TKSRemoteRequestHandler: computeSessionKey(): status not found.");
@@ -316,7 +316,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
              * Note: serverKeygen and !serverKeygen returns different set of
              *     response values so "missing" might not be bad
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 logger.debug(method + " status not found.");
@@ -499,7 +499,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
              * Note: serverKeygen and !serverKeygen returns different set of
              *     response values so "missing" might not be bad
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): status not found.");
@@ -627,7 +627,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
              * When a value is not found in response, keep going so we know
              * what else is missing
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 logger.debug("TKSRemoteRequestHandler: createKeySetData(): status not found.");
@@ -701,7 +701,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
              * When a value is not found in response, keep going so we know
              * what else is missing
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 logger.debug("TKSRemoteRequestHandler: computeRandomData(): status not found.");
@@ -790,7 +790,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
              * When a value is not found in response, keep going so we know
              * what else is missing
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 logger.debug("TKSRemoteRequestHandler: encryptData(): status not found.");

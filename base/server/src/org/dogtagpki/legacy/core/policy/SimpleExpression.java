@@ -227,7 +227,7 @@ public class SimpleExpression implements IExpression {
         int givenVal = intVal.intValue();
 
         try {
-            storedVal = new Integer(mVal).intValue();
+            storedVal = Integer.valueOf(mVal).intValue();
         } catch (Exception e) {
             throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_INVALID_ATTR_VALUE", mVal));
 

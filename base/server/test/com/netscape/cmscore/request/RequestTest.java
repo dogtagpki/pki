@@ -216,13 +216,12 @@ public class RequestTest extends CMSBaseTestCase {
     }
 
     public void testGetSetExtDataInteger() {
-        request.setExtData("foo", new Integer(234));
+        request.setExtData("foo", Integer.valueOf(234));
 
         assertNotNull(request.mExtData.get("foo"));
         assertEquals("234", request.mExtData.get("foo"));
 
-        assertEquals(new Integer(234),
-                request.getExtDataInInteger("foo"));
+        assertEquals(Integer.valueOf(234), request.getExtDataInInteger("foo"));
 
         request.setExtData("strkey", "bar");
         assertNull(request.getExtDataInInteger("strkey"));

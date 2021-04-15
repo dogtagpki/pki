@@ -51,7 +51,7 @@ public class ExternalAuthenticationValve extends ValveBase {
                 coyoteReq.getAttribute("REMOTE_USER_GROUP_N");
             if (numGroupsStr != null) {
                 try {
-                    numGroups = new Integer(numGroupsStr);
+                    numGroups = Integer.valueOf(numGroupsStr);
                 } catch (NumberFormatException e) {
                     logger.warn("ExternalAuthenticationValve: invalid REMOTE_USER_GROUP_N value: " + e);
                 }

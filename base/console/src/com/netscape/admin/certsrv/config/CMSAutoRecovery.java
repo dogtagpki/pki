@@ -239,7 +239,7 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
         Vector<Object>[] data = new Vector[numUsers];
         for (int i=0; i<data.length; i++) {
             data[i] = new Vector<>();
-            Integer num = new Integer(i+1);
+            Integer num = Integer.valueOf(i+1);
             data[i].addElement(num.toString());
             data[i].addElement("");
             data[i].addElement("");

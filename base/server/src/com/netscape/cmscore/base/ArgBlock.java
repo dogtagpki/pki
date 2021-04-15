@@ -181,7 +181,7 @@ public class ArgBlock implements IArgBlock {
         if (mArgs.get(n) != null) {
             logger.trace("GET r={},k={},v={}", mType, n, mArgs.get(n));
             try {
-                return new Integer((String) mArgs.get(n)).intValue();
+                return Integer.valueOf((String) mArgs.get(n)).intValue();
             } catch (NumberFormatException e) {
                 throw new EBaseException(
                         CMS.getUserMessage("CMS_BASE_INVALID_ATTR_TYPE", n, e.toString()));
@@ -203,7 +203,7 @@ public class ArgBlock implements IArgBlock {
         logger.trace("GET r={},k={},v={},d={}", mType, n, mArgs.get(n), def);
         if (mArgs.get(n) != null) {
             try {
-                return new Integer((String) mArgs.get(n)).intValue();
+                return Integer.valueOf((String) mArgs.get(n)).intValue();
             } catch (NumberFormatException e) {
                 return def;
             }

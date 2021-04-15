@@ -155,7 +155,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
              * what else is missing
              * Note: response values "missing" might not be bad for some cases
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
 
             if (value == null) {
@@ -311,7 +311,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
              * what else is missing
              * Note: response values "missing" might not be bad for some cases
              */
-            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
 
             logger.debug("KRARemoteRequestHandler: recoverKey(): got status = " + value);

@@ -534,7 +534,7 @@ public class ComCrypto {
             System.out.println("Generating request : subject :" + certnickname);
             System.out.println("Generating request : keytype :" + keytype);
 
-            Integer n = new Integer(keysize);
+            Integer n = Integer.valueOf(keysize);
 
             if (generaterequest) {
                 blob = token.generateCertRequest(certnickname, n.intValue(),
@@ -624,7 +624,7 @@ public class ComCrypto {
             if (keytype.equalsIgnoreCase("rsa")) {
                 KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA); 
 
-                Integer x = new Integer(keysize);
+                Integer x = Integer.valueOf(keysize);
                 int key_len = x.intValue();
 
                 kg.initialize(key_len);
@@ -768,7 +768,7 @@ public class ComCrypto {
 	
             // Key Pair Generation
             KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
-            Integer x = new Integer(keysize);
+            Integer x = Integer.valueOf(keysize);
             int key_len = x.intValue();
 
             kg.initialize(key_len);

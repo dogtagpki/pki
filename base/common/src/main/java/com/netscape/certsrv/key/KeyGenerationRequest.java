@@ -82,7 +82,7 @@ public class KeyGenerationRequest extends ResourceMessage{
      */
     public Integer getKeySize() {
         try {
-            return new Integer(attributes.get(KEY_SIZE));
+            return Integer.valueOf(attributes.get(KEY_SIZE));
         } catch (NumberFormatException e) {
             return null;
         }

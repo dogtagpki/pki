@@ -83,7 +83,7 @@ public class IntegerMapper extends DBAttrMapper {
 
         if (attr == null)
             return;
-        parent.set(name, new Integer(attr.getStringValues().nextElement()));
+        parent.set(name, Integer.valueOf(attr.getStringValues().nextElement()));
     }
 
     /**
