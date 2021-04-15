@@ -163,10 +163,10 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
         } catch (EAdminException ex) {
             showErrorDialog(ex.toString());
             //setErrorMessage(ex.toString());
-            wizardInfo.addEntry(Constants.PR_ADD_CERT, new Boolean(false));
+            wizardInfo.addEntry(Constants.PR_ADD_CERT, Boolean.valueOf(false));
             return false;
         }
-        wizardInfo.addEntry(Constants.PR_ADD_CERT, new Boolean(true));
+        wizardInfo.addEntry(Constants.PR_ADD_CERT, Boolean.valueOf(true));
 /*
         CMSAdminUtil.showMessageDialog(mResource, PANELNAME,
           "INSTALL", JOptionPane.INFORMATION_MESSAGE);
@@ -253,7 +253,7 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
     public void getUpdateInfo(WizardInfo info) {
         Boolean bool = wizardInfo.isCertAdded();
         if (bool == null)
-            wizardInfo.addEntry(Constants.PR_ADD_CERT, new Boolean(false));
+            wizardInfo.addEntry(Constants.PR_ADD_CERT, Boolean.valueOf(false));
     }
 
     public void actionPerformed(ActionEvent e) {

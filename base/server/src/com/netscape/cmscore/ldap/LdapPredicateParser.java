@@ -194,7 +194,7 @@ public class LdapPredicateParser {
          * req.set("certtype", "client");
          * req.set("request", "issuance");
          * req.set("id", new Integer(10));
-         * req.set("dualcerts", new Boolean(true));
+         * req.set("dualcerts", Boolean.valueOf(true));
          *
          * Vector v = new Vector();
          * v.addElement("one");

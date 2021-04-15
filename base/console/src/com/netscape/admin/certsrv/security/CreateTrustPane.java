@@ -116,7 +116,7 @@ class CreateTrustPane extends JPanel implements SuiConstants, IKeyCertPage {
 
             if (taskInfo.getResponse().getMessages().elementAt(0).getStatus() == Message.NMC_SUCCESS) {
                 hide = true;
-                observable.put("createTrust", new Boolean(false));
+                observable.put("createTrust", Boolean.valueOf(false));
 
                 if (((Boolean)observable.get("noneed")).booleanValue()) {
                     statusPane.appendMessage("\n\n"+

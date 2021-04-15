@@ -132,7 +132,7 @@ IKeyCertPage {
                         certReq.setText(editor.getText());
                     }
 
-                    observable.put("newCertReq", new Boolean(false));
+                    observable.put("newCertReq", Boolean.valueOf(false));
                 } catch (Exception e) {
                     certReq.setText(
                             resource.getString("CertRequestCertPane", "unableToParse"));

@@ -93,7 +93,7 @@ IKeyCertPage {
         if (modified) {
             observable.put("keyfilepw", passwd.getText());
 
-            observable.put("CertInstModified", new Boolean(true));
+            observable.put("CertInstModified", Boolean.valueOf(true));
 
             param.put("certtype" ,
                     thisServer.isSelected() ? "0":

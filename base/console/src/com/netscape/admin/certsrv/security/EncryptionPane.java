@@ -402,7 +402,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
     public void setEncryption(boolean on) {
         setEnableAll(on);
         this.on.setSelected(on);
-        //encryptionOnOff.setValue(new Boolean(on));
+        //encryptionOnOff.setValue(Boolean.valueOf(on));
     }
 
     /**

@@ -102,7 +102,7 @@ IKeyCertPage {
         KeyCertTaskInfo taskInfo = observable.getTaskInfo();
 
         if (modified) {
-            observable.put("CertReqModified", new Boolean(true));
+            observable.put("CertReqModified", Boolean.valueOf(true));
 
             Hashtable<String, Object> param = (Hashtable<String, Object>)(observable.get("CertReqCGIParam"));
             param.put("requestor_name", name.getText());

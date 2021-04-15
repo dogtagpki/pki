@@ -91,7 +91,7 @@ public class CertEnrollmentRequest extends ResourceMessage {
         profileId = form.getFirst(PROFILE_ID);
         String renewalStr = form.getFirst(RENEWAL);
         serialNum = new CertId(form.getFirst(SERIAL_NUM));
-        renewal = new Boolean(renewalStr);
+        renewal = Boolean.valueOf(renewalStr);
 
         serverSideKeygenP12Passwd = form.getFirst(SERVERSIDE_KEYGEN_P12_PASSWD);
     }

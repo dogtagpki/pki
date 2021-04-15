@@ -81,13 +81,13 @@ public class ACMEEngineConfig {
             String value = entry.getValue().toString();
 
             if (key.equals("enabled")) {
-                config.setEnabled(new Boolean(value));
+                config.setEnabled(Boolean.valueOf(value));
 
             } else if (key.equals("baseURL")) {
                 config.setBaseURL(new URL(value));
 
             } else if (key.equals("nonces.persistent")) {
-                config.setNoncePersistent(new Boolean(value));
+                config.setNoncePersistent(Boolean.valueOf(value));
 
             } else if (key.startsWith("policy.")) {
 

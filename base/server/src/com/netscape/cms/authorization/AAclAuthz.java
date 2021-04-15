@@ -420,7 +420,7 @@ public abstract class AAclAuthz implements IAuthzManager {
                 String s1 = s.substring(0, orIndex);
                 boolean passed = evaluateExpression(s1.trim());
 
-                v.addElement(new Boolean(passed));
+                v.addElement(Boolean.valueOf(passed));
                 v.addElement("||");
                 s = s.substring(orIndex + 2);
                 // && first
@@ -428,7 +428,7 @@ public abstract class AAclAuthz implements IAuthzManager {
                 String s1 = s.substring(0, andIndex);
                 boolean passed = evaluateExpression(s1.trim());
 
-                v.addElement(new Boolean(passed));
+                v.addElement(Boolean.valueOf(passed));
                 v.addElement("&&");
                 s = s.substring(andIndex + 2);
             }
@@ -616,7 +616,7 @@ public abstract class AAclAuthz implements IAuthzManager {
                 boolean passed = evaluateExpression(authToken, s1.trim());
 
                 logger.debug("evaluated expression: " + s1.trim() + " to be " + passed);
-                v.addElement(new Boolean(passed));
+                v.addElement(Boolean.valueOf(passed));
                 v.addElement("||");
                 s = s.substring(orIndex + 2);
                 // && first
@@ -625,7 +625,7 @@ public abstract class AAclAuthz implements IAuthzManager {
                 boolean passed = evaluateExpression(authToken, s1.trim());
 
                 logger.debug("evaluated expression: " + s1.trim() + " to be " + passed);
-                v.addElement(new Boolean(passed));
+                v.addElement(Boolean.valueOf(passed));
                 v.addElement("&&");
                 s = s.substring(andIndex + 2);
             }

@@ -90,7 +90,7 @@ IKeyCertPage {
                 observable.getConsoleInfo()));
 
         if (tokenSelection.getItemCount() == 0) {
-            observable.put("createTrust" , new Boolean(true));
+            observable.put("createTrust", Boolean.valueOf(true));
 
             KeyCertTaskInfo taskInfo = observable.getTaskInfo();
             taskInfo.put("sie", observable.get("sie"));
@@ -112,7 +112,7 @@ IKeyCertPage {
                     tokenSelection.addItem(tokenNames.getItemAt(j));
                 }
                 if (tokenSelection.getItemCount() > 0) {
-                    observable.put("createTrust" , new Boolean(false));
+                    observable.put("createTrust", Boolean.valueOf(false));
                 }
             }
 
@@ -125,7 +125,7 @@ IKeyCertPage {
             }
             if (noDefaultToken) {
                 tokenSelection.addItem(_defaultToken);
-                observable.put("createTrust" , new Boolean(true));
+                observable.put("createTrust", Boolean.valueOf(true));
             }
 
             try {
@@ -145,19 +145,18 @@ IKeyCertPage {
         /*observable.put("isInternal"   , ((TOGGLEPANEeditor)(questionPane.getCtrlByName("isInternal"))).getValue());*/
 
         try {
-            observable.put("isInternal" , new Boolean(true));
+            observable.put("isInternal" , Boolean.valueOf(true));
             if (!(((String)(tokenSelection.getSelectedItem())).
                     toLowerCase()).startsWith(_internal.toLowerCase())) {
-                observable.put("isInternal" , new Boolean(false));
+                observable.put("isInternal" , Boolean.valueOf(false));
             }
         } catch (Exception e) {}
         if (modified) {
-            observable.put("CertReqModified", new Boolean(true));
+            observable.put("CertReqModified", Boolean.valueOf(true));
             observable.put("tokenName" , tokenSelection.getSelectedItem());
-            observable.put("requestCert" , new Boolean(_no.isSelected()));
-            observable.put("installCert" ,
-                    new Boolean(!(_noneed.isSelected())));
-            observable.put("noneed" , new Boolean(_noneed.isSelected()));
+            observable.put("requestCert" , Boolean.valueOf(_no.isSelected()));
+            observable.put("installCert" , Boolean.valueOf(!(_noneed.isSelected())));
+            observable.put("noneed" , Boolean.valueOf(_noneed.isSelected()));
             modified = false;
         }
 

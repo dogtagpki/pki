@@ -51,7 +51,7 @@ public class ACMEPolicyConfig {
     public void setProperty(String key, String value) throws Exception {
 
         if (key.equals("wildcard")) {
-            enableWildcardIssuance = new Boolean(value);
+            enableWildcardIssuance = Boolean.valueOf(value);
             return;
         }
 

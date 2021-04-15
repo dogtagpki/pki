@@ -127,7 +127,7 @@ IKeyCertPage {
 
         //see if this page has been modified.
         if (modified) {
-            observable.put("CertReqModified", new Boolean(true));
+            observable.put("CertReqModified", Boolean.valueOf(true));
 
             //radio button in a group will called twice one for the component that is loosing the focus
             //and one for the component that is getting the focus

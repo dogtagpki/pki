@@ -78,7 +78,7 @@ IKeyCertPage {
         boolean hide = true;
 
         if (modified) {
-            observable.put("CertInstModified", new Boolean(true));
+            observable.put("CertInstModified", Boolean.valueOf(true));
             modified = false;
         }
 
@@ -111,7 +111,7 @@ IKeyCertPage {
             if (response.hasCertInstInfo() && response.hasCertInfo()) {
                 observable.put("certInstInfo", response.getCertInstInfo());
                 observable.put("certInfo", response.getCertInfo());
-                observable.put("CertInstModified", new Boolean(false));
+                observable.put("CertInstModified", Boolean.valueOf(false));
             } else {
                 //hide = false;
                 //MessageDialog.messageDialog((Message)(taskInfo.getResponse().getMessages().elementAt(0)));

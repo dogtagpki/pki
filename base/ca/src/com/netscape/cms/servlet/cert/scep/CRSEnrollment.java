@@ -1382,14 +1382,14 @@ public class CRSEnrollment extends HttpServlet {
                                 OIDMap.getOID(KeyUsageExtension.IDENT))) {
 
                             kue = new KeyUsageExtension(
-                                    new Boolean(false), // noncritical
+                                    Boolean.valueOf(false), // noncritical
                                     ext.getExtensionValue());
                         }
 
                         if (ext.getExtensionId().equals(
                                 OIDMap.getOID(SubjectAlternativeNameExtension.IDENT))) {
                             sane = new SubjectAlternativeNameExtension(
-                                    new Boolean(false), // noncritical
+                                    Boolean.valueOf(false), // noncritical
                                     ext.getExtensionValue());
 
                             @SuppressWarnings("unchecked")

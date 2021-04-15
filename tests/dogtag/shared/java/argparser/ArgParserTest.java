@@ -1306,7 +1306,7 @@ public class ArgParserTest
 	   
 	   tests = new MTest[]
 	    {
-	      new MTest ("-bool=true", new Boolean(true)),
+	      new MTest ("-bool=true", Boolean.valueOf(true)),
 	      new MTest ("-bool=false", new MErr('r', "false")),
 	      new MTest ("-bool=fals", new MErr('m', "fals")),
 	      new MTest ("-bool=falsem", new MErr('m', "falsem")),
@@ -1326,16 +1326,16 @@ public class ArgParserTest
 	   
 	   tests = new MTest[]
 	    {
-	      new MTest ("-boo2=true", new Boolean(true)),
-	      new MTest ("-boo2=false", new Boolean(false)),
+	      new MTest ("-boo2=true", Boolean.valueOf(true)),
+	      new MTest ("-boo2=false", Boolean.valueOf(false)),
 	    };
 	   test.checkMatches (tests, ONE_WORD);
 
 	   test.checkAdd ("-boo3=%b", bh, 'b', 1, "-boo3=", null, "", null);
 	   tests = new MTest[]
 	    {
-	      new MTest ("-boo3=true", new Boolean(true)),
-	      new MTest ("-boo3=false", new Boolean(false)),
+	      new MTest ("-boo3=true", Boolean.valueOf(true)),
+	      new MTest ("-boo3=false", Boolean.valueOf(false)),
 	    };
 	   test.checkMatches (tests, ONE_WORD);
 

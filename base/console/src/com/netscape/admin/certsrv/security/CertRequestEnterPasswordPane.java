@@ -83,7 +83,7 @@ IKeyCertPage {
 
         if (modified || ((Boolean)(observable.get("CertReqModified"))).
                 booleanValue()) {
-            observable.put("CertReqModified", new Boolean(true));
+            observable.put("CertReqModified", Boolean.valueOf(true));
             Hashtable<String, Object> param = (Hashtable<String, Object>)(observable.get("CertReqCGIParam"));
             //param.put("alias"     , ((Boolean)(observable.get("isInternal"))).booleanValue()?observable.get("sie"):observable.get("tokenName"));
             param.put("alias" , observable.get("sie"));
@@ -119,12 +119,12 @@ IKeyCertPage {
             } else {
                 observable.put("CertReq",
                         response.getMessages().elementAt(0).getExtraMessage());
-                observable.put("CertReqModified", new Boolean(false));
+                observable.put("CertReqModified", Boolean.valueOf(false));
                 modified = false;
 
                 //Need this inorder to know if a new request has been issued, so
                 //request via url can execute again
-                observable.put("newCertReq", new Boolean(true));
+                observable.put("newCertReq", Boolean.valueOf(true));
             }
 
 

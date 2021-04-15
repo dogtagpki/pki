@@ -77,8 +77,7 @@ public class ACMEMetadata {
         metadata.setCaaIdentities(caaIdentities);
 
         String externalAccountRequired = props.getProperty("externalAccountRequired");
-        metadata.setExternalAccountRequired(
-                externalAccountRequired == null ? null : new Boolean(externalAccountRequired));
+        metadata.setExternalAccountRequired(externalAccountRequired == null ? null : Boolean.valueOf(externalAccountRequired));
 
         return metadata;
     }

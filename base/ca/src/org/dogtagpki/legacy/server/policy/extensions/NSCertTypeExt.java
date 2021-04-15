@@ -334,12 +334,9 @@ public class NSCertTypeExt extends APolicyRule
                     // min not set so set all.
                     logger.debug(
                             "NSCertTypeExt: is extension good: no cl bits set. set all");
-                    nsCertTypeExt.set(NSCertTypeExtension.SSL_CLIENT,
-                            new Boolean(true));
-                    nsCertTypeExt.set(NSCertTypeExtension.EMAIL,
-                            new Boolean(true));
-                    nsCertTypeExt.set(NSCertTypeExtension.OBJECT_SIGNING,
-                            new Boolean(true));
+                    nsCertTypeExt.set(NSCertTypeExtension.SSL_CLIENT, Boolean.valueOf(true));
+                    nsCertTypeExt.set(NSCertTypeExtension.EMAIL, Boolean.valueOf(true));
+                    nsCertTypeExt.set(NSCertTypeExtension.OBJECT_SIGNING, Boolean.valueOf(true));
                 }
                 return true;
             } else if (certType.equals(IRequest.SERVER_CERT)) {
@@ -494,7 +491,7 @@ public class NSCertTypeExt extends APolicyRule
 
         params.addElement(PROP_CRITICAL + "=" + mCritical);
         params.addElement(PROP_SET_DEFAULT_BITS + "=" + mSetDefaultBits);
-        //new Boolean(mSetDefaultBits).toString());
+        //Boolean.valueOf(mSetDefaultBits).toString());
         return params;
     }
 
