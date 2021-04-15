@@ -49,8 +49,8 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.RequestRecord;
+import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * Provide statistical queries of request and certificate records.
@@ -66,7 +66,7 @@ public class Monitor extends CMSServlet {
     private final static String TPL_FILE = "monitor.template";
 
     private CertificateRepository mCertDB;
-    private ARequestQueue mQueue = null;
+    private RequestRepository requestRepository;
     private X500Name mAuthName = null;
     private String mFormPath = null;
 
@@ -101,7 +101,8 @@ public class Monitor extends CMSServlet {
             mCertDB = engine.getCertificateRepository();
             mAuthName = ca.getX500Name();
         }
-        mQueue = engine.getRequestQueue();
+
+        requestRepository = engine.getRequestRepository();
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
@@ -300,10 +301,10 @@ public class Monitor extends CMSServlet {
                     mTotalCerts += count;
                 }
 
-                if (mQueue != null) {
+                if (requestRepository != null) {
                     filter = Filter(RequestRecord.ATTR_CREATE_TIME, startTime, endTime);
 
-                    IRequestList reqList = mQueue.listRequestsByFilter(filter);
+                    IRequestList reqList = requestRepository.listRequestsByFilter(filter);
 
                     int count = 0;
 

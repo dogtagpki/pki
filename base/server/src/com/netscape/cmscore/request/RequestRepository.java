@@ -30,6 +30,7 @@ import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
@@ -281,6 +282,25 @@ public class RequestRepository extends Repository {
             if (s != null)
                 s.close();
         }
+    }
+
+    public IRequestList listRequestsByFilter(String filter) throws EBaseException {
+
+        DBSSession s = dbSubsystem.createSession();
+        IDBSearchResults results = null;
+
+        try {
+            results = s.search(mBaseDN, filter);
+
+        } finally {
+            s.close();
+        }
+
+        if (results == null) {
+            return null;
+        }
+
+        return new SearchEnumeration(results);
     }
 
     /**

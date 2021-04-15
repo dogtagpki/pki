@@ -201,32 +201,6 @@ public class RequestQueue extends ARequestQueue {
 
     /**
      */
-    public IRequestList listRequestsByFilter(String f) {
-        IDBSearchResults results = null;
-        DBSSession dbs = null;
-
-        try {
-            dbs = dbSubsystem.createSession();
-            results = dbs.search(mBaseDN, f);
-        } catch (EBaseException e) {
-            logger.warn("RequestQueue: " + e.getMessage(), e);
-        } finally {
-            // Close session - ignoring errors (UTIL)
-            if (dbs != null)
-                try {
-                    dbs.close();
-                } catch (EBaseException e) {
-                }
-        }
-
-        if (results == null)
-            return null;
-
-        return new SearchEnumeration(results);
-    }
-
-    /**
-     */
     public IRequestList listRequestsByFilter(String f, int maxSize) {
         IDBSearchResults results = null;
         DBSSession dbs = null;

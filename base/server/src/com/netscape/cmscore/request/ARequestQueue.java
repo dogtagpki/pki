@@ -428,8 +428,6 @@ public abstract class ARequestQueue {
         return new RequestListByStatus(getRawList(), s, this);
     }
 
-    public abstract IRequestList listRequestsByFilter(String filter);
-
     /**
      * Returns an enumerator that lists all RequestIds for requests
      * that match the filter.
