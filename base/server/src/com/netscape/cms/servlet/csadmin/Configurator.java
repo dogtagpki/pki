@@ -21,6 +21,7 @@ import java.io.File;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.StringTokenizer;
 
@@ -32,12 +33,12 @@ import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
-import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
@@ -374,7 +375,7 @@ public class Configurator {
             String kid = CryptoUtil.encodeKeyID(id);
 
             // try to locate the private key
-            java.security.PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
+            PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
             if (privk == null) {
                 logger.debug("Found bad ECC key id " + kid);
                 pair = null;
@@ -408,8 +409,7 @@ public class Configurator {
             String kid = CryptoUtil.encodeKeyID(id);
 
             // try to locate the private key
-            java.security.PrivateKey privk =
-                    CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
+            PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
 
             if (privk == null) {
                 logger.debug("Found bad RSA key id " + kid);
@@ -421,14 +421,14 @@ public class Configurator {
     }
 
     public X509CertImpl createLocalCert(
-            String certType,
             String subjectDN,
             String keyAlgorithm,
-            KeyPair keyPair,
             X509Key x509key,
             String profileID,
             String[] dnsNames,
             boolean installAdjustValidity,
+            String issuerDN,
+            PrivateKey signingPrivateKey,
             String signingAlgorithm,
             String certRequestType,
             byte[] certRequest,
@@ -765,22 +765,30 @@ public class Configurator {
 
             boolean installAdjustValidity = !tag.equals("signing");
 
+            String issuerDN;
+            CertificateIssuerName issuerName;
+            PrivateKey signingPrivateKey;
             String signingAlgorithm;
+
             if (certType.equals("selfsign")) {
+                issuerDN = subjectDN;
+                signingPrivateKey = keyPair.getPrivate();
                 signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-            } else {
+            } else { //local
+                issuerDN = null;
+                signingPrivateKey = null;
                 signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
             }
 
             certImpl = createLocalCert(
-                    certType,
                     subjectDN,
                     keyAlgorithm,
-                    keyPair,
                     x509key,
                     profileID,
                     dnsNames,
                     installAdjustValidity,
+                    issuerDN,
+                    signingPrivateKey,
                     signingAlgorithm,
                     certRequestType,
                     binCertRequest,

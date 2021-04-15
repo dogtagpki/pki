@@ -22,6 +22,7 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.Principal;
+import java.security.PrivateKey;
 import java.util.Date;
 
 import org.mozilla.jss.CryptoManager;
@@ -137,14 +138,14 @@ public class CAConfigurator extends Configurator {
     }
 
     public X509CertImpl createLocalCert(
-            String certType,
             String subjectDN,
             String keyAlgorithm,
-            KeyPair keyPair,
             X509Key x509key,
             String profileID,
             String[] dnsNames,
             boolean installAdjustValidity,
+            String issuerDN,
+            PrivateKey signingPrivateKey,
             String signingAlgorithm,
             String certRequestType,
             byte[] certRequest,
@@ -160,12 +161,10 @@ public class CAConfigurator extends Configurator {
         logger.info("CAConfigurator: - serial number: 0x" + serialNumber.toString(16));
 
         CertificateIssuerName issuerName;
-        java.security.PrivateKey signingPrivateKey;
-
-        if (certType.equals("selfsign")) {
-            // create new issuer object for self-signed cert
-            issuerName = new CertificateIssuerName(new X500Name(subjectDN));
-            signingPrivateKey = keyPair.getPrivate();
+        if (issuerDN != null) {
+            // create new issuer object
+            issuerName = new CertificateIssuerName(new X500Name(issuerDN));
+            // signingPrivateKey should be provided by caller
 
         } else {
             // use CA's issuer object to preserve DN encoding
@@ -362,22 +361,29 @@ public class CAConfigurator extends Configurator {
         String[] dnsNames = null;
         boolean installAdjustValidity = false;
 
+        String issuerDN;
+        PrivateKey signingPrivateKey;
         String signingAlgorithm;
+
         if (certType.equals("selfsign")) {
+            issuerDN = subjectDN;
+            signingPrivateKey = keyPair.getPrivate();
             signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-        } else {
+        } else { // local
+            issuerDN = null;
+            signingPrivateKey = null;
             signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
         }
 
         return createLocalCert(
-                certType,
                 subjectDN,
                 keyAlgorithm,
-                keyPair,
                 x509key,
                 profileID,
                 dnsNames,
                 installAdjustValidity,
+                issuerDN,
+                signingPrivateKey,
                 signingAlgorithm,
                 certRequestType,
                 binRequest,
