@@ -134,7 +134,7 @@ public class CertRequestDAO extends CMSRequestDAO {
      * @throws EBaseException
      */
     public CertRequestInfo getRequest(RequestId id, UriInfo uriInfo) throws EBaseException {
-        IRequest request = queue.findRequest(id);
+        IRequest request = requestRepository.readRequest(id);
         if (request == null) {
             return null;
         }
@@ -152,7 +152,7 @@ public class CertRequestDAO extends CMSRequestDAO {
     public CertReviewResponse reviewRequest(HttpServletRequest servletRequest, RequestId id,
             UriInfo uriInfo, Locale locale) throws EBaseException {
 
-        IRequest request = queue.findRequest(id);
+        IRequest request = requestRepository.readRequest(id);
 
         if (request == null) {
             return null;
@@ -233,7 +233,7 @@ public class CertRequestDAO extends CMSRequestDAO {
 
     public void changeRequestState(RequestId id, HttpServletRequest request, CertReviewResponse data,
             Locale locale, String op) throws EBaseException {
-        IRequest ireq = queue.findRequest(id);
+        IRequest ireq = requestRepository.readRequest(id);
         if (ireq == null) {
             throw new RequestNotFoundException(id);
         }

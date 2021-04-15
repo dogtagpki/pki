@@ -109,6 +109,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         KRAEngine engine = KRAEngine.getInstance();
         kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
         repo = kra.getKeyRepository();
+        requestRepository = engine.getRequestRepository();
         queue = engine.getRequestQueue();
         service = kra;
     }
@@ -163,7 +164,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @throws EBaseException
      */
     public KeyRequestInfo getRequest(RequestId id, UriInfo uriInfo, IAuthToken authToken) throws EBaseException {
-        IRequest request = queue.findRequest(id);
+        IRequest request = requestRepository.readRequest(id);
         if (request == null) {
             return null;
         }
@@ -400,7 +401,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
         IRequest request = null;
         try {
-            request = queue.findRequest(new RequestId(requestId));
+            request = requestRepository.readRequest(new RequestId(requestId));
         } catch (EBaseException e) {
         }
         return createCMSRequestResponse(request, uriInfo);
@@ -566,7 +567,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     public void approveRequest(RequestId id, String requestor, IAuthToken authToken)
             throws EBaseException {
-        IRequest request = queue.findRequest(id);
+        IRequest request = requestRepository.readRequest(id);
         authz.checkRealm(request.getRealm(), authToken,
                 request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
                 "certServer.kra.requests", "execute");
@@ -575,7 +576,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
     }
 
     public void rejectRequest(RequestId id, IAuthToken authToken) throws EBaseException {
-        IRequest request = queue.findRequest(id);
+        IRequest request = requestRepository.readRequest(id);
         String realm = request.getRealm();
         authz.checkRealm(realm, authToken,
                 request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
@@ -585,7 +586,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
     }
 
     public void cancelRequest(RequestId id, IAuthToken authToken) throws EBaseException {
-        IRequest request = queue.findRequest(id);
+        IRequest request = requestRepository.readRequest(id);
         String realm = request.getRealm();
         authz.checkRealm(realm, authToken,
                 request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),

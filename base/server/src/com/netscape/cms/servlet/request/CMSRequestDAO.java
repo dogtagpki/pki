@@ -142,7 +142,7 @@ public abstract class CMSRequestDAO {
             logger.debug("CMSRequestDAO: records:");
             while (requests.hasMoreElements()) {
                 RequestId rid = requests.nextElement();
-                IRequest request = queue.findRequest(rid);
+                IRequest request = requestRepository.readRequest(rid);
                 if (request != null) {
                     logger.debug("- " + request.getRequestId().toHexString());
                     ret.addEntry(createCMSRequestInfo(request, uriInfo));
