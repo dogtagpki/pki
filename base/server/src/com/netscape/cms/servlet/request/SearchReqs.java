@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -45,42 +44,40 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.RequestRepository;
 
 /**
- * Search for certificates matching complex query filter
- *
- * @version $Revision$, $Date$
+ * Search for requests matching complex query filter.
  */
 public class SearchReqs extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SearchReqs.class);
-    private static final long serialVersionUID = 2449481964851735051L;
-    private final static String TPL_FILE = "queryReq.template";
-    private final static String PROP_MAX_SEARCH_RETURNS = "maxSearchReqReturns";
-    private final static String PROP_PARSER = "parser";
-    private final static String CURRENT_TIME = "currentTime";
-    private final static String OUT_TOTALCOUNT = "totalRecordCount";
-    private final static String OUT_CURRENTCOUNT = "currentRecordCount";
-    private final static int MAX_RESULTS = 1000;
 
-    private RequestRepository requestRepository;
-    private IReqParser mParser = null;
-    private String mFormPath = null;
-    private int mMaxReturns = MAX_RESULTS;
-    private int mTimeLimits = 30; /* in seconds */
+    protected final static String TPL_FILE = "queryReq.template";
+    protected final static String PROP_MAX_SEARCH_RETURNS = "maxSearchReqReturns";
+    protected final static String PROP_PARSER = "parser";
+    protected final static String CURRENT_TIME = "currentTime";
+    protected final static String OUT_TOTALCOUNT = "totalRecordCount";
+    protected final static String OUT_CURRENTCOUNT = "currentRecordCount";
+    protected final static int MAX_RESULTS = 1000;
+
+    protected RequestRepository requestRepository;
+    protected IReqParser mParser;
+    protected String mFormPath;
+    protected int mMaxReturns = MAX_RESULTS;
+    protected int mTimeLimits = 30; /* in seconds */
 
     /**
      * Constructs query key servlet.
      */
     public SearchReqs() {
-        super();
     }
 
     /**
-     * initialize the servlet. This servlet uses queryReq.template
-     * to render the response
+     * Initialize the servlet. This servlet uses queryReq.template
+     * to render the response.
      *
      * @param sc servlet configuration, read from the web.xml file
      */
@@ -89,7 +86,7 @@ public class SearchReqs extends CMSServlet {
         // override success to render own template.
         mTemplates.remove(ICMSRequest.SUCCESS);
 
-        CAEngine engine = CAEngine.getInstance();
+        CMSEngine engine = CMS.getCMSEngine();
         ISubsystem sub = mAuthority;
         IConfigStore authConfig = sub.getConfigStore();
 
@@ -117,17 +114,6 @@ public class SearchReqs extends CMSServlet {
             mTimeLimits = Integer.parseInt(sc.getInitParameter("timeLimits"));
         } catch (Exception e) {
             /* do nothing, just use the default if integer parsing failed */
-        }
-
-        String tmp = sc.getInitParameter(PROP_PARSER);
-
-        if (tmp != null) {
-            if (tmp.trim().equals("CertReqParser.NODETAIL_PARSER"))
-                mParser = CertReqParser.NODETAIL_PARSER;
-            else if (tmp.trim().equals("CertReqParser.DETAIL_PARSER"))
-                mParser = CertReqParser.DETAIL_PARSER;
-            else if (tmp.trim().equals("KeyReqParser.PARSER"))
-                mParser = KeyReqParser.PARSER;
         }
 
         // override success and error templates to null -

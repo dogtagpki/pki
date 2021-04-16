@@ -587,7 +587,7 @@
 
    <servlet>
       <servlet-name>  casearchReqs  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.request.SearchReqs  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.request.CertSearchReqs  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  parser      </param-name>
