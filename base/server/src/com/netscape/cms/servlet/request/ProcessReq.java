@@ -28,19 +28,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.ca.ICertificateAuthority;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -61,35 +55,27 @@ import com.netscape.cmscore.request.ARequestQueue;
 public class ProcessReq extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProcessReq.class);
-    private static final long serialVersionUID = -6941843162486565610L;
-    private final static String SEQNUM = "seqNum";
-    private final static String DO_ASSIGN = "doAssign";
-    private final static String TPL_FILE = "processReq.template";
-    private final static String PROP_PARSER = "parser";
 
-    private ARequestQueue mQueue = null;
-    private String mFormPath = null;
-    private IReqParser mParser = null;
-    private String[] mSigningAlgorithms = null;
+    protected final static String SEQNUM = "seqNum";
+    protected final static String DO_ASSIGN = "doAssign";
+    protected final static String TPL_FILE = "processReq.template";
+    protected final static String PROP_PARSER = "parser";
+
+    protected ARequestQueue mQueue;
+    protected String mFormPath;
+    protected IReqParser mParser;
 
     /**
      * Process request.
      */
     public ProcessReq() {
-        super();
     }
 
     /**
-     * initialize the servlet. This servlet uses the template file
+     * Initialize the servlet. This servlet uses the template file
      * "processReq.template" to process the response.
      * The initialization parameter 'parser' is read from the
-     * servlet configration, and is used to set the type of request.
-     * The value of this parameter can be:
-     * <UL>
-     * <LI><B>CertReqParser.NODETAIL_PARSER</B> - Show certificate Summary
-     * <LI><B>CertReqParser.DETAIL_PARSER</B> - Show certificate detail
-     * <LI><B>KeyReqParser.PARSER</B> - Show key archival detail
-     * </UL>
+     * servlet configuration, and is used to set the type of request.
      *
      * @param sc servlet configuration, read from the web.xml file
      */
@@ -100,17 +86,6 @@ public class ProcessReq extends CMSServlet {
         CMSEngine engine = CMS.getCMSEngine();
         mQueue = engine.getRequestQueue();
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-
-        String tmp = sc.getInitParameter(PROP_PARSER);
-
-        if (tmp != null) {
-            if (tmp.trim().equals("CertReqParser.NODETAIL_PARSER"))
-                mParser = CertReqParser.NODETAIL_PARSER;
-            else if (tmp.trim().equals("CertReqParser.DETAIL_PARSER"))
-                mParser = CertReqParser.DETAIL_PARSER;
-            else if (tmp.trim().equals("KeyReqParser.PARSER"))
-                mParser = KeyReqParser.PARSER;
-        }
 
         // override success and error templates to null -
         // handle templates locally.
@@ -222,6 +197,12 @@ public class ProcessReq extends CMSServlet {
         }
     }
 
+    public void addAuthorityName(IArgBlock header) throws EBaseException {
+    }
+
+    public void addSigningAlgorithm(IArgBlock header) throws EBaseException {
+    }
+
     /**
      * Sends request information to the calller.
      * returns whether there was an error or not.
@@ -253,62 +234,8 @@ public class ProcessReq extends CMSServlet {
             }
 
             // add authority names to know what privileges can be requested.
-            if (engine.getSubsystem(IKeyRecoveryAuthority.ID) != null)
-                header.addStringValue("localkra", "yes");
-            if (engine.getSubsystem(ICertificateAuthority.ID) != null)
-                header.addStringValue("localca", "yes");
-            if (engine.getSubsystem(IRegistrationAuthority.ID) != null)
-                header.addStringValue("localra", "yes");
-
-            // DONT NEED TO DO THIS FOR DRM
-            if (mAuthority instanceof ICertAuthority) {
-                // Check/set signing algorithms dynamically.
-                // In RA mSigningAlgorithms could be null at startup if CA is not
-                // up and set later when CA comes back up.
-                // Once it's set assumed that it won't change.
-                String[] allAlgorithms = mSigningAlgorithms;
-
-                if (allAlgorithms == null) {
-                    allAlgorithms = mSigningAlgorithms =
-                                    ((ICertAuthority) mAuthority).getCASigningAlgorithms();
-                    if (allAlgorithms == null) {
-                        logger.debug("ProcessReq: signing algorithms set to All algorithms");
-                        allAlgorithms = AlgorithmId.ALL_SIGNING_ALGORITHMS;
-                    } else
-                        logger.debug("ProcessReq: First signing algorithms is " + allAlgorithms[0]);
-                }
-                String validAlgorithms = null;
-                StringBuffer sb = new StringBuffer();
-                for (int i = 0; i < allAlgorithms.length; i++) {
-                    if (i > 0) {
-                        sb.append("+");
-                        sb.append(allAlgorithms[i]);
-                    } else {
-                        sb.append(allAlgorithms[i]);
-                    }
-                }
-                validAlgorithms = sb.toString();
-                if (validAlgorithms != null)
-                    header.addStringValue("validAlgorithms", validAlgorithms);
-                if (mAuthority instanceof ICertificateAuthority) {
-                    String signingAlgorithm = ((ICertificateAuthority) mAuthority).getDefaultAlgorithm();
-
-                    if (signingAlgorithm != null)
-                        header.addStringValue("caSigningAlgorithm", signingAlgorithm);
-                    header.addLongValue("defaultValidityLength",
-                            ((ICertificateAuthority) mAuthority).getDefaultValidity() / 1000);
-                } else if (mAuthority instanceof IRegistrationAuthority) {
-                    header.addLongValue("defaultValidityLength",
-                            ((IRegistrationAuthority) mAuthority).getDefaultValidity() / 1000);
-                }
-                X509CertImpl caCert = ((ICertAuthority) mAuthority).getCACert();
-
-                if (caCert != null) {
-                    int caPathLen = caCert.getBasicConstraints();
-
-                    header.addIntegerValue("caPathLen", caPathLen);
-                }
-            }
+            addAuthorityName(header);
+            addSigningAlgorithm(header);
 
             mParser.fillRequestIntoArg(locale, r, argSet, header);
         } else {

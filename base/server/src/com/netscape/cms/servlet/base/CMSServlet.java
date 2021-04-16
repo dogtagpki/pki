@@ -252,7 +252,7 @@ public abstract class CMSServlet extends HttpServlet {
     protected String mAuthzResourceName = null;
 
     protected String mOutputTemplatePath = null;
-    CMSEngine engine = CMS.getCMSEngine();
+    protected CMSEngine engine = CMS.getCMSEngine();
     private UGSubsystem mUG = engine.getUGSubsystem();
 
     public CMSServlet() {

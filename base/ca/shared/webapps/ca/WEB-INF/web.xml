@@ -806,7 +806,7 @@
 
    <servlet>
       <servlet-name>  caProcessReq  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.request.ProcessReq  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.request.CertProcessReq  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  parser      </param-name>
