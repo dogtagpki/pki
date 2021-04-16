@@ -49,47 +49,44 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
-import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
- * Show paged list of requests matching search criteria
- *
- * @version $Revision$, $Date$
+ * Show paged list of requests matching search criteria.
  */
 public class QueryReq extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(QueryReq.class);
-    private static final long serialVersionUID = -8729364426329835378L;
+
     // constants
-    private final static String IN_SHOW_ALL = "showAll";
-    private final static String IN_SHOW_WAITING = "showWaiting";
-    private final static String IN_SHOW_IN_SERVICE = "showInService";
-    private final static String IN_SHOW_PENDING = "showPending";
-    private final static String IN_SHOW_CANCELLED = "showCancelled";
-    private final static String IN_SHOW_REJECTED = "showRejected";
-    private final static String IN_SHOW_COMPLETED = "showCompleted";
-    private final static String IN_MAXCOUNT = "maxCount";
-    private final static String IN_TOTALCOUNT = "totalRecordCount";
-    private final static String PROP_PARSER = "parser";
-    private final static String REALM = "realm";
+    protected final static String IN_SHOW_ALL = "showAll";
+    protected final static String IN_SHOW_WAITING = "showWaiting";
+    protected final static String IN_SHOW_IN_SERVICE = "showInService";
+    protected final static String IN_SHOW_PENDING = "showPending";
+    protected final static String IN_SHOW_CANCELLED = "showCancelled";
+    protected final static String IN_SHOW_REJECTED = "showRejected";
+    protected final static String IN_SHOW_COMPLETED = "showCompleted";
+    protected final static String IN_MAXCOUNT = "maxCount";
+    protected final static String IN_TOTALCOUNT = "totalRecordCount";
+    protected final static String PROP_PARSER = "parser";
+    protected final static String REALM = "realm";
 
-    private final static String TPL_FILE = "queryReq.template";
+    protected final static String TPL_FILE = "queryReq.template";
 
-    private final static String OUT_TOTALCOUNT = IN_TOTALCOUNT;
-    private final static String OUT_CURRENTCOUNT = "currentRecordCount";
-    private final static String OUT_REQUESTING_USER = "requestingUser";
+    protected final static String OUT_TOTALCOUNT = IN_TOTALCOUNT;
+    protected final static String OUT_CURRENTCOUNT = "currentRecordCount";
+    protected final static String OUT_REQUESTING_USER = "requestingUser";
     //keeps track of where to begin if page down
-    private final static String OUT_FIRST_ENTRY_ON_PAGE = "firstEntryOnPage";
+    protected final static String OUT_FIRST_ENTRY_ON_PAGE = "firstEntryOnPage";
     //keeps track of where to begin if page up
-    private final static String OUT_LAST_ENTRY_ON_PAGE = "lastEntryOnPage";
-    private final static String OUT_ERROR = "error";
-    private final static String OUT_AUTHORITY_ID = "authorityid";
+    protected final static String OUT_LAST_ENTRY_ON_PAGE = "lastEntryOnPage";
+    protected final static String OUT_ERROR = "error";
+    protected final static String OUT_AUTHORITY_ID = "authorityid";
 
     // variables
-    private IReqParser mParser = null;
-    private ARequestQueue mQueue = null;
-    private String mFormPath = null;
-    private int mMaxReturns = 2000;
+    protected IReqParser mParser;
+    protected ARequestQueue mQueue;
+    protected String mFormPath;
+    protected int mMaxReturns = 2000;
 
     public CMSRequest newCMSRequest() {
         return new CMSRequest();
@@ -122,17 +119,6 @@ public class QueryReq extends CMSServlet {
             /* do nothing, just use the default if integer parsing failed */
         }
 
-        String tmp = sc.getInitParameter(PROP_PARSER);
-
-        if (tmp != null) {
-            if (tmp.trim().equals("CertReqParser.NODETAIL_PARSER"))
-                mParser = CertReqParser.NODETAIL_PARSER;
-            else if (tmp.trim().equals("CertReqParser.DETAIL_PARSER"))
-                mParser = CertReqParser.DETAIL_PARSER;
-            else if (tmp.trim().equals("KeyReqParser.PARSER"))
-                mParser = KeyReqParser.PARSER;
-        }
-
         // override success and error templates to null -
         // handle templates locally.
         mTemplates.remove(ICMSRequest.SUCCESS);
@@ -142,7 +128,7 @@ public class QueryReq extends CMSServlet {
             mFormPath = mOutputTemplatePath;
     }
 
-    private String getRequestType(String p) {
+    protected String getRequestType(String p) {
         String filter = "(requestType=*)";
 
         if (p == null)
@@ -177,7 +163,7 @@ public class QueryReq extends CMSServlet {
         return filter;
     }
 
-    private String getRequestState(String p) {
+    protected String getRequestState(String p) {
         String filter = "(requeststate=*)";
 
         if (p == null)
@@ -200,6 +186,35 @@ public class QueryReq extends CMSServlet {
         return filter;
     }
 
+    public void validateAuthToken(HttpServletRequest request, IAuthToken authToken) throws EBaseException {
+    }
+
+    public String getFilter(HttpServletRequest request) {
+
+        String reqState = request.getParameter("reqState");
+        String reqType = request.getParameter("reqType");
+
+        String filter;
+
+        if (reqState == null || reqType == null) {
+            filter = "(requeststate=*)";
+
+        } else if (reqState.equals(IN_SHOW_ALL) && reqType.equals(IN_SHOW_ALL)) {
+            filter = "(requeststate=*)";
+
+        } else if (reqState.equals(IN_SHOW_ALL)) {
+            filter = getRequestType(reqType);
+
+        } else if (reqType.equals(IN_SHOW_ALL)) {
+            filter = getRequestState(reqState);
+
+        } else {
+            filter = "(&" + getRequestState(reqState) + getRequestType(reqType) + ")";
+        }
+
+        return filter;
+    }
+
     /**
      * Process the HTTP request.
      * <ul>
@@ -217,7 +232,6 @@ public class QueryReq extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
-
     public void process(CMSRequest cmsReq) throws EBaseException {
         logger.debug("in QueryReq servlet");
 
@@ -242,17 +256,13 @@ public class QueryReq extends CMSServlet {
             return;
         }
 
-        String realm = null;
-        if (mAuthority.getId().equals("kra")) {
-            // for the KRA, check the realm (if present)
-            realm = req.getParameter(REALM);
-            try {
-                mAuthz.checkRealm(realm, authToken, null, mAuthzResourceName, "list");
-            } catch (EAuthzException e) {
-                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
-                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
-                return;
-            }
+        try {
+            validateAuthToken(req, authToken);
+
+        } catch (EAuthzException e) {
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            return;
         }
 
         CMSTemplate form = null;
@@ -272,32 +282,9 @@ public class QueryReq extends CMSServlet {
          * PLEASE DO NOT TOUCH THE FILTER HERE. ALL FILTERS ARE INDEXED.
          *
          **/
-        String filter = null;
+        String filter = getFilter(req);
         String reqState = req.getParameter("reqState");
         String reqType = req.getParameter("reqType");
-
-        if (reqState == null || reqType == null) {
-            filter = "(requeststate=*)";
-        } else if (reqState.equals(IN_SHOW_ALL) &&
-                reqType.equals(IN_SHOW_ALL)) {
-            filter = "(requeststate=*)";
-        } else if (reqState.equals(IN_SHOW_ALL)) {
-            filter = getRequestType(reqType);
-        } else if (reqType.equals(IN_SHOW_ALL)) {
-            filter = getRequestState(reqState);
-        } else {
-            filter = "(&" + getRequestState(reqState) +
-                    getRequestType(reqType) + ")";
-        }
-
-        if (mAuthority.getId().equals("kra")) {
-            // add realm to filter for KRA requests
-            if (realm != null) {
-                filter = "(&" + filter + "(realm=" + LDAPUtil.escapeFilter(realm) +"))";
-            } else {
-                filter = "(&" + filter + "(!(realm=*)))";
-            }
-        }
 
         String direction = "begin";
         if (req.getParameter("direction") != null) {
@@ -374,7 +361,7 @@ public class QueryReq extends CMSServlet {
      * @return
      */
 
-    private CMSTemplateParams doSearch(Locale l, String filter,
+    protected CMSTemplateParams doSearch(Locale l, String filter,
             int count, String direction, BigInteger top, BigInteger bottom) {
         CMSTemplateParams ctp = null;
         if (direction.equals("previous")) {
