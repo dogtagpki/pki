@@ -121,7 +121,7 @@ public class CAConfigurator extends Configurator {
                 installAdjustValidity,
                 extensions);
 
-        engine.updateCertRequest(
+        requestRepository.updateRequest(
                 req,
                 certRequestType,
                 certRequest,
@@ -216,7 +216,7 @@ public class CAConfigurator extends Configurator {
 
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
 
-        engine.updateCertRequest(
+        requestRepository.updateRequest(
                 req,
                 certRequestType,
                 certRequest,

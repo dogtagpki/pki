@@ -64,11 +64,9 @@ import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.CRLPublisher;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.util.AsyncLoader;
-import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -94,7 +92,6 @@ import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -1609,33 +1606,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         initCrlDatabase();
         initReplicaIDRepository();
         super.init();
-    }
-
-    public void updateCertRequest(
-            IRequest request,
-            String certRequestType,
-            byte[] certRequest,
-            X500Name subjectName,
-            X509CertImpl cert) throws Exception {
-
-        logger.info("CAEngine: Updating cert request " + request.getRequestId());
-
-        logger.debug("CAEngine: - type: " + certRequestType);
-        request.setExtData("cert_request_type", certRequestType);
-
-        if (certRequest != null) {
-            String b64Certreq = CryptoUtil.base64Encode(certRequest);
-            String pemCertreq = CryptoUtil.reqFormat(b64Certreq);
-            logger.debug("CAEngine: - request:\n" + pemCertreq);
-            request.setExtData("cert_request", pemCertreq);
-        }
-
-        if (subjectName != null) {
-            logger.debug("CAEngine: - subject: " + subjectName);
-            request.setExtData("subject", subjectName.toString());
-        }
-
-        request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
     }
 
     public boolean isRevoked(X509Certificate[] certificates) {

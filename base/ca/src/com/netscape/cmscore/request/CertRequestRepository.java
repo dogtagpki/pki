@@ -18,6 +18,8 @@
 package com.netscape.cmscore.request;
 
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
@@ -26,6 +28,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CertRequestRepository extends RequestRepository {
 
@@ -110,5 +113,32 @@ public class CertRequestRepository extends RequestRepository {
         }
 
         request.setRequestStatus(RequestStatus.COMPLETE);
+    }
+
+    public void updateRequest(
+            IRequest request,
+            String certRequestType,
+            byte[] certRequest,
+            X500Name subjectName,
+            X509CertImpl cert) throws Exception {
+
+        logger.info("CertRequestRepository: Updating cert request " + request.getRequestId());
+
+        logger.debug("CertRequestRepository: - type: " + certRequestType);
+        request.setExtData("cert_request_type", certRequestType);
+
+        if (certRequest != null) {
+            String b64CertRequest = CryptoUtil.base64Encode(certRequest);
+            String pemCertRequest = CryptoUtil.reqFormat(b64CertRequest);
+            logger.debug("CertRequestRepository: - request:\n" + pemCertRequest);
+            request.setExtData("cert_request", pemCertRequest);
+        }
+
+        if (subjectName != null) {
+            logger.debug("CertRequestRepository: - subject: " + subjectName);
+            request.setExtData("subject", subjectName.toString());
+        }
+
+        request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
     }
 }
