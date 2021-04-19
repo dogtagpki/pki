@@ -30,10 +30,18 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.DataCollection;
 import com.netscape.certsrv.request.RequestStatus;
 
 @XmlRootElement(name = "CertRequestInfos")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class CertRequestInfos extends DataCollection<CertRequestInfo> {
 
     @XmlElementRef
@@ -61,44 +69,66 @@ public class CertRequestInfos extends DataCollection<CertRequestInfo> {
         return null;
     }
 
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            Marshaller marshaller = JAXBContext.newInstance(CertRequestInfos.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(this, sw);
-            return sw.toString();
-
-        } catch (Exception e) {
-            return super.toString();
-        }
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        // required to access private RequestStatus.label
+        mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+        return mapper.writeValueAsString(this);
     }
 
-    public static CertRequestInfos valueOf(String string) throws Exception {
+    public static CertRequestInfos fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        // required to access private RequestStatus.label
+        mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+        return mapper.readValue(json, CertRequestInfos.class);
+    }
+
+    public String toXML() throws Exception {
+        StringWriter sw = new StringWriter();
+        Marshaller marshaller = JAXBContext.newInstance(CertRequestInfos.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static CertRequestInfos fromXML(String string) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(CertRequestInfos.class).createUnmarshaller();
+        return (CertRequestInfos)unmarshaller.unmarshal(new StringReader(string));
+    }
+
+    public String toString() {
         try {
-            Unmarshaller unmarshaller = JAXBContext.newInstance(CertRequestInfos.class).createUnmarshaller();
-            return (CertRequestInfos)unmarshaller.unmarshal(new StringReader(string));
+            return toXML();
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
     public static void main(String args[]) throws Exception {
 
-        CertRequestInfos before = new CertRequestInfos();
-
         CertRequestInfo request = new CertRequestInfo();
         request.setRequestType("enrollment");
         request.setRequestStatus(RequestStatus.COMPLETE);
         request.setCertRequestType("pkcs10");
+
+        CertRequestInfos before = new CertRequestInfos();
         before.addEntry(request);
+        before.setTotal(1);
 
-        String string = before.toString();
-        System.out.println(string);
+        String xml = before.toXML();
+        System.out.println("Before (XML): " + xml);
 
-        CertRequestInfos after = CertRequestInfos.valueOf(string);
-        System.out.println(after);
+        CertRequestInfos afterXML = CertRequestInfos.fromXML(xml);
+        System.out.println("After (XML): " + afterXML.toXML());
 
-        System.out.println(request.equals(after));
+        System.out.println(before.equals(afterXML));
+
+        String json = before.toJSON();
+        System.out.println("Before (JSON): " + json);
+
+        CertRequestInfos afterJSON = CertRequestInfos.fromJSON(json);
+        System.out.println("After (JSON): " + afterJSON.toJSON());
+
+        System.out.println(before.equals(afterJSON));
     }
 }

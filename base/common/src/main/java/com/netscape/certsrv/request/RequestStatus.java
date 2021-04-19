@@ -111,6 +111,9 @@ public final class RequestStatus implements Serializable {
 
     private String label;
 
+    private RequestStatus() {
+    }
+
     /**
      * Class constructor. Creates request status from the string.
      *

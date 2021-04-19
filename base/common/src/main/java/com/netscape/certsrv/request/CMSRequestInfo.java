@@ -29,6 +29,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
@@ -36,6 +38,8 @@ import com.netscape.certsrv.key.KeyRequestInfo;
 
 @XmlRootElement(name="CMSRequestInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public  class CMSRequestInfo {
 
     @XmlElement
@@ -90,6 +94,11 @@ public  class CMSRequestInfo {
      * @return the request ID in the requestURL
      */
     public RequestId getRequestId() {
+
+        if (requestURL == null) {
+            return null;
+        }
+
         String id = requestURL.substring(requestURL.lastIndexOf("/") + 1);
         return new RequestId(id);
     }
