@@ -40,10 +40,12 @@ public class CertRequestRepository extends RequestRepository {
 
     public void initRequest(
             IRequest request,
+            String certRequestType,
+            byte[] certRequest,
+            X500Name subjectName,
             String profileID,
             String profileIDMapping,
             String profileSetIDMapping,
-            X509CertInfo info,
             X509Key x509key,
             String[] sanHostnames,
             boolean installAdjustValidity,
@@ -55,7 +57,6 @@ public class CertRequestRepository extends RequestRepository {
         request.setExtData("requestversion", "1.0.0");
         request.setExtData("req_seq_num", "0");
 
-        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
         request.setExtData(EnrollProfile.REQUEST_EXTENSIONS, extensions);
 
         request.setExtData("requesttype", "enrollment");
@@ -67,6 +68,21 @@ public class CertRequestRepository extends RequestRepository {
         request.setExtData("requestnotes", "");
         request.setExtData("isencryptioncert", "false");
         request.setExtData("profileapprovedby", "system");
+
+        logger.debug("CertRequestRepository: - type: " + certRequestType);
+        request.setExtData("cert_request_type", certRequestType);
+
+        if (certRequest != null) {
+            String b64CertRequest = CryptoUtil.base64Encode(certRequest);
+            String pemCertRequest = CryptoUtil.reqFormat(b64CertRequest);
+            logger.debug("CertRequestRepository: - request:\n" + pemCertRequest);
+            request.setExtData("cert_request", pemCertRequest);
+        }
+
+        if (subjectName != null) {
+            logger.debug("CertRequestRepository: - subject: " + subjectName);
+            request.setExtData("subject", subjectName.toString());
+        }
 
         if (sanHostnames != null) {
 
@@ -117,28 +133,12 @@ public class CertRequestRepository extends RequestRepository {
 
     public void updateRequest(
             IRequest request,
-            String certRequestType,
-            byte[] certRequest,
-            X500Name subjectName,
+            X509CertInfo info,
             X509CertImpl cert) throws Exception {
 
         logger.info("CertRequestRepository: Updating cert request " + request.getRequestId());
 
-        logger.debug("CertRequestRepository: - type: " + certRequestType);
-        request.setExtData("cert_request_type", certRequestType);
-
-        if (certRequest != null) {
-            String b64CertRequest = CryptoUtil.base64Encode(certRequest);
-            String pemCertRequest = CryptoUtil.reqFormat(b64CertRequest);
-            logger.debug("CertRequestRepository: - request:\n" + pemCertRequest);
-            request.setExtData("cert_request", pemCertRequest);
-        }
-
-        if (subjectName != null) {
-            logger.debug("CertRequestRepository: - subject: " + subjectName);
-            request.setExtData("subject", subjectName.toString());
-        }
-
+        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
         request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
     }
 }

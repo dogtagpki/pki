@@ -106,34 +106,31 @@ public class CAConfigurator extends Configurator {
         BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        IRequest req = requestRepository.createRequest("enrollment");
+        IRequest request = requestRepository.createRequest("enrollment");
 
         CertificateExtensions extensions = new CertificateExtensions();
 
         requestRepository.initRequest(
-                req,
+                request,
+                certRequestType,
+                certRequest,
+                subjectName,
                 profile.getID(),
                 profile.getProfileIDMapping(),
                 profile.getProfileSetIDMapping(),
-                info,
                 x509key,
                 dnsNames,
                 installAdjustValidity,
                 extensions);
 
-        requestRepository.updateRequest(
-                req,
-                certRequestType,
-                certRequest,
-                subjectName,
-                cert);
+        requestRepository.updateRequest(request, info, cert);
 
         RequestQueue queue = engine.getRequestQueue();
-        queue.updateRequest(req);
+        queue.updateRequest(request);
 
         CertificateRepository certificateRepository = engine.getCertificateRepository();
         CertRecord certRecord = certificateRepository.createCertRecord(
-                req.getRequestId(),
+                request.getRequestId(),
                 profile.getProfileIDMapping(),
                 cert);
         certificateRepository.addCertificateRecord(certRecord);
@@ -199,35 +196,32 @@ public class CAConfigurator extends Configurator {
         BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        IRequest req = requestRepository.createRequest("enrollment");
+        IRequest request = requestRepository.createRequest("enrollment");
 
         requestRepository.initRequest(
-                req,
+                request,
+                certRequestType,
+                certRequest,
+                subjectName,
                 profile.getID(),
                 profile.getProfileIDMapping(),
                 profile.getProfileSetIDMapping(),
-                info,
                 x509key,
                 dnsNames,
                 installAdjustValidity,
                 extensions);
 
-        profile.populate(req, info);
+        profile.populate(request, info);
 
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
 
-        requestRepository.updateRequest(
-                req,
-                certRequestType,
-                certRequest,
-                subjectName,
-                cert);
+        requestRepository.updateRequest(request, info, cert);
 
         RequestQueue queue = engine.getRequestQueue();
-        queue.updateRequest(req);
+        queue.updateRequest(request);
 
         CertRecord certRecord = certificateRepository.createCertRecord(
-                req.getRequestId(),
+                request.getRequestId(),
                 profile.getProfileIDMapping(),
                 cert);
         certificateRepository.addCertificateRecord(certRecord);
