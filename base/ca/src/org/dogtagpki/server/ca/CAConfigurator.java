@@ -110,9 +110,11 @@ public class CAConfigurator extends Configurator {
 
         CertificateExtensions extensions = new CertificateExtensions();
 
-        engine.initCertRequest(
+        requestRepository.initRequest(
                 req,
-                profile,
+                profile.getID(),
+                profile.getProfileIDMapping(),
+                profile.getProfileSetIDMapping(),
                 info,
                 x509key,
                 dnsNames,
@@ -199,9 +201,11 @@ public class CAConfigurator extends Configurator {
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         IRequest req = requestRepository.createRequest("enrollment");
 
-        engine.initCertRequest(
+        requestRepository.initRequest(
                 req,
-                profile,
+                profile.getID(),
+                profile.getProfileIDMapping(),
+                profile.getProfileSetIDMapping(),
                 info,
                 x509key,
                 dnsNames,

@@ -42,12 +42,9 @@ import org.dogtagpki.legacy.ca.CAPolicy;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.AuthorityMonitor;
 import com.netscape.ca.CANotify;
@@ -70,10 +67,8 @@ import com.netscape.certsrv.publish.CRLPublisher;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestScheduler;
-import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.servlet.csadmin.BootstrapProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -1614,81 +1609,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         initCrlDatabase();
         initReplicaIDRepository();
         super.init();
-    }
-
-    public void initCertRequest(
-            IRequest request,
-            BootstrapProfile profile,
-            X509CertInfo info,
-            X509Key x509key,
-            String[] sanHostnames,
-            boolean installAdjustValidity,
-            CertificateExtensions extensions) throws Exception {
-
-        logger.info("CAEngine: Initialize cert request " + request.getRequestId());
-
-        request.setExtData("profile", "true");
-        request.setExtData("requestversion", "1.0.0");
-        request.setExtData("req_seq_num", "0");
-
-        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
-        request.setExtData(EnrollProfile.REQUEST_EXTENSIONS, extensions);
-
-        request.setExtData("requesttype", "enrollment");
-        request.setExtData("requestor_name", "");
-        request.setExtData("requestor_email", "");
-        request.setExtData("requestor_phone", "");
-        request.setExtData("profileRemoteHost", "");
-        request.setExtData("profileRemoteAddr", "");
-        request.setExtData("requestnotes", "");
-        request.setExtData("isencryptioncert", "false");
-        request.setExtData("profileapprovedby", "system");
-
-        if (sanHostnames != null) {
-
-            logger.info("CAEngine: Injecting SAN extension:");
-
-            // Dynamically inject the SubjectAlternativeName extension to a
-            // local/self-signed master CA's request for its SSL Server Certificate.
-            //
-            // Since this information may vary from instance to
-            // instance, obtain the necessary information from the
-            // 'service.sslserver.san' value(s) in the instance's
-            // CS.cfg, process these values converting each item into
-            // its individual SubjectAlternativeName components, and
-            // inject these values into the local request.
-
-            int i = 0;
-            for (String sanHostname : sanHostnames) {
-                logger.info("CAEngine: - " + sanHostname);
-                request.setExtData("req_san_pattern_" + i, sanHostname);
-                i++;
-            }
-        }
-
-        request.setExtData("req_key", x509key.toString());
-
-        String origProfileID = profile.getID();
-        int idx = origProfileID.lastIndexOf('.');
-        if (idx > 0) {
-            origProfileID = origProfileID.substring(0, idx);
-        }
-
-        // store original profile ID in cert request
-        request.setExtData("origprofileid", origProfileID);
-
-        // store mapped profile ID for renewal
-        request.setExtData("profileid", profile.getProfileIDMapping());
-        request.setExtData("profilesetid", profile.getProfileSetIDMapping());
-
-        if (installAdjustValidity) {
-            // (applies to non-CA-signing cert only)
-            // installAdjustValidity tells ValidityDefault to adjust the
-            // notAfter value to that of the CA's signing cert if needed
-            request.setExtData("installAdjustValidity", "true");
-        }
-
-        request.setRequestStatus(RequestStatus.COMPLETE);
     }
 
     public void updateCertRequest(
