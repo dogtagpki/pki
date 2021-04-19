@@ -133,10 +133,6 @@ public final class RequestStatus implements Serializable {
      * @return
      *         request status
      */
-    public static RequestStatus fromString(String label) {
-        return valueOf(label);
-    }
-
     public static RequestStatus valueOf(String label) {
         return LABELS.get(label.toLowerCase());
     }

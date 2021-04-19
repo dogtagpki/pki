@@ -230,8 +230,7 @@ public class Resender implements IResender {
                 return false;
             logger.debug(r.getRequestId() + " resent to CA");
 
-            RequestStatus replyStatus =
-                    RequestStatus.fromString(replymsg.reqStatus);
+            RequestStatus replyStatus = RequestStatus.valueOf(replymsg.reqStatus);
             int index = replymsg.reqId.lastIndexOf(':');
             RequestId replyRequestId =
                     new RequestId(replymsg.reqId.substring(index + 1));

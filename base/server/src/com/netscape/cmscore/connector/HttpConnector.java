@@ -176,7 +176,7 @@ public class HttpConnector implements IConnector {
             RequestStatus replyStatus;
             RequestId replyRequestId;
 
-            replyStatus = RequestStatus.fromString(replymsg.reqStatus);
+            replyStatus = RequestStatus.valueOf(replymsg.reqStatus);
             int index = replymsg.reqId.lastIndexOf(':');
 
             replyRequestId = new RequestId(replymsg.reqId.substring(index + 1));

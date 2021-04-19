@@ -81,7 +81,7 @@ public class RequestStateMapper extends DBAttrMapper {
         }
 
         String value = attr.getStringValues().nextElement();
-        parent.set(name, RequestStatus.fromString(value));
+        parent.set(name, RequestStatus.valueOf(value));
     }
 
     public String mapSearchFilter(String name, String op, String value) {
