@@ -22,7 +22,7 @@ NOTE: It is highly recommended that the Server-Side Keygen mechanism only being 
 
 NOTE: A KRA instance is required in addition to the CA for setting up Server-Side Keygen.
 
-NOTE: In the case when the CA and KRA are sharing a Tomcat instance, there is no need to execute the above step to import the transport certificate.
+NOTE: In the case when the CA and KRA are sharing a Tomcat instance, there is no need to execute the below step to import the transport certificate.
 
 After installing CA and KRA instances, in the case of stand-alone Tomcat web server instances, you’d need to add the KRA’s transport cert to the CA’s nssdb.
 
