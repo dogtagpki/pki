@@ -2405,7 +2405,7 @@ public abstract class EnrollProfile extends Profile {
                         ext = new SubjectKeyIdentifierExtension(false,
                                 jssext.getExtnValue().toByteArray());
                     } else {
-                        new Extension(oid, isCritical, extValue);
+                        ext = new Extension(oid, isCritical, extValue);
                     }
 
                     extensions.parseExtension(ext);
