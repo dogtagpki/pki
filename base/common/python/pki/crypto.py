@@ -365,7 +365,7 @@ class CryptographyCryptoProvider(CryptoProvider):
 
         if not isinstance(transport_cert, cryptography.x509.Certificate):
             # it's a file name
-            with open(transport_cert, 'r') as f:
+            with open(transport_cert, 'rb') as f:
                 transport_pem = f.read()
             transport_cert = cryptography.x509.load_pem_x509_certificate(
                 transport_pem,
