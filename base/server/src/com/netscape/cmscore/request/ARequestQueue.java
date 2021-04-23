@@ -211,27 +211,11 @@ public abstract class ARequestQueue {
      * This call might be used by agent servlets that want to copy a previous request, and resubmit it. By putting it
      * into PENDING state, the normal agent screens can be used for further processing.
      *
-     * @param req
+     * @param request
      *            the request to mark PENDING
      * @exception EBaseException failed to mark request as pending
      */
-    public final void markRequestPending(IRequest r)
-            throws EBaseException {
-        // 1. Check for valid state
-        RequestStatus rs = r.getRequestStatus();
-
-        if (rs != RequestStatus.BEGIN)
-            throw new EBaseException("Invalid Status");
-
-        // 2. Change the request state.  This method of making
-        // a request PENDING does NOT invoke the PENDING notifiers.
-        // To change this, just call stateEngine at the completion of this
-        // routine.
-        r.setRequestStatus(RequestStatus.PENDING);
-
-        updateRequest(r);
-        stateEngine(r);
-    }
+    public abstract void markRequestPending(IRequest request) throws EBaseException;
 
     /**
      * Clones a request object and mark it pending. A new request id is assigned

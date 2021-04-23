@@ -137,6 +137,24 @@ public class RequestQueue extends ARequestQueue {
         mRepository.addRequest(request);
     }
 
+    public void markRequestPending(IRequest request) throws EBaseException {
+
+        RequestStatus rs = request.getRequestStatus();
+
+        if (rs != RequestStatus.BEGIN) {
+            throw new EBaseException("Invalid request status: " + rs);
+        }
+
+        // Change the request state. This method of making a
+        // request PENDING does NOT invoke the PENDING notifiers.
+        // To change this, just call stateEngine at the completion
+        // of this routine.
+        request.setRequestStatus(RequestStatus.PENDING);
+
+        updateRequest(request);
+        stateEngine(request);
+    }
+
     public RequestId findRequestBySourceId(String id) {
         IRequestList irl = findRequestsBySourceId(id);
 
