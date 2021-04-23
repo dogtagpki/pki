@@ -46,7 +46,7 @@ javac(pki-server-classes
         ${LDAPJDK_JAR}
         ${XALAN_JAR} ${XERCES_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
-        ${TOMCATJSS_JAR} ${VELOCITY_JAR}
+        ${TOMCATJSS_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_TOMCAT_JAR} ${PKI_CERTSRV_JAR}
     OUTPUT_DIR
@@ -114,7 +114,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JAXRS_JAR} common/lib/resteasy-jaxrs.jar
     COMMAND ln -sf /usr/lib/java/symkey.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/symkey.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${TOMCATJSS_JAR} common/lib/tomcatjss.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${VELOCITY_JAR} common/lib/velocity.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${XERCES_JAR} common/lib/xerces-j2.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${XML_COMMONS_APIS_JAR} common/lib/xml-commons-apis.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${XML_COMMONS_RESOLVER_JAR} common/lib/xml-commons-resolver.jar

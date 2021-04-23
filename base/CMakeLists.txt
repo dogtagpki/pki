@@ -309,14 +309,6 @@ find_file(TOMCATJSS_JAR
         /usr/share/java
 )
 
-find_file(VELOCITY_JAR
-    NAMES
-        velocity.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(XALAN_JAR
     NAMES
         xalan-j2.jar

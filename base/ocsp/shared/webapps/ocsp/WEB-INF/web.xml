@@ -427,8 +427,6 @@
    <servlet>
       <servlet-name>  ocspGetCookie  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.GetCookie  </servlet-class>
-            <init-param> <param-name>properties</param-name>
-                         <param-value>/WEB-INF/velocity.properties</param-value> </init-param>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>

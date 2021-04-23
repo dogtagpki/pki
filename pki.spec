@@ -193,7 +193,6 @@ BuildRequires:    policycoreutils
 BuildRequires:    python3-lxml
 BuildRequires:    python3-sphinx
 
-BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 
@@ -516,7 +515,6 @@ Requires:         pki-servlet-engine
 Requires:         tomcat >= 1:9.0.7
 %endif
 
-Requires:         velocity
 Requires:         sudo
 Requires:         systemd
 Requires(post):   systemd-units
