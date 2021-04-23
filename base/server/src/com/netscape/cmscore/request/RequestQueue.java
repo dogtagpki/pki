@@ -20,14 +20,17 @@ package com.netscape.cmscore.request;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBSearchResults;
+import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.dbs.DBSSession;
@@ -175,6 +178,43 @@ public class RequestQueue extends ARequestQueue {
         updateRequest(request);
 
         stateEngine(request); // does nothing
+    }
+
+    public void approveRequest(IRequest request) throws EBaseException {
+
+        RequestStatus rs = request.getRequestStatus();
+
+        if (rs != RequestStatus.PENDING) {
+            throw new EBaseException("Invalid request status: " + rs);
+        }
+
+        Vector<String> list = request.getExtDataInStringVector(AgentApprovals.class.getName());
+        AgentApprovals aas = AgentApprovals.fromStringVector(list);
+
+        if (aas == null) {
+            aas = new AgentApprovals();
+        }
+
+        String agentName = getUserIdentity();
+
+        if (agentName == null) {
+            throw new EBaseException("Missing agent information");
+        }
+
+        aas.addApproval(agentName);
+        request.setExtData(AgentApprovals.class.getName(), aas.toStringVector());
+
+        PolicyResult pr = mPolicy.apply(request);
+
+        if (pr == PolicyResult.ACCEPTED) {
+            request.setRequestStatus(RequestStatus.APPROVED);
+
+        } else if (pr == PolicyResult.DEFERRED || pr == PolicyResult.REJECTED) {
+            // ignore
+        }
+
+        updateRequest(request);
+        stateEngine(request);
     }
 
     public RequestId findRequestBySourceId(String id) {

@@ -22,7 +22,6 @@ import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
@@ -253,43 +252,7 @@ public abstract class ARequestQueue {
      *            the request that is being approved
      * @exception EBaseException failed to approve request
      */
-    public final void approveRequest(IRequest r)
-            throws EBaseException {
-        // 1. Check for valid state
-        RequestStatus rs = r.getRequestStatus();
-
-        if (rs != RequestStatus.PENDING)
-            throw new EBaseException("Invalid Status");
-
-        AgentApprovals aas = AgentApprovals.fromStringVector(
-                r.getExtDataInStringVector(AgentApprovals.class.getName()));
-        if (aas == null) {
-            aas = new AgentApprovals();
-        }
-
-        // Record agent who did this
-        String agentName = getUserIdentity();
-
-        if (agentName == null)
-            throw new EBaseException("Missing agent information");
-
-        aas.addApproval(agentName);
-        r.setExtData(AgentApprovals.class.getName(), aas.toStringVector());
-
-        PolicyResult pr = mPolicy.apply(r);
-
-        if (pr == PolicyResult.ACCEPTED) {
-            r.setRequestStatus(RequestStatus.APPROVED);
-        } else if (pr == PolicyResult.DEFERRED ||
-                pr == PolicyResult.REJECTED) {
-        }
-
-        // Always update. The policy code may have made changes to the
-        // request that we want to keep.
-        updateRequest(r);
-
-        stateEngine(r);
-    }
+    public abstract void approveRequest(IRequest request) throws EBaseException;
 
     /**
      * Rejects a request. The request must be locked.
