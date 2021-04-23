@@ -241,7 +241,6 @@ Summary:
      /usr/share/java/tomcat5-servlet-2.4-api-5.5.27.jar
      /usr/share/java/tomcat6-jsp-2.1-api-6.0.26.jar
      /usr/share/java/tomcat6-servlet-2.5-api-6.0.26.jar
-     /usr/share/java/velocity-1.6.3.jar
      /usr/share/java/xerces-j2-2.9.0.jar
      /usr/share/java/xml-commons-apis-1.4.01.jar
      /usr/share/java/xml-commons-apis-ext-1.4.01.jar
@@ -258,7 +257,6 @@ Summary:
      tomcat5-servlet-2.4-api
      tomcat6-jsp-2.1-api
      tomcat6-servlet-2.5-api
-     velocity
      xerces-j2
      xml-commons-apis
 
