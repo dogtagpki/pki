@@ -28,7 +28,6 @@ import shutil
 import subprocess
 import tempfile
 
-import nss.nss as nss
 import six
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import (
@@ -38,6 +37,13 @@ from cryptography.hazmat.primitives import keywrap
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 import cryptography.x509
+try:
+    from nss import nss
+except ImportError:
+    nss = None
+    CKM_DES3_CBC_PAD = None
+else:
+    CKM_DES3_CBC_PAD = nss.CKM_DES3_CBC_PAD
 
 # encryption algorithms OIDs
 DES_EDE3_CBC_OID = "{1 2 840 113549 3 7}"
@@ -155,6 +161,8 @@ class NSSCryptoProvider(CryptoProvider):
             This method expects a NSS database to have already been created at
             certdb_dir with password certdb_password.
         """
+        if nss is None:
+            raise ImportError("python-nss is not available")
         CryptoProvider.__init__(self)
         self.certdb_dir = certdb_dir
 
@@ -206,7 +214,7 @@ class NSSCryptoProvider(CryptoProvider):
                        '-i', cert_file.name]
             subprocess.check_call(command)
 
-    def generate_nonce_iv(self, mechanism=nss.CKM_DES3_CBC_PAD):
+    def generate_nonce_iv(self, mechanism=CKM_DES3_CBC_PAD):
         """ Create a random initialization vector """
         iv_length = nss.get_iv_length(mechanism)
         if iv_length > 0:
@@ -249,7 +257,7 @@ class NSSCryptoProvider(CryptoProvider):
 
         return encoding_ctx, decoding_ctx
 
-    def generate_symmetric_key(self, mechanism=nss.CKM_DES3_CBC_PAD, size=0):
+    def generate_symmetric_key(self, mechanism=CKM_DES3_CBC_PAD, size=0):
         """ Returns a symmetric key.
 
         Note that for fixed length keys, this length should be 0.  If no length
@@ -265,9 +273,9 @@ class NSSCryptoProvider(CryptoProvider):
         """ Returns a session key to be used when wrapping secrets for the DRM
         This will return a 168 bit 3DES key.
         """
-        return self.generate_symmetric_key(mechanism=nss.CKM_DES3_CBC_PAD)
+        return self.generate_symmetric_key(mechanism=CKM_DES3_CBC_PAD)
 
-    def symmetric_wrap(self, data, wrapping_key, mechanism=nss.CKM_DES3_CBC_PAD,
+    def symmetric_wrap(self, data, wrapping_key, mechanism=CKM_DES3_CBC_PAD,
                        nonce_iv=None):
         """
         :param data            Data to be wrapped
@@ -288,7 +296,7 @@ class NSSCryptoProvider(CryptoProvider):
         return wrapped_data
 
     def symmetric_unwrap(self, data, wrapping_key,
-                         mechanism=nss.CKM_DES3_CBC_PAD, nonce_iv=None):
+                         mechanism=CKM_DES3_CBC_PAD, nonce_iv=None):
         """
         :param data            Data to be unwrapped
         :param wrapping_key    Symmetric key to unwrap data
@@ -308,7 +316,7 @@ class NSSCryptoProvider(CryptoProvider):
         return unwrapped_data
 
     def asymmetric_wrap(self, data, wrapping_cert,
-                        mechanism=nss.CKM_DES3_CBC_PAD):
+                        mechanism=CKM_DES3_CBC_PAD):
         """
         :param data             Data to be wrapped
         :param wrapping_cert    Public key to wrap data
@@ -335,7 +343,7 @@ class NSSCryptoProvider(CryptoProvider):
         return self.symmetric_unwrap(
             data,
             wrapping_key,
-            mechanism=nss.CKM_DES3_CBC_PAD,
+            mechanism=CKM_DES3_CBC_PAD,
             nonce_iv=nonce_iv
         )
 
