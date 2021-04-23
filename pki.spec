@@ -217,7 +217,6 @@ BuildRequires:    python3-cryptography
 BuildRequires:    python3-lxml
 BuildRequires:    python3-ldap
 BuildRequires:    python3-libselinux
-BuildRequires:    python3-nss
 BuildRequires:    python3-requests >= 2.6.0
 BuildRequires:    python3-six
 
@@ -407,9 +406,11 @@ Requires:         python3 >= 3.5
 Requires:         python3-cryptography
 Requires:         python3-ldap
 Requires:         python3-lxml
-Requires:         python3-nss
 Requires:         python3-requests >= 2.6.0
 Requires:         python3-six
+%if 0%{?rhel} < 9 || 0%{?fedora} < 34
+Recommends:       python3-nss
+%endif
 
 %description -n   python3-pki
 This package contains PKI client library for Python 3.
