@@ -303,21 +303,7 @@ public abstract class ARequestQueue {
      *            the request that is being rejected
      * @exception EBaseException failed to reject request
      */
-    public final void rejectRequest(IRequest r)
-            throws EBaseException {
-        // 1. Check for valid state
-        RequestStatus rs = r.getRequestStatus();
-
-        if (rs != RequestStatus.PENDING)
-            throw new EBaseException("Invalid Status");
-
-        // 2. Change state
-        r.setRequestStatus(RequestStatus.REJECTED);
-        updateRequest(r);
-
-        // 3. Continue processing
-        stateEngine(r); // does nothing
-    }
+    public abstract void rejectRequest(IRequest request) throws EBaseException;
 
     /**
      * Cancels a request. The request must be locked.

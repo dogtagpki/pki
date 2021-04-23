@@ -163,6 +163,20 @@ public class RequestQueue extends ARequestQueue {
         stateEngine(request);
     }
 
+    public void rejectRequest(IRequest request) throws EBaseException {
+
+        RequestStatus rs = request.getRequestStatus();
+
+        if (rs != RequestStatus.PENDING) {
+            throw new EBaseException("Invalid request status: " + rs);
+        }
+
+        request.setRequestStatus(RequestStatus.REJECTED);
+        updateRequest(request);
+
+        stateEngine(request); // does nothing
+    }
+
     public RequestId findRequestBySourceId(String id) {
         IRequestList irl = findRequestsBySourceId(id);
 
