@@ -331,15 +331,7 @@ public abstract class ARequestQueue {
      *            the request that is being canceled
      * @exception EBaseException failed to cancel request
      */
-    public final void cancelRequest(IRequest r)
-            throws EBaseException {
-        r.setRequestStatus(RequestStatus.CANCELED);
-        updateRequest(r);
-
-        stateEngine(r);
-
-        return;
-    }
+    public abstract void cancelRequest(IRequest request) throws EBaseException;
 
     /**
      * Marks as serviced after destination authority has serviced request.

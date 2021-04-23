@@ -155,6 +155,14 @@ public class RequestQueue extends ARequestQueue {
         stateEngine(request);
     }
 
+    public void cancelRequest(IRequest request) throws EBaseException {
+
+        request.setRequestStatus(RequestStatus.CANCELED);
+
+        updateRequest(request);
+        stateEngine(request);
+    }
+
     public RequestId findRequestBySourceId(String id) {
         IRequestList irl = findRequestsBySourceId(id);
 
