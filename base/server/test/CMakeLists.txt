@@ -7,7 +7,7 @@ javac(pki-server-test-classes
         *.java
     CLASSPATH
         ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSBUNDLE_JAR}
-        ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${LDAPJDK_JAR} ${SERVLET_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
         ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
         ${CMAKE_BINARY_DIR}/test/classes
@@ -24,7 +24,7 @@ add_junit_test(test-pki-server
     CLASSPATH
         ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSBUNDLE_JAR}
-        ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR}
+        ${LDAPJDK_JAR} ${SERVLET_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
