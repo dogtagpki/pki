@@ -217,6 +217,17 @@ public class RequestQueue extends ARequestQueue {
         stateEngine(request);
     }
 
+    public void markAsServiced(IRequest request) throws EBaseException {
+
+        request.setRequestStatus(RequestStatus.COMPLETE);
+
+        updateRequest(request);
+
+        if (mNotify != null) {
+            mNotify.notify(request);
+        }
+    }
+
     public RequestId findRequestBySourceId(String id) {
         IRequestList irl = findRequestsBySourceId(id);
 

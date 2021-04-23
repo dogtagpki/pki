@@ -135,6 +135,15 @@ public class LocalConnector implements IConnector {
         }
 
         public void accept(IRequest destreq) {
+            try {
+                acceptImpl(destreq);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public void acceptImpl(IRequest destreq) throws Exception {
+
             logger.debug("dest " + mDest.getId() + " done with " + destreq.getRequestId());
 
             CAEngine engine = CAEngine.getInstance();

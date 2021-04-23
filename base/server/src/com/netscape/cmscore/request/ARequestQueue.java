@@ -288,21 +288,9 @@ public abstract class ARequestQueue {
      *
      * Caller must lock request and release request.
      *
-     * @param r request
+     * @param request request
      */
-    public final void markAsServiced(IRequest r) {
-        r.setRequestStatus(RequestStatus.COMPLETE);
-        try {
-            updateRequest(r);
-        } catch (EBaseException e) {
-            throw new RuntimeException(e);
-        }
-
-        if (mNotify != null)
-            mNotify.notify(r);
-
-        return;
-    }
+    public abstract void markAsServiced(IRequest request) throws EBaseException;
 
     /**
      * Returns an enumerator that lists all RequestIds in the
