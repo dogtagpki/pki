@@ -712,23 +712,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  kraSecurityDomainLogin  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.SecurityDomainLogin  </servlet-class>
-            <init-param> <param-name>properties</param-name>
-                         <param-value>/WEB-INF/velocity.properties</param-value> </init-param>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraSecurityDomainLogin  </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.certificates </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraGetCookie  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.GetCookie  </servlet-class>
             <init-param> <param-name>properties</param-name>
@@ -1031,11 +1014,6 @@
    <servlet-mapping>
       <servlet-name>  kraUpdateDomainXML-admin </servlet-name>
       <url-pattern>   /admin/kra/updateDomainXML  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  kraSecurityDomainLogin </servlet-name>
-      <url-pattern>   /admin/kra/securityDomainLogin  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
