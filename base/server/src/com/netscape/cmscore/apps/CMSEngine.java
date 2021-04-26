@@ -165,7 +165,7 @@ public class CMSEngine implements ServletContextListener {
     public String unsecurePort;
     public String securePort;
 
-    private Map<String, StartupNotifier> startupNotifiers = new LinkedHashMap<>();
+    private Map<String, SubsystemListener> subsystemListeners = new LinkedHashMap<>();
 
     private static final int PW_OK =0;
     //private static final int PW_BAD_SETUP = 1;
@@ -265,20 +265,40 @@ public class CMSEngine implements ServletContextListener {
         debug.init(debugConfig);
     }
 
-    public void initStartupNotifiers() throws Exception {
-        IConfigStore snConfig = config.getSubStore("startupNotifiers");
-        String ids = snConfig.getString("list", null);
+    public void initSubsystemListeners() throws Exception {
+
+        logger.info("CMSEngine: Initializing subsystem listeners");
+
+        IConfigStore listenersConfig = config.getSubStore("listeners");
+
+        if (listenersConfig.size() == 0) {
+            listenersConfig = config.getSubStore("startupNotifiers");
+
+            if (listenersConfig.size() > 0) {
+                String subsystem = config.getType().toLowerCase();
+                String configPath = instanceDir + "/conf/" + subsystem + "/CS.cfg";
+                logger.warn("The 'startupNotifiers' property in " + configPath + " has been deprecated. Use 'listeners' instead.");
+            }
+        }
+
+        String ids = listenersConfig.getString("list", null);
         if (ids == null) return;
+
         for (String id : ids.split(",")) {
             id = id.trim();
             if (id.isEmpty()) continue;
-            IConfigStore instanceConfig = snConfig.getSubStore(id);
+
+            IConfigStore instanceConfig = listenersConfig.getSubStore(id);
             String className = instanceConfig.getString("class");
-            Class<? extends StartupNotifier> clazz =
-                Class.forName(className).asSubclass(StartupNotifier.class);
-            StartupNotifier sn = clazz.newInstance();
-            sn.init(instanceConfig);
-            startupNotifiers.put(id, sn);
+            logger.info("CMSEngine: Initializing subsystem listener " + id + ": " + className);
+
+            Class<? extends SubsystemListener> clazz =
+                Class.forName(className).asSubclass(SubsystemListener.class);
+
+            SubsystemListener listener = clazz.getDeclaredConstructor().newInstance();
+            listener.init(instanceConfig);
+
+            subsystemListeners.put(id, listener);
         }
     }
 
@@ -979,6 +999,18 @@ public class CMSEngine implements ServletContextListener {
         // global admin servlet. (anywhere else more fit for this ?)
     }
 
+    public void notifySubsystemStarted() {
+
+        for (String name : subsystemListeners.keySet()) {
+            SubsystemListener notifier = subsystemListeners.get(name);
+            try {
+                notifier.subsystemStarted();
+            } catch (Exception e) {
+                logger.warn("Unable to notify '" + name + "': " + e.getMessage(), e);
+            }
+        }
+    }
+
     public void start() throws Exception {
 
         logger.info("Starting " + name + " engine");
@@ -996,7 +1028,7 @@ public class CMSEngine implements ServletContextListener {
 
         initDebug();
         initPasswordStore();
-        initStartupNotifiers();
+        initSubsystemListeners();
         initSecurityProvider();
         initPluginRegistry();
         initDatabase();
@@ -1038,15 +1070,7 @@ public class CMSEngine implements ServletContextListener {
 
         logger.info(name + " engine started");
 
-        for (Map.Entry<String, StartupNotifier> kv : startupNotifiers.entrySet()) {
-            StartupNotifier.NotifyResult r = kv.getValue().notifyReady();
-            if (r.getStatus() == StartupNotifier.NotifyResultStatus.Failure) {
-                logger.warn(
-                    "Startup notification failed for notifier '" + kv.getKey() + "': "
-                    + r.getMessage()
-                );
-            }
-        }
+        notifySubsystemStarted();
     }
 
     public boolean isInRunningState() {

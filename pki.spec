@@ -125,8 +125,6 @@ ExcludeArch: i686
 %define debug_package %{nil}
 %endif
 
-%bcond_without sdnotify
-
 # ignore unpackaged files from native 'tpsclient'
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
 %define _unpackaged_files_terminate_build 0
@@ -228,10 +226,6 @@ BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.8.1
 BuildRequires:    tomcatjss >= 7.6.1
 
-# JNA is used to bind to libsystemd
-%if %{with sdnotify}
-BuildRequires:    jna
-%endif
 BuildRequires:    systemd-units
 
 %if 0%{?rhel} && ! 0%{?eln}
@@ -522,11 +516,6 @@ Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
 Requires:         tomcatjss >= 7.6.1
-
-# JNA is used to bind to libsystemd
-%if %{with sdnotify}
-Requires:         jna
-%endif
 
 # pki-healthcheck depends on the following library
 %if 0%{?rhel}
@@ -886,7 +875,6 @@ cd build
     -DWITH_TKS:BOOL=%{?with_tks:ON}%{!?with_tks:OFF} \
     -DWITH_TPS:BOOL=%{?with_tps:ON}%{!?with_tps:OFF} \
     -DWITH_ACME:BOOL=%{?with_acme:ON}%{!?with_acme:OFF} \
-    -DWITH_SYSTEMD_NOTIFICATION:BOOL=%{?with_sdnotify:ON}%{!?with_sdnotify:OFF} \
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
     -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
@@ -1225,10 +1213,6 @@ fi
 %{_mandir}/man8/pki-healthcheck.8.gz
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
-
-%if %{with sdnotify}
-%{_javadir}/pki/pki-systemd.jar
-%endif
 
 # with server
 %endif
