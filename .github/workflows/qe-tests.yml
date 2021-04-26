@@ -85,10 +85,10 @@ jobs:
 
       - name: Set up inventory
         run: |
-          sed -e "s/TOPOLOGY/topology-02/g" ci/inventory > inventory
+          sed -e "s/TOPOLOGY/topology-00/g" ci/inventory > inventory
           ansible -i inventory -m setup master
 
-      - name: Set up topology-02
+      - name: Set up topology-00
         run: |
           mkdir -p /tmp/test_dir
           ansible-playbook \
@@ -107,7 +107,8 @@ jobs:
               --ansible-module-path tests/dogtag/pytest-ansible/common-modules \
               --junit-xml pki_cert_junit.xml \
               -qsvvv \
-              tests/dogtag/pytest-ansible/pytest/sanity/test_role_users.py
+              tests/dogtag/pytest-ansible/pytest/ca/scep/test_bug_1664435_pki_ca_scep_enrollment.py
+
 
       - name: Gather artifacts
         if: always()

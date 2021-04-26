@@ -82,7 +82,7 @@
   when: ansible_distribution == "Fedora"
   tags: platform-ci
 
-- name: Check for Removed dependency from mod_revocator and mod_nss.If failes refer BZ 1295276 
+- name: Check for Removed dependency from mod_revocator and mod_nss.If failes refer BZ 1295276
   command: rpm -q {{item}}
   with_items:
     - mod_revocator
