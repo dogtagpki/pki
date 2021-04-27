@@ -48,24 +48,7 @@ Some databases might provide an ACME configuration monitor to reduce the load on
 ## Configuring ACME with In-Memory Database
 
 The ACME responder can be configured with an in-memory database.
-
-A sample in-memory database configuration is available at
-[/usr/share/pki/acme/database/in-memory/database.conf](../../../base/acme/database/in-memory/database.conf).
-
-To use an in-memory database, copy the sample database.conf into the /etc/pki/pki-tomcat/acme folder,
-or execute the following command:
-
-```
-$ pki-server acme-database-mod --type in-memory
-```
-
-The database.conf should look like the following:
-
-```
-class=org.dogtagpki.acme.database.InMemoryDatabase
-```
-
-There are no parameters to configure for in-memory database.
+See [Configuring ACME with In-Memory Database](Configuring-ACME-with-InMemory-Database.adoc).
 
 ## Configuring ACME with DS Database
 
@@ -75,91 +58,12 @@ See [Configuring ACME with DS Database](Configuring-ACME-with-DS-Database.adoc).
 ## Configuring ACME with OpenLDAP Database
 
 The ACME responder can be configured with an OpenLDAP database.
+See [Configuring ACME with OpenLDAP Database](Configuring-ACME-with-OpenLDAP-Database.adoc).
 
-First, add the ACME OpenLDAP schema by importing [/usr/share/pki/acme/database/openldap/schema.ldif](../../../base/acme/database/openldap/schema.ldif) with the following command:
-
-```
-$ ldapadd -H ldapi:/// -Y EXTERNAL \
-    -f /usr/share/pki/acme/database/openldap/schema.ldif
-```
-
-Next, prepare an LDIF file to create the ACME subtree.
-A sample LDIF file is available at [/usr/share/pki/acme/database/openldap/create.ldif](../../../base/acme/database/openldap/create.ldif).
-This example uses dc=acme,dc=pki,dc=example,dc=com as the base DN.
-Import the file with the following command:
-
-```
-$ ldapadd -h $HOSTNAME -x -D "cn=Manager,dc=example,dc=com" -w Secret.123 \
-    -f /usr/share/pki/acme/database/openldap/create.ldif
-```
-
-A sample OpenLDAP database configuration is available at
-[/usr/share/pki/acme/database/openldap/database.conf](../../../base/acme/database/openldap/database.conf).
-
-To use the OpenLDAP database, copy the sample database.conf into the /etc/pki/pki-tomcat/acme folder,
-or execute the following command to customize some of the parameters:
-
-```
-$ pki-server acme-database-mod --type openldap \
-    -DbindPassword=Secret.123
-```
-
-Customize the configuration as needed. The database.conf should look like the following:
-
-```
-class=org.dogtagpki.acme.database.OpenLDAPDatabase
-url=ldap://<hostname>:389
-authType=BasicAuth
-bindDN=cn=Manager,dc=example,dc=com
-bindPassword=Secret.123
-baseDN=dc=acme,dc=pki,dc=example,dc=com
-```
-
-## Configuring ACME with PosgreSQL Database
+## Configuring ACME with PostgreSQL Database
 
 The ACME responder can be configured with a PostgreSQL database.
-
-First, prepare a database (e.g. acme) and a user (e.g. acme) to access the database.
-Verify the database connection with the following command:
-
-```
-$ psql -h $HOSTNAME -d acme -U acme
-```
-
-Next, install PostgreSQL JDBC driver in `/usr/share/pki/server/common/lib`, for example:
-
-```
-$ dnf install postgresql-jdbc
-$ ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib
-```
-
-A sample PostgreSQL database configuration is available at
-[/usr/share/pki/acme/database/postgresql/database.conf](../../../base/acme/database/postgresql/database.conf).
-
-To use the PostgreSQL database, copy the sample database.conf into the /etc/pki/pki-tomcat/acme folder,
-or execute the following command to customize some of the parameters:
-
-```
-$ pki-server acme-database-mod --type postgresql \
-    -Dpassword=Secret.123
-```
-
-The database.conf should look like the following:
-
-```
-class=org.dogtagpki.acme.database.PostgreSQLDatabase
-url=jdbc:postgresql://<hostname>:5432/acme
-user=acme
-password=Secret.123
-```
-
-The PostgreSQL database provides a mechanism to monitor ACME configuration periodically.
-It can be enabled with the following parameters:
-
-```
-monitor.enabled=true
-monitor.interval=5  # minutes
-```
+See [Configuring ACME with PostgreSQL Database](Configuring-ACME-with-PostgreSQL-Database.adoc).
 
 ## See Also
 
