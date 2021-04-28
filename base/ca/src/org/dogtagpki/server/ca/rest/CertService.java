@@ -44,6 +44,7 @@ import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CRLExtensions;
 import netscape.security.x509.CRLReasonExtension;
 import netscape.security.x509.RevocationReason;
+import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509ExtensionException;
 import netscape.security.x509.X509Key;
@@ -172,6 +173,8 @@ public class CertService extends PKIService implements CertResource {
             return unrevokeCert(id);
         }
 
+        String caIssuerDN = null;
+        X500Name caX500DN = null;
         RevocationProcessor processor;
         try {
             processor = new RevocationProcessor("caDoRevoke-agent", getLocale(headers));
@@ -189,6 +192,8 @@ public class CertService extends PKIService implements CertResource {
             processor.setComments(request.getComments());
 
             processor.setAuthority(authority);
+
+            caX500DN = (X500Name) authority.getCACert().getIssuerDN();
 
         } catch (EBaseException e) {
             throw new PKIException(e.getMessage());
@@ -209,12 +214,35 @@ public class CertService extends PKIService implements CertResource {
             if (clientCert != null) {
                 clientSerialNumber = clientCert.getSerialNumber();
                 clientSubjectDN = clientCert.getSubjectDN().toString();
-                clientRecord = processor.getCertificateRecord(clientSerialNumber);
 
-                // Verify client cert is not revoked.
-                // TODO: This should be checked during authentication.
-                if (clientRecord.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
-                    throw new UnauthorizedException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
+                X500Name x500issuerDN = (X500Name) clientCert.getIssuerDN();
+                /*
+                 * internal revocation check only to be conducted for certs
+                 * issued by this CA
+                 * For client certs issued by external CAs, TLS mutual auth
+                 * would have completed the authenticaton/verification if
+                 * OCSP was enabled;
+                 * Furthermore, prior to the actual revocation, client cert
+                 * is mapped against the agent group database for proper
+                 * privilege regardless of the issuer.
+                 */
+                if (x500issuerDN.equals(caX500DN)) {
+                    CMS.debug("CertService.revokeCert: client cert issued by this CA");
+                    clientRecord = processor.getCertificateRecord(clientSerialNumber);
+
+                    // Verify client cert is not revoked.
+                    // TODO: This should be checked during authentication.
+                    if (clientRecord.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
+                        throw new UnauthorizedException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
+                    }
+                } else {
+                    CMS.debug("CertService.revokeCert: client cert not issued by this CA");
+                    if (!authority.allowExtCASignedAgentCerts()) {
+                        CMS.debug("CertService.revokeCert: allowExtCASignedAgentCerts false;");
+                        throw new UnauthorizedException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
+                    } else {
+                        CMS.debug("CertService.revokeCert: allowExtCASignedAgentCerts true;");
+                    }
                 }
             }
 

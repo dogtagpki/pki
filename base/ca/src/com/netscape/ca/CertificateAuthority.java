@@ -333,6 +333,7 @@ public class CertificateAuthority
 
     private boolean mByName = true;
 
+    private boolean mAllowExtCASignedAgentCerts = false;
     private boolean mUseNonces = true;
     private int mMaxNonces = 100;
 
@@ -452,6 +453,10 @@ public class CertificateAuthority
 
     public IPolicyProcessor getPolicyProcessor() {
         return mPolicy.getPolicyProcessor();
+    }
+
+    public boolean allowExtCASignedAgentCerts() {
+        return mAllowExtCASignedAgentCerts;
     }
 
     public boolean noncesEnabled() {
@@ -574,6 +579,7 @@ public class CertificateAuthority
             if (initSigUnitSucceeded)
                 checkForNewerCert();
 
+            mAllowExtCASignedAgentCerts = mConfig.getBoolean("allowExtCASignedAgentCerts", false);
             mUseNonces = mConfig.getBoolean("enableNonces", true);
             mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
 
