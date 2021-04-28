@@ -37,10 +37,10 @@ def test_pki_bug_1912493_pkispawn_reports_incorrect_fips_mode(ansible_module):
     :Steps:
         1. Install PKI rpm packages
         2. pkispawn CA with --debug param
-        3. Assert the 'INFO: FIPS Mode: False'
+        3. Assert the 'redhat.fips=false'
     :ExpectedResults:
-        1. FIPS disabled machine should generate 'INFO: FIPS Mode: False' in spawn log
-        2. FIPS enabled machine should report the 'INFO: FIPS Mode: True'
+        1. FIPS disabled machine should generate 'redhat.fips=false' in spawn log
+        2. FIPS enabled machine should report the 'redhat.fips=false'
     :Automated: Yes
     :CaseComponent: \-
     """
@@ -60,7 +60,7 @@ def test_pki_bug_1912493_pkispawn_reports_incorrect_fips_mode(ansible_module):
     cmd_out = ansible_module.command('pkispawn -s CA -f /tmp/test_dir/ca.cfg --debug')
     for result in cmd_out.values():
         if result['rc'] == 0:
-            assert 'INFO: FIPS mode: False' in result['stderr']
+            assert 'redhat.fips=false' in result['stderr']
             log.info('Successfully found the correct FIPS mode')
         else:
             log.error('Failed to install CA')
