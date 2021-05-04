@@ -9,7 +9,7 @@ javac(pki-kra-classes
     DEPENDS
         symkey-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
     SOURCES
-        *.java
+        src/main/java/*.java
     CLASSPATH
         ${SLF4J_API_JAR}
         ${COMMONS_CLI_JAR}

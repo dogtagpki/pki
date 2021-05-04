@@ -6,6 +6,8 @@ add_subdirectory(${APP_SERVER})
 
 # build pki-ca
 javac(pki-ca-classes
+    DEPENDS
+        symkey-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -24,8 +26,6 @@ javac(pki-ca-classes
         ${TOMCATJSS_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_TOMCAT_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
-    DEPENDS
-        symkey-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
@@ -36,6 +36,8 @@ configure_file(
 )
 
 jar(pki-ca-jar
+    DEPENDS
+        pki-ca-classes
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-ca.jar
     OPTIONS
@@ -44,8 +46,6 @@ jar(pki-ca-jar
         ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    DEPENDS
-        pki-ca-classes
 )
 
 # Create links at /usr/share/pki/ca/webapps/ca/admin/console.
