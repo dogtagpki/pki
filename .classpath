@@ -14,8 +14,8 @@
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/test"/>
 	<classpathentry kind="src" path="base/ca/src/main/java"/>
 	<classpathentry kind="src" path="base/ca/src/test/java"/>
-	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/kra/src"/>
-	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/kra/functional/src"/>
+	<classpathentry kind="src" path="base/kra/src/main/java"/>
+	<classpathentry kind="src" path="base/kra/src/test/java"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/ocsp/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/tks/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/tps/src"/>

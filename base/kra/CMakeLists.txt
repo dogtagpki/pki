@@ -1,9 +1,46 @@
 project(kra NONE)
 
-add_subdirectory(src)
 add_subdirectory(setup)
 add_subdirectory(shared/conf)
 add_subdirectory(${APP_SERVER})
+
+# build pki-kra
+javac(pki-kra-classes
+    DEPENDS
+        symkey-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
+    SOURCES
+        *.java
+    CLASSPATH
+        ${SLF4J_API_JAR}
+        ${COMMONS_CLI_JAR}
+        ${COMMONS_CODEC_JAR}
+        ${COMMONS_LANG3_JAR}
+        ${JSS_JAR} ${SYMKEY_JAR}
+        ${LDAPJDK_JAR}
+        ${SERVLET_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${TOMCAT_CATALINA_JAR}
+    OUTPUT_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
+)
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
+    ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
+)
+
+jar(pki-kra-jar
+    DEPENDS
+        pki-kra-classes
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-kra.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
+    INPUT_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
+)
 
 # Create links at /usr/share/pki/kra/webapps/kra/admin/console.
 # Create links in /usr/share/pki/kra/webapps/kra/WEB-INF/lib.
@@ -24,6 +61,15 @@ add_custom_command(
     COMMAND ln -sf /usr/share/java/pki/pki-cmsbundle.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmsbundle.jar
     COMMAND ln -sf /usr/share/java/pki/pki-kra.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-kra.jar
 )
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-kra.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
+
+set(PKI_KRA_JAR ${CMAKE_BINARY_DIR}/dist/pki-kra.jar CACHE INTERNAL "pki-kra jar file")
 
 # install directories
 install(
