@@ -54,13 +54,15 @@ jobs:
       matrix:
         os: ['32', '33']
     steps:
+      - name: Clone the repository
+        uses: actions/checkout@v2
+
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install ansible python3-pip python3-pytest python3-docutils
-
-      - name: Clone the repository
-        uses: actions/checkout@v2
+          sudo apt-get install python3-pip python3-pytest python3-docutils
+          pip3 install -r tests/dogtag/pytest-ansible/requirements.txt
+          pip3 install -e tests/dogtag/pytest-ansible
 
       - name: Download runner image
         uses: actions/download-artifact@v2
@@ -79,7 +81,7 @@ jobs:
           ci/runner-init.sh
 
       - name: Install dependencies in master container
-        run: docker exec pki1 dnf install -y 389-ds-base
+        run: docker exec pki1 dnf install -y 389-ds-base python3-pip
 
       - name: Set up inventory
         run: |
@@ -99,8 +101,6 @@ jobs:
 
       - name: Run sanity test
         run: |
-          pip3 install -r tests/dogtag/pytest-ansible/requirements.txt
-          pip3 install -e tests/dogtag/pytest-ansible
           pytest-3 \
               --ansible-host-pattern master \
               --ansible-inventory inventory \
