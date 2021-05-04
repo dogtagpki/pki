@@ -1,9 +1,46 @@
 project(tks NONE)
 
-add_subdirectory(src)
 add_subdirectory(setup)
 add_subdirectory(shared/conf)
 add_subdirectory(${APP_SERVER})
+
+# build pki-tks
+javac(pki-tks-classes
+    DEPENDS
+        symkey-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
+    SOURCES
+        src/main/java/*.java
+    CLASSPATH
+        ${SLF4J_API_JAR}
+        ${COMMONS_CLI_JAR}
+        ${COMMONS_CODEC_JAR}
+        ${COMMONS_LANG3_JAR}
+        ${LDAPJDK_JAR}
+        ${JSS_JAR} ${SYMKEY_JAR}
+        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
+    OUTPUT_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
+)
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
+    ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
+)
+
+jar(pki-tks-jar
+    DEPENDS
+        pki-tks-classes
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-tks.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
+    INPUT_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
+)
 
 # Create links at /usr/share/pki/tks/webapps/tks/admin/console.
 # Create /usr/share/pki/tks/webapps/tks/WEB-INF/lib.
@@ -24,6 +61,15 @@ add_custom_command(
     COMMAND ln -sf /usr/share/java/pki/pki-cmsbundle.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmsbundle.jar
     COMMAND ln -sf /usr/share/java/pki/pki-tks.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-tks.jar
 )
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-tks.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
+
+set(PKI_TKS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tks.jar CACHE INTERNAL "pki-tks jar file")
 
 # install directories
 install(
