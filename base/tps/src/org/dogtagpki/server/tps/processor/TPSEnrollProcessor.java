@@ -95,7 +95,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String logMsg = null;
         String auditInfo = null;
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
-        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
+        TPSTokenPolicy tokenPolicy = null; 
         IConfigStore configStore = CMS.getConfigStore();
         String configName;
 
@@ -128,12 +128,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
         tokenRecord = isTokenRecordPresent(appletInfo);
 
         if (tokenRecord != null) {
-            CMS.debug(method + " found token...");
+            CMS.debug(method + " found token... policy: " + tokenRecord.getPolicy());
             isTokenPresent = true;
         } else {
             CMS.debug(method + " token does not exist in tokendb... create one in memory");
             tokenRecord = new TokenRecord();
             tokenRecord.setId(appletInfo.getCUIDhexStringPlain());
+            fillTokenRecordDefaultPolicy(tokenRecord);
         }
 
         fillTokenRecord(tokenRecord, appletInfo);
@@ -332,13 +333,14 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         " to " + newState);
             }
 
-            do_force_format = tokenPolicy.isForceTokenFormat(cuid);
+            tokenPolicy = new TPSTokenPolicy(tps,cuid);
+            do_force_format = tokenPolicy.isForceTokenFormat();
             if (do_force_format)
                 CMS.debug(method + " Will force format first due to policy.");
 
             if (!isExternalReg &&
-                    !tokenPolicy.isAllowdTokenReenroll(cuid) &&
-                    !tokenPolicy.isAllowdTokenRenew(cuid)) {
+                    !tokenPolicy.isAllowdTokenReenroll() &&
+                    !tokenPolicy.isAllowdTokenRenew()) {
                 CMS.debug(method + " token renewal or reEnroll disallowed ");
                 logMsg = "Operation renewal or reEnroll for CUID " + cuid +
                         " Disabled";
@@ -524,7 +526,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         // at this point, enrollment, renewal, or recovery have been processed accordingly;
         if (!isExternalReg &&
                 status == TPSStatus.STATUS_RENEWAL_IS_PROCESSED &&
-                tokenPolicy.isAllowdTokenRenew(cuid)) {
+                tokenPolicy.isAllowdTokenRenew()) {
             renewed = true;
             CMS.debug(method + " renewal happened.. ");
         }
@@ -1110,7 +1112,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         IConfigStore configStore = CMS.getConfigStore();
         String configName;
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
-        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
+        TPSTokenPolicy tokenPolicy = null;
 
         ArrayList<TokenRecord> tokenRecords = null;
         try {
@@ -1157,7 +1159,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 } else if (tokenRecord.getTokenStatus() == TokenStatus.ACTIVE) {
                     // current token is already active; renew if allowed
-                    if (tokenPolicy.isAllowdTokenRenew(aInfo.getCUIDhexStringPlain())) {
+                    tokenPolicy = new TPSTokenPolicy(tps,aInfo.getCUIDhexStringPlain());
+                    if (tokenPolicy.isAllowdTokenRenew()) {
                         return processRenewal(certsInfo, channel, aInfo, tokenRecord);
                     } else {
                         logMsg = "token is already active; can't renew because renewal is not allowed; will re-enroll if allowed";
@@ -1658,9 +1661,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         //See if policy calls for this feature
 
-        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
+        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps,tokenRecord.getId());
 
-        boolean recoverOldEncCerts = tokenPolicy.isAllowdRenewSaveOldEncCerts(tokenRecord.getId());
+        boolean recoverOldEncCerts = tokenPolicy.isAllowdRenewSaveOldEncCerts();
         CMS.debug(method + " Recover Old Encryption Certs for Renewed Certs: " + recoverOldEncCerts);
         if (oldEncCertsToRecover.size() > 0 && recoverOldEncCerts == true) {
             CMS.debug("About to attempt to recover old encryption certs just renewed.");
