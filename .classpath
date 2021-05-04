@@ -20,7 +20,7 @@
 	<classpathentry kind="src" path="base/tks/src/main/java"/>
 	<classpathentry kind="src" path="base/tps/src/main/java"/>
 	<classpathentry kind="src" path="base/acme/src/main/java"/>
-	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/console/src"/>
+	<classpathentry kind="src" path="base/console/src/main/java"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="tests/dogtag/dev_java_tests/src"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-cli.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-logging.jar"/>
