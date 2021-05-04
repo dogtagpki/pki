@@ -1,9 +1,52 @@
 project(ca NONE)
 
-add_subdirectory(src)
 add_subdirectory(setup)
 add_subdirectory(shared/conf)
 add_subdirectory(${APP_SERVER})
+
+# build pki-ca
+javac(pki-ca-classes
+    SOURCES
+        src/main/java/*.java
+    CLASSPATH
+        ${SLF4J_API_JAR}
+        ${COMMONS_CLI_JAR}
+        ${COMMONS_CODEC_JAR}
+        ${COMMONS_IO_JAR}
+        ${COMMONS_LANG3_JAR}
+        ${COMMONS_NET_JAR}
+        ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
+        ${JACKSON2_ANNOTATIONS_JAR}
+        ${JSS_JAR} ${SYMKEY_JAR}
+        ${LDAPJDK_JAR}
+        ${SERVLET_JAR}
+        ${TOMCAT_CATALINA_JAR}
+        ${TOMCATJSS_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_TOMCAT_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
+    DEPENDS
+        symkey-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
+    OUTPUT_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
+)
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
+    ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
+)
+
+jar(pki-ca-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-ca.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
+    INPUT_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-ca-classes
+)
 
 # Create links at /usr/share/pki/ca/webapps/ca/admin/console.
 # Create links in /usr/share/pki/ca/webapps/ca/WEB-INF/lib.
@@ -31,6 +74,15 @@ add_custom_target(pki-ca-links-systemd-jar ALL
     COMMAND ln -sf /usr/share/java/pki/pki-systemd.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-systemd.jar
 )
 endif(WITH_SYSTEMD_NOTIFICATION)
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-ca.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
+
+set(PKI_CA_JAR ${CMAKE_BINARY_DIR}/dist/pki-ca.jar CACHE INTERNAL "pki-ca jar file")
 
 # install directories
 install(
@@ -68,4 +120,3 @@ install(
     DESTINATION
         ${VAR_INSTALL_DIR}/run/pki/ca
 )
-
