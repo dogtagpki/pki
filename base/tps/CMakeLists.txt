@@ -1,11 +1,47 @@
 project(tps Java)
 
-add_subdirectory(src)
-
 # install files
 add_subdirectory(setup)
 add_subdirectory(shared/conf)
 add_subdirectory(${APP_SERVER})
+
+# build pki-tps
+javac(pki-tps-classes
+    DEPENDS
+        symkey-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
+    SOURCES
+        src/main/java/*.java
+    CLASSPATH
+        ${SLF4J_API_JAR}
+        ${COMMONS_CLI_JAR}
+        ${COMMONS_CODEC_JAR}
+        ${COMMONS_LANG3_JAR}
+        ${LDAPJDK_JAR}
+        ${JSS_JAR} ${SYMKEY_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
+    OUTPUT_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
+)
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
+    ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
+)
+
+jar(pki-tps-jar
+    DEPENDS
+        pki-tps-classes
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-tps.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
+    INPUT_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
+)
 
 # TPS does not support admin console.
 # Create links in /usr/share/pki/tps/webapps/tps/WEB-INF/lib.
@@ -34,6 +70,15 @@ add_custom_command(
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-tps-connector.5.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man5/pki-tps-connector.5
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-tps-profile.5.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man5/pki-tps-profile.5
 )
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-tps.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
+
+set(PKI_TPS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tps.jar CACHE INTERNAL "pki-tps jar file")
 
 # install directories
 install(

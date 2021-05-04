@@ -31,6 +31,8 @@ configure_file(
 )
 
 jar(pki-ocsp-jar
+    DEPENDS
+        pki-ocsp-classes
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-ocsp.jar
     OPTIONS
@@ -39,8 +41,6 @@ jar(pki-ocsp-jar
         ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    DEPENDS
-        pki-ocsp-classes
 )
 
 # Create links at /usr/share/pki/ocsp/webapps/ocsp/admin/console.
