@@ -1,10 +1,10 @@
-project(pki-tomcat-8.5)
+project(pki-tomcat-9.0)
 
 # build pki-tomcat
 javac(pki-tomcat-classes
     SOURCES
-        ../../tomcat/src/*.java
-        *.java
+        ../tomcat/src/main/java/*.java
+        src/main/java/*.java
     CLASSPATH
         ${SERVLET_JAR}
         ${JAXRS_API_JAR}
@@ -15,15 +15,17 @@ javac(pki-tomcat-classes
         ${JSS_JAR} ${TOMCATJSS_JAR}
         ${PKI_CMSUTIL_JAR}
     OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/../../tomcat
+        ${CMAKE_BINARY_DIR}/../tomcat
     DEPENDS
         pki-cmsutil-jar pki-tools-jar
 )
 
 configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/pki-tomcat.mf
-    ${CMAKE_CURRENT_BINARY_DIR}/pki-tomcat.mf
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
+    ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
 )
+
+set(PKI_TOMCAT_JAR ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar CACHE INTERNAL "pki-tomcat jar file")
 
 jar(pki-tomcat-jar
     CREATE
@@ -31,9 +33,9 @@ jar(pki-tomcat-jar
     OPTIONS
         m
     PARAMS
-        ${CMAKE_CURRENT_BINARY_DIR}/pki-tomcat.mf
+        ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
     INPUT_DIR
-        ${CMAKE_BINARY_DIR}/../../tomcat
+        ${CMAKE_BINARY_DIR}/../tomcat
     DEPENDS
         pki-tomcat-classes
 )
@@ -45,4 +47,9 @@ install(
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
 
-set(PKI_TOMCAT_JAR ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar CACHE INTERNAL "pki-tomcat jar file")
+install(
+    DIRECTORY
+        conf/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/server/conf/
+)

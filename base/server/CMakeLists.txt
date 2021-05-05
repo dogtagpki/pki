@@ -1,7 +1,5 @@
 project(server)
 
-add_subdirectory(${APP_SERVER})
-add_subdirectory(tomcat)
 add_subdirectory(cmsbundle)
 add_subdirectory(healthcheck)
 

@@ -394,6 +394,7 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
 
     if(WITH_SERVER)
 
+        add_subdirectory(${APP_SERVER})
         add_subdirectory(server)
 
         list(APPEND PKI_JAVADOC_SOURCEPATH

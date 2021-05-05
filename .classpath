@@ -8,8 +8,8 @@
 	<classpathentry kind="src" path="base/common/src/test/java"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/common/examples/java"/>
 	<classpathentry kind="src" path="base/tools/src/main/java"/>
-	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/tomcat/src"/>
-	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/tomcat-9.0/src"/>
+	<classpathentry kind="src" path="base/tomcat/src/main/java"/>
+	<classpathentry kind="src" path="base/tomcat-9.0/src/main/java"/>
 	<classpathentry kind="src" path="base/server/src/main/java"/>
 	<classpathentry kind="src" path="base/server/src/test/java"/>
 	<classpathentry kind="src" path="base/ca/src/main/java"/>
