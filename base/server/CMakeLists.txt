@@ -1,26 +1,5 @@
 project(server)
 
-set(PKI_SUBSYSTEMS
-    ca
-    kra
-    ocsp
-    ra
-    tks
-    tps
-)
-
-set(TOMCAT_SUBSYSTEMS
-    ca
-    kra
-    ocsp
-    tks
-)
-
-set(APACHE_SUBSYSTEMS
-    ra
-    tps
-)
-
 add_subdirectory(${APP_SERVER})
 add_subdirectory(tomcat)
 add_subdirectory(cmsbundle)
