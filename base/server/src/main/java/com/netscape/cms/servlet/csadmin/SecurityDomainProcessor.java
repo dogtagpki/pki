@@ -214,7 +214,6 @@ public class SecurityDomainProcessor extends Processor {
 
                     LDAPAttributeSet entryAttrs = entry.getAttributeSet();
 
-                    @SuppressWarnings("unchecked")
                     Enumeration<LDAPAttribute> attrsInSet = entryAttrs.getAttributes();
                     while (attrsInSet.hasMoreElements()) {
                         LDAPAttribute nextAttr = attrsInSet.nextElement();

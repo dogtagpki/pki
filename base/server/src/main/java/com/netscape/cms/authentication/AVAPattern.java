@@ -24,9 +24,6 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPDN;
-import netscape.ldap.LDAPEntry;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.x509.AVA;
 import org.mozilla.jss.netscape.security.x509.LdapV3DNStrConverter;
@@ -34,6 +31,10 @@ import org.mozilla.jss.netscape.security.x509.LdapV3DNStrConverter;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.ECompSyntaxErr;
 import com.netscape.cmscore.apps.CMS;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
 
 /**
  * class for parsing a DN pattern used to construct a certificate
@@ -451,7 +452,6 @@ class AVAPattern {
             if (ldapAttr == null)
                 return null;
             String value = null;
-            @SuppressWarnings("unchecked")
             Enumeration<String> ldapValues = ldapAttr.getStringValues();
 
             for (int i = 0; ldapValues.hasMoreElements(); i++) {

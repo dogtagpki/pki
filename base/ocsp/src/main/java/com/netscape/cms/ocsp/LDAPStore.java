@@ -150,7 +150,6 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             }
             LDAPEntry entry = results.next();
             LDAPAttribute crls = entry.getAttribute(mCACertAttr);
-            @SuppressWarnings("unchecked")
             Enumeration<byte[]> vals = crls.getByteValues();
 
             if (!vals.hasMoreElements()) {
@@ -182,7 +181,6 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             }
             LDAPEntry entry = results.next();
             LDAPAttribute crls = entry.getAttribute(mCRLAttr);
-            @SuppressWarnings("unchecked")
             Enumeration<byte[]> vals = crls.getByteValues();
 
             if (!vals.hasMoreElements()) {

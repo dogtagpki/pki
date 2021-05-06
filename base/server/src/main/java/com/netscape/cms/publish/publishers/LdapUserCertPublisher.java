@@ -307,7 +307,6 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         if (attr == null) {
             return false;
         }
-        @SuppressWarnings("unchecked")
         Enumeration<byte[]> vals = attr.getByteValues();
         byte[] val = null;
 
@@ -329,7 +328,6 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         if (attr == null) {
             return false;
         }
-        @SuppressWarnings("unchecked")
         Enumeration<String> vals = attr.getStringValues();
         String val = null;
 

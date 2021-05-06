@@ -154,7 +154,6 @@ public class KeyCertUtil {
             throws TokenException {
         StringBuffer tokenList = new StringBuffer();
 
-        @SuppressWarnings("unchecked")
         Enumeration<CryptoToken> tokens = manager.getExternalTokens();
         int num = 0;
 

@@ -422,7 +422,6 @@ public class UGSubsystem {
 
         if (certAttr != null) {
             Vector<X509Certificate> certVector = new Vector<X509Certificate>();
-            @SuppressWarnings("unchecked")
             Enumeration<byte[]> e = certAttr.getByteValues();
 
             try {
@@ -490,7 +489,6 @@ public class UGSubsystem {
         LDAPAttribute mailAttr = entry.getAttribute("mail");
 
         if (mailAttr != null) {
-            @SuppressWarnings("unchecked")
             Enumeration<String> en = mailAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
@@ -517,7 +515,6 @@ public class UGSubsystem {
         LDAPAttribute phoneAttr = entry.getAttribute("telephonenumber");
 
         if (phoneAttr != null) {
-            @SuppressWarnings("unchecked")
             Enumeration<String> en = phoneAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
@@ -537,7 +534,6 @@ public class UGSubsystem {
         if (userTypeAttr == null)
             id.setUserType("");
         else {
-            @SuppressWarnings("unchecked")
             Enumeration<String> en = userTypeAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
@@ -556,7 +552,6 @@ public class UGSubsystem {
         if (userStateAttr == null)
             id.setState("");
         else {
-            @SuppressWarnings("unchecked")
             Enumeration<String> en = userStateAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
@@ -575,7 +570,6 @@ public class UGSubsystem {
 
         if (certAttr != null) {
             Vector<X509Certificate> certVector = new Vector<X509Certificate>();
-            @SuppressWarnings("unchecked")
             Enumeration<byte[]> e = certAttr.getByteValues();
 
             try {
@@ -603,7 +597,6 @@ public class UGSubsystem {
 
         LDAPAttribute profileAttr = entry.getAttribute(LDAP_ATTR_PROFILE_ID);
         if (profileAttr != null) {
-            @SuppressWarnings("unchecked")
             Enumeration<String> profiles = profileAttr.getStringValues();
             id.setTpsProfiles(Collections.list(profiles));
         }
@@ -1385,7 +1378,6 @@ public class UGSubsystem {
         LDAPAttribute grpDesc = entry.getAttribute("description");
 
         if (grpDesc != null) {
-            @SuppressWarnings("unchecked")
             Enumeration<String> en = grpDesc.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
@@ -1415,7 +1407,6 @@ public class UGSubsystem {
             return grp;
         }
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = attr.getStringValues();
 
         while (e.hasMoreElements()) {
@@ -1505,7 +1496,6 @@ public class UGSubsystem {
             if (attr == null) {
                 return false;
             }
-            @SuppressWarnings("unchecked")
             Enumeration<String> en = attr.getStringValues();
 
             for (; en.hasMoreElements();) {

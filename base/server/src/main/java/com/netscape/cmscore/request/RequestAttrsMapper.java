@@ -217,7 +217,6 @@ public class RequestAttrsMapper extends DBAttrMapper {
             attr = attrs.getAttribute(Schema.LDAP_ATTR_REQUEST_ATTRS);
 
             if (attr != null) {
-                @SuppressWarnings("unchecked")
                 Enumeration<byte[]> values = attr.getByteValues();
 
                 value = values.nextElement();

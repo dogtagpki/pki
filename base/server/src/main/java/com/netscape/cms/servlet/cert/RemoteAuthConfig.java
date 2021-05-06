@@ -30,10 +30,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.base.EBaseException;
@@ -306,7 +306,6 @@ public class RemoteAuthConfig extends CMSServlet {
                 LDAPAttribute attr = entry.getAttribute(MEMBER_OF);
 
                 if (attr != null) {
-                    @SuppressWarnings("unchecked")
                     Enumeration<String> eVals = attr.getStringValues();
 
                     while (eVals.hasMoreElements()) {
@@ -319,7 +318,6 @@ public class RemoteAuthConfig extends CMSServlet {
                                 LDAPAttribute gAttr = groupEntry.getAttribute(UNIQUE_MEMBER);
 
                                 if (gAttr != null) {
-                                    @SuppressWarnings("unchecked")
                                     Enumeration<String> eValues = gAttr.getStringValues();
 
                                     while (eValues.hasMoreElements()) {
@@ -415,7 +413,6 @@ public class RemoteAuthConfig extends CMSServlet {
 
                     if (attr != null) {
                         memberOf = true;
-                        @SuppressWarnings("unchecked")
                         Enumeration<String> eVals = attr.getStringValues();
 
                         while (eVals.hasMoreElements()) {
@@ -428,7 +425,6 @@ public class RemoteAuthConfig extends CMSServlet {
                                     LDAPAttribute gAttr = groupEntry.getAttribute(UNIQUE_MEMBER);
 
                                     if (gAttr != null) {
-                                        @SuppressWarnings("unchecked")
                                         Enumeration<String> eValues = gAttr.getStringValues();
 
                                         while (eValues.hasMoreElements()) {

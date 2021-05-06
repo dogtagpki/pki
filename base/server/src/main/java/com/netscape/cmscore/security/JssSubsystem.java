@@ -557,7 +557,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public String getTokenList() throws EBaseException {
         StringBuffer tokenList = new StringBuffer();
 
-        @SuppressWarnings("unchecked")
         Enumeration<CryptoToken> tokens = mCryptoManager.getExternalTokens();
         int num = 0;
 
@@ -636,7 +635,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
         StringBuffer certNames = new StringBuffer();
 
         try {
-            @SuppressWarnings("unchecked")
             Enumeration<CryptoToken> enums = mCryptoManager.getAllTokens();
 
             while (enums.hasMoreElements()) {
@@ -1149,7 +1147,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public NameValuePairs getRootCerts() throws EBaseException {
         NameValuePairs nvps = new NameValuePairs();
         try {
-            @SuppressWarnings("unchecked")
             Enumeration<CryptoToken> enums = mCryptoManager.getAllTokens();
             if (mNicknameMapCertsTable != null) {
                 mNicknameMapCertsTable.clear();
@@ -1230,7 +1227,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public NameValuePairs getUserCerts() throws EBaseException {
         NameValuePairs nvps = new NameValuePairs();
         try {
-            @SuppressWarnings("unchecked")
             Enumeration<CryptoToken> enums = mCryptoManager.getAllTokens();
 
             while (enums.hasMoreElements()) {
@@ -1301,7 +1297,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
 
         try {
-            @SuppressWarnings("unchecked")
             Enumeration<CryptoToken> enums = mCryptoManager.getAllTokens();
 
             while (enums.hasMoreElements()) {

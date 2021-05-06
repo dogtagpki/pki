@@ -212,7 +212,6 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                     return;
                 }
 
-                @SuppressWarnings("unchecked")
                 Enumeration<byte[]> en = caCerts.getByteValues();
 
                 if ((en == null) || (en.hasMoreElements() == false)) {
@@ -346,7 +345,6 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         if (attr == null) {
             return false;
         }
-        @SuppressWarnings("unchecked")
         Enumeration<byte[]> vals = attr.getByteValues();
         byte[] val = null;
 
@@ -433,7 +431,6 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                     return;
                 }
 
-                @SuppressWarnings("unchecked")
                 Enumeration<byte[]> en = xcerts.getByteValues();
 
                 if ((en == null) || (en.hasMoreElements() == false)) {

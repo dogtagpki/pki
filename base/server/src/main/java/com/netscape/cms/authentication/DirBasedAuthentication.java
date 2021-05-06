@@ -26,9 +26,9 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.AuthManager;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -691,7 +691,6 @@ public abstract class DirBasedAuthentication
             return;
 
         Vector<String> v = new Vector<String>();
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = values.getStringValues();
 
         while (e.hasMoreElements()) {
@@ -713,7 +712,6 @@ public abstract class DirBasedAuthentication
             return;
 
         Vector<byte[]> v = new Vector<byte[]>();
-        @SuppressWarnings("unchecked")
         Enumeration<byte[]> e = values.getByteValues();
 
         while (e.hasMoreElements()) {

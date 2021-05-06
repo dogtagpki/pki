@@ -92,7 +92,6 @@ public class DateArrayMapper extends DBAttrMapper {
 
         if (attr == null)
             return;
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = attr.getStringValues();
         Vector<Date> v = new Vector<Date>();
 
