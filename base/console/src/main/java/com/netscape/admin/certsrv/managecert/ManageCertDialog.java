@@ -210,7 +210,7 @@ public class ManageCertDialog extends JDialog implements ActionListener,
         CMSAdminUtil.resetGBC(gbc);
         mDataModel = new ManageCertModel();
         mTable = new JTable(mDataModel);
-        JScrollPane scrollPane = JTable.createScrollPaneForTable(mTable);
+        JScrollPane scrollPane = new JScrollPane(mTable);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setPreferredScrollableViewportSize(new Dimension(200, 350));

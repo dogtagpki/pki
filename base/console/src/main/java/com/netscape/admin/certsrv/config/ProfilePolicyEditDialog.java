@@ -316,7 +316,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
        ProfilePolicyEditDataModel model = new ProfilePolicyEditDataModel();
        model.setInfo(data, colNames);
         mDefaultTable = new ProfileDataTable(model);
-        JScrollPane mScrollPane = JTable.createScrollPaneForTable(mDefaultTable);
+        JScrollPane mScrollPane = new JScrollPane(mDefaultTable);
         mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mDefaultTable.setAutoscrolls(true);
@@ -380,7 +380,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
        ProfilePolicyEditDataModel model = new ProfilePolicyEditDataModel();
        model.setInfo(data, colNames);
         mConstraintTable = new ProfileDataTable(model);
-        JScrollPane mScrollPane = JTable.createScrollPaneForTable(mConstraintTable);
+        JScrollPane mScrollPane = new JScrollPane(mConstraintTable);
         mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mConstraintTable.setAutoscrolls(true);

@@ -181,7 +181,7 @@ public class AuthImplTab extends CMSBaseUGTab {
 
         //center table
         mTable = new JTable(mDataModel);
-        mScrollPane = JTable.createScrollPaneForTable(mTable);
+        mScrollPane = new JScrollPane(mTable);
         //mScrollPane.setBorder(CMSAdminUtil.makeTitledBorder(mResource,PANEL_NAME,"USERS"));
         mScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);

@@ -500,7 +500,7 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         CMSAdminUtil.resetGBC(gbc);
         mDataModel = new ListCertsModel();
         mCertTable = new JTable(mDataModel);
-        JScrollPane scrollPane = JTable.createScrollPaneForTable(mCertTable);
+        JScrollPane scrollPane = new JScrollPane(mCertTable);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         mCertTable.setPreferredScrollableViewportSize(new Dimension(200, 350));

@@ -30,7 +30,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
@@ -226,7 +225,7 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
         ProfilePolicyEditDataModel dataModel = new ProfilePolicyEditDataModel();
         dataModel.setInfo(data, colNames);
         mTable = new ProfileDataTable(dataModel);
-        JScrollPane scrollPane = JTable.createScrollPaneForTable(mTable);
+        JScrollPane scrollPane = new JScrollPane(mTable);
         scrollPane.setHorizontalScrollBarPolicy(
           ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(

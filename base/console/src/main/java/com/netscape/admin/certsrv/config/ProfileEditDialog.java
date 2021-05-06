@@ -413,7 +413,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         listPanel.setLayout(gb);
 
         //center table
-        JScrollPane mScrollPane = JTable.createScrollPaneForTable(table);
+        JScrollPane mScrollPane = new JScrollPane(table);
         mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         table.setAutoscrolls(true);

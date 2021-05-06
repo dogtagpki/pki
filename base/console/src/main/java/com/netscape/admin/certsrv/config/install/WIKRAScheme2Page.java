@@ -244,7 +244,7 @@ class WIKRAScheme2Page extends WizardBasePanel implements IWizardPanel {
 
         mDataModel = new NewAgentModel();
         mTable = new JTable(mDataModel);
-        JScrollPane scrollPane = JTable.createScrollPaneForTable(mTable);
+        JScrollPane scrollPane = new JScrollPane(mTable);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
