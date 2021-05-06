@@ -19,7 +19,7 @@ URL:              https://www.dogtagpki.org/
 License:          GPLv2
 
 Version:          10.5.18
-Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
+Release:          9%{?_timestamp}%{?_commit_id}%{?dist}
 
 %if 0%{?rhel}
 # NOTE:  In the future, as a part of its path, this URL will contain a release
