@@ -159,7 +159,7 @@ public class GroupEditor extends JDialog
         }
 
         setButtons();
-        this.show();
+        this.setVisible(true);
     }
 
     /*==========================================================
@@ -205,14 +205,14 @@ public class GroupEditor extends JDialog
                 }
 
             }
-            this.hide();
+            this.setVisible(false);
         }
 
         if (evt.getSource().equals(mCancel)) {
             Debug.println("Cancel Pressed");
 
             //display are you sure dialog
-            this.hide();
+            this.setVisible(false);
         }
 
         if (evt.getSource().equals(mHelp)) {

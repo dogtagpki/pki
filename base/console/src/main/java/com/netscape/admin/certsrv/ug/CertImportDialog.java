@@ -92,7 +92,7 @@ public class CertImportDialog extends JDialog
         //initialize and setup
         mTextArea.setText("");
         mIsOk = false;
-        this.show();
+        this.setVisible(true);
     }
 
     /**
@@ -123,7 +123,7 @@ public class CertImportDialog extends JDialog
         }
 
 	    if (evt.getSource().equals(mCancel)) {
-            this.hide();
+            this.setVisible(false);
         }
 
         if (evt.getSource().equals(mOK)) {
@@ -131,7 +131,7 @@ public class CertImportDialog extends JDialog
             //set values
             mB64E = mTextArea.getText().trim();
             mIsOk = true;
-            this.hide();
+            this.setVisible(false);
         }
 	}
 

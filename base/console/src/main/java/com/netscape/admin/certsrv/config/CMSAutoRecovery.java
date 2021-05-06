@@ -207,7 +207,7 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
         gbm.setConstraints(action, gbc);
         getContentPane().add(action);
 
-        this.show();
+        this.setVisible(true);
     }
 
     private JPanel makeActionPane() {

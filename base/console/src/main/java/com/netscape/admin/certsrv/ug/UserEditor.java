@@ -184,7 +184,7 @@ public class UserEditor extends JDialog
             return;
         }
         updateView();
-        this.show();
+        this.setVisible(true);
     }
 
     public boolean isUserAdded() {
@@ -245,14 +245,14 @@ public class UserEditor extends JDialog
                 }
 
             }
-            this.hide();
+            this.setVisible(false);
         }
 
         if (evt.getSource().equals(mCancel)) {
             Debug.println("Cancel Pressed");
 
             //display are you sure dialog
-            this.hide();
+            this.setVisible(false);
         }
 
         if (evt.getSource().equals(mHelp)) {

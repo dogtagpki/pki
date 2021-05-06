@@ -105,7 +105,7 @@ public class CMSMigrateCreate extends CGITask
 	    //show dialog
 	    CreateInstanceDialog dialog = new CreateInstanceDialog(mActiveFrame);
 	                  //  UtilConsoleGlobals.getActivatedFrame());
-	    dialog.show();
+	    dialog.setVisible(true);
 	    if (dialog.isCancel()) {
 	        return status;
 	    }

@@ -433,7 +433,7 @@ setLabelCellEditor(mTable, 1);
                  mDescField.setText(response.get("desc"));
 	    }
 
-        this.show();
+        this.setVisible(true);
     }
 
     protected void setLabelCellEditor(JTable table, int index) {

@@ -133,7 +133,7 @@ public class PolicyRuleOrderDialog extends JDialog
 
         refresh();
         setArrowButtons();
-        this.show();
+        this.setVisible(true);
     }
 
     /*==========================================================

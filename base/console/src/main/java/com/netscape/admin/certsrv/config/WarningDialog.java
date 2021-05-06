@@ -67,7 +67,7 @@ public class WarningDialog extends JDialog
 
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mClose)) {
-            this.hide();
+            this.setVisible(false);
             this.dispose();
         }
     }
@@ -108,7 +108,7 @@ public class WarningDialog extends JDialog
 
         getContentPane().add("Center",center);
 
-        this.show();
+        this.setVisible(true);
     }
 
     private JPanel makeActionPane() {

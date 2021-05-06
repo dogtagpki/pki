@@ -124,7 +124,7 @@ public class UserListDialog extends JDialog
         }
         setButtons();
         mIsOk = false;
-        this.show();
+        this.setVisible(true);
     }
 
 
@@ -161,11 +161,11 @@ public class UserListDialog extends JDialog
 
             //set return flag
             mIsOk = true;
-            this.hide();
+            this.setVisible(false);
         }
 
         if (evt.getSource().equals(mCancel)) {
-            this.hide();
+            this.setVisible(false);
         }
     }
 

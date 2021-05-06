@@ -170,7 +170,7 @@ public class ProfileNonPolicySelDialog extends JDialog
 
         if(!update())
             return;
-        this.show();
+        this.setVisible(true);
     }
 
     /*==========================================================

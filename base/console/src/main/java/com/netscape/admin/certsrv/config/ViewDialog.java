@@ -85,7 +85,7 @@ public class ViewDialog extends JDialog
         mClassField.setText(classname);
         mTextArea.setText(CMSAdminUtil.wrapText(desc,50));
         mTextArea.setCaretPosition(0);
-        this.show();
+        this.setVisible(true);
     }
 
     /*==========================================================
@@ -95,7 +95,7 @@ public class ViewDialog extends JDialog
     //=== ACTIONLISTENER =====================
 	public void actionPerformed(ActionEvent evt) {
 	    if (evt.getSource().equals(mOK)) {
-	        this.hide();
+	        this.setVisible(false);
 	    }
 	}
 

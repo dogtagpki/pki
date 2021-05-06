@@ -655,7 +655,7 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
           }
         }
 
-        this.show();
+        this.setVisible(true);
     }
 
     protected void setLabelCellEditor(JTable table, int index) {

@@ -128,7 +128,7 @@ public class PanelMapperConfigDialog extends JDialog
         if (!refresh(name))
             return;
 
-        this.show();
+        this.setVisible(true);
     }
 
     public boolean isOK() {

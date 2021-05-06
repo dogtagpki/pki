@@ -134,7 +134,7 @@ public class CRLIPEditor extends JDialog implements ActionListener {
 
         mEnableBox.setSelected(mEnable);
         enableCRLIP();
-        this.show();
+        this.setVisible(true);
     }
 
     public String getCRLName() {

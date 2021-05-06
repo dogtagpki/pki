@@ -546,7 +546,7 @@ public class CMSAdmin extends AbstractServerObject
             // password-based authentication
             if (authType.equals("pwd")) {
                 CMSPassword d = new CMSPassword(mActiveFrame);
-                d.show();
+                d.setVisible(true);
                 if (d.isCancel())
                     return false;
                 mServerInfo = new CMSServerInfo(mHost, mPort, d.getUsername(),
