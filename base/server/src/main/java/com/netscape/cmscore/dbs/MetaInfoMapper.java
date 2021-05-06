@@ -111,7 +111,6 @@ public class MetaInfoMapper extends DBAttrMapper {
 
         if (attr == null)
             return;
-        @SuppressWarnings("unchecked")
         Enumeration<String> values = attr.getStringValues();
         MetaInfo info = new MetaInfo();
 

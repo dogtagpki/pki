@@ -1775,7 +1775,6 @@ public class CryptoUtil {
             throws NotInitializedException,
                 TokenException {
         CryptoManager cm = CryptoManager.getInstance();
-        @SuppressWarnings("unchecked")
         Enumeration<CryptoToken> enums = cm.getAllTokens();
 
         while (enums.hasMoreElements()) {
@@ -1802,7 +1801,6 @@ public class CryptoUtil {
                 TokenException {
         Vector<X509CertImpl> certs = new Vector<X509CertImpl>();
         CryptoManager cm = CryptoManager.getInstance();
-        @SuppressWarnings("unchecked")
         Enumeration<CryptoToken> enums = cm.getAllTokens();
 
         while (enums.hasMoreElements()) {

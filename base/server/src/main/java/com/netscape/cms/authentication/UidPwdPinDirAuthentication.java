@@ -327,7 +327,6 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
-        @SuppressWarnings("unchecked")
         Enumeration<byte[]> pinValues = pinAttr.getByteValues();
 
         if (!pinValues.hasMoreElements()) {

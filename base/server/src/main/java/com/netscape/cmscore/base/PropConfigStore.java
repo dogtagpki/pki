@@ -622,7 +622,6 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @param name substore name
      */
-    @SuppressWarnings("unchecked")
     public void removeSubStore(String name) {
         // this operation is expensive!!!
 

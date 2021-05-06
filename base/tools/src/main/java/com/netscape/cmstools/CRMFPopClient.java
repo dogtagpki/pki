@@ -508,7 +508,6 @@ public class CRMFPopClient {
 
             // print out keyid to be used in cmc decryptPOP
             PrivateKey privateKey = (PrivateKey) keyPair.getPrivate();
-            @SuppressWarnings("deprecation")
             byte id[] = privateKey.getUniqueID();
             String kid = CryptoUtil.encodeKeyID(id);
             System.out.println("Keypair private key id: " + kid);

@@ -308,7 +308,6 @@ public class PKCS10Client {
 
             // print out keyid to be used in cmc popLinkWitnessV2
             PrivateKey privateKey = (PrivateKey) pair.getPrivate();
-            @SuppressWarnings("deprecation")
             byte id[] = privateKey.getUniqueID();
             String kid = CryptoUtil.encodeKeyID(id);
             if(verbose) {

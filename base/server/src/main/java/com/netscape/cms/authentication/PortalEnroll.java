@@ -440,7 +440,6 @@ public class PortalEnroll extends DirBasedAuthentication {
      *  should build up
      *  mRequiredAttrs, mOptionalAttrs, and mObjClasses when returned
      */
-    @SuppressWarnings("unchecked")
     public void initLdapAttrs(LDAPSchema dirSchema, String oclass) {
         logger.debug("PortalEnroll: in initLdapAttrsAttrs");
         mObjClasses.addElement(oclass);

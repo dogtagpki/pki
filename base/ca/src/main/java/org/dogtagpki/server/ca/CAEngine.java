@@ -1382,7 +1382,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         if (keyHostsAttr == null) {
             keyHosts = Collections.emptyList();
         } else {
-            @SuppressWarnings("unchecked")
             Enumeration<String> keyHostsEnum = keyHostsAttr.getStringValues();
             keyHosts = Collections.list(keyHostsEnum);
         }

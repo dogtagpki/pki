@@ -53,13 +53,11 @@ public class TokenInfo {
             CryptoManager.initialize(vals);
 
             CryptoManager cm = CryptoManager.getInstance();
-            @SuppressWarnings("unchecked")
             Enumeration<PK11Module> modules = cm.getModules();
             while (modules.hasMoreElements()) {
                 PK11Module m = modules.nextElement();
                 System.out.println("Found external module '" + m.getName() + "'");
             }
-            @SuppressWarnings("unchecked")
             Enumeration<CryptoToken> tokens = cm.getExternalTokens();
 
             while (tokens.hasMoreElements()) {

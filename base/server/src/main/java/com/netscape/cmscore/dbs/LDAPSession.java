@@ -281,7 +281,6 @@ public class LDAPSession extends DBSSession {
         return search(base, filter, null);
     }
 
-    @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter, int maxSize)
             throws EBaseException {
 
@@ -311,7 +310,6 @@ public class LDAPSession extends DBSSession {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter, int maxSize,String sortAttribute)
             throws EBaseException {
 
@@ -347,7 +345,6 @@ public class LDAPSession extends DBSSession {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter, int maxSize, int timeLimit)
             throws EBaseException {
 
@@ -378,7 +375,6 @@ public class LDAPSession extends DBSSession {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter, int maxSize,
             int timeLimit, String sortAttribute) throws EBaseException {
 
@@ -420,7 +416,6 @@ public class LDAPSession extends DBSSession {
      * Retrieves a list of object that satifies the given
      * filter.
      */
-    @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter,
             String attrs[]) throws EBaseException {
 

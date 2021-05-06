@@ -262,7 +262,6 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
                 return null;
             }
 
-            @SuppressWarnings("unchecked")
             Iterator<String> itr = certs.iterator();
             String selection = null;
 

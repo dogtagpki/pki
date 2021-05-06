@@ -96,7 +96,6 @@ public class StringVectorMapper extends DBAttrMapper {
 
         if (attr == null)
             return;
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = attr.getStringValues();
         Vector<String> v = new Vector<String>();
 

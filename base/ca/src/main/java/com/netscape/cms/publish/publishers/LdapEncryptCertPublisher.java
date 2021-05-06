@@ -242,7 +242,6 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
             return at;
         }
 
-        @SuppressWarnings("unchecked")
         Enumeration<byte[]> vals = attr.getByteValues();
         byte[] val = null;
 
@@ -319,7 +318,6 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         if (attr == null) {
             return false;
         }
-        @SuppressWarnings("unchecked")
         Enumeration<byte[]> vals = attr.getByteValues();
         byte[] val = null;
 
@@ -339,7 +337,6 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         if (attr == null) {
             return false;
         }
-        @SuppressWarnings("unchecked")
         Enumeration<String> vals = attr.getStringValues();
         String val = null;
 

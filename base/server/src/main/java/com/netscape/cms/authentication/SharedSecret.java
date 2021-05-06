@@ -333,7 +333,6 @@ public class SharedSecret extends DirBasedAuthentication
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
 
-            @SuppressWarnings("unchecked")
             Enumeration<byte[]> shrTokValues = shrTokAttr.getByteValues();
 
             if (!shrTokValues.hasMoreElements()) {
