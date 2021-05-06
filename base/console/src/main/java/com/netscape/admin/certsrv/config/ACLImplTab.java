@@ -87,7 +87,7 @@ public class ACLImplTab extends CMSBaseUGTab {
         mScrollPane.setVerticalScrollBarPolicy(
           ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
-        mTable.sizeColumnsToFit(true);
+        mTable.doLayout();
         mTable.getSelectionModel().setSelectionMode(
           ListSelectionModel.SINGLE_SELECTION);
         mTable.getSelectionModel().addListSelectionListener(this);

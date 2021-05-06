@@ -505,7 +505,7 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         mCertTable.setPreferredScrollableViewportSize(new Dimension(200, 350));
         mCertTable.setAutoscrolls(true);
-        mCertTable.sizeColumnsToFit(true);
+        mCertTable.doLayout();
         mCertTable.addMouseListener(this);
         scrollPane.setBackground(Color.white);
         setLabelCellRenderer(mCertTable, 0);

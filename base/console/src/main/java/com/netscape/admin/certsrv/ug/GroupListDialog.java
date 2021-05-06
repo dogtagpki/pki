@@ -231,7 +231,7 @@ public class GroupListDialog extends JDialog
 		//mTable.setMinimumSize( d );
 		//mTable.setSize( d );
 		mTable.setAutoscrolls(true);
-		mTable.sizeColumnsToFit(true);
+		mTable.doLayout();
 		mTable.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		//mTable.getSelectionModel().addListSelectionListener(new StandardListSelectionListener());
 		//mTable.addMouseListener(this);

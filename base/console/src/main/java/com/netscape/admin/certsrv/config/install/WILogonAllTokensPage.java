@@ -231,7 +231,7 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
         scrollPane.setVerticalScrollBarPolicy(
           ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
-        mTable.sizeColumnsToFit(true);
+        mTable.doLayout();
         mTable.getSelectionModel().setSelectionMode(
           ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         scrollPane.setBackground(Color.white);
