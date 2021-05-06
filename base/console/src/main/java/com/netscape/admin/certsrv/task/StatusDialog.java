@@ -84,7 +84,7 @@ public class StatusDialog extends JDialog
 	mDetails.setText("Details:");
         mTextArea.setText(desc);
         mTextArea.setCaretPosition(0);
-        this.show();
+        this.setVisible(true);
     }
 
     /*==========================================================
@@ -94,7 +94,7 @@ public class StatusDialog extends JDialog
     //=== ACTIONLISTENER =====================
 	public void actionPerformed(ActionEvent evt) {
 	    if (evt.getSource().equals(mOK)) {
-	        this.hide();
+	        this.setVisible(false);
 	    }
 	}
 

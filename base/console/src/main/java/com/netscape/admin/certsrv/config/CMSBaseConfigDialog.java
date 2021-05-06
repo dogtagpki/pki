@@ -366,7 +366,7 @@ public class CMSBaseConfigDialog extends JDialog
 		mPluginName.addMouseListener(this);
 		mPluginLabel.addMouseListener(this);
 
-        this.show();
+        this.setVisible(true);
     }
 
 	public String getDefaultInstanceName(String implName)

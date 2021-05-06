@@ -17,8 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.wizard.*;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardWidget;
 
 /**
  * Wizard for reconfiguring the Recovery MN Scheme
@@ -45,7 +47,7 @@ public class MNSchemeWizard extends WizardWidget {
         addPage(new WMNOldAgent());
         addPage(new WMNNewAgent());
         addPage(new WMNResultPage());
-        show();
+        setVisible(true);
     }
 
     /*==========================================================

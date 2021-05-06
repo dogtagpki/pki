@@ -163,7 +163,7 @@ public class PluginSelectionDialog extends JDialog
             return;
         refresh();
         setArrowButtons();
-        this.show();
+        this.setVisible(true);
     }
 
     /*==========================================================

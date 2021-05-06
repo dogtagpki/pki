@@ -17,17 +17,32 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ResourceBundle;
 
-import javax.swing.event.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Log Implementation Registration Editor
@@ -97,7 +112,7 @@ public class KeyCreateDialog extends JDialog
         //}
         mDestination=destination;
         mScope=scope;
-        this.show();
+        this.setVisible(true);
     }
 
     protected void setDestination(String destination) {
@@ -124,7 +139,7 @@ public class KeyCreateDialog extends JDialog
 
 	    if (evt.getSource().equals(mCancel)) {
             mIsOK = false;
-            this.hide();
+            this.setVisible(false);
         }
 
         if (evt.getSource().equals(mOK)) {
@@ -154,7 +169,7 @@ public class KeyCreateDialog extends JDialog
                 return;
             }
             mIsOK = true;
-            this.hide();
+            this.setVisible(false);
         }
 	}
 

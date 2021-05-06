@@ -189,7 +189,7 @@ public class ProfilePolicySelectionDialog extends JDialog
         refresh();
         setArrowButtons();
 */
-        this.show();
+        this.setVisible(true);
     }
 
     /*==========================================================

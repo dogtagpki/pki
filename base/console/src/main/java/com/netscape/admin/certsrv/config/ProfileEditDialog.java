@@ -771,7 +771,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         setProfileInfo(name);
         setProfileOtherInfo(name);
 
-        this.show();
+        this.setVisible(true);
     }
 
     private void setProfileInfo(String name) {

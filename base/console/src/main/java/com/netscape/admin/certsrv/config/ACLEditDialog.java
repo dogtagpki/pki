@@ -227,7 +227,7 @@ public class ACLEditDialog extends JDialog
     public void showDialog() {
         mEdit.setEnabled(false);
         mDelete.setEnabled(false);
-        this.show();
+        this.setVisible(true);
     }
 
     public void showDialog(NameValuePairs data) {
@@ -250,7 +250,7 @@ public class ACLEditDialog extends JDialog
         if (!mIsNew)
             mRightsText.setText(mOperations);
 
-        this.show();
+        this.setVisible(true);
     }
 
     private void setDisplay() {

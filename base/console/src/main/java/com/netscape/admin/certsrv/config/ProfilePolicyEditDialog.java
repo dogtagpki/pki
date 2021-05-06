@@ -678,7 +678,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
          model.setInfo(d, colNames);
          mConstraintTable.setModel(model);
 
-        this.show();
+        this.setVisible(true);
     }
 
     protected void setLabelCellRenderer(JTable table, int index) {

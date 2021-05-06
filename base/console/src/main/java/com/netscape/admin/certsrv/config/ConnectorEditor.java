@@ -262,7 +262,7 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         mEnableBox.setSelected(mEnable);
         enableConnector();
         //update(local);
-        this.show();
+        this.setVisible(true);
     }
 
     private void enableConnector() {

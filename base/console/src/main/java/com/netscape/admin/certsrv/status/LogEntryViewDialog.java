@@ -88,7 +88,7 @@ public class LogEntryViewDialog extends JDialog
         mTime.setText(time);
         mTextArea.setText(desc);
         mTextArea.setCaretPosition(0);
-        this.show();
+        this.setVisible(true);
     }
 
     /*==========================================================
@@ -98,7 +98,7 @@ public class LogEntryViewDialog extends JDialog
     //=== ACTIONLISTENER =====================
 	public void actionPerformed(ActionEvent evt) {
 	    if (evt.getSource().equals(mOK)) {
-	        this.hide();
+	        this.setVisible(false);
 	    }
 	}
 

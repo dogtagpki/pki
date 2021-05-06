@@ -125,7 +125,7 @@ public class CertManagementDialog extends JDialog
         if (!refresh())
             return;
         setButtons();
-        this.show();
+        this.setVisible(true);
     }
 
     /*==========================================================

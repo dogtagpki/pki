@@ -17,9 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.wizard.*;
+import java.awt.Cursor;
+
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.IWizardDone;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.admin.certsrv.wizard.WizardWidget;
 
 /**
  * Wizard for Installation wizard
@@ -166,7 +171,7 @@ public class InstallWizard extends WizardWidget implements Runnable {
         addPage(new WISingleSignonPage(this, parent));
         addPage(new WICertSetupStatusPage(this, parent));
 
-        show();
+        setVisible(true);
     }
 
     protected void callHelp() {
@@ -182,7 +187,7 @@ public class InstallWizard extends WizardWidget implements Runnable {
     }
 
     public void run() {
-        show();
+        setVisible(true);
     }
 
     public static void main(String[] args) {

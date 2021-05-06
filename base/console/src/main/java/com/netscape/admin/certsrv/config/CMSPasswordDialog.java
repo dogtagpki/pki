@@ -176,7 +176,7 @@ public class CMSPasswordDialog extends JDialog
         mPassword="";
 
         setSize( WIDTH, HEIGHT );
-        this.show();
+        this.setVisible(true);
 
         /* Cancel if the window is closed */
         addWindowListener(

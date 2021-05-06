@@ -148,7 +148,7 @@ public class AuthBaseDialog extends JDialog
             mAuthLabel.setText(name);
         }
 
-        this.show();
+        this.setVisible(true);
     }
 
     protected NameValuePairs getData() {

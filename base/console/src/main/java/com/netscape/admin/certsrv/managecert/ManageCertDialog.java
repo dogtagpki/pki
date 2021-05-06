@@ -84,7 +84,7 @@ public class ManageCertDialog extends JDialog implements ActionListener,
     public void showDialog(AdminConnection conn) {
         mConn = conn;
         refresh();
-        this.show();
+        this.setVisible(true);
     }
 
     private void refresh() {
@@ -246,7 +246,7 @@ public class ManageCertDialog extends JDialog implements ActionListener,
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if (source.equals(mClose)) {
-            this.hide();
+            this.setVisible(false);
             this.dispose();
         } else if (source.equals(mDelete)) {
             try {

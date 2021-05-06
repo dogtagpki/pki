@@ -76,7 +76,7 @@ public class ViewSelfTestsDialog extends JDialog
         //initialize and setup
         mTextArea.setText( CMSAdminUtil.wrapText( desc, 80 ) );
         mTextArea.setCaretPosition( 0 );
-        this.show();
+        this.setVisible(true);
     }
 
     /*==========================================================
@@ -87,7 +87,7 @@ public class ViewSelfTestsDialog extends JDialog
     public void actionPerformed( ActionEvent evt )
     {
         if( evt.getSource().equals( mOK ) ) {
-            this.hide();
+            this.setVisible(false);
         }
     }
 

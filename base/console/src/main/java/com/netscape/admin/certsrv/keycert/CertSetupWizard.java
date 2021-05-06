@@ -17,9 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardWidget;
 
 /**
  * Wizard for Key and Certificate management
@@ -69,7 +71,7 @@ public class CertSetupWizard extends WizardWidget {
         addPage(new WPasteCertPage(this, frame));
         addPage(new WDisplayCertPage(this, frame));
         addPage(new WInstallStatusPage(this, frame));
-        show();
+        setVisible(true);
     }
 
     protected void callHelp() {

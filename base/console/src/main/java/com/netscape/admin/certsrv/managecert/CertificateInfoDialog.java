@@ -104,7 +104,7 @@ public class CertificateInfoDialog extends JDialog
 			mStatusLbl.setText(statusStr);
 			changeLbl.setEnabled(false);
 		}
-        this.show();
+        this.setVisible(true);
     }
 
     public void showDialog(String name, String content, String trust,
@@ -117,7 +117,7 @@ public class CertificateInfoDialog extends JDialog
 
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mClose)) {
-            this.hide();
+            this.setVisible(false);
             this.dispose();
         } else if (evt.getSource().equals(mActionBtn)) {
             String trustLbl = mActionBtn.getText().trim();

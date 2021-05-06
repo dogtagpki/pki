@@ -101,7 +101,7 @@ public class ACIDialog extends JDialog
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mCancel)) {
             mDone = false;
-            this.hide();
+            this.setVisible(false);
         } else if (evt.getSource().equals(mOK)) {
             String acl = mACIText.getText().trim();
             Vector<String> v = parseExpressions(acl);
@@ -128,7 +128,7 @@ public class ACIDialog extends JDialog
 
             if (v.size() > 0 && allCorrect) {
                 mDone = true;
-                this.hide();
+                this.setVisible(false);
             } else {
                 String msg = mResource.getString(
                   PREFIX+"_DIALOG_INCORRECTSYNTAX_MESSAGE");
@@ -210,7 +210,7 @@ public class ACIDialog extends JDialog
             mACIText.setText(text);
         }
 
-        this.show();
+        this.setVisible(true);
     }
 
     public boolean getOK() {
