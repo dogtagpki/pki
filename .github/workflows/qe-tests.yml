@@ -13,7 +13,7 @@ jobs:
       matrix:
         os: ['32', '33']
     steps:
-      - name: Clone the repository
+      - name: Clone repository
         uses: actions/checkout@v2
 
       - name: Set up Docker Buildx
@@ -39,13 +39,11 @@ jobs:
 
   # Tier 0
   installation-sanity:
-    # This job uses Ansible playbooks in the tests/ dir to setup a PKI deployment.
+    # This job uses Ansible playbooks in the tests dir to setup a PKI deployment.
     # All 5 subsystems are deployed on "discrete" instances
-    name: installation-sanity
+    name: Testing installation sanity
     needs: build
-    # TODO: Replace with ubuntu-latest once the rollout is complete:
-    # https://github.com/actions/virtual-environments/issues/1816
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
@@ -60,7 +58,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install python3-pip python3-pytest python3-docutils
+          sudo apt-get install python3-pip
           pip3 install -r tests/dogtag/pytest-ansible/requirements.txt
           pip3 install -e tests/dogtag/pytest-ansible
 
@@ -101,7 +99,7 @@ jobs:
 
       - name: Run sanity test
         run: |
-          pytest-3 \
+          pytest \
               --ansible-host-pattern master \
               --ansible-inventory inventory \
               --ansible-module-path tests/dogtag/pytest-ansible/common-modules \
