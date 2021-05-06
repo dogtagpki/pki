@@ -540,7 +540,7 @@ public class ConfigurationTest {
         systemCerts.add(cert5);
     }
 
-    private static String generateCRMFRequest(CryptoToken token, String keysize, String subjectdn, boolean dualkey)
+    public static String generateCRMFRequest(CryptoToken token, String keysize, String subjectdn, boolean dualkey)
             throws NoSuchAlgorithmException, TokenException, IOException, InvalidBERException {
         KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
