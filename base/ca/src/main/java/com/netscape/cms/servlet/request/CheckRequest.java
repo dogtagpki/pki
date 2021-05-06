@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -80,7 +79,6 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
-import com.netscape.cmscore.request.ARequestQueue;
 
 /**
  * Check the status of a certificate request
@@ -102,7 +100,6 @@ public class CheckRequest extends CMSServlet {
     private final static String TPL_FILE = "requestStatus.template";
 
     // variables
-    private ARequestQueue mQueue = null;
     private String mFormPath = null;
     private String mAuthorityId = null;
 
@@ -128,8 +125,6 @@ public class CheckRequest extends CMSServlet {
 
         super.init(sc);
 
-        CAEngine engine = CAEngine.getInstance();
-        mQueue = engine.getRequestQueue();
         mAuthorityId = mAuthority.getId();
         mFormPath = "/" + mAuthorityId + "/" + TPL_FILE;
 
