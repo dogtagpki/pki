@@ -248,7 +248,7 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
 
         mTable = new JTable(mDataModel);
         mTable.setShowGrid(true);
-        mScrollPane = JTable.createScrollPaneForTable(mTable);
+        mScrollPane = new JScrollPane(mTable);
         mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);

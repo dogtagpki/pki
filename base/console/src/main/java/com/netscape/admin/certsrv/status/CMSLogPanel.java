@@ -251,7 +251,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
 
 		//center table
 		mTable = new JTable(mDataModel);
-		mScrollPane = JTable.createScrollPaneForTable(mTable);
+		mScrollPane = new JScrollPane(mTable);
 		mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		mTable.setAutoscrolls(true);

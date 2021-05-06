@@ -222,7 +222,7 @@ public class GroupListDialog extends JDialog
 
         //left side certificate table
         mTable = new JTable(mDataModel);
-		mScrollPane = JTable.createScrollPaneForTable(mTable);
+		mScrollPane = new JScrollPane(mTable);
 		//mScrollPane.setBorder(CMSAdminUtil.makeTitledBorder(mResource,PREFIX,"CERTIFICATE"));
 		mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);

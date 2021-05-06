@@ -193,7 +193,7 @@ public class RuleImplTab extends CMSBaseUGTab {
 
         //center table
         mTable = new JTable(mDataModel);
-        mScrollPane = JTable.createScrollPaneForTable(mTable);
+        mScrollPane = new JScrollPane(mTable);
         //mScrollPane.setBorder(CMSAdminUtil.makeTitledBorder(mResource,PANEL_NAME,"USERS"));
         mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);

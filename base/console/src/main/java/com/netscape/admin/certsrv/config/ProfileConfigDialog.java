@@ -328,7 +328,7 @@ public class ProfileConfigDialog extends CMSBaseConfigDialog
        ProfileConfigDataModel model = new ProfileConfigDataModel();
        model.setInfo(data, colNames);
         JTable mTable = new JTable(model);
-        JScrollPane mScrollPane = JTable.createScrollPaneForTable(mTable);
+        JScrollPane mScrollPane = new JScrollPane(mTable);
         mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
