@@ -252,7 +252,7 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
         mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
-        mTable.sizeColumnsToFit(true);
+        mTable.doLayout();
         mTable.setPreferredScrollableViewportSize(new Dimension(200, 100));
         //mTable.setMaximumSize(new Dimension(200, 100));
         mTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);

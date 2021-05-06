@@ -320,7 +320,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mDefaultTable.setAutoscrolls(true);
-        mDefaultTable.sizeColumnsToFit(true);
+        mDefaultTable.doLayout();
         mDefaultTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         // mTable.getSelectionModel().addListSelectionListener(this);
         mScrollPane.setBackground(Color.white);
@@ -384,7 +384,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mConstraintTable.setAutoscrolls(true);
-        mConstraintTable.sizeColumnsToFit(true);
+        mConstraintTable.doLayout();
         mConstraintTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         // mTable.getSelectionModel().addListSelectionListener(this);
         mScrollPane.setBackground(Color.white);

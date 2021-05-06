@@ -215,7 +215,7 @@ public class ManageCertDialog extends JDialog implements ActionListener,
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setPreferredScrollableViewportSize(new Dimension(200, 350));
         mTable.setAutoscrolls(true);
-        mTable.sizeColumnsToFit(true);
+        mTable.doLayout();
         mTable.addMouseListener(this);
         scrollPane.setBackground(Color.white);
         setLabelCellRenderer(mTable, 0);

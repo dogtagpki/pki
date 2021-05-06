@@ -417,7 +417,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         table.setAutoscrolls(true);
-        table.sizeColumnsToFit(true);
+        table.doLayout();
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         // table.getSelectionModel().addListSelectionListener(this);
         mScrollPane.setBackground(Color.white);

@@ -325,7 +325,7 @@ public class PanelMapperConfigDialog extends JDialog
         mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
-        mTable.sizeColumnsToFit(true);
+        mTable.doLayout();
         mTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         //mTable.getSelectionModel().addListSelectionListener(this);
         mScrollPane.setBackground(Color.white);

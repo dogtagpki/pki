@@ -253,7 +253,7 @@ public class GroupTab extends CMSBaseUGTab {
 		//mTable.setMinimumSize( d );
 		//mTable.setSize( d );
 		mTable.setAutoscrolls(true);
-		mTable.sizeColumnsToFit(true);
+		mTable.doLayout();
 		mTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		//mTable.getSelectionModel().addListSelectionListener(new StandardListSelectionListener());
 		mTable.addMouseListener(this);
