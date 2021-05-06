@@ -17,15 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import com.netscape.management.client.util.UtilConsoleGlobals;
-import com.netscape.management.nmclf.*;
 
 class MessageDialog {
 
     public static void rpt_success(Message message) {
-        SuiOptionPane.showMessageDialog(
+        JOptionPane.showMessageDialog(
                 UtilConsoleGlobals.getActivatedFrame(),
                 message.getDescription());
     }
@@ -40,7 +40,7 @@ class MessageDialog {
             m[4] = " ";
             m[5] = message.getExtraMessage();
         }
-        SuiOptionPane.showMessageDialog((new JFrame()), m);
+        JOptionPane.showMessageDialog((new JFrame()), m);
     }
 
     public static void messageDialog(Message cgiMessage) {

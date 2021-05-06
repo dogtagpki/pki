@@ -28,6 +28,7 @@ import java.awt.event.KeyListener;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
@@ -37,7 +38,6 @@ import com.netscape.management.client.util.GridBagUtil;
 import com.netscape.management.client.util.Help;
 import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.UtilConsoleGlobals;
-import com.netscape.management.nmclf.SuiOptionPane;
 
 
 class PKCS11AddModuleDialog extends AbstractDialog {
@@ -70,7 +70,7 @@ class PKCS11AddModuleDialog extends AbstractDialog {
         try {
             response = taskInfo.exec(KeyCertTaskInfo.SEC_ADDMOD);
         } catch (Exception e) {
-            SuiOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), e.getMessage());
             return;
         }

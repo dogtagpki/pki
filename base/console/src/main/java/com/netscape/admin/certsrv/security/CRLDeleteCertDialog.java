@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 import com.netscape.management.client.console.ConsoleInfo;
 import com.netscape.management.client.util.AbstractDialog;
@@ -34,7 +35,6 @@ import com.netscape.management.client.util.JButtonFactory;
 import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.UtilConsoleGlobals;
 import com.netscape.management.nmclf.SuiConstants;
-import com.netscape.management.nmclf.SuiOptionPane;
 
 class CRLDeleteCertDialog extends AbstractDialog implements SuiConstants {
 
@@ -73,7 +73,7 @@ class CRLDeleteCertDialog extends AbstractDialog implements SuiConstants {
                 try {
                     response = _taskInfo.exec(KeyCertTaskInfo.SEC_ECRL);
                 } catch (Exception error) {
-                    SuiOptionPane.showMessageDialog(
+                    JOptionPane.showMessageDialog(
                             UtilConsoleGlobals.getActivatedFrame(),
                             error.getMessage());
                     return;
@@ -116,7 +116,7 @@ class CRLDeleteCertDialog extends AbstractDialog implements SuiConstants {
         try {
             _taskInfo.exec(KeyCertTaskInfo.SEC_ECRL);
         } catch (Exception e) {
-            SuiOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), e.getMessage());
             return;
         }
@@ -127,7 +127,7 @@ class CRLDeleteCertDialog extends AbstractDialog implements SuiConstants {
         } else {
             Object[] message = new Object[2];
             message[0] = _resource.getString("CRLDeleteCertDialog", "error");
-            SuiOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), message);
         }
     }
