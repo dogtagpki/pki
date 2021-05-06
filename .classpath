@@ -25,7 +25,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-cli.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-logging.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/commons-codec.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/commons-httpclient.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-base.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-mcc.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-nmclf.jar"/>
