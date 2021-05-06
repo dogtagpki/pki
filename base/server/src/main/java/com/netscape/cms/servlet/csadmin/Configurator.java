@@ -139,46 +139,6 @@ public class Configurator {
         this.serverXml = serverXml;
     }
 
-    private String logIntoSecurityDomain(
-            String hostname,
-            int port,
-            String username,
-            String password,
-            Long sleep) throws Exception {
-
-        logger.debug("Getting installation token from security domain");
-
-        String installToken;
-
-        try {
-            installToken = getInstallToken(hostname, port, username, password);
-        } catch (Exception e) {
-            logger.error("Unable to get installation token: " + e.getMessage(), e);
-            throw new PKIException("Unable to get installation token: " + e.getMessage(), e);
-        }
-
-        if (installToken == null) {
-            logger.error("Missing installation token");
-            throw new PKIException("Missing installation token");
-        }
-
-        /* Sleep for a bit to allow security domain session to replicate
-         * to other clones.  In the future we can use signed tokens
-         * (ticket https://github.com/dogtagpki/pki/issues/2951) but we need to
-         * be mindful of working with older versions, too.
-         *
-         * The default sleep time is 5s.
-         */
-        if (null == sleep || sleep <= 0) {
-            sleep = Long.valueOf(5);
-        }
-
-        logger.debug("Logged into security domain; sleeping for " + sleep + "s");
-        Thread.sleep(sleep * 1000);
-
-        return installToken;
-    }
-
     public String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
 
         String csType = cs.getType();
@@ -269,30 +229,6 @@ public class Configurator {
             }
         }
         return null;
-    }
-
-    private DomainInfo getDomainInfo(String hostname, int port) throws Exception {
-
-        logger.info("Getting security domain info");
-
-        ClientConfig config = new ClientConfig();
-        config.setServerURL("https://" + hostname + ":" + port);
-
-        PKIClient client = new PKIClient(config);
-
-        // Ignore the "UNTRUSTED_ISSUER" validity status
-        // during PKI instance creation since we are
-        // utilizing an untrusted temporary CA certificate.
-        client.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER);
-
-        // Ignore the "CA_CERT_INVALID" validity status
-        // during PKI instance creation since we are
-        // utilizing an untrusted temporary CA certificate.
-        client.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID);
-
-        SecurityDomainClient sdClient = new SecurityDomainClient(client, "ca");
-
-        return sdClient.getDomainInfo();
     }
 
     public SecurityDomainHost getHostInfo(
