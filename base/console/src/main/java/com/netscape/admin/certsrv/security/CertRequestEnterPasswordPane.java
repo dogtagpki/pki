@@ -26,6 +26,7 @@ import java.util.Hashtable;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -39,7 +40,6 @@ import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.SingleBytePasswordField;
 import com.netscape.management.client.util.UtilConsoleGlobals;
 import com.netscape.management.nmclf.SuiConstants;
-import com.netscape.management.nmclf.SuiOptionPane;
 
 class CertRequestEnterPasswordPane extends JPanel implements SuiConstants,
 IKeyCertPage {
@@ -104,7 +104,7 @@ IKeyCertPage {
                 response = taskInfo.exec(KeyCertTaskInfo.SEC_GCRT);
                 taskInfo.clear();
             } catch (Exception e) {
-                SuiOptionPane.showMessageDialog(
+                JOptionPane.showMessageDialog(
                         UtilConsoleGlobals.getActivatedFrame(),
                         e.getMessage());
                 hide = false;

@@ -35,6 +35,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.CompoundBorder;
@@ -48,7 +49,6 @@ import com.netscape.management.client.util.JButtonFactory;
 import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.UtilConsoleGlobals;
 import com.netscape.management.nmclf.SuiConstants;
-import com.netscape.management.nmclf.SuiOptionPane;
 
 /**
  *
@@ -514,7 +514,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
         try {
             taskInfo.exec(KeyCertTaskInfo.SEC_LSTOKEN);
         } catch (Exception e) {
-            SuiOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), e.getMessage());
             return;
         }

@@ -29,6 +29,7 @@ import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -46,7 +47,6 @@ import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.UITools;
 import com.netscape.management.client.util.UtilConsoleGlobals;
 import com.netscape.management.nmclf.SuiConstants;
-import com.netscape.management.nmclf.SuiOptionPane;
 
 class CertInstallCertPane extends JPanel implements SuiConstants,
 IKeyCertPage {
@@ -102,7 +102,7 @@ IKeyCertPage {
                 response = taskInfo.exec(KeyCertTaskInfo.SEC_ICRT);
                 taskInfo.clear();
             } catch (Exception e) {
-                SuiOptionPane.showMessageDialog(
+                JOptionPane.showMessageDialog(
                         UtilConsoleGlobals.getActivatedFrame(),
                         e.getMessage());
                 hide = false;

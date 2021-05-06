@@ -27,6 +27,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.swing.DefaultListSelectionModel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -36,8 +37,6 @@ import javax.swing.table.JTableHeader;
 import com.netscape.management.client.console.ConsoleInfo;
 import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.UtilConsoleGlobals;
-import com.netscape.management.nmclf.SuiOptionPane;
-import com.netscape.management.nmclf.SuiTable;
 
 
 class CRLTable extends JPanel implements MouseListener {
@@ -152,7 +151,7 @@ class CRLTable extends JPanel implements MouseListener {
         try {
             _taskInfo.exec(KeyCertTaskInfo.SEC_MGCRL);
         } catch (Exception e) {
-            SuiOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), e.getMessage());
             setupComplete = false;
             return;
@@ -180,7 +179,7 @@ class CRLTable extends JPanel implements MouseListener {
 
         update();
 
-        _crlTable = new SuiTable();
+        _crlTable = new JTable();
         //_crlTableModel = new CRLTableModel(getRowData(_taskInfo.getResponse().getServerResponse()), getColumnHeader());
         _crlTable.setModel(_crlTableModel);
         _crlTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);

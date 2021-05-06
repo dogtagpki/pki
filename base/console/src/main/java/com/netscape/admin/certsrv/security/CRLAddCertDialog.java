@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.util.Hashtable;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 import com.netscape.management.client.console.ConsoleInfo;
 import com.netscape.management.client.util.AbstractDialog;
@@ -35,7 +36,6 @@ import com.netscape.management.client.util.JButtonFactory;
 import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.UtilConsoleGlobals;
 import com.netscape.management.nmclf.SuiConstants;
-import com.netscape.management.nmclf.SuiOptionPane;
 
 class CRLAddCertDialog extends AbstractDialog implements SuiConstants {
 
@@ -76,7 +76,7 @@ class CRLAddCertDialog extends AbstractDialog implements SuiConstants {
                 try {
                     response = _taskInfo.exec(KeyCertTaskInfo.SEC_ICRL);
                 } catch (Exception error) {
-                    SuiOptionPane.showMessageDialog(
+                    JOptionPane.showMessageDialog(
                             UtilConsoleGlobals.getActivatedFrame(),
                             error.getMessage());
                     return;
@@ -130,7 +130,7 @@ class CRLAddCertDialog extends AbstractDialog implements SuiConstants {
         try {
             _taskInfo.exec(KeyCertTaskInfo.SEC_ICRL);
         } catch (Exception error) {
-            SuiOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(),
                     error.getMessage());
             return;

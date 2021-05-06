@@ -17,9 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import com.netscape.management.nmclf.*;
+import javax.swing.JOptionPane;
+
 import com.netscape.management.client.console.ConsoleInfo;
-import com.netscape.management.client.util.*;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.ModalDialogUtil;
+import com.netscape.management.client.util.ResourceSet;
 
 class KeyCertUtility {
 
@@ -73,13 +76,13 @@ class KeyCertUtility {
         boolean valid = true;
         if (!(passwd.equals(confirmPasswd))) {
             valid = false;
-            SuiOptionPane.showMessageDialog(consoleInfo.getFrame(),
+            JOptionPane.showMessageDialog(consoleInfo.getFrame(),
                     getKeyCertWizardResourceSet().getString("KeyCertUtility",
                     "passwdMissMatch"));
             ModalDialogUtil.sleep();
         } else if (passwd.length() < 8) {
             valid = false;
-            SuiOptionPane.showMessageDialog(consoleInfo.getFrame(),
+            JOptionPane.showMessageDialog(consoleInfo.getFrame(),
                     getKeyCertWizardResourceSet().getString("KeyCertUtility",
                     "lessThen8Char"));
             ModalDialogUtil.sleep();
@@ -96,7 +99,7 @@ class KeyCertUtility {
             }
             if (allChar) {
                 valid = false;
-                SuiOptionPane.showMessageDialog(consoleInfo.getFrame(),
+                JOptionPane.showMessageDialog(consoleInfo.getFrame(),
                         getKeyCertWizardResourceSet().getString("KeyCertUtility",
                         "noNumericChar"));
                 ModalDialogUtil.sleep();

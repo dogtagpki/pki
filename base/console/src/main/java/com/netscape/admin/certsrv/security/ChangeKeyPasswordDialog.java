@@ -22,6 +22,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.netscape.management.client.console.ConsoleInfo;
@@ -31,7 +32,6 @@ import com.netscape.management.client.util.Help;
 import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.SingleBytePasswordField;
 import com.netscape.management.client.util.UtilConsoleGlobals;
-import com.netscape.management.nmclf.SuiOptionPane;
 
 /**
  *
@@ -78,7 +78,7 @@ public class ChangeKeyPasswordDialog extends AbstractDialog {
         try {
             response = taskInfo.exec(KeyCertTaskInfo.SEC_CHANGEPW);
         } catch (Exception e) {
-            SuiOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), e.getMessage());
             return;
         }

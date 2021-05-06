@@ -25,6 +25,7 @@ import java.awt.event.MouseListener;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -33,8 +34,6 @@ import javax.swing.table.JTableHeader;
 
 import com.netscape.management.client.console.ConsoleInfo;
 import com.netscape.management.client.util.UtilConsoleGlobals;
-import com.netscape.management.nmclf.SuiOptionPane;
-import com.netscape.management.nmclf.SuiTable;
 
 //import crysec.SSL.DBManager;
 //import crysec.X509;
@@ -221,7 +220,7 @@ class CertListTable extends JPanel implements MouseListener, Runnable {
 
     private void setupTable(CertListTableModel _tableModel) {
         // Create the table
-        _table = new SuiTable(_tableModel);
+        _table = new JTable(_tableModel);
         _table.addMouseListener(this);
         _table.setColumnSelectionAllowed(false);
         /*_table.setMultipleSelectionAllowed(false);*/
@@ -267,7 +266,7 @@ class CertListTable extends JPanel implements MouseListener, Runnable {
         try {
             response = _taskInfo.exec(KeyCertTaskInfo.SEC_MGCRT);
         } catch (Exception e) {
-            SuiOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), e.getMessage());
             setupComplete = false;
             return;

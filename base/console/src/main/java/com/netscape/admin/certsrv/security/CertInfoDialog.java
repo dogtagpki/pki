@@ -28,6 +28,7 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.CompoundBorder;
@@ -45,7 +46,6 @@ import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.UITools;
 import com.netscape.management.client.util.UtilConsoleGlobals;
 import com.netscape.management.nmclf.SuiConstants;
-import com.netscape.management.nmclf.SuiOptionPane;
 
 /**
  *
@@ -119,14 +119,14 @@ class CertInfoDialog extends AbstractDialog implements SuiConstants {
 
 
     private boolean promptBeforeDelete() {
-        return SuiOptionPane.showConfirmDialog(this,
+        return JOptionPane.showConfirmDialog(this,
                 resource.getString("CertInfoDialog", "areYouSure"),
                 resource.getString("CertInfoDialog", "confirmTitle"),
-                SuiOptionPane.YES_NO_OPTION) == SuiOptionPane.YES_OPTION;
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
     }
 
     private void deleteSuccess() {
-        SuiOptionPane.showMessageDialog(this,
+        JOptionPane.showMessageDialog(this,
                 resource.getString("CertInfoDialog", "certDeleted"));
     }
 
@@ -176,7 +176,7 @@ class CertInfoDialog extends AbstractDialog implements SuiConstants {
                     try {
                         response = _taskInfo.exec(KeyCertTaskInfo.SEC_ECRT);
                     } catch (Exception error) {
-                        SuiOptionPane.showMessageDialog(
+                        JOptionPane.showMessageDialog(
                                 UtilConsoleGlobals.getActivatedFrame(),
                                 error.getMessage());
                         return;
@@ -209,7 +209,7 @@ class CertInfoDialog extends AbstractDialog implements SuiConstants {
                     try {
                         response = _taskInfo.exec(KeyCertTaskInfo.SEC_ECRT);
                     } catch (Exception error2) {
-                        SuiOptionPane.showMessageDialog(
+                        JOptionPane.showMessageDialog(
                                 UtilConsoleGlobals.getActivatedFrame(),
                                 error2.getMessage());
                         return;

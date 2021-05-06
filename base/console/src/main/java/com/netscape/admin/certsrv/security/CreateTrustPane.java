@@ -24,6 +24,7 @@ import java.awt.event.KeyListener;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -37,7 +38,6 @@ import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.SingleBytePasswordField;
 import com.netscape.management.client.util.UtilConsoleGlobals;
 import com.netscape.management.nmclf.SuiConstants;
-import com.netscape.management.nmclf.SuiOptionPane;
 
 class CreateTrustPane extends JPanel implements SuiConstants, IKeyCertPage {
 
@@ -102,7 +102,7 @@ class CreateTrustPane extends JPanel implements SuiConstants, IKeyCertPage {
             try {
                 taskInfo.exec(KeyCertTaskInfo.SEC_TRUST);
             } catch (Exception e) {
-                SuiOptionPane.showMessageDialog(
+                JOptionPane.showMessageDialog(
                         UtilConsoleGlobals.getActivatedFrame(),
                         e.getMessage());
                 return false;
