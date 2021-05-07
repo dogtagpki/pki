@@ -10,6 +10,21 @@ import java.util.List;
 
 import com.netscape.cmscore.apps.SubsystemListener;
 
+/**
+ * Notify of startup when systemd notification socket is available.
+ *
+ * This class invokes systemd-notify(1) to notify systemd when the system
+ * has been initialised.  To configure systemd notifcation, use drop-in
+ * unit configuration, e.g. put into the file:
+ *
+ *   /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/notify.conf
+ *
+ * the contents:
+ *
+ *   [Service]
+ *   Type=notify
+ *   NotifyAccess=all
+ */
 public class SystemdNotifier extends SubsystemListener {
 
     @Override
