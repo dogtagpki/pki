@@ -28,6 +28,7 @@ See also [pki-server-acme(8)](../../manuals/man8/pki-server-acme.8.md).
 
 To configure the ACME responder, see the following documents:
 
+* [Configuring ACME Metadata](Configuring-ACME-Metadata.adoc)
 * [Configuring ACME Database](Configuring_ACME_Database.md)
 * [Configuring ACME Issuer](Configuring_ACME_Issuer.md)
 * [Configuring ACME Realm](Configuring_ACME_Realm.md)

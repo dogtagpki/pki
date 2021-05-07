@@ -67,5 +67,4 @@ See [Configuring ACME with PostgreSQL Database](Configuring-ACME-with-PostgreSQL
 
 ## See Also
 
-* [Configuring PKI ACME Responder](https://www.dogtagpki.org/wiki/Configuring_PKI_ACME_Responder)
 * [Installing PKI ACME Responder](Installing_PKI_ACME_Responder.md)
