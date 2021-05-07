@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.apps;
 
+import java.io.File;
 import java.math.BigInteger;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -135,6 +137,7 @@ public final class CMS {
     public static final String SUBSYSTEM_SELFTESTS = ISelfTestSubsystem.ID;
     public static final int PRE_OP_MODE = 0;
     public static final int RUNNING_MODE = 1;
+    private static final String PRODUCT_NAME_FILE = "/usr/share/pki/CS_SERVER_VERSION";
 
     /**
      * Private constructor.
@@ -1517,6 +1520,21 @@ public final class CMS {
     // for debug only
     public static void sleepOneMinute() {
         _engine.sleepOneMinute();
+    }
+
+    /**
+     * Return the product name from /usr/share/pki/CS_SERVER_VERSION
+     * which is provided by the server theme package.
+     */
+    public static String getProductName() throws Exception {
+
+        File file = new File(PRODUCT_NAME_FILE);
+
+        if (!file.exists()) {
+            return null;
+        }
+
+        return new String(Files.readAllBytes(file.toPath())).trim();
     }
 
     public static boolean isExcludedLdapAttrsEnabled() {
