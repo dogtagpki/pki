@@ -58,5 +58,4 @@ See [Configuring ACME with PostgreSQL Realm](Configuring-ACME-with-PostgreSQL-Re
 
 ## See Also
 
-* [Configuring PKI ACME Responder](https://www.dogtagpki.org/wiki/Configuring_PKI_ACME_Responder)
 * [Installing PKI ACME Responder](Installing_PKI_ACME_Responder.md)
