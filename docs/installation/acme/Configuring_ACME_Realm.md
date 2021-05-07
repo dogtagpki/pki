@@ -44,63 +44,19 @@ If the command is invoked with other parameters, it will update the specified pa
 ## Configuring ACME with In-Memory Realm
 
 The ACME responder can be configured with an in-memory realm.
-
-A sample in-memory realm configuration is available at
-[/usr/share/pki/acme/realm/in-memory/realm.conf](../../../base/acme/realm/in-memory/realm.conf).
-
-To use an in-memory realm, copy the sample realm.conf into the /etc/pki/pki-tomcat/acme folder,
-or execute the following command:
-
-```
-$ pki-server acme-realm-mod --type in-memory
-```
-
-The realm.conf should look like the following:
-
-```
-class=org.dogtagpki.acme.realm.InMemoryRealm
-username=admin
-password=Secret.123
-```
+See [Configuring ACME with In-Memory Realm](Configuring-ACME-with-InMemory-Realm.adoc).
 
 ## Configuring ACME with DS Realm
 
 The ACME responder can be configured with a DS realm.
 See [Configuring ACME with DS Realm](Configuring-ACME-with-DS-Realm.adoc).
 
-## Configuring ACME with PosgreSQL Realm
+## Configuring ACME with PostgreSQL Realm
 
 The ACME responder can be configured with a PostgreSQL realm.
-
-First, prepare a database (e.g. acme) and a user (e.g. acme) to access the database.
-Verify the database connection with the following command:
-
-```
-$ psql -h $HOSTNAME -d acme -U acme
-```
-
-A sample PostgreSQL realm configuration is available at
-[/usr/share/pki/acme/realm/postgresql/realm.conf](../../../base/acme/realm/postgresql/realm.conf).
-
-To use the PostgreSQL realm, copy the sample realm.conf into the /etc/pki/pki-tomcat/acme folder,
-or execute the following command to customize some of the parameters:
-
-```
-$ pki-server acme-realm-mod --type postgresql \
-    -Dpassword=Secret.123
-```
-
-The realm.conf should look like the following:
-
-```
-class=org.dogtagpki.acme.realm.PostgreSQLRealm
-url=jdbc:postgresql://<hostname>:5432/acme
-user=acme
-password=Secret.123
-```
+See [Configuring ACME with PostgreSQL Realm](Configuring-ACME-with-PostgreSQL-Realm.adoc).
 
 ## See Also
 
 * [Configuring PKI ACME Responder](https://www.dogtagpki.org/wiki/Configuring_PKI_ACME_Responder)
 * [Installing PKI ACME Responder](Installing_PKI_ACME_Responder.md)
-* [Managing PostgreSQL Realm](../../admin/acme/Managing_PostgreSQL_Realm.adoc)

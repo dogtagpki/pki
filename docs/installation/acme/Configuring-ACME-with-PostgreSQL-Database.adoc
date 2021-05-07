@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the process to configure ACME responder to use an PostgreSQL database.
+This document describes the process to configure ACME responder to use a PostgreSQL database.
 
 ## Initializing PostgreSQL Database
 
