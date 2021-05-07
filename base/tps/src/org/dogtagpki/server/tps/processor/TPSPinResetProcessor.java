@@ -121,13 +121,13 @@ public class TPSPinResetProcessor extends TPSProcessor {
                     TPSStatus.STATUS_ERROR_UNKNOWN_TOKEN);
         }
 
-        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
-
         fillTokenRecord(tokenRecord, appletInfo);
         session.setTokenRecord(tokenRecord);
 
         String cuid = appletInfo.getCUIDhexStringPlain();
         String tokenType = null;
+
+        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps,cuid);
 
         if(isExternalReg) {
             CMS.debug(method + " isExternalReg: ON");
@@ -309,7 +309,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         }
 
-        boolean pinResetAllowed = tokenPolicy.isAllowedPinReset(tokenRecord.getId());
+        boolean pinResetAllowed = tokenPolicy.isAllowedPinReset();
 
         CMS.debug(method + ": PinResetPolicy: Pin Reset Allowed:  " + pinResetAllowed);
         logMsg = method + " PinReset Policy forbids pin reset operation.";
@@ -362,6 +362,14 @@ public class TPSPinResetProcessor extends TPSProcessor {
             throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
         }
 
+        //If policy tells us to disallow pin reset after
+        //a successfull pin reset, do so.
+        //
+        if(tokenPolicy.isAllowedResetPinResetToNo()) {
+            tokenPolicy.setAllowedPinReset(false); 
+            tokenPolicy.updatePolicySet();
+            CMS.debug(method + ": Updating pin reset policy to NO.");
+        }
         CMS.debug(method + ": Token Pin successfully reset!");
 
     }

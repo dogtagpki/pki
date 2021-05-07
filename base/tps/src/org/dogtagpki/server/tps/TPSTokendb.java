@@ -200,9 +200,13 @@ public class TPSTokendb {
 
     public void tdbAddTokenEntry(TokenRecord tokenRecord, TokenStatus status)
             throws Exception {
+
+        String method = "TPSTokendb.tdbAddTokenEntry: ";
         tokenRecord.setTokenStatus(status);
 
         tps.tokenDatabase.addRecord(tokenRecord.getId(), tokenRecord);
+
+        CMS.debug(method + "Added tokenRecord.");
     }
 
     public void tdbUpdateTokenEntry(TokenRecord tokenRecord)

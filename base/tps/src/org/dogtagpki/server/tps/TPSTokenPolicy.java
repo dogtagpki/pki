@@ -40,18 +40,31 @@ public class TPSTokenPolicy {
     private boolean force_format = false;
     private boolean pin_reset = true;
     private boolean reset_pin_reset_to_no = false;
+    private String cuid = null;
 
-    public TPSTokenPolicy (TPSSubsystem tps) throws TPSException {
+    //Construct with a single token in mind. Load the token's config from
+    //the db after the default. All operations will then be on this token.
+    //
+    public TPSTokenPolicy (TPSSubsystem tps,String cuid) throws TPSException {
         if (tps == null) {
             String msg = "TPSTokenPolicy.TPSTokenPolicy: tps cannnot be null";
             CMS.debug(msg);
             throw new TPSException(msg);
         }
+        if (cuid == null) {
+            String msg = "TPSTokenPolicy.TPSTokenPolicy: cuid cannnot be null";
+            CMS.debug(msg);
+            throw new TPSException(msg);
+        }
+
         this.tps = tps;
-        // init from config first
+        // Get the CS.cfg defaults first
         String policySetString = getDefaultPolicySetString();
         parsePolicySetString(policySetString);
 
+        this.cuid = cuid;
+        //Read from the token db once and write at the end if needed
+        getUpdatedPolicy();
     }
 
     public String getDefaultPolicySetString() {
@@ -92,6 +105,41 @@ public class TPSTokenPolicy {
         }
     }
 
+    /* Take the current state of the policyt variables, create a new policy string,
+     * and write the new value for the provided token cuid.
+     */
+    public void updatePolicySet()  throws TPSException {
+   
+        String method = "TPSTokenPolicy.updatePolicySet: "; 
+        String msg = method +  "Can't update token policy string to database.";
+
+        TokenRecord tokenRecord = null;
+        String policySetString = null;
+        try {
+            tokenRecord = tps.tdb.tdbGetTokenEntry(this.cuid);
+        } catch (Exception e) {
+            throw new TPSException(e.toString() + " " + msg);
+        }
+
+        String newPolicy = "";
+
+        newPolicy += "RE_ENROLL=" + getFromBool(re_enroll);
+        newPolicy += ";RENEW=" + getFromBool(renew);
+        newPolicy += ";FORCE_FORMAT=" + getFromBool(force_format);
+        newPolicy += ";PIN_RESET=" + getFromBool(pin_reset);
+        newPolicy += ";RESET_PIN_RESET_TO_NO=" + getFromBool(reset_pin_reset_to_no);
+        newPolicy += ";RENEW_KEEP_OLD_ENC_CERTS=" + getFromBool(renew_keep_old_enc_certs);  
+        
+        CMS.debug(method + "newPolicy: " + newPolicy); 
+        tokenRecord.setPolicy(newPolicy);
+        try {
+            tps.tdb.tdbUpdateTokenEntry(tokenRecord);
+        } catch(Exception e) {
+            throw new TPSException(e.toString() + " " + msg);
+        }
+
+    }
+
 /*
  * getBool translates string to boolean:
  * true: "YES", "yes", "TRUE", "true"
@@ -114,12 +162,19 @@ public class TPSTokenPolicy {
         return defaultBool;
     }
 
-    private void getUpdatedPolicy(String cuid) {
+    private String getFromBool(boolean value) {
+        if(value == true) 
+            return "YES";
+
+        return "NO";
+    } 
+
+    private void getUpdatedPolicy() {
         // note: default policy already initialized in the constructor
         TokenRecord tokenRecord = null;
         String policySetString = null;
         try {
-            tokenRecord = tps.tdb.tdbGetTokenEntry(cuid);
+            tokenRecord = tps.tdb.tdbGetTokenEntry(this.cuid);
         } catch (Exception e) {
             // just take the default;
             return;
@@ -129,38 +184,82 @@ public class TPSTokenPolicy {
         parsePolicySetString(policySetString);
     }
 
-    public boolean isAllowedTokenPinReset(String cuid) {
-        getUpdatedPolicy(cuid);
+    // Note we only want to allow one cuid to be operated upon
+    // by this class, since we are going to allow values to be changed
+    // as well as written.
+    
+    public boolean isAllowedTokenPinReset() {
 
         return reset_pin_reset_to_no;
     }
 
-    public boolean isAllowedPinReset(String cuid) {
-        getUpdatedPolicy(cuid);
+    // Add better named version to get the value
+    // reset_pin_reset_to_no
+   
+    public boolean isAllowedResetPinResetToNo() {
+
+        return reset_pin_reset_to_no;
+
+    }
+
+    public boolean isAllowedPinReset() {
 
         return pin_reset;
     }
 
-    public boolean isForceTokenFormat(String cuid) {
-        getUpdatedPolicy(cuid);
+    public boolean isForceTokenFormat() {
 
         return force_format;
     }
 
-    public boolean isAllowdTokenReenroll(String cuid) {
-        getUpdatedPolicy(cuid);
+    public boolean isAllowdTokenReenroll() {
 
         return re_enroll;
     }
 
-    public boolean isAllowdRenewSaveOldEncCerts(String cuid) {
-        getUpdatedPolicy(cuid);
+    public boolean isAllowdRenewSaveOldEncCerts() {
+
         return renew_keep_old_enc_certs;
     }
 
-    public boolean isAllowdTokenRenew(String cuid) {
-        getUpdatedPolicy(cuid);
+    public boolean isAllowdTokenRenew() {
 
         return renew;
     }
+
+    public void setAllowedTokenPinReset(boolean value) {
+
+        reset_pin_reset_to_no = value;
+    }
+
+    public void setAllowedResetPinResetToNo(boolean value) {
+
+        reset_pin_reset_to_no = value;
+    }
+
+    public void setAllowedPinReset(boolean value) {
+
+        pin_reset = value;
+    }
+
+    public void setForceTokenFormat(boolean value) {
+
+        force_format = value;
+    }
+
+    public void setAllowdTokenReenroll(boolean value) {
+
+        re_enroll = value;
+    }
+
+    public void setAllowdRenewSaveOldEncCerts(boolean value) {
+
+        renew_keep_old_enc_certs = value;
+    }
+
+    public void setAllowdTokenRenew(boolean value) {
+
+        renew = value;
+    }
+
 }

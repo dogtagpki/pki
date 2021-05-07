@@ -1531,6 +1531,26 @@ public class TPSProcessor {
 
     }
 
+    protected void fillTokenRecordDefaultPolicy(TokenRecord tokenRecord) throws TPSException {
+
+        String method = "TPSProcessor.fillTokenRecordDefaultPolicy: ";
+ 
+        try {
+            IConfigStore configStore = CMS.getConfigStore();
+
+            String config = "tokendb.defaultPolicy";
+            String defaultPolicy = configStore.getString(config);
+
+            CMS.debug(method + " default token policy: " + defaultPolicy);
+
+            tokenRecord.setPolicy(defaultPolicy);
+        } catch (Exception e) {
+            CMS.debug(method + "Problem with  adding the default policy to the token.");
+            throw new TPSException(e.toString(),TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+
+    }
+
     protected TokenRecord isTokenRecordPresent(AppletInfo appletInfo) throws TPSException {
 
         if (appletInfo == null) {
@@ -2353,6 +2373,7 @@ public class TPSProcessor {
             try {
                 tps.tdb.tdbAddTokenEntry(tokenRecord, TokenStatus.UNFORMATTED);
                 tps.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord, session.getIpAddress(), logMsg, "success");
+                fillTokenRecordDefaultPolicy(tokenRecord);
                 CMS.debug("TPSProcessor.format: token added");
             } catch (Exception e) {
                 logMsg = logMsg + ":" + e.toString();
