@@ -20,9 +20,7 @@ To create PKI ACME responder in a PKI server instance, execute the following com
 $ pki-server acme-create
 ```
 
-The command will create the initial configuration files in /etc/pki/pki-tomcat/acme folder.
-
-See also [pki-server-acme(8)](../../manuals/man8/pki-server-acme.8.md).
+The command will create the initial configuration files in `/etc/pki/pki-tomcat/acme` folder.
 
 ## Configuring ACME Responder
 
@@ -41,7 +39,7 @@ Once everything is ready, deploy the ACME responder with the following command:
 $ pki-server acme-deploy
 ```
 
-The command will create a deployment descriptor at /etc/pki/pki-tomcat/Catalina/localhost/acme.xml.
+The command will create a deployment descriptor at `/etc/pki/pki-tomcat/Catalina/localhost/acme.xml`.
 
 The server will start the ACME responder automatically in a few seconds.
 It is not necessary to restart PKI server.
@@ -66,10 +64,32 @@ $ curl -s -k https://$HOSTNAME:8443/acme/directory | python -m json.tool
 }
 ```
 
-See also [pki-server-acme(8)](../../manuals/man8/pki-server-acme.8.md).
+## Undeploying ACME Responder
+
+To undeploy the ACME responder, execute the following command:
+
+```
+$ pki-server acme-undeploy
+```
+
+The command will remove the deployment descriptor at `/etc/pki/pki-tomcat/Catalina/localhost/acme.xml`.
+
+The server will stop the ACME responder automatically in a few seconds.
+It is not necessary to restart PKI server.
+
+To restart the ACME responder, execute `pki-server acme-deploy` again.
+
+## Removing ACME Responder
+
+To remove the ACME responder completely from the server, execute the following command:
+
+```
+$ pki-server acme-remove
+```
 
 ## See Also
 
 * [Installing CA](../ca/Installing_CA.md)
 * [Managing PKI ACME Responder](../../admin/acme/Managing_PKI_ACME_Responder.md)
 * [Using PKI ACME Responder](../../user/acme/Using_PKI_ACME_Responder.md)
+* [pki-server-acme(8)](../../manuals/man8/pki-server-acme.8.md)
