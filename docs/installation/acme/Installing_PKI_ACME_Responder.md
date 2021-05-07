@@ -24,17 +24,13 @@ The command will create the initial configuration files in /etc/pki/pki-tomcat/a
 
 See also [pki-server-acme(8)](../../manuals/man8/pki-server-acme.8.md).
 
-## Configuring ACME Database
+## Configuring ACME Responder
 
-See [Configuring ACME Database](Configuring_ACME_Database.md).
+To configure the ACME responder, see the following documents:
 
-## Configuring ACME Issuer
-
-See [Configuring ACME Issuer](Configuring_ACME_Issuer.md).
-
-## Configuring ACME Realm
-
-See [Configuring ACME Realm](Configuring_ACME_Realm.md).
+* [Configuring ACME Database](Configuring_ACME_Database.md)
+* [Configuring ACME Issuer](Configuring_ACME_Issuer.md)
+* [Configuring ACME Realm](Configuring_ACME_Realm.md)
 
 ## Deploying ACME Responder
 
