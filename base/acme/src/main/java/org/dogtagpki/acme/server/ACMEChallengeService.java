@@ -108,6 +108,9 @@ public class ACMEChallengeService {
             // avoid denial-of-service attacks via client-initiated retries, servers
             // SHOULD rate-limit such requests.
 
+	} else if (challengeStatus.equals("valid")) {
+		logger.info("Challenge is already valid");
+
         } else {
             // TODO: generate proper exception
             throw new Exception("Challenge is already " + challengeStatus);
