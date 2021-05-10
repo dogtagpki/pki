@@ -60,7 +60,7 @@ To disable Nuxwdog and use the plain password.conf
 
 # pki-server nuxwdog-disable                       # To disable for all instances
 (OR)
-# pki-server instnace-nuxwdog-disable <instance>   # For specific instance
+# pki-server instance-nuxwdog-disable <instance>   # For a specific instance
 
 # systemctl start pki-tomcatd@<font color="red">pki-tomcat</font>.service
  
