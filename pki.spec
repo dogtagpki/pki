@@ -200,7 +200,6 @@ BuildRequires:    resteasy >= 3.0.26
 BuildRequires:    jboss-annotations-1.2-api
 BuildRequires:    jboss-jaxrs-2.0-api
 BuildRequires:    jboss-logging
-BuildRequires:    resteasy-atom-provider >= 3.0.17-1
 BuildRequires:    resteasy-client >= 3.0.17-1
 BuildRequires:    resteasy-jaxb-provider >= 3.0.17-1
 BuildRequires:    resteasy-core >= 3.0.17-1
@@ -433,7 +432,6 @@ Requires:         pki-base = %{version}-%{release}
 %if 0%{?rhel} && 0%{?rhel} <= 8
 Requires:         resteasy >= 3.0.26
 %else
-Requires:         resteasy-atom-provider >= 3.0.17-1
 Requires:         resteasy-client >= 3.0.17-1
 Requires:         resteasy-jaxb-provider >= 3.0.17-1
 Requires:         resteasy-core >= 3.0.17-1

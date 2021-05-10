@@ -38,7 +38,6 @@ run_dev_junit_tests() {
     CLASSPATH=$CLASSPATH:/usr/share/java/jackson/jackson-smile.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/jackson/jackson-xc.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/resteasy/jaxrs-api.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/resteasy/resteasy-atom-provider.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/resteasy/resteasy-client.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/resteasy/resteasy-jaxb-provider.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/resteasy/resteasy-jaxrs.jar
