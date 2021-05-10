@@ -227,13 +227,6 @@ find_file(RESTEASY_JAXRS_JAR
         ${RESTEASY_LIB}
 )
 
-find_file(RESTEASY_ATOM_PROVIDER_JAR
-    NAMES
-        resteasy-atom-provider.jar
-    PATHS
-        ${RESTEASY_LIB}
-)
-
 find_file(RESTEASY_CLIENT_JAR
     NAMES
         resteasy-client.jar
