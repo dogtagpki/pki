@@ -47,7 +47,7 @@ public class PKIClient implements AutoCloseable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIClient.class);
 
-    public final static String[] MESSAGE_FORMATS = { "xml", "json" };
+    public final static String[] MESSAGE_FORMATS = { "json", "xml" };
 
     public ClientConfig config;
     public PKIConnection connection;
