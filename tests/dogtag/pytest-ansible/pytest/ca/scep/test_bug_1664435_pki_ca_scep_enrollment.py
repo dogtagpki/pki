@@ -44,7 +44,7 @@ except Exception as e:
 		sys.path.append('/tmp/test_dir')
 		import constants
 log = logging.getLogger()
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 def test_topo00_setup_for_ldap_ca(ansible_module):
@@ -146,10 +146,16 @@ def test_pki_ca_scep_enrollment_bz_1664435_1908541(ansible_module):
 	
 	# Run mkrequest
 	cmd = ansible_module.command('mkrequest -ip {} {}'.format(ip_add, pwd))
+	for result in cmd.values():
+		assert result['rc'] == 0
+		is_file = ansible_module.stat(path='/root/local.csr')
+		for r1 in is_file.values():
+			assert r1['stat']['exists']
+	
 	time.sleep(5)
 	
 	# Run sscep getca
-	ansible_module.command('sscep getca -u http://{}:{}/ca/cgi-bin/pkiclient.exe -c ca.crt'.
+	ansible_module.command('sscep getca -u http://{}:{}/ca/cgi-bin/pkiclient.exe -c /root/ca.crt'.
 	                       format(constants.MASTER_HOSTNAME,
 	                              constants.CA_HTTP_PORT))
 	log.info('Successfully exported ca.crt with sscep')
@@ -157,7 +163,7 @@ def test_pki_ca_scep_enrollment_bz_1664435_1908541(ansible_module):
 	
 	# Run sscep enroll with sha512 fingerprint
 	cmd = ansible_module.command('sscep enroll -u http://{}:{}/ca/cgi-bin/pkiclient.exe '
-	                             '-c ca.crt -k local.key -r local.csr -l cert.crt'.
+	                             '-c /root/ca.crt -k /root/local.key -r /root/local.csr -l /root/cert.crt'.
 	                             format(constants.MASTER_HOSTNAME, constants.CA_HTTP_PORT))
 	for result in cmd.values():
 		if result['rc'] == 0:
@@ -171,13 +177,13 @@ def test_pki_ca_scep_enrollment_bz_1664435_1908541(ansible_module):
 	time.sleep(5)
 	
 	# Validate the enrolled cert for fingerprint match
-	cmd = ansible_module.shell('openssl x509 -in cert.crt -text -noout')
+	cmd = ansible_module.shell('openssl x509 -in /root/cert.crt -text -noout')
 	for result in cmd.values():
 		assert 'Signature Algorithm: sha512WithRSAEncryption' in result['stdout']
 		log.info('Successfully matched the sha512 fingerprint')
 	time.sleep(5)
 	
 	# Remove the generated cert and key
-	ansible_module.shell('rm -rf local.key local.csr cert.crt ca.crt')
+	ansible_module.shell('rm -rf /root/local.key /root/local.csr /root/cert.crt /root/ca.crt')
 	log.info('Successfully removed the cert and key from server')
 	
