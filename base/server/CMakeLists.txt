@@ -144,7 +144,6 @@ add_custom_command(
     COMMAND ln -sf /usr/lib/java/symkey.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/symkey.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${TOMCATJSS_JAR} common/lib/tomcatjss.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${XERCES_JAR} common/lib/xerces-j2.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${XML_COMMONS_APIS_JAR} common/lib/xml-commons-apis.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${XML_COMMONS_RESOLVER_JAR} common/lib/xml-commons-resolver.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_NET_JAR} common/lib/commons-net.jar
 )
