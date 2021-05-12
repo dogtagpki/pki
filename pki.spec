@@ -447,7 +447,6 @@ Requires:         jakarta-activation >= 1.2.2
 
 Requires:         xalan-j2
 Requires:         xerces-j2
-Requires:         xml-commons-apis
 Requires:         xml-commons-resolver
 
 %description -n   pki-base-java

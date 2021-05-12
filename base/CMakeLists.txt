@@ -327,14 +327,6 @@ find_file(XERCES_JAR
         /usr/share/java
 )
 
-find_file(XML_COMMONS_APIS_JAR
-    NAMES
-        xml-commons-apis.jar
-        xml-apis.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(XML_COMMONS_RESOLVER_JAR
     NAMES
         xml-commons-resolver.jar
