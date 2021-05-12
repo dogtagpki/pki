@@ -11,7 +11,7 @@ jobs:
       COPR_REPO: "@pki/master"
     strategy:
       matrix:
-        os: ['32', '33']
+        os: ['33', '34']
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -67,7 +67,7 @@ jobs:
       COPR_REPO: "@pki/master"
     strategy:
       matrix:
-        os: ['32', '33']
+        os: ['33', '34']
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -221,7 +221,7 @@ jobs:
       COPR_REPO: "@pki/master"
     strategy:
       matrix:
-        os: ['32', '33']
+        os: ['33', '34']
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -388,7 +388,7 @@ jobs:
       COPR_REPO: "@pki/master"
     strategy:
       matrix:
-        os: ['32', '33']
+        os: ['33', '34']
     steps:
       - name: Clone repository
         uses: actions/checkout@v2

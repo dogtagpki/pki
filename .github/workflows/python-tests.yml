@@ -12,7 +12,7 @@ jobs:
       COPR_REPO: "@pki/master"
     strategy:
       matrix:
-        os: ['32', '33']
+        os: ['33', '34']
     steps:
       - name: Install git
         run: dnf install -y git
@@ -44,7 +44,7 @@ jobs:
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     strategy:
       matrix:
-        os: ['32', '33']
+        os: ['33', '34']
     steps:
       - name: Download PKI packages
         uses: actions/download-artifact@v2
