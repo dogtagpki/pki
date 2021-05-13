@@ -27,7 +27,7 @@ from .. import pkiconfig as config
 from .. import pkiscriptlet
 import pki.util
 
-logger = logging.getLogger('infrastructure')
+logger = logging.getLogger(__name__)
 
 
 # PKI Deployment Top-Level Infrastructure Layout Scriptlet

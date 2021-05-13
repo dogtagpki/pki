@@ -33,7 +33,7 @@ import pki.util
 from .. import pkiconfig as config
 from .. import pkiscriptlet
 
-logger = logging.getLogger('keygen')
+logger = logging.getLogger(__name__)
 
 
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
