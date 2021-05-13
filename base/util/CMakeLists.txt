@@ -53,7 +53,7 @@ javac(pki-util-test-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/test/classes
     DEPENDS
-        pki-test-classes pki-cmsutil-jar
+        pki-cmsutil-jar
 )
 
 # TODO: create CMake function to find all JUnit test classes
