@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
@@ -71,8 +70,5 @@ public class AuthenticatorCLI extends CLI {
                 }
             }
         }
-
-        Link link = authenticatorData.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

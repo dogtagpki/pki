@@ -32,7 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.AuthenticatorDatabase;
 import org.dogtagpki.server.tps.config.AuthenticatorRecord;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
@@ -66,12 +65,6 @@ public class AuthenticatorService extends SubsystemService implements Authentica
         authenticatorData.setID(authenticatorID);
         authenticatorData.setStatus(authenticatorRecord.getStatus());
         authenticatorData.setProperties(authenticatorRecord.getProperties());
-
-        authenticatorID = URLEncoder.encode(authenticatorID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(AuthenticatorResource.class).path("{authenticatorID}")
-                .build(authenticatorID);
-        authenticatorData.setLink(new Link("self", uri));
-
         return authenticatorData;
     }
 
@@ -120,16 +113,6 @@ public class AuthenticatorService extends SubsystemService implements Authentica
             for (; authenticators.hasNext(); i++)
                 authenticators.next();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 
@@ -203,8 +186,13 @@ public class AuthenticatorService extends SubsystemService implements Authentica
                 properties.put("Status", status);
             }
             auditTPSAuthenticatorChange(ILogger.SUCCESS, method, authenticatorData.getID(), properties, null);
-
-            return createCreatedResponse(authenticatorData, authenticatorData.getLink().getHref());
+            String authenticatorID = URLEncoder.encode(authenticatorData.getID(), "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(AuthenticatorResource.class)
+                    .path("{authenticatorID}")
+                    .build(authenticatorID);
+            return createCreatedResponse(authenticatorData, uri);
 
         } catch (PKIException e) {
             logger.error("AuthenticatorService: " + e.getMessage(), e);
