@@ -19,7 +19,6 @@
 package org.dogtagpki.server.ca.rest;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -28,7 +27,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.ca.CertificateAuthority;
@@ -521,16 +519,6 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         // return entries in the requested page
         for (int i = start; i < start + size && i < total; i++) {
             infos.addEntry(results.get(i));
-        }
-
-        if (start > 0) {
-            URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-            infos.addLink(new Link("prev", uri));
-        }
-
-        if (start + size < total) {
-            URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-            infos.addLink(new Link("next", uri));
         }
 
         return createOKResponse(infos);

@@ -26,9 +26,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -47,26 +44,6 @@ public class CertRequestInfos extends DataCollection<CertRequestInfo> {
     @XmlElementRef
     public Collection<CertRequestInfo> getEntries() {
         return super.getEntries();
-    }
-
-    @XmlTransient
-    public String getNext() {
-        for (Link link : getLinks()) {
-            if ("next".equals(link.getRel())) {
-                return link.getHref().toString();
-            }
-        }
-        return null;
-    }
-
-    @XmlTransient
-    public String getPrevious() {
-        for (Link link : getLinks()) {
-            if ("previous".equals(link.getRel())) {
-                return link.getHref().toString();
-            }
-        }
-        return null;
     }
 
     public String toJSON() throws Exception {

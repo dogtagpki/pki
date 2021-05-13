@@ -32,7 +32,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -76,7 +75,6 @@ public class CertData {
 
     Long nonce;
 
-    Link link;
 
     @XmlAttribute(name="id")
     @XmlJavaTypeAdapter(CertIdAdapter.class)
@@ -195,15 +193,6 @@ public class CertData {
 
     public void setRevocationReason(Integer revocationReason) {
         this.revocationReason = revocationReason;
-    }
-
-    @XmlElement(name="Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
     }
 
     @Override
