@@ -30,8 +30,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
 /**
  * @author Endi S. Dewata
  */
@@ -69,8 +67,6 @@ public class TokenData {
     String policy;
     Date createTimestamp;
     Date modifyTimestamp;
-
-    Link link;
 
     @XmlAttribute(name="id")
     public String getID() {
@@ -171,15 +167,6 @@ public class TokenData {
         this.modifyTimestamp = modifyTimestamp;
     }
 
-    @XmlElement(name="Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -188,7 +175,6 @@ public class TokenData {
         result = prime * result + ((createTimestamp == null) ? 0 : createTimestamp.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((keyInfo == null) ? 0 : keyInfo.hashCode());
-        result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((modifyTimestamp == null) ? 0 : modifyTimestamp.hashCode());
         result = prime * result + ((nextStates == null) ? 0 : nextStates.hashCode());
         result = prime * result + ((policy == null) ? 0 : policy.hashCode());
@@ -227,11 +213,6 @@ public class TokenData {
             if (other.keyInfo != null)
                 return false;
         } else if (!keyInfo.equals(other.keyInfo))
-            return false;
-        if (link == null) {
-            if (other.link != null)
-                return false;
-        } else if (!link.equals(other.link))
             return false;
         if (modifyTimestamp == null) {
             if (other.modifyTimestamp != null)

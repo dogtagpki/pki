@@ -18,7 +18,6 @@
 
 package org.dogtagpki.server.tps.rest;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -37,7 +36,6 @@ import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
@@ -216,18 +214,6 @@ public class TokenService extends SubsystemService implements TokenResource {
         tokenData.setPolicy(tokenRecord.getPolicy());
         tokenData.setCreateTimestamp(tokenRecord.getCreateTimestamp());
         tokenData.setModifyTimestamp(tokenRecord.getModifyTimestamp());
-
-        String tokenID = tokenRecord.getId();
-        try {
-            tokenID = URLEncoder.encode(tokenID, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            logger.error("TokenService: " + e.getMessage(), e);
-            throw new PKIException(e);
-        }
-
-        URI uri = uriInfo.getBaseUriBuilder().path(TokenResource.class).path("{tokenID}").build(tokenID);
-        tokenData.setLink(new Link("self", uri));
-
         return tokenData;
     }
 
@@ -278,16 +264,6 @@ public class TokenService extends SubsystemService implements TokenResource {
                 retrieveTokensWithVLV(database, start, size, response);
             } else {
                 retrieveTokensWithoutVLV(database, filter, attributes, start, size, response);
-            }
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < response.getTotal()) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
             }
 
             return createOKResponse(response);
@@ -456,8 +432,13 @@ public class TokenService extends SubsystemService implements TokenResource {
             tokenData = createTokenData(database.getRecord(tokenID));
             auditConfigTokenRecord(ILogger.SUCCESS, method, tokenID,
                     auditModParams, null);
-
-            return createCreatedResponse(tokenData, tokenData.getLink().getHref());
+            String encodedTokenID = URLEncoder.encode(tokenID, "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(TokenResource.class)
+                    .path("{tokenID}")
+                    .build(encodedTokenID);
+            return createCreatedResponse(tokenData, uri);
 
         } catch (Exception e) {
 
