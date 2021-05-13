@@ -174,6 +174,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             nssdb.close()
             shutil.rmtree(tmpdir)
 
+        # Reset the NSS database ownership and permissions
+        # after importing the permanent SSL server cert
+        # since it might create new files.
+        pki.util.chown(
+            deployer.mdict['pki_server_database_path'],
+            deployer.mdict['pki_uid'],
+            deployer.mdict['pki_gid'])
+        pki.util.chmod(
+            deployer.mdict['pki_server_database_path'],
+            config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
+        os.chmod(
+            deployer.mdict['pki_server_database_path'],
+            pki.server.DEFAULT_DIR_MODE)
+
     def spawn(self, deployer):
 
         external = deployer.configuration_file.external

@@ -105,6 +105,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_hsm_modulename'],
                 deployer.mdict['pki_hsm_libfile'])
 
+        # Set the initial NSS database ownership and permissions.
         pki.util.chown(
             deployer.mdict['pki_server_database_path'],
             deployer.mdict['pki_uid'],
