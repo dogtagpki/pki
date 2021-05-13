@@ -26,9 +26,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.DataCollection;
 import com.netscape.certsrv.request.RequestStatus;
@@ -39,25 +36,6 @@ public class KeyRequestInfoCollection extends DataCollection<KeyRequestInfo> {
     @XmlElementRef
     public Collection<KeyRequestInfo> getEntries() {
         return super.getEntries();
-    }
-    @XmlTransient
-    public String getNext() {
-        for (Link link : getLinks()) {
-            if ("next".equals(link.getRel())) {
-                return link.getHref().toString();
-            }
-        }
-        return null;
-    }
-
-    @XmlTransient
-    public String getPrevious() {
-        for (Link link : getLinks()) {
-            if ("previous".equals(link.getRel())) {
-                return link.getHref().toString();
-            }
-        }
-        return null;
     }
 
     public String toString() {

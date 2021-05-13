@@ -20,7 +20,6 @@ package org.dogtagpki.server.kra.rest;
 
 
 import java.math.BigInteger;
-import java.net.URI;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +34,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import org.dogtagpki.server.kra.KRAEngine;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -543,17 +541,6 @@ public class KeyService extends SubsystemService implements KeyResource {
             for (int i = start; i < start + size && i < total; i++) {
                 infos.addEntry(results.get(i));
             }
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                infos.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < total) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                infos.addLink(new Link("next", uri));
-            }
-
         } catch (EBaseException e) {
             throw new PKIException("Unable to list keys: " + e.getMessage(), e);
         }
