@@ -21,9 +21,6 @@ import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.DataCollection;
 //import com.netscape.certsrv.base.Link;
@@ -34,25 +31,5 @@ public class ProfileDataInfos extends DataCollection<ProfileDataInfo> {
     @XmlElementRef
     public Collection<ProfileDataInfo> getEntries() {
         return super.getEntries();
-    }
-
-    @XmlTransient
-    public String getNext() {
-        for (Link link : getLinks()) {
-            if ("next".equals(link. getRel())) {
-                return link.getHref().toString();
-            }
-        }
-        return null;
-    }
-
-    @XmlTransient
-    public String getPrevious() {
-        for (Link link : getLinks()) {
-            if ("previous".equals(link.getRel())) {
-                return link.getHref().toString();
-            }
-        }
-        return null;
     }
 }

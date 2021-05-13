@@ -38,8 +38,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
 /**
  * @author jmagne
  *
@@ -104,16 +102,6 @@ public class ProfileData {
     @XmlElement(name = "PolicySets")
     @XmlJavaTypeAdapter(PolicySetAdapter.class)
     protected Map<String, List<ProfilePolicy>> policySets = new LinkedHashMap<String, List<ProfilePolicy>>();
-
-    protected Link link;
-
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
 
     public String getAuthenticatorId() {
         return authenticatorId;

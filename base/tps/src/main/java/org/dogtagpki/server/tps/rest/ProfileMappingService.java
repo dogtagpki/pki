@@ -32,7 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.ProfileMappingDatabase;
 import org.dogtagpki.server.tps.config.ProfileMappingRecord;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
@@ -66,12 +65,6 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
         profileMappingData.setID(profileMappingID);
         profileMappingData.setStatus(profileMappingRecord.getStatus());
         profileMappingData.setProperties(profileMappingRecord.getProperties());
-
-        profileMappingID = URLEncoder.encode(profileMappingID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(ProfileMappingResource.class).path("{profileMappingID}")
-                .build(profileMappingID);
-        profileMappingData.setLink(new Link("self", uri));
-
         return profileMappingData;
     }
 
@@ -120,16 +113,6 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
             for (; profileMappings.hasNext(); i++)
                 profileMappings.next();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 
@@ -188,8 +171,13 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
             profileMappingData = createProfileMappingData(database.getRecord(profileMappingData.getID()));
             auditMappingResolverChange(ILogger.SUCCESS, method, profileMappingData.getID(),
                     profileMappingData.getProperties(), null);
-
-            return createCreatedResponse(profileMappingData, profileMappingData.getLink().getHref());
+            String profileMappingID = URLEncoder.encode(profileMappingData.getID(), "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(ProfileMappingResource.class)
+                    .path("{profileMappingID}")
+                    .build(profileMappingID);
+            return createCreatedResponse(profileMappingData, uri);
 
         } catch (PKIException e) {
             logger.error("ProfileMappingService: " + e.getMessage(), e);

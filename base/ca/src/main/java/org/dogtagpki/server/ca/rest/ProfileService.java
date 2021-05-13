@@ -39,7 +39,6 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.ca.CAEngine;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
@@ -144,17 +143,6 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         for (int i = start; i < start + size && i < total; i++) {
             infos.addEntry(results.get(i));
         }
-
-        if (start > 0) {
-            URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-            infos.addLink(new Link("prev", uri));
-        }
-
-        if (start + size < total) {
-            URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-            infos.addLink(new Link("next", uri));
-        }
-
         return createOKResponse(infos);
     }
 
@@ -208,12 +196,6 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             e.printStackTrace();
             throw new ProfileNotFoundException(profileId);
         }
-
-        UriBuilder profileBuilder = uriInfo.getBaseUriBuilder();
-        URI uri = profileBuilder.path(ProfileResource.class).path("{id}").
-                build(profileId);
-        data.setLink(new Link("self", uri));
-
         return createOKResponse(data);
     }
 
@@ -284,12 +266,6 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                 }
             }
         }
-
-        UriBuilder profileBuilder = uriInfo.getBaseUriBuilder();
-        URI uri = profileBuilder.path(ProfileResource.class).path("{id}").
-                build(profileId);
-        data.setLink(new Link("self", uri));
-
         return data;
     }
 
@@ -522,8 +498,12 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             changeProfileData(data, profile);
 
             ProfileData profileData = createProfileData(profileId);
-
-            return createCreatedResponse(profileData, profileData.getLink().getHref());
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(ProfileResource.class)
+                    .path("{id}")
+                    .build(profileId);
+            return createCreatedResponse(profileData, uri);
 
         } catch (EBaseException e) {
             logger.error("createProfile: error creating profile: " + e.getMessage(), e);

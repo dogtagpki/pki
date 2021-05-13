@@ -35,8 +35,6 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
 /**
  * @author Endi S. Dewata
  */
@@ -59,8 +57,6 @@ public class ProfileMappingData {
     String id;
     String status;
     Map<String, String> properties;
-
-    Link link;
 
     @XmlAttribute(name="id")
     public String getID() {
@@ -126,21 +122,11 @@ public class ProfileMappingData {
         public String value;
     }
 
-    @XmlElement(name="Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((properties == null) ? 0 : properties.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         return result;
@@ -159,11 +145,6 @@ public class ProfileMappingData {
             if (other.id != null)
                 return false;
         } else if (!id.equals(other.id))
-            return false;
-        if (link == null) {
-            if (other.link != null)
-                return false;
-        } else if (!link.equals(other.link))
             return false;
         if (properties == null) {
             if (other.properties != null)
