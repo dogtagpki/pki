@@ -18,13 +18,10 @@
 
 package org.dogtagpki.server.kra.rest;
 
-import java.net.URI;
-
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.kra.KRASystemCertResource;
 import org.dogtagpki.server.kra.KRAEngine;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -65,9 +62,6 @@ public class KRASystemCertService extends PKIService implements KRASystemCertRes
                 new SignerInfo[0]);
 
         CertData certData = CertData.fromCertChain(pkcs7);
-
-        URI uri = uriInfo.getRequestUri();
-        certData.setLink(new Link("self", uri));
 
         return sendConditionalGetResponse(DEFAULT_LONG_CACHE_LIFETIME, certData, request);
     }
