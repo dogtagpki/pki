@@ -18,6 +18,7 @@
 
 package org.dogtagpki.server.rest;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Enumeration;
@@ -26,7 +27,6 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
@@ -71,10 +71,6 @@ public class GroupService extends SubsystemService implements GroupResource {
         String description = group.getDescription();
         if (!StringUtils.isEmpty(description)) groupData.setDescription(description);
 
-        String encodedGroupID = URLEncoder.encode(groupData.getID(), "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(GroupResource.class).path("{groupID}").build(encodedGroupID);
-        groupData.setLink(new Link("self", uri));
-
         return groupData;
     }
 
@@ -113,16 +109,6 @@ public class GroupService extends SubsystemService implements GroupResource {
             // count the total entries
             for ( ; groups.hasMoreElements(); i++) groups.nextElement();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 
@@ -210,14 +196,19 @@ public class GroupService extends SubsystemService implements GroupResource {
 
             // read the data back
             groupData = getGroupData(groupID);
-
-            return createCreatedResponse(groupData, groupData.getLink().getHref());
+            String encodedGroupID = URLEncoder.encode(groupData.getID(), "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(GroupResource.class)
+                    .path("{groupID}")
+                    .build(encodedGroupID);
+            return createCreatedResponse(groupData, uri);
 
         } catch (PKIException e) {
             auditAddGroup(groupID, groupData, ILogger.FAILURE);
             throw e;
 
-        } catch (EBaseException e) {
+        } catch (EBaseException | UnsupportedEncodingException e) {
             auditAddGroup(groupID, groupData, ILogger.FAILURE);
             throw new PKIException(e.getMessage());
         }
@@ -384,8 +375,13 @@ public class GroupService extends SubsystemService implements GroupResource {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
             groupMemberData = processor.addGroupMember(groupMemberData);
-
-            return createCreatedResponse(groupMemberData, groupMemberData.getLink().getHref());
+            String encodedGroupID = URLEncoder.encode(groupID, "UTF-8");
+            String encodedGroupMemberID = URLEncoder.encode(groupMemberData.getID(), "UTF-8");
+            URI uri = uriInfo.getBaseUriBuilder()
+                    .path(GroupResource.class)
+                    .path("{groupID}/members/{memberID}")
+                    .build(encodedGroupID, encodedGroupMemberID);
+            return createCreatedResponse(groupMemberData, uri);
 
         } catch (PKIException e) {
             throw e;

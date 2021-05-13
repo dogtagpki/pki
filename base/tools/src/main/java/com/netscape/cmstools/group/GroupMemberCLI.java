@@ -19,7 +19,6 @@
 package com.netscape.cmstools.group;
 
 import org.dogtagpki.cli.CLI;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupMemberData;
@@ -55,8 +54,5 @@ public class GroupMemberCLI extends CLI {
 
     public static void printGroupMember(GroupMemberData groupMemberData) {
         System.out.println("  User: "+groupMemberData.getID());
-
-        Link link = groupMemberData.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

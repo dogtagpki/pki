@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
-import java.net.URI;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -26,8 +24,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
-
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
@@ -40,7 +36,6 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.group.GroupMemberCollection;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.group.GroupNotFoundException;
-import com.netscape.certsrv.group.GroupResource;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
@@ -87,16 +82,6 @@ public class GroupMemberProcessor extends Processor {
         GroupMemberData groupMemberData = new GroupMemberData();
         groupMemberData.setID(memberID);
         groupMemberData.setGroupID(groupID);
-
-        URI uri = uriInfo.getBaseUriBuilder()
-                .path(GroupResource.class)
-                .path("{groupID}/members/{memberID}")
-                .build(
-                        URLEncoder.encode(groupID, "UTF-8"),
-                        URLEncoder.encode(memberID, "UTF-8"));
-
-        groupMemberData.setLink(new Link("self", uri));
-
         return groupMemberData;
     }
 
@@ -136,17 +121,6 @@ public class GroupMemberProcessor extends Processor {
 
             // return the total entries
             response.setTotal(results.size());
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start+size < results.size()) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                response.addLink(new Link("next", uri));
-            }
-
             return response;
 
         } catch (PKIException e) {

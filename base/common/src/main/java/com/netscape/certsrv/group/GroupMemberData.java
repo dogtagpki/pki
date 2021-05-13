@@ -20,10 +20,7 @@ package com.netscape.certsrv.group;
 
 import javax.ws.rs.FormParam;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -42,8 +39,6 @@ public class GroupMemberData {
     String id;
     String groupID;
 
-    Link link;
-
     @FormParam(Constants.PR_GROUP_USER)
     @XmlAttribute(name="id")
     public String getID() {
@@ -61,15 +56,6 @@ public class GroupMemberData {
 
     public void setGroupID(String groupID) {
         this.groupID = groupID;
-    }
-
-    @XmlElement(name="Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
     }
 
     @Override

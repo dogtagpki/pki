@@ -23,8 +23,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
 import com.netscape.certsrv.common.Constants;
 
 /**
@@ -37,8 +35,6 @@ public class GroupData {
     String groupID;
 
     String description;
-
-    Link link;
 
     @XmlAttribute(name="id")
     public String getID() {
@@ -68,15 +64,6 @@ public class GroupData {
         this.description = description;
     }
 
-    @XmlElement(name="Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -84,7 +71,6 @@ public class GroupData {
         result = prime * result + ((description == null) ? 0 : description.hashCode());
         result = prime * result + ((groupID == null) ? 0 : groupID.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((link == null) ? 0 : link.hashCode());
         return result;
     }
 
@@ -111,11 +97,6 @@ public class GroupData {
             if (other.id != null)
                 return false;
         } else if (!id.equals(other.id))
-            return false;
-        if (link == null) {
-            if (other.link != null)
-                return false;
-        } else if (!link.equals(other.link))
             return false;
         return true;
     }

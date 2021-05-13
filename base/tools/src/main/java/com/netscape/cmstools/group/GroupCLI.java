@@ -20,7 +20,6 @@ package com.netscape.cmstools.group;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.group.GroupClient;
@@ -90,8 +89,5 @@ public class GroupCLI extends CLI {
 
         String description = groupData.getDescription();
         if (!StringUtils.isEmpty(description)) System.out.println("  Description: "+description);
-
-        Link link = groupData.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }
