@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.connector.ConnectorClient;
@@ -71,8 +70,5 @@ public class ConnectorCLI extends CLI {
                 }
             }
         }
-
-        Link link = connectorData.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

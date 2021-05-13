@@ -32,7 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.ConnectorDatabase;
 import org.dogtagpki.server.tps.config.ConnectorRecord;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
@@ -65,11 +64,6 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
         connectorData.setID(connectorID);
         connectorData.setStatus(connectionRecord.getStatus());
         connectorData.setProperties(connectionRecord.getProperties());
-
-        connectorID = URLEncoder.encode(connectorID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(ConnectorResource.class).path("{connectorID}").build(connectorID);
-        connectorData.setLink(new Link("self", uri));
-
         return connectorData;
     }
 
@@ -118,16 +112,6 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             for (; connections.hasNext(); i++)
                 connections.next();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 
@@ -201,8 +185,13 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
                 properties.put("Status", status);
             }
             auditTPSConnectorChange(ILogger.SUCCESS, method, connectorData.getID(), properties, null);
-
-            return createCreatedResponse(connectorData, connectorData.getLink().getHref());
+            String connectorID = URLEncoder.encode(connectorData.getID(), "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(ConnectorResource.class)
+                    .path("{connectorID}")
+                    .build(connectorID);
+            return createCreatedResponse(connectorData, uri);
 
         } catch (PKIException e) {
             logger.error("ConnectorService: " + e.getMessage(), e);
