@@ -56,7 +56,7 @@ endif(WITH_SYSTEMD_NOTIFICATION)
 # TODO: build test only when the test is invoked
 javac(pki-server-test-classes
     DEPENDS
-        pki-test-classes pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-cmsbundle-jar
+        pki-util-test-classes pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-cmsbundle-jar
     SOURCES
         src/test/java/*.java
     CLASSPATH
