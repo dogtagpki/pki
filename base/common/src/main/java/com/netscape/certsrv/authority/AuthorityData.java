@@ -30,7 +30,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 @XmlRootElement(name = "authority")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -124,17 +123,6 @@ public class AuthorityData {
 
     public Boolean getReady() {
         return ready;
-    }
-
-
-    protected Link link;
-
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
     }
 
     protected AuthorityData() {
