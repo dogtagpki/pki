@@ -23,8 +23,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
 import com.netscape.certsrv.common.Constants;
 
 /**
@@ -35,8 +33,6 @@ public class UserMembershipData {
 
     String id;
     String userID;
-
-    Link link;
 
     @FormParam(Constants.PR_GROUP_GROUP)
     @XmlAttribute(name="id")
@@ -55,15 +51,6 @@ public class UserMembershipData {
 
     public void setUserID(String userID) {
         this.userID = userID;
-    }
-
-    @XmlElement(name="Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
     }
 
     @Override

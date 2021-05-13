@@ -36,7 +36,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -100,10 +99,6 @@ public class UserService extends SubsystemService implements UserResource {
         String fullName = user.getFullName();
         if (!StringUtils.isEmpty(fullName)) userData.setFullName(fullName);
 
-        String encodedUserID = URLEncoder.encode(userID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(UserResource.class).path("{userID}").build(encodedUserID);
-        userData.setLink(new Link("self", uri));
-
         return userData;
     }
 
@@ -143,16 +138,6 @@ public class UserService extends SubsystemService implements UserResource {
             // count the total entries
             for ( ; users.hasMoreElements(); i++) users.nextElement();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 
@@ -386,14 +371,19 @@ public class UserService extends SubsystemService implements UserResource {
 
             // read the data back
             userData = getUserData(userID);
-
-            return createCreatedResponse(userData, userData.getLink().getHref());
+            String encodedUserID = URLEncoder.encode(userID, "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(UserResource.class)
+                    .path("{userID}")
+                    .build(encodedUserID);
+            return createCreatedResponse(userData, uri);
 
         } catch (PKIException e) {
             auditAddUser(userID, userData, ILogger.FAILURE);
             throw e;
 
-        } catch (EBaseException e) {
+        } catch (EBaseException | UnsupportedEncodingException e) {
             auditAddUser(userID, userData, ILogger.FAILURE);
             throw new PKIException(e.getMessage());
         }
@@ -655,15 +645,6 @@ public class UserService extends SubsystemService implements UserResource {
         userCertData.setSerialNumber(new CertId(cert.getSerialNumber()));
         userCertData.setIssuerDN(cert.getIssuerDN().toString());
         userCertData.setSubjectDN(cert.getSubjectDN().toString());
-
-        userID = URLEncoder.encode(userID, "UTF-8");
-        String certID = URLEncoder.encode(userCertData.getID(), "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder()
-                .path(UserResource.class)
-                .path("{userID}/certs/{certID}")
-                .build(userID, certID);
-        userCertData.setLink(new Link("self", uri));
-
         return userCertData;
     }
 
@@ -716,16 +697,6 @@ public class UserService extends SubsystemService implements UserResource {
             // count the total entries
             for ( ; entries.hasNext(); i++) entries.next();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 
@@ -976,9 +947,15 @@ public class UserService extends SubsystemService implements UserResource {
                 userCertData.setSubjectDN(cert.getSubjectDN().toString());
                 String certID = userCertData.getID();
 
-                userCertData = getUserCertData(userID, URLEncoder.encode(certID, "UTF-8"));
-
-                return createCreatedResponse(userCertData, userCertData.getLink().getHref());
+                String encodedCertID = URLEncoder.encode(certID, "UTF-8");
+                userCertData = getUserCertData(userID, encodedCertID);
+                String encodedUserID = URLEncoder.encode(userID, "UTF-8");
+                URI uri = uriInfo
+                        .getBaseUriBuilder()
+                        .path(UserResource.class)
+                        .path("{userID}/certs/{certID}")
+                        .build(encodedUserID, encodedCertID);
+                return createCreatedResponse(userCertData, uri);
 
             } catch (CertificateExpiredException e) {
                 logger.error("UserService: Certificate expired: " + e.getMessage(), e);
@@ -1082,16 +1059,6 @@ public class UserService extends SubsystemService implements UserResource {
         UserMembershipData userMembershipData = new UserMembershipData();
         userMembershipData.setID(groupID);
         userMembershipData.setUserID(userID);
-
-        URI uri = uriInfo.getBaseUriBuilder()
-                .path(UserResource.class)
-                .path("{userID}/memberships/{groupID}")
-                .build(
-                        URLEncoder.encode(userID, "UTF-8"),
-                        URLEncoder.encode(groupID, "UTF-8"));
-
-        userMembershipData.setLink(new Link("self", uri));
-
         return userMembershipData;
     }
 
@@ -1138,16 +1105,6 @@ public class UserService extends SubsystemService implements UserResource {
             for ( ; groups.hasMoreElements(); i++) groups.nextElement();
             response.setTotal(i);
 
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                response.addLink(new Link("next", uri));
-            }
-
             return createOKResponse(response);
 
         } catch (PKIException e) {
@@ -1175,8 +1132,13 @@ public class UserService extends SubsystemService implements UserResource {
             processor.addGroupMember(groupMemberData);
 
             UserMembershipData userMembershipData = createUserMembershipData(userID, groupID);
-
-            return createCreatedResponse(userMembershipData, userMembershipData.getLink().getHref());
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(UserResource.class)
+                    .path("{userID}/memberships/{groupID}")
+                    .build(URLEncoder.encode(userID, "UTF-8"),
+                            URLEncoder.encode(groupID, "UTF-8"));
+            return createCreatedResponse(userMembershipData, uri);
 
         } catch (PKIException e) {
             throw e;

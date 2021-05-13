@@ -32,12 +32,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
+import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
-import org.mozilla.jss.netscape.security.util.Cert;
 
 /**
  * @author Endi S. Dewata
@@ -64,8 +63,6 @@ public class UserCertData {
     String subjectDN;
     String prettyPrint;
     String encoded;
-
-    Link link;
 
     @XmlAttribute(name="id")
     public String getID() {
@@ -138,15 +135,6 @@ public class UserCertData {
 
     public void setEncoded(String encoded) {
         this.encoded = encoded;
-    }
-
-    @XmlElement(name="Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
     }
 
     @Override
