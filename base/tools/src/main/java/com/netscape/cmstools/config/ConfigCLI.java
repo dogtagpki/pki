@@ -24,7 +24,6 @@ import java.util.Map;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.common.ConfigClient;
 import org.dogtagpki.common.ConfigData;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.SubsystemCLI;
@@ -70,8 +69,5 @@ public class ConfigCLI extends CLI {
                 System.out.println("    " + name + ": " + value);
             }
         }
-
-        Link link = configData.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }
