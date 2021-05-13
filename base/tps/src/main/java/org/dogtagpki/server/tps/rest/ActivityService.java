@@ -19,7 +19,6 @@
 package org.dogtagpki.server.tps.rest;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Iterator;
 
@@ -28,7 +27,6 @@ import javax.ws.rs.core.Response;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.ActivityRecord;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
@@ -68,10 +66,6 @@ public class ActivityService extends PKIService implements ActivityResource {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
         }
-
-        URI uri = uriInfo.getBaseUriBuilder().path(ActivityResource.class).path("{activityID}").build(activityID);
-        activityData.setLink(new Link("self", uri));
-
         return activityData;
     }
 
@@ -113,17 +107,6 @@ public class ActivityService extends PKIService implements ActivityResource {
             } else {
                 retrieveActivitiesWithoutVLV(database, filter, start, size, response);
             }
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < response.getTotal()) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
-            }
-
             return createOKResponse(response);
 
         } catch (Exception e) {

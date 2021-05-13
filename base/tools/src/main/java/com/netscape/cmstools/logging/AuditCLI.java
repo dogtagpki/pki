@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.AuditClient;
@@ -85,9 +84,6 @@ public class AuditCLI extends CLI {
                 System.out.println("    " + name + ": " + value);
             }
         }
-
-        Link link = auditConfig.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 
     public static void printAuditFile(AuditFile auditFile) {

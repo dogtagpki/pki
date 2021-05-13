@@ -37,8 +37,6 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
 /**
  * @author Endi S. Dewata
  */
@@ -65,8 +63,6 @@ public class AuditConfig {
     Integer bufferSize;
 
     Map<String, String> eventConfigs;
-
-    Link link;
 
     @XmlElement(name="Status")
     public String getStatus() {
@@ -150,15 +146,6 @@ public class AuditConfig {
         public String value;
     }
 
-    @XmlElement(name="Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -167,7 +154,6 @@ public class AuditConfig {
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((eventConfigs == null) ? 0 : eventConfigs.hashCode());
         result = prime * result + ((interval == null) ? 0 : interval.hashCode());
-        result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((signed == null) ? 0 : signed.hashCode());
         return result;
     }
@@ -200,11 +186,6 @@ public class AuditConfig {
             if (other.interval != null)
                 return false;
         } else if (!interval.equals(other.interval))
-            return false;
-        if (link == null) {
-            if (other.link != null)
-                return false;
-        } else if (!link.equals(other.link))
             return false;
         if (signed == null) {
             if (other.signed != null)

@@ -19,7 +19,6 @@
 package com.netscape.cmstools.logging;
 
 import org.dogtagpki.cli.CLI;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.ActivityClient;
@@ -66,8 +65,5 @@ public class ActivityCLI extends CLI {
         if (showAll) {
             if (activity.getMessage() != null)  System.out.println("  Message: " + activity.getMessage());
         }
-
-        Link link = activity.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }
