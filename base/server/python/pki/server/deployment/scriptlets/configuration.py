@@ -40,7 +40,7 @@ import pki.server.instance
 import pki.system
 import pki.util
 
-logger = logging.getLogger('configuration')
+logger = logging.getLogger(__name__)
 
 
 # PKI Deployment Configuration Scriptlet

@@ -44,7 +44,7 @@ def log_format(given_dict):
 
 
 # PKI Deployment Logging Functions
-def enable_pki_logger(filename, name):
+def enable_pki_logger(filename):
 
     # Configure console handler
     console = logging.StreamHandler()
@@ -57,26 +57,6 @@ def enable_pki_logger(filename, name):
                                     '%Y-%m-%d %H:%M:%S')
     log_file.setFormatter(file_format)
 
-    # Configure PKI deployment loggers
-    modules = [
-        'pki',
-        'pkihelper',
-        'pkimanifest',
-        'pkiparser',
-        'initialization',
-        'infrastructure',
-        'instance',
-        'subsystem',
-        'webapp',
-        'nssdb',
-        'selinux',
-        'keygen',
-        'configuration',
-        'finalization',
-        name
-    ]
-
-    for module in modules:
-        logger = logging.getLogger(module)
-        logger.addHandler(console)
-        logger.addHandler(log_file)
+    logger = logging.getLogger('pki')
+    logger.addHandler(console)
+    logger.addHandler(log_file)
