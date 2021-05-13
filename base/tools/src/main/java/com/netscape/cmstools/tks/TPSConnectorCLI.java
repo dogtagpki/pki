@@ -18,7 +18,6 @@
 package com.netscape.cmstools.tks;
 
 import org.dogtagpki.cli.CLI;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
@@ -65,9 +64,6 @@ public class TPSConnectorCLI extends CLI {
         if (data.getPort() != null) System.out.println("  Port: " + data.getPort());
         if (data.getUserID() != null) System.out.println("  User ID: " + data.getUserID());
         if (data.getNickname() != null) System.out.println("  Nickname: " + data.getNickname());
-
-        Link link = data.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 
 }

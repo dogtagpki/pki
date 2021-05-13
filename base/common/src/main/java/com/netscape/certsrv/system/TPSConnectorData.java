@@ -10,8 +10,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
@@ -24,8 +22,6 @@ public class TPSConnectorData {
     String port;
     String userID;
     String nickname;
-
-    Link link;
 
     @XmlAttribute(name="id")
     public String getID() {
@@ -70,15 +66,6 @@ public class TPSConnectorData {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
-    }
-
-    @XmlElement(name="Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
     }
 
     @Override

@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.tks.TKSEngine;
 import org.dogtagpki.server.tks.TKSEngineConfig;
 import org.dogtagpki.server.tks.TPSConnectorConfig;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
@@ -84,16 +83,6 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
                 entries.next();
             response.setTotal(i);
 
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
-            }
-
             return createOKResponse(response);
 
         } catch (EBaseException e) {
@@ -112,10 +101,6 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
         data.setPort(tpsConfig.getPort());
         data.setUserID(tpsConfig.getUserID());
         data.setNickname(tpsConfig.getNickname());
-
-        URI uri = uriInfo.getBaseUriBuilder().path(TPSCertResource.class).path("{id}").build(tpsID);
-        data.setLink(new Link("self", uri));
-
         return data;
     }
 
@@ -167,14 +152,16 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             newData.setHost(tpsHost);
             newData.setPort(tpsPort);
             newData.setUserID("TPS-" + tpsHost + "-" + tpsPort);
-            URI uri = uriInfo.getBaseUriBuilder().path(TPSCertResource.class).path("{id}").build(newID);
-            newData.setLink(new Link("self", uri));
             saveClientData(newData);
 
             addToConnectorList(newID);
             cs.commit(true);
-
-            return createCreatedResponse(newData, newData.getLink().getHref());
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(TPSCertResource.class)
+                    .path("{id}")
+                    .build(newData.getID());
+            return createCreatedResponse(newData, uri);
 
         } catch (EBaseException e) {
             logger.error("TPSConnectorService: Unable to create new TPS connector: " + e.getMessage(), e);

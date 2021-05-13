@@ -33,7 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.ProfileDatabase;
 import org.dogtagpki.server.tps.config.ProfileRecord;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
@@ -66,11 +65,6 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
         profileData.setProfileID(profileID);
         profileData.setStatus(profileRecord.getStatus());
         profileData.setProperties(profileRecord.getProperties());
-
-        profileID = URLEncoder.encode(profileID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(ProfileResource.class).path("{profileID}").build(profileID);
-        profileData.setLink(new Link("self", uri));
-
         return profileData;
     }
 
@@ -119,17 +113,6 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             for (; profiles.hasNext(); i++)
                 profiles.next();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
-            }
-
             return createOKResponse(response);
 
         } catch (PKIException e) {
@@ -221,8 +204,13 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
                 properties.put("Status", status);
             }
             auditTPSProfileChange(ILogger.SUCCESS, method, id, properties, null);
-
-            return createCreatedResponse(profileData, profileData.getLink().getHref());
+            String profileID = URLEncoder.encode(profileData.getID(), "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(ProfileResource.class)
+                    .path("{profileID}")
+                    .build(profileID);
+            return createCreatedResponse(profileData, uri);
 
         } catch (PKIException e) {
             logger.error("TPSProfileService: " + e.getMessage(), e);

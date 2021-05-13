@@ -19,7 +19,6 @@
 package com.netscape.cmstools.tps.cert;
 
 import org.dogtagpki.cli.CLI;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.cert.TPSCertClient;
@@ -66,8 +65,5 @@ public class TPSCertCLI extends CLI {
         if (cert.getStatus() != null) System.out.println("  Status: " + cert.getStatus());
         if (cert.getCreateTime() != null) System.out.println("  Create Time: " + cert.getCreateTime());
         if (cert.getModifyTime() != null) System.out.println("  Modify Time: " + cert.getModifyTime());
-
-        Link link = cert.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

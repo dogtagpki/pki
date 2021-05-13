@@ -29,8 +29,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
 /**
  * @author Endi S. Dewata
  */
@@ -61,8 +59,6 @@ public class TPSCertData {
     String status;
     Date createTime;
     Date modifyTime;
-
-    Link link;
 
     @XmlAttribute(name="id")
     public String getID() {
@@ -163,15 +159,6 @@ public class TPSCertData {
         this.modifyTime = modifyTime;
     }
 
-    @XmlElement(name="Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -179,7 +166,6 @@ public class TPSCertData {
         result = prime * result + ((createTime == null) ? 0 : createTime.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((keyType == null) ? 0 : keyType.hashCode());
-        result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((modifyTime == null) ? 0 : modifyTime.hashCode());
         result = prime * result + ((origin == null) ? 0 : origin.hashCode());
         result = prime * result + ((serialNumber == null) ? 0 : serialNumber.hashCode());
@@ -214,11 +200,6 @@ public class TPSCertData {
             if (other.keyType != null)
                 return false;
         } else if (!keyType.equals(other.keyType))
-            return false;
-        if (link == null) {
-            if (other.link != null)
-                return false;
-        } else if (!link.equals(other.link))
             return false;
         if (modifyTime == null) {
             if (other.modifyTime != null)

@@ -18,9 +18,6 @@
 
 package org.dogtagpki.server.tps.rest;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,7 +27,6 @@ import javax.ws.rs.core.Response;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
@@ -64,18 +60,6 @@ public class TPSCertService extends PKIService implements TPSCertResource {
         certData.setStatus(certRecord.getStatus());
         certData.setCreateTime(certRecord.getCreateTime());
         certData.setModifyTime(certRecord.getModifyTime());
-
-        String certID = certRecord.getId();
-        try {
-            certID = URLEncoder.encode(certID, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
-        }
-
-        URI uri = uriInfo.getBaseUriBuilder().path(TPSCertResource.class).path("{certID}").build(certID);
-        certData.setLink(new Link("self", uri));
-
         return certData;
     }
 
@@ -137,16 +121,6 @@ public class TPSCertService extends PKIService implements TPSCertResource {
             // count the total entries
             for ( ; activities.hasNext(); i++) activities.next();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 
