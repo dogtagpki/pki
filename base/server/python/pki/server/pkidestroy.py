@@ -36,7 +36,7 @@ from pki.server.deployment.pkiparser import PKIConfigParser
 from pki.server.deployment import pkilogging
 from pki.server.deployment import pkimessages as log
 
-logger = logging.getLogger('pkidestroy')
+logger = logging.getLogger(__name__)
 
 deployer = pki.server.deployment.PKIDeployer()
 
@@ -231,7 +231,7 @@ def main(argv):
     log_file = os.path.join(log_dir, log_name)
     print('Uninstallation log: %s' % log_file)
 
-    pkilogging.enable_pki_logger(log_file, 'pkidestroy')
+    pkilogging.enable_pki_logger(log_file)
 
     # Add force_destroy to master dictionary
     parser.mdict['pki_force_destroy'] = force_destroy

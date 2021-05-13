@@ -39,7 +39,7 @@ if selinux.is_selinux_enabled():
         if sys.version_info.major == 2:
             raise
 
-logger = logging.getLogger('selinux')
+logger = logging.getLogger(__name__)
 
 
 # PKI Deployment Selinux Setup Scriptlet

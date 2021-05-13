@@ -65,7 +65,7 @@ if selinux.is_selinux_enabled():
         if sys.version_info.major == 2:
             raise
 
-logger = logging.getLogger('pkihelper')
+logger = logging.getLogger(__name__)
 
 
 class Identity:

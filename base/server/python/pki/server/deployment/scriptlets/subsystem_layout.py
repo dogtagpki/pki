@@ -31,7 +31,7 @@ import pki.util
 from .. import pkiconfig as config
 from .. import pkiscriptlet
 
-logger = logging.getLogger('subsystem')
+logger = logging.getLogger(__name__)
 
 
 # PKI Deployment Subsystem Layout Scriptlet

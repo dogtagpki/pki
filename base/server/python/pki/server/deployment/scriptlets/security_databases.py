@@ -34,7 +34,7 @@ import pki.util
 from .. import pkiconfig as config
 from .. import pkiscriptlet
 
-logger = logging.getLogger('nssdb')
+logger = logging.getLogger(__name__)
 
 
 # PKI Deployment Security Databases Scriptlet
