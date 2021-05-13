@@ -18,13 +18,10 @@
 
 package org.dogtagpki.server.ca.rest;
 
-import java.net.URI;
-
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.ca.CASystemCertResource;
 import org.dogtagpki.server.ca.CAEngine;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -64,9 +61,6 @@ public class CASystemCertService extends PKIService implements CASystemCertResou
 
         CertData certData = CertData.fromCertChain(pkcs7);
 
-        URI uri = uriInfo.getRequestUri();
-        certData.setLink(new Link("self", uri));
-
         return sendConditionalGetResponse(DEFAULT_LONG_CACHE_LIFETIME, certData, request);
     }
 
@@ -87,9 +81,6 @@ public class CASystemCertService extends PKIService implements CASystemCertResou
                 new SignerInfo[0]);
 
         CertData certData = CertData.fromCertChain(pkcs7);
-
-        URI uri = uriInfo.getRequestUri();
-        certData.setLink(new Link("self", uri));
 
         return sendConditionalGetResponse(DEFAULT_LONG_CACHE_LIFETIME, certData, request);
     }

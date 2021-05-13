@@ -478,8 +478,6 @@ public class CATest {
             return;
         }
         log("CertId: " + info.getID().toString());
-        log("CertUrl: " + info.getLink().getHref());
-
     }
 
     private static void printCertificate(CertData info) {
