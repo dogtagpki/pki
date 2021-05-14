@@ -80,7 +80,6 @@ class FeatureCollection(object):
     def __init__(self):
         """ Constructor """
         self.feature_list = []
-        self.links = []
 
     def __iter__(self):
         return iter(self.feature_list)

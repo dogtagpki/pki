@@ -179,7 +179,6 @@ class KeyInfoCollection(object):
     def __init__(self):
         """ Constructor """
         self.key_infos = []
-        self.links = []
 
     @classmethod
     def from_json(cls, json_value):
@@ -253,7 +252,6 @@ class KeyRequestInfoCollection(object):
     def __init__(self):
         """ Constructor """
         self.key_requests = []
-        self.links = []
 
     @classmethod
     def from_json(cls, json_value):

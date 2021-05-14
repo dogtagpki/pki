@@ -74,12 +74,10 @@ class ProfileDataInfo(object):
 class ProfileDataInfoCollection(object):
     """
     Represents a collection of ProfileDataInfo objects.
-    Also encapsulates the links for the list of the objects stored.
     """
 
     def __init__(self):
         self.profile_data_list = []
-        self.links = []
 
     def __iter__(self):
         return iter(self.profile_data_list)
@@ -95,14 +93,6 @@ class ProfileDataInfoCollection(object):
             for profile_info in profile_data_infos:
                 ret.profile_data_list.append(
                     ProfileDataInfo.from_json(profile_info))
-
-        links = attr_list['Link']
-        if not isinstance(links, list):
-            ret.links.append(pki.Link.from_json(links))
-        else:
-            for link in links:
-                ret.links.append(pki.Link.from_json(link))
-
         return ret
 
 
@@ -814,7 +804,7 @@ class Profile(object):
                  description=None, enabled=None, visible=None, enabled_by=None,
                  authenticator_id=None, authorization_acl=None, renewal=None,
                  xml_output=None, inputs=None, outputs=None,
-                 policy_set_list=None, link=None):
+                 policy_set_list=None):
 
         self.profile_id = profile_id
         self.name = name
@@ -839,7 +829,6 @@ class Profile(object):
             self.policy_set_list = PolicySetList()
         else:
             self.policy_set_list = policy_set_list
-        self.link = link
 
     def add_input(self, profile_input):
         """
@@ -949,9 +938,6 @@ class Profile(object):
 
         profile_data.policy_set_list = \
             PolicySetList.from_json(attr_list['PolicySets'])
-
-        profile_data.link = pki.Link.from_json(attr_list['link'])
-
         return profile_data
 
     def __repr__(self):
@@ -1158,7 +1144,6 @@ class ProfileClient(object):
     encoder.NOTYPES['PolicyConstraint'] = PolicyConstraint
     encoder.NOTYPES['ProfileParameter'] = ProfileParameter
     encoder.NOTYPES['PolicyConstraintValue'] = PolicyConstraintValue
-    encoder.NOTYPES['Link'] = pki.Link
 
 
 def main():

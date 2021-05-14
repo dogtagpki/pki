@@ -43,20 +43,18 @@ class AuthorityData(object):
         'dn': 'dn',
         'enabled': 'enabled',
         'isHostAuthority': 'is_host_authority',
-        'link': 'link',
         'parentID': 'parent_aid'
     }
 
     def __init__(self, dn=None, aid=None, parent_aid=None,
                  description=None, enabled="False",
-                 is_host_authority="False", link=None):
+                 is_host_authority="False"):
         self.dn = dn
         self.aid = aid
         self.parent_aid = parent_aid
         self.description = description
         self.enabled = (enabled.lower() == "true")
         self.is_host_authority = (is_host_authority.lower() == "true")
-        self.link = link
 
     def __repr__(self):
         attributes = {
@@ -77,29 +75,22 @@ class AuthorityData(object):
         ca_data = cls()
 
         for k, v in iteritems(attr_list):
-            if k not in ['link']:
-                if k in AuthorityData.json_attribute_names:
-                    setattr(ca_data, AuthorityData.json_attribute_names[k], v)
-                else:
-                    setattr(ca_data, k, v)
-
-        if 'link' in attr_list:
-            ca_data.link = pki.Link.from_json(attr_list['link'])
-
+            if k in AuthorityData.json_attribute_names:
+                setattr(ca_data, AuthorityData.json_attribute_names[k], v)
+            else:
+                setattr(ca_data, k, v)
         return ca_data
 
 
 class AuthorityDataCollection(object):
     """
-    Class containing list of AuthorityData objects and their respective link
-    objects.
+    Class containing list of AuthorityData objects
     This data is returned when searching/listing authorities.
     """
 
     def __init__(self):
         """ Constructor """
         self.ca_list = []
-        self.links = []
 
     def __iter__(self):
         return iter(self.ca_list)
