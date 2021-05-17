@@ -189,7 +189,13 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
             auditMappingResolverChange(ILogger.SUCCESS, method, profileMappingData.getID(),
                     profileMappingData.getProperties(), null);
 
-            return createCreatedResponse(profileMappingData, profileMappingData.getLink().getHref());
+            String profileMappingID = URLEncoder.encode(profileMappingData.getID(), "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(ProfileMappingResource.class)
+                    .path("{profileMappingID}")
+                    .build(profileMappingID);
+            return createCreatedResponse(profileMappingData, uri);
 
         } catch (PKIException e) {
             logger.error("ProfileMappingService: " + e.getMessage(), e);

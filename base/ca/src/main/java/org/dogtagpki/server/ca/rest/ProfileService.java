@@ -523,7 +523,12 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
             ProfileData profileData = createProfileData(profileId);
 
-            return createCreatedResponse(profileData, profileData.getLink().getHref());
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(ProfileResource.class)
+                    .path("{id}")
+                    .build(profileId);
+            return createCreatedResponse(profileData, uri);
 
         } catch (EBaseException e) {
             logger.error("createProfile: error creating profile: " + e.getMessage(), e);
