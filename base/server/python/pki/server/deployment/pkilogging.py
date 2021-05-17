@@ -21,7 +21,11 @@
 # System Imports
 from __future__ import absolute_import
 import logging
+import os
+import pathlib
 import pprint
+
+import pki
 
 sensitive_parameters = []
 
@@ -51,8 +55,12 @@ def enable_pki_logger(filename, name):
     console_format = logging.Formatter('%(levelname)s: %(message)s')
     console.setFormatter(console_format)
 
-    # Configure file handler
-    log_file = logging.FileHandler(filename, 'w')
+    # Create an empty file with the proper permission
+    pathlib.Path(filename).touch()
+    os.chmod(filename, pki.server.DEFAULT_FILE_MODE)
+
+    # Configure file handler with append mode to preserve the permission
+    log_file = logging.FileHandler(filename)
     file_format = logging.Formatter('%(asctime)s %(levelname)s: %(message)s',
                                     '%Y-%m-%d %H:%M:%S')
     log_file.setFormatter(file_format)
