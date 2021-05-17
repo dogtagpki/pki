@@ -6,6 +6,8 @@
 package org.dogtagpki.server.cli;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -60,6 +62,10 @@ public class SubsystemUserAddCLI extends CommandCLI {
         option.setArgName("password");
         options.addOption(option);
 
+        option = new Option(null, "password-file", true, "Password file");
+        option.setArgName("path");
+        options.addOption(option);
+
         option = new Option(null, "phone", true, "Phone");
         option.setArgName("phone");
         options.addOption(option);
@@ -95,10 +101,15 @@ public class SubsystemUserAddCLI extends CommandCLI {
 
         String email = cmd.getOptionValue("email");
         String password = cmd.getOptionValue("password");
+        String passwordFile = cmd.getOptionValue("password-file");
         String phone = cmd.getOptionValue("phone");
         String type = cmd.getOptionValue("type");
         String state = cmd.getOptionValue("state");
         String tpsProfiles = cmd.getOptionValue("tps-profiles");
+
+        if (passwordFile != null) {
+            password = new String(Files.readAllBytes(Paths.get(passwordFile)), "UTF-8").trim();
+        }
 
         String catalinaBase = System.getProperty("catalina.base");
 

@@ -373,6 +373,8 @@ class PKIDeployer:
 
         response = client.setupAdmin(request)
 
+        # Run the command as current user such that
+        # it can read the temporary password file.
         subsystem.add_user(
             uid,
             full_name=full_name,
@@ -380,7 +382,8 @@ class PKIDeployer:
             password=password,
             user_type='adminType',
             state='1',
-            tps_profiles=tps_profiles)
+            tps_profiles=tps_profiles,
+            as_current_user=True)
 
         admin_groups = subsystem.config['preop.admin.group']
         groups = [x.strip() for x in admin_groups.split(',')]
