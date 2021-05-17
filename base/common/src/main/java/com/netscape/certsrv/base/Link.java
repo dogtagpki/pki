@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---/**
 package com.netscape.certsrv.base;
 
+import java.net.URI;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -38,6 +40,12 @@ public class Link {
         this.relationship = relationship;
         this.href = href;
         this.type = type;
+    }
+
+    public Link(String relationship, URI uri) {
+        this.relationship = relationship;
+        this.href = uri.toString();
+        this.type = "application/xml";
     }
 
     /**
