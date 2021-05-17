@@ -981,6 +981,10 @@ fi
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
 
+# CVE-2021-3551
+# Remove world access from existing installation logs
+find /var/log/pki -maxdepth 1 -type f -exec chmod o-rwx {} \;
+
 # Reload systemd daemons on upgrade only
 if [ "$1" == "2" ]
 then
