@@ -1459,54 +1459,66 @@ class PKISubsystem(object):
                  full_name=None,
                  email=None,
                  password=None,
+                 password_file=None,
                  phone=None,
                  user_type=None,
                  state=None,
                  tps_profiles=None,
                  as_current_user=False):
 
-        cmd = [self.name + '-user-add']
+        tmpdir = tempfile.mkdtemp()
 
-        if full_name:
-            cmd.append('--full-name')
-            cmd.append(full_name)
+        try:
+            if password and not password_file:
+                password_file = os.path.join(tmpdir, 'password.txt')
+                with open(password_file, 'w') as f:
+                    f.write(password)
 
-        if email:
-            cmd.append('--email')
-            cmd.append(email)
+            cmd = [self.name + '-user-add']
 
-        if password:
-            cmd.append('--password')
-            cmd.append(password)
+            if full_name:
+                cmd.append('--full-name')
+                cmd.append(full_name)
 
-        if phone:
-            cmd.append('--phone')
-            cmd.append(phone)
+            if email:
+                cmd.append('--email')
+                cmd.append(email)
 
-        if user_type:
-            cmd.append('--type')
-            cmd.append(user_type)
+            if password_file:
+                cmd.append('--password-file')
+                cmd.append(password_file)
 
-        if state:
-            cmd.append('--state')
-            cmd.append(state)
+            if phone:
+                cmd.append('--phone')
+                cmd.append(phone)
 
-        if tps_profiles:
-            cmd.append('--tps-profiles')
-            cmd.append(','.join(tps_profiles))
+            if user_type:
+                cmd.append('--type')
+                cmd.append(user_type)
 
-        if logger.isEnabledFor(logging.DEBUG):
-            cmd.append('--debug')
+            if state:
+                cmd.append('--state')
+                cmd.append(state)
 
-        elif logger.isEnabledFor(logging.INFO):
-            cmd.append('--verbose')
+            if tps_profiles:
+                cmd.append('--tps-profiles')
+                cmd.append(','.join(tps_profiles))
 
-        cmd.append(user_id)
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
 
-        self.run(
-            cmd,
-            as_current_user=as_current_user,
-            capture_output=True)
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            cmd.append(user_id)
+
+            self.run(
+                cmd,
+                as_current_user=as_current_user,
+                capture_output=True)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
     def modify_user(self, user_id, add_see_also=None, del_see_also=None,
                     as_current_user=False):

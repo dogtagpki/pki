@@ -47,6 +47,7 @@ class UserAddCLI(pki.cli.CLI):
         print('      --full-name <full name>        Full name')
         print('      --email <email>                Email')
         print('      --password <password>          Password')
+        print('      --password-file <path>         Password file')
         print('      --phone <phone>                Phone')
         print('      --type <type>                  Type')
         print('      --state <state>                State')
@@ -59,7 +60,8 @@ class UserAddCLI(pki.cli.CLI):
     def execute(self, argv):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'full-name=', 'email=', 'password=',
+                'instance=', 'full-name=', 'email=',
+                'password=', 'password-file=',
                 'phone=', 'type=', 'state=', 'tps-profiles=',
                 'verbose', 'debug', 'help'])
 
@@ -73,6 +75,7 @@ class UserAddCLI(pki.cli.CLI):
         full_name = None
         email = None
         password = None
+        password_file = None
         phone = None
         user_type = None
         state = None
@@ -90,6 +93,9 @@ class UserAddCLI(pki.cli.CLI):
 
             elif o == '--password':
                 password = a
+
+            elif o == '--password-file':
+                password_file = a
 
             elif o == '--phone':
                 phone = a
@@ -149,6 +155,7 @@ class UserAddCLI(pki.cli.CLI):
             full_name=full_name,
             email=email,
             password=password,
+            password_file=password_file,
             phone=phone,
             user_type=user_type,
             tps_profiles=tps_profiles,
