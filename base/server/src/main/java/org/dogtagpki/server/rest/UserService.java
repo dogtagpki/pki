@@ -36,7 +36,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -46,6 +45,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UserNotFoundException;

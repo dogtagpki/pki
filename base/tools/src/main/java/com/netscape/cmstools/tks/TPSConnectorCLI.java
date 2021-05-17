@@ -18,8 +18,8 @@
 package com.netscape.cmstools.tks;
 
 import org.dogtagpki.cli.CLI;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;

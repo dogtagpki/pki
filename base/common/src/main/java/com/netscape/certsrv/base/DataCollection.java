@@ -23,8 +23,6 @@ import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlElement;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
 /**
  * @author Endi S. Dewata
  */

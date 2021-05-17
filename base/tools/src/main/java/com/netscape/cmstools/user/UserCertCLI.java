@@ -19,8 +19,8 @@
 package com.netscape.cmstools.user;
 
 import org.dogtagpki.cli.CLI;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserClient;
 

@@ -24,8 +24,8 @@ import java.util.Map;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.common.ConfigClient;
 import org.dogtagpki.common.ConfigData;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.SubsystemCLI;
 

@@ -23,10 +23,8 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
 import com.netscape.certsrv.base.DataCollection;
-//import com.netscape.certsrv.base.Link;
+import com.netscape.certsrv.base.Link;
 
 @XmlRootElement(name = "ProfileDataInfos")
 public class ProfileDataInfos extends DataCollection<ProfileDataInfo> {
@@ -39,7 +37,7 @@ public class ProfileDataInfos extends DataCollection<ProfileDataInfo> {
     @XmlTransient
     public String getNext() {
         for (Link link : getLinks()) {
-            if ("next".equals(link. getRel())) {
+            if ("next".equals(link. getRelationship())) {
                 return link.getHref().toString();
             }
         }
@@ -49,7 +47,7 @@ public class ProfileDataInfos extends DataCollection<ProfileDataInfo> {
     @XmlTransient
     public String getPrevious() {
         for (Link link : getLinks()) {
-            if ("previous".equals(link.getRel())) {
+            if ("previous".equals(link.getRelationship())) {
                 return link.getHref().toString();
             }
         }

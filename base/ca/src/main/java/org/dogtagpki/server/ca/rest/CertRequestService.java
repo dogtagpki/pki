@@ -28,7 +28,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.ca.CertificateAuthority;
@@ -39,6 +38,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.HTTPGoneException;
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.ServiceUnavailableException;

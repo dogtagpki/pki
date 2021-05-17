@@ -32,10 +32,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.ConnectorDatabase;
 import org.dogtagpki.server.tps.config.ConnectorRecord;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;

@@ -22,8 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.dogtagpki.cli.CLI;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
