@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.dogtagpki</groupId>
+        <artifactId>pki</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>pki-base</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>util</module>
+        <module>common</module>
+        <module>tools</module>
+        <module>tomcat</module>
+        <module>tomcat-9.0</module>
+        <module>server</module>
+        <module>ca</module>
+        <module>kra</module>
+        <module>ocsp</module>
+        <module>tks</module>
+        <module>tps</module>
+        <module>acme</module>
+    </modules>
+
+</project>
