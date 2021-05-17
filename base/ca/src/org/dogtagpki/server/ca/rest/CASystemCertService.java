@@ -24,7 +24,6 @@ import javax.ws.rs.core.Response;
 
 import org.dogtagpki.ca.CASystemCertResource;
 import org.dogtagpki.server.ca.CAEngine;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -35,6 +34,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.ca.SigningUnit;
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;

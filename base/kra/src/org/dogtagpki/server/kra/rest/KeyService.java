@@ -35,7 +35,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import org.dogtagpki.server.kra.KRAEngine;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -44,6 +43,7 @@ import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.HTTPGoneException;
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;

@@ -39,12 +39,12 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.ca.CAEngine;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.common.NameValuePairs;

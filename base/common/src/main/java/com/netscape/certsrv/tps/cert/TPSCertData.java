@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
+import com.netscape.certsrv.base.Link;
 
 /**
  * @author Endi S. Dewata

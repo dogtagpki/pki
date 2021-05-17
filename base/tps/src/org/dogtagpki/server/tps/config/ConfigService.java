@@ -27,9 +27,9 @@ import javax.ws.rs.core.Response;
 
 import org.dogtagpki.common.ConfigData;
 import org.dogtagpki.common.ConfigResource;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.SubsystemService;
