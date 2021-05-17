@@ -222,7 +222,13 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             }
             auditTPSProfileChange(ILogger.SUCCESS, method, id, properties, null);
 
-            return createCreatedResponse(profileData, profileData.getLink().getHref());
+            String profileID = URLEncoder.encode(profileData.getID(), "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(ProfileResource.class)
+                    .path("{profileID}")
+                    .build(profileID);
+            return createCreatedResponse(profileData, uri);
 
         } catch (PKIException e) {
             logger.error("TPSProfileService: " + e.getMessage(), e);

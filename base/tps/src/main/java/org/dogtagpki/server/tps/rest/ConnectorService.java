@@ -202,7 +202,13 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             }
             auditTPSConnectorChange(ILogger.SUCCESS, method, connectorData.getID(), properties, null);
 
-            return createCreatedResponse(connectorData, connectorData.getLink().getHref());
+            String connectorID = URLEncoder.encode(connectorData.getID(), "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(ConnectorResource.class)
+                    .path("{connectorID}")
+                    .build(connectorID);
+            return createCreatedResponse(connectorData, uri);
 
         } catch (PKIException e) {
             logger.error("ConnectorService: " + e.getMessage(), e);
