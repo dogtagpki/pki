@@ -23,9 +23,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequest;

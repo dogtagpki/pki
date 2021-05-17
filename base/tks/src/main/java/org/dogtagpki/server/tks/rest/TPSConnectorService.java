@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.tks.TKSEngine;
 import org.dogtagpki.server.tks.TKSEngineConfig;
 import org.dogtagpki.server.tks.TPSConnectorConfig;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
@@ -23,6 +22,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
