@@ -174,7 +174,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             addToConnectorList(newID);
             cs.commit(true);
 
-            return createCreatedResponse(newData, newData.getLink().getHref());
+            return createCreatedResponse(newData, uri);
 
         } catch (EBaseException e) {
             logger.error("TPSConnectorService: Unable to create new TPS connector: " + e.getMessage(), e);

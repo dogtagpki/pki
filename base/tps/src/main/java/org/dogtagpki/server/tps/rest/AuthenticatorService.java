@@ -204,7 +204,13 @@ public class AuthenticatorService extends SubsystemService implements Authentica
             }
             auditTPSAuthenticatorChange(ILogger.SUCCESS, method, authenticatorData.getID(), properties, null);
 
-            return createCreatedResponse(authenticatorData, authenticatorData.getLink().getHref());
+            String authenticatorID = URLEncoder.encode(authenticatorData.getID(), "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(AuthenticatorResource.class)
+                    .path("{authenticatorID}")
+                    .build(authenticatorID);
+            return createCreatedResponse(authenticatorData, uri);
 
         } catch (PKIException e) {
             logger.error("AuthenticatorService: " + e.getMessage(), e);
