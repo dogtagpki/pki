@@ -457,7 +457,13 @@ public class TokenService extends SubsystemService implements TokenResource {
             auditConfigTokenRecord(ILogger.SUCCESS, method, tokenID,
                     auditModParams, null);
 
-            return createCreatedResponse(tokenData, tokenData.getLink().getHref());
+            String encodedTokenID = URLEncoder.encode(tokenID, "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(TokenResource.class)
+                    .path("{tokenID}")
+                    .build(encodedTokenID);
+            return createCreatedResponse(tokenData, uri);
 
         } catch (Exception e) {
 

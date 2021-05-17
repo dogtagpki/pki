@@ -263,6 +263,7 @@ public class UserService extends SubsystemService implements UserResource {
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
      * users/groups)
      * </ul>
+     * @throws UnsupportedEncodingException
      */
 
     @Override
@@ -387,13 +388,19 @@ public class UserService extends SubsystemService implements UserResource {
             // read the data back
             userData = getUserData(userID);
 
-            return createCreatedResponse(userData, userData.getLink().getHref());
+            String encodedUserID = URLEncoder.encode(userID, "UTF-8");
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(UserResource.class)
+                    .path("{userID}")
+                    .build(encodedUserID);
+            return createCreatedResponse(userData, uri);
 
         } catch (PKIException e) {
             auditAddUser(userID, userData, ILogger.FAILURE);
             throw e;
 
-        } catch (EBaseException e) {
+        } catch (EBaseException | UnsupportedEncodingException e) {
             auditAddUser(userID, userData, ILogger.FAILURE);
             throw new PKIException(e.getMessage());
         }
@@ -976,9 +983,15 @@ public class UserService extends SubsystemService implements UserResource {
                 userCertData.setSubjectDN(cert.getSubjectDN().toString());
                 String certID = userCertData.getID();
 
-                userCertData = getUserCertData(userID, URLEncoder.encode(certID, "UTF-8"));
-
-                return createCreatedResponse(userCertData, userCertData.getLink().getHref());
+                String encodedCertID = URLEncoder.encode(certID, "UTF-8");
+                userCertData = getUserCertData(userID, encodedCertID);
+                String encodedUserID = URLEncoder.encode(userID, "UTF-8");
+                URI uri = uriInfo
+                        .getBaseUriBuilder()
+                        .path(UserResource.class)
+                        .path("{userID}/certs/{certID}")
+                        .build(encodedUserID, encodedCertID);
+                return createCreatedResponse(userCertData, uri);
 
             } catch (CertificateExpiredException e) {
                 logger.error("UserService: Certificate expired: " + e.getMessage(), e);
@@ -1176,7 +1189,13 @@ public class UserService extends SubsystemService implements UserResource {
 
             UserMembershipData userMembershipData = createUserMembershipData(userID, groupID);
 
-            return createCreatedResponse(userMembershipData, userMembershipData.getLink().getHref());
+            URI uri = uriInfo
+                    .getBaseUriBuilder()
+                    .path(UserResource.class)
+                    .path("{userID}/memberships/{groupID}")
+                    .build(URLEncoder.encode(userID, "UTF-8"),
+                            URLEncoder.encode(groupID, "UTF-8"));
+            return createCreatedResponse(userMembershipData, uri);
 
         } catch (PKIException e) {
             throw e;
