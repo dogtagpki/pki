@@ -30,7 +30,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.jboss.resteasy.plugins.providers.atom.Link;
+
+import com.netscape.certsrv.base.Link;
 
 @XmlRootElement(name = "authority")
 @XmlAccessorType(XmlAccessType.FIELD)

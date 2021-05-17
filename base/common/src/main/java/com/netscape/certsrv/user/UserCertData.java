@@ -32,12 +32,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
+import org.mozilla.jss.netscape.security.util.Cert;
 
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
-import org.mozilla.jss.netscape.security.util.Cert;
 
 /**
  * @author Endi S. Dewata

@@ -27,11 +27,10 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;

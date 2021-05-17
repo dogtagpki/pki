@@ -37,7 +37,7 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
+import com.netscape.certsrv.base.Link;
 
 /**
  * @author Endi S. Dewata
