@@ -70,6 +70,7 @@ public interface ICertificateAuthority extends ISubsystem {
 
     public final static String PROP_X509CERT_VERSION = "X509CertVersion";
     public final static String PROP_ENABLE_PAST_CATIME = "enablePastCATime";
+    public final static String PROP_ENABLE_PAST_CATIME_CACERT = "enablePastCATime_caCert";
     public final static String PROP_DEF_VALIDITY = "DefaultIssueValidity";
     public final static String PROP_FAST_SIGNING = "fastSigning";
     public static final String PROP_ENABLE_ADMIN_ENROLL =
