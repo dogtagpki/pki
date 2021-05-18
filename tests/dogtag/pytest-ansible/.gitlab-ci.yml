@@ -2,7 +2,7 @@ image: bbhavsar/dogtagpki-test-essentials-container
 
 variables:
   HOSTFILE: $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/provision/ansible_inventory
-  IMG_NAME: 'Fedora-Cloud-Base-32'
+  IMG_NAME: 'Fedora-Cloud-Base-33'
   PYTEST_DIR: $CI_PROJECT_DIR/tests/dogtag/pytest-ansible
 
 stages:
