@@ -697,18 +697,27 @@ public class CAService implements ICAService, IService {
             }
 
             if (end.after(caNotAfter)) {
+                logger.debug("CAService: issueX509Cert: notAfter past CA's NOT_AFTER");
                 if (!is_ca) {
                     if (!engine.getEnablePastCATime()) {
                         end = caNotAfter;
                         certi.set(CertificateValidity.NAME,
                                 new CertificateValidity(begin, caNotAfter));
-                        logger.debug("CAService: issueX509Cert: cert past CA's NOT_AFTER...ca.enablePastCATime != true...resetting");
+                        logger.debug("CAService: issueX509Cert: ca.enablePastCATime != true...resetting to match CA's notAfter");
                     } else {
-                        logger.debug("CAService: issueX509Cert: cert past CA's NOT_AFTER...ca.enablePastCATime = true...not resetting");
+                        logger.debug("CAService: issueX509Cert: ca.enablePastCATime = true...not resetting");
                     }
-                } else {
-                    logger.debug("CAService: issueX509Cert: CA cert issuance past CA's NOT_AFTER.");
-                } //!is_ca
+                } else { //is_ca
+                    logger.debug("CAService: issueX509Cert: request issuance of a ca signing cert");
+                    if (!engine.getEnablePastCATime_caCert()) {
+                        end = caNotAfter;
+                        certi.set(CertificateValidity.NAME,
+                                new CertificateValidity(begin, caNotAfter));
+                        logger.debug("CAService: issueX509Cert: ca.enablePastCATime_caCert != true...resetting to match CA's notAfter");
+                    } else {
+                        logger.debug("CAService: issueX509Cert: ca.enablePastCATime_caCert = true...not resetting");
+                    }
+                }
 
                 logger.info(CMS.getLogMessage("CMSCORE_CA_PAST_NOT_AFTER"));
             }

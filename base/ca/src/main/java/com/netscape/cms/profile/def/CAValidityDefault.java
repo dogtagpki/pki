@@ -193,7 +193,8 @@ public class CAValidityDefault extends EnrollDefault {
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } else if (name.equals(VAL_BYPASS_CA_NOTAFTER)) {
-            boolean bypassCAvalidity = Boolean.valueOf(value).booleanValue();
+            logger.debug("CAValidityDefault: setValue: " + value);
+            boolean bypassCAvalidity = getConfigBoolean(VAL_BYPASS_CA_NOTAFTER);
             logger.debug("CAValidityDefault: setValue: bypassCAvalidity=" + bypassCAvalidity);
 
             BasicConstraintsExtension ext = (BasicConstraintsExtension)

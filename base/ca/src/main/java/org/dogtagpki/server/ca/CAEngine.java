@@ -119,6 +119,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected CertificateVersion defaultCertVersion;
     protected long defaultCertValidity;
     protected boolean enablePastCATime;
+    protected boolean enablePastCATime_caCert;
     protected boolean enableOCSP;
 
     protected int fastSigning = CertificateAuthority.FASTSIGNING_DISABLED;
@@ -237,13 +238,23 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     }
 
     /**
-     * Is this CA allowed to issue certificate that has longer
-     * validty than the CA's.
+     * Is this CA allowed to issue non-ca certificates that have
+     * validty past the CA's own validity.
      *
      * @return true if allows certificates to have validity longer than CA's
      */
     public boolean getEnablePastCATime() {
         return enablePastCATime;
+    }
+
+    /**
+     * Is this CA allowed to issue CA certificate that have
+     * validty past the CA's own validity.
+     *
+     * @return true if allows CA certificates to have validity longer than CA's
+     */
+    public boolean getEnablePastCATime_caCert() {
+        return enablePastCATime_caCert;
     }
 
     public boolean getEnableOCSP() {
@@ -736,6 +747,9 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         enablePastCATime = caConfig.getBoolean(CertificateAuthority.PROP_ENABLE_PAST_CATIME, false);
         logger.info("CAEngine: - enable past CA time: " + enablePastCATime);
+
+        enablePastCATime_caCert = caConfig.getBoolean(CertificateAuthority.PROP_ENABLE_PAST_CATIME_CACERT, false);
+        logger.info("CAEngine: - enable past CA time for CA certs: " + enablePastCATime_caCert);
 
         enableOCSP = caConfig.getBoolean(CertificateAuthority.PROP_ENABLE_OCSP, true);
 
