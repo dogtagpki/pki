@@ -216,10 +216,6 @@ BuildRequires:    python3-libselinux
 BuildRequires:    python3-requests >= 2.6.0
 BuildRequires:    python3-six
 
-%if 0%{?fedora} || 0%{?rhel} > 8
-BuildRequires:    python3-pytest-runner
-%endif
-
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.9.0
