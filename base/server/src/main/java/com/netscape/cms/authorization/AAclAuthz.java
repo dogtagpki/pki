@@ -88,7 +88,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     private AuthzManagerConfig mConfig;
 
     private Hashtable<String, IACL> mACLs = new Hashtable<>();
-    private Hashtable<String, IAccessEvaluator> mEvaluators = new Hashtable<String, IAccessEvaluator>();
+    private Hashtable<String, IAccessEvaluator> mEvaluators = new Hashtable<>();
 
     /* Vector of extendedPluginInfo strings */
     protected static Vector<String> mExtendedPluginInfo = null;
@@ -96,7 +96,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     protected static String[] mConfigParams = null;
 
     static {
-        mExtendedPluginInfo = new Vector<String>();
+        mExtendedPluginInfo = new Vector<>();
     }
 
     /**
@@ -411,7 +411,7 @@ public abstract class AAclAuthz implements IAuthzManager {
 
         logger.debug("evaluating expressions: " + s);
 
-        Vector<Object> v = new Vector<Object>();
+        Vector<Object> v = new Vector<>();
 
         while (s.length() > 0) {
             int orIndex = s.indexOf("||");
@@ -574,7 +574,7 @@ public abstract class AAclAuthz implements IAuthzManager {
             Iterable<String> nodes,
             String operation
     ) {
-        Vector<ACLEntry> v = new Vector<ACLEntry>();
+        Vector<ACLEntry> v = new Vector<>();
 
         for (String name : nodes) {
             ACL acl = (ACL) mACLs.get(name);
@@ -605,7 +605,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         // XXX - could use some optimization ... later
         logger.debug("evaluating expressions: " + s);
 
-        Vector<Object> v = new Vector<Object>();
+        Vector<Object> v = new Vector<>();
 
         while (s.length() > 0) {
             int orIndex = s.indexOf("||");
@@ -666,7 +666,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     }
 
     public Vector<String> getNodes(String resourceID) {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         if (resourceID != null && !resourceID.equals("")) {
             v.addElement(resourceID);

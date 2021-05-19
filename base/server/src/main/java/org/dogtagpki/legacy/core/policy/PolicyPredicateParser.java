@@ -79,7 +79,7 @@ public class PolicyPredicateParser {
 
         IExpression current = parseExpression(token);
         boolean malformed = false;
-        Vector<IExpression> expSet = new Vector<IExpression>();
+        Vector<IExpression> expSet = new Vector<>();
         int prevType = EXPRESSION;
 
         while (pt.hasMoreTokens()) {
@@ -156,7 +156,7 @@ public class PolicyPredicateParser {
         if (commaIndex < 0)
             return SimpleExpression.parse(input);
         int currentIndex = 0;
-        Vector<SimpleExpression> expVector = new Vector<SimpleExpression>();
+        Vector<SimpleExpression> expVector = new Vector<>();
 
         while (commaIndex > 0) {
             SimpleExpression exp = (SimpleExpression)

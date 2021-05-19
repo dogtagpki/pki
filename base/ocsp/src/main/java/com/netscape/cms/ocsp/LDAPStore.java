@@ -91,8 +91,8 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private String mCRLAttr = null;
     private boolean mByName = true;
     private String mCACertAttr = null;
-    protected Hashtable<String, Long> mReqCounts = new Hashtable<String, Long>();
-    private Hashtable<X509CertImpl, X509CRLImpl> mCRLs = new Hashtable<X509CertImpl, X509CRLImpl>();
+    protected Hashtable<String, Long> mReqCounts = new Hashtable<>();
+    private Hashtable<X509CertImpl, X509CRLImpl> mCRLs = new Hashtable<>();
 
     /**
      * Constructs the default store.
@@ -107,7 +107,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
     @Override
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(PROP_NOT_FOUND_GOOD
                 + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_NOT_FOUND_GOOD"));
@@ -301,7 +301,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     @Override
     public Enumeration<ICRLIssuingPointRecord> searchAllCRLIssuingPointRecord(int maxSize)
             throws EBaseException {
-        Vector<ICRLIssuingPointRecord> recs = new Vector<ICRLIssuingPointRecord>();
+        Vector<ICRLIssuingPointRecord> recs = new Vector<>();
         Enumeration<X509CertImpl> keys = mCRLs.keys();
 
         while (keys.hasMoreElements()) {

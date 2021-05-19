@@ -382,7 +382,7 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
             if (ext == null)
                 return "";
 
-            Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
+            Vector<NameValuePairs> recs = new Vector<>();
             int num = getNumPoints();
             for (int i = 0; i < num; i++) {
                 NameValuePairs pairs = null;

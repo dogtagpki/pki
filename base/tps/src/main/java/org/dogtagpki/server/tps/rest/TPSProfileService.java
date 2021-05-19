@@ -336,7 +336,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
         logger.info("TPSProfileService: Changing profile " + profileID + " status: " + action);
         String method = "TPSProfileService.changeStatus";
 
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (profileID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missin profile ID");
@@ -456,7 +456,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
         logger.info("TPSProfileService: Removing profile " + profileID);
         String method = "TPSProfileService.removeProfile";
 
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (profileID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null,

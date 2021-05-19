@@ -114,7 +114,7 @@ public class SigningAlgConstraint extends EnrollConstraint {
             AlgorithmId id = (AlgorithmId)
                     algId.get(CertificateAlgorithmId.ALGORITHM);
 
-            Vector<String> mCache = new Vector<String>();
+            Vector<String> mCache = new Vector<>();
             StringTokenizer st = new StringTokenizer(
                     getConfig(CONFIG_ALGORITHMS_ALLOWED), ",");
 

@@ -104,7 +104,7 @@ public class AuditService extends SubsystemService implements AuditResource {
         if (auditParams != null)
             auditParams.put("bufferSize", integerval.toString());
 
-        Map<String, String> eventConfigs = new TreeMap<String, String>();
+        Map<String, String> eventConfigs = new TreeMap<>();
 
         LogSubsystem logSubsystem = engine.getLogSubsystem();
 
@@ -156,7 +156,7 @@ public class AuditService extends SubsystemService implements AuditResource {
 
     @Override
     public Response updateAuditConfig(AuditConfig auditConfig) {
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (auditConfig == null) {
             BadRequestException e = new BadRequestException("Missing audit configuration");
@@ -193,7 +193,7 @@ public class AuditService extends SubsystemService implements AuditResource {
 
             if (eventConfigs != null) {
                 logger.info("AuditService: Updating audit events:");
-                Collection<String> selected = new TreeSet<String>();
+                Collection<String> selected = new TreeSet<>();
 
                 for (Map.Entry<String, String> entry : eventConfigs.entrySet()) {
                     String name = entry.getKey();
@@ -278,7 +278,7 @@ public class AuditService extends SubsystemService implements AuditResource {
 
     @Override
     public Response changeAuditStatus(String action) {
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         logger.debug("AuditService.changeAuditStatus()");
 

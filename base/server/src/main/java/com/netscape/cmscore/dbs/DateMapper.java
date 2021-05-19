@@ -44,7 +44,7 @@ public class DateMapper extends DBAttrMapper {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DateMapper.class);
 
     private String mLdapName = null;
-    private Vector<String> v = new Vector<String>();
+    private Vector<String> v = new Vector<>();
     private static SimpleDateFormat formatter = new
             SimpleDateFormat("yyyyMMddHHmmss'Z'");
 

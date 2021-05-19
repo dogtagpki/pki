@@ -84,7 +84,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
 
         formatter.setLenient(false);
 
-        defaultParams = new Vector<String>();
+        defaultParams = new Vector<>();
         defaultParams.addElement(PROP_IS_CRITICAL + "=" + DEFAULT_CRITICALITY);
         defaultParams.addElement(PROP_NOT_BEFORE + "=" + DEFAULT_NOT_BEFORE);
         defaultParams.addElement(PROP_NOT_AFTER + "=" + DEFAULT_NOT_AFTER);
@@ -230,7 +230,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         params.addElement(PROP_IS_CRITICAL + "=" + mCritical);
         params.addElement(PROP_NOT_BEFORE + "=" + mNotBefore);
@@ -246,7 +246,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> defParams = new Vector<String>();
+        Vector<String> defParams = new Vector<>();
 
         defParams.addElement(PROP_IS_CRITICAL + "=" + DEFAULT_CRITICALITY);
         defParams.addElement(PROP_NOT_BEFORE + "=" + DEFAULT_NOT_BEFORE);

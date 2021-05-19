@@ -126,7 +126,7 @@ public class CAEngine extends CMSEngine {
     protected boolean enableNonces = true;
     protected int maxNonces = 100;
 
-    protected Hashtable<String, ListenerPlugin> listenerPlugins = new Hashtable<String, ListenerPlugin>();
+    protected Hashtable<String, ListenerPlugin> listenerPlugins = new Hashtable<>();
 
     protected boolean ocspResponderByName = true;
     protected CRLPublisher crlPublisher;

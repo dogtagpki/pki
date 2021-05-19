@@ -34,7 +34,7 @@ import com.netscape.certsrv.common.ICMSRequest;
  */
 public class CommandQueue implements Runnable, ICommandQueue {
 
-    public static Hashtable<ICMSRequest, Servlet> mCommandQueue = new Hashtable<ICMSRequest, Servlet>();
+    public static Hashtable<ICMSRequest, Servlet> mCommandQueue = new Hashtable<>();
     public static boolean mShuttingDown = false;
 
     /*-----------------------------------------------------------

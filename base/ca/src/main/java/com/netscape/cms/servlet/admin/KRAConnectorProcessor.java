@@ -89,7 +89,7 @@ public class KRAConnectorProcessor extends CAProcessor {
             deleteConnector();
         } else if (host.indexOf(' ') != -1) { // host is a list
             String[] hostList = host.trim().split(" ");
-            ArrayList<String> finalList = new ArrayList<String>();
+            ArrayList<String> finalList = new ArrayList<>();
             for (String h : hostList) {
                 if (! h.equals(hostport)) {
                     finalList.add(h);

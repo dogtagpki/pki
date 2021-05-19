@@ -75,7 +75,7 @@ public class LogAdminServlet extends AdminServlet {
     }
 
     public static Hashtable<String, String> toHashtable(HttpServletRequest req) {
-        Hashtable<String, String> httpReqHash = new Hashtable<String, String>();
+        Hashtable<String, String> httpReqHash = new Hashtable<>();
         Enumeration<?> names = req.getParameterNames();
 
         while (names.hasMoreElements()) {

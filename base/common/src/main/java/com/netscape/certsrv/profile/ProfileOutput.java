@@ -51,7 +51,7 @@ public class ProfileOutput {
     private String classId;
 
     @XmlElement(name = "attributes")
-    private List<ProfileAttribute> attrs = new ArrayList<ProfileAttribute>();
+    private List<ProfileAttribute> attrs = new ArrayList<>();
 
 
     public ProfileOutput() {

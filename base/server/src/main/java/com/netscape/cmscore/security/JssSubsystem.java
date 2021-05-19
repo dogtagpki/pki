@@ -122,9 +122,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
     private String obscureMethod = "zeroes";
 
     private static JssSubsystem mInstance = new JssSubsystem();
-    private Hashtable<String, X509Certificate[]> mNicknameMapCertsTable = new Hashtable<String, X509Certificate[]>();
+    private Hashtable<String, X509Certificate[]> mNicknameMapCertsTable = new Hashtable<>();
     private Hashtable<String, X509Certificate[]> mNicknameMapUserCertsTable =
-            new Hashtable<String, X509Certificate[]>();
+            new Hashtable<>();
 
     private FileInputStream devRandomInputStream = null;
 
@@ -138,7 +138,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     private static final String PROP_SSL_CIPHERPREF = Constants.PR_CIPHER_PREF;
 
-    private static Hashtable<String, Integer> mCipherNames = new Hashtable<String, Integer>();
+    private static Hashtable<String, Integer> mCipherNames = new Hashtable<>();
 
     /* default sslv2 and sslv3 cipher suites(all), set if no prefs in config.*/
     private static final String DEFAULT_CIPHERPREF =
@@ -1183,7 +1183,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             }
 
             // a temp hashtable with vectors
-            Hashtable<String, Vector<X509Certificate>> vecTable = new Hashtable<String, Vector<X509Certificate>>();
+            Hashtable<String, Vector<X509Certificate>> vecTable = new Hashtable<>();
 
             while (enums.hasMoreElements()) {
                 CryptoToken token = enums.nextElement();
@@ -1210,7 +1210,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                             if (vecTable.containsKey(nickname) == true) {
                                 v = vecTable.get(nickname);
                             } else {
-                                v = new Vector<X509Certificate>();
+                                v = new Vector<>();
                             }
                             v.addElement(list[i]);
                             vecTable.put(nickname, v);
@@ -1403,7 +1403,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
 
         // a temp hashtable with vectors
-        Hashtable<String, Vector<X509Certificate>> vecTable = new Hashtable<String, Vector<X509Certificate>>();
+        Hashtable<String, Vector<X509Certificate>> vecTable = new Hashtable<>();
 
         for (int i = 0; i < certs.length; i++) {
             String nickname = certs[i].getNickname();
@@ -1414,7 +1414,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             if (vecTable.containsKey(nickname) == true) {
                 v = vecTable.get(nickname);
             } else {
-                v = new Vector<X509Certificate>();
+                v = new Vector<>();
             }
             v.addElement(certs[i]);
             vecTable.put(nickname, v);

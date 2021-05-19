@@ -89,7 +89,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
 
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement("certAttr=" + mCertAttr);
         return v;
@@ -97,7 +97,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
 
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement("certAttr=" + mCertAttr);
         return v;

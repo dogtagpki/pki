@@ -28,8 +28,8 @@ public class CAApplication extends Application {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAApplication.class);
 
-    private Set<Object> singletons = new LinkedHashSet<Object>();
-    private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+    private Set<Object> singletons = new LinkedHashSet<>();
+    private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public CAApplication() {
 

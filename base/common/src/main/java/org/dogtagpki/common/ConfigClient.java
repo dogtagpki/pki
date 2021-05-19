@@ -68,7 +68,7 @@ public class ConfigClient extends Client {
 
         logger.info("Getting configuration properties");
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
         content.putSingle("op", "get");
         content.putSingle("names", names);
         content.putSingle("substores", substores);

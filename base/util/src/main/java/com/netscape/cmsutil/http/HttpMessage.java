@@ -38,7 +38,7 @@ public class HttpMessage {
      * Instantiate a HttpResponse for write to http client.
      */
     public HttpMessage() {
-        mHeaders = new Hashtable<String, String>();
+        mHeaders = new Hashtable<>();
     }
 
     /**
@@ -49,7 +49,7 @@ public class HttpMessage {
      */
     public void setHeader(String name, String value) {
         if (mHeaders == null)
-            mHeaders = new Hashtable<String, String>();
+            mHeaders = new Hashtable<>();
         mHeaders.put(name.toLowerCase(), value);
     }
 
@@ -85,7 +85,7 @@ public class HttpMessage {
      */
     public void readHeaders(BufferedReader reader)
             throws IOException {
-        mHeaders = new Hashtable<String, String>();
+        mHeaders = new Hashtable<>();
 
         int colon;
         String line, key, value;

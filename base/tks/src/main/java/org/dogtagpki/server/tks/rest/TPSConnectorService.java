@@ -521,7 +521,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
     private void addToConnectorList(String id) throws EBaseException {
         Collection<String> tpsList = cs.getTPSConnectorIDs();
-        Collection<String> sorted = new TreeSet<String>();
+        Collection<String> sorted = new TreeSet<>();
         sorted.addAll(tpsList);
         sorted.add(id);
         cs.setTPSConnectorIDs(sorted);
@@ -529,7 +529,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
     private void removeFromConnectorList(String id) throws EBaseException {
         Collection<String> tpsList = cs.getTPSConnectorIDs();
-        Collection<String> sorted = new TreeSet<String>();
+        Collection<String> sorted = new TreeSet<>();
         sorted.addAll(tpsList);
         sorted.remove(id);
         cs.setTPSConnectorIDs(sorted);
@@ -537,7 +537,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
     private String findNextConnectorID() throws EBaseException {
         Collection<String> tpsList = cs.getTPSConnectorIDs();
-        Collection<String> sorted = new TreeSet<String>();
+        Collection<String> sorted = new TreeSet<>();
         sorted.addAll(tpsList);
 
         int index = 0;

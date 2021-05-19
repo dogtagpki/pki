@@ -414,7 +414,7 @@ public class CertService extends PKIService implements CertResource {
             }
 
             // store non-null results in a list
-            List<CertDataInfo> results = new ArrayList<CertDataInfo>();
+            List<CertDataInfo> results = new ArrayList<>();
             while (e.hasMoreElements()) {
                 CertRecord rec = e.nextElement();
                 if (rec == null) continue;

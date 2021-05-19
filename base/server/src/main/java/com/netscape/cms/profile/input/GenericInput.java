@@ -98,7 +98,7 @@ public class GenericInput extends EnrollInput {
      */
     @Override
     public Enumeration<String> getValueNames() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         int num = getNum();
         for (int i = 0; i < num; i++) {
             String enable = getConfig(CONFIG_ENABLE + i);

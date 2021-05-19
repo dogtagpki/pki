@@ -82,7 +82,7 @@ public class ListCerts extends CMSServlet {
     private boolean mHardJumpTo = false; //jump to the end
     private String mDirection = null;
     private boolean mUseClientFilter = false;
-    private Vector<String> mAllowedClientFilters = new Vector<String>();
+    private Vector<String> mAllowedClientFilters = new Vector<>();
     private int mMaxReturns = 2000;
 
     /**

@@ -64,7 +64,7 @@ public class UserData {
 
     @XmlElement(name="Attributes")
     @XmlJavaTypeAdapter(MapAdapter.class)
-    Map<String, String> attributes = new LinkedHashMap<String, String>();
+    Map<String, String> attributes = new LinkedHashMap<>();
 
     public String getAttribute(String name) {
         return attributes.get(name);
@@ -292,7 +292,7 @@ public class UserData {
 
         @Override
         public Map<String, String> unmarshal(AttributeList list) {
-            Map<String, String> map = new LinkedHashMap<String, String>();
+            Map<String, String> map = new LinkedHashMap<>();
             for (Attribute attribute : list.attributes) {
                 map.put(attribute.name, attribute.value);
             }
@@ -302,7 +302,7 @@ public class UserData {
 
     public static class AttributeList {
         @XmlElement(name="Attribute")
-        public List<Attribute> attributes = new ArrayList<Attribute>();
+        public List<Attribute> attributes = new ArrayList<>();
     }
 
     public static class Attribute {

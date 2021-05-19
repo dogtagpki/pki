@@ -102,7 +102,7 @@ public class LdapCaCertPublisher
 
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement("caCertAttr=" + mCaCertAttr);
         v.addElement("caObjectClass=" + mCaObjectclass);
@@ -111,7 +111,7 @@ public class LdapCaCertPublisher
 
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement("caCertAttr=" + mCaCertAttr);
         v.addElement("caObjectClass=" + mCaObjectclass);

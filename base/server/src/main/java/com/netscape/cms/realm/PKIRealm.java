@@ -208,7 +208,7 @@ public class PKIRealm extends RealmBase {
 
     protected List<String> getRoles(User user) throws EUsrGrpException {
 
-        List<String> roles = new ArrayList<String>();
+        List<String> roles = new ArrayList<>();
 
         CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem ugSub = engine.getUGSubsystem();

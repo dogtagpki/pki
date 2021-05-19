@@ -57,8 +57,8 @@ public abstract class EnrollInput extends ProfileInput {
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected IConfigStore mConfig = null;
-    protected Vector<String> mValueNames = new Vector<String>();
-    protected Vector<String> mConfigNames = new Vector<String>();
+    protected Vector<String> mValueNames = new Vector<>();
+    protected Vector<String> mConfigNames = new Vector<>();
     protected Profile mProfile = null;
 
     /**

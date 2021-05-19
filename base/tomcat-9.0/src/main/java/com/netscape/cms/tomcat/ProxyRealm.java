@@ -28,7 +28,7 @@ public class ProxyRealm implements Realm {
 
     private static Logger logger = LoggerFactory.getLogger(ProxyRealm.class);
 
-    public static Map<String, ProxyRealm> proxies = new HashMap<String, ProxyRealm>();
+    public static Map<String, ProxyRealm> proxies = new HashMap<>();
 
     public Container container;
     public String name;

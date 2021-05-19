@@ -19,8 +19,8 @@ public class ACMEApplication extends Application {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEApplication.class);
 
-    private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
-    private Set<Object> singletons = new LinkedHashSet<Object>();
+    private Set<Class<?>> classes = new LinkedHashSet<>();
+    private Set<Object> singletons = new LinkedHashSet<>();
 
     public ACMEApplication() {
 

@@ -85,7 +85,7 @@ public class SubjectDNInput extends EnrollInput {
      */
     @Override
     public Enumeration<String> getValueNames() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         v.addElement(VAL_SUBJECT);
         return v.elements();
     }

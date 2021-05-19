@@ -88,7 +88,7 @@ public class RequestTest extends CMSBaseTestCase {
     }
 
     public void testVerifyValidExtDataHashtable() {
-        Hashtable<String, String> valueHash = new Hashtable<String, String>();
+        Hashtable<String, String> valueHash = new Hashtable<>();
 
         valueHash.put("key1", "val1");
         valueHash.put("key;2", "val2");
@@ -101,7 +101,7 @@ public class RequestTest extends CMSBaseTestCase {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void testSetExtHashtableData() {
-        Hashtable<String, String> valueHash = new Hashtable<String, String>();
+        Hashtable<String, String> valueHash = new Hashtable<>();
 
         valueHash.put("key1", "val1");
         valueHash.put("KEY2", "val2");
@@ -125,7 +125,7 @@ public class RequestTest extends CMSBaseTestCase {
 
     public void testGetExtDataInString() {
         request.mExtData.put("strkey", "strval");
-        Hashtable<String, String> hashValue = new Hashtable<String, String>();
+        Hashtable<String, String> hashValue = new Hashtable<>();
         hashValue.put("uh", "oh");
         request.mExtData.put("hashkey", hashValue);
 
@@ -138,7 +138,7 @@ public class RequestTest extends CMSBaseTestCase {
 
     public void testGetExtDataInHashtable() {
         request.mExtData.put("strkey", "strval");
-        Hashtable<String, String> hashValue = new Hashtable<String, String>();
+        Hashtable<String, String> hashValue = new Hashtable<>();
         hashValue.put("uh", "oh");
         request.mExtData.put("hashkey", hashValue);
 
@@ -176,7 +176,7 @@ public class RequestTest extends CMSBaseTestCase {
 
         // adds to existing hashtable
         assertNull(request.getExtDataInHashtable("topkey2"));
-        value = new Hashtable<String, String>();
+        value = new Hashtable<>();
         value.put("subkey2", "value2");
         request.setExtData("topkey2", value);
         request.setExtData("TOPKEY2", "subkey3", "value3");
@@ -207,7 +207,7 @@ public class RequestTest extends CMSBaseTestCase {
     }
 
     public void testGetExtDataSubkeyValue() {
-        Hashtable<String, String> value = new Hashtable<String, String>();
+        Hashtable<String, String> value = new Hashtable<>();
         value.put("subkey", "value");
 
         request.setExtData("topkey", value);
@@ -247,7 +247,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals(data[2], retval[2]);
 
         // invalid conversion
-        Hashtable<String, String> hashValue = new Hashtable<String, String>();
+        Hashtable<String, String> hashValue = new Hashtable<>();
         hashValue.put("0", "5");
         hashValue.put("1", "bar");
         request.setExtData("topkey2", hashValue);
@@ -287,7 +287,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals(data[2], retval[2]);
 
         // invalid conversion
-        Hashtable<String, String> hashValue = new Hashtable<String, String>();
+        Hashtable<String, String> hashValue = new Hashtable<>();
         hashValue.put("0", "5");
         hashValue.put("1", "bar");
         request.setExtData("topkey2", hashValue);
@@ -371,7 +371,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals("orange", retval[3]);
 
         // Try with sparse input
-        hashValue = new Hashtable<String, String>();
+        hashValue = new Hashtable<>();
         hashValue.put("0", "square");
         hashValue.put("4", "triangle");
         hashValue.put("6", "octogon");
@@ -389,7 +389,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals("octogon", retval[6]);
 
         // invalid conversion
-        hashValue = new Hashtable<String, String>();
+        hashValue = new Hashtable<>();
         hashValue.put("0", "foo");
         hashValue.put("badkey", "bar");
         request.setExtData("cory", hashValue);
@@ -400,7 +400,7 @@ public class RequestTest extends CMSBaseTestCase {
     }
 
     public void testGetSetStringVector() {
-        Vector<String> stringVector = new Vector<String>();
+        Vector<String> stringVector = new Vector<>();
         stringVector.add("blue");
         stringVector.add("green");
         stringVector.add("red");
@@ -428,7 +428,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals("orange", retval.elementAt(3));
 
         // invalid conversion
-        hashValue = new Hashtable<String, String>();
+        hashValue = new Hashtable<>();
         hashValue.put("0", "foo");
         hashValue.put("badkey", "bar");
         request.setExtData("cory", hashValue);
@@ -465,7 +465,7 @@ public class RequestTest extends CMSBaseTestCase {
     }
 
     public void testGetBoolean() {
-        Hashtable<String, String> hashValue = new Hashtable<String, String>();
+        Hashtable<String, String> hashValue = new Hashtable<>();
         hashValue.put("one", "false");
         hashValue.put("two", "true");
         hashValue.put("three", "on");

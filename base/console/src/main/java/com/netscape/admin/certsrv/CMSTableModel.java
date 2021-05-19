@@ -194,7 +194,7 @@ public class CMSTableModel extends AbstractTableModel {
 
     public synchronized void addColumn(String name) {
         _columnNames.addElement(name);
-        _tableColumns.addElement(new Vector<Object>());
+        _tableColumns.addElement(new Vector<>());
     }
 
     @Override

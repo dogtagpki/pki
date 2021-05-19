@@ -29,8 +29,8 @@ import javax.xml.bind.annotation.XmlElement;
 public class DataCollection<E> {
 
     int total;
-    Collection<E> entries = new ArrayList<E>();
-    Collection<Link> links = new ArrayList<Link>();
+    Collection<E> entries = new ArrayList<>();
+    Collection<Link> links = new ArrayList<>();
 
     public int getTotal() {
         return total;

@@ -37,7 +37,7 @@ public class CertificateSetupResponse {
     protected List<SystemCertData> systemCerts;
 
     public CertificateSetupResponse() {
-        systemCerts = new ArrayList<SystemCertData>();
+        systemCerts = new ArrayList<>();
     }
 
     /**

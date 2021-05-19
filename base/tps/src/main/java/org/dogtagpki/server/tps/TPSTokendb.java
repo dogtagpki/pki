@@ -151,7 +151,7 @@ public class TPSTokendb {
 
         Iterator<TokenRecord> records = tps.tokenDatabase.findRecords(null, attributes).iterator();
 
-        ArrayList<TokenRecord> tokenRecords = new ArrayList<TokenRecord>();
+        ArrayList<TokenRecord> tokenRecords = new ArrayList<>();
         while (records.hasNext()) {
             TokenRecord tokenRecord = records.next();
             tokenRecords.add(tokenRecord);
@@ -259,7 +259,7 @@ public class TPSTokendb {
              }
          }
 
-         ArrayList<CnIssuerPair> cnIssuerPairsRemaining = new ArrayList<CnIssuerPair>(certs.size());
+         ArrayList<CnIssuerPair> cnIssuerPairsRemaining = new ArrayList<>(certs.size());
          for(TPSCertRecord cert : certs) {
              String cn = cert.getId();
              String issuerCn = cert.getIssuedBy();
@@ -326,7 +326,7 @@ public class TPSTokendb {
         if (cuid == null)
             throw new TPSException("TPSTokendb.tdbGetCertificatesByCUID: cuid null");
 
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put("tokenID",  cuid);
 
         try {
@@ -347,11 +347,11 @@ public class TPSTokendb {
             throw new TPSException(method + " issuer null");
         }
 
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put("serialNumber", serial);
         attributes.put("issuedBy", issuer);
 
-        ArrayList<TPSCertRecord> certRecords = new ArrayList<TPSCertRecord>();
+        ArrayList<TPSCertRecord> certRecords = new ArrayList<>();
         Iterator<TPSCertRecord> records;
         try {
             records = tps.certDatabase.findRecords(null, attributes).iterator();
@@ -423,7 +423,7 @@ public class TPSTokendb {
         String method = "TPSTokendb: isCertOnToken: ";
         boolean result = false;
 
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put("tokenID", cuid);
 
         Iterator<TPSCertRecord> records;
@@ -486,7 +486,7 @@ public class TPSTokendb {
 
         logger.debug(method + ":" + " begins for cuid =" + cuid);
 
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put("tokenID", cuid);
 
         Iterator<TPSCertRecord> records;

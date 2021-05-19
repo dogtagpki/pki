@@ -53,7 +53,7 @@ public class AuthenticatorDatabase extends CSCfgDatabase<AuthenticatorRecord> {
     @Override
     public Collection<AuthenticatorRecord> findRecords(String filter) throws Exception {
 
-        Collection<AuthenticatorRecord> result = new ArrayList<AuthenticatorRecord>();
+        Collection<AuthenticatorRecord> result = new ArrayList<>();
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 

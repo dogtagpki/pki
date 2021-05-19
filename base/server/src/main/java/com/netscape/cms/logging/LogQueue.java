@@ -35,7 +35,7 @@ import com.netscape.cmscore.apps.CMS;
 public class LogQueue implements ILogQueue {
 
     private static LogQueue mLogQueue = new LogQueue();
-    protected Vector<ILogEventListener> mListeners = new Vector<ILogEventListener>();
+    protected Vector<ILogEventListener> mListeners = new Vector<>();
 
     /**
      * Constructs a log queue.

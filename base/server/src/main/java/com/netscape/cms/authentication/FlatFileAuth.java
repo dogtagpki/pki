@@ -227,7 +227,7 @@ public class FlatFileAuth
      */
 
     public String[] unionOfStrings(String[][] stringArrays) {
-        Hashtable<String, String> ht = new Hashtable<String, String>();
+        Hashtable<String, String> ht = new Hashtable<>();
 
         for (int i = 0; i < stringArrays.length; i++) {
             String[] sa = stringArrays[i];
@@ -404,7 +404,7 @@ public class FlatFileAuth
         BufferedReader file = new BufferedReader(new FileReader(f));
 
         String line;
-        Hashtable<String, Hashtable<String, String>> allusers = new Hashtable<String, Hashtable<String, String>>();
+        Hashtable<String, Hashtable<String, String>> allusers = new Hashtable<>();
         Hashtable<String, String> entry = null;
         int linenum = 0;
 
@@ -417,7 +417,7 @@ public class FlatFileAuth
             int colon = line.indexOf(':');
 
             if (entry == null) {
-                entry = new Hashtable<String, String>();
+                entry = new Hashtable<>();
             }
 
             if (colon == -1) { // no colon -> empty line signifies end of record

@@ -48,7 +48,7 @@ public class KeyStateMapper extends DBAttrMapper {
 
     @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(mLdapName);
         return v.elements();

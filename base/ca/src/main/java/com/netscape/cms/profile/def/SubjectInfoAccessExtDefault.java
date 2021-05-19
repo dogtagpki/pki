@@ -345,7 +345,7 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
             int num = getNumAds();
 
             logger.debug("SubjectInfoAccess num=" + num);
-            Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
+            Vector<NameValuePairs> recs = new Vector<>();
 
             for (int i = 0; i < num; i++) {
                 NameValuePairs np = new NameValuePairs();

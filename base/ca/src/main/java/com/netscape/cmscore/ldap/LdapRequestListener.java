@@ -35,7 +35,7 @@ public class LdapRequestListener implements IRequestListener {
      * handlers for request types (events)
      * each handler implement IRequestListener
      */
-    private Hashtable<String, IRequestListener> mRequestListeners = new Hashtable<String, IRequestListener>();
+    private Hashtable<String, IRequestListener> mRequestListeners = new Hashtable<>();
 
     public LdapRequestListener() {
     }

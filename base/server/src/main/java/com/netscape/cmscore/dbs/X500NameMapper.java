@@ -45,7 +45,7 @@ public class X500NameMapper extends DBAttrMapper {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(X500NameMapper.class);
 
     private String mLdapName = null;
-    private Vector<String> v = new Vector<String>();
+    private Vector<String> v = new Vector<>();
 
     /**
      * Constructs X500Name mapper.

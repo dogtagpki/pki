@@ -53,7 +53,7 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ResourceMessage {
 
-    protected Map<String, String> attributes = new LinkedHashMap<String, String>();
+    protected Map<String, String> attributes = new LinkedHashMap<>();
     String className;
 
     public ResourceMessage() {
@@ -119,7 +119,7 @@ public class ResourceMessage {
 
         @Override
         public Map<String, String> unmarshal(AttributeList list) {
-            Map<String, String> map = new LinkedHashMap<String, String>();
+            Map<String, String> map = new LinkedHashMap<>();
             for (Attribute attribute : list.attrs) {
                 map.put(attribute.name, attribute.value);
             }
@@ -129,7 +129,7 @@ public class ResourceMessage {
 
     public static class AttributeList {
         @XmlElement(name = "Attribute")
-        public List<Attribute> attrs = new ArrayList<Attribute>();
+        public List<Attribute> attrs = new ArrayList<>();
     }
 
     public static class Attribute {

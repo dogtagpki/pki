@@ -43,7 +43,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 public class DomainInfo {
 
     String name;
-    Map<String, SecurityDomainSubsystem> subsystems = new LinkedHashMap<String, SecurityDomainSubsystem>();
+    Map<String, SecurityDomainSubsystem> subsystems = new LinkedHashMap<>();
 
     @XmlAttribute(name="id")
     public String getName() {

@@ -114,7 +114,7 @@ public class AgentApprovals
      * @return The string vector.
      */
     public Vector<String> toStringVector() {
-        Vector<String> retval = new Vector<String>(mVector.size());
+        Vector<String> retval = new Vector<>(mVector.size());
         for (int i = 0; i < mVector.size(); i++) {
             AgentApproval a = mVector.elementAt(i);
             retval.add(a.getDate().getTime() + ";" + a.getUserName());
@@ -166,5 +166,5 @@ public class AgentApprovals
         return mVector.get(i);
     }
 
-    protected Vector<AgentApproval> mVector = new Vector<AgentApproval>();
+    protected Vector<AgentApproval> mVector = new Vector<>();
 }

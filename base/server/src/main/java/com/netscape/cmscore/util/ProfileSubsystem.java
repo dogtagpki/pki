@@ -164,12 +164,12 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
 
     public synchronized void updateThreadPanel() {
         Thread currentThread = Thread.currentThread();
-        Vector<Vector<String>> data = new Vector<Vector<String>>();
+        Vector<Vector<String>> data = new Vector<>();
         Thread threads[] = new Thread[100];
         int numThreads = Thread.enumerate(threads);
 
         for (int i = 0; i < numThreads; i++) {
-            Vector<String> row = new Vector<String>();
+            Vector<String> row = new Vector<>();
 
             row.addElement(threads[i].getName());
             row.addElement(threads[i].getThreadGroup().getName());
@@ -184,7 +184,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
             data.addElement(row);
         }
 
-        Vector<String> colNames = new Vector<String>();
+        Vector<String> colNames = new Vector<>();
 
         colNames.addElement("Name");
         colNames.addElement("Group");

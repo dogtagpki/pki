@@ -108,7 +108,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
             }
         }
 
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         if (tokenID != null) {
             attributes.put("tokenID", tokenID);
         }

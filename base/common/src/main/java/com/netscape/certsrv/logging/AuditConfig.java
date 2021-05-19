@@ -130,7 +130,7 @@ public class AuditConfig {
 
         @Override
         public Map<String, String> unmarshal(EventConfigList list) {
-            Map<String, String> map = new TreeMap<String, String>();
+            Map<String, String> map = new TreeMap<>();
             for (EventConfig eventConfig : list.entries) {
                 map.put(eventConfig.name, eventConfig.value);
             }
@@ -140,7 +140,7 @@ public class AuditConfig {
 
     public static class EventConfigList {
         @XmlElement(name="Event")
-        public List<EventConfig> entries = new ArrayList<EventConfig>();
+        public List<EventConfig> entries = new ArrayList<>();
     }
 
     public static class EventConfig {
@@ -245,7 +245,7 @@ public class AuditConfig {
         before.setInterval(10);
         before.setBufferSize(512);
 
-        Map<String, String> eventConfigs = new TreeMap<String, String>();
+        Map<String, String> eventConfigs = new TreeMap<>();
         eventConfigs.put("event1", "mandatory");
         eventConfigs.put("event2", "enabled");
         eventConfigs.put("event3", "disabled");

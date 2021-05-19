@@ -36,7 +36,7 @@ public class StatsEvent {
     private long mTimeTaken = 0;
     private long mTimeTakenSqSum = 0;
     private long mNoOfOperations = 0;
-    private Map<String,StatsEvent> mSubEvents = new HashMap<String,StatsEvent>();
+    private Map<String,StatsEvent> mSubEvents = new HashMap<>();
     private StatsEvent mParent = null;
 
     public StatsEvent(StatsEvent parent) {
@@ -62,7 +62,7 @@ public class StatsEvent {
      * Retrieves a list of sub transaction names.
      */
     public Enumeration<String> getSubEventNames() {
-        Vector<String> names = new Vector<String>();
+        Vector<String> names = new Vector<>();
         names.addAll(mSubEvents.keySet());
         return names.elements();
     }

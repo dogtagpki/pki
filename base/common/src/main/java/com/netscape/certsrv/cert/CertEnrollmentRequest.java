@@ -78,10 +78,10 @@ public class CertEnrollmentRequest extends ResourceMessage {
     protected String remoteAddr;
 
     @XmlElement(name = "Input")
-    protected Collection<ProfileInput> inputs = new ArrayList<ProfileInput>();
+    protected Collection<ProfileInput> inputs = new ArrayList<>();
 
     @XmlElement(name = "Output")
-    protected Collection<ProfileOutput> outputs = new ArrayList<ProfileOutput>();
+    protected Collection<ProfileOutput> outputs = new ArrayList<>();
 
     public CertEnrollmentRequest() {
         // required for jaxb
@@ -220,7 +220,7 @@ public class CertEnrollmentRequest extends ResourceMessage {
     }
 
     public HashMap<String, String> toParams() {
-        HashMap<String, String> ret = new HashMap<String, String>();
+        HashMap<String, String> ret = new HashMap<>();
         ret.put("isRenewal", Boolean.valueOf(renewal).toString());
         if (profileId != null) ret.put(PROFILE_ID, profileId);
         if (serialNum != null) ret.put(SERIAL_NUM, serialNum.toHexString());

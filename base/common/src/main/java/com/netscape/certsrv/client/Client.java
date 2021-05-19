@@ -38,7 +38,7 @@ public class Client {
     // client name
     public String name;
 
-    public LinkedHashMap<String, Client> clients = new LinkedHashMap<String, Client>();
+    public LinkedHashMap<String, Client> clients = new LinkedHashMap<>();
 
     public Client(PKIClient client, String subsystem, String name) {
         this(client, subsystem, "rest", name);

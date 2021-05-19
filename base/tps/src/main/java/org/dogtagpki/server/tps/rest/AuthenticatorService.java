@@ -316,7 +316,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
     @Override
     public Response changeStatus(String authenticatorID, String action) {
         String method = "AuthenticatorService.changeStatus";
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (authenticatorID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null,
@@ -435,7 +435,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
     @Override
     public Response removeAuthenticator(String authenticatorID) {
         String method = "AuthenticatorService.removeAuthenticator";
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (authenticatorID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null,

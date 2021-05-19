@@ -96,7 +96,7 @@ public class CertificateRevokedListener implements IRequestListener {
     private String mSubject_Success = null;
     private String mFormPath = null;
     private String mRejectPath = null;
-    private Hashtable<String, Object> mContentParams = new Hashtable<String, Object>();
+    private Hashtable<String, Object> mContentParams = new Hashtable<>();
 
     private IConfigStore mConfig = null;
     private DateFormat mDateFormat = null;

@@ -81,7 +81,7 @@ public class PolicyDefaultFactory {
             ret.addAttribute(attr);
         }
 
-        List<ProfileParameter> pList = new ArrayList<ProfileParameter>();
+        List<ProfileParameter> pList = new ArrayList<>();
         Enumeration<String> paramNames  = def.getConfigNames();
         while (paramNames.hasMoreElements()) {
             String paramName = paramNames.nextElement();

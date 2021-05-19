@@ -27,8 +27,8 @@ public class KRAApplication extends Application {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAApplication.class);
 
-    private Set<Object> singletons = new LinkedHashSet<Object>();
-    private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+    private Set<Object> singletons = new LinkedHashSet<>();
+    private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public KRAApplication() {
 

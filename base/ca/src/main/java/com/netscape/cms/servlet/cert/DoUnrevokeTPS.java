@@ -491,7 +491,7 @@ public class DoUnrevokeTPS extends CMSServlet {
         String serialNumString = req.getParameter(IRemoteRequest.CA_UNREVOKE_SERIAL);
 
         StringTokenizer snList = new StringTokenizer(serialNumString, " ");
-        Vector<BigInteger> biList = new Vector<BigInteger>();
+        Vector<BigInteger> biList = new Vector<>();
         while (snList.hasMoreTokens()) {
             String snStr = snList.nextToken();
             if (snStr != null) {

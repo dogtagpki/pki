@@ -71,9 +71,9 @@ public class PolicyConstraintsExt extends APolicyRule
     protected int mInhibitPolicyMapping = DEF_INHIBIT_POLICY_MAPPING;
     protected PolicyConstraintsExtension mPolicyConstraintsExtension = null;
 
-    protected Vector<String> mInstanceParams = new Vector<String>();
+    protected Vector<String> mInstanceParams = new Vector<>();
 
-    protected static Vector<String> mDefaultParams = new Vector<String>();
+    protected static Vector<String> mDefaultParams = new Vector<>();
     static {
         mDefaultParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
         mDefaultParams.addElement(

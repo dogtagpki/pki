@@ -70,7 +70,7 @@ public class RequestTransfer {
             logger.debug("RequestTransfer: profile request id = " +
                     r.getRequestId().toString());
             Enumeration<String> e = r.getExtDataKeys();
-            Vector<String> v = new Vector<String>();
+            Vector<String> v = new Vector<>();
 
             while (e.hasMoreElements()) {
                 String k = e.nextElement();

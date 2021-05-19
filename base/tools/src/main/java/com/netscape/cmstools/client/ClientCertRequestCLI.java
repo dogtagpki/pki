@@ -337,7 +337,7 @@ public class ClientCertRequestCLI extends CommandCLI {
         DN dn = new DN(subjectDN);
         Vector<?> rdns = dn.getRDNs();
 
-        Map<String, String> subjectAttributes = new HashMap<String, String>();
+        Map<String, String> subjectAttributes = new HashMap<>();
         for (int i = 0; i < rdns.size(); i++) {
             RDN rdn = (RDN) rdns.elementAt(i);
             String type = rdn.getTypes()[0].toLowerCase();

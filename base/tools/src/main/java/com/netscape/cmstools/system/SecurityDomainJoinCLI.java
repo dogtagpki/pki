@@ -108,7 +108,7 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         boolean domainManager = cmd.hasOption("domain-manager");
         boolean clone = cmd.hasOption("clone");
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
         content.putSingle("sessionID", sessionID);
         content.putSingle("list", type + "List");
         content.putSingle("type", type);

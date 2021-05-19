@@ -42,7 +42,7 @@ public class AuthCredentials implements IAuthCredentials {
     // Insert end
 
     public AuthCredentials() {
-        authCreds = new Hashtable<String, Object>();
+        authCreds = new Hashtable<>();
     }
 
     /**

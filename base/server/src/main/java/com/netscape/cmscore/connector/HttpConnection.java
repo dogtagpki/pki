@@ -104,7 +104,7 @@ public class HttpConnection implements IHttpConnection {
 
     List<InetSocketAddress> parseTarget(String target, int port) {
 
-        List<InetSocketAddress> results = new ArrayList<InetSocketAddress>();
+        List<InetSocketAddress> results = new ArrayList<>();
 
         if (target == null || target.indexOf(' ') < 0) {
             // target is a single hostname

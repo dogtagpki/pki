@@ -139,7 +139,7 @@ public class PKCS12CertExportCLI extends CommandCLI {
             PKCS12Util util = new PKCS12Util();
             PKCS12 pkcs12 = util.loadFromFile(pkcs12File, password);
 
-            Collection<PKCS12CertInfo> certInfos = new ArrayList<PKCS12CertInfo>();
+            Collection<PKCS12CertInfo> certInfos = new ArrayList<>();
 
             if (nickname != null) {
                 certInfos.addAll(pkcs12.getCertInfosByFriendlyName(nickname));

@@ -502,7 +502,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         if (e == null) return createOKResponse(infos);
 
         // store non-null results in a list
-        List<ProfileDataInfo> results = new ArrayList<ProfileDataInfo>();
+        List<ProfileDataInfo> results = new ArrayList<>();
         while (e.hasMoreElements()) {
             try {
                 String id = e.nextElement();

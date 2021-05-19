@@ -109,7 +109,7 @@ public class AuthenticatorData {
 
         @Override
         public Map<String, String> unmarshal(PropertyList list) {
-            Map<String, String> map = new LinkedHashMap<String, String>();
+            Map<String, String> map = new LinkedHashMap<>();
             for (Property property : list.properties) {
                 map.put(property.name, property.value);
             }
@@ -119,7 +119,7 @@ public class AuthenticatorData {
 
     public static class PropertyList {
         @XmlElement(name="Property")
-        public List<Property> properties = new ArrayList<Property>();
+        public List<Property> properties = new ArrayList<>();
     }
 
     public static class Property {
@@ -209,7 +209,7 @@ public class AuthenticatorData {
         before.setID("authenticator1");
         before.setStatus("ENABLED");
 
-        Map<String, String> properties = new LinkedHashMap<String, String>();
+        Map<String, String> properties = new LinkedHashMap<>();
         properties.put("param1", "value1");
         properties.put("param2", "value2");
         before.setProperties(properties);

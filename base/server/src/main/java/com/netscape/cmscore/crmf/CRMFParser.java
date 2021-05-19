@@ -48,7 +48,7 @@ public class CRMFParser {
      */
     public static PKIArchiveOptionsContainer[]
             getPKIArchiveOptions(String crmfBlob) throws IOException {
-        Vector<PKIArchiveOptionsContainer> options = new Vector<PKIArchiveOptionsContainer>();
+        Vector<PKIArchiveOptionsContainer> options = new Vector<>();
 
         byte[] crmfBerBlob = null;
 

@@ -27,7 +27,7 @@ public class RemoteAuthority implements IRemoteAuthority {
     String mHost = null;
     int mPort = -1;
     String mURI = null;
-    Hashtable<String, String> mURIs = new Hashtable<String, String>();
+    Hashtable<String, String> mURIs = new Hashtable<>();
     String mContentType = null;
     int mTimeout = 0;
 

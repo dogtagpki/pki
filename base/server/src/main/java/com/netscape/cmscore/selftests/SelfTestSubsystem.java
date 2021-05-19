@@ -89,9 +89,9 @@ public class SelfTestSubsystem
     private String mRootPrefix = null;
     private String mPrefix = null;
 
-    public Hashtable<String, ISelfTest> mSelfTestInstances = new Hashtable<String, ISelfTest>();
-    public Vector<SelfTestOrderedInstance> mOnDemandOrder = new Vector<SelfTestOrderedInstance>();
-    public Vector<SelfTestOrderedInstance> mStartupOrder = new Vector<SelfTestOrderedInstance>();
+    public Hashtable<String, ISelfTest> mSelfTestInstances = new Hashtable<>();
+    public Vector<SelfTestOrderedInstance> mOnDemandOrder = new Vector<>();
+    public Vector<SelfTestOrderedInstance> mStartupOrder = new Vector<>();
 
     ///////////////////////////
     // ISubsystem parameters //
@@ -1837,7 +1837,7 @@ public class SelfTestSubsystem
     public void shutdown() {
         // reverse order of all self test plugin instances
         Collection<ISelfTest> collection = mSelfTestInstances.values();
-        Vector<ISelfTest> list = new Vector<ISelfTest>(collection);
+        Vector<ISelfTest> list = new Vector<>(collection);
 
         Collections.reverse(list);
 

@@ -116,7 +116,7 @@ public class CAService implements ICAService, IService {
     protected static IConnector mCLAConnector = null;
 
     private CertificateAuthority mCA = null;
-    private Hashtable<String, IServant> mServants = new Hashtable<String, IServant>();
+    private Hashtable<String, IServant> mServants = new Hashtable<>();
     private IConnector mKRAConnector = null;
     private IConfigStore mConfig = null;
     private boolean mArchivalRequired = true;
@@ -1690,7 +1690,7 @@ class serviceCheckChallenge implements IServant {
                 if (!en.hasMoreElements()) {
                     bigIntArray = new BigInteger[0];
                 } else {
-                    Vector<BigInteger> idv = new Vector<BigInteger>();
+                    Vector<BigInteger> idv = new Vector<>();
 
                     while (en.hasMoreElements()) {
                         CertRecord record = en.nextElement();

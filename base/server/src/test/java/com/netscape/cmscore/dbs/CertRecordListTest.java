@@ -44,7 +44,7 @@ public class CertRecordListTest extends CMSBaseTestCase {
     }
 
     public void testProcessCertRecordsUsesSize() throws EBaseException {
-        DBVirtualListStub<CertRecord> dbList = new DBVirtualListStub<CertRecord>();
+        DBVirtualListStub<CertRecord> dbList = new DBVirtualListStub<>();
         dbList.size = 5;
 
         CertRecordList certList = new CertRecordList(dbList);

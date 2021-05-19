@@ -84,7 +84,7 @@ public class CMSGateway {
     }
 
     public static Hashtable<String, String> toHashtable(HttpServletRequest req) {
-        Hashtable<String, String> httpReqHash = new Hashtable<String, String>();
+        Hashtable<String, String> httpReqHash = new Hashtable<>();
         Enumeration<String> names = req.getParameterNames();
 
         while (names.hasMoreElements()) {

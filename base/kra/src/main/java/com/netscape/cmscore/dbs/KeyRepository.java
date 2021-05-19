@@ -409,7 +409,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
-        Vector<IKeyRecord> v = new Vector<IKeyRecord>();
+        Vector<IKeyRecord> v = new Vector<>();
 
         try {
             IDBSearchResults sr = s.search(getDN(), filter, maxSize);
@@ -427,7 +427,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize, int timeLimit)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
-        Vector<IKeyRecord> v = new Vector<IKeyRecord>();
+        Vector<IKeyRecord> v = new Vector<>();
 
         try {
             IDBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit);

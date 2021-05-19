@@ -397,7 +397,7 @@ class Response {
         return _messages;
     }
     public Vector<CertBasicInfo> getCertList() {
-        return _fCertList ? _certList : (new Vector<CertBasicInfo>());
+        return _fCertList ? _certList : (new Vector<>());
     }
     public CertInfo getCertInfo() {
         return _certInfo;

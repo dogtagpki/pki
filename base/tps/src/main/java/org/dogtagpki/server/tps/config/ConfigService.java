@@ -81,7 +81,7 @@ public class ConfigService extends SubsystemService implements ConfigResource {
     @Override
     public Response updateConfig(ConfigData configData) {
         String method = "ConfigService.updateConfig";
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (configData == null) {
             BadRequestException e = new BadRequestException("Config data is null.");

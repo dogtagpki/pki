@@ -93,7 +93,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
     protected String mIssuer = null;
     protected Date mDateOfArchival = null;
 
-    protected static Vector<String> mNames = new Vector<String>();
+    protected static Vector<String> mNames = new Vector<>();
     static {
         mNames.addElement(ATTR_VERSION);
         mNames.addElement(ATTR_SERIALNO);

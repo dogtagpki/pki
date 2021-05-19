@@ -28,7 +28,7 @@ public class ExtendedLoginResponseMsg extends TPSMessage {
 
         super(msg);
 
-        authParams = new HashMap<String, String>();
+        authParams = new HashMap<>();
         //ToDo process the actual params
     }
 

@@ -322,7 +322,7 @@ IKeyCertPage {
                 //this will make it load faster.
                 //It will do some extra work if we call addItem() one at a time
 
-                st = new JComboBox<String>(states);
+                st = new JComboBox<>(states);
             }
             else {
                 st.removeAllItems();

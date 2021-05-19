@@ -344,9 +344,9 @@ public class PortalEnroll extends DirBasedAuthentication {
         LDAPAttribute attr = new LDAPAttribute("objectclass");
 
         // initialized to new
-        mRequiredAttrs = new Vector<Enumeration<String>>();
-        mOptionalAttrs = new Vector<Enumeration<String>>();
-        mObjClasses = new Vector<String>();
+        mRequiredAttrs = new Vector<>();
+        mOptionalAttrs = new Vector<>();
+        mObjClasses = new Vector<>();
 
         LDAPSchema dirSchema = null;
 

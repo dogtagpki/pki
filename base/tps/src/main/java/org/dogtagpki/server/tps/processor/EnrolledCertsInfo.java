@@ -35,12 +35,12 @@ public class EnrolledCertsInfo {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrolledCertsInfo.class);
 
     EnrolledCertsInfo() {
-        certificates = new ArrayList<X509CertImpl>();
-        certStatuses = new ArrayList<TokenCertStatus>();
-        ktypes = new ArrayList<String>();
-        origins = new ArrayList<String>();
-        tokenTypes = new ArrayList<String>();
-        externalRegRecoveryEnrollList = new ArrayList<CertEnrollInfo>();
+        certificates = new ArrayList<>();
+        certStatuses = new ArrayList<>();
+        ktypes = new ArrayList<>();
+        origins = new ArrayList<>();
+        tokenTypes = new ArrayList<>();
+        externalRegRecoveryEnrollList = new ArrayList<>();
     }
 
     EnrolledCertsInfo(PKCS11Obj obj, TPSBuffer wrappedChallenge, TPSBuffer plainChallenge, int keyTypeNum,
@@ -178,7 +178,7 @@ public class EnrolledCertsInfo {
     }
 
     public ArrayList<TPSCertRecord> toTPSCertRecords(String cuid, String uid) {
-        ArrayList<TPSCertRecord> certs = new ArrayList<TPSCertRecord>();
+        ArrayList<TPSCertRecord> certs = new ArrayList<>();
         logger.debug("EnrolledCertsInfo.toTPSCertRecords: starts");
         int index = 0;
         for (X509CertImpl cert: certificates) {

@@ -80,7 +80,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
     public static final Map<String, KeyPairAlgorithm> ASYMKEY_GEN_ALGORITHMS;
 
     static {
-        SYMKEY_GEN_ALGORITHMS = new HashMap<String, KeyGenAlgorithm>();
+        SYMKEY_GEN_ALGORITHMS = new HashMap<>();
         SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DES_ALGORITHM, KeyGenAlgorithm.DES);
         SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DESEDE_ALGORITHM, KeyGenAlgorithm.DESede);
         SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DES3_ALGORITHM, KeyGenAlgorithm.DES3);
@@ -88,7 +88,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.RC4_ALGORITHM, KeyGenAlgorithm.RC4);
         SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.AES_ALGORITHM, KeyGenAlgorithm.AES);
 
-        ASYMKEY_GEN_ALGORITHMS = new HashMap<String, KeyPairAlgorithm>();
+        ASYMKEY_GEN_ALGORITHMS = new HashMap<>();
         ASYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.RSA_ALGORITHM, KeyPairAlgorithm.RSA);
         ASYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DSA_ALGORITHM, KeyPairAlgorithm.DSA);
     }

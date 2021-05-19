@@ -59,7 +59,7 @@ public class RevocationConstraints extends APolicyRule
     private boolean mAllowExpiredCerts = true;
     private boolean mAllowOnHold = true;
 
-    private final static Vector<String> defConfParams = new Vector<String>();
+    private final static Vector<String> defConfParams = new Vector<>();
     static {
         defConfParams.addElement(PROP_ALLOW_EXPIRED_CERTS + "=" + true);
         defConfParams.addElement(PROP_ALLOW_ON_HOLD + "=" + true);
@@ -201,7 +201,7 @@ public class RevocationConstraints extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> confParams = new Vector<String>();
+        Vector<String> confParams = new Vector<>();
 
         confParams.addElement(
                 PROP_ALLOW_EXPIRED_CERTS + "=" + mAllowExpiredCerts);

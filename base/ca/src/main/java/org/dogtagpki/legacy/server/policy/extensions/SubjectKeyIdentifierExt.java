@@ -80,9 +80,9 @@ public class SubjectKeyIdentifierExt extends APolicyRule
     protected String mKeyIdType = DEF_KEYID_TYPE;;
     protected String mReqAttrName = DEF_REQATTR_NAME;
 
-    protected Vector<String> mInstanceParams = new Vector<String>();
+    protected Vector<String> mInstanceParams = new Vector<>();
 
-    protected static Vector<String> mDefaultParams = new Vector<String>();
+    protected static Vector<String> mDefaultParams = new Vector<>();
     static {
         // form static default params.
         mDefaultParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);

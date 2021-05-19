@@ -355,7 +355,7 @@ public class RenewalProcessor extends CertProcessor {
             String errorCode = submitRequests(locale, profile, authToken, reqs);
             String errorReason = null;
 
-            List<String> errors = new ArrayList<String>();
+            List<String> errors = new ArrayList<>();
             if (errorCode != null) {
                 for (IRequest req: reqs) {
                     String error = req.getError(locale);
@@ -367,7 +367,7 @@ public class RenewalProcessor extends CertProcessor {
                 errorReason = StringUtils.join(errors, '\n');
             }
 
-            HashMap<String, Object> ret = new HashMap<String, Object>();
+            HashMap<String, Object> ret = new HashMap<>();
             ret.put(ARG_REQUESTS, reqs);
             ret.put(ARG_ERROR_CODE, errorCode);
             ret.put(ARG_ERROR_REASON, errorReason);

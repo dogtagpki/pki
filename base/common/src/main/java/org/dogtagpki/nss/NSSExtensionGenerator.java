@@ -49,7 +49,7 @@ public class NSSExtensionGenerator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NSSExtensionGenerator.class);
 
-    private Map<String, String> parameters = new LinkedHashMap<String, String>();
+    private Map<String, String> parameters = new LinkedHashMap<>();
 
     public NSSExtensionGenerator() {
     }

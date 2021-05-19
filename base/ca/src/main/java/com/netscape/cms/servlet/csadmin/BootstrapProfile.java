@@ -31,7 +31,7 @@ public class BootstrapProfile {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BootstrapProfile.class);
 
-    private Vector<EnrollDefault> mDefaults = new Vector<EnrollDefault>();
+    private Vector<EnrollDefault> mDefaults = new Vector<>();
     private String mName = null;
     private String mID = null;
     private String mDescription = null;

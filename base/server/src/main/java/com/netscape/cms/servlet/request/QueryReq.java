@@ -518,7 +518,7 @@ public class QueryReq extends CMSServlet {
      */
     private Vector<IRequest> fetchRecords(IRequestVirtualList list, int maxCount) {
 
-        Vector<IRequest> v = new Vector<IRequest>();
+        Vector<IRequest> v = new Vector<>();
         int count = list.getSize();
         int c = 0;
         for (int i = 0; i < count; i++) {
@@ -551,7 +551,7 @@ public class QueryReq extends CMSServlet {
         if (firstrequestnum.compareTo(lastrequestnum) > 0) {
             reverse = true; // if the order is backwards, place items at the beginning
         }
-        Vector<IRequest> v = new Vector<IRequest>();
+        Vector<IRequest> v = new Vector<>();
         int count = list.size();
         for (int i = 0; i < count; i++) {
             IRequest request = list.elementAt(i);

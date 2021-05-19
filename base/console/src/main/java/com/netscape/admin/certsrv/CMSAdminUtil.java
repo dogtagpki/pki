@@ -881,7 +881,7 @@ public class CMSAdminUtil {
      * visible row count. Special cell renderer is used to display each cell.
      */
     public static <E> JList<E> makeJList(DefaultListModel<E> listModel, int visibleCount) {
-        JList<E> listbox = new JList<E>(listModel);
+        JList<E> listbox = new JList<>(listModel);
         listbox.setCellRenderer(new AttrCellRenderer<E>());
         listbox.setSelectionModel(new DefaultListSelectionModel());
         listbox.setVisibleRowCount(visibleCount);

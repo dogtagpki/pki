@@ -37,7 +37,7 @@ public class MetaInfo implements IAttrSet {
     public static final String REQUEST_ID = "requestId";
     public static final String IN_LDAP_PUBLISH_DIR = "inLdapPublishDir";
 
-    private Hashtable<String, Object> content = new Hashtable<String, Object>();
+    private Hashtable<String, Object> content = new Hashtable<>();
 
     /**
      * Constructs a meta information.

@@ -51,7 +51,7 @@ public class MetaInfoMapper extends DBAttrMapper {
     public static final String SEP = ":";
 
     private String mLdapName = null;
-    private Vector<String> v = new Vector<String>();
+    private Vector<String> v = new Vector<>();
 
     /**
      * Constructs a metainfo object.

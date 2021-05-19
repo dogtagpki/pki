@@ -132,7 +132,7 @@ public class CertRecord implements IDBObj {
     private String mRevokedBy = null;
     private Date mRevokedOn = null;
 
-    protected static Vector<String> mNames = new Vector<String>();
+    protected static Vector<String> mNames = new Vector<>();
     static {
         mNames.addElement(ATTR_ID);
         mNames.addElement(ATTR_META_INFO);

@@ -55,11 +55,11 @@ public class PKIClient implements AutoCloseable {
     public InfoClient infoClient;
     public Info info;
 
-    Collection<Integer> rejectedCertStatuses = new HashSet<Integer>();
-    Collection<Integer> ignoredCertStatuses = new HashSet<Integer>();
+    Collection<Integer> rejectedCertStatuses = new HashSet<>();
+    Collection<Integer> ignoredCertStatuses = new HashSet<>();
 
     // List to prevent displaying the same warnings/errors again.
-    Collection<Integer> statuses = new HashSet<Integer>();
+    Collection<Integer> statuses = new HashSet<>();
 
     public PKIClient(ClientConfig config) throws URISyntaxException {
         this(config, null, null);

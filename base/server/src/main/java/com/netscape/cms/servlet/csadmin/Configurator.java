@@ -193,7 +193,7 @@ public class Configurator {
                 + engine.getAdminPort() + "/ca/admin/console/config/wizard" +
                 "?p=5&subsystem=" + cs.getType();
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
         content.putSingle("uid", user);
         content.putSingle("pwd", passwd);
         content.putSingle("url", subca_url);

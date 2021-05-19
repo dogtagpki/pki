@@ -59,7 +59,7 @@ public class X509CertImplMapper extends DBAttrMapper {
 
     @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(CertDBSchema.LDAP_ATTR_NOT_BEFORE);
         v.addElement(CertDBSchema.LDAP_ATTR_NOT_AFTER);

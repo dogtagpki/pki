@@ -41,7 +41,7 @@ public class StringVectorMapper extends DBAttrMapper {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StringVectorMapper.class);
 
     private String mLdapName = null;
-    private Vector<String> v = new Vector<String>();
+    private Vector<String> v = new Vector<>();
 
     /**
      * Constructs string vector mapper.
@@ -100,7 +100,7 @@ public class StringVectorMapper extends DBAttrMapper {
         if (attr == null)
             return;
         Enumeration<String> e = attr.getStringValues();
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         while (e.hasMoreElements()) {
             v.addElement(e.nextElement());

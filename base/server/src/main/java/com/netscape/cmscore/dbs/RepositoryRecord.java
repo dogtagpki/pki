@@ -42,7 +42,7 @@ public class RepositoryRecord implements IRepositoryRecord {
     private String mPublishingStatus = null;
     private String mDescription = null;
 
-    protected static Vector<String> mNames = new Vector<String>();
+    protected static Vector<String> mNames = new Vector<>();
     static {
         mNames.addElement(IRepositoryRecord.ATTR_SERIALNO);
         mNames.addElement(IRepositoryRecord.ATTR_PUB_STATUS);

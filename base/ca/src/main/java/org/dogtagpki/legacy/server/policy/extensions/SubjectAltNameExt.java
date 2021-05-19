@@ -81,10 +81,10 @@ public class SubjectAltNameExt extends APolicyRule
     protected int mNumGNs = 0;
     protected ISubjAltNameConfig[] mGNs = null;
 
-    Vector<String> mInstanceParams = new Vector<String>();
+    Vector<String> mInstanceParams = new Vector<>();
 
     // init default params and extended plugin info.
-    private static Vector<String> mDefParams = new Vector<String>();
+    private static Vector<String> mDefParams = new Vector<>();
     static {
         // default params.
         mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
@@ -309,7 +309,7 @@ public class SubjectAltNameExt extends APolicyRule
     public String[] getExtendedPluginInfo(Locale locale) {
 
         // extended plugin info.
-        Vector<String> info = new Vector<String>();
+        Vector<String> info = new Vector<>();
 
         info.addElement(PROP_CRITICAL
                 + ";boolean;RFC2459 recommendation: If the certificate subject field contains an empty sequence, the extension MUST be marked critical.");

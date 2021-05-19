@@ -53,7 +53,7 @@ public class TKSClient extends SubsystemClient {
             String transportCert,
             String sessionID) throws Exception {
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
         content.putSingle("name", transportNickname);
         content.putSingle("xmlOutput", "true");
         content.putSingle("sessionID", sessionID);

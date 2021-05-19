@@ -95,7 +95,7 @@ public class SessionContext extends Hashtable<Object, Object> {
      */
     public static final String IPADDRESS = "ipAddress";
 
-    private static ThreadLocal<SessionContext> instance = new ThreadLocal<SessionContext>();
+    private static ThreadLocal<SessionContext> instance = new ThreadLocal<>();
 
     /**
      * Constructs a session context.

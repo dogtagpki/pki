@@ -41,7 +41,7 @@ public class StringMapper extends DBAttrMapper {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StringMapper.class);
 
     private String mLdapName = null;
-    private Vector<String> v = new Vector<String>();
+    private Vector<String> v = new Vector<>();
 
     /**
      * Constructs string mapper.

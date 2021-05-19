@@ -246,7 +246,7 @@ public class ReasonToRevoke extends CMSServlet {
             Enumeration<CertRecord> e = mCertDB.searchCertificates(revokeAll,
                     totalRecordCount, mTimeLimits);
 
-            ArrayList<String> noncesList = new ArrayList<String>();
+            ArrayList<String> noncesList = new ArrayList<>();
             int count = 0;
 
             while (e != null && e.hasMoreElements()) {

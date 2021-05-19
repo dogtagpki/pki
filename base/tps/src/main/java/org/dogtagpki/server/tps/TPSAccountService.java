@@ -47,7 +47,7 @@ public class TPSAccountService extends AccountService {
 
         try {
             // determine accessible components based on roles
-            Collection<String> components = new HashSet<String>();
+            Collection<String> components = new HashSet<>();
 
             Collection<String> roles = account.getRoles();
 

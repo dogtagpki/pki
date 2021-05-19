@@ -286,7 +286,7 @@ public class RequestRecord implements IDBObj {
         { Schema.LDAP_OC_TOP, Schema.LDAP_OC_REQUEST, Schema.LDAP_OC_EXTENSIBLE };
 
     protected static Hashtable<String, Object> loadExtDataFromRequest(IRequest r) throws EBaseException {
-        Hashtable<String, Object> h = new Hashtable<String, Object>();
+        Hashtable<String, Object> h = new Hashtable<>();
         String reqType = r.getExtDataInString("cert_request_type");
         if (reqType == null || reqType.equals("")) {
             // where CMC puts it
@@ -356,9 +356,9 @@ public class RequestRecord implements IDBObj {
         return record;
     }
 
-    protected static Vector<String> mAttrs = new Vector<String>();
+    protected static Vector<String> mAttrs = new Vector<>();
 
-    static Hashtable<String, RequestAttr> mAttrTable = new Hashtable<String, RequestAttr>();
+    static Hashtable<String, RequestAttr> mAttrTable = new Hashtable<>();
 
     /*
      * This table contains attribute handlers for attributes

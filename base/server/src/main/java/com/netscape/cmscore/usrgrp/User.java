@@ -103,7 +103,7 @@ public class User {
     private X509Certificate mx509Certs[] = null;
     private List<String> tpsProfiles = null;
 
-    private static final Vector<String> mNames = new Vector<String>();
+    private static final Vector<String> mNames = new Vector<>();
     static {
         mNames.addElement(ATTR_NAME);
         mNames.addElement(ATTR_ID);
@@ -145,7 +145,7 @@ public class User {
         if (!setAll) {
             this.tpsProfiles = tpsProfiles;
         } else {
-            List<String> list = new ArrayList<String>();
+            List<String> list = new ArrayList<>();
             list.add(UserResource.ALL_PROFILES);
             this.tpsProfiles = list;
         }

@@ -453,7 +453,7 @@ public class BasicConstraintsExt extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         // Because of one of the UI bugs 385273, we should leave the empty space
         // as is. Do not convert the space to some definite numbers.
@@ -470,7 +470,7 @@ public class BasicConstraintsExt extends APolicyRule
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> defParams = new Vector<String>();
+        Vector<String> defParams = new Vector<>();
 
         defParams.addElement(PROP_IS_CRITICAL + "=true");
         defParams.addElement(PROP_MAXPATHLEN + "=");

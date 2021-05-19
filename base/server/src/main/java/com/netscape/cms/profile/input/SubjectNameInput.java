@@ -120,7 +120,7 @@ public class SubjectNameInput extends EnrollInput {
      */
     @Override
     public Enumeration<String> getValueNames() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         String c_uid = getConfig(CONFIG_UID);
         if (c_uid == null || c_uid.equals("")) {
             v.addElement(VAL_UID); // default case

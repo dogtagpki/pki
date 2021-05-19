@@ -98,7 +98,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
 
             // filter self tests
-            Collection<String> results = new ArrayList<String>();
+            Collection<String> results = new ArrayList<>();
             for (String name : subsystem.getSelfTestNames()) {
                 if (filter != null && !name.contains(filter)) continue;
                 results.add(name);

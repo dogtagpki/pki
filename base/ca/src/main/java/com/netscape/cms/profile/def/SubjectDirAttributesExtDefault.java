@@ -224,7 +224,7 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
 
                 boolean critical = ext.isCritical();
 
-                Vector<Attribute> attrV = new Vector<Attribute>();
+                Vector<Attribute> attrV = new Vector<>();
                 for (int i = 0; i < size; i++) {
                     NameValuePairs nvps = v.elementAt(i);
                     String attrName = null;
@@ -313,7 +313,7 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
 
             X500NameAttrMap map = X500NameAttrMap.getDefault();
 
-            Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
+            Vector<NameValuePairs> recs = new Vector<>();
             int num = getNumAttrs();
             Enumeration<Attribute> e = ext.getAttributesList();
             logger.debug("SubjectDirAttributesExtDefault: getValue: attributesList=" + e);
@@ -416,7 +416,7 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
         num = getNumAttrs();
 
         AttributeConfig attributeConfig = null;
-        Vector<Attribute> attrs = new Vector<Attribute>();
+        Vector<Attribute> attrs = new Vector<>();
         for (int i = 0; i < num; i++) {
             String enable = getConfig(CONFIG_ENABLE + i);
             if (enable != null && enable.equals("true")) {
@@ -527,7 +527,7 @@ class AttributeConfig {
 
     private Vector<String> str2MultiValues(String attrValue) {
         StringTokenizer tokenizer = new StringTokenizer(attrValue, ",");
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         while (tokenizer.hasMoreTokens()) {
             v.addElement(tokenizer.nextToken());
         }

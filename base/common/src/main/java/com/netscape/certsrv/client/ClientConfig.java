@@ -62,7 +62,7 @@ public class ClientConfig {
     String nssDatabase;
     String nssPassword;
 
-    Map<String, String> nssPasswords = new LinkedHashMap<String, String>();
+    Map<String, String> nssPasswords = new LinkedHashMap<>();
 
     String tokenName;
     String certNickname;
@@ -184,7 +184,7 @@ public class ClientConfig {
 
         @Override
         public Map<String, String> unmarshal(NSSPasswordList list) {
-            Map<String, String> map = new LinkedHashMap<String, String>();
+            Map<String, String> map = new LinkedHashMap<>();
             for (NSSPassword password : list.passwords) {
                 map.put(password.name, password.value);
             }
@@ -194,7 +194,7 @@ public class ClientConfig {
 
     public static class NSSPasswordList {
         @XmlElement(name = "NSSPassword")
-        public List<NSSPassword> passwords = new ArrayList<NSSPassword>();
+        public List<NSSPassword> passwords = new ArrayList<>();
     }
 
     public static class NSSPassword {

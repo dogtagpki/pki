@@ -105,7 +105,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement("crlAttr=" + mCrlAttr);
         v.addElement("crlObjectClass=" + mCrlObjectClass);
@@ -114,7 +114,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement("crlAttr=" + mCrlAttr);
         v.addElement("crlObjectClass=" + mCrlObjectClass);

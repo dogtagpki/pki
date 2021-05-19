@@ -41,7 +41,7 @@ public class NoConstraint extends PolicyConstraint {
     public static final String CONFIG_NAME = "name";
 
     private IConfigStore mConfig = null;
-    private Vector<String> mNames = new Vector<String>();
+    private Vector<String> mNames = new Vector<>();
 
     @Override
     public Enumeration<String> getConfigNames() {

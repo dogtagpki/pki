@@ -114,7 +114,7 @@ public class GeneralNameConfig implements IGeneralNameConfig {
     @Override
     public Vector<GeneralName> formGeneralNames(Object value)
             throws EBaseException {
-        Vector<GeneralName> gns = new Vector<GeneralName>();
+        Vector<GeneralName> gns = new Vector<>();
         GeneralName gn = null;
 
         if (value instanceof String) {

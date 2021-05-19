@@ -62,8 +62,8 @@ public class LogSubsystem implements ILogSubsystem {
     public static final String PROP_PLUGIN = "pluginName";
     public static final String PROP_INSTANCE = "instance";
 
-    public Hashtable<String, LogPlugin> mLogPlugins = new Hashtable<String, LogPlugin>();
-    public Hashtable<String, ILogEventListener> mLogInsts = new Hashtable<String, ILogEventListener>();
+    public Hashtable<String, LogPlugin> mLogPlugins = new Hashtable<>();
+    public Hashtable<String, ILogEventListener> mLogInsts = new Hashtable<>();
     public Set<String> auditEvents = new TreeSet<>();
 
     /**

@@ -350,7 +350,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
             int num = getNumAds();
 
             logger.debug("AuthInfoAccess num=" + num);
-            Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
+            Vector<NameValuePairs> recs = new Vector<>();
 
             for (int i = 0; i < num; i++) {
                 NameValuePairs np = new NameValuePairs();

@@ -3042,7 +3042,7 @@ public class TokenServlet extends CMSServlet {
 
         SymmetricKey desKey = null;
         String method = "TokenServlet.calculateSErverSideKeygenValues: ";
-        ArrayList<String> values = new ArrayList<String>();
+        ArrayList<String> values = new ArrayList<>();
 
         /**
          * 0. generate des key

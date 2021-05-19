@@ -46,7 +46,7 @@ public class ObjectStreamMapper extends DBAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ObjectStreamMapper.class);
     private String mLdapName = null;
-    private Vector<String> v = new Vector<String>();
+    private Vector<String> v = new Vector<>();
 
     /**
      * Constructs object stream mapper.

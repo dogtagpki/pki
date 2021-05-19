@@ -89,7 +89,7 @@ public class CAClient extends SubsystemClient {
 
     public void addKRAConnector(KRAConnectorInfo info, String sessionID) throws Exception {
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
         content.putSingle("ca.connector.KRA.enable", info.getEnable());
         content.putSingle("ca.connector.KRA.local", info.getLocal());
         content.putSingle("ca.connector.KRA.timeout", info.getTimeout());
@@ -131,7 +131,7 @@ public class CAClient extends SubsystemClient {
 
     public void addOCSPPublisher(URL url, String sessionID) throws Exception {
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
         content.putSingle("xmlOutput", "true");
         content.putSingle("ocsp_host", url.getHost());
         content.putSingle("ocsp_port", url.getPort() + "");

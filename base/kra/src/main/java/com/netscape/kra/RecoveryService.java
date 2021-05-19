@@ -249,7 +249,7 @@ public class RecoveryService implements IService {
 
         if (params == null) {
             if (isSSKeygen) {
-                params = new Hashtable<String, Object>();
+                params = new Hashtable<>();
                 params.put(RecoveryService.ATTR_TRANSPORT_PWD, serverKeygenP12Pass);
             } else {
                 // possibly we are in recovery mode

@@ -188,7 +188,7 @@ public class IssuerConstraints extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> confParams = new Vector<String>();
+        Vector<String> confParams = new Vector<>();
 
         confParams.addElement(PROP_ISSUER_DN + "=" +
                 mIssuerDNString);
@@ -202,7 +202,7 @@ public class IssuerConstraints extends APolicyRule
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> defParams = new Vector<String>();
+        Vector<String> defParams = new Vector<>();
 
         defParams.addElement(PROP_ISSUER_DN + "=");
         return defParams;

@@ -348,7 +348,7 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(PROP_DNPATTERN + "=");
         v.addElement(PROP_CREATECA + "=true");
@@ -357,7 +357,7 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         try {
             if (mDnPattern == null) {

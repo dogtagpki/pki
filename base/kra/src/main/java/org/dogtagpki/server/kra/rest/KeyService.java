@@ -523,7 +523,7 @@ public class KeyService extends SubsystemService implements KeyResource {
             logger.info("KeyService: Results:");
 
             // store non-null results in a list
-            List<KeyInfo> results = new ArrayList<KeyInfo>();
+            List<KeyInfo> results = new ArrayList<>();
             while (e.hasMoreElements()) {
                 IKeyRecord rec = e.nextElement();
                 if (rec == null) continue;

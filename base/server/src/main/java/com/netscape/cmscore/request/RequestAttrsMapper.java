@@ -52,7 +52,7 @@ public class RequestAttrsMapper extends DBAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestAttrsMapper.class);
 
-    protected final static Vector<String> mAttrs = new Vector<String>();
+    protected final static Vector<String> mAttrs = new Vector<>();
 
     static {
         mAttrs.add(Schema.LDAP_ATTR_REQUEST_ATTRS);
@@ -161,7 +161,7 @@ public class RequestAttrsMapper extends DBAttrMapper {
     private Hashtable<String, Object> decodeHashtable(byte[] data)
             throws ObjectStreamException, IOException, ClassNotFoundException {
 
-        Hashtable<String, Object> ht = new Hashtable<String, Object>();
+        Hashtable<String, Object> ht = new Hashtable<>();
         ByteArrayInputStream bis = new ByteArrayInputStream(data);
         ObjectInputStream is = new ObjectInputStream(bis);
 

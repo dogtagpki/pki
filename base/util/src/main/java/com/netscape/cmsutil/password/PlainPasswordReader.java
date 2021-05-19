@@ -58,7 +58,7 @@ public class PlainPasswordReader implements IPasswordReader {
     @Override
     public Enumeration<String> getTags() {
         Enumeration<?> e = mPwdStore.propertyNames();
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         while (e.hasMoreElements()) {
             v.add((String) e.nextElement());
         }
