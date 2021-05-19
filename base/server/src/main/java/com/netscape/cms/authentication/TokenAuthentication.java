@@ -55,8 +55,7 @@ import com.netscape.cmsutil.xml.XMLObject;
  *
  * @version $Revision$, $Date$
  */
-public class TokenAuthentication implements AuthManager,
-        ProfileAuthenticator {
+public class TokenAuthentication implements ProfileAuthenticator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenAuthentication.class);
 

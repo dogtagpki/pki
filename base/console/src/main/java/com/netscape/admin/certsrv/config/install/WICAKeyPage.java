@@ -17,8 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.wizard.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.WizardInfo;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -28,7 +30,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WICAKeyPage extends WIKeyPage implements IWizardPanel {
+class WICAKeyPage extends WIKeyPage {
     private static final String PANELNAME = "INSTALLCAKEYWIZARD";
     private static final String CALOCALHELPINDEX =
       "install-cakeylocal-configuration-wizard-help";

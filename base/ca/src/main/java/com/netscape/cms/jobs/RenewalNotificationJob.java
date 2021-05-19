@@ -33,7 +33,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.IElementProcessor;
-import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
@@ -87,7 +86,7 @@ import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
  */
 public class RenewalNotificationJob
         extends AJobBase
-        implements IJob, Runnable, IExtendedPluginInfo {
+        implements IExtendedPluginInfo {
 
     // config parameters...
     public static final String PROP_CRON = "cron";

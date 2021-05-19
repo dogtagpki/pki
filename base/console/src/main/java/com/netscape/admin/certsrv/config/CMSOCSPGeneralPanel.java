@@ -20,7 +20,6 @@ package com.netscape.admin.certsrv.config;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemListener;
 import java.util.StringTokenizer;
 
 import javax.swing.JComboBox;
@@ -43,7 +42,7 @@ import com.netscape.management.client.util.Debug;
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
-public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
+public class CMSOCSPGeneralPanel extends CMSBaseTab {
 
     private static String PANEL_NAME = "OCSPGENERAL";
     private static CMSBaseResourceModel mModel;

@@ -22,7 +22,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
@@ -51,8 +50,7 @@ import com.netscape.certsrv.common.ScopeDef;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.keycert
  */
-class WCertTypePage extends WizardBasePanel implements IWizardPanel,
-  ItemListener {
+class WCertTypePage extends WizardBasePanel implements IWizardPanel {
     private String mCASigningCert;
     private String mRASigningCert;
     private String mOCSPSigningCert;

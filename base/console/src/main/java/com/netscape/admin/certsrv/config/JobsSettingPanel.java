@@ -22,7 +22,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -44,7 +43,7 @@ import com.netscape.certsrv.common.ScopeDef;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class JobsSettingPanel extends CMSBaseTab implements ItemListener {
+public class JobsSettingPanel extends CMSBaseTab {
     private static final String HELPINDEX =
       "jobsscheduler-certsrv-setting-jobrule-help";
     private JTextField mFrequencyText;

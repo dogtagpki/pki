@@ -20,7 +20,6 @@ package com.netscape.admin.certsrv.config.install;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-import com.netscape.admin.certsrv.wizard.IWizardPanel;
 import com.netscape.admin.certsrv.wizard.WizardInfo;
 import com.netscape.certsrv.common.Constants;
 
@@ -31,7 +30,7 @@ import com.netscape.certsrv.common.Constants;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WIKRACertSubmitPage extends WICertSubmitPage implements IWizardPanel {
+class WIKRACertSubmitPage extends WICertSubmitPage {
     private static final String PANELNAME = "INSTALLKRACERTWIZARD";
     private static final String KRAHELPINDEX = "install-kratype-wizard-help";
     private static final String RAKRAHELPINDEX = "install-rakratype-wizard-help";

@@ -23,7 +23,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.StringTokenizer;
 
 import javax.swing.ButtonGroup;
@@ -59,7 +58,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
+class WKeyPage extends WizardBasePanel implements IWizardPanel {
     private Color mActiveColor;
     private JPanel mNicknamePanel;
     private JRadioButton mExistingKeyBtn;

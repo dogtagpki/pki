@@ -33,7 +33,7 @@ import com.netscape.management.client.ResourcePage;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv
  */
-public class CMSResourcePage extends ResourcePage implements Cloneable {
+public class CMSResourcePage extends ResourcePage {
 
     /*==========================================================
      * variables

@@ -17,8 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.wizard.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.WizardInfo;
 
 /**
  * This panel asks for the information of the current internal database.
@@ -27,7 +29,7 @@ import com.netscape.admin.certsrv.wizard.*;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WIOCSPTokenLogonPage extends WITokenLogonPage implements IWizardPanel {
+class WIOCSPTokenLogonPage extends WITokenLogonPage {
 
     private static final String OCSPHELPINDEX = "install-ocsptoken-logon-wizard-help";
     private static final String PANELNAME = "OCSPTOKENLOGONWIZARD";

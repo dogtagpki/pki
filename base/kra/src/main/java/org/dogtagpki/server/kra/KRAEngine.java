@@ -18,7 +18,6 @@
 
 package org.dogtagpki.server.kra;
 
-import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import com.netscape.certsrv.base.IConfigStore;
@@ -31,7 +30,7 @@ import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 @WebListener
-public class KRAEngine extends CMSEngine implements ServletContextListener {
+public class KRAEngine extends CMSEngine {
 
     public KRAEngine() throws Exception {
         super("KRA");

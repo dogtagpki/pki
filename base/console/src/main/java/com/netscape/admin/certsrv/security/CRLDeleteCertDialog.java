@@ -36,7 +36,7 @@ import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.UtilConsoleGlobals;
 import com.netscape.management.nmclf.SuiConstants;
 
-class CRLDeleteCertDialog extends AbstractDialog implements SuiConstants {
+class CRLDeleteCertDialog extends AbstractDialog {
 
 
 

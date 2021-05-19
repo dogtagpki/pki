@@ -17,9 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -29,7 +31,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WIOCSPKeyPage extends WIKeyPage implements IWizardPanel {
+class WIOCSPKeyPage extends WIKeyPage {
     private static final String PANELNAME = "INSTALLOCSPKEYWIZARD";
     private static final String OCSPHELPINDEX =
       "install-ocspkey-configuration-wizard-help";

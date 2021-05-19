@@ -22,7 +22,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -60,7 +59,7 @@ import com.netscape.management.client.util.JButtonFactory;
  * @see com.netscape.admin.certsrv.config
  */
 public class ProfileEditDialog extends CMSBaseConfigDialog
-    implements ActionListener, ChangeListener
+    implements ChangeListener
 {
     protected JButton mRefresh, mOrder, mHelp;
     protected JTextField mAuthField=null,mNameField=null, mDescField=null, mConfigField=null;

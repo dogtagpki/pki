@@ -128,8 +128,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  *
  * @version $Revision$, $Date$
  */
-public class CMCUserSignedAuth implements AuthManager, IExtendedPluginInfo,
-        ProfileAuthenticator {
+public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthenticator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCUserSignedAuth.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();

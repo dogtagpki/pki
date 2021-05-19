@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.security.*;
-
 /**
  * Constructs panel containing a SSL3 cipher suites
  *
@@ -27,8 +25,7 @@ import com.netscape.admin.certsrv.security.*;
  * @see com.netscape.admin.certsrv.config
  */
 
-public class CMSSSL3CipherPreference extends CMSCipherPreferencePane
-  implements ICipherConstants {
+public class CMSSSL3CipherPreference extends CMSCipherPreferencePane {
 
     public CMSSSL3CipherPreference(boolean isDomestic, boolean hasFortezza) {
         super(new CMSSSL3CipherSet(isDomestic, hasFortezza), true);

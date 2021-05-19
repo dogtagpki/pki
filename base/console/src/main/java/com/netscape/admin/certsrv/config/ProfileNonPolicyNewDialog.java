@@ -22,7 +22,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Vector;
 
 import javax.swing.DefaultCellEditor;
@@ -53,7 +52,6 @@ import com.netscape.management.client.util.Debug;
  * @see com.netscape.admin.certsrv.config
  */
 public class ProfileNonPolicyNewDialog extends CMSBaseConfigDialog
-    implements ActionListener
 {
  protected JButton mRefresh, mEdit, mAdd, mDelete, mOrder, mHelp;
     protected JTextField mNameField=null, mDescField=null, mConfigField=null;

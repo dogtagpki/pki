@@ -22,7 +22,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
@@ -55,7 +54,7 @@ import com.netscape.management.client.console.ConsoleInfo;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListener {
+class WIMigrationPage extends WizardBasePanel implements IWizardPanel {
     private JLabel mTransportLbl;
     private JPasswordField mTransportPassword;
     private JLabel mCAPasswdLbl, mCAPasswdAgainLbl, mCASOPLbl;
