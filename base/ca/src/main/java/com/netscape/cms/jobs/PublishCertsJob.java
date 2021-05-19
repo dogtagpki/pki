@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.IRequest;
@@ -62,7 +61,7 @@ import com.netscape.cmscore.request.RequestRepository;
  * @version $Revision$, $Date$
  */
 public class PublishCertsJob extends AJobBase
-        implements IJob, Runnable, IExtendedPluginInfo {
+        implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublishCertsJob.class);
 

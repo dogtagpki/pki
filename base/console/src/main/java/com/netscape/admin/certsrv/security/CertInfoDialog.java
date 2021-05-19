@@ -45,7 +45,6 @@ import com.netscape.management.client.util.MultilineLabel;
 import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.UITools;
 import com.netscape.management.client.util.UtilConsoleGlobals;
-import com.netscape.management.nmclf.SuiConstants;
 
 /**
  *
@@ -59,7 +58,7 @@ import com.netscape.management.nmclf.SuiConstants;
  * @see com.netscape.admin.certsrv.security.CertInfo
  *
  */
-class CertInfoDialog extends AbstractDialog implements SuiConstants {
+class CertInfoDialog extends AbstractDialog {
 
 
     /**

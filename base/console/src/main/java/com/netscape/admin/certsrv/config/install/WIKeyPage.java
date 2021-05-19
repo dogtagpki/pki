@@ -23,7 +23,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.StringTokenizer;
 
 import javax.swing.JComboBox;
@@ -51,7 +50,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
+class WIKeyPage extends WizardBasePanel implements IWizardPanel {
     protected Color mActiveColor;
     protected JComboBox<String> mKeyTypeBox, mKeyLengthBox, mDSAKeyLengthBox, mTokenBox;
     protected JTextField mKeyLengthText;

@@ -17,9 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.admin.certsrv.config.*;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.config.WBaseDNPage;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
 
 /**
  * CA signing cert for installation wizard.
@@ -28,7 +28,7 @@ import com.netscape.admin.certsrv.config.*;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WICACert2Page extends WBaseDNPage implements IWizardPanel {
+class WICACert2Page extends WBaseDNPage {
     private static final String PANELNAME = "CACERT2WIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";

@@ -29,7 +29,7 @@ package com.netscape.admin.certsrv.security;
  * @see com.netscape.admin.certsrv.security.ToggleCipherPreferencePane
  * @see com.netscape.admin.certsrv.security.SSL2CipherPreference
  */
-public class SSL3CipherPreference extends ToggleCipherPreferencePane implements ICipherConstants {
+public class SSL3CipherPreference extends ToggleCipherPreferencePane {
 
 
     /**

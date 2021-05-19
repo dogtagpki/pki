@@ -17,9 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
 
 /**
  * Server Certificate Submission.
@@ -28,7 +30,7 @@ import com.netscape.certsrv.common.*;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WIServerCertSubmitPage extends WICertSubmitPage implements IWizardPanel {
+class WIServerCertSubmitPage extends WICertSubmitPage {
     private static final String PANELNAME = "INSTALLSERVERCERTWIZARD";
     private static final String CALOCALHELPINDEX = "install-cassltypelocal-wizard-help";
     private static final String CAREMOTEHELPINDEX = "install-cassltypesub-wizard-help";

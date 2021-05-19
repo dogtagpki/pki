@@ -17,8 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.wizard.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.WizardInfo;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -28,7 +30,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WIInternalTokenLogonPage extends WITokenLogonPage implements IWizardPanel {
+class WIInternalTokenLogonPage extends WITokenLogonPage {
 
     private static final String HELPINDEX = "install-internaltoken-logon-wizard-help";
     private static final String PANELNAME = "INTERNALTOKENLOGONWIZARD";

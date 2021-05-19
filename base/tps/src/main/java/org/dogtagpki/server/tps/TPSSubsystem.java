@@ -61,7 +61,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
  */
-public class TPSSubsystem implements IAuthority, ISubsystem {
+public class TPSSubsystem implements IAuthority {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
 

@@ -17,14 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
-import java.awt.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 
-class CertDetailInfoDialog extends AbstractDialog implements SuiConstants {
+import com.netscape.management.client.util.AbstractDialog;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.ResourceSet;
+
+class CertDetailInfoDialog extends AbstractDialog {
 
 
     JLabel serialNumber = new JLabel();

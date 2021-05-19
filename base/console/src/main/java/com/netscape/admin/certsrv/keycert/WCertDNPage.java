@@ -17,14 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.border.TitledBorder;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.config.*;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.config.WBaseDNPage;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
 
 /**
  * CA signing cert for installation wizard.
@@ -33,7 +38,7 @@ import com.netscape.admin.certsrv.config.*;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WCertDNPage extends WBaseDNPage implements IWizardPanel {
+class WCertDNPage extends WBaseDNPage {
     private static final String PANELNAME = "CERTDNWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-subjectdn-help";

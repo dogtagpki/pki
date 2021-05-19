@@ -37,7 +37,7 @@ import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.UtilConsoleGlobals;
 import com.netscape.management.nmclf.SuiConstants;
 
-class CRLAddCertDialog extends AbstractDialog implements SuiConstants {
+class CRLAddCertDialog extends AbstractDialog {
 
     ConsoleInfo _consoleInfo;
 

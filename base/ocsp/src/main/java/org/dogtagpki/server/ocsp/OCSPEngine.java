@@ -18,7 +18,6 @@
 
 package org.dogtagpki.server.ocsp;
 
-import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import com.netscape.certsrv.base.IConfigStore;
@@ -30,7 +29,7 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.ocsp.OCSPAuthority;
 
 @WebListener
-public class OCSPEngine extends CMSEngine implements ServletContextListener {
+public class OCSPEngine extends CMSEngine {
 
     public OCSPEngine() throws Exception {
         super("OCSP");

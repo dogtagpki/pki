@@ -3,14 +3,13 @@ package com.netscape.cmscore.dbs;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.request.RequestRecord;
 
 /**
  * Default stub for RequestRecord tests.
  */
-public class RequestRecordDefaultStub extends RequestRecord implements IDBObj {
+public class RequestRecordDefaultStub extends RequestRecord {
 
     public RequestId getRequestId() {
         return null;

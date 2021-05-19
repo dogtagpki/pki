@@ -18,7 +18,6 @@
 
 package org.dogtagpki.server.tks;
 
-import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import com.netscape.certsrv.base.IConfigStore;
@@ -30,7 +29,7 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.tks.TKSAuthority;
 
 @WebListener
-public class TKSEngine extends CMSEngine implements ServletContextListener {
+public class TKSEngine extends CMSEngine {
 
     public TKSEngine() throws Exception {
         super("TKS");

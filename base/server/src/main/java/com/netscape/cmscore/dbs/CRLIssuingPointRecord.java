@@ -26,7 +26,6 @@ import java.util.Vector;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.cmscore.apps.CMS;
 
@@ -37,7 +36,7 @@ import com.netscape.cmscore.apps.CMS;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
+public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
 
     /**
      *

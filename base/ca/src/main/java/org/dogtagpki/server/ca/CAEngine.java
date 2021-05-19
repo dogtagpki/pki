@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.apache.commons.lang3.StringUtils;
@@ -107,7 +106,7 @@ import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
 
 @WebListener
-public class CAEngine extends CMSEngine implements ServletContextListener {
+public class CAEngine extends CMSEngine {
 
     protected CertificateRepository certificateRepository;
     protected CRLRepository crlRepository;

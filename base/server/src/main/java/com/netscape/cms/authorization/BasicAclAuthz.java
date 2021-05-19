@@ -18,7 +18,6 @@
 package com.netscape.cms.authorization;
 
 import org.dogtagpki.server.authorization.AuthzManagerConfig;
-import org.dogtagpki.server.authorization.IAuthzManager;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -29,7 +28,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
  * @version $Revision$, $Date$
  */
 public class BasicAclAuthz extends AAclAuthz
-        implements IAuthzManager, IExtendedPluginInfo {
+        implements IExtendedPluginInfo {
 
     static {
         mExtendedPluginInfo.add("nothing for now");

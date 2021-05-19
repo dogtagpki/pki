@@ -17,13 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * KRA General Setting
@@ -31,7 +41,7 @@ import java.awt.event.*;
  * @author Ade Lee
  * @version $Revision: 1211 $, $Date: 2010-08-18 13:15:37 -0400 (Wed, 18 Aug 2010) $
  */
-public class CMSEAGeneralPanel extends CMSBaseTab implements ItemListener {
+public class CMSEAGeneralPanel extends CMSBaseTab {
 
     private static String PANEL_NAME = "EAGENERAL";
     private static CMSBaseResourceModel mModel;

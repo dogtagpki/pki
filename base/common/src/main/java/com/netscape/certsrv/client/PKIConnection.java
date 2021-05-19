@@ -50,7 +50,6 @@ import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeLayeredSocketFactory;
-import org.apache.http.conn.scheme.SchemeSocketFactory;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.impl.client.ClientParamsStack;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -274,7 +273,7 @@ public class PKIConnection implements AutoCloseable {
         }
     }
 
-    private class JSSProtocolSocketFactory implements SchemeSocketFactory, SchemeLayeredSocketFactory {
+    private class JSSProtocolSocketFactory implements SchemeLayeredSocketFactory {
 
         @Override
         public Socket createSocket(HttpParams params) throws IOException {

@@ -20,7 +20,6 @@ package com.netscape.cms.authorization;
 import java.util.Enumeration;
 
 import org.dogtagpki.server.authorization.AuthzManagerConfig;
-import org.dogtagpki.server.authorization.IAuthzManager;
 
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
@@ -51,7 +50,7 @@ import netscape.ldap.LDAPv2;
  * @version $Revision$, $Date$
  */
 public class DirAclAuthz extends AAclAuthz
-        implements IAuthzManager, IExtendedPluginInfo {
+        implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DirAclAuthz.class);
 
