@@ -1058,7 +1058,7 @@ public class CertificateRepository extends Repository {
     public Enumeration<CertRecord> searchCertificates(String filter, int maxSize, int timeLimit)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
-        Vector<CertRecord> v = new Vector<CertRecord>();
+        Vector<CertRecord> v = new Vector<>();
 
         logger.debug("searchCertificateswith time limit filter " + filter);
         try {
@@ -1087,7 +1087,7 @@ public class CertificateRepository extends Repository {
     public Enumeration<CertRecord> searchCertificates(String filter, int maxSize,
             int timeLimit,String sortAttribute) throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
-        Vector<CertRecord> v = new Vector<CertRecord>();
+        Vector<CertRecord> v = new Vector<>();
 
         logger.debug("searchCertificateswith time limit filter " + filter);
         try {
@@ -1155,7 +1155,7 @@ public class CertificateRepository extends Repository {
     public Enumeration<X509CertImpl> findCertificates(String filter)
             throws EBaseException {
         Enumeration<CertRecord> e = findCertRecords(filter);
-        Vector<X509CertImpl> v = new Vector<X509CertImpl>();
+        Vector<X509CertImpl> v = new Vector<>();
 
         while (e.hasMoreElements()) {
             CertRecord rec = e.nextElement();
@@ -1462,7 +1462,7 @@ public class CertificateRepository extends Repository {
             int size = list.getSize();
             Enumeration<CertRecord> e = list.getCertRecords(0, size - 1);
 
-            tab = new Hashtable<String, RenewableCertificateCollection>();
+            tab = new Hashtable<>();
             while (e.hasMoreElements()) {
                 CertRecord rec = e.nextElement();
                 X509CertImpl cert = rec.getCertificate();
@@ -1529,7 +1529,7 @@ public class CertificateRepository extends Repository {
             int size = list.getSize();
             Enumeration<CertRecord> e = list.getCertRecords(0, size - 1);
 
-            Vector<X509CertImpl> v = new Vector<X509CertImpl>();
+            Vector<X509CertImpl> v = new Vector<>();
 
             while (e.hasMoreElements()) {
                 CertRecord rec = e.nextElement();
@@ -1564,7 +1564,7 @@ public class CertificateRepository extends Repository {
                 e = list.getCertRecords(0, size - 1);
             }
 
-            Vector<X509CertImpl> v = new Vector<X509CertImpl>();
+            Vector<X509CertImpl> v = new Vector<>();
 
             while (e != null && e.hasMoreElements()) {
                 CertRecord rec = e.nextElement();
@@ -1593,7 +1593,7 @@ public class CertificateRepository extends Repository {
     public Enumeration<CertRecord> getValidCertificates(String from, String to)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
-        Vector<CertRecord> v = new Vector<CertRecord>();
+        Vector<CertRecord> v = new Vector<>();
 
         try {
 

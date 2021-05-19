@@ -86,7 +86,7 @@ public class LogEntry {
 
         mDetail = temp.substring(x + 2);
 
-        Vector<String> row = new Vector<String>();
+        Vector<String> row = new Vector<>();
 
         row.addElement(mSource);
         row.addElement(mLevel);

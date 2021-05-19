@@ -75,7 +75,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
     public static final Map<String, SymmetricKey.Type> SYMKEY_TYPES;
     static {
-        SYMKEY_TYPES = new HashMap<String, SymmetricKey.Type>();
+        SYMKEY_TYPES = new HashMap<>();
         SYMKEY_TYPES.put(KeyRequestResource.DES_ALGORITHM, SymmetricKey.DES);
         SYMKEY_TYPES.put(KeyRequestResource.DESEDE_ALGORITHM, SymmetricKey.DES3);
         SYMKEY_TYPES.put(KeyRequestResource.DES3_ALGORITHM, SymmetricKey.DES3);

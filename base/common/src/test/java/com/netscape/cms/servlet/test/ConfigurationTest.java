@@ -210,7 +210,7 @@ public class ConfigurationTest {
             InvalidBERException {
 
         // create system certs
-        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeySize("2048");
@@ -258,7 +258,7 @@ public class ConfigurationTest {
             InvalidBERException {
 
         // create system certs
-        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeySize("2048");
@@ -306,7 +306,7 @@ public class ConfigurationTest {
             InvalidBERException {
 
         // create system certs
-        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeySize("2048");
@@ -354,7 +354,7 @@ public class ConfigurationTest {
             throws NoSuchAlgorithmException, TokenException, IOException, InvalidBERException {
 
         // create system certs
-        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeySize("2048");
@@ -410,7 +410,7 @@ public class ConfigurationTest {
             InvalidBERException {
 
         // create system certs
-        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert3 = new SystemCertData();
         cert3.setTag("sslserver");
         cert3.setKeySize("2048");
@@ -425,7 +425,7 @@ public class ConfigurationTest {
             InvalidBERException {
 
         // create system certs
-        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert1 = new SystemCertData();
         cert1.setTag("transport");
         cert1.setKeySize("2048");
@@ -473,7 +473,7 @@ public class ConfigurationTest {
             InvalidBERException {
 
         // create system certs
-        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeySize("2048");
@@ -513,7 +513,7 @@ public class ConfigurationTest {
             InvalidBERException {
 
         // create system certs
-        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<>();
 
         SystemCertData cert3 = new SystemCertData();
         cert3.setTag("sslserver");

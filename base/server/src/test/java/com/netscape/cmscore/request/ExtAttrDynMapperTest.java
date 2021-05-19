@@ -58,7 +58,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
 
     public void testGetSupportedLdapAttributesNames() {
         Enumeration<String> attrs = mapper.getSupportedLDAPAttributeNames();
-        ArrayList<String> attrsList = new ArrayList<String>();
+        ArrayList<String> attrsList = new ArrayList<>();
         while (attrs.hasMoreElements()) {
             attrsList.add(attrs.nextElement());
         }
@@ -119,7 +119,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         LDAPAttributeSet attrs = new LDAPAttributeSet();
 
         // test with a key-value entry.
-        Hashtable<String, Serializable> extAttrsHash = new Hashtable<String, Serializable>();
+        Hashtable<String, Serializable> extAttrsHash = new Hashtable<>();
         extAttrsHash.put("foo;", "bar");
 
         mapper.mapObjectToLDAPAttributeSet(null, null, extAttrsHash, attrs);
@@ -132,7 +132,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
 
         // test with a sub-hash.
         // this is used by vector/arrays and hashtables
-        Hashtable<String, String> extAttrsValueHash = new Hashtable<String, String>();
+        Hashtable<String, String> extAttrsValueHash = new Hashtable<>();
         extAttrsValueHash.put("Baz", "Val1");
         extAttrsValueHash.put("bi;m", "val2");
 
@@ -257,7 +257,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
 
     static class RequestRecordStub extends RequestRecordDefaultStub {
 
-        Hashtable<String, Object> extAttrData = new Hashtable<String, Object>();
+        Hashtable<String, Object> extAttrData = new Hashtable<>();
         int setCallCounter = 0;
 
         @Override

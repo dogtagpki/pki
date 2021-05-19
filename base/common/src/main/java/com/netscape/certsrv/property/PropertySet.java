@@ -25,7 +25,7 @@ import java.util.Hashtable;
  */
 public class PropertySet {
 
-    private Hashtable<String, IDescriptor> mProperties = new Hashtable<String, IDescriptor>();
+    private Hashtable<String, IDescriptor> mProperties = new Hashtable<>();
 
     public PropertySet() {
     }

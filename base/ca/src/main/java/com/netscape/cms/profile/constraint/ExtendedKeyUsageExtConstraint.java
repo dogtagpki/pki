@@ -102,7 +102,7 @@ public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
         }
 
         // Build local cache of configured OIDs
-        Vector<String> mCache = new Vector<String>();
+        Vector<String> mCache = new Vector<>();
         StringTokenizer st = new StringTokenizer(getConfig(CONFIG_OIDS), ",");
 
         while (st.hasMoreTokens()) {

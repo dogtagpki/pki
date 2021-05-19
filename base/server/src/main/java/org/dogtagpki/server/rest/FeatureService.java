@@ -29,7 +29,7 @@ public class FeatureService extends PKIService implements FeatureResource {
         EngineConfig config = engine.getConfig();
 
         IConfigStore cs = config.getSubStore("features");
-        ArrayList<Feature> features = new ArrayList<Feature>();
+        ArrayList<Feature> features = new ArrayList<>();
         Enumeration<String> tags = cs.getSubStoreNames();
         while (tags.hasMoreElements()) {
             String tag = tags.nextElement();

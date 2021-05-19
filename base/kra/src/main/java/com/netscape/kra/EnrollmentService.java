@@ -728,7 +728,7 @@ public class EnrollmentService implements IService {
      */
     public static PKIArchiveOptionsContainer[] getPKIArchiveOptions(String crmfBlob)
             throws EBaseException {
-        Vector<PKIArchiveOptionsContainer> options = new Vector<PKIArchiveOptionsContainer>();
+        Vector<PKIArchiveOptionsContainer> options = new Vector<>();
 
         logger.debug("EnrollmentService::getPKIArchiveOptions> crmfBlob=" + crmfBlob);
         byte[] crmfBerBlob = null;

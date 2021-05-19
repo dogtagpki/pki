@@ -60,7 +60,7 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest {
 
         String usageString = attributes.get(KEY_USAGE);
         if (!StringUtils.isBlank(usageString)) {
-            setUsages(new ArrayList<String>(Arrays.asList(usageString.split(","))));
+            setUsages(new ArrayList<>(Arrays.asList(usageString.split(","))));
         }
         setClassName(getClass().getName());
     }
@@ -88,7 +88,7 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest {
     }
 
     public static List<String> getValidUsagesList() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.add(DERIVE);
         list.add(SIGN);
         list.add(DECRYPT);
@@ -107,7 +107,7 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest {
         request.setKeyAlgorithm(KeyRequestResource.RSA_ALGORITHM);
         request.setKeySize(1024);
         request.setClientKeyId("vek12345");
-        List<String> usages = new ArrayList<String>();
+        List<String> usages = new ArrayList<>();
         usages.add(AsymKeyGenerationRequest.ENCRYPT);
         usages.add(AsymKeyGenerationRequest.DECRYPT);
         request.setUsages(usages);

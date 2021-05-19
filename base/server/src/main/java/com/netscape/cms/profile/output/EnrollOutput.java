@@ -36,8 +36,8 @@ import com.netscape.cms.profile.common.ProfileOutput;
  */
 public abstract class EnrollOutput extends ProfileOutput {
     private IConfigStore mConfig = null;
-    private Vector<String> mValueNames = new Vector<String>();
-    protected Vector<String> mConfigNames = new Vector<String>();
+    private Vector<String> mValueNames = new Vector<>();
+    protected Vector<String> mConfigNames = new Vector<>();
 
     /**
      * Initializes this default policy.

@@ -54,7 +54,7 @@ public class ArgBlock implements IArgBlock {
     public static final String CERT_RENEWAL_HEADER = "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
     public static final String CERT_RENEWAL_TRAILER = "-----END RENEWAL CERTIFICATE REQUEST-----";
 
-    private Hashtable<String, Object> mArgs = new Hashtable<String, Object>();
+    private Hashtable<String, Object> mArgs = new Hashtable<>();
 
     private String mType = "unspecified-argblock";
 

@@ -61,7 +61,7 @@ public class ExternalRegAttrs {
             logger.warn("ExternalRegAttrs: unable to obtain certain config values. Default to be used: " + e.getMessage(), e);
         }
 
-        certsToRecover = new ArrayList<ExternalRegCertToRecover>();
+        certsToRecover = new ArrayList<>();
     }
 
     public void setTokenType(String type) {

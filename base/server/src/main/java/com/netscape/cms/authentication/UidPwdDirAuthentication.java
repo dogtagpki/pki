@@ -343,7 +343,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
      */
     @Override
     public Enumeration<String> getValueNames() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(CRED_UID);
         v.addElement(CRED_PWD);

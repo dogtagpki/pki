@@ -123,7 +123,7 @@ public class XMLObject {
     }
 
     public Vector<String> getAllValues(String tagname) {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         NodeList nodes = mDoc.getElementsByTagName(tagname);
         for (int i = 0; i < nodes.getLength(); i++) {
             Node n = nodes.item(i);
@@ -138,7 +138,7 @@ public class XMLObject {
     }
 
     public Vector<String> getValuesFromContainer(Node container, String tagname) {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         NodeList c = container.getChildNodes();
         int len = c.getLength();
         for (int i = 0; i < len; i++) {

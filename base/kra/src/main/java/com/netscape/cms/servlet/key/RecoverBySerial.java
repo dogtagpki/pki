@@ -410,7 +410,7 @@ public class RecoverBySerial extends CMSServlet {
                     waitThread.start();
                     return null;
                 } else {
-                    Vector<Credential> v = new Vector<Credential>();
+                    Vector<Credential> v = new Vector<>();
 
                     for (int i = 0; i < mService.getNoOfRequiredAgents(); i++) {
                         String uid = req.getParameter(IN_UID + i);

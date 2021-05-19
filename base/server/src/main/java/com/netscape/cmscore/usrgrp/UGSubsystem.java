@@ -362,7 +362,7 @@ public class UGSubsystem {
 
     protected Enumeration<User> lbuildUsers(LDAPSearchResults res) throws
             EUsrGrpException {
-        Vector<User> v = new Vector<User>();
+        Vector<User> v = new Vector<>();
 
         while (res.hasMoreElements()) {
             LDAPEntry entry = (LDAPEntry) res.nextElement();
@@ -375,7 +375,7 @@ public class UGSubsystem {
 
     protected Enumeration<User> buildUsers(LDAPSearchResults res) throws
             EUsrGrpException {
-        Vector<User> v = new Vector<User>();
+        Vector<User> v = new Vector<>();
 
         if (res != null) {
             while (res.hasMoreElements()) {
@@ -421,7 +421,7 @@ public class UGSubsystem {
                 entry.getAttribute(LDAP_ATTR_USER_CERT);
 
         if (certAttr != null) {
-            Vector<X509Certificate> certVector = new Vector<X509Certificate>();
+            Vector<X509Certificate> certVector = new Vector<>();
             Enumeration<byte[]> e = certAttr.getByteValues();
 
             try {
@@ -569,7 +569,7 @@ public class UGSubsystem {
                 entry.getAttribute(LDAP_ATTR_USER_CERT);
 
         if (certAttr != null) {
-            Vector<X509Certificate> certVector = new Vector<X509Certificate>();
+            Vector<X509Certificate> certVector = new Vector<>();
             Enumeration<byte[]> e = certAttr.getByteValues();
 
             try {
@@ -624,7 +624,7 @@ public class UGSubsystem {
         logger.info("Adding " + dn);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
-        List<String> ocList = new ArrayList<String>();
+        List<String> ocList = new ArrayList<>();
         ocList.add("top");
         ocList.add("person");
         ocList.add("organizationalPerson");
@@ -1208,7 +1208,7 @@ public class UGSubsystem {
     }
 
     protected Enumeration<Group> buildGroups(LDAPSearchResults res) throws EUsrGrpException {
-        Vector<Group> v = new Vector<Group>();
+        Vector<Group> v = new Vector<>();
 
         while (res.hasMoreElements()) {
             LDAPEntry entry = (LDAPEntry) res.nextElement();

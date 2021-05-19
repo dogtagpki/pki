@@ -1007,7 +1007,7 @@ public class CMSEngine implements ServletContextListener {
 
     // default for excludedLdapAttrs.enabled == false
     // can be overwritten with excludedLdapAttrs.attrs
-    public List<String> excludedLdapAttrsList = new ArrayList<String>();
+    public List<String> excludedLdapAttrsList = new ArrayList<>();
 
     public static String excludedLdapAttrs[] = {
             "req_x509info",

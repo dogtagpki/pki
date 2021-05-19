@@ -53,7 +53,7 @@ public class HashAuthData extends Hashtable<String, Vector<Object>> {
         Vector<Object> val = get(hostname);
 
         if (val == null) {
-            val = new Vector<Object>();
+            val = new Vector<>();
             put(hostname, val);
         }
         val.setElementAt(agentName, 0);
@@ -72,7 +72,7 @@ public class HashAuthData extends Hashtable<String, Vector<Object>> {
         Vector<Object> val = get(hostname);
 
         if (val == null) {
-            val = new Vector<Object>();
+            val = new Vector<>();
             put(hostname, val);
         }
         val.setElementAt(Long.valueOf(timeout), 1);
@@ -91,7 +91,7 @@ public class HashAuthData extends Hashtable<String, Vector<Object>> {
         Vector<Object> val = get(hostname);
 
         if (val == null) {
-            val = new Vector<Object>();
+            val = new Vector<>();
             put(hostname, val);
         }
         val.setElementAt(secret, 2);
@@ -110,7 +110,7 @@ public class HashAuthData extends Hashtable<String, Vector<Object>> {
         Vector<Object> val = get(hostname);
 
         if (val == null) {
-            val = new Vector<Object>();
+            val = new Vector<>();
             put(hostname, val);
         }
         val.setElementAt(Long.valueOf(lastLogin), 3);

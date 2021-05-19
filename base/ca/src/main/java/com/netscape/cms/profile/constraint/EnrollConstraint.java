@@ -48,7 +48,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
     public static final String CONFIG_PARAMS = "params";
 
     protected IConfigStore mConfig = null;
-    protected Vector<String> mConfigNames = new Vector<String>();
+    protected Vector<String> mConfigNames = new Vector<>();
 
     public EnrollConstraint() {
     }

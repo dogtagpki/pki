@@ -30,7 +30,7 @@ import com.netscape.certsrv.base.IArgBlock;
 public class CMSTemplateParams {
     private IArgBlock mHeader = null;
     private IArgBlock mFixed = null;
-    private Vector<IArgBlock> mRepeat = new Vector<IArgBlock>();
+    private Vector<IArgBlock> mRepeat = new Vector<>();
 
     public CMSTemplateParams() {
     }
@@ -61,7 +61,7 @@ public class CMSTemplateParams {
     }
 
     public void clearRepeatRecords() {
-        mRepeat = new Vector<IArgBlock>();
+        mRepeat = new Vector<>();
     }
 
     public Enumeration<IArgBlock> queryRecords() {

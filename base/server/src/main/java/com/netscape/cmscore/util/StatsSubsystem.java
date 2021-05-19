@@ -39,7 +39,7 @@ public class StatsSubsystem implements IStatsSubsystem {
     private String mId = null;
     private StatsEvent mAllTrans = new StatsEvent(null);
     private Date mStartTime = new Date();
-    private Hashtable<String, Vector<StatsMilestone>> mHashtable = new Hashtable<String, Vector<StatsMilestone>>();
+    private Hashtable<String, Vector<StatsMilestone>> mHashtable = new Hashtable<>();
 
     /**
      * Constructs a certificate server.
@@ -96,7 +96,7 @@ public class StatsSubsystem implements IStatsSubsystem {
         if (mHashtable.containsKey(t.toString())) {
             milestones = mHashtable.get(t.toString());
         } else {
-            milestones = new Vector<StatsMilestone>();
+            milestones = new Vector<>();
             mHashtable.put(t.toString(), milestones);
         }
         long startTime = new Date().getTime();

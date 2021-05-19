@@ -80,7 +80,7 @@ public class CertificatePoliciesExt extends APolicyRule
     protected int mNumCertPolicies = DEF_NUM_CERTPOLICIES;
     protected CertPolicy[] mCertPolicies = null;
 
-    protected Vector<String> mInstanceParams = new Vector<String>();
+    protected Vector<String> mInstanceParams = new Vector<>();
     protected CertificatePoliciesExtension mCertificatePoliciesExtension = null;
 
     public CertificatePoliciesExt() {
@@ -133,7 +133,7 @@ public class CertificatePoliciesExt extends APolicyRule
         // create instance of certificate policy extension if enabled.
         if (mEnabled) {
             try {
-                Vector<CertificatePolicyInfo> CertPolicies = new Vector<CertificatePolicyInfo>();
+                Vector<CertificatePolicyInfo> CertPolicies = new Vector<>();
 
                 for (int j = 0; j < mNumCertPolicies; j++) {
                     CertPolicies.addElement(
@@ -246,7 +246,7 @@ public class CertificatePoliciesExt extends APolicyRule
      * increase the num to greater than 0 and more configuration params
      * will show up in the console.
      */
-    private static Vector<String> mDefParams = new Vector<String>();
+    private static Vector<String> mDefParams = new Vector<>();
     static {
         mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
         mDefParams.addElement(
@@ -278,7 +278,7 @@ public class CertificatePoliciesExt extends APolicyRule
 
     @Override
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector<String> theparams = new Vector<String>();
+        Vector<String> theparams = new Vector<>();
 
         theparams.addElement(PROP_CRITICAL + ";boolean;RFC 3280 recommendation: MUST be non-critical.");
         theparams.addElement(PROP_NUM_CERTPOLICIES
@@ -442,7 +442,7 @@ class CertPolicy {
                 // should add a method to NoticeReference to take a
                 // Vector...but let's do this for now
 
-                Vector<String> numsVector = new Vector<String>();
+                Vector<String> numsVector = new Vector<>();
                 StringTokenizer tokens = new StringTokenizer(mNoticeRefNums,
                         ",");
 

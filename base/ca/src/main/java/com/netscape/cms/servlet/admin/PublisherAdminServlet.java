@@ -2873,7 +2873,7 @@ public class PublisherAdminServlet extends AdminServlet {
     // convenience function - takes list1, list2.  Returns what is in list1
     // but not in list2
     private String[] getExtras(String[] list1, String[] list2) {
-        Vector<String> extras = new Vector<String>();
+        Vector<String> extras = new Vector<>();
         for (int i = 0; i < list1.length; i++) {
             boolean match = false;
             for (int j = 0; j < list2.length; j++) {
@@ -2892,7 +2892,7 @@ public class PublisherAdminServlet extends AdminServlet {
     // convenience function - takes list1, list2.  Concatenates the two
     // lists removing duplicates
     private String[] joinLists(String[] list1, String[] list2) {
-        Vector<String> sum = new Vector<String>();
+        Vector<String> sum = new Vector<>();
         for (int i = 0; i < list1.length; i++) {
             sum.add(list1[i]);
         }

@@ -76,7 +76,7 @@ public class LdapPredicateParser {
         }
         ILdapExpression current = parseExpression(token);
         boolean malformed = false;
-        Vector<ILdapExpression> expSet = new Vector<ILdapExpression>();
+        Vector<ILdapExpression> expSet = new Vector<>();
         int prevType = EXPRESSION;
 
         while (pt.hasMoreTokens()) {
@@ -152,7 +152,7 @@ public class LdapPredicateParser {
         if (commaIndex < 0)
             return LdapSimpleExpression.parse(input);
         int currentIndex = 0;
-        Vector<LdapSimpleExpression> expVector = new Vector<LdapSimpleExpression>();
+        Vector<LdapSimpleExpression> expVector = new Vector<>();
 
         while (commaIndex > 0) {
             LdapSimpleExpression exp = (LdapSimpleExpression)

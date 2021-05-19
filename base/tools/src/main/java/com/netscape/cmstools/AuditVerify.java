@@ -336,7 +336,7 @@ public class AuditVerify {
             }
 
             // get list of log files
-            Vector<String> logFiles = new Vector<String>();
+            Vector<String> logFiles = new Vector<>();
             BufferedReader r = new BufferedReader(new FileReader(logListFile));
             String listLine;
             while ((listLine = r.readLine()) != null) {

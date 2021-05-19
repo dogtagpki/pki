@@ -31,13 +31,13 @@ public class NuxwdogPasswordStore implements IPasswordStore {
             throw new IOException("process not started by nuxwdog");
         }
 
-        tags = new ArrayList<String>();
+        tags = new ArrayList<>();
 
         if (confFile != null) {
             populateTokenTags(confFile);
         }
 
-        pwCache = new Hashtable<String, String>();
+        pwCache = new Hashtable<>();
     }
 
     /**

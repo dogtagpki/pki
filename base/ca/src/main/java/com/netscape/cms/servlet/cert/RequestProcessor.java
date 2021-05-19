@@ -422,7 +422,7 @@ public class RequestProcessor extends CertProcessor {
             throws ERejectException, EDeferException, EPropertyException {
 
         // put request policy defaults in a local hash
-        HashMap<String, String> policyData = new HashMap<String,String>();
+        HashMap<String, String> policyData = new HashMap<>();
         for (ProfilePolicySet policySet: data.getPolicySets()) {
             for (com.netscape.certsrv.profile.ProfilePolicy policy: policySet.getPolicies()) {
                 PolicyDefault def = policy.getDef();

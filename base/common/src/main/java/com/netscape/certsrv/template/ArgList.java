@@ -29,7 +29,7 @@ import java.util.Vector;
  */
 public class ArgList implements IArgValue {
 
-    private Vector<IArgValue> mList = new Vector<IArgValue>();
+    private Vector<IArgValue> mList = new Vector<>();
 
     /**
      * Constructs a argument list object.

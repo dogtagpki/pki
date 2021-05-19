@@ -108,7 +108,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
 
     @Override
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(PROP_CRITICAL +
                 ";boolean;RFC 2459 recommendation: This extension MUST be non-critical.");
@@ -155,7 +155,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
      * Returns a sequence of access descriptions.
      */
     private Enumeration<Vector<Serializable>> getAccessDescriptions() throws EBaseException {
-        Vector<Vector<Serializable>> ads = new Vector<Vector<Serializable>>();
+        Vector<Vector<Serializable>> ads = new Vector<>();
 
         //
         // read until there is *NO* ad<NUM>_method
@@ -205,7 +205,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
             if (location == null)
                 break;
             GeneralName gn = GeneralNameUtil.form_GeneralName(location_type, location);
-            Vector<Serializable> e = new Vector<Serializable>();
+            Vector<Serializable> e = new Vector<>();
 
             e.addElement(methodOID);
             e.addElement(gn);
@@ -315,7 +315,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         try {
             params.addElement(PROP_CRITICAL + "=" +
@@ -378,7 +378,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> defParams = new Vector<String>();
+        Vector<String> defParams = new Vector<>();
 
         defParams.addElement(PROP_CRITICAL + "=false");
         defParams.addElement(PROP_NUM_ADS + "=" + MAX_AD);

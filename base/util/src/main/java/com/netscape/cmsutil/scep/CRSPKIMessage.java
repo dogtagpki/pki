@@ -717,11 +717,11 @@ public class CRSPKIMessage {
     }
 
     public CRSPKIMessage() {
-        attrs = new Hashtable<String, Object>();
+        attrs = new Hashtable<>();
     }
 
     public CRSPKIMessage(ByteArrayInputStream bais) throws InvalidBERException, Exception {
-        attrs = new Hashtable<String, Object>();
+        attrs = new Hashtable<>();
         decodeCRSPKIMessage(bais);
     }
 

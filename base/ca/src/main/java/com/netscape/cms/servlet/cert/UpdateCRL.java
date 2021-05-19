@@ -76,7 +76,7 @@ public class UpdateCRL extends CMSServlet {
     private static final long serialVersionUID = -1182106454856991246L;
     private final static String TPL_FILE = "updateCRL.template";
 
-    private static Vector<String> mTesting = new Vector<String>();
+    private static Vector<String> mTesting = new Vector<>();
 
     private String mFormPath = null;
 

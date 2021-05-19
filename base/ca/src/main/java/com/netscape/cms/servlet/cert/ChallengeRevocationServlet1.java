@@ -311,8 +311,8 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
         try {
             int count = 0;
-            Vector<X509CertImpl> oldCertsV = new Vector<X509CertImpl>();
-            Vector<RevokedCertImpl> revCertImplsV = new Vector<RevokedCertImpl>();
+            Vector<X509CertImpl> oldCertsV = new Vector<>();
+            Vector<RevokedCertImpl> revCertImplsV = new Vector<>();
 
             // Construct a CRL reason code extension.
             RevocationReason revReason = RevocationReason.fromInt(reason);
@@ -370,7 +370,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                 if (mRequestID != null && mRequestID.length() > 0)
                     reqIdStr = mRequestID;
-                Vector<String> serialNumbers = new Vector<String>();
+                Vector<String> serialNumbers = new Vector<>();
 
                 if (revokeAll != null && revokeAll.length() > 0) {
                     for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1;

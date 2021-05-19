@@ -18,8 +18,8 @@ public class TestRunner {
         JUnitCore core = new JUnitCore();
         core.addListener(new TestListener());
 
-        List<Class<?>> classes= new ArrayList<Class<?>>();
-        List<Failure> missingClasses= new ArrayList<Failure>();
+        List<Class<?>> classes= new ArrayList<>();
+        List<Failure> missingClasses= new ArrayList<>();
         for (String each : args) {
               try {
                     classes.add(Class.forName(each));

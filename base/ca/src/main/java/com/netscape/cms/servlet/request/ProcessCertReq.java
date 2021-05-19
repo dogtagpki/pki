@@ -597,7 +597,7 @@ public class ProcessCertReq extends CMSServlet {
                             String addExts = req.getParameter("addExts");
 
                             if (addExts != null && !addExts.trim().equals("")) {
-                                Vector<Extension> extsToBeAdded = new Vector<Extension>();
+                                Vector<Extension> extsToBeAdded = new Vector<>();
 
                                 byte[] b = Utils.base64decode(addExts);
 
@@ -742,7 +742,7 @@ public class ProcessCertReq extends CMSServlet {
                                     Enumeration<String> extraparams = req.getParameterNames();
                                     int l = IRequest.AGENT_PARAMS.length() + 1;
                                     int ap_counter = 0;
-                                    Hashtable<String, String> agentparamsargblock = new Hashtable<String, String>();
+                                    Hashtable<String, String> agentparamsargblock = new Hashtable<>();
 
                                     if (extraparams != null) {
                                         while (extraparams.hasMoreElements()) {

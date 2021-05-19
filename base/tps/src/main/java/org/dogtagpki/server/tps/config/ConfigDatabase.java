@@ -61,9 +61,9 @@ public class ConfigDatabase extends Database<ConfigRecord> {
 
         logger.debug("ConfigDatabase.findRecords()");
 
-        Collection<ConfigRecord> result = new ArrayList<ConfigRecord>();
+        Collection<ConfigRecord> result = new ArrayList<>();
 
-        Collection<String> configIDs = new LinkedHashSet<String>();
+        Collection<String> configIDs = new LinkedHashSet<>();
         configIDs.add("Generals");
 
         String list = configStore.get("target.configure.list");
@@ -136,7 +136,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
             throw new ResourceNotFoundException("Entry does not exist: " + key);
         }
 
-        Map<String, String> properties = new TreeMap<String, String>();
+        Map<String, String> properties = new TreeMap<>();
 
         // get properties that match the filter
         String filter = createFilter(record, key);

@@ -490,7 +490,7 @@ public class NSCertTypeExt extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         params.addElement(PROP_CRITICAL + "=" + mCritical);
         params.addElement(PROP_SET_DEFAULT_BITS + "=" + mSetDefaultBits);
@@ -498,7 +498,7 @@ public class NSCertTypeExt extends APolicyRule
         return params;
     }
 
-    private static Vector<String> mDefParams = new Vector<String>();
+    private static Vector<String> mDefParams = new Vector<>();
     static {
         mDefParams.addElement(
                 PROP_CRITICAL + "=false");

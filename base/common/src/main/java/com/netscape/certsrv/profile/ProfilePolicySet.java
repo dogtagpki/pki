@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProfilePolicySet {
     @XmlElement
-    protected List<ProfilePolicy> policies = new ArrayList<ProfilePolicy>();
+    protected List<ProfilePolicy> policies = new ArrayList<>();
 
     public List<ProfilePolicy> getPolicies() {
         return policies;

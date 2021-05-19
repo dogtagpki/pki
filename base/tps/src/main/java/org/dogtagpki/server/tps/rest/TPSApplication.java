@@ -39,8 +39,8 @@ import org.dogtagpki.server.tps.config.ConfigService;
  */
 public class TPSApplication extends Application {
 
-    private Set<Object> singletons = new LinkedHashSet<Object>();
-    private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+    private Set<Object> singletons = new LinkedHashSet<>();
+    private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public TPSApplication() {
 

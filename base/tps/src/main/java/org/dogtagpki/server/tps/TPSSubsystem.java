@@ -159,7 +159,7 @@ public class TPSSubsystem implements IAuthority {
             throw new EBaseException("Missing token state transition in " + property);
         }
 
-        Map<TokenStatus, Collection<TokenStatus>> transitions = new HashMap<TokenStatus, Collection<TokenStatus>>();
+        Map<TokenStatus, Collection<TokenStatus>> transitions = new HashMap<>();
 
         // initialize list with empty containers
         for (TokenStatus state : TokenStatus.values()) {
@@ -247,7 +247,7 @@ public class TPSSubsystem implements IAuthority {
 
         if (currentState == TokenStatus.SUSPENDED) {
 
-            Collection<TokenStatus> ns = new LinkedHashSet<TokenStatus>();
+            Collection<TokenStatus> ns = new LinkedHashSet<>();
 
             // check token certificates
             Collection<TPSCertRecord> certRecords = tdb.tdbGetCertRecordsByCUID(tokenRecord.getId());

@@ -78,7 +78,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
 
     @Override
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(PROP_CRITICAL +
                 ";boolean; This extension may be either critical or non-critical.");
@@ -118,7 +118,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
      * Returns a sequence of scope entry.
      */
     private Vector<CertificateScopeEntry> getScopeEntries() throws EBaseException {
-        Vector<CertificateScopeEntry> entries = new Vector<CertificateScopeEntry>();
+        Vector<CertificateScopeEntry> entries = new Vector<>();
 
         //
         // read until there is *NO* ad<NUM>_method
@@ -246,7 +246,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         try {
             params.addElement(PROP_CRITICAL + "=" +
@@ -303,7 +303,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> defParams = new Vector<String>();
+        Vector<String> defParams = new Vector<>();
 
         defParams.addElement(PROP_CRITICAL + "=false");
 

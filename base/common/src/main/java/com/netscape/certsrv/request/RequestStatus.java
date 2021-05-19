@@ -43,8 +43,8 @@ public final class RequestStatus implements Serializable {
 
     private static final long serialVersionUID = -8176052970922133411L;
 
-    public static final Collection<RequestStatus> INSTANCES = new ArrayList<RequestStatus>();
-    public static final Map<String, RequestStatus> LABELS = new LinkedHashMap<String, RequestStatus>();
+    public static final Collection<RequestStatus> INSTANCES = new ArrayList<>();
+    public static final Map<String, RequestStatus> LABELS = new LinkedHashMap<>();
 
     /**
      * The initial state of a request. Requests in this state have not

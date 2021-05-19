@@ -47,8 +47,8 @@ public class TokenStatus {
         }
     }
 
-    static Map<String, TokenStatus> instancesByName = new HashMap<String, TokenStatus>();
-    static Map<Integer, TokenStatus> instancesByValue = new HashMap<Integer, TokenStatus>();
+    static Map<String, TokenStatus> instancesByName = new HashMap<>();
+    static Map<Integer, TokenStatus> instancesByValue = new HashMap<>();
 
     public final static int TOKEN_UNKNOWN             = -1;
     public final static int TOKEN_FORMATTED           = 0;

@@ -60,7 +60,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     private Profile mProfile;
     private IConfigStore mConfig = null;
 
-    private Vector<String> mConfigNames = new Vector<String>();
+    private Vector<String> mConfigNames = new Vector<>();
 
     public SubsystemGroupUpdater() {
     }

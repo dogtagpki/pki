@@ -212,7 +212,7 @@ public class LdapRule implements IExtendedPluginInfo {
          mExtendedPluginInfo.add("predicate","string;");
          */
 
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         try {
             v.addElement(PublisherProcessor.PROP_TYPE + "=" +
@@ -305,7 +305,7 @@ public class LdapRule implements IExtendedPluginInfo {
      * Returns the initial default parameters.
      */
     public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(PublisherProcessor.PROP_TYPE + "=");
         v.addElement(PublisherProcessor.PROP_PREDICATE + "=");

@@ -43,7 +43,7 @@ public class RequestIdMapper extends DBAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestIdMapper.class);
 
-    protected final static Vector<String> mAttrs = new Vector<String>();
+    protected final static Vector<String> mAttrs = new Vector<>();
 
     static {
         mAttrs.add(Schema.LDAP_ATTR_REQUEST_ID);

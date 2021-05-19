@@ -62,8 +62,8 @@ public class AuthzSubsystem implements ISubsystem {
     public final static String PROP_PLUGIN = "pluginName";
     public final static String PROP_REALM = "realm";
 
-    public Hashtable<String, AuthzMgrPlugin> mAuthzMgrPlugins = new Hashtable<String, AuthzMgrPlugin>();
-    public Hashtable<String, AuthzManagerProxy> mAuthzMgrInsts = new Hashtable<String, AuthzManagerProxy>();
+    public Hashtable<String, AuthzMgrPlugin> mAuthzMgrPlugins = new Hashtable<>();
+    public Hashtable<String, AuthzManagerProxy> mAuthzMgrInsts = new Hashtable<>();
     private String mId = "authz";
     private AuthorizationConfig mConfig;
 
@@ -342,7 +342,7 @@ public class AuthzSubsystem implements ISubsystem {
      * Enumerate all authorization manager instances.
      */
     public Enumeration<IAuthzManager> getAuthzManagers() {
-        Vector<IAuthzManager> inst = new Vector<IAuthzManager>();
+        Vector<IAuthzManager> inst = new Vector<>();
         Enumeration<String> e = mAuthzMgrInsts.keys();
 
         while (e.hasMoreElements()) {

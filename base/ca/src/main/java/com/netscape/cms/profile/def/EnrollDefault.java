@@ -80,8 +80,8 @@ public abstract class EnrollDefault extends PolicyDefault {
     public static final String GN_OID_NAME = "OIDName";
 
     protected IConfigStore mConfig = null;
-    protected Vector<String> mConfigNames = new Vector<String>();
-    protected Vector<String> mValueNames = new Vector<String>();
+    protected Vector<String> mConfigNames = new Vector<>();
+    protected Vector<String> mValueNames = new Vector<>();
 
     public EnrollDefault() {
     }
@@ -586,7 +586,7 @@ public abstract class EnrollDefault extends PolicyDefault {
                 String realm = nameValue.substring(pos0 + 1, pos1).trim();
                 String name_type = nameValue.substring(pos1 + 1, pos2).trim();
                 String name_strings = nameValue.substring(pos2 + 1).trim();
-                Vector<String> strings = new Vector<String>();
+                Vector<String> strings = new Vector<>();
                 StringTokenizer st = new StringTokenizer(name_strings, ",");
                 while (st.hasMoreTokens()) {
                     strings.addElement(st.nextToken());
@@ -734,7 +734,7 @@ public abstract class EnrollDefault extends PolicyDefault {
     protected Vector<NameValuePairs> parseRecords(String value) throws EPropertyException {
         StringTokenizer st = new StringTokenizer(value, "\r\n");
         int num = 0;
-        Vector<NameValuePairs> v = new Vector<NameValuePairs>();
+        Vector<NameValuePairs> v = new Vector<>();
         NameValuePairs nvps = null;
 
         while (st.hasMoreTokens()) {

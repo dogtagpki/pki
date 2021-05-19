@@ -92,7 +92,7 @@ public class CertProcessor extends CAProcessor {
 
     private void setInputsIntoRequest(CertEnrollmentRequest data, Profile profile, IRequest req) {
         // put profile inputs into a local map
-        HashMap<String, String> dataInputs = new HashMap<String, String>();
+        HashMap<String, String> dataInputs = new HashMap<>();
         for (ProfileInput input : data.getInputs()) {
             for (ProfileAttribute attr : input.getAttributes()) {
                 dataInputs.put(attr.getName(), attr.getValue());

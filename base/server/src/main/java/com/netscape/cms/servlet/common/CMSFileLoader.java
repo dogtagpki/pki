@@ -44,7 +44,7 @@ public class CMSFileLoader {
     public final String PROP_CACHE_TEMPLATES_ONLY = "cacheTemplatesOnly";
 
     // hash of files to their content.
-    private Hashtable<String, CMSFile> mLoadedFiles = new Hashtable<String, CMSFile>();
+    private Hashtable<String, CMSFile> mLoadedFiles = new Hashtable<>();
 
     // max number of files
     private int mMaxSize = MAX_SIZE;

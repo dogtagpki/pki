@@ -73,7 +73,7 @@ public class TokenCLI extends CLI {
 
         Collection<TokenStatusData> nextStates = token.getNextStates();
         if (nextStates != null) {
-            Collection<TokenStatus> names = new ArrayList<TokenStatus>();
+            Collection<TokenStatus> names = new ArrayList<>();
             for (TokenStatusData nextState : nextStates) {
                 names.add(nextState.name);
             }

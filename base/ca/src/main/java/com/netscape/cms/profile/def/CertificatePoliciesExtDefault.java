@@ -248,7 +248,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
     private Hashtable<String, String> buildRecords(String value) throws EPropertyException {
         StringTokenizer st = new StringTokenizer(value, "\r\n");
-        Hashtable<String, String> table = new Hashtable<String, String>();
+        Hashtable<String, String> table = new Hashtable<>();
         while (st.hasMoreTokens()) {
             String token = st.nextToken();
             int index = token.indexOf(":");
@@ -294,7 +294,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                 String numStr = h.get(CONFIG_POLICY_NUM);
                 int size = Integer.parseInt(numStr);
 
-                Vector<CertificatePolicyInfo> certificatePolicies = new Vector<CertificatePolicyInfo>();
+                Vector<CertificatePolicyInfo> certificatePolicies = new Vector<>();
                 for (int i = 0; i < size; i++) {
                     String enable = h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_POLICY_ENABLE);
                     CertificatePolicyInfo cinfo = null;
@@ -644,7 +644,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
     public CertificatePoliciesExtension createExtension() throws EProfileException {
         try {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
-            Vector<CertificatePolicyInfo> certificatePolicies = new Vector<CertificatePolicyInfo>();
+            Vector<CertificatePolicyInfo> certificatePolicies = new Vector<>();
 
             int num = getNumPolicies();
             logger.info("CertificatePoliciesExtension: policies: " + num);
@@ -783,7 +783,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
         int nums[] = null;
         if (noticeNums != null && noticeNums.length() > 0) {
-            Vector<String> numsVector = new Vector<String>();
+            Vector<String> numsVector = new Vector<>();
             StringTokenizer tokens = new StringTokenizer(noticeNums, ";");
             while (tokens.hasMoreTokens()) {
                 String num = tokens.nextToken().trim();

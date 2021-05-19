@@ -106,7 +106,7 @@ public class SubjectAltNameExtInput extends EnrollInput {
      */
     @Override
     public Enumeration<String> getValueNames() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         for (int i = 0; i< mSANentryNum; i++) {
             v.addElement(VAL_SAN_REQ_TYPE + i); // default case

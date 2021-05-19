@@ -288,7 +288,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
     public Response changeStatus(String profileMappingID, String action) {
         String method = "ProfileMappingService.changeStatus";
 
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (profileMappingID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null,
@@ -419,7 +419,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
     @Override
     public Response removeProfileMapping(String profileMappingID) {
         String method = "ProfileMappingService.removeProfileMapping";
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         logger.debug("ProfileMappingService.removeProfileMapping(\"" + profileMappingID + "\")");
 

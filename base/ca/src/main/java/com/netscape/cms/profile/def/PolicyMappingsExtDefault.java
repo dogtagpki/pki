@@ -220,7 +220,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
                 String issuerPolicyId = null;
                 String subjectPolicyId = null;
                 String enable = null;
-                Vector<CertificatePolicyMap> policyMaps = new Vector<CertificatePolicyMap>();
+                Vector<CertificatePolicyMap> policyMaps = new Vector<>();
 
                 for (int i = 0; i < size; i++) {
                     NameValuePairs nvps = v.elementAt(i);
@@ -318,7 +318,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
 
             Enumeration<CertificatePolicyMap> maps = ext.getMappings();
 
-            Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
+            Vector<NameValuePairs> recs = new Vector<>();
 
             for (int i = 0; i < num_mappings; i++) {
                 NameValuePairs pairs = new NameValuePairs();
@@ -391,7 +391,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
 
         try {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
-            Vector<CertificatePolicyMap> policyMaps = new Vector<CertificatePolicyMap>();
+            Vector<CertificatePolicyMap> policyMaps = new Vector<>();
             int num = getNumMappings();
 
             for (int i = 0; i < num; i++) {

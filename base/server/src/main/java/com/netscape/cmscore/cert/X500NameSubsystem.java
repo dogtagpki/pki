@@ -221,7 +221,7 @@ public class X500NameSubsystem implements ISubsystem {
     private static String BMPSTRING = "BMPString";
     private static String UNIVERSALSTRING = "UniversalString";
     private static String UFT8STRING = "UTF8String";
-    private static Hashtable<String, Byte> mDerStr2TagHash = new Hashtable<String, Byte>();
+    private static Hashtable<String, Byte> mDerStr2TagHash = new Hashtable<>();
 
     static {
         mDerStr2TagHash.put(

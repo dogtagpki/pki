@@ -89,8 +89,8 @@ public class MainCLI extends CLI {
 
     NSSDatabase nssdb;
 
-    public Collection<Integer> rejectedCertStatuses = new HashSet<Integer>();
-    public Collection<Integer> ignoredCertStatuses = new HashSet<Integer>();
+    public Collection<Integer> rejectedCertStatuses = new HashSet<>();
+    public Collection<Integer> ignoredCertStatuses = new HashSet<>();
 
     public boolean ignoreBanner;
 
@@ -253,7 +253,7 @@ public class MainCLI extends CLI {
 
     public Map<String, String> loadPasswordConfig(String filename) throws Exception {
 
-        Map<String, String> passwords = new LinkedHashMap<String, String>();
+        Map<String, String> passwords = new LinkedHashMap<>();
 
         List<String> list = Files.readAllLines(Paths.get(filename));
         String[] lines = list.toArray(new String[list.size()]);

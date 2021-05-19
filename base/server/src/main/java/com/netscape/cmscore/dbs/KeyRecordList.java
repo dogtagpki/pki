@@ -77,7 +77,7 @@ public class KeyRecordList implements IKeyRecordList {
     @Override
     public Enumeration<IKeyRecord> getKeyRecords(int startidx, int endidx)
             throws EBaseException {
-        Vector<IKeyRecord> entries = new Vector<IKeyRecord>();
+        Vector<IKeyRecord> entries = new Vector<>();
 
         for (int i = startidx; i <= endidx; i++) {
             IKeyRecord element = mVlist.getElementAt(i);

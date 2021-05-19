@@ -81,10 +81,10 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
     protected AuthorityKeyIdentifierExtension mTheExtension = null;
 
     // instance params for console
-    protected Vector<String> mInstanceParams = new Vector<String>();
+    protected Vector<String> mInstanceParams = new Vector<>();
 
     // default params for console.
-    protected static Vector<String> mDefaultParams = new Vector<String>();
+    protected static Vector<String> mDefaultParams = new Vector<>();
     static {
         // form static default params.
         mDefaultParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);

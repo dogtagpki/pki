@@ -26,7 +26,7 @@ public class ACMEValidatorConfig {
     @JsonProperty("class")
     private String className;
 
-    private Map<String, String> parameters = new LinkedHashMap<String, String>();
+    private Map<String, String> parameters = new LinkedHashMap<>();
 
     public String getClassName() {
         return className;

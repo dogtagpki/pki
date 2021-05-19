@@ -69,11 +69,11 @@ public class TPSAuthenticator {
     public TPSAuthenticator(String authId)
             throws EBaseException {
         id = authId;
-        uiTitle = new HashMap<String, String>();
-        uiDescription = new HashMap<String, String>();
-        uiParameters = new HashMap<String, AuthUIParameter>();
-        credMap_login = new HashMap<String, String>();
-        credMap_extlogin = new HashMap<String, String>();
+        uiTitle = new HashMap<>();
+        uiDescription = new HashMap<>();
+        uiParameters = new HashMap<>();
+        credMap_login = new HashMap<>();
+        credMap_extlogin = new HashMap<>();
     }
 
     public String getID() {

@@ -199,17 +199,17 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     /**
      * The mandatory log event types
      */
-    protected Set<String> mandatoryEvents = new LinkedHashSet<String>();
+    protected Set<String> mandatoryEvents = new LinkedHashSet<>();
 
     /**
      * The selected log event types
      */
-    protected Set<String> selectedEvents = new LinkedHashSet<String>();
+    protected Set<String> selectedEvents = new LinkedHashSet<>();
 
     /**
      * The event filters
      */
-    protected Map<String, JDAPFilter> filters = new HashMap<String, JDAPFilter>();
+    protected Map<String, JDAPFilter> filters = new HashMap<>();
 
     /**
      * The eventType that this log is triggered
@@ -1282,7 +1282,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      *            log file
      */
     public Vector<LogEntry> readEntry(int maxLine, int lowLevel, LogSource source, String fName) {
-        Vector<LogEntry> mEntries = new Vector<LogEntry>();
+        Vector<LogEntry> mEntries = new Vector<>();
         String fileName = mFileName;
         BufferedReader fBuffer;
         int lineNo = 0; // lineNo of the current entry in the log file
@@ -1505,7 +1505,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(PROP_TYPE + "=");
         v.addElement(PROP_ON + "=");
@@ -1529,7 +1529,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         try {
 

@@ -161,10 +161,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * CRL cache
      */
-    private Hashtable<BigInteger, RevokedCertificate> mCRLCerts = new Hashtable<BigInteger, RevokedCertificate>();
-    private Hashtable<BigInteger, RevokedCertificate> mRevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
-    private Hashtable<BigInteger, RevokedCertificate> mUnrevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
-    private Hashtable<BigInteger, RevokedCertificate> mExpiredCerts = new Hashtable<BigInteger, RevokedCertificate>();
+    private Hashtable<BigInteger, RevokedCertificate> mCRLCerts = new Hashtable<>();
+    private Hashtable<BigInteger, RevokedCertificate> mRevokedCerts = new Hashtable<>();
+    private Hashtable<BigInteger, RevokedCertificate> mUnrevokedCerts = new Hashtable<>();
+    private Hashtable<BigInteger, RevokedCertificate> mExpiredCerts = new Hashtable<>();
     private boolean mIncludeExpiredCerts = false;
     private boolean mIncludeExpiredCertsOneExtraTime = false;
     private boolean mCACertsOnly = false;
@@ -645,7 +645,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if (list.charAt(0) == ',' || list.charAt(list.length() - 1) == ',')
             return null;
 
-        Vector<Vector<Integer>> listedDays = new Vector<Vector<Integer>>();
+        Vector<Vector<Integer>> listedDays = new Vector<>();
 
         StringTokenizer days = new StringTokenizer(list, ";", true);
         Vector<Integer> listedTimes = null;
@@ -658,12 +658,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 if (timeListPresent) {
                     timeListPresent = false;
                 } else {
-                    listedTimes = new Vector<Integer>();
+                    listedTimes = new Vector<>();
                     listedDays.addElement(listedTimes);
                 }
                 continue;
             } else {
-                listedTimes = new Vector<Integer>();
+                listedTimes = new Vector<>();
                 listedDays.addElement(listedTimes);
                 timeListPresent = true;
             }
@@ -690,7 +690,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
         }
         if (!timeListPresent) {
-            listedTimes = new Vector<Integer>();
+            listedTimes = new Vector<>();
             listedDays.addElement(listedTimes);
         }
 
@@ -719,7 +719,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if (list.length() > 0 && list.charAt(list.length() - 1) == ',')
             return null;
 
-        Vector<String> listedProfiles = new Vector<String>();
+        Vector<String> listedProfiles = new Vector<>();
 
         StringTokenizer elements = new StringTokenizer(list, ",", true);
         int n = 0;
@@ -957,15 +957,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             if (mCRLCacheIsCleared && mUpdatingCRL == CRL_UPDATE_DONE) {
                                 mRevokedCerts = crlRecord.getRevokedCerts();
                                 if (mRevokedCerts == null) {
-                                    mRevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
+                                    mRevokedCerts = new Hashtable<>();
                                 }
                                 mUnrevokedCerts = crlRecord.getUnrevokedCerts();
                                 if (mUnrevokedCerts == null) {
-                                    mUnrevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
+                                    mUnrevokedCerts = new Hashtable<>();
                                 }
                                 mExpiredCerts = crlRecord.getExpiredCerts();
                                 if (mExpiredCerts == null) {
-                                    mExpiredCerts = new Hashtable<BigInteger, RevokedCertificate>();
+                                    mExpiredCerts = new Hashtable<>();
                                 }
                                 if (isDeltaCRLEnabled()) {
                                     mNextUpdate = x509crl.getNextUpdate();
@@ -1563,7 +1563,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if (mCRLCacheIsCleared || mCRLCerts == null || mCRLCerts.isEmpty()) {
             return null;
         } else {
-            Set<RevokedCertificate> certSet = new LinkedHashSet<RevokedCertificate>(mCRLCerts.values());
+            Set<RevokedCertificate> certSet = new LinkedHashSet<>(mCRLCerts.values());
             return certSet;
         }
     }
@@ -2603,7 +2603,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     @Override
     public synchronized Vector<Long> getSplitTimes() {
-        Vector<Long> splits = new Vector<Long>();
+        Vector<Long> splits = new Vector<>();
 
         for (int i = 0; i < mSplits.length; i++) {
             splits.addElement(Long.valueOf(mSplits[i]));

@@ -103,7 +103,7 @@ public class ConnectionManager
         IConfigStore conf = subsystem.getConfigStore();
         IConfigStore connectorSubstore = conf.getSubStore("connector");
         Enumeration<String> connector_enu = connectorSubstore.getSubStoreNames();
-        connectors = new Hashtable<String, IConnector>();
+        connectors = new Hashtable<>();
         while (connector_enu.hasMoreElements()) {
             String connectorID = connector_enu.nextElement();
             logger.debug("ConnectionManager: initConnectors(): initializing connector " + connectorID);
@@ -150,7 +150,7 @@ public class ConnectionManager
         // port doesn't have to contain anything if failover supplied in host
         int port = conf.getInteger("port");
 
-        Hashtable<String, String> uris = new Hashtable<String, String>();
+        Hashtable<String, String> uris = new Hashtable<>();
         IConfigStore uriSubstore = conf.getSubStore("uri");
         if (uriSubstore == null) {
             logger.error("ConnectionManager: createConnector(): uri(s) not found in config.");

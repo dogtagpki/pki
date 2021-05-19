@@ -70,7 +70,7 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
             new String[] {};
 
     static {
-        mExtendedPluginInfo = new Vector<String>();
+        mExtendedPluginInfo = new Vector<>();
         mExtendedPluginInfo.add(IExtendedPluginInfo.HELP_TEXT +
                 ";Authenticate the username and password provided " +
                 "by the user against an LDAP directory. Works with the " +
@@ -91,7 +91,7 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
         mName = name;
         mImplName = implName;
         mConfig = config;
-        mData = new Hashtable<String, IAuthToken>();
+        mData = new Hashtable<>();
         mHosts = new HashAuthData();
 
         try {
@@ -120,7 +120,7 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
 
     public void createEntry(String host, String dn, long timeout,
             String secret, long lastLogin) {
-        Vector<Object> v = new Vector<Object>();
+        Vector<Object> v = new Vector<>();
 
         v.addElement(dn);
         v.addElement(Long.valueOf(timeout));

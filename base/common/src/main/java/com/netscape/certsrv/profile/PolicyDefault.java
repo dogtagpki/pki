@@ -39,10 +39,10 @@ public class PolicyDefault {
     private String text;
 
     @XmlElement(name="policyAttribute")
-    private List<ProfileAttribute> attributes = new ArrayList<ProfileAttribute>();
+    private List<ProfileAttribute> attributes = new ArrayList<>();
 
     @XmlElement(name = "params")
-    private List<ProfileParameter> params = new ArrayList<ProfileParameter>();
+    private List<ProfileParameter> params = new ArrayList<>();
 
     public PolicyDefault() {
         // required for jaxb

@@ -38,7 +38,7 @@ public class EmailResolverKeys implements IEmailResolverKeys {
     private Hashtable<String, Object> mKeys = null;
 
     public EmailResolverKeys() {
-        mKeys = new Hashtable<String, Object>();
+        mKeys = new Hashtable<>();
     }
 
     /**

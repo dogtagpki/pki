@@ -42,7 +42,7 @@ public class BigIntegerMapper extends DBAttrMapper {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BigIntegerMapper.class);
 
     private String mLdapName = null;
-    private Vector<String> v = new Vector<String>();
+    private Vector<String> v = new Vector<>();
 
     /**
      * Constructs BigInteger mapper.

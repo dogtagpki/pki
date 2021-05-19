@@ -184,8 +184,8 @@ public class AttributePresentConstraints extends APolicyRule
     protected Hashtable<String, Object> mParamValue = null;
 
     static {
-        mParamNames = new Vector<String>();
-        mParamDefault = new Hashtable<String, Object>();
+        mParamNames = new Vector<>();
+        mParamDefault = new Hashtable<>();
         addParam(PROP_LDAP_HOST, DEF_LDAP_HOST);
         addParam(PROP_LDAP_PORT, DEF_LDAP_PORT);
         addParam(PROP_LDAP_SSL, DEF_LDAP_SSL);
@@ -250,7 +250,7 @@ public class AttributePresentConstraints extends APolicyRule
 
         mConfig = config;
 
-        mParamValue = new Hashtable<String, Object>();
+        mParamValue = new Hashtable<>();
 
         getStringConfigParam(mConfig, PROP_LDAP_HOST);
         getIntConfigParam(mConfig, PROP_LDAP_PORT);
@@ -351,7 +351,7 @@ public class AttributePresentConstraints extends APolicyRule
 
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         Enumeration<String> e = mParamNames.elements();
 
@@ -371,7 +371,7 @@ public class AttributePresentConstraints extends APolicyRule
 
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         Enumeration<String> e = mParamNames.elements();
 

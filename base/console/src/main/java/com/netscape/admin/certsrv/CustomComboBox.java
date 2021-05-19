@@ -40,7 +40,7 @@ public class CustomComboBox<E> extends JComboBox<E> {
 
     public CustomComboBox(ComboBoxModel<E> m) {
         super(m);
-        super.setRenderer( new CustomCellRenderer<E>(this));
+        super.setRenderer( new CustomCellRenderer<>(this));
     }
 }
 

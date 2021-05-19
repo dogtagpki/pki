@@ -95,7 +95,7 @@ public class SymKeyGenService implements IService {
         String realm = request.getRealm();
 
         String usageStr = request.getExtDataInString(IRequest.KEY_GEN_USAGES);
-        List<String> usages = new ArrayList<String>(
+        List<String> usages = new ArrayList<>(
                 Arrays.asList(StringUtils.split(usageStr, ",")));
 
         String keySizeStr = request.getExtDataInString(IRequest.KEY_GEN_SIZE);

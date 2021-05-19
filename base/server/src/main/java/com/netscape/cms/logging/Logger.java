@@ -39,7 +39,7 @@ public class Logger implements ILogger {
 
     protected static Logger mLogger = new Logger();
     protected ILogQueue mLogQueue = LogQueue.getLogQueue();
-    protected static Hashtable<LogCategory, LogFactory> mFactories = new Hashtable<LogCategory, LogFactory>();
+    protected static Hashtable<LogCategory, LogFactory> mFactories = new Hashtable<>();
 
     static {
         register(EV_AUDIT, new AuditEventFactory());

@@ -192,7 +192,7 @@ public abstract class APolicyRule implements IPolicyRule {
     public void setPolicyException(IRequest req, EBaseException ex) {
         Vector<String> ev = req.getExtDataInStringVector(IRequest.ERRORS);
         if (ev == null) {
-            ev = new Vector<String>();
+            ev = new Vector<>();
         }
         ev.addElement(ex.toString());
         req.setExtData(IRequest.ERRORS, ev);
@@ -249,7 +249,7 @@ public abstract class APolicyRule implements IPolicyRule {
 
         Vector<String> ev = req.getExtDataInStringVector(IRequest.ERRORS);
         if (ev == null) {
-            ev = new Vector<String>();
+            ev = new Vector<>();
         }
         ev.addElement(ex.toString());
         req.setExtData(IRequest.ERRORS, ev);

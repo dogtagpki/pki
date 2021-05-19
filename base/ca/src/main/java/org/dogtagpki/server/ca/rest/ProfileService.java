@@ -125,7 +125,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         if (e == null) return createOKResponse(infos);
 
         // store non-null results in a list
-        List<ProfileDataInfo> results = new ArrayList<ProfileDataInfo>();
+        List<ProfileDataInfo> results = new ArrayList<>();
         while (e.hasMoreElements()) {
             try {
                 String id = e.nextElement();
@@ -271,7 +271,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         Enumeration<String> policySetIds = profile.getProfilePolicySetIds();
         if (policySetIds != null) {
             while (policySetIds.hasMoreElements()) {
-                Vector<ProfilePolicy> pset = new Vector<ProfilePolicy>();
+                Vector<ProfilePolicy> pset = new Vector<>();
                 String policySetId = policySetIds.nextElement();
                 Enumeration<String> policyIds = profile.getProfilePolicyIds(policySetId);
                 while (policyIds.hasMoreElements()) {
@@ -486,7 +486,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
         Profile profile = null;
         String profileId = data.getId();
-        Map<String, String> auditParams = new LinkedHashMap<String, String>();
+        Map<String, String> auditParams = new LinkedHashMap<>();
         try {
             profile = ps.getProfile(profileId);
             if (profile != null) {
@@ -561,7 +561,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
         logger.info("ProfileService: Creating profile from raw data");
 
-        Map<String, String> auditParams = new LinkedHashMap<String, String>();
+        Map<String, String> auditParams = new LinkedHashMap<>();
         String profileId;
         String classId;
 
@@ -780,7 +780,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             throw new ConflictingOperationException("Cannot change profile data.  Profile must be disabled");
         }
 
-        Map<String, String> auditParams = new LinkedHashMap<String, String>();
+        Map<String, String> auditParams = new LinkedHashMap<>();
 
         if (differs(profile.getAuthenticatorId(), data.getAuthenticatorId())) {
             profile.setAuthenticatorId(data.getAuthenticatorId());
@@ -859,11 +859,11 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     private void populateProfilePolicies(ProfileData data, Profile profile) throws EBaseException {
         // get list of changes for auditing
-        List<String> auditAdd = new ArrayList<String>();
-        List<String> auditModify = new ArrayList<String>();
+        List<String> auditAdd = new ArrayList<>();
+        List<String> auditModify = new ArrayList<>();
 
         Enumeration<String> existingSetIds = profile.getProfilePolicySetIds();
-        Map<String, ProfilePolicy> existingPolicies = new LinkedHashMap<String, ProfilePolicy>();
+        Map<String, ProfilePolicy> existingPolicies = new LinkedHashMap<>();
         while (existingSetIds.hasMoreElements()) {
             String setId = existingSetIds.nextElement();
             Enumeration<String> policyIds = profile.getProfilePolicyIds(setId);
@@ -890,7 +890,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
         }
 
-        List<String> auditDelete = new ArrayList<String>(existingPolicies.keySet());
+        List<String> auditDelete = new ArrayList<>(existingPolicies.keySet());
 
         //perform actions
         try {
@@ -936,7 +936,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
 
             if (!auditDelete.isEmpty()) {
-                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                Map<String, String> auditParams = new LinkedHashMap<>();
                 auditParams.put("inputs", StringUtils.join(auditDelete, ","));
                 auditProfileChange(
                         ScopeDef.SC_PROFILE_POLICIES,
@@ -947,7 +947,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
 
             if (!auditAdd.isEmpty()) {
-                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                Map<String, String> auditParams = new LinkedHashMap<>();
                 auditParams.put("inputs", StringUtils.join(auditAdd, ","));
                 auditProfileChange(
                         ScopeDef.SC_PROFILE_POLICIES,
@@ -958,7 +958,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
 
             if (!auditModify.isEmpty()) {
-                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                Map<String, String> auditParams = new LinkedHashMap<>();
                 auditParams.put("inputs", StringUtils.join(auditModify, ","));
                 auditProfileChange(
                         ScopeDef.SC_PROFILE_POLICIES,
@@ -968,7 +968,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                         auditParams);
             }
         } catch (EProfileException | EPropertyException e) {
-            Map<String, String> auditParams = new LinkedHashMap<String, String>();
+            Map<String, String> auditParams = new LinkedHashMap<>();
             auditParams.put("added", StringUtils.join(auditAdd, ","));
             auditParams.put("deleted", StringUtils.join(auditDelete, ","));
             auditParams.put("modified", StringUtils.join(auditModify, ","));
@@ -984,11 +984,11 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     private void populateProfileOutputs(ProfileData data, Profile profile) throws EBaseException {
         // get list of changes for auditing
-        List<String> auditAdd = new ArrayList<String>();
-        List<String> auditModify = new ArrayList<String>();
+        List<String> auditAdd = new ArrayList<>();
+        List<String> auditModify = new ArrayList<>();
 
         Enumeration<String> existingIds = profile.getProfileOutputIds();
-        Map<String, ProfileOutput> existingOutputs = new LinkedHashMap<String, ProfileOutput>();
+        Map<String, ProfileOutput> existingOutputs = new LinkedHashMap<>();
         while (existingIds.hasMoreElements()) {
             String id = existingIds.nextElement();
             ProfileOutput output = createProfileOutput(profile, id, getLocale(headers));
@@ -1009,7 +1009,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                 existingOutputs.remove(id);
             }
         }
-        List<String> auditDelete = new ArrayList<String>(existingOutputs.keySet());
+        List<String> auditDelete = new ArrayList<>(existingOutputs.keySet());
 
         // perform operations
 
@@ -1026,7 +1026,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
 
             if (!auditDelete.isEmpty()) {
-                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                Map<String, String> auditParams = new LinkedHashMap<>();
                 auditParams.put("outputs", StringUtils.join(auditDelete, ","));
                 auditProfileChange(
                         ScopeDef.SC_PROFILE_OUTPUT,
@@ -1037,7 +1037,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
 
             if (!auditAdd.isEmpty()) {
-                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                Map<String, String> auditParams = new LinkedHashMap<>();
                 auditParams.put("outputs", StringUtils.join(auditAdd, ","));
                 auditProfileChange(
                         ScopeDef.SC_PROFILE_OUTPUT,
@@ -1048,7 +1048,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
 
             if (!auditModify.isEmpty()) {
-                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                Map<String, String> auditParams = new LinkedHashMap<>();
                 auditParams.put("outputs", StringUtils.join(auditModify, ","));
                 auditProfileChange(
                         ScopeDef.SC_PROFILE_OUTPUT,
@@ -1058,7 +1058,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                         auditParams);
             }
         } catch (EProfileException e) {
-            Map<String, String> auditParams = new LinkedHashMap<String, String>();
+            Map<String, String> auditParams = new LinkedHashMap<>();
 
             auditParams.put("added", StringUtils.join(auditAdd, ","));
             auditParams.put("deleted", StringUtils.join(auditDelete, ","));
@@ -1075,10 +1075,10 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     private void populateProfileInputs(ProfileData data, Profile profile) throws EBaseException {
         // get list of changes for auditing
-        List<String> auditAdd = new ArrayList<String>();
-        List<String> auditModify = new ArrayList<String>();
+        List<String> auditAdd = new ArrayList<>();
+        List<String> auditModify = new ArrayList<>();
         Enumeration<String> existingIds = profile.getProfileInputIds();
-        Map<String, ProfileInput> existingInputs = new LinkedHashMap<String, ProfileInput>();
+        Map<String, ProfileInput> existingInputs = new LinkedHashMap<>();
 
         while (existingIds.hasMoreElements()) {
             String id = existingIds.nextElement();
@@ -1100,7 +1100,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                 existingInputs.remove(id);
             }
         }
-        List<String> auditDelete = new ArrayList<String>(existingInputs.keySet());
+        List<String> auditDelete = new ArrayList<>(existingInputs.keySet());
 
         try {
             // perform the operations
@@ -1117,7 +1117,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
 
             if (!auditDelete.isEmpty()) {
-                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                Map<String, String> auditParams = new LinkedHashMap<>();
                 auditParams.put("inputs", StringUtils.join(auditDelete, ","));
                 auditProfileChange(
                         ScopeDef.SC_PROFILE_INPUT,
@@ -1128,7 +1128,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
 
             if (!auditAdd.isEmpty()) {
-                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                Map<String, String> auditParams = new LinkedHashMap<>();
                 auditParams.put("inputs", StringUtils.join(auditAdd, ","));
                 auditProfileChange(
                         ScopeDef.SC_PROFILE_INPUT,
@@ -1139,7 +1139,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
 
             if (!auditModify.isEmpty()) {
-                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                Map<String, String> auditParams = new LinkedHashMap<>();
                 auditParams.put("inputs", StringUtils.join(auditModify, ","));
                 auditProfileChange(
                         ScopeDef.SC_PROFILE_INPUT,
@@ -1149,7 +1149,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                         auditParams);
             }
         } catch (EProfileException e) {
-            Map<String, String> auditParams = new LinkedHashMap<String, String>();
+            Map<String, String> auditParams = new LinkedHashMap<>();
 
             auditParams.put("added", StringUtils.join(auditAdd, ","));
             auditParams.put("deleted", StringUtils.join(auditDelete, ","));

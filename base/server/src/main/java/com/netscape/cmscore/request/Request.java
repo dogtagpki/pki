@@ -65,7 +65,7 @@ public class Request implements IRequest {
     protected String mRequestType;
     protected String mContext; // string for now.
     protected String realm;
-    protected ExtDataHashtable<Object> mExtData = new ExtDataHashtable<Object>();
+    protected ExtDataHashtable<Object> mExtData = new ExtDataHashtable<>();
 
     Date mCreationTime = new Date();
     Date mModificationTime = new Date();
@@ -264,7 +264,7 @@ public class Request implements IRequest {
             return false;
         }
 
-        mExtData.put(key, new ExtDataHashtable<String>(value));
+        mExtData.put(key, new ExtDataHashtable<>(value));
         return true;
     }
 
@@ -295,7 +295,7 @@ public class Request implements IRequest {
         if (!(value instanceof Hashtable)) {
             return null;
         }
-        return new ExtDataHashtable<String>((Hashtable<String, String>) value);
+        return new ExtDataHashtable<>((Hashtable<String, String>) value);
     }
 
     @Override
@@ -323,7 +323,7 @@ public class Request implements IRequest {
         @SuppressWarnings("unchecked")
         Hashtable<String, String> existingValue = (Hashtable<String, String>) mExtData.get(key);
         if (existingValue == null) {
-            existingValue = new ExtDataHashtable<String>();
+            existingValue = new ExtDataHashtable<>();
             mExtData.put(key, existingValue);
         }
         existingValue.put(subkey, value);
@@ -639,7 +639,7 @@ public class Request implements IRequest {
         if (stringArray == null) {
             return null;
         }
-        return new Vector<String>(Arrays.asList(stringArray));
+        return new Vector<>(Arrays.asList(stringArray));
     }
 
     @Override
@@ -663,7 +663,7 @@ public class Request implements IRequest {
         if (data == null) {
             return false;
         }
-        Hashtable<String, String> hash = new Hashtable<String, String>();
+        Hashtable<String, String> hash = new Hashtable<>();
         Enumeration<String> keys = data.getElements();
         while (keys.hasMoreElements()) {
             try {
@@ -766,7 +766,7 @@ public class Request implements IRequest {
         if (values == null) {
             return false;
         }
-        Hashtable<String, String> hashValue = new Hashtable<String, String>();
+        Hashtable<String, String> hashValue = new Hashtable<>();
         for (int index = 0; index < values.length; index++) {
             hashValue.put(Integer.toString(index), values[index]);
         }
@@ -788,7 +788,7 @@ public class Request implements IRequest {
             }
         }
         Set<String> arrayKeys = hashValue.keySet();
-        Vector<Object> listValue = new Vector<Object>(arrayKeys.size());
+        Vector<Object> listValue = new Vector<>(arrayKeys.size());
         for (Iterator<String> iter = arrayKeys.iterator(); iter.hasNext();) {
             String arrayKey = iter.next();
             try {

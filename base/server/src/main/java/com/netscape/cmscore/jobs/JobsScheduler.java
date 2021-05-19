@@ -111,9 +111,9 @@ public class JobsScheduler implements Runnable, ISubsystem {
     protected String mId = ID;
     protected Thread mScheduleThread = null;
 
-    public Hashtable<String, JobPlugin> mJobPlugins = new Hashtable<String, JobPlugin>();
-    public Hashtable<String, IJob> mJobs = new Hashtable<String, IJob>();
-    private Hashtable<String, Thread> mJobThreads = new Hashtable<String, Thread>();
+    public Hashtable<String, JobPlugin> mJobPlugins = new Hashtable<>();
+    public Hashtable<String, IJob> mJobs = new Hashtable<>();
+    private Hashtable<String, Thread> mJobThreads = new Hashtable<>();
 
     private IConfigStore mConfig = null;
 

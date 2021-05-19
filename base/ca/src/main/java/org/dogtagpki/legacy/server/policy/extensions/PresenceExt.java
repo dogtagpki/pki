@@ -41,7 +41,7 @@ import com.netscape.certsrv.request.PolicyResult;
  * @version $Revision$, $Date$
  */
 public class PresenceExt extends APolicyRule {
-    private static Vector<String> mDefParams = new Vector<String>();
+    private static Vector<String> mDefParams = new Vector<>();
     @SuppressWarnings("unused")
     private IConfigStore mConfig;
     private String mOID = null;
@@ -111,7 +111,7 @@ public class PresenceExt extends APolicyRule {
 
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         params.addElement(PROP_IS_CRITICAL + "=" + mCritical);
         params.addElement(PROP_OID + "=" + mOID);

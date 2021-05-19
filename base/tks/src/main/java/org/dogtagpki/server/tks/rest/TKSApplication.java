@@ -18,8 +18,8 @@ import org.dogtagpki.server.rest.UserService;
 
 public class TKSApplication extends Application {
 
-    private Set<Object> singletons = new LinkedHashSet<Object>();
-    private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+    private Set<Object> singletons = new LinkedHashSet<>();
+    private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public TKSApplication() {
 

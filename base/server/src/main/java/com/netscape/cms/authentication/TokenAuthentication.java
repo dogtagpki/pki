@@ -152,7 +152,7 @@ public class TokenAuthentication implements ProfileAuthenticator {
         String authURL = "https://" + authHost + ":" + authAdminPort + authPath;
         logger.info("TokenAuthentication: Authenticating session ID against security domain at " + authURL);
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
         content.putSingle(CRED_SESSION_ID, sessionId);
         content.putSingle("hostname", givenHost);
         logger.debug("TokenAuthentication: content: " + content);
@@ -302,7 +302,7 @@ public class TokenAuthentication implements ProfileAuthenticator {
      */
     @Override
     public Enumeration<String> getValueNames() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(CRED_SESSION_ID);
         return v.elements();

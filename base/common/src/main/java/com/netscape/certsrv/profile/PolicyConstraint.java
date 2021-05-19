@@ -39,7 +39,7 @@ public class PolicyConstraint {
     private String classId;
 
     @XmlElement(name = "constraint")
-    private List<PolicyConstraintValue> constraints = new ArrayList<PolicyConstraintValue>();
+    private List<PolicyConstraintValue> constraints = new ArrayList<>();
 
     public PolicyConstraint() {
         // required for jaxb

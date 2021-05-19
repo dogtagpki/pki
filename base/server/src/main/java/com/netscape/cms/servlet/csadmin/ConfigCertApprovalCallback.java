@@ -31,7 +31,7 @@ public class ConfigCertApprovalCallback
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigCertApprovalCallback.class);
 
-    public Set<Integer> ignoredErrors = new HashSet<Integer>();
+    public Set<Integer> ignoredErrors = new HashSet<>();
 
     public ConfigCertApprovalCallback() {
     }

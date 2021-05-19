@@ -81,7 +81,7 @@ public class NameConstraintsExt extends APolicyRule
     protected Subtree[] mExcludedSubtrees = null;
     protected NameConstraintsExtension mNameConstraintsExtension = null;
 
-    protected Vector<String> mInstanceParams = new Vector<String>();
+    protected Vector<String> mInstanceParams = new Vector<>();
 
     public NameConstraintsExt() {
         NAME = "NameConstraintsExt";
@@ -160,13 +160,13 @@ public class NameConstraintsExt extends APolicyRule
         // create instance of name constraints extension if enabled.
         if (mEnabled) {
             try {
-                Vector<GeneralSubtree> permittedSubtrees = new Vector<GeneralSubtree>();
+                Vector<GeneralSubtree> permittedSubtrees = new Vector<>();
 
                 for (int i = 0; i < mNumPermittedSubtrees; i++) {
                     permittedSubtrees.addElement(
                             mPermittedSubtrees[i].mGeneralSubtree);
                 }
-                Vector<GeneralSubtree> excludedSubtrees = new Vector<GeneralSubtree>();
+                Vector<GeneralSubtree> excludedSubtrees = new Vector<>();
 
                 for (int j = 0; j < mNumExcludedSubtrees; j++) {
                     excludedSubtrees.addElement(
@@ -334,7 +334,7 @@ public class NameConstraintsExt extends APolicyRule
      * increase the num to greater than 0 and more configuration params
      * will show up in the console.
      */
-    private static Vector<String> mDefParams = new Vector<String>();
+    private static Vector<String> mDefParams = new Vector<>();
     static {
         mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
         mDefParams.addElement(
@@ -361,7 +361,7 @@ public class NameConstraintsExt extends APolicyRule
 
     @Override
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector<String> theparams = new Vector<String>();
+        Vector<String> theparams = new Vector<>();
 
         theparams.addElement(PROP_CRITICAL + ";boolean;RFC 2459 recommendation: MUST be critical.");
         theparams.addElement(

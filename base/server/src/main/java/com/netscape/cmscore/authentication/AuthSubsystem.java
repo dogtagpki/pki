@@ -126,8 +126,8 @@ public class AuthSubsystem implements ISubsystem {
      */
     public final static String CMC_USER_SIGNED_AUTH_AUTHMGR_ID = "CMCUserSignedAuth";
 
-    public Hashtable<String, AuthMgrPlugin> mAuthMgrPlugins = new Hashtable<String, AuthMgrPlugin>();
-    public Hashtable<String, AuthManagerProxy> mAuthMgrInsts = new Hashtable<String, AuthManagerProxy>();
+    public Hashtable<String, AuthMgrPlugin> mAuthMgrPlugins = new Hashtable<>();
+    public Hashtable<String, AuthManagerProxy> mAuthMgrInsts = new Hashtable<>();
     private String mId = "auths";
     private AuthenticationConfig mConfig;
 
@@ -438,7 +438,7 @@ public class AuthSubsystem implements ISubsystem {
      * Enumerate all authentication manager instances.
      */
     public Enumeration<AuthManager> getAuthManagers() {
-        Vector<AuthManager> inst = new Vector<AuthManager>();
+        Vector<AuthManager> inst = new Vector<>();
         Enumeration<String> e = mAuthMgrInsts.keys();
 
         while (e.hasMoreElements()) {

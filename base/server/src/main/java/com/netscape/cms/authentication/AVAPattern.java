@@ -530,7 +530,7 @@ class AVAPattern {
 
         if (plus == -1)
             return new String[] { rdn };
-        Vector<String> avas = new Vector<String>();
+        Vector<String> avas = new Vector<>();
         StringTokenizer token = new StringTokenizer(rdn, "+");
 
         while (token.hasMoreTokens())

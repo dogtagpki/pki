@@ -58,7 +58,7 @@ public class LdapAuthInfo {
     private boolean mInited = false;
 
     IPasswordStore passwordStore;
-    private static Hashtable<String, String> passwords = new Hashtable<String, String>();
+    private static Hashtable<String, String> passwords = new Hashtable<>();
 
     /**
      * must call init(config) after this constructor.

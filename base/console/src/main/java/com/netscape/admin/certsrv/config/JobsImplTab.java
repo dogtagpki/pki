@@ -285,7 +285,7 @@ public class JobsImplTab extends CMSBaseUGTab {
         //parse the data
         int i=0;
         String[] vals = new String[response.size()];
-        Hashtable<String, NameValuePairs> data = new Hashtable<String, NameValuePairs>();
+        Hashtable<String, NameValuePairs> data = new Hashtable<>();
         for (String entry : response.keySet()) {
             entry = entry.trim();
             String value = response.get(entry);

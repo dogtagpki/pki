@@ -66,7 +66,7 @@ public class KeyRecord implements IKeyRecord {
     private String realm = null;
 
 
-    protected static Vector<String> mNames = new Vector<String>();
+    protected static Vector<String> mNames = new Vector<>();
     static {
         mNames.addElement(ATTR_STATE);
         mNames.addElement(ATTR_ID);

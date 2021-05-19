@@ -311,7 +311,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
     @Override
     public Response changeStatus(String connectorID, String action) {
         String method = "ConnectorService.changeStatus";
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (connectorID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null,
@@ -432,7 +432,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
     @Override
     public Response removeConnector(String connectorID) {
         String method = "ConnectorService.removeConnector";
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (connectorID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null,

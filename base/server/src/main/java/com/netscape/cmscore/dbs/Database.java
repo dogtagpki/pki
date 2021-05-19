@@ -35,7 +35,7 @@ public class Database<E> {
 
     public String name;
 
-    public Map<String, E> records = new LinkedHashMap<String, E>();
+    public Map<String, E> records = new LinkedHashMap<>();
 
     public Database(String name) {
         this.name = name;
@@ -48,7 +48,7 @@ public class Database<E> {
      */
     public Collection<E> findRecords(String filter) throws Exception {
 
-        Collection<E> results = new ArrayList<E>();
+        Collection<E> results = new ArrayList<>();
         for (String id : records.keySet()) {
             if (filter != null && !id.contains(filter)) continue;
             results.add(records.get(id));

@@ -58,7 +58,7 @@ public class Resender implements IResender {
     ScheduledExecutorService executorService;
 
     /* Vector of Request Id *Strings* */
-    protected Vector<String> mRequestIds = new Vector<String>();
+    protected Vector<String> mRequestIds = new Vector<>();
 
     protected HttpConnection mConn = null;
 
@@ -162,7 +162,7 @@ public class Resender implements IResender {
         // clone a seperate list so mRequestIds can be modified
         @SuppressWarnings("unchecked")
         Vector<String> rids = (Vector<String>) mRequestIds.clone();
-        Vector<RequestId> completedRids = new Vector<RequestId>();
+        Vector<RequestId> completedRids = new Vector<>();
 
         // resend each request to CA to ping for status.
         Enumeration<String> enum1 = rids.elements();

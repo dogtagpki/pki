@@ -222,7 +222,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         params.addElement(PROP_CRITICAL + "=" + mCritical);
         if (mBeginTime == null) {
@@ -245,7 +245,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> defParams = new Vector<String>();
+        Vector<String> defParams = new Vector<>();
 
         defParams.addElement(PROP_CRITICAL + "=false");
         defParams.addElement(PROP_BEGIN_TIME + "=");

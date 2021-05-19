@@ -34,14 +34,14 @@ public class SecurityDomainSessionTable
     private long m_timeToLive;
 
     public SecurityDomainSessionTable(long timeToLive) {
-        m_sessions = new Hashtable<String, Vector<Comparable<?>>>();
+        m_sessions = new Hashtable<>();
         m_timeToLive = timeToLive;
     }
 
     @Override
     public int addEntry(String sessionId, String ip,
             String uid, String group) {
-        Vector<Comparable<?>> v = new Vector<Comparable<?>>();
+        Vector<Comparable<?>> v = new Vector<>();
         v.addElement(ip);
         v.addElement(uid);
         v.addElement(group);

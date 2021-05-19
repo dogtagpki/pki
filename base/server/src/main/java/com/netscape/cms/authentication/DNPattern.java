@@ -153,7 +153,7 @@ public class DNPattern {
 
     private void parse(PushbackReader in)
             throws EAuthException {
-        Vector<RDNPattern> rdnPatterns = new Vector<RDNPattern>();
+        Vector<RDNPattern> rdnPatterns = new Vector<>();
         RDNPattern rdnPattern = null;
         int lastChar = -1;
 
@@ -170,7 +170,7 @@ public class DNPattern {
         mRDNPatterns = new RDNPattern[rdnPatterns.size()];
         rdnPatterns.copyInto(mRDNPatterns);
 
-        Vector<String> ldapAttrs = new Vector<String>();
+        Vector<String> ldapAttrs = new Vector<>();
 
         for (int i = 0; i < mRDNPatterns.length; i++) {
             String[] rdnAttrs = mRDNPatterns[i].getLdapAttrs();

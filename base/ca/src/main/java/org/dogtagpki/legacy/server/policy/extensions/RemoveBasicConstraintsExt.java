@@ -118,7 +118,7 @@ public class RemoveBasicConstraintsExt extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         return params;
     }
@@ -130,7 +130,7 @@ public class RemoveBasicConstraintsExt extends APolicyRule
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> defParams = new Vector<String>();
+        Vector<String> defParams = new Vector<>();
 
         return defParams;
     }

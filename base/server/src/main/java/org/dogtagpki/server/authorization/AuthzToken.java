@@ -87,7 +87,7 @@ public class AuthzToken implements IAttrSet {
      * @param authzMgr The authorization manager that created this Token.
      */
     public AuthzToken(IAuthzManager authzMgr) {
-        mAttrs = new Hashtable<String, Object>();
+        mAttrs = new Hashtable<>();
         mAttrs.put(TOKEN_AUTHZMGR_INST_NAME, authzMgr.getName());
         mAttrs.put(TOKEN_AUTHZMGR_IMPL_NAME, authzMgr.getImplName());
         mAttrs.put(TOKEN_AUTHZTIME, new Date());

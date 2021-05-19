@@ -432,7 +432,7 @@ public class GenericASN1Ext extends APolicyRule implements
             throws IOException, EBaseException, ParseException {
         GenericASN1Extension ext;
 
-        Hashtable<String, String> h = new Hashtable<String, String>();
+        Hashtable<String, String> h = new Hashtable<>();
         // This only show one level, not substores!
         Enumeration<String> e = mConfig.getPropertyNames();
 
@@ -462,7 +462,7 @@ public class GenericASN1Ext extends APolicyRule implements
     @Override
     public Vector<String> getInstanceParams() {
         int idx = 0;
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         try {
             params.addElement(PROP_CRITICAL + "=" + mConfig.getBoolean(PROP_CRITICAL, false));
@@ -496,7 +496,7 @@ public class GenericASN1Ext extends APolicyRule implements
     public Vector<String> getDefaultParams() {
         int idx = 0;
 
-        Vector<String> defParams = new Vector<String>();
+        Vector<String> defParams = new Vector<>();
 
         defParams.addElement(PROP_CRITICAL + "=false");
         defParams.addElement(PROP_NAME + "=");

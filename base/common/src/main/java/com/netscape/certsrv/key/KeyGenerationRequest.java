@@ -44,9 +44,9 @@ public class KeyGenerationRequest extends ResourceMessage{
     public List<String> getUsages() {
         String usageString = attributes.get(KEY_USAGE);
         if (!StringUtils.isBlank(usageString)) {
-            return new ArrayList<String>(Arrays.asList(usageString.split(",")));
+            return new ArrayList<>(Arrays.asList(usageString.split(",")));
         }
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     public void setUsages(List<String> usages) {

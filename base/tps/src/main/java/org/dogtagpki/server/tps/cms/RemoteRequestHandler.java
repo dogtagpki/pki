@@ -51,7 +51,7 @@ public abstract class RemoteRequestHandler
         if (content == null) {
             throw new EBaseException("RemoteRequestHandler: parserResponse(): no response content.");
         }
-        Hashtable<String, Object> vars = new Hashtable<String, Object>();
+        Hashtable<String, Object> vars = new Hashtable<>();
         String[] elements = content.split(RESPONSE_SEPARATOR);
         logger.debug("RemoteRequestHandler: parseResponse(): # of elements:" + elements.length);
         for (String nvs : elements) {

@@ -146,7 +146,7 @@ public class LdapDNCompsMap
     }
 
     public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement("baseDN=");
         v.addElement("dnComps=");
@@ -155,7 +155,7 @@ public class LdapDNCompsMap
     }
 
     public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         try {
             if (mBaseDN == null) {
@@ -298,7 +298,7 @@ public class LdapDNCompsMap
      */
     public String[] formDNandFilter(X500Name subjName)
             throws ELdapException {
-        Vector<RDN> dnRdns = new Vector<RDN>();
+        Vector<RDN> dnRdns = new Vector<>();
         SearchFilter filter = new SearchFilter();
         X500NameAttrMap attrMap = X500NameAttrMap.getDefault();
         String dnStr = null, filterStr = null;

@@ -68,7 +68,7 @@ public class DBRecord implements IDBObj {
 
     @Override
     public Enumeration<String> getSerializableAttrNames() {
-        Vector<String> list = new Vector<String>();
+        Vector<String> list = new Vector<>();
 
         // get attributes defined in setters/getters
         for (Method method : getClass().getMethods()) {

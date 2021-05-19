@@ -895,7 +895,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
     }
 
     private void populatePolicies(NameValuePairs response, JTable table) {
-        Vector<String> colNames = new Vector<String>();
+        Vector<String> colNames = new Vector<>();
         colNames.addElement("Set Id");
         colNames.addElement("Id");
         colNames.addElement("Defaults");
@@ -932,7 +932,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
     }
 
     private void populateNonPolicy(NameValuePairs response, JTable table) {
-        Vector<String> colNames = new Vector<String>();
+        Vector<String> colNames = new Vector<>();
         colNames.addElement("Id");
         if (table == mInputTable)
             colNames.addElement("Inputs");

@@ -144,7 +144,7 @@ public class ACIDialog extends JDialog
 
     private Vector<String> parseExpressions(String s) {
         String str = s;
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         while (str.length() > 0) {
             int orIndex = str.indexOf("||");

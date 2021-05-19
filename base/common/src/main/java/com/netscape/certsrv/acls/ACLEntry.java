@@ -35,7 +35,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
 
     public enum Type { Allow , Deny };
 
-    protected Hashtable<String, String> mPerms = new Hashtable<String, String>();
+    protected Hashtable<String, String> mPerms = new Hashtable<>();
     protected String expressions = null;
     protected Type type = Type.Deny;
     protected String aclEntryString = null;

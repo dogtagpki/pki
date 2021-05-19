@@ -50,7 +50,7 @@ public class CertRecordMapper extends DBAttrMapper {
 
     @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(CertDBSchema.LDAP_ATTR_CERT_RECORD_ID);
         return v.elements();

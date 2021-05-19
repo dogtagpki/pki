@@ -40,8 +40,8 @@ public class PolicySet implements IPolicySet {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicySet.class);
 
     private String mName;
-    private Vector<String> mRuleNames = new Vector<String>();
-    private Vector<IPolicyRule> mRules = new Vector<IPolicyRule>();
+    private Vector<String> mRuleNames = new Vector<>();
+    private Vector<IPolicyRule> mRules = new Vector<>();
 
     public PolicySet(String name) {
         mName = name;

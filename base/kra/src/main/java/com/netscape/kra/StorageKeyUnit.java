@@ -621,7 +621,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
      */
     @Override
     public Enumeration<String> getAgentIdentifiers() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         for (int i = 0;; i++) {
             try {
@@ -1018,7 +1018,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
 
         // sort the credential according to the order in
         // configuration file
-        Hashtable<String, byte[]> v = new Hashtable<String, byte[]>();
+        Hashtable<String, byte[]> v = new Hashtable<>();
 
         for (int i = 0;; i++) {
             String uid = null;

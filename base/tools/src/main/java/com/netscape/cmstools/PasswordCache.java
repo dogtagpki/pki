@@ -690,7 +690,7 @@ class PWsdrCache {
     }
 
     public Hashtable<String, String> string2Hashtable(String cache) {
-        Hashtable<String, String> ht = new Hashtable<String, String>();
+        Hashtable<String, String> ht = new Hashtable<>();
 
         // first, break into lines
         StringTokenizer st = new StringTokenizer(cache, "\n");
