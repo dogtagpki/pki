@@ -77,6 +77,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
      *   allow|deny (right[,right...]) attribute_expression
      * </PRE>
      */
+    @Override
     public String getACLEntryString() {
         return aclEntryString;
     }
@@ -221,6 +222,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
      *
      * @return string representation of this ACLEntry
      */
+    @Override
     public String toString() {
         StringBuffer entry = new StringBuffer();
 

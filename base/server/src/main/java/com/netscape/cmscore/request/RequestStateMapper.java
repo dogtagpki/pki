@@ -47,10 +47,12 @@ public class RequestStateMapper extends DBAttrMapper {
         mAttrs.add(Schema.LDAP_ATTR_REQUEST_STATE);
     }
 
+    @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
         return mAttrs.elements();
     }
 
+    @Override
     public void mapObjectToLDAPAttributeSet(
             IDBObj parent,
             String name,
@@ -68,6 +70,7 @@ public class RequestStateMapper extends DBAttrMapper {
         attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_STATE, rs.toString()));
     }
 
+    @Override
     public void mapLDAPAttributeSetToObject(
             LDAPAttributeSet attrs,
             String name,
@@ -84,6 +87,7 @@ public class RequestStateMapper extends DBAttrMapper {
         parent.set(name, RequestStatus.valueOf(value));
     }
 
+    @Override
     public String mapSearchFilter(String name, String op, String value) {
         return Schema.LDAP_ATTR_REQUEST_STATE + op + value;
     }

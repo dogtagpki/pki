@@ -143,6 +143,7 @@ class CertInfoDialog extends AbstractDialog {
       * @see com.netscape.admin.certsrv.security.CertDetailInfoDialog
       */
     class CertInfoActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             delete = false;
 
@@ -269,11 +270,13 @@ class CertInfoDialog extends AbstractDialog {
       * Invoke on-line help
       *
       */
+    @Override
     protected void helpInvoked() {
         Help help = new Help(resource);
         help.help("CertInfoDialog", "help");
     }
 
+    @Override
     protected void closeInvoked() {
         super.closeInvoked();
     }

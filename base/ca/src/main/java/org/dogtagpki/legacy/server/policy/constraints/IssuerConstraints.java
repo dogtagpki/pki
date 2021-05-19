@@ -64,6 +64,7 @@ public class IssuerConstraints extends APolicyRule
         DESC = "Checks to see if the Issuer is one allowed";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_ISSUER_DN
@@ -85,6 +86,7 @@ public class IssuerConstraints extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EPolicyException {
         try {
@@ -109,6 +111,7 @@ public class IssuerConstraints extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         PolicyResult result = PolicyResult.ACCEPTED;
 
@@ -183,6 +186,7 @@ public class IssuerConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> confParams = new Vector<String>();
 
@@ -196,6 +200,7 @@ public class IssuerConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> defParams = new Vector<String>();
 

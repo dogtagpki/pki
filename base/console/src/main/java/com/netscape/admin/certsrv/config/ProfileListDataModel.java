@@ -47,6 +47,7 @@ public class ProfileListDataModel extends DefaultListModel<JLabel> {
         mObjectContainer.addElement(extraData);
     }
 
+    @Override
     public void clear() {
         super.clear();
         mObjectContainer.clear();

@@ -44,6 +44,7 @@ public class PKCS12CertImportCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <nickname> [OPTIONS...]", options);
 
@@ -74,6 +75,7 @@ public class PKCS12CertImportCLI extends CommandCLI {
         }
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "pkcs12-file", true, "PKCS #12 file");
         option.setArgName("path");
@@ -107,6 +109,7 @@ public class PKCS12CertImportCLI extends CommandCLI {
         options.addOption(null, "no-chain", false, "Do not include certificate chain");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

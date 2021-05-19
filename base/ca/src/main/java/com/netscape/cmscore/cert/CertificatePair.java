@@ -256,10 +256,12 @@ public class CertificatePair implements ASN1Value {
         return certOrders(c1, c2);
     }
 
+    @Override
     public void encode(OutputStream os) throws IOException {
         encode(TAG, os);
     }
 
+    @Override
     public void encode(Tag implicitTag, OutputStream os) throws IOException {
         SEQUENCE seq = new SEQUENCE();
 
@@ -285,6 +287,7 @@ public class CertificatePair implements ASN1Value {
         seq.encode(implicitTag, os);
     }
 
+    @Override
     public Tag getTag() {
         return TAG;
     }

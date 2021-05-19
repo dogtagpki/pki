@@ -50,10 +50,12 @@ class WIClonePage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         setBorder(makeTitledBorder(PANELNAME));
@@ -67,10 +69,12 @@ class WIClonePage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         cleanUpWizardInfo(wizardInfo);
@@ -101,10 +105,12 @@ class WIClonePage extends WizardBasePanel implements IWizardPanel {
     }
 
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -133,6 +139,7 @@ class WIClonePage extends WizardBasePanel implements IWizardPanel {
         add(dummy, gbc);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 }

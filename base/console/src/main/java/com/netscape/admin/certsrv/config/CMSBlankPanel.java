@@ -53,6 +53,7 @@ public class CMSBlankPanel extends CMSBaseTab {
     /**
      * Actual Instanciation of the UI components
      */
+    @Override
     public void init() {
     }
 
@@ -60,6 +61,7 @@ public class CMSBlankPanel extends CMSBaseTab {
      * Implementation for saving panel information
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean applyCallback() {
         return true;
     }
@@ -68,6 +70,7 @@ public class CMSBlankPanel extends CMSBaseTab {
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean resetCallback() {
         return true;
     }
@@ -75,6 +78,7 @@ public class CMSBlankPanel extends CMSBaseTab {
     /**
      * Implementation for calling help
      */
+    @Override
     public void helpCallback() {
     }
 

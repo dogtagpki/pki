@@ -28,10 +28,12 @@ public class AuthTokenTest extends CMSBaseTestCase {
         super(name);
     }
 
+    @Override
     public void cmsTestSetUp() {
         authToken = new AuthToken(null);
     }
 
+    @Override
     public void cmsTestTearDown() {
     }
 

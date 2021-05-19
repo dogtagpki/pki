@@ -60,6 +60,7 @@ public class OCSPStoresInstanceTab extends CMSPluginInstanceTab {
     }
 
 
+    @Override
     public CMSBaseConfigDialog makeNewConfigDialog(
             NameValuePairs nvp,
             JFrame parent,
@@ -69,7 +70,8 @@ public class OCSPStoresInstanceTab extends CMSPluginInstanceTab {
         return new OCSPStoresConfigDialog(nvp, parent, conn, dest);
     }
 
-	public PluginSelectionDialog getPluginSelectionDialog(
+	@Override
+    public PluginSelectionDialog getPluginSelectionDialog(
             JFrame parent,
             AdminConnection conn,
             String dest,
@@ -82,6 +84,7 @@ public class OCSPStoresInstanceTab extends CMSPluginInstanceTab {
     /**
      * create the user action button panel
      */
+    @Override
     protected JPanel createUserButtonPanel() {
         //edit, add, delete, help buttons required
         //actionlister to this object
@@ -95,7 +98,8 @@ public class OCSPStoresInstanceTab extends CMSPluginInstanceTab {
 		return CMSAdminUtil.makeJButtonVPanel( buttons );
     }
 
-	public void actionPerformed(ActionEvent e) {
+	@Override
+    public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(mAdd)) {
 			setDefault();
 		} else {

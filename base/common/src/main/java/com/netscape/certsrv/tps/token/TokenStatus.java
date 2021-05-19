@@ -36,10 +36,12 @@ public class TokenStatus {
 
     public static class TokenStatusAdapter extends XmlAdapter<String, TokenStatus> {
 
+        @Override
         public String marshal(TokenStatus status) {
             return status.name;
         }
 
+        @Override
         public TokenStatus unmarshal(String status) {
             return TokenStatus.valueOf(status);
         }
@@ -100,6 +102,7 @@ public class TokenStatus {
         this.value = value;
     }
 
+    @Override
     public String toString() {
         return name;
     }

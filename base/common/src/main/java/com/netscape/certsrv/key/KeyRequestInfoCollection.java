@@ -35,6 +35,7 @@ import com.netscape.certsrv.request.RequestStatus;
 @XmlRootElement(name = "KeyRequestInfos")
 public class KeyRequestInfoCollection extends DataCollection<KeyRequestInfo> {
 
+    @Override
     @XmlElementRef
     public Collection<KeyRequestInfo> getEntries() {
         return super.getEntries();
@@ -59,6 +60,7 @@ public class KeyRequestInfoCollection extends DataCollection<KeyRequestInfo> {
         return null;
     }
 
+    @Override
     public String toString() {
         try {
             StringWriter sw = new StringWriter();

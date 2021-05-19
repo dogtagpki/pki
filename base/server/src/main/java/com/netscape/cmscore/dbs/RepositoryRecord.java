@@ -59,6 +59,7 @@ public class RepositoryRecord implements IRepositoryRecord {
     /**
      * Sets attribute.
      */
+    @Override
     public void set(String name, Object obj) throws EBaseException {
         if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_SERIALNO)) {
             mSerialNo = (BigInteger) obj;
@@ -74,6 +75,7 @@ public class RepositoryRecord implements IRepositoryRecord {
     /**
      * Retrieves attribute from this record.
      */
+    @Override
     public Object get(String name) throws EBaseException {
         if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_SERIALNO)) {
             return mSerialNo;
@@ -89,6 +91,7 @@ public class RepositoryRecord implements IRepositoryRecord {
     /**
      * Deletes an attribute.
      */
+    @Override
     public void delete(String name) throws EBaseException {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
     }
@@ -96,10 +99,12 @@ public class RepositoryRecord implements IRepositoryRecord {
     /**
      * Retrieves a list of attribute names.
      */
+    @Override
     public Enumeration<String> getElements() {
         return mNames.elements();
     }
 
+    @Override
     public Enumeration<String> getSerializableAttrNames() {
         return mNames.elements();
     }
@@ -107,14 +112,17 @@ public class RepositoryRecord implements IRepositoryRecord {
     /**
      * Retrieves serial number.
      */
+    @Override
     public BigInteger getSerialNumber() {
         return mSerialNo;
     }
 
+    @Override
     public String getPublishingStatus() {
         return mPublishingStatus;
     }
 
+    @Override
     public String getDescription() {
         return mDescription;
     }

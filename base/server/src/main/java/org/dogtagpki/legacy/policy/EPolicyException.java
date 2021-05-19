@@ -134,6 +134,7 @@ public class EPolicyException extends EBaseException {
      *
      * @return list of message format parameters
      */
+    @Override
     public Object[] getParameters() {
         return mParams;
     }
@@ -145,6 +146,7 @@ public class EPolicyException extends EBaseException {
      *
      * @return details message
      */
+    @Override
     public String toString() {
         return toString(Locale.getDefault());
     }
@@ -156,11 +158,13 @@ public class EPolicyException extends EBaseException {
      * @param locale locale
      * @return details message
      */
+    @Override
     public String toString(Locale locale) {
         return MessageFormatter.getLocalizedString(locale, getBundleName(),
                 super.getMessage(), mParams);
     }
 
+    @Override
     protected String getBundleName() {
         return POLICY_RESOURCES;
     }

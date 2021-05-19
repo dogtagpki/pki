@@ -57,6 +57,7 @@ public class PKIIssuer extends ACMEIssuer {
         this.profile = profile;
     }
 
+    @Override
     public void init() throws Exception {
 
         logger.info("Initializing PKI issuer");
@@ -109,6 +110,7 @@ public class PKIIssuer extends ACMEIssuer {
         logger.info("- profile: " + profile);
     }
 
+    @Override
     public String issueCertificate(PKCS10 pkcs10) throws Exception {
 
         logger.info("Issuing certificate");
@@ -196,6 +198,7 @@ public class PKIIssuer extends ACMEIssuer {
         }
     }
 
+    @Override
     public String getCertificateChain(String certID) throws Exception {
 
         CertId id = new CertId(new BigInteger(1, Base64.decodeBase64(certID)));
@@ -234,6 +237,7 @@ public class PKIIssuer extends ACMEIssuer {
         }
     }
 
+    @Override
     public void revokeCertificate(ACMERevocation revocation) throws Exception {
 
         String certBase64 = revocation.getCertificate();

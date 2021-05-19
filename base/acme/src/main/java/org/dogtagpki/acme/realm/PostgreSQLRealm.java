@@ -297,6 +297,7 @@ public class PostgreSQLRealm extends ACMERealm {
         return roles;
     }
 
+    @Override
     public Principal authenticate(String username, String credentials) throws Exception {
 
         logger.info("Authenticating user " + username + " with password");
@@ -317,6 +318,7 @@ public class PostgreSQLRealm extends ACMERealm {
         return new PKIPrincipal(user, null, roles);
     }
 
+    @Override
     public Principal authenticate(X509Certificate[] certChain) throws Exception {
 
         logger.info("Authenticating user with client certificate");
@@ -360,6 +362,7 @@ public class PostgreSQLRealm extends ACMERealm {
         return new PKIPrincipal(user, null, roles);
     }
 
+    @Override
     public void close() throws Exception {
 
         logger.info("Shutting down realm");

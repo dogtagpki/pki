@@ -54,6 +54,7 @@ public class UserExtensionDefault extends EnrollExtDefault {
         addConfigName(CONFIG_OID);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_OID)) {
             return new Descriptor(IDescriptor.STRING, null,
@@ -64,6 +65,7 @@ public class UserExtensionDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_OID)) {
             return new Descriptor(IDescriptor.STRING,
@@ -75,12 +77,14 @@ public class UserExtensionDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
         // Nothing to do for read-only values
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -102,6 +106,7 @@ public class UserExtensionDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_USER_EXT", getConfig(CONFIG_OID));
     }
@@ -109,6 +114,7 @@ public class UserExtensionDefault extends EnrollExtDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         CertificateExtensions inExts = null;

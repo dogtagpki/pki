@@ -40,10 +40,12 @@ public class UserModifyCLI extends CommandCLI {
         this.userCLI = userCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <User ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "fullName", true, "Full name");
         option.setArgName("fullName");
@@ -71,6 +73,7 @@ public class UserModifyCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

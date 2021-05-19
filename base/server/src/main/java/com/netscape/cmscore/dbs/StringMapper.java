@@ -54,6 +54,7 @@ public class StringMapper extends DBAttrMapper {
     /**
      * Retrieves a list of supported ldap attributes.
      */
+    @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
         return v.elements();
     }
@@ -61,6 +62,7 @@ public class StringMapper extends DBAttrMapper {
     /**
      * Maps attribute value to ldap attributes.
      */
+    @Override
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
@@ -73,6 +75,7 @@ public class StringMapper extends DBAttrMapper {
      * Maps LDAP attributes into object, and put the object
      * into 'parent'.
      */
+    @Override
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
             String name, IDBObj parent)
             throws EBaseException {
@@ -91,6 +94,7 @@ public class StringMapper extends DBAttrMapper {
     /**
      * Maps search filters into LDAP search filter.
      */
+    @Override
     public String mapSearchFilter(String name, String op,
             String value) throws EBaseException {
         return mLdapName + op + value;

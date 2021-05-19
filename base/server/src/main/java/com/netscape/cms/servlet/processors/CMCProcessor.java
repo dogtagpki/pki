@@ -92,16 +92,19 @@ public class CMCProcessor extends PKIProcessor {
 
     }
 
+    @Override
     public void process(ICMSRequest cmsReq)
             throws EBaseException {
     }
 
+    @Override
     public void fillCertInfo(
             String protocolString, X509CertInfo certInfo,
             IAuthToken authToken, IArgBlock httpParams)
             throws EBaseException {
     }
 
+    @Override
     public X509CertInfo[] fillCertInfoArray(
             String protocolString, IAuthToken authToken, IArgBlock httpParams, IRequest req)
             throws EBaseException {

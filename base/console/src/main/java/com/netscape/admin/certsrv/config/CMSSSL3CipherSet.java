@@ -84,10 +84,12 @@ public class CMSSSL3CipherSet implements ICipherConstants, IAbstractCipherSet {
        title = resource.getString("SSL3CIPHERPREF_TITLE");
     }
 
+    @Override
     public String getTitle() {
         return title;
     }
 
+    @Override
     public Vector<AbstractCipher> getCipherList() {
         return cipherList;
     }

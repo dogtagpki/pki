@@ -100,6 +100,7 @@ public class RuleImplTab extends CMSBaseUGTab {
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mRefresh)) {
             refresh();
@@ -139,10 +140,12 @@ public class RuleImplTab extends CMSBaseUGTab {
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         setButtons();
     }
 
+    @Override
     public void mouseReleased(MouseEvent e) {
         setButtons();
     }
@@ -150,6 +153,7 @@ public class RuleImplTab extends CMSBaseUGTab {
     /*==========================================================
      * protected methods
      *==========================================================*/
+    @Override
     public void refresh() {
 
         mDataModel.removeAllRows();
@@ -175,6 +179,7 @@ public class RuleImplTab extends CMSBaseUGTab {
         return CMSAdminUtil.makeJButtonVPanel( buttons );
     }
 
+    @Override
     protected JPanel createActionPanel() {
         //edit, add, delete, help buttons required
         //actionlister to this object
@@ -185,6 +190,7 @@ public class RuleImplTab extends CMSBaseUGTab {
         return makeJButtonPanel(buttons, true);
     }
 
+    @Override
     protected JPanel createListPanel() {
         mListPanel = new JPanel();
         GridBagLayout gb = new GridBagLayout();

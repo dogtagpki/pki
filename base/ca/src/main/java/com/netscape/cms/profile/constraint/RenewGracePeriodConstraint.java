@@ -54,6 +54,7 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
         addConfigName(CONFIG_RENEW_GRACE_AFTER);
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
         if (name.equals(CONFIG_RENEW_GRACE_BEFORE) ||
@@ -68,6 +69,7 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
         super.setConfig(name, value);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_RENEW_GRACE_BEFORE)) {
             return new Descriptor(IDescriptor.INTEGER, null, "30",
@@ -79,6 +81,7 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
         return null;
     }
 
+    @Override
     public void validate(IRequest req, X509CertInfo info)
             throws ERejectException {
         String method = "RenewGracePeriodConstraint: validate: ";
@@ -145,6 +148,7 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         String renew_grace_before_s = getConfig(CONFIG_RENEW_GRACE_BEFORE);
         String renew_grace_after_s = getConfig(CONFIG_RENEW_GRACE_AFTER);
@@ -153,6 +157,7 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
                                 renew_grace_after_s + " days after original cert expiration date");
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;

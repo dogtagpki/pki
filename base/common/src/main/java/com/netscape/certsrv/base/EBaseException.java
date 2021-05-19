@@ -145,6 +145,7 @@ public class EBaseException extends Exception {
      *
      * @return The exception string in the default locale.
      */
+    @Override
     public String toString() {
         return toString(Locale.getDefault());
     }

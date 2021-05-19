@@ -54,10 +54,12 @@ public class KeyGenProcessor extends PKIProcessor {
 
     }
 
+    @Override
     public void process(ICMSRequest cmsReq)
             throws EBaseException {
     }
 
+    @Override
     public void fillCertInfo(
             String protocolString, X509CertInfo certInfo,
             IAuthToken authToken, IArgBlock httpParams)

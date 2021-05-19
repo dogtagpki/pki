@@ -11,6 +11,7 @@ public class CACertRequestAssignCLI extends CACertRequestActionCLI {
         super("assign", "Assign certificate request", certRequestCLI);
     }
 
+    @Override
     public void performAction(
             CACertClient certClient,
             RequestId requestId,

@@ -88,6 +88,7 @@ public class QueryReq extends CMSServlet {
     protected String mFormPath;
     protected int mMaxReturns = 2000;
 
+    @Override
     public CMSRequest newCMSRequest() {
         return new CMSRequest();
     }
@@ -105,6 +106,7 @@ public class QueryReq extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
 
         super.init(sc);
@@ -232,6 +234,7 @@ public class QueryReq extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         logger.debug("in QueryReq servlet");
 

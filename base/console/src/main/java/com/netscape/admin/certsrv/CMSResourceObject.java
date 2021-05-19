@@ -96,7 +96,8 @@ public class CMSResourceObject extends ResourceObject {
 	 * @return a new instantiation of the component for each view.
      * Called by: ResourceModel
 	 */
-	public Component getCustomPanel()
+	@Override
+    public Component getCustomPanel()
 	{
 		return mRightPane;
 	}

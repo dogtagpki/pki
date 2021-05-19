@@ -40,6 +40,7 @@ public class FileDialogFilter implements FilenameFilter {
         filter = f;
     }
 
+    @Override
     public String toString() {
         return filter;
     }
@@ -47,6 +48,7 @@ public class FileDialogFilter implements FilenameFilter {
     /**
      * return true if match
      */
+    @Override
     public boolean accept(File dir, String fileName) {
 
         File f = new File(dir, fileName);

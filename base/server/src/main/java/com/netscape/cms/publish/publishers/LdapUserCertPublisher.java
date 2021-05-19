@@ -63,14 +63,17 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
     public LdapUserCertPublisher() {
     }
 
+    @Override
     public String getImplName() {
         return "LdapUserCertPublisher";
     }
 
+    @Override
     public String getDescription() {
         return "LdapUserCertPublisher";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 "certAttr;string;LDAP attribute in which to store the certificate",
@@ -84,6 +87,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
 
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
 
@@ -91,6 +95,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         return v;
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
@@ -98,10 +103,12 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         return v;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         if (mInited)
@@ -124,6 +131,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
      * @param dn dn of the entry to publish the certificate
      * @param certObj the certificate object.
      */
+    @Override
     public void publish(LDAPConnection conn, String dn, Object certObj) throws ELdapException {
 
         if (conn == null) {
@@ -245,6 +253,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
      * deletes the certificate from the list of certificates.
      * does not check if certificate is already there.
      */
+    @Override
     public void unpublish(LDAPConnection conn, String dn, Object certObj)
             throws ELdapException {
 

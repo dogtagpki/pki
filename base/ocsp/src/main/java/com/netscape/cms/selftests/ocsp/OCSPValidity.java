@@ -90,6 +90,7 @@ public class OCSPValidity
      * @exception EInvalidSelfTestException subsystem has invalid name/value
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
+    @Override
     public void initSelfTest(ISelfTestSubsystem subsystem,
                               String instanceName,
                               IConfigStore parameters)
@@ -139,6 +140,7 @@ public class OCSPValidity
      *
      * @exception ESelfTestException failed to start
      */
+    @Override
     public void startupSelfTest()
             throws ESelfTestException {
         return;
@@ -149,6 +151,7 @@ public class OCSPValidity
      * anytime after initialization.
      * <P>
      */
+    @Override
     public void shutdownSelfTest() {
         return;
     }
@@ -160,6 +163,7 @@ public class OCSPValidity
      *
      * @return instanceName of this self test
      */
+    @Override
     public String getSelfTestName() {
         return super.getSelfTestName();
     }
@@ -171,6 +175,7 @@ public class OCSPValidity
      *
      * @return configuration store (self test parameters) of this subsystem
      */
+    @Override
     public IConfigStore getSelfTestConfigStore() {
         return super.getSelfTestConfigStore();
     }
@@ -183,6 +188,7 @@ public class OCSPValidity
      * @param locale locale of the client that requests the description
      * @return description of self test
      */
+    @Override
     public String getSelfTestDescription(Locale locale) {
         return CMS.getUserMessage(locale,
                                    "CMS_SELFTESTS_OCSP_VALIDITY_DESCRIPTION");
@@ -195,6 +201,7 @@ public class OCSPValidity
      * @param logger specifies logging subsystem
      * @exception Exception self test exception
      */
+    @Override
     public void runSelfTest(ILogEventListener logger) throws Exception {
         String logMessage = null;
 

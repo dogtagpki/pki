@@ -88,6 +88,7 @@ public class WriteObjectAPDU extends APDU {
         setData(data1);
     }
 
+    @Override
     public Type getType()
     {
         return Type.APDU_WRITE_OBJECT;

@@ -37,6 +37,7 @@ class WICARequestResultPage extends WIRequestResultPage {
         super( parent, adminFrame);
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning() && wizardInfo.isCACloningDone())

@@ -64,6 +64,7 @@ public class RevocationInfo implements IRevocationInfo, Serializable {
     /**
      * Retrieves revocation date.
      */
+    @Override
     public Date getRevocationDate() {
         return mRevocationDate;
     }
@@ -71,6 +72,7 @@ public class RevocationInfo implements IRevocationInfo, Serializable {
     /**
      * Retrieves CRL extensions.
      */
+    @Override
     public CRLExtensions getCRLEntryExtensions() {
         return mCRLEntryExtensions;
     }

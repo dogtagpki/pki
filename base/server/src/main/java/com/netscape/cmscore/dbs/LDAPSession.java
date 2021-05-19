@@ -85,6 +85,7 @@ public class LDAPSession extends DBSSession {
     /**
      * Closes this session.
      */
+    @Override
     public void close() throws EDBException {
         // return ldap connection.
         dbSubsystem.returnConn(mConn);
@@ -101,6 +102,7 @@ public class LDAPSession extends DBSSession {
      * @param name the name of the ldap entry
      * @param obj the DBobj that can be mapped to ldap attrubute set
      */
+    @Override
     public void add(String name, IDBObj obj) throws EBaseException {
 
         logger.info("LDAPSession: Adding LDAP entry " + name);
@@ -138,6 +140,7 @@ public class LDAPSession extends DBSSession {
      *
      * @param name the name of the ldap entry
      */
+    @Override
     public IDBObj read(String name) throws EBaseException {
         return read(name, null);
     }
@@ -149,6 +152,7 @@ public class LDAPSession extends DBSSession {
      * @param name the name of the ldap entry
      * @param attrs the attributes to be selected
      */
+    @Override
     public IDBObj read(String name, String attrs[])
             throws EBaseException {
 
@@ -199,6 +203,7 @@ public class LDAPSession extends DBSSession {
     /**
      * Deletes object from database.
      */
+    @Override
     public void delete(String name) throws EBaseException {
 
         logger.debug("LDAPSession: delete(" + name + ")");
@@ -216,6 +221,7 @@ public class LDAPSession extends DBSSession {
     /**
      * Modify an object in the database.
      */
+    @Override
     public void modify(String name, ModificationSet mods) throws EBaseException {
 
         logger.info("LDAPSession: Modifying LDAP entry " + name);
@@ -276,11 +282,13 @@ public class LDAPSession extends DBSSession {
      * Searchs for a list of objects that match the
      * filter.
      */
+    @Override
     public IDBSearchResults search(String base, String filter)
             throws EBaseException {
         return search(base, filter, null);
     }
 
+    @Override
     public IDBSearchResults search(String base, String filter, int maxSize)
             throws EBaseException {
 
@@ -310,6 +318,7 @@ public class LDAPSession extends DBSSession {
         }
     }
 
+    @Override
     public IDBSearchResults search(String base, String filter, int maxSize,String sortAttribute)
             throws EBaseException {
 
@@ -345,6 +354,7 @@ public class LDAPSession extends DBSSession {
         }
     }
 
+    @Override
     public IDBSearchResults search(String base, String filter, int maxSize, int timeLimit)
             throws EBaseException {
 
@@ -375,6 +385,7 @@ public class LDAPSession extends DBSSession {
         }
     }
 
+    @Override
     public IDBSearchResults search(String base, String filter, int maxSize,
             int timeLimit, String sortAttribute) throws EBaseException {
 
@@ -416,6 +427,7 @@ public class LDAPSession extends DBSSession {
      * Retrieves a list of object that satifies the given
      * filter.
      */
+    @Override
     public IDBSearchResults search(String base, String filter,
             String attrs[]) throws EBaseException {
 
@@ -455,6 +467,7 @@ public class LDAPSession extends DBSSession {
         }
     }
 
+    @Override
     public LDAPSearchResults persistentSearch(String base, String filter, String attrs[])
             throws EBaseException {
 
@@ -502,6 +515,7 @@ public class LDAPSession extends DBSSession {
         }
     }
 
+    @Override
     public void abandon(LDAPSearchResults results) throws EBaseException {
 
         logger.debug("LDAPSession: abandon()");
@@ -522,6 +536,7 @@ public class LDAPSession extends DBSSession {
     /**
      * Retrieves a list of objects.
      */
+    @Override
     public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[]) throws EBaseException {
 
@@ -558,6 +573,7 @@ public class LDAPSession extends DBSSession {
     /**
      * Retrieves a list of objects.
      */
+    @Override
     public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey[], int pageSize) throws EBaseException {
 
@@ -570,6 +586,7 @@ public class LDAPSession extends DBSSession {
     /**
      * Retrieves a list of objects.
      */
+    @Override
     public  <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey, int pageSize) throws EBaseException {
 
@@ -579,6 +596,7 @@ public class LDAPSession extends DBSSession {
                 filter, attrs, sortKey, pageSize);
     }
 
+    @Override
     public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String startFrom, String sortKey, int pageSize) throws EBaseException {
 

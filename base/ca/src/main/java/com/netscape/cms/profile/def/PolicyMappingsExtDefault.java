@@ -83,11 +83,13 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
         return num;
     }
 
+    @Override
     public void init(IConfigStore config) throws EProfileException {
         super.init(config);
         refreshConfigAndValueNames();
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
         int num = 0;
@@ -108,11 +110,13 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
         super.setConfig(name, value);
     }
 
+    @Override
     public Enumeration<String> getConfigNames() {
         refreshConfigAndValueNames();
         return super.getConfigNames();
     }
 
+    @Override
     protected void refreshConfigAndValueNames() {
         super.refreshConfigAndValueNames();
 
@@ -130,6 +134,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null,
@@ -156,6 +161,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
         return null;
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null,
@@ -169,6 +175,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
         return null;
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -261,6 +268,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -340,6 +348,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         StringBuffer sb = new StringBuffer();
         int num = getNumMappings();
@@ -366,6 +375,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         PolicyMappingsExtension ext = createExtension();

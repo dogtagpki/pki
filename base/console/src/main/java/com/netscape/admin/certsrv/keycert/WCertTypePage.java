@@ -80,10 +80,12 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE))
@@ -195,6 +197,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         String str = (String)mCertBox.getSelectedItem();
         if (str.equals(mOtherCert)) {
@@ -206,6 +209,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         NameValuePairs nvps = new NameValuePairs();
@@ -255,10 +259,12 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -385,6 +391,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel {
         super.init();
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         String str = (String)mCertBox.getSelectedItem();
@@ -432,6 +439,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel {
         }
     }
 
+    @Override
     public void itemStateChanged(ItemEvent e) {
         if (e.getSource().equals(mCertBox)) {
             String str = (String)mCertBox.getSelectedItem();

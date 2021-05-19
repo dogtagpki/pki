@@ -38,6 +38,7 @@ public class ReadBufferAPDU extends APDU {
         data.add((byte) (offset % 256));
     }
 
+    @Override
     public Type getType()
     {
         return Type.APDU_READ_BUFFER;

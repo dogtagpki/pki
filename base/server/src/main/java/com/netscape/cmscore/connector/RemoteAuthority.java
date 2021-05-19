@@ -74,30 +74,37 @@ public class RemoteAuthority implements IRemoteAuthority {
         mTimeout = c.getInteger("timeout");
     }
 
+    @Override
     public String getHost() {
         return mHost;
     }
 
+    @Override
     public int getPort() {
         return mPort;
     }
 
+    @Override
     public String getURI() {
         return mURI;
     }
 
+    @Override
     public String getURI(String name) {
         return mURIs.get(name);
     }
 
+    @Override
     public Hashtable<String, String> getURIs() {
         return mURIs;
     }
 
+    @Override
     public int getTimeout() {
         return mTimeout;
     }
 
+    @Override
     public String getContentType() {
         return mContentType;
     }

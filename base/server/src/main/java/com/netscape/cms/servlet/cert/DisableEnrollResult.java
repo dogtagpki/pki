@@ -68,6 +68,7 @@ public class DisableEnrollResult extends CMSServlet {
     /**
      * Initializes the servlet.
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // coming from agent
@@ -76,6 +77,7 @@ public class DisableEnrollResult extends CMSServlet {
         mTemplates.remove(ICMSRequest.SUCCESS);
     }
 
+    @Override
     protected CMSRequest newCMSRequest() {
         return new CMSRequest();
     }
@@ -83,6 +85,7 @@ public class DisableEnrollResult extends CMSServlet {
     /**
      * Services the request
      */
+    @Override
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();

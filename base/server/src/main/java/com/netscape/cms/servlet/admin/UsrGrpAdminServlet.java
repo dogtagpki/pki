@@ -109,6 +109,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
     /**
      * Initializes this servlet.
      */
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         CMSEngine engine = CMS.getCMSEngine();
@@ -118,6 +119,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -125,6 +127,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
     /**
      * Serves incoming User/Group management request.
      */
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         super.service(req, resp);

@@ -27,10 +27,12 @@ public class NSSCertImportCLI extends CommandCLI {
         super("import", "Import certificate", nssCertCLI);
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] [nickname]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "cert", true, "Certificate to import");
         option.setArgName("path");
@@ -45,6 +47,7 @@ public class NSSCertImportCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -50,6 +50,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
     Boolean enabled;
     PostgreSQLConfigMonitor monitor;
 
+    @Override
     public void init() throws Exception {
 
         logger.info("Initializing PostgreSQL database");
@@ -255,6 +256,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         addConfig(id, value);
     }
 
+    @Override
     public Boolean getEnabled() throws Exception {
 
         // If monitor is not enabled, get config from database on each request.
@@ -272,6 +274,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return enabled;
     }
 
+    @Override
     public void setEnabled(Boolean enabled) throws Exception {
 
         connect();
@@ -312,6 +315,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public void addNonce(ACMENonce nonce) throws Exception {
 
         connect();
@@ -336,6 +340,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public ACMENonce removeNonce(String nonceID) throws Exception {
 
         connect();
@@ -360,6 +365,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public void removeExpiredNonces(Date currentTime) throws Exception {
 
         connect();
@@ -397,6 +403,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return nonces;
     }
 
+    @Override
     public ACMEAccount getAccount(String accountID) throws Exception {
 
         connect();
@@ -461,6 +468,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public void addAccount(ACMEAccount account) throws Exception {
 
         connect();
@@ -487,6 +495,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         addAccountContacts(account);
     }
 
+    @Override
     public void updateAccount(ACMEAccount account) throws Exception {
 
         connect();
@@ -547,6 +556,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public ACMEOrder getOrder(String orderID) throws Exception {
 
         connect();
@@ -594,6 +604,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return order;
     }
 
+    @Override
     public Collection<ACMEOrder> getOrdersByAccount(String accountID) throws Exception {
 
         connect();
@@ -642,6 +653,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return orders;
     }
 
+    @Override
     public Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(String authzID, String status)
             throws Exception {
 
@@ -692,6 +704,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return orders;
     }
 
+    @Override
     public ACMEOrder getOrderByCertificate(String certID) throws Exception {
 
         connect();
@@ -820,6 +833,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public void addOrder(ACMEOrder order) throws Exception {
 
         connect();
@@ -931,6 +945,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public void updateOrder(ACMEOrder order) throws Exception {
 
         connect();
@@ -971,6 +986,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public void removeExpiredOrders(Date currentTime) throws Exception {
 
         connect();
@@ -986,6 +1002,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public ACMEAuthorization getAuthorization(String authzID) throws Exception {
 
         connect();
@@ -1032,6 +1049,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return authorization;
     }
 
+    @Override
     public ACMEAuthorization getAuthorizationByChallenge(String challengeID) throws Exception {
 
         connect();
@@ -1100,6 +1118,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return authzIDs;
     }
 
+    @Override
     public Collection<ACMEAuthorization> getRevocationAuthorizations(String accountID, Date time) throws Exception {
 
         connect();
@@ -1187,6 +1206,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public void addAuthorization(ACMEAuthorization authorization) throws Exception {
 
         connect();
@@ -1223,6 +1243,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         addAuthorizationChallenges(authorization);
     }
 
+    @Override
     public void updateAuthorization(ACMEAuthorization authorization) throws Exception {
 
         connect();
@@ -1306,6 +1327,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public void removeExpiredAuthorizations(Date currentTime) throws Exception {
 
         connect();
@@ -1321,6 +1343,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public ACMECertificate getCertificate(String certID) throws Exception {
 
         connect();
@@ -1377,6 +1400,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return certIDs;
     }
 
+    @Override
     public void addCertificate(String certID, ACMECertificate certificate) throws Exception {
 
         connect();
@@ -1415,6 +1439,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public void removeExpiredCertificates(Date currentTime) throws Exception {
 
         connect();
@@ -1430,6 +1455,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public void close() throws Exception {
 
         if (monitor != null) {

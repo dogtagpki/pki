@@ -44,6 +44,7 @@ public class CMSInvalidityDateExtension
     public CMSInvalidityDateExtension() {
     }
 
+    @Override
     public Extension setCRLExtensionCriticality(Extension ext,
             boolean critical) {
         InvalidityDateExtension invalidityDateExt = null;
@@ -59,6 +60,7 @@ public class CMSInvalidityDateExtension
         return invalidityDateExt;
     }
 
+    @Override
     public Extension getCRLExtension(IConfigStore config,
             Object crlIssuingPoint,
             boolean critical) {
@@ -67,13 +69,16 @@ public class CMSInvalidityDateExtension
         return invalidityDateExt;
     }
 
+    @Override
     public String getCRLExtOID() {
         return PKIXExtensions.InvalidityDate_Id.toString();
     }
 
+    @Override
     public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 //"type;choice(CRLExtension,CRLEntryExtension);"+

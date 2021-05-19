@@ -152,6 +152,7 @@ class CertListTable extends JPanel implements MouseListener, Runnable {
     }
 
 
+    @Override
     public void mouseClicked(MouseEvent e) {
         int row = _table.rowAtPoint(e.getPoint());
 
@@ -165,9 +166,13 @@ class CertListTable extends JPanel implements MouseListener, Runnable {
         }
     }
 
+    @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
     public void mouseExited(MouseEvent e) {}
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {}
 
     public boolean isTableSetup() {
@@ -251,6 +256,7 @@ class CertListTable extends JPanel implements MouseListener, Runnable {
     }
 
     //public void setCertList(String certName) {
+    @Override
     public void run() {
 
         _taskInfo = new KeyCertTaskInfo(_consoleInfo);

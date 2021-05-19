@@ -33,10 +33,12 @@ public class FeatureShowCLI extends CommandCLI {
         this.featureCLI = featureCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <ID>", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

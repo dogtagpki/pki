@@ -66,6 +66,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
         addConfigName(CONFIG_KEY_USAGE_EXTENSION_CHECKING);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_KEY_USAGE_EXTENSION_CHECKING)) {
             return new Descriptor(IDescriptor.BOOLEAN, null, "true",
@@ -143,6 +144,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
      * 2. the certificate is revoked and the revocation reason is not "on hold"
      * 3. the keyUsageExtension bits are different and enableKeyUsageExtensionChecking=true (default)
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         logger.debug("UniqueSubjectNameConstraint: validate start");
@@ -220,6 +222,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
         logger.debug("UniqueSubjectNameConstraint: validate end");
     }
 
+    @Override
     public String getText(Locale locale) {
         String params[] = {
                 getConfig(CONFIG_KEY_USAGE_EXTENSION_CHECKING)
@@ -229,6 +232,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
                 params);
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;

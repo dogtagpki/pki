@@ -44,6 +44,7 @@ class WIManualCACertRequestPage extends WIManualCertRequestPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning() && wizardInfo.isCACloningDone())
@@ -69,6 +70,7 @@ class WIManualCACertRequestPage extends WIManualCertRequestPage {
         return super.initializePanel(info);
     }
 
+    @Override
     public void back_cb(WizardInfo info) {
 		super.back_cb(info);
 		info.put(ConfigConstants.CA_CERT_REQUEST_BACK,ConfigConstants.TRUE);

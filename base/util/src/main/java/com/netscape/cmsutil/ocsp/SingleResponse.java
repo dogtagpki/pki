@@ -66,10 +66,12 @@ public class SingleResponse implements ASN1Value {
         return mCID;
     }
 
+    @Override
     public Tag getTag() {
         return null;
     }
 
+    @Override
     public void encode(Tag t, OutputStream os) throws IOException {
         SEQUENCE seq = new SEQUENCE();
         seq.addElement(mCID);
@@ -85,6 +87,7 @@ public class SingleResponse implements ASN1Value {
         }
     }
 
+    @Override
     public void encode(OutputStream os) throws IOException {
         encode(null, os);
     }
@@ -134,15 +137,18 @@ public class SingleResponse implements ASN1Value {
 
         }
 
+        @Override
         public boolean tagMatch(Tag tag) {
             return TAG.equals(tag);
         }
 
+        @Override
         public ASN1Value decode(InputStream istream)
                         throws InvalidBERException, IOException {
             return decode(TAG, istream);
         }
 
+        @Override
         public ASN1Value decode(Tag implicitTag, InputStream istream)
                         throws InvalidBERException, IOException {
             SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag,

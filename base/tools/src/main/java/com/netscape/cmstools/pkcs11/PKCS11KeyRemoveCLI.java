@@ -41,10 +41,12 @@ public class PKCS11KeyRemoveCLI extends CommandCLI {
         this.keyCLI = keyCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <Key ID>", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

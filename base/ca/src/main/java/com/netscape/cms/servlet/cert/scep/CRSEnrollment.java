@@ -239,6 +239,7 @@ public class CRSEnrollment extends HttpServlet {
         return httpReqHash;
     }
 
+    @Override
     public void init(ServletConfig sc) {
         // Find the CertificateAuthority we should use for CRS.
         String crsCA = sc.getInitParameter(PROP_AUTHORITY);
@@ -373,6 +374,7 @@ public class CRSEnrollment extends HttpServlet {
      * @param httpResp The HttpServletResponse.
      *
      */
+    @Override
     public void service(HttpServletRequest httpReq,
                       HttpServletResponse httpResp)
             throws ServletException {

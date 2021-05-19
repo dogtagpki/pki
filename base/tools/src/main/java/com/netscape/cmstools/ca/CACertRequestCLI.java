@@ -59,6 +59,7 @@ public class CACertRequestCLI extends CLI {
         addModule(new CACertRequestProfileShowCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

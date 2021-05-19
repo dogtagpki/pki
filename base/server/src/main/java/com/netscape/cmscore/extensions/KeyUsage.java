@@ -47,14 +47,17 @@ public class KeyUsage extends CMSExtension {
         mSetDefault = setDefault;
     }
 
+    @Override
     public void init(IConfigStore config) throws EBaseException {
         mConfig = config;
     }
 
+    @Override
     public String getName() {
         return NAME;
     }
 
+    @Override
     public ObjectIdentifier getOID() {
         return OID;
     }
@@ -85,6 +88,7 @@ public class KeyUsage extends CMSExtension {
             return false;
     }
 
+    @Override
     public Extension getExtension(IArgBlock args) throws EBaseException {
         boolean[] bits = new boolean[KeyUsageExtension.NBITS];
         Object[] values = new Object[KeyUsageExtension.NBITS];
@@ -171,6 +175,7 @@ public class KeyUsage extends CMSExtension {
         }
     }
 
+    @Override
     public IArgBlock getFormParams(Extension extension)
             throws EBaseException {
         KeyUsageExtension ext = null;

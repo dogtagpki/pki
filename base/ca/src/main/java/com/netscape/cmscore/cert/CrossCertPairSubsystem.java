@@ -90,14 +90,17 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     /**
      * Retrieves subsystem identifier.
      */
+    @Override
     public String getId() {
         return mId;
     }
 
+    @Override
     public void setId(String id) throws EBaseException {
         mId = id;
     }
 
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
 
@@ -152,6 +155,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
      *
      * @param certBytes cert in byte array to be imported
      */
+    @Override
     public void importCert(byte[] certBytes) throws EBaseException {
         logger.debug("CrossCertPairSubsystem: importCert(byte[])");
         X509Certificate cert = null;
@@ -303,6 +307,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             return false;
     }
 
+    @Override
     public X509Certificate byteArray2X509Cert(byte[] certBytes)
             throws CertificateException {
         logger.debug("CrossCertPairSubsystem: in bytearray2X509Cert()");
@@ -401,6 +406,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     /**
      * publish all cert pairs, if publisher is on
      */
+    @Override
     public synchronized void publishCertPairs() throws EBaseException {
         LDAPConnection conn = null;
 
@@ -478,12 +484,14 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             mLdapConnFactory.returnConn(conn);
     }
 
+    @Override
     public void startup() throws EBaseException {
     }
 
     /**
      * Stops this system.
      */
+    @Override
     public synchronized void shutdown() {
         if (mLdapConnFactory != null) {
             try {
@@ -500,6 +508,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
      *
      * @return configuration store of this subsystem
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }

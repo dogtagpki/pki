@@ -73,6 +73,7 @@ public class EmailTemplate implements IEmailTemplate {
      *
      * @return true if successful
      */
+    @Override
     public boolean init() {
 
         File template = new File(mTemplateFile);
@@ -112,6 +113,7 @@ public class EmailTemplate implements IEmailTemplate {
     /**
      * @return Template Name in string form
      */
+    @Override
     public String getTemplateName() {
         return mTemplateFile;
     }
@@ -119,6 +121,7 @@ public class EmailTemplate implements IEmailTemplate {
     /**
      * @return true if template is an html file, false otherwise
      */
+    @Override
     public boolean isHTML() {
         if (mTemplateFile.endsWith(".html") ||
                 mTemplateFile.endsWith(".HTML") ||
@@ -132,6 +135,7 @@ public class EmailTemplate implements IEmailTemplate {
     /**
      * @return Content of the template
      */
+    @Override
     public String toString() {
         return mFileContents;
     }
@@ -160,6 +164,7 @@ public class EmailTemplate implements IEmailTemplate {
         return buf.toString();
     }
 
+    @Override
     public int length() {
         return (mFileContents == null) ? 0 : mFileContents.length();
     }

@@ -35,6 +35,7 @@ public class HttpRequestEncoder implements IRequestEncoder {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HttpRequestEncoder.class);
 
+    @Override
     public String encode(Object r)
             throws IOException {
         String s = null;
@@ -48,6 +49,7 @@ public class HttpRequestEncoder implements IRequestEncoder {
         return s;
     }
 
+    @Override
     public Object decode(String s)
             throws IOException {
         Object result = null;

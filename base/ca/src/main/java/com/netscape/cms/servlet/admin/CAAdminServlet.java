@@ -83,6 +83,7 @@ public class CAAdminServlet extends AdminServlet {
     /**
      * Initializes this servlet.
      */
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         CAEngine engine = CAEngine.getInstance();
@@ -92,6 +93,7 @@ public class CAAdminServlet extends AdminServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -100,6 +102,7 @@ public class CAAdminServlet extends AdminServlet {
      * Serves HTTP request. Each request is authenticated to
      * the authenticate manager.
      */
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         super.service(req, resp);

@@ -171,6 +171,7 @@ public class CertRecord implements IDBObj {
     /**
      * Sets attribute to this record.
      */
+    @Override
     public void set(String name, Object obj) throws EBaseException {
         if (name.equalsIgnoreCase(ATTR_REVO_INFO)) {
             mRevocationInfo = (RevocationInfo) obj;
@@ -202,6 +203,7 @@ public class CertRecord implements IDBObj {
     /**
      * Retrieves attributes from this record.
      */
+    @Override
     public Object get(String name) throws EBaseException {
         if (name.equalsIgnoreCase(ATTR_REVO_INFO)) {
             return mRevocationInfo;
@@ -233,14 +235,17 @@ public class CertRecord implements IDBObj {
     /**
      * Deletes attribute from this record.
      */
+    @Override
     public void delete(String name) throws EBaseException {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
+    @Override
     public Enumeration<String> getElements() {
         return mNames.elements();
     }
 
+    @Override
     public Enumeration<String> getSerializableAttrNames() {
         return mNames.elements();
     }
@@ -425,6 +430,7 @@ public class CertRecord implements IDBObj {
     /**
      * String representation
      */
+    @Override
     public String toString() {
         StringBuffer buf = new StringBuffer("CertRecord: ");
 

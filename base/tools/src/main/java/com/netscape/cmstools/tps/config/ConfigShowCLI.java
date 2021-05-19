@@ -44,16 +44,19 @@ public class ConfigShowCLI extends CommandCLI {
         this.configCLI = configCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + "[OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "output", true, "Output file to store general properties.");
         option.setArgName("file");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

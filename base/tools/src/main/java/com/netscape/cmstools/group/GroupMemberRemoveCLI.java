@@ -38,10 +38,12 @@ public class GroupMemberRemoveCLI extends CommandCLI {
         this.groupMemberCLI = groupMemberCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Group ID> <Member ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

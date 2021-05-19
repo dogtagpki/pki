@@ -70,10 +70,12 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         setBorder(makeTitledBorder(PANELNAME));
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
@@ -117,6 +119,7 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
         return logon;
     }
 
+    @Override
     public boolean validatePanel() {
         for (int i=0; i<mTable.getRowCount(); i++) {
             JComponent comp = (JComponent)mTable.getValueAt(i,1);
@@ -131,6 +134,7 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         cleanUpWizardInfo(wizardInfo);
@@ -194,10 +198,12 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
         return ready;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -259,6 +265,7 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
         add(dummy, gbc);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 }

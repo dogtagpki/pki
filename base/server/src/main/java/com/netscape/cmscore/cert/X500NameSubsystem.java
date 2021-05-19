@@ -63,10 +63,12 @@ public class X500NameSubsystem implements ISubsystem {
     /**
      * Retrieves subsystem identifier.
      */
+    @Override
     public String getId() {
         return mId;
     }
 
+    @Override
     public void setId(String id) throws EBaseException {
         mId = id;
     }
@@ -129,6 +131,7 @@ public class X500NameSubsystem implements ISubsystem {
      * <P>
      * @param config configuration store
      */
+    @Override
     public synchronized void init(IConfigStore config)
             throws EBaseException {
         logger.trace(ID + " started");
@@ -247,12 +250,14 @@ public class X500NameSubsystem implements ISubsystem {
         return tag.byteValue();
     }
 
+    @Override
     public void startup() throws EBaseException {
     }
 
     /**
      * Stops this system.
      */
+    @Override
     public synchronized void shutdown() {
     }
 
@@ -262,6 +267,7 @@ public class X500NameSubsystem implements ISubsystem {
      *
      * @return configuration store of this subsystem
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }

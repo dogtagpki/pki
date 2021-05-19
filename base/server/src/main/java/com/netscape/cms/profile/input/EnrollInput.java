@@ -70,6 +70,7 @@ public abstract class EnrollInput extends ProfileInput {
         mProfile = profile;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -81,6 +82,7 @@ public abstract class EnrollInput extends ProfileInput {
      * @param request request
      * @exception Exception failed to populate
      */
+    @Override
     public abstract void populate(Map<String, String> ctx, IRequest request) throws Exception;
 
     /**
@@ -89,6 +91,7 @@ public abstract class EnrollInput extends ProfileInput {
      * @param locale user locale
      * @return localized input name
      */
+    @Override
     public abstract String getName(Locale locale);
 
     /**
@@ -97,6 +100,7 @@ public abstract class EnrollInput extends ProfileInput {
      * @param locale user locale
      * @return localized input description
      */
+    @Override
     public abstract String getText(Locale locale);
 
     /**
@@ -107,6 +111,7 @@ public abstract class EnrollInput extends ProfileInput {
      * @param name property name
      * @return descriptor of the property
      */
+    @Override
     public abstract IDescriptor getValueDescriptor(Locale locale, String name);
 
     public void addValueName(String name) {
@@ -116,6 +121,7 @@ public abstract class EnrollInput extends ProfileInput {
     /**
      * Retrieves a list of names of the value parameter.
      */
+    @Override
     public Enumeration<String> getValueNames() {
         return mValueNames.elements();
     }
@@ -124,10 +130,12 @@ public abstract class EnrollInput extends ProfileInput {
         mConfigNames.addElement(name);
     }
 
+    @Override
     public Enumeration<String> getConfigNames() {
         return mConfigNames.elements();
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
         if (mConfig.getSubStore("params") == null) {
@@ -137,6 +145,7 @@ public abstract class EnrollInput extends ProfileInput {
         }
     }
 
+    @Override
     public String getConfig(String name) {
         try {
             if (mConfig == null) {
@@ -154,6 +163,7 @@ public abstract class EnrollInput extends ProfileInput {
         return null;
     }
 
+    @Override
     public String getValue(String name, Locale locale, IRequest request)
             throws EProfileException {
         return request.getExtDataInString(name);
@@ -162,6 +172,7 @@ public abstract class EnrollInput extends ProfileInput {
     /**
      * Sets the value of the given value parameter by name.
      */
+    @Override
     public void setValue(String name, Locale locale, IRequest request,
             String value) throws EPropertyException {
         request.setExtData(name, value);
@@ -177,6 +188,7 @@ public abstract class EnrollInput extends ProfileInput {
         return locale;
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         return null;
     }

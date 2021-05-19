@@ -112,6 +112,7 @@ public class ACLEditDialog extends JDialog
         setDisplay();
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mCancel)) {
             if (mDialog != null) {
@@ -299,6 +300,7 @@ public class ACLEditDialog extends JDialog
         getContentPane().add("Center",center);
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getSource() == mList) {
             if (mList.getSelectedIndex() < 0) {
@@ -327,12 +329,16 @@ public class ACLEditDialog extends JDialog
         mHelpArea.setText(text);
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {
     }
+    @Override
     public void mouseReleased(MouseEvent e) {
     }
+    @Override
     public void mouseEntered(MouseEvent e) {
     }
+    @Override
     public void mouseExited(MouseEvent e) {
     }
 

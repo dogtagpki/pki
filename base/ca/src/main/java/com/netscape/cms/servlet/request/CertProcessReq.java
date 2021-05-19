@@ -49,6 +49,7 @@ public class CertProcessReq extends ProcessReq {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
 
         super.init(sc);
@@ -65,10 +66,12 @@ public class CertProcessReq extends ProcessReq {
         }
     }
 
+    @Override
     public void addAuthorityName(IArgBlock header) throws EBaseException {
         header.addStringValue("localca", "yes");
     }
 
+    @Override
     public void addSigningAlgorithm(IArgBlock header) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();

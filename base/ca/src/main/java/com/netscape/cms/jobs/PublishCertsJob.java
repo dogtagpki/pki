@@ -89,6 +89,7 @@ public class PublishCertsJob extends AJobBase
                     "summary.recipientEmail"
         };
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
                 IExtendedPluginInfo.HELP_TEXT +
@@ -118,6 +119,7 @@ public class PublishCertsJob extends AJobBase
     /**
      * initialize from the configuration file
      */
+    @Override
     public void init(ISubsystem owner, String id, String implName, IConfigStore config) throws
             EBaseException {
         mConfig = config;
@@ -164,6 +166,7 @@ public class PublishCertsJob extends AJobBase
      * if publish unsuccessfully, log it -- unsuccessful certs should be
      * picked up and attempted again at the next scheduled run
      */
+    @Override
     public void run() {
         logger.debug("in PublishCertsJob " +
                        getId() + " : run()");
@@ -374,6 +377,7 @@ public class PublishCertsJob extends AJobBase
      *
      * @return String array of configuration parameter names.
      */
+    @Override
     public String[] getConfigParams() {
         return mConfigParams;
     }

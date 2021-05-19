@@ -55,6 +55,7 @@ public class CAValidityConstraint extends CAEnrollConstraint {
         super();
     }
 
+    @Override
     public void init(IConfigStore config) throws EProfileException {
         super.init(config);
         X509CertImpl caCert;
@@ -72,6 +73,7 @@ public class CAValidityConstraint extends CAEnrollConstraint {
      * Validates the request. The request is not modified
      * during the validation.
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         String method = "CAValidityConstraint: validate: ";
@@ -127,6 +129,7 @@ public class CAValidityConstraint extends CAEnrollConstraint {
         logger.debug(method + "validate end");
     }
 
+    @Override
     public String getText(Locale locale) {
         String params[] = {
                 mDefNotBefore.toString(),
@@ -138,6 +141,7 @@ public class CAValidityConstraint extends CAEnrollConstraint {
                 params);
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;

@@ -97,6 +97,7 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
         addConfigName(CONFIG_DECIPHER_ONLY);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null,
@@ -143,6 +144,7 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null,
@@ -189,6 +191,7 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -315,6 +318,7 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -452,6 +456,7 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         String params[] = {
                 getConfig(CONFIG_CRITICAL),
@@ -473,6 +478,7 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         KeyUsageExtension ext = createKeyUsageExtension();

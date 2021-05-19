@@ -76,6 +76,7 @@ public class CMSTabPanel extends CMSBaseConfigPanel
     /*==========================================================
 	 * public methods
      *==========================================================*/
+    @Override
     public void init() {}
 
     /**
@@ -124,6 +125,7 @@ public class CMSTabPanel extends CMSBaseConfigPanel
     }
 
     //=== Callback methods ====
+    @Override
     public boolean applyCallback(){
         int currentTab = mTabbedPane.getSelectedIndex();
         int nTabs = mTabbedPane.getTabCount();
@@ -162,6 +164,7 @@ public class CMSTabPanel extends CMSBaseConfigPanel
         return true;
     }
 
+    @Override
     public boolean resetCallback() {
         int nTabs = mTabbedPane.getTabCount();
         for (int i= 0; i < nTabs; ++i) {
@@ -187,6 +190,7 @@ public class CMSTabPanel extends CMSBaseConfigPanel
         mbReset.setEnabled(false);
     }
 
+    @Override
     public void helpCallback() {
         CMSBaseTab p = (CMSBaseTab)mTabbedPane.getSelectedComponent();
         if (p != null)
@@ -194,6 +198,7 @@ public class CMSTabPanel extends CMSBaseConfigPanel
         Debug.println("CMSTabPanel: helpCallback()");
     }
 
+    @Override
     public CMSBasePanel getSelectedTab() {
         return (CMSBasePanel)mTabbedPane.getSelectedComponent();
     }
@@ -202,6 +207,7 @@ public class CMSTabPanel extends CMSBaseConfigPanel
 	 * EVNET HANDLER METHODS
      *==========================================================*/
     //== ACTIONLISTENER =====
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mbOK)) {
             applyCallback();
@@ -215,6 +221,7 @@ public class CMSTabPanel extends CMSBaseConfigPanel
     }
 
     //== IResourceListener ===
+    @Override
     public void select(IResourceObject parent, Object viewInstance) {
         //System.out.println("CMSTabPanel: select() "+ parent);
         if (parent == mParent) {
@@ -232,6 +239,7 @@ public class CMSTabPanel extends CMSBaseConfigPanel
         }
     }
 
+    @Override
     public boolean unselect(IResourceObject parent, Object viewInstance) {
         //System.out.println("CMSTabPanel: unselect() "+ parent);
 
@@ -278,7 +286,8 @@ public class CMSTabPanel extends CMSBaseConfigPanel
     }
 
     //== ChangeListener ==
-	public void stateChanged(ChangeEvent e) {
+	@Override
+    public void stateChanged(ChangeEvent e) {
 	    //Debug.println("CMSTabPanel: stateChanged()");
 		CMSBaseConfigPanel selectedPanel = (CMSBaseConfigPanel)mTabbedPane.getSelectedComponent();
         if ( selectedPanel != null )
@@ -325,22 +334,27 @@ public class CMSTabPanel extends CMSBaseConfigPanel
 
     //=== OVERWRITE DIALOG MESSAGE =====================
 
+    @Override
     protected void showMessageDialog(String keyword, int messageType ) {
         CMSAdminUtil.showMessageDialog(mModel.getFrame(), mResource, mPanelName, keyword, messageType);
     }
 
+    @Override
     protected void showMessageDialog(String keyword) {
         showMessageDialog(keyword, ERROR_MESSAGE);
     }
 
+    @Override
     protected int showConfirmDialog(String keyword, int messageType ) {
         return CMSAdminUtil.showConfirmDialog(mModel.getFrame(), mResource, mPanelName, keyword, messageType);
     }
 
+    @Override
     protected int showConfirmDialog(String keyword) {
         return showConfirmDialog(keyword, WARNING_MESSAGE);
     }
 
+    @Override
     protected void showErrorDialog(String message) {
         CMSAdminUtil.showErrorDialog(mModel.getFrame(), mResource, message, ERROR_MESSAGE);
     }

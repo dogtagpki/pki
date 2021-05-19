@@ -54,26 +54,32 @@ class WIDBEnrollPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         return true;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -215,6 +221,7 @@ class WIDBEnrollPage extends WizardBasePanel implements IWizardPanel {
         super.init();
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 }

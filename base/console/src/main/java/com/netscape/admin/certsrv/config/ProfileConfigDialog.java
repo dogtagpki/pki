@@ -77,6 +77,7 @@ public class ProfileConfigDialog extends CMSBaseConfigDialog
     }
 
 
+    @Override
     protected JPanel makeContentPane() {
         JPanel mListPanel = new JPanel();
         GridBagLayout gb = new GridBagLayout();
@@ -372,6 +373,7 @@ public class ProfileConfigDialog extends CMSBaseConfigDialog
         return CMSAdminUtil.makeJButtonVPanel( buttons );
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
 
         if (evt.getSource().equals(mOK)) {

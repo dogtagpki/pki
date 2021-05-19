@@ -32,6 +32,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name="Groups")
 public class GroupCollection extends DataCollection<GroupData> {
 
+    @Override
     @XmlElementRef
     public Collection<GroupData> getEntries() {
         return super.getEntries();

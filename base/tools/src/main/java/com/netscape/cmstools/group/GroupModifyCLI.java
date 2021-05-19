@@ -40,16 +40,19 @@ public class GroupModifyCLI extends CommandCLI {
         this.groupCLI = groupCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Group ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "description", true, "Description");
         option.setArgName("description");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -116,6 +116,7 @@ public class PromptForTrustDialog extends AbstractDialog {
       *
       */
     class UserConfirmationActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("ACCEPT")) {
                 certIsAccepted = true;
@@ -270,6 +271,7 @@ public class PromptForTrustDialog extends AbstractDialog {
     }
 
     JButton accept;
+    @Override
     public void setVisible(boolean visible) {
         if (visible) {
             accept.grabFocus();

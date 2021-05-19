@@ -100,6 +100,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mAuthority = (IAuthority) owner.getAuthority();
@@ -250,6 +251,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         int i, j;
 
@@ -323,6 +325,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> confParams = new Vector<String>();
         StringBuffer sb = new StringBuffer();
@@ -342,6 +345,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         StringBuffer sb = new StringBuffer();
         sb.append(PROP_ALGORITHMS);
@@ -364,6 +368,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
         return defConfParams;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         if (!winnowedByKey) {
             try {

@@ -86,6 +86,7 @@ public class GroupTab extends CMSBaseUGTab {
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent e) {
 
         if (e.getSource().equals(mRefresh)) {
@@ -129,6 +130,7 @@ public class GroupTab extends CMSBaseUGTab {
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         setButtons();
 
@@ -168,6 +170,7 @@ public class GroupTab extends CMSBaseUGTab {
 
     }
 
+    @Override
     public void mouseReleased(MouseEvent e) {
         setButtons();
     }
@@ -179,6 +182,7 @@ public class GroupTab extends CMSBaseUGTab {
     /**
      * Updates the groups
      */
+    @Override
     public void refresh() {
         //Debug.println("refresh group");
 
@@ -219,6 +223,7 @@ public class GroupTab extends CMSBaseUGTab {
     /**
      * create the bottom action button panel
      */
+    @Override
     protected JPanel createActionPanel() {
         //edit, add, delete, help buttons required
         //actionlister to this object
@@ -232,6 +237,7 @@ public class GroupTab extends CMSBaseUGTab {
     /**
      * create the center listing panel
      */
+    @Override
     protected JPanel createListPanel() {
 		mListPanel = new JPanel();
 		GridBagLayout gb = new GridBagLayout();

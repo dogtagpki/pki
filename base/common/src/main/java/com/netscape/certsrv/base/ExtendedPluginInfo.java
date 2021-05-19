@@ -82,6 +82,7 @@ public class ExtendedPluginInfo implements IExtendedPluginInfo {
      * "port;number;Which port number do you want to use"
      *
      */
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         return _epi;
     }

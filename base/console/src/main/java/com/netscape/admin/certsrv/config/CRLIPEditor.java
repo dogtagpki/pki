@@ -282,6 +282,7 @@ public class CRLIPEditor extends JDialog implements ActionListener {
         return CMSAdminUtil.makeJButtonPanel( buttons, true);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
 
         if (e.getSource().equals(mEnableBox)) {

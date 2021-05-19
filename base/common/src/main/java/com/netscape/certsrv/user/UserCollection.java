@@ -38,6 +38,7 @@ import com.netscape.certsrv.base.DataCollection;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class UserCollection extends DataCollection<UserData> {
 
+    @Override
     @XmlElementRef
     public Collection<UserData> getEntries() {
         return super.getEntries();

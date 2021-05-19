@@ -270,6 +270,7 @@ public abstract class CMSServlet extends HttpServlet {
         return httpReqHash;
     }
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
@@ -417,6 +418,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
     }
 
+    @Override
     public void service(HttpServletRequest httpReq,
             HttpServletResponse httpResp)
             throws ServletException, IOException {

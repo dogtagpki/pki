@@ -46,6 +46,7 @@ public class ManageCertModel extends CMSTableModel
         init(mColumns);
     }
 
+    @Override
     public boolean isCellEditable(int row, int col) {
         return false;
     }

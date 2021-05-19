@@ -39,10 +39,12 @@ public class TPSConnectorShowCLI extends CommandCLI {
         this.tpsConnectorCLI = tpsConnectorCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " --host <host> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "host", true, "TPS host");
         option.setArgName("host");
@@ -57,6 +59,7 @@ public class TPSConnectorShowCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

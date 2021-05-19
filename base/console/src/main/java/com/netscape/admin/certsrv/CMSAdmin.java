@@ -129,6 +129,7 @@ public class CMSAdmin extends AbstractServerObject
      *
      * @param info  global information.
      */
+    @Override
     public void initialize(ConsoleInfo info) {
         mConsoleInfo = info;
         mIconImage = CMSAdminUtil.getImage(CMSAdminResources.IMAGE_CERTICON_SMALL);
@@ -168,6 +169,7 @@ public class CMSAdmin extends AbstractServerObject
      * @return return the server name
      *
     */
+    @Override
     public String getName() {
         return ("Certificate Server ("+ mServerID +")");
     }
@@ -216,6 +218,7 @@ public class CMSAdmin extends AbstractServerObject
      * This function is called when the certificate server is deselected
      * on the topology view.
      */
+    @Override
     public void unselect(IPage viewInstance) {
 //      Debug.println( "DSAdmin unselect" );
         super.unselect(viewInstance);
@@ -226,6 +229,7 @@ public class CMSAdmin extends AbstractServerObject
      * This function is called when the directory server is selected
      * on the topology view.
      */
+    @Override
     public void select(IPage viewInstance) {
 /*
         if (_removed)
@@ -260,6 +264,7 @@ public class CMSAdmin extends AbstractServerObject
     /**
       * Returns supported menu categories
       */
+    @Override
     public String[] getMenuCategoryIDs() {
         return new String[]
         {
@@ -273,6 +278,7 @@ public class CMSAdmin extends AbstractServerObject
      *
      * @param category Which menu
      */
+    @Override
     public IMenuItem[] getMenuItems(String category) {
         /* Same for both CONTEXT and OBJECT menus */
         return new IMenuItem[] {
@@ -292,6 +298,7 @@ public class CMSAdmin extends AbstractServerObject
     /**
       * Notification that a menu item has been selected.
       */
+    @Override
     public void actionMenuSelected(IPage viewInstance, IMenuItem item) {
         if (item.getID().equals(START)) {
             getServerInstanceInfo();
@@ -391,6 +398,7 @@ public class CMSAdmin extends AbstractServerObject
     /**
      * This is called when the installwizard is done.
      */
+    @Override
     public void notify(WizardWidget w) {
         Debug.println("Configuration Completed");
 	for (int i = 0; i < 10; i++) { // try to detect 10 times
@@ -588,6 +596,7 @@ public class CMSAdmin extends AbstractServerObject
      * @param viewInstance CMSPageFeeder object
      * @param selectionList List of selected objects
      */
+    @Override
     public boolean run(IPage viewInstance, IResourceObject selectionList[]) {
         return run( viewInstance );
     }
@@ -607,6 +616,7 @@ public class CMSAdmin extends AbstractServerObject
      *
      * @return The Directory Server icon.
      */
+    @Override
     public Icon getIcon() {
         return mIconImage;
     }
@@ -620,6 +630,7 @@ public class CMSAdmin extends AbstractServerObject
      *
      * @return The Certificate Server status.
      */
+    @Override
     public int getServerStatus() {
             Debug.println("Check server status");
       if (getConsoleInfo().getCurrentDN() == null) {
@@ -711,6 +722,7 @@ public class CMSAdmin extends AbstractServerObject
      *
      * @param  referenceDN - DN of server to clone from.
      */
+    @Override
     public void cloneFrom(String referenceDN) {
         //XXX TBD
     }
@@ -720,6 +732,7 @@ public class CMSAdmin extends AbstractServerObject
      * @return  true if the server was successfully removed, false otherwise
      */
 
+    @Override
     public boolean removeServer() {
         Debug.println("--------------  removeServer() ==== --------------------");
 
@@ -990,10 +1003,12 @@ public class CMSAdmin extends AbstractServerObject
         return _viewInstance;
     }
 
+    @Override
     public boolean isCloningEnabled() {
         return false;
     }
 
+    @Override
     public boolean isMigrationEnabled() {
         return false;
     }

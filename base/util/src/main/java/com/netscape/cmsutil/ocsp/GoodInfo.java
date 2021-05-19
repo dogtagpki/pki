@@ -46,14 +46,17 @@ public class GoodInfo implements CertStatus {
     public GoodInfo() {
     }
 
+    @Override
     public Tag getTag() {
         return Tag.get(0);
     }
 
+    @Override
     public void encode(Tag t, OutputStream os) throws IOException {
         NULL.getInstance().encode(getTag(), os);
     }
 
+    @Override
     public void encode(OutputStream os) throws IOException {
         encode(getTag(), os);
     }
@@ -77,15 +80,18 @@ public class GoodInfo implements CertStatus {
 
         }
 
+        @Override
         public boolean tagMatch(Tag tag) {
             return TAG.equals(tag);
         }
 
+        @Override
         public ASN1Value decode(InputStream istream)
                         throws InvalidBERException, IOException {
             return decode(TAG, istream);
         }
 
+        @Override
         public ASN1Value decode(Tag implicitTag, InputStream istream)
                         throws InvalidBERException, IOException {
             //   SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag,

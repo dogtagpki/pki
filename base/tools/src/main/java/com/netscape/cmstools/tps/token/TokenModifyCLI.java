@@ -41,10 +41,12 @@ public class TokenModifyCLI extends CommandCLI {
         this.tokenCLI = tokenCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Token ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "user", true, "User ID");
         option.setArgName("User ID");
@@ -59,6 +61,7 @@ public class TokenModifyCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

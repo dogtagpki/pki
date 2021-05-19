@@ -107,6 +107,7 @@ public class CertificateIssuedListener implements IRequestListener {
     public CertificateIssuedListener() {
     }
 
+    @Override
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
 
@@ -170,6 +171,7 @@ public class CertificateIssuedListener implements IRequestListener {
         mSubsystem.registerRequestListener(this);
     }
 
+    @Override
     public void accept(IRequest r) {
         logger.debug("CertificateIssuedListener: accept " +
                 r.getRequestId().toString());
@@ -426,6 +428,7 @@ public class CertificateIssuedListener implements IRequestListener {
     /**
      * sets the configurable parameters
      */
+    @Override
     public void set(String name, String val) {
         if (name.equalsIgnoreCase(PROP_ENABLED)) {
             if (val.equalsIgnoreCase("true")) {

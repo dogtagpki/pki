@@ -493,6 +493,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         }
     }
 
+    @Override
     public NameValuePairs getConfigParams(String id) {
         NameValuePairs nvp = null;
 
@@ -560,6 +561,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         return nvp;
     }
 
+    @Override
     public void setConfigParams(String id, NameValuePairs nvp, IConfigStore config) {
 
         CAEngine engine = CAEngine.getInstance();
@@ -676,6 +678,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         }
     }
 
+    @Override
     public String getClassPath(String name) {
         Enumeration<String> enum1 = mCRLExtensionClassNames.elements();
 

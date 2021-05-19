@@ -43,6 +43,7 @@ class WIManualOCSPCertRequestPage extends WIManualCertRequestPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
 
@@ -59,6 +60,7 @@ class WIManualOCSPCertRequestPage extends WIManualCertRequestPage {
         return super.initializePanel(info);
     }
 
+    @Override
     public void back_cb(WizardInfo info) {
 		super.back_cb(info);
 		info.put(ConfigConstants.OCSP_CERT_REQUEST_BACK,ConfigConstants.TRUE);

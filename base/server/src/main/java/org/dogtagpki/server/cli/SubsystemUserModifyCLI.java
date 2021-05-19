@@ -43,6 +43,7 @@ public class SubsystemUserModifyCLI extends CommandCLI {
         super("mod", "Modify " + parent.getParent().getName().toUpperCase() + " user", parent);
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option(null, "add-see-also", true, "Link user to a certificate.");
@@ -54,6 +55,7 @@ public class SubsystemUserModifyCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

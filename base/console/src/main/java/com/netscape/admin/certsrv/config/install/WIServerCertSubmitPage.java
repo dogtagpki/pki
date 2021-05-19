@@ -43,6 +43,7 @@ class WIServerCertSubmitPage extends WICertSubmitPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         wizardInfo.put(Constants.PR_CERTIFICATE_TYPE,
@@ -75,6 +76,7 @@ class WIServerCertSubmitPage extends WICertSubmitPage {
         return super.initializePanel(info);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (mSelfButton.isSelected())

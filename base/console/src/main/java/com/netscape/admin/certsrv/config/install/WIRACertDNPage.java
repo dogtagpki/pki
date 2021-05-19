@@ -43,6 +43,7 @@ class WIRACertDNPage extends WICertDNPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
 
@@ -63,6 +64,7 @@ class WIRACertDNPage extends WICertDNPage {
         return super.initializePanel(info);
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
 
@@ -74,6 +76,7 @@ class WIRACertDNPage extends WICertDNPage {
         return false;
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         String str = mOText.getText().trim();

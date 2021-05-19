@@ -26,6 +26,7 @@ public class RecoverThread extends Thread {
         this.queue = queue;
     }
 
+    @Override
     public void run() {
         queue.recoverWillBlock();
     }

@@ -45,6 +45,7 @@ public class CMSCRLNumberExtension
     public CMSCRLNumberExtension() {
     }
 
+    @Override
     public Extension setCRLExtensionCriticality(Extension ext,
             boolean critical) {
         BigInteger crlNumber = null;
@@ -61,6 +62,7 @@ public class CMSCRLNumberExtension
         return crlNumberExt;
     }
 
+    @Override
     public Extension getCRLExtension(IConfigStore config,
             Object ip,
             boolean critical) {
@@ -76,13 +78,16 @@ public class CMSCRLNumberExtension
         return crlNumberExt;
     }
 
+    @Override
     public String getCRLExtOID() {
         return PKIXExtensions.CRLNumber_Id.toString();
     }
 
+    @Override
     public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 //"type;choice(CRLExtension,CRLEntryExtension);"+

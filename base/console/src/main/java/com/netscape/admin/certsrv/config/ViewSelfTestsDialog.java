@@ -84,6 +84,7 @@ public class ViewSelfTestsDialog extends JDialog
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed( ActionEvent evt )
     {
         if( evt.getSource().equals( mOK ) ) {

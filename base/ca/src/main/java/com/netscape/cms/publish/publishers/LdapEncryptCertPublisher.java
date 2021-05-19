@@ -71,14 +71,17 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
     public LdapEncryptCertPublisher() {
     }
 
+    @Override
     public String getImplName() {
         return "LdapEncryptCertPublisher";
     }
 
+    @Override
     public String getDescription() {
         return "LdapEncryptCertPublisher";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 "certAttr;string;LDAP attribute in which to store the certificate",
@@ -92,6 +95,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
 
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
 
@@ -99,6 +103,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         return v;
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
@@ -106,10 +111,12 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         return v;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         if (mInited)
@@ -132,6 +139,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
      * @param dn dn of the entry to publish the certificate
      * @param certObj the certificate object.
      */
+    @Override
     public void publish(LDAPConnection conn, String dn, Object certObj)
             throws ELdapException {
         if (conn == null)
@@ -184,6 +192,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
      * deletes the certificate from the list of certificates.
      * does not check if certificate is already there.
      */
+    @Override
     public void unpublish(LDAPConnection conn, String dn, Object certObj)
             throws ELdapException {
         if (!(certObj instanceof X509Certificate))

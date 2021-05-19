@@ -68,10 +68,12 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
 		String serial;
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
@@ -192,6 +194,7 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
        if(validateNumber(mSerialNumberText,mEndSerialNumberText,mSerialNumber,mEndSerialNumber,true)==false)
             return false;
@@ -200,6 +203,7 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
 		if (mSerialNumber != null && !mSerialNumber.equals(""))
@@ -253,10 +257,12 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
         return ready;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -369,6 +375,7 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
         add(dummy, gbc);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 }

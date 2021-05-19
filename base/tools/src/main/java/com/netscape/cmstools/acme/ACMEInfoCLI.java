@@ -30,16 +30,19 @@ public class ACMEInfoCLI extends CommandCLI {
         super("info", "Display ACME metadata", acmeCLI);
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         if (cmd.hasOption("debug")) {

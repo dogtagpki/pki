@@ -47,14 +47,17 @@ public class NameID implements ResponderID {
         _name = n;
     }
 
+    @Override
     public Tag getTag() {
         return Tag.get(1);
     }
 
+    @Override
     public void encode(Tag tag, OutputStream os) throws IOException {
         _name.encode(os);
     }
 
+    @Override
     public void encode(OutputStream os) throws IOException {
         _name.encode(os);
     }
@@ -84,15 +87,18 @@ public class NameID implements ResponderID {
 
         }
 
+        @Override
         public boolean tagMatch(Tag tag) {
             return TAG.equals(tag);
         }
 
+        @Override
         public ASN1Value decode(InputStream istream)
                         throws InvalidBERException, IOException {
             return decode(TAG, istream);
         }
 
+        @Override
         public ASN1Value decode(Tag implicitTag, InputStream istream)
                         throws InvalidBERException, IOException {
             SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag,

@@ -74,6 +74,7 @@ public class ELdapException extends EBaseException {
      * @return Name of the Ldap Exception resource bundle name.
      *         <p>
      */
+    @Override
     protected String getBundleName() {
         return LDAP_RESOURCES;
     }

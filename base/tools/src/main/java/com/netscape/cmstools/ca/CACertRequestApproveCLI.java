@@ -11,6 +11,7 @@ public class CACertRequestApproveCLI extends CACertRequestActionCLI {
         super("approve", "Approve certificate request", certRequestCLI);
     }
 
+    @Override
     public void performAction(
             CACertClient certClient,
             RequestId requestId,

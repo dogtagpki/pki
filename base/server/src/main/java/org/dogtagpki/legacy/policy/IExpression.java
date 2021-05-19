@@ -56,5 +56,6 @@ public interface IExpression {
     /**
      * Convert to a string.
      */
+    @Override
     public String toString();
 }

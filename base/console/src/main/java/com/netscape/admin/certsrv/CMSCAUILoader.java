@@ -52,6 +52,7 @@ public class CMSCAUILoader implements ISubSystemUILoader {
     /*==========================================================
      * public methods
      *==========================================================*/
+    @Override
     public void register() {
         //register subsystem UI
         try {

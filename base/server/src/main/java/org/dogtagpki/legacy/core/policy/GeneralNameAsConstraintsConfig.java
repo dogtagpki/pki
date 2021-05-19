@@ -38,6 +38,7 @@ public class GeneralNameAsConstraintsConfig extends GeneralNameConfig implements
         super(name, config, isValueConfigured, isPolicyEnabled);
     }
 
+    @Override
     public GeneralName getGeneralName() {
         return mGeneralName;
     }
@@ -45,6 +46,7 @@ public class GeneralNameAsConstraintsConfig extends GeneralNameConfig implements
     /**
      * Form a general name from the value string.
      */
+    @Override
     public GeneralName formGeneralName(String choice, String value)
             throws EBaseException {
         return GeneralNameUtil.form_GeneralNameAsConstraints(choice, value);

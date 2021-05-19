@@ -40,19 +40,23 @@ class CertListTableModel extends AbstractTableModel {
         _rowData = rowData;
     }
 
+    @Override
     public int getRowCount() {
         return _rowData.size();
     }
 
+    @Override
     public int getColumnCount() {
         return _header.size();
     }
 
+    @Override
     public String getColumnName(int columnIndex) {
         return (columnIndex >= _header.size() ? "":
                 (String)(_header.elementAt(columnIndex)));
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Object o = null;
 
@@ -79,10 +83,12 @@ class CertListTableModel extends AbstractTableModel {
                 (CertBasicInfo)(_rowData.elementAt(index)) : null;
     }
 
+    @Override
     public void addTableModelListener(TableModelListener l) {
         _tableModelListener.addElement(l);
     }
 
+    @Override
     public void removeTableModelListener(TableModelListener l) {
         _tableModelListener.removeElement(l);
     }

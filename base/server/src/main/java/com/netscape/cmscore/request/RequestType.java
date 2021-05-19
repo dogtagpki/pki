@@ -27,22 +27,27 @@ public class RequestType extends RequestAttr {
         super(Request.ATTR_REQUEST_TYPE, new StringMapper(Schema.LDAP_ATTR_REQUEST_TYPE));
     }
 
+    @Override
     void set(RequestRecord requestRecord, Object o) {
         requestRecord.mRequestType = (String) o;
     }
 
+    @Override
     Object get(RequestRecord requestRecord) {
         return requestRecord.mRequestType;
     }
 
+    @Override
     void read(IRequest request, RequestRecord requestRecord) {
         request.setRequestType(requestRecord.mRequestType);
     }
 
+    @Override
     void add(IRequest request, RequestRecord requestRecord) {
         requestRecord.mRequestType = request.getRequestType();
     }
 
+    @Override
     void mod(ModificationSet mods, IRequest request) {
         addmod(mods, request.getRequestType());
     }

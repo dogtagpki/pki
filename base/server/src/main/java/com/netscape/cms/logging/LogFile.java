@@ -256,6 +256,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     public LogFile() {
     }
 
+    @Override
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -626,6 +627,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      *
      * @exception EBaseException if an internal error occurred
      */
+    @Override
     public void startup() throws EBaseException {
     }
 
@@ -773,6 +775,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * Flush the log file. Also update the MAC for hash protected logs
      *
      */
+    @Override
     public synchronized void flush() {
         try {
             if (mLogSigning) {
@@ -820,6 +823,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * <li>signed.audit AUDIT_LOG_SHUTDOWN used at audit function shutdown
      * </ul>
      */
+    @Override
     public synchronized void shutdown() {
 
         logger.info("Destroying LogFile(" + mFileName + ")");
@@ -876,6 +880,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             super.setName(mFileName + ".flush-" + (Thread.activeCount() + 1));
         }
 
+        @Override
         public void run() {
             while (mFlushInterval > 0) {
                 // Sleep for the interval and then flush the log
@@ -1042,6 +1047,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      *
      * @param ev The event to be logged.
      */
+    @Override
     public void log(ILogEvent ev) throws ELogException {
 
         if (!mOn || mLevel > ev.getLevel()) {
@@ -1431,6 +1437,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      *
      * @return configuration store
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -1440,6 +1447,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * and from source "source". If the parameter is omitted. All entries
      * are sent back.
      */
+    @Override
     public synchronized NameValuePairs retrieveLogContent(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
@@ -1479,19 +1487,23 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     /**
      * Retrieve log file list.
      */
+    @Override
     public synchronized NameValuePairs retrieveLogList(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException {
         return null;
     }
 
+    @Override
     public String getImplName() {
         return "LogFile";
     }
 
+    @Override
     public String getDescription() {
         return "LogFile";
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
@@ -1515,6 +1527,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         return v;
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
 
@@ -1570,6 +1583,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         return v;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         if (mType.equals(ILogger.PROP_SIGNED_AUDIT)) {
             String[] params = {

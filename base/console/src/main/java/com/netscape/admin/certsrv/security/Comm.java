@@ -81,6 +81,7 @@ class Comm implements CommClient, Runnable {
         return server_response;
     }
 
+    @Override
     public void run() {
         HttpManager h = new HttpManager();
 
@@ -129,6 +130,7 @@ class Comm implements CommClient, Runnable {
         notifyAll();
     }
 
+    @Override
     public void replyHandler(InputStream response, CommRecord cr) {
         try {
             InputStreamReader reader =
@@ -151,16 +153,19 @@ class Comm implements CommClient, Runnable {
         }
     }
 
+    @Override
     public void errorHandler(Exception exception, CommRecord cr) {
         error = exception;
         Debug.println("errorHandler: " + exception);
         finish();
     }
 
+    @Override
     public String username(Object auth, CommRecord cr) {
         return id;
     }
 
+    @Override
     public String password(Object auth, CommRecord cr) {
         return pw;
     }

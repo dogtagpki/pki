@@ -66,10 +66,12 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
     /**
      * Retrieves subsystem identifier.
      */
+    @Override
     public String getId() {
         return mId;
     }
 
+    @Override
     public void setId(String id) throws EBaseException {
         mId = id;
     }
@@ -87,6 +89,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
      * <P>
      * @param config configuration store
      */
+    @Override
     public synchronized void init(IConfigStore config)
             throws EBaseException {
         JTabbedPane tabPane = new JTabbedPane();
@@ -120,12 +123,14 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
         mMonitoring.start();
     }
 
+    @Override
     public void startup() throws EBaseException {
     }
 
     /**
      * Stops this system.
      */
+    @Override
     public synchronized void shutdown() {
     }
 
@@ -135,6 +140,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
      *
      * @return configuration store of this subsystem
      */
+    @Override
     public IConfigStore getConfigStore() {
         return null;
     }
@@ -194,6 +200,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
         }
     }
 
+    @Override
     public void run() {
         while (true) {
             // To get exact memory statistics
@@ -225,22 +232,27 @@ class ThreadTableModel extends AbstractTableModel {
         columnNames = _columnNames;
     }
 
+    @Override
     public String getColumnName(int column) {
         return columnNames.elementAt(column).toString();
     }
 
+    @Override
     public int getRowCount() {
         return rowData.size();
     }
 
+    @Override
     public int getColumnCount() {
         return columnNames.size();
     }
 
+    @Override
     public String getValueAt(int row, int column) {
         return rowData.elementAt(row).elementAt(column);
     }
 
+    @Override
     public boolean isCellEditable(int row, int column) {
         return false;
     }
@@ -259,6 +271,7 @@ class ThreadTableEvent extends MouseAdapter {
         mThreadTable = table;
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
             int row = mThreadTable.getSelectedRow();

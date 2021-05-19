@@ -44,6 +44,7 @@ class WIPasteOCSPCertPage extends WIPasteCertPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
 

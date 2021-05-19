@@ -46,6 +46,7 @@ public class StatusItemContinuousProgress extends StatusItemProgress
         _thread.start();
 	}
 
+    @Override
     public void start() {
         if (!_running) {
             _running = true;
@@ -55,6 +56,7 @@ public class StatusItemContinuousProgress extends StatusItemProgress
         }
     }
 
+    @Override
     public void stop() {
         if (_running) {
             _running = false;
@@ -78,6 +80,7 @@ public class StatusItemContinuousProgress extends StatusItemProgress
 
     private class ProgressTracker extends Thread {
 
+        @Override
         public void run() {
             while (true) {
                 while (_running) {

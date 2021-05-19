@@ -102,6 +102,7 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Initializes this servlet.
      */
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
@@ -113,6 +114,7 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -120,6 +122,7 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Serves HTTP admin request.
      */
+    @Override
     public void service(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {

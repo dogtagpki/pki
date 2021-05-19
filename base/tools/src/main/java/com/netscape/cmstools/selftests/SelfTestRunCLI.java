@@ -41,6 +41,7 @@ public class SelfTestRunCLI extends CommandCLI {
         this.selfTestCLI = selfTestCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [selftests...] [OPTIONS...]", options);
     }
@@ -58,6 +59,7 @@ public class SelfTestRunCLI extends CommandCLI {
         }
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

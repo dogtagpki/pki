@@ -30,5 +30,6 @@ public interface IExtPrettyPrint {
      *
      * @return printable extension string
      */
+    @Override
     public String toString();
 }

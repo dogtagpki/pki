@@ -77,6 +77,7 @@ public class PresenceExt extends APolicyRule {
         DESC = "Sets Presence Server Extension in certificates.";
     }
 
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -94,6 +95,7 @@ public class PresenceExt extends APolicyRule {
         mServiceLevel = config.getInteger(PROP_SERVICE_LEVEL, 0);
     }
 
+    @Override
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
@@ -107,6 +109,7 @@ public class PresenceExt extends APolicyRule {
         return res;
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> params = new Vector<String>();
 
@@ -152,6 +155,7 @@ public class PresenceExt extends APolicyRule {
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return mDefParams;
     }

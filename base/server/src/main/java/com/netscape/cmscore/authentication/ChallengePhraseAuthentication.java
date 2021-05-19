@@ -105,6 +105,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
      * @param implName The name of the authentication manager plugin.
      * @param config The configuration store for this authentication manager.
      */
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
@@ -122,6 +123,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
     /**
      * Gets the name of this authentication manager.
      */
+    @Override
     public String getName() {
         return mName;
     }
@@ -129,6 +131,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
     /**
      * Gets the plugin name of authentication manager.
      */
+    @Override
     public String getImplName() {
         return mImplName;
     }
@@ -148,6 +151,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
      * @exception EBaseException If an internal error occurred.
      * @see org.dogtagpki.server.authentication.AuthToken
      */
+    @Override
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
@@ -330,6 +334,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
      *
      * @return attribute names in Vector
      */
+    @Override
     public String[] getRequiredCreds() {
         return (mRequiredCreds);
     }
@@ -346,6 +351,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
      *         Vector of parameter names. If no substore, the parameter name
      *         is the Hashtable key itself, with value same as key.
      */
+    @Override
     public String[] getConfigParams() {
         return (mConfigParams);
     }
@@ -353,6 +359,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
     /**
      * prepare this authentication manager for shutdown.
      */
+    @Override
     public void shutdown() {
     }
 
@@ -362,6 +369,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
      *
      * @return configuration store
      */
+    @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
     }

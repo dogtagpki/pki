@@ -46,6 +46,7 @@ public class LdapFilterConverter implements IFilterConverter {
     /**
      * Converts database filter to ldap filter.
      */
+    @Override
     public String convert(String name, String op, String value) {
         AttributeNameHelper h = new AttributeNameHelper(name);
         DBAttrMapper mapper = mReg.get(

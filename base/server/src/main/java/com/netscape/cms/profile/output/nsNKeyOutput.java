@@ -47,6 +47,7 @@ public class nsNKeyOutput extends EnrollOutput {
     /**
      * Retrieves the localizable name of this policy.
      */
+    @Override
     public String getName(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_OUTPUT_CERT_TOKENKEY_NAME");
     }
@@ -54,6 +55,7 @@ public class nsNKeyOutput extends EnrollOutput {
     /**
      * Retrieves the localizable description of this policy.
      */
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_OUTPUT_CERT_TOKENKEY_TEXT");
     }
@@ -61,6 +63,7 @@ public class nsNKeyOutput extends EnrollOutput {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(Map<String, String> ctx, IRequest request)
             throws EProfileException {
     }
@@ -69,6 +72,7 @@ public class nsNKeyOutput extends EnrollOutput {
      * Retrieves the descriptor of the given value
      * parameter by name.
      */
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_DER)) {
             return new Descriptor("der_b64", null,
@@ -79,6 +83,7 @@ public class nsNKeyOutput extends EnrollOutput {
         return null;
     }
 
+    @Override
     public String getValue(String name, Locale locale, IRequest request)
             throws EProfileException {
         if (name.equals(VAL_DER)) {

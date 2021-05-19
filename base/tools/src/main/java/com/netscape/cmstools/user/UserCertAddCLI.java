@@ -47,10 +47,12 @@ public class UserCertAddCLI extends CommandCLI {
         this.userCertCLI = userCertCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <User ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "input", true, "Input file");
         option.setArgName("file");
@@ -61,6 +63,7 @@ public class UserCertAddCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

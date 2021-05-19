@@ -29,10 +29,12 @@ public class NSSKeyImportCLI extends CommandCLI {
         this.nssKeyCLI = nssKeyCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <key nickname>", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "input", true, "File that contains the key to be imported");
         option.setArgName("path");
@@ -43,6 +45,7 @@ public class NSSKeyImportCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

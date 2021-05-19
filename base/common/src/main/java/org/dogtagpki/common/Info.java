@@ -137,6 +137,7 @@ public class Info extends ResourceMessage {
         return (Info)unmarshaller.unmarshal(new StringReader(string));
     }
 
+    @Override
     public String toString() {
         try {
             return toXML();

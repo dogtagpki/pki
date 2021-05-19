@@ -43,11 +43,13 @@ public class ProfileRuleDataModel extends CMSRuleDataModel
         super();
     }
 
-	protected String[] getColumns() {
+	@Override
+    protected String[] getColumns() {
 		String x[] = {PROFILE_RULE, STATUS};
 		return x;
 	}
 
+    @Override
     public void processData(Object data) {
         Vector<Object> v = new Vector<>();
         NameValuePairs obj = (NameValuePairs) data;

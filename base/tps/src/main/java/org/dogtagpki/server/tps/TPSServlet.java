@@ -33,6 +33,7 @@ public class TPSServlet extends HttpServlet {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSServlet.class);
     private static final long serialVersionUID = -1092227495262381074L;
 
+    @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String encoding = request.getHeader("Transfer-Encoding");

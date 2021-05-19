@@ -83,6 +83,7 @@ public class CASigningCert extends CertificateInfo {
         */
     }
 
+    @Override
     public String getSubjectName() {
         return (String) mProperties.get(Constants.PR_SUBJECT_NAME);
     }
@@ -109,6 +110,7 @@ public class CASigningCert extends CertificateInfo {
         return null;
     }
 
+    @Override
     public String getNickname() {
         String name = (String) mProperties.get(Constants.PR_NICKNAME);
         String instanceName = (String) mProperties.get(ConfigConstants.PR_CERT_INSTANCE_NAME);
@@ -118,10 +120,12 @@ public class CASigningCert extends CertificateInfo {
         return "caSigningCert " + instanceName;
     }
 
+    @Override
     public String getKeyAlgorithm() {
         return (String) mProperties.get(Constants.PR_KEY_TYPE);
     }
 
+    @Override
     protected KeyUsageExtension getKeyUsageExtension() throws IOException {
         KeyUsageExtension extension = new KeyUsageExtension();
 

@@ -58,6 +58,7 @@ public class CACLI extends SubsystemCLI {
         addModule(new UserCLI(this));
     }
 
+    @Override
     public SubsystemClient getSubsystemClient() throws Exception {
 
         if (caClient != null) return caClient;

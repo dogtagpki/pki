@@ -254,6 +254,7 @@ public class KeyInfo {
         return mapper.readValue(json, KeyInfo.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

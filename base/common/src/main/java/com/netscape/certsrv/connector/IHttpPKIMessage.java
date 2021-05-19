@@ -33,6 +33,7 @@ public interface IHttpPKIMessage extends IPKIMessage {
      *
      * @return String with the type of request.
      */
+    @Override
     public String getReqType();
 
     /**
@@ -40,6 +41,7 @@ public interface IHttpPKIMessage extends IPKIMessage {
      *
      * @return String of name of request.
      */
+    @Override
     public String getReqId();
 
     /**
@@ -47,6 +49,7 @@ public interface IHttpPKIMessage extends IPKIMessage {
      *
      * @param r Instance of IRequest to be copied from.
      */
+    @Override
     public void fromRequest(IRequest r);
 
     /**
@@ -54,5 +57,6 @@ public interface IHttpPKIMessage extends IPKIMessage {
      *
      * @param r Instance of IRequest to be copied to.
      */
+    @Override
     public void toRequest(IRequest r);
 }

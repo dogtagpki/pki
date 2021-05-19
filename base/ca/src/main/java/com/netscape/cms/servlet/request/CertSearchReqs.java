@@ -34,6 +34,7 @@ public class CertSearchReqs extends SearchReqs {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
 
         super.init(sc);

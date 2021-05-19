@@ -41,14 +41,17 @@ public class ClientInitCLI extends CommandCLI {
         this.clientCLI = clientCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         options.addOption(null, "force", false, "Force NSS database initialization.");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

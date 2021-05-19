@@ -46,6 +46,7 @@ public class OCSPCLI extends SubsystemCLI {
         addModule(new UserCLI(this));
     }
 
+    @Override
     public SubsystemClient getSubsystemClient() throws Exception {
 
         if (ocspClient != null) return ocspClient;

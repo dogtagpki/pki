@@ -61,6 +61,7 @@ public class DefaultRevocation extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EPolicyException {
     }
@@ -72,6 +73,7 @@ public class DefaultRevocation extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         return PolicyResult.ACCEPTED;
     }
@@ -81,6 +83,7 @@ public class DefaultRevocation extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         return null;
     }
@@ -90,10 +93,12 @@ public class DefaultRevocation extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return null;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 IExtendedPluginInfo.HELP_TOKEN + ";configuration-policyrules-defaultrevocation"

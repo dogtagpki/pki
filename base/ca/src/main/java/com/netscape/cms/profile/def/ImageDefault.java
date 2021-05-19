@@ -45,10 +45,12 @@ public class ImageDefault extends EnrollDefault {
         addValueName(VAL_IMAGE_URL);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_IMAGE_URL)) {
             return new Descriptor(IDescriptor.IMAGE_URL, null, null,
@@ -58,11 +60,13 @@ public class ImageDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
     }
 
+    @Override
     public String getValue(String name, Locale locale, IRequest request)
             throws EPropertyException {
 
@@ -79,12 +83,14 @@ public class ImageDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
         return null;
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_IMAGE");
     }
@@ -92,6 +98,7 @@ public class ImageDefault extends EnrollDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
     }

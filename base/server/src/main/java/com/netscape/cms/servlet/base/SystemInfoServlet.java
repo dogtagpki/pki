@@ -48,6 +48,7 @@ public class SystemInfoServlet extends HttpServlet {
     public SystemInfoServlet() {
     }
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
     }
@@ -66,6 +67,7 @@ public class SystemInfoServlet extends HttpServlet {
      *
      * @see javax.servlet.http.HttpServlet#service(HttpServletRequest, HttpServletResponse)
      */
+    @Override
     public void service(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {

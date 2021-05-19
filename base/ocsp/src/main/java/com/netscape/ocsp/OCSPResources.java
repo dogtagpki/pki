@@ -30,6 +30,7 @@ public class OCSPResources extends ListResourceBundle {
     /**
      * Returns the content of this resource.
      */
+    @Override
     public Object[][] getContents() {
         return contents;
     }

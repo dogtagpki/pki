@@ -334,6 +334,7 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
         return ready;
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -483,6 +484,7 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
     public void getUpdateInfo(WizardInfo info) {
     }
 
+    @Override
     public void actionPerformed(ActionEvent event) {
         if (event.getSource().equals(mCopy)) {
             mText.copy();

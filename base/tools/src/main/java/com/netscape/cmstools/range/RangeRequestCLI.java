@@ -27,10 +27,12 @@ public class RangeRequestCLI extends CommandCLI {
         this.rangeCLI = rangeCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <type>", options);
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option(null, "session", true, "Session ID");
@@ -46,6 +48,7 @@ public class RangeRequestCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

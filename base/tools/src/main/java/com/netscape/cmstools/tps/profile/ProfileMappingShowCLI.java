@@ -43,16 +43,19 @@ public class ProfileMappingShowCLI extends CommandCLI {
         this.profileMappingCLI = profileMappingCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Profile Mapping ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "output", true, "Output file to store profile mapping properties.");
         option.setArgName("file");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

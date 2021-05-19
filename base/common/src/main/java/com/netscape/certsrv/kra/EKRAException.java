@@ -77,6 +77,7 @@ public class EKRAException extends EBaseException {
      *
      * @return name of bundle class associated with this exception.
      */
+    @Override
     protected String getBundleName() {
         return KRA_RESOURCES;
     }

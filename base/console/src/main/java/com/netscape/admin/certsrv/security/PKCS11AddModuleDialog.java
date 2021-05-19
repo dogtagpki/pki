@@ -57,6 +57,7 @@ class PKCS11AddModuleDialog extends AbstractDialog {
         return moduleAdded;
     }
 
+    @Override
     protected void okInvoked() {
         moduleAdded = false;
         taskInfo.clear();
@@ -86,6 +87,7 @@ class PKCS11AddModuleDialog extends AbstractDialog {
             super.okInvoked();
     }
 
+    @Override
     protected void helpInvoked() {
         Help help = new Help(resource);
         help.help("PKCS11AddModuleDialog", "help");
@@ -97,9 +99,13 @@ class PKCS11AddModuleDialog extends AbstractDialog {
       * then determain (call setEnableNextButton()) if wizard can proceed
       */
     class MyActionListener implements KeyListener, ActionListener {
+        @Override
         public void keyTyped(KeyEvent e) {}
+        @Override
         public void keyPressed(KeyEvent e) {}
+        @Override
         public void keyReleased(KeyEvent e) {}
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("ENABLED"))
                 _dllname.setEnabled(_isDLL.isSelected());

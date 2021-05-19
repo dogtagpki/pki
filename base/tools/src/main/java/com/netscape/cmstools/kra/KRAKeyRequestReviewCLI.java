@@ -20,10 +20,12 @@ public class KRAKeyRequestReviewCLI extends CommandCLI {
         this.keyCLI = keyCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Request ID> --action <action> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "action", true,
                 "Action to be performed on the request.\nValid values: approve, reject, cancel.");
@@ -31,6 +33,7 @@ public class KRAKeyRequestReviewCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

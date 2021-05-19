@@ -74,6 +74,7 @@ public class EListenersException extends EBaseException {
      *
      * @return the class name of the resource.
      */
+    @Override
     protected String getBundleName() {
         return LISTENERS_RESOURCES;
     }

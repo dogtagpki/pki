@@ -90,6 +90,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
         defaultParams.addElement(PROP_NOT_AFTER + "=" + DEFAULT_NOT_AFTER);
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_IS_CRITICAL + ";boolean;RFC 2459 recommendation: The profile " +
@@ -127,6 +128,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
 
@@ -155,6 +157,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
 
         // get cert info.
@@ -225,6 +228,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
      * @return Empty Vector since this policy has no configuration parameters.
      *         for this policy instance.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> params = new Vector<String>();
 
@@ -240,6 +244,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
      * @return Empty Vector since this policy implementation has no
      *         configuration parameters.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> defParams = new Vector<String>();
 

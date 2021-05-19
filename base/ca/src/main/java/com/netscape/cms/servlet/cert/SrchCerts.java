@@ -98,6 +98,7 @@ public class SrchCerts extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
@@ -489,6 +490,7 @@ public class SrchCerts extends CMSServlet {
      * [queryFilter=<filter>]
      * [revokeAll=<filter>]
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();

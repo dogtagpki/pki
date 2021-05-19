@@ -25,10 +25,12 @@ public class SecurityDomainHostAddCLI extends CommandCLI {
         this.securityDomainHostCLI = securityDomainHostCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <Host ID>", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "port", true, "Port (default: 8080)");
         option.setArgName("port");
@@ -47,6 +49,7 @@ public class SecurityDomainHostAddCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

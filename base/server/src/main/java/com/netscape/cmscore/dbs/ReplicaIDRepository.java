@@ -97,6 +97,7 @@ public class ReplicaIDRepository extends Repository {
     /**
      * Returns last serial number in given range
      */
+    @Override
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound)
             throws EBaseException {
         logger.debug("ReplicaIDReposoitory: in getLastSerialNumberInRange: low "

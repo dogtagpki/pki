@@ -118,6 +118,7 @@ public class NSCertTypeExt extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -157,6 +158,7 @@ public class NSCertTypeExt extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         logger.debug("NSCertTypeExt: Impl: " + NAME + ", Instance: " + getInstanceName() + "::apply()");
 
@@ -486,6 +488,7 @@ public class NSCertTypeExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> params = new Vector<String>();
 
@@ -503,6 +506,7 @@ public class NSCertTypeExt extends APolicyRule
                 PROP_SET_DEFAULT_BITS + "=" + DEF_SET_DEFAULT_BITS);
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_CRITICAL + ";boolean;Netscape recommendation: non-critical.",
@@ -524,6 +528,7 @@ public class NSCertTypeExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return mDefParams;
     }

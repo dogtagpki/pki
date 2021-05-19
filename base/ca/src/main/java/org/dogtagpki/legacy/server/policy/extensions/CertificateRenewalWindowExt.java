@@ -75,6 +75,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mCritical = config.getBoolean(PROP_CRITICAL, false);
@@ -90,6 +91,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
@@ -195,6 +197,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
         return new Date(relativeFrom.getTime() + time);
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_CRITICAL + ";boolean;Netscape recommendation: non-critical.",
@@ -217,6 +220,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> params = new Vector<String>();
 
@@ -239,6 +243,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> defParams = new Vector<String>();
 

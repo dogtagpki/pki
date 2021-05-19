@@ -129,6 +129,7 @@ public class ACMEChallenge {
         return mapper.readValue(json, ACMEChallenge.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

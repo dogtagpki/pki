@@ -45,6 +45,7 @@ public class ClientCertValidateCLI extends CommandCLI {
         this.clientCLI = clientCLI;
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "certusage", true, "Certificate usage: " +
                 "CheckAllUsages, SSLServer, SSLServerWithStepUp, SSLClient, SSLCA, AnyCA, " +
@@ -54,10 +55,12 @@ public class ClientCertValidateCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " nickname", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -49,6 +49,7 @@ public class TKSCLI extends SubsystemCLI {
         addModule(new UserCLI(this));
     }
 
+    @Override
     public SubsystemClient getSubsystemClient() throws Exception {
 
         if (tksClient != null) return tksClient;

@@ -115,6 +115,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -195,6 +196,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         // get certInfo from request.
         X509CertInfo[] ci =
@@ -388,6 +390,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         return mInstanceParams;
     }
@@ -397,10 +400,12 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return mDefaultParams;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_CRITICAL + ";boolean;" +

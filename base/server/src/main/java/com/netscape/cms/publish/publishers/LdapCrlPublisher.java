@@ -75,14 +75,17 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public LdapCrlPublisher() {
     }
 
+    @Override
     public String getImplName() {
         return "LdapCrlPublisher";
     }
 
+    @Override
     public String getDescription() {
         return "LdapCrlPublisher";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 "crlAttr;string;Name of Ldap attribute in which to store the CRL",
@@ -100,6 +103,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
         return params;
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
 
@@ -108,6 +112,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
         return v;
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
@@ -116,10 +121,12 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
         return v;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         if (mInited)
@@ -152,6 +159,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
      * Replaces the CRL in the certificateRevocationList attribute.
      * CRL's are published as a DER encoded blob.
      */
+    @Override
     public void publish(LDAPConnection conn, String dn, Object crlObj) throws ELdapException {
 
         if (conn == null) {
@@ -367,6 +375,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
      * CRLs are always replaced but this is implemented anyway in case
      * there is ever a reason to remove a global CRL.
      */
+    @Override
     public void unpublish(LDAPConnection conn, String dn, Object crlObj)
             throws ELdapException {
         try {

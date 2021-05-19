@@ -60,6 +60,7 @@ public class ECMSGWException extends EBaseException {
         super(msgFormat, params);
     }
 
+    @Override
     protected String getBundleName() {
         return CMSGW_RESOURCES;
     }

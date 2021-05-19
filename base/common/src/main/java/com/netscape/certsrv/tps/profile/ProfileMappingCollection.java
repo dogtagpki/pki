@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name="ProfileMappings")
 public class ProfileMappingCollection extends DataCollection<ProfileMappingData> {
 
+    @Override
     @XmlElementRef
     public Collection<ProfileMappingData> getEntries() {
         return super.getEntries();

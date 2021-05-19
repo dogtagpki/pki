@@ -65,16 +65,19 @@ public class CACertStatusCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <serial number> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "ocsp", true, "OCSP URL");
         option.setArgName("URL");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

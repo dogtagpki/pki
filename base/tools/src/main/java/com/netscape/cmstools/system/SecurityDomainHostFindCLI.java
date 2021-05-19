@@ -26,10 +26,12 @@ public class SecurityDomainHostFindCLI extends CommandCLI {
         this.securityDomainHostCLI = securityDomainHostCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();

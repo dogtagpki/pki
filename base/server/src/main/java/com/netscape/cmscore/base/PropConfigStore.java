@@ -127,6 +127,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @return store name
      */
+    @Override
     public String getName() {
         return mStoreName;
     }
@@ -142,6 +143,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name property name
      * @return property value
      */
+    @Override
     public String get(String name) {
         return mSource.get(getFullName(name));
     }
@@ -167,6 +169,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name property name
      * @param value property value
      */
+    @Override
     public String put(String name, String value) {
         String property = getFullName(name);
         logger.debug("Setting " + property + "=" + value);
@@ -178,6 +181,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @param name property name
      */
+    @Override
     public void remove(String name) {
         mSource.remove(getFullName(name));
     }
@@ -189,6 +193,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @see java.util.Hashtable#elements
      * @see java.util.Enumeration
      */
+    @Override
     public Enumeration<String> keys() {
         Hashtable<String, String> h = new Hashtable<String, String>();
         enumerate(h);
@@ -200,6 +205,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @return map
      */
+    @Override
     public Map<String, String> getProperties() {
         Map<String, String> map = new TreeMap<String, String>();
         enumerate(map);
@@ -209,6 +215,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     /**
      * Return the number of items in this substore
      */
+    @Override
     public int size() {
         Hashtable<String, String> h = new Hashtable<String, String>();
         enumerate(h);
@@ -239,16 +246,19 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         }
     }
 
+    @Override
     public synchronized void clear() {
         mSource.clear();
     }
 
+    @Override
     public void load() throws Exception {
         if (storage != null) {
             storage.load(this);
         }
     }
 
+    @Override
     public void commit(boolean createBackup) throws EBaseException {
         if (storage != null) {
             storage.commit(this, createBackup);
@@ -261,6 +271,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param in input stream where properties are located
      * @exception IOException failed to load
      */
+    @Override
     public synchronized void load(InputStream in) throws IOException {
         mSource.load(in);
     }
@@ -270,6 +281,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @param out outputstream where the properties are saved
      */
+    @Override
     public synchronized void store(OutputStream out) throws Exception {
         try (PrintWriter pw = new PrintWriter(out)) {
             Map<String, String> map = getProperties();
@@ -287,6 +299,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @return property value
      * @exception EBaseException failed to retrieve value
      */
+    @Override
     public String getString(String name) throws EBaseException {
         String str = get(name);
 
@@ -318,6 +331,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param defval the default object to return if name does not exist
      * @return property value
      */
+    @Override
     public String getString(String name, String defval) throws EBaseException {
         String val;
 
@@ -337,6 +351,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name property key
      * @param value property value
      */
+    @Override
     public void putString(String name, String value) {
         put(name, value);
     }
@@ -350,6 +365,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @return property value
      */
+    @Override
     public byte[] getByteArray(String name) throws EBaseException {
         byte[] arr = getByteArray(name, new byte[0]);
 
@@ -370,6 +386,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @return property value
      */
+    @Override
     public byte[] getByteArray(String name, byte defval[])
             throws EBaseException {
         String str = get(name);
@@ -391,6 +408,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name property key
      * @param value byte array
      */
+    @Override
     public void putByteArray(String name, byte value[]) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try (Base64OutputStream b64 = new Base64OutputStream(new
@@ -413,6 +431,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @return boolean value
      * @exception EBaseException failed to retrieve
      */
+    @Override
     public boolean getBoolean(String name) throws EBaseException {
         String value = get(name);
 
@@ -442,6 +461,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @return boolean value
      * @exception EBaseException failed to retrieve
      */
+    @Override
     public boolean getBoolean(String name, boolean defval)
             throws EBaseException {
         boolean val;
@@ -464,6 +484,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name property key
      * @param value property value
      */
+    @Override
     public void putBoolean(String name, boolean value) {
         if (value) {
             put(name, "true");
@@ -479,6 +500,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @return property value
      * @exception EBaseException failed to retrieve value
      */
+    @Override
     public int getInteger(String name) throws EBaseException {
         String value = get(name);
 
@@ -506,6 +528,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @return property value
      * @exception EBaseException failed to retrieve value
      */
+    @Override
     public int getInteger(String name, int defval) throws EBaseException {
         int val;
 
@@ -527,6 +550,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param val property value
      * @exception EBaseException failed to retrieve value
      */
+    @Override
     public void putInteger(String name, int val) {
         put(name, Integer.toString(val));
     }
@@ -538,6 +562,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @return property value
      * @exception EBaseException failed to retrieve value
      */
+    @Override
     public BigInteger getBigInteger(String name) throws EBaseException {
         String value = get(name);
 
@@ -569,6 +594,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @return property value
      * @exception EBaseException failed to retrieve value
      */
+    @Override
     public BigInteger getBigInteger(String name, BigInteger defval)
             throws EBaseException {
         BigInteger val;
@@ -589,6 +615,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name property key
      * @param val default value
      */
+    @Override
     public void putBigInteger(String name, BigInteger val) {
         put(name, val.toString());
     }
@@ -600,6 +627,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name substore name
      * @return substore
      */
+    @Override
     public IConfigStore makeSubStore(String name) {
 
         /*
@@ -622,6 +650,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @param name substore name
      */
+    @Override
     public void removeSubStore(String name) {
         // this operation is expensive!!!
 
@@ -661,10 +690,12 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name substore name
      * @return substore
      */
+    @Override
     public IConfigStore getSubStore(String name) {
         return getSubStore(name, PropConfigStore.class);
     }
 
+    @Override
     public <T extends IConfigStore> T getSubStore(String name, Class<T> clazz) {
 
         String fullname = getFullName(name);
@@ -691,6 +722,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @return a list of string-based property names
      */
+    @Override
     public Enumeration<String> getPropertyNames() {
         // XXX - this operation is expensive!!!
         Map<String, String> map = getProperties();
@@ -713,6 +745,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @return list of substore names
      */
+    @Override
     public Enumeration<String> getSubStoreNames() {
         // XXX - this operation is expensive!!!
         Map<String, String> map = getProperties();
@@ -779,6 +812,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @return a new configuration store
      */
+    @Override
     public Object clone() {
         try {
             PropConfigStore that = (PropConfigStore) super.clone();

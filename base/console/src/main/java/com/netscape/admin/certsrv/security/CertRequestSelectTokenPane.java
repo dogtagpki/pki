@@ -75,6 +75,7 @@ IKeyCertPage {
      * Get the panel that is going to be displayed
      * @return a panel to be displayed by the key & cert wizard
      */
+    @Override
     public JPanel getPanel() {
         return this;
     }
@@ -83,6 +84,7 @@ IKeyCertPage {
       * Checks if this panel can be shown
       * @return true if this page can be shown
       */
+    @Override
     public boolean pageShow(WizardObservable observable) {
         //might have to call cgi that loadmodule...
         observable.put("sie",
@@ -141,6 +143,7 @@ IKeyCertPage {
       * Checks if this panel can be hidden
       * @return true if this page can be hide
       */
+    @Override
     public boolean pageHide(WizardObservable observable) {
         /*observable.put("isInternal"   , ((TOGGLEPANEeditor)(questionPane.getCtrlByName("isInternal"))).getValue());*/
 
@@ -168,6 +171,7 @@ IKeyCertPage {
       *
       */
     class ModifiedActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             modified = true;
         }

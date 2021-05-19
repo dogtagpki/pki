@@ -51,6 +51,7 @@ public class AuthzRealmConstraint extends EnrollConstraint {
         addConfigName(CONFIG_REALMS_ALLOWED);
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
 
@@ -65,6 +66,7 @@ public class AuthzRealmConstraint extends EnrollConstraint {
         mConfig.getSubStore("params").putString(name, value);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_REALMS_ALLOWED)) {
             return new Descriptor(IDescriptor.STRING, null, null,
@@ -73,11 +75,13 @@ public class AuthzRealmConstraint extends EnrollConstraint {
         return null;
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_CONSTRAINT_REALM_TEXT",
                 getConfig(CONFIG_REALMS_ALLOWED));
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;

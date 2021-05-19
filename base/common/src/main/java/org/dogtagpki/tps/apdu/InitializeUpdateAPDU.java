@@ -41,11 +41,13 @@ public class InitializeUpdateAPDU extends APDU {
         return getData();
     }
 
+    @Override
     public Type getType()
     {
         return Type.APDU_INITIALIZE_UPDATE;
     }
 
+    @Override
     public TPSBuffer getEncoding()
     {
         TPSBuffer theData = new TPSBuffer();

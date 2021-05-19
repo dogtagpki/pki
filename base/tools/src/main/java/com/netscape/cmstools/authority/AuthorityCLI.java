@@ -28,6 +28,7 @@ public class AuthorityCLI extends CLI {
         addModule(new AuthorityKeyExportCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

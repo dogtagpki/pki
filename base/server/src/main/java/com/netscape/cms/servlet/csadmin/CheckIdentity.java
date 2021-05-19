@@ -49,6 +49,7 @@ public class CheckIdentity extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
@@ -60,6 +61,7 @@ public class CheckIdentity extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     protected void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
@@ -91,6 +93,7 @@ public class CheckIdentity extends CMSServlet {
     /**
      * Retrieves locale based on the request.
      */
+    @Override
     protected Locale getLocale(HttpServletRequest req) {
         Locale locale = null;
         String lang = req.getHeader("accept-language");
@@ -105,6 +108,7 @@ public class CheckIdentity extends CMSServlet {
         return locale;
     }
 
+    @Override
     protected void renderResult(CMSRequest cmsReq) throws IOException {
         // do nothing, ie, it will not return the default javascript.
     }

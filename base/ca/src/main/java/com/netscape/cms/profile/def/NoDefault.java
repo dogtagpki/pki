@@ -42,14 +42,17 @@ public class NoDefault extends PolicyDefault {
     protected Vector<String> mNames = new Vector<String>();
     protected IConfigStore mConfig = null;
 
+    @Override
     public Enumeration<String> getConfigNames() {
         return mNames.elements();
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
     }
@@ -58,14 +61,17 @@ public class NoDefault extends PolicyDefault {
         return null;
     }
 
+    @Override
     public String getConfig(String name) {
         return null;
     }
 
+    @Override
     public void init(IConfigStore config) throws EProfileException {
         mConfig = config;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -73,31 +79,38 @@ public class NoDefault extends PolicyDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request)
             throws EProfileException {
     }
 
+    @Override
     public Enumeration<String> getValueNames() {
         return mValues.elements();
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public void setValue(String name, Locale locale, IRequest request,
             String value)
             throws EPropertyException {
     }
 
+    @Override
     public String getValue(String name, Locale locale, IRequest request) {
         return null;
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_NO_DEFAULT");
     }
 
+    @Override
     public String getName(Locale locale) {
         try {
             return mConfig.getString(PROP_NAME);

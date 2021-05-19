@@ -87,6 +87,7 @@ public class Logger implements ILogger {
     /**
      * Retrieves the associated log queue.
      */
+    @Override
     public ILogQueue getLogQueue() {
         return mLogQueue;
     }
@@ -118,6 +119,7 @@ public class Logger implements ILogger {
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
      */
+    @Override
     public void log(LogCategory evtClass, LogSource source, String msg) {
         log(evtClass, source, level, msg, null, ILogger.L_SINGLELINE);
     }
@@ -136,6 +138,7 @@ public class Logger implements ILogger {
      * @param level the level of the log event
      * @param msg the one line detail message to be logged
      */
+    @Override
     public void log(LogCategory evtClass, LogSource source, int level, String msg) {
         log(evtClass, source, level, msg, null, ILogger.L_SINGLELINE);
     }
@@ -150,6 +153,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param param the parameter in the detail message
      */
+    @Override
     public void log(LogCategory evtClass, LogSource source, int level, String msg, Object param) {
         Object o[] = new Object[1];
         o[0] = param;
@@ -171,6 +175,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param params the parameters in the detail message
      */
+    @Override
     public void log(LogCategory evtClass, LogSource source, int level, String msg,
             Object params[]) {
         log(evtClass, source, level, msg, params, ILogger.L_SINGLELINE);
@@ -186,6 +191,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param multiline true if the message has more than one line, otherwise false
      */
+    @Override
     public void log(LogCategory evtClass, LogSource source, String msg, boolean multiline) {
         log(evtClass, source, level, msg, null, multiline);
     }
@@ -205,6 +211,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param multiline true if the message has more than one line, otherwise false
      */
+    @Override
     public void log(LogCategory evtClass, LogSource source, int level, String msg, boolean multiline) {
         log(evtClass, source, level, msg, null, multiline);
     }
@@ -220,6 +227,7 @@ public class Logger implements ILogger {
      * @param param the parameter in the detail message
      * @param multiline true if the message has more than one line, otherwise false
      */
+    @Override
     public void log(LogCategory evtClass, LogSource source, int level, String msg, Object param, boolean multiline) {
         Object o[] = new Object[1];
         o[0] = param;
@@ -259,6 +267,7 @@ public class Logger implements ILogger {
      * Creates generic log event. If required, we can recycle
      * events here.
      */
+    @Override
     public ILogEvent create(LogCategory evtClass, LogSource source, int level,
             String msg, Object params[], boolean multiline) {
 

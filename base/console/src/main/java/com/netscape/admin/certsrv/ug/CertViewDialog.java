@@ -100,7 +100,8 @@ public class CertViewDialog extends JDialog
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
-	public void actionPerformed(ActionEvent evt) {
+	@Override
+    public void actionPerformed(ActionEvent evt) {
 	    if (evt.getSource().equals(mOK)) {
 	        this.setVisible(false);
 	    }

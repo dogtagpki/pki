@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name="Tokens")
 public class TokenCollection extends DataCollection<TokenData> {
 
+    @Override
     @XmlElementRef
     public Collection<TokenData> getEntries() {
         return super.getEntries();

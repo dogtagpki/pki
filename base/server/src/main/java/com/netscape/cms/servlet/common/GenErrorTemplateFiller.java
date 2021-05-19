@@ -46,6 +46,7 @@ public class GenErrorTemplateFiller implements ICMSTemplateFiller {
      * @param locale the locale of template.
      * @param e unexpected error. ignored.
      */
+    @Override
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
         ArgBlock fixed = new ArgBlock();

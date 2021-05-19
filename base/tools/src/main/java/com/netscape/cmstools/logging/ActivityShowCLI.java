@@ -39,10 +39,12 @@ public class ActivityShowCLI extends CommandCLI {
         this.activityCLI = activityCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Activity ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

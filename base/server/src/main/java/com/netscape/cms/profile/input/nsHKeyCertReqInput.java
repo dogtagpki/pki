@@ -58,6 +58,7 @@ public class nsHKeyCertReqInput extends EnrollInput {
     /**
      * Initializes this default policy.
      */
+    @Override
     public void init(Profile profile, IConfigStore config)
             throws EProfileException {
         super.init(profile, config);
@@ -68,6 +69,7 @@ public class nsHKeyCertReqInput extends EnrollInput {
     /**
      * Retrieves the localizable name of this policy.
      */
+    @Override
     public String getName(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_TOKENKEY_CERT_REQ_NAME");
     }
@@ -75,6 +77,7 @@ public class nsHKeyCertReqInput extends EnrollInput {
     /**
      * Retrieves the localizable description of this policy.
      */
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_TOKENKEY_CERT_REQ_TEXT");
     }
@@ -102,6 +105,7 @@ public class nsHKeyCertReqInput extends EnrollInput {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(Map<String, String> ctx, IRequest request) throws Exception {
 
         String tcuid = ctx.get(VAL_TOKEN_CUID);
@@ -143,6 +147,7 @@ public class nsHKeyCertReqInput extends EnrollInput {
      * Retrieves the descriptor of the given value
      * parameter by name.
      */
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_TOKEN_CUID)) {
             return new Descriptor(IDescriptor.STRING, null,

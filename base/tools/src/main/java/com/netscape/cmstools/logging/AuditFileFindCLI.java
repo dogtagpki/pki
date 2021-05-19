@@ -42,10 +42,12 @@ public class AuditFileFindCLI extends CommandCLI {
         this.auditCLI = auditCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

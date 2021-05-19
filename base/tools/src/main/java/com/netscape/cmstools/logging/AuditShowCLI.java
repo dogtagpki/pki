@@ -43,16 +43,19 @@ public class AuditShowCLI extends CommandCLI {
         this.auditCLI = auditCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "output", true, "Output file to store audit configuration.");
         option.setArgName("file");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

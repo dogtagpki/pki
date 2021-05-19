@@ -75,6 +75,7 @@ public class ProfileApproveServlet extends ProfileServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
@@ -93,6 +94,7 @@ public class ProfileApproveServlet extends ProfileServlet {
      * @param cmsReq the object holding the request and response information
      * @exception Exception an error has occurred
      */
+    @Override
     public void process(CMSRequest cmsReq) throws Exception {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();

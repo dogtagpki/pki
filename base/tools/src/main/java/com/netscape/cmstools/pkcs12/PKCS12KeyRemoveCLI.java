@@ -43,10 +43,12 @@ public class PKCS12KeyRemoveCLI extends CommandCLI {
         this.keyCLI = keyCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <key ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "pkcs12-file", true, "PKCS #12 file");
         option.setArgName("path");
@@ -61,6 +63,7 @@ public class PKCS12KeyRemoveCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

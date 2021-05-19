@@ -19,6 +19,7 @@ public class RequestQueueTest extends CMSBaseTestCase {
         super(name);
     }
 
+    @Override
     public void cmsTestSetUp() throws Exception {
 
         request = new RequestStub();
@@ -34,6 +35,7 @@ public class RequestQueueTest extends CMSBaseTestCase {
                 null);
     }
 
+    @Override
     public void cmsTestTearDown() {
     }
 
@@ -53,15 +55,18 @@ public class RequestQueueTest extends CMSBaseTestCase {
         String[] keys = new String[] { "key1", "key2" };
         boolean getExtDataKeysCalled = false;
 
+        @Override
         public Enumeration<String> getExtDataKeys() {
             getExtDataKeysCalled = true;
             return Collections.enumeration(Arrays.asList(keys));
         }
 
+        @Override
         public boolean isSimpleExtDataValue(String key) {
             return true;
         }
 
+        @Override
         public String getExtDataInString(String key) {
             return "";
         }

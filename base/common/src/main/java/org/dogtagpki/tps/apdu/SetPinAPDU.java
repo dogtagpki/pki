@@ -59,6 +59,7 @@ public class SetPinAPDU extends APDU {
         return getData();
     }
 
+    @Override
     public Type getType()
     {
         return Type.APDU_SET_PIN;

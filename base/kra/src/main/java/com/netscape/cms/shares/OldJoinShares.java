@@ -37,6 +37,7 @@ public class OldJoinShares implements IJoinShares {
     public OldJoinShares() {
     }
 
+    @Override
     public void initialize(int threshold) throws Exception {
         Class<?> c = Class.forName("com.netscape.cmscore.shares.JoinShares");
         Class<?> types[] = { int.class };
@@ -45,6 +46,7 @@ public class OldJoinShares implements IJoinShares {
         mOldImpl = con.newInstance(params);
     }
 
+    @Override
     public void addShare(int shareNum, byte[] share) {
         try {
             Class<?> types[] = { int.class, share.getClass() };
@@ -56,6 +58,7 @@ public class OldJoinShares implements IJoinShares {
         }
     }
 
+    @Override
     public int getShareCount() {
         if (mOldImpl == null)
             return -1;
@@ -71,6 +74,7 @@ public class OldJoinShares implements IJoinShares {
         }
     }
 
+    @Override
     public byte[] recoverSecret() {
         if (mOldImpl == null)
             return null;

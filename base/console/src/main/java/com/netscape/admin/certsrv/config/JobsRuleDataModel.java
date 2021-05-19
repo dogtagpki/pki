@@ -44,12 +44,14 @@ public class JobsRuleDataModel extends CMSRuleDataModel
         super();
     }
 
-	protected String[] getColumns() {
+	@Override
+    protected String[] getColumns() {
 		Debug.println("JobsRuleDataModel.getColumns()");
 		String x[] = {JOBS_RULE, STATUS};
 		return x;
 	}
 
+    @Override
     public void processData(Object data) {
         Vector<Object> v = new Vector<>();
         NameValuePairs obj = (NameValuePairs) data;

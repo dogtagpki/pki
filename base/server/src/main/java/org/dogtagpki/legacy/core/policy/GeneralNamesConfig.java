@@ -80,6 +80,7 @@ public class GeneralNamesConfig implements IGeneralNamesConfig {
         }
     }
 
+    @Override
     public GeneralNames getGeneralNames() {
         return mGeneralNames;
     }
@@ -140,6 +141,7 @@ public class GeneralNamesConfig implements IGeneralNamesConfig {
     /**
      * Get instance params.
      */
+    @Override
     public void getInstanceParams(Vector<String> params) {
         params.addElement(
                 GeneralNameUtil.PROP_NUM_GENERALNAMES + '=' + mGenNameConfigs.length);

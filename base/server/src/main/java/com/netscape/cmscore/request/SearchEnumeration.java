@@ -33,6 +33,7 @@ public class SearchEnumeration implements IRequestList {
         this.results = results;
     }
 
+    @Override
     public RequestId nextRequestId() {
         Object object = results.nextElement();
 
@@ -44,14 +45,17 @@ public class SearchEnumeration implements IRequestList {
         return r.mRequestId;
     }
 
+    @Override
     public boolean hasMoreElements() {
         return results.hasMoreElements();
     }
 
+    @Override
     public RequestId nextElement() {
         return nextRequestId();
     }
 
+    @Override
     public Object nextRequest() {
         Object object = results.nextElement();
 
@@ -63,6 +67,7 @@ public class SearchEnumeration implements IRequestList {
         return r;
     }
 
+    @Override
     public IRequest nextRequestObject() {
         RequestRecord record = (RequestRecord) nextRequest();
         if (record != null) {

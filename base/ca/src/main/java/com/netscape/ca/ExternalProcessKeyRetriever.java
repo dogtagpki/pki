@@ -49,6 +49,7 @@ public class ExternalProcessKeyRetriever implements KeyRetriever {
         }
     }
 
+    @Override
     public Result retrieveKey(String nickname, Collection<String> hostPorts) {
         logger.debug("Running ExternalProcessKeyRetriever");
 

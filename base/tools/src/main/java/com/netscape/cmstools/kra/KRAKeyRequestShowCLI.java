@@ -37,10 +37,12 @@ public class KRAKeyRequestShowCLI extends CommandCLI {
         this.keyCLI = keyCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Request ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

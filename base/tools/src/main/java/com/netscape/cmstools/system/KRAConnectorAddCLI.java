@@ -44,11 +44,13 @@ public class KRAConnectorAddCLI extends CommandCLI {
         this.kraConnectorCLI = kraConnectorCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(
                 getFullName() + " --input-file <file> | --host <KRA host> --port <KRA port>", options);
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option(null, "host", true, "KRA host");
@@ -96,6 +98,7 @@ public class KRAConnectorAddCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

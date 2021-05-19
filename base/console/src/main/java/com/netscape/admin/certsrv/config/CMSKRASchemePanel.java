@@ -86,6 +86,7 @@ public class CMSKRASchemePanel extends CMSBaseUGTab {
     }
 */
 
+    @Override
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
@@ -116,6 +117,7 @@ public class CMSKRASchemePanel extends CMSBaseUGTab {
         }
     }
 
+    @Override
     protected JPanel createActionPanel() {
         //edit, add, delete, help buttons required
         //actionlister to this object
@@ -126,6 +128,7 @@ public class CMSKRASchemePanel extends CMSBaseUGTab {
         return makeJButtonPanel(buttons, true);
     }
 
+    @Override
     protected JPanel createListPanel() {
         JPanel listPanel = new JPanel();
         GridBagLayout gb3 = new GridBagLayout();
@@ -181,6 +184,7 @@ public class CMSKRASchemePanel extends CMSBaseUGTab {
         return listPanel;
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mSchemeBtn)) {
             try {
@@ -200,6 +204,7 @@ public class CMSKRASchemePanel extends CMSBaseUGTab {
         }
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
     }
 

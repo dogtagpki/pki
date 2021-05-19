@@ -34,6 +34,7 @@ public class CMSCALDAPPanel extends CMSBaseLDAPPanel {
         mHelpToken = HELPINDEX;
     }
 
+    @Override
     public void init() {
         super.init();
         refresh();

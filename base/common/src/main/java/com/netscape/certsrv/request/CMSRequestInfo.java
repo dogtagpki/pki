@@ -187,6 +187,7 @@ public  class CMSRequestInfo {
         return mapper.readValue(json, CMSRequestInfo.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toXML();

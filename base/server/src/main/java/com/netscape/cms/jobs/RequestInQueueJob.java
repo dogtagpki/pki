@@ -78,6 +78,7 @@ public class RequestInQueueJob extends AJobBase
     /**
      * holds help text for this plugin
      */
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
                 IExtendedPluginInfo.HELP_TEXT +
@@ -111,6 +112,7 @@ public class RequestInQueueJob extends AJobBase
      * @param config configuration store for this instance
      * @exception EBaseException
      */
+    @Override
     public void init(ISubsystem owner, String id, String implName, IConfigStore config) throws
             EBaseException {
         mConfig = config;
@@ -159,6 +161,7 @@ public class RequestInQueueJob extends AJobBase
     /**
      * summarize the queue status and mail it
      */
+    @Override
     public void run() {
         if (mSummary == false)
             return;
@@ -213,6 +216,7 @@ public class RequestInQueueJob extends AJobBase
      *
      * @return String array of configuration parameter names.
      */
+    @Override
     public String[] getConfigParams() {
         return mConfigParams;
     }

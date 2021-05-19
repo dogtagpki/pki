@@ -24,6 +24,7 @@ public class UserNotFoundException extends ResourceNotFoundException {
         userId = data.getAttribute("userId");
     }
 
+    @Override
     public Data getData() {
         Data data = super.getData();
         data.setAttribute("userId", userId);

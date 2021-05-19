@@ -405,6 +405,7 @@ public class CMSTemplate extends CMSFile {
             s.append(p);
         }
 
+        @Override
         public String toString() {
             return s.toString();
         }

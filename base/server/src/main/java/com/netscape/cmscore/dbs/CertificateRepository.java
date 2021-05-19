@@ -301,6 +301,7 @@ public class CertificateRepository extends Repository {
      * @return serial number
      * @exception EBaseException failed to retrieve next serial number
      */
+    @Override
     public synchronized BigInteger getNextSerialNumber()
             throws EBaseException {
 
@@ -470,6 +471,7 @@ public class CertificateRepository extends Repository {
         return counter;
     }
 
+    @Override
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound)
             throws EBaseException {
 

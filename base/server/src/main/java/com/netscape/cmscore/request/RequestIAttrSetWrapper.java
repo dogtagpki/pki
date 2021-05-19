@@ -31,6 +31,7 @@ public class RequestIAttrSetWrapper implements IAttrSet {
         mRequest = request;
     }
 
+    @Override
     public void set(String name, Object obj) throws EBaseException {
         try {
             mRequest.setExtData(name, (String) obj);
@@ -39,14 +40,17 @@ public class RequestIAttrSetWrapper implements IAttrSet {
         }
     }
 
+    @Override
     public Object get(String name) throws EBaseException {
         return mRequest.getExtDataInString(name);
     }
 
+    @Override
     public void delete(String name) throws EBaseException {
         mRequest.deleteExtData(name);
     }
 
+    @Override
     public Enumeration<String> getElements() {
         return mRequest.getExtDataKeys();
     }

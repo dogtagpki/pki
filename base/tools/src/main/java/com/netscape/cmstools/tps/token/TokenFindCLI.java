@@ -44,10 +44,12 @@ public class TokenFindCLI extends CommandCLI {
         this.tokenCLI = tokenCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [FILTER] [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "token", true, "Token ID");
         option.setArgName("token ID");
@@ -74,6 +76,7 @@ public class TokenFindCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -126,6 +126,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
 
     //== IResourceListener ===
 
+    @Override
     public void select(IResourceObject parent, Object viewInstance) {
         if (!mInit) {
             init();
@@ -138,6 +139,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
         repaint(1);
     }
 
+    @Override
     public boolean unselect(IResourceObject parent, Object viewInstance) {
         return true;
     }
@@ -147,6 +149,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mRefresh)) {
             Debug.println("AccessLogPanel: Refresh Log");
@@ -166,11 +169,13 @@ public abstract class CMSLogPanel extends CMSBasePanel
         }
     }
 
+    @Override
     public CMSBasePanel getSelectedTab() {
         return this;
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         //Debug.println("CertRepositoryPanel: mouseClicked() -"+e.toString());
 
@@ -181,14 +186,19 @@ public abstract class CMSLogPanel extends CMSBasePanel
         }
     }
 
+    @Override
     public void mousePressed(MouseEvent e) { }
+    @Override
     public void mouseReleased(MouseEvent e) { }
+    @Override
     public void mouseEntered(MouseEvent e) { }
+    @Override
     public void mouseExited(MouseEvent e) { }
 
     /**
      * refresh the table data
      */
+    @Override
     public void refresh() {
         mDataModel.removeAllRows();
         Debug.println("CMSLogPanel: refresh()");
@@ -337,22 +347,27 @@ public abstract class CMSLogPanel extends CMSBasePanel
 
     //=== OVERWRITE DIALOG MESSAGE =====================
 
+    @Override
     protected void showMessageDialog(String keyword, int messageType ) {
         CMSAdminUtil.showMessageDialog(mModel.getFrame(), mResource, mPanelName, keyword, messageType);
     }
 
+    @Override
     protected void showMessageDialog(String keyword) {
         showMessageDialog(keyword, ERROR_MESSAGE);
     }
 
+    @Override
     protected int showConfirmDialog(String keyword, int messageType ) {
         return CMSAdminUtil.showConfirmDialog(mModel.getFrame(), mResource, mPanelName, keyword, messageType);
     }
 
+    @Override
     protected int showConfirmDialog(String keyword) {
         return showConfirmDialog(keyword, WARNING_MESSAGE);
     }
 
+    @Override
     protected void showErrorDialog(String message) {
         CMSAdminUtil.showErrorDialog(mModel.getFrame(), mResource, message, ERROR_MESSAGE);
     }

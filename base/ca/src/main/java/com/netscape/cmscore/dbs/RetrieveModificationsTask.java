@@ -48,6 +48,7 @@ public class RetrieveModificationsTask implements Runnable {
         this.repository = repository;
 
         executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            @Override
             public Thread newThread(Runnable r) {
                 return new Thread(r, "RetrieveModificationsTask");
             }
@@ -157,6 +158,7 @@ public class RetrieveModificationsTask implements Runnable {
         session = null;
     }
 
+    @Override
     public void run() {
         try {
             // make sure it's connected

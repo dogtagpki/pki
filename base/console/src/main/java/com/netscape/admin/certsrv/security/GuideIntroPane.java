@@ -25,14 +25,17 @@ import com.netscape.management.nmclf.*;
 
 class GuideIntroPane extends JPanel implements SuiConstants, IKeyCertPage {
 
+    @Override
     public JPanel getPanel() {
         return this;
     }
 
+    @Override
     public boolean pageShow(WizardObservable observable) {
         return true;
     }
 
+    @Override
     public boolean pageHide(WizardObservable observable) {
         return true;
     }

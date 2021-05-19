@@ -65,5 +65,6 @@ public interface ILdapExpression {
      *
      * @return String representation of expression.
      */
+    @Override
     public String toString();
 }

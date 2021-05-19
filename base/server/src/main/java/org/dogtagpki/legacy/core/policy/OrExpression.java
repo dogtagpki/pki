@@ -40,6 +40,7 @@ public class OrExpression implements IExpression {
         mExp2 = exp2;
     }
 
+    @Override
     public boolean evaluate(IRequest req)
             throws EPolicyException {
         if (mExp1 == null && mExp2 == null)
@@ -53,6 +54,7 @@ public class OrExpression implements IExpression {
             return mExp2.evaluate(req);
     }
 
+    @Override
     public String toString() {
         if (mExp1 == null && mExp2 == null)
             return "";

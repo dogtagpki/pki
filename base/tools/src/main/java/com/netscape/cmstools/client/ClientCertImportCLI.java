@@ -56,10 +56,12 @@ public class ClientCertImportCLI extends CommandCLI {
         this.clientCLI = clientCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [nickname] [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "cert", true, "Certificate file to import.");
         option.setArgName("path");
@@ -96,6 +98,7 @@ public class ClientCertImportCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

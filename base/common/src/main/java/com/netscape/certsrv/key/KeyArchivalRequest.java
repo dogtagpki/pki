@@ -268,6 +268,7 @@ public class KeyArchivalRequest extends ResourceMessage {
         return mapper.readValue(json, KeyArchivalRequest.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toXML();

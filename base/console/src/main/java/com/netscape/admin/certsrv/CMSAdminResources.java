@@ -165,6 +165,7 @@ public class CMSAdminResources extends ResourceBundle {
     /**
      * Override of ResourceBundle, same semantics
      */
+    @Override
     public Object handleGetObject(String key) {
 	Object o = mResourceBundle.handleGetObject(key);
 	if (o == null) {
@@ -176,6 +177,7 @@ public class CMSAdminResources extends ResourceBundle {
     /**
      * Implementation of ResourceBundle.getKeys.
      */
+    @Override
     public Enumeration<String> getKeys() {
 	return mResourceBundle.getKeys();
     }

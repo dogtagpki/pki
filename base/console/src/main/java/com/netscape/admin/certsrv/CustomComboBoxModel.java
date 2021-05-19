@@ -54,6 +54,7 @@ class CustomComboBoxModel extends AbstractListModel<Object> implements ComboBoxM
      * DO NOT USE!!!
      * use JComboBox.setSelectedIndex()
      */
+    @Override
     public void setSelectedItem(Object anObject) {
         _currentValue = anObject;
         fireContentsChanged(this,-1,-1);
@@ -64,6 +65,7 @@ class CustomComboBoxModel extends AbstractListModel<Object> implements ComboBoxM
      * DO NOT USE !!!
      * use JComboBox.getItemAt(JComboBox.getSelectedIndex())
      */
+    @Override
     public Object getSelectedItem() {
         return _currentValue;
     }
@@ -72,6 +74,7 @@ class CustomComboBoxModel extends AbstractListModel<Object> implements ComboBoxM
      * Return size
      * @return size
      */
+    @Override
     public int getSize() {
         return _cache.size();
     }
@@ -81,6 +84,7 @@ class CustomComboBoxModel extends AbstractListModel<Object> implements ComboBoxM
      * @param index location
      * @Object Hashtable obejct with "icon" and "title" field
      */
+    @Override
     public Object getElementAt(int index) {
         try {
             return _cache.elementAt(index);

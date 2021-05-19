@@ -102,6 +102,7 @@ public class PublisherAdminServlet extends AdminServlet {
     /**
      * Initializes this servlet.
      */
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         String authority = config.getInitParameter(PROP_AUTHORITY);
@@ -116,6 +117,7 @@ public class PublisherAdminServlet extends AdminServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -123,6 +125,7 @@ public class PublisherAdminServlet extends AdminServlet {
     /**
      * Serves HTTP admin request.
      */
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         super.service(req, resp);

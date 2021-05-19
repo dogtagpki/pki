@@ -75,10 +75,12 @@ public class CrlCachePrettyPrint implements ICRLPrettyPrint {
      * @param clientLocale Locale to be used for localization
      * @return string representation of the certificate
      */
+    @Override
     public String toString(Locale clientLocale) {
         return toString(clientLocale, 0, 0, 0);
     }
 
+    @Override
     public String toString(Locale clientLocale, long crlSize, long pageStart, long pageSize) {
 
         //get I18N resources

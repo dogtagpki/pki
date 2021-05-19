@@ -71,6 +71,7 @@ public class CMSMigrateCreate extends CGITask
     /*==========================================================
 	 * public methods
      *==========================================================*/
+    @Override
     public void initialize(ConsoleInfo info) {
         Debug.println("CMSMigrateCreate: initialize()");
         _consoleInfo = info;
@@ -96,7 +97,8 @@ public class CMSMigrateCreate extends CGITask
 	 * @return  boolean value indicating whether the process succeeded (true)
 	 *          or failed (false).
 	 */
-	public boolean createNewInstance(String targetDN) {
+	@Override
+    public boolean createNewInstance(String targetDN) {
 	    //Debug.println("CMSMigrateCreate: createNewInstance()- "+targetDN);
 	    //targetDN: cn=Server Group, cn=cynthiar.mcom.com, ou=mcom.com, o=NetscapeRoot
 
@@ -208,6 +210,7 @@ public class CMSMigrateCreate extends CGITask
     /**
 	 *	the operation is finished after we receive the http stream
 	 */
+    @Override
     public void replyHandler(InputStream response, CommRecord cr) {
         mSuccess = false;
 		if (mCgiResponse != null)

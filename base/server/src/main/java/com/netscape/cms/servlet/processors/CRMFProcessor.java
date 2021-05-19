@@ -83,6 +83,7 @@ public class CRMFProcessor extends PKIProcessor {
         mRequest = cmsReq;
     }
 
+    @Override
     public void process(ICMSRequest cmsReq)
             throws EBaseException {
     }
@@ -317,6 +318,7 @@ public class CRMFProcessor extends PKIProcessor {
 
     }
 
+    @Override
     public X509CertInfo[] fillCertInfoArray(
             String protocolString, IAuthToken authToken, IArgBlock httpParams, IRequest req)
             throws EBaseException {

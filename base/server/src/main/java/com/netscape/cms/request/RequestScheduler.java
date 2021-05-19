@@ -38,6 +38,7 @@ public class RequestScheduler implements IRequestScheduler {
      *
      * @param r request
      */
+    @Override
     public synchronized void requestIn(IRequest r) {
         Thread current = Thread.currentThread();
 
@@ -52,6 +53,7 @@ public class RequestScheduler implements IRequestScheduler {
      *
      * @param r request
      */
+    @Override
     public synchronized void requestOut(IRequest r) {
         Thread current = Thread.currentThread();
         Thread first = mRequestThreads.elementAt(0);

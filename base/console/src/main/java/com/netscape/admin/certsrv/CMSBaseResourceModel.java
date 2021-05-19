@@ -127,7 +127,8 @@ public class CMSBaseResourceModel extends ResourceModel {
     /**
      * Tree Nodes selected call back
      */
-	public void actionObjectSelected( IPage viewInstance,
+	@Override
+    public void actionObjectSelected( IPage viewInstance,
 									  IResourceObject[] selection,
 									  IResourceObject[] previousSelection) {
 

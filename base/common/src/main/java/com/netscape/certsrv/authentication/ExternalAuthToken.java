@@ -49,6 +49,7 @@ public class ExternalAuthToken implements IAuthToken {
         return principal;
     }
 
+    @Override
     public Enumeration<String> getElements() {
         ArrayList<String> keys = new ArrayList<>();
         keys.add(GROUPS);
@@ -58,14 +59,17 @@ public class ExternalAuthToken implements IAuthToken {
         return Collections.enumeration(keys);
     }
 
+    @Override
     public Object get(String k) {
         return null;
     }
 
+    @Override
     public boolean set(String k, String v) {
         return false;
     }
 
+    @Override
     public String getInString(String k) {
         if (k == null)
             return null;
@@ -76,42 +80,52 @@ public class ExternalAuthToken implements IAuthToken {
         return null;
     }
 
+    @Override
     public boolean set(String k, byte[] v) {
         return false;
     }
 
+    @Override
     public byte[] getInByteArray(String k) {
         return null;
     }
 
+    @Override
     public boolean set(String k, Integer v) {
         return false;
     }
 
+    @Override
     public Integer getInInteger(String k) {
         return null;
     }
 
+    @Override
     public boolean set(String k, BigInteger[] v) {
         return false;
     }
 
+    @Override
     public BigInteger[] getInBigIntegerArray(String k) {
         return null;
     }
 
+    @Override
     public boolean set(String k, Date v) {
         return false;
     }
 
+    @Override
     public Date getInDate(String k) {
         return null;
     }
 
+    @Override
     public boolean set(String k, String[] v) {
         return false;
     }
 
+    @Override
     public String[] getInStringArray(String k) {
         if (k == null)
             return null;
@@ -120,34 +134,42 @@ public class ExternalAuthToken implements IAuthToken {
         return null;
     }
 
+    @Override
     public boolean set(String k, X509CertImpl v) {
         return false;
     }
 
+    @Override
     public X509CertImpl getInCert(String k) {
         return null;
     }
 
+    @Override
     public boolean set(String k, CertificateExtensions v) {
         return false;
     }
 
+    @Override
     public CertificateExtensions getInCertExts(String k) {
         return null;
     }
 
+    @Override
     public boolean set(String k, Certificates v) {
         return false;
     }
 
+    @Override
     public Certificates getInCertificates(String k) {
         return null;
     }
 
+    @Override
     public boolean set(String k, byte[][] v) {
         return false;
     }
 
+    @Override
     public byte[][] getInByteArrayArray(String k) {
         return null;
     }

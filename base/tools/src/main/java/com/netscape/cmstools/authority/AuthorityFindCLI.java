@@ -19,10 +19,12 @@ public class AuthorityFindCLI extends CommandCLI {
         this.authorityCLI = authorityCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName(), options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "id", true, "Authority ID");
         option.setArgName("ID");
@@ -41,6 +43,7 @@ public class AuthorityFindCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String id = cmd.getOptionValue("id");

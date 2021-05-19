@@ -96,6 +96,7 @@ public class CMSNetworkPanel extends CMSBaseTab {
     /**
      * Actual Instanciation of the UI components
      */
+    @Override
     public void init() {
         Debug.println("NetworkPanel: init()");
         mAdmin = mModel.getServerInfo().getAdmin();
@@ -188,6 +189,7 @@ public class CMSNetworkPanel extends CMSBaseTab {
      * Implementation for saving panel information
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean applyCallback() {
         String adminSSLPortStr = mAdminSSLPortText.getText().trim();
         String gatewayPortStr = mGatewayPortText.getText().trim();
@@ -299,6 +301,7 @@ public class CMSNetworkPanel extends CMSBaseTab {
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean resetCallback() {
         refresh();
         //clearDirtyFlag();
@@ -308,6 +311,7 @@ public class CMSNetworkPanel extends CMSBaseTab {
     /**
 	 * refresh the panel and update data
 	 */
+    @Override
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
@@ -331,6 +335,7 @@ public class CMSNetworkPanel extends CMSBaseTab {
         mParent.setOKCancel();
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
         if (e.getSource().equals(mEnable)) {

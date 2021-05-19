@@ -40,6 +40,7 @@ public class DBSSession implements AutoCloseable {
      *
      * @exception EDBException failed to close session
      */
+    @Override
     public void close() throws EDBException {
     }
 

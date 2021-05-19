@@ -59,6 +59,7 @@ public class MultilineLabelUI extends BasicLabelUI {
      *
      * @see SwingUtilities#layoutCompoundLabel
      */
+    @Override
     protected String layoutCL(
         JLabel label,
         FontMetrics fontMetrics,
@@ -93,6 +94,7 @@ public class MultilineLabelUI extends BasicLabelUI {
      * @see #paintDisabledText
      * @see #layoutCL
      */
+    @Override
     public void paint(Graphics g, JComponent c) {
     	JLabel label = (JLabel)c;
     	String text = label.getText();
@@ -179,6 +181,7 @@ public class MultilineLabelUI extends BasicLabelUI {
     	}
     }
 
+    @Override
     public Dimension getPreferredSize(JComponent c) {
         Dimension realSize = super.getPreferredSize(c);
         //Debug.println("MultilineLabelUI: realSize " + realSize);

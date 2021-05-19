@@ -44,12 +44,14 @@ public class MapperRuleDataModel extends CMSRuleDataModel
         super();
     }
 
-	protected String[] getColumns() {
+	@Override
+    protected String[] getColumns() {
 		Debug.println("MapperRuleDataModel.getColumns()");
 		String x[] = {MAPPER_RULE, PLUGIN};
 		return x;
 	}
 
+    @Override
     public void processData(Object data) {
         Vector<Object> v = new Vector<>();
         NameValuePairs obj = (NameValuePairs) data;

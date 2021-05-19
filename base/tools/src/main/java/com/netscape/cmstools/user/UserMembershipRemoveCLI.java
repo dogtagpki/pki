@@ -38,10 +38,12 @@ public class UserMembershipRemoveCLI extends CommandCLI {
         this.userMembershipCLI = userMembershipCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <User ID> <Group ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

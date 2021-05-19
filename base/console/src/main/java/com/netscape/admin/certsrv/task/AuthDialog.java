@@ -129,6 +129,7 @@ public class AuthDialog extends JDialog
 
         addWindowListener(
             new WindowAdapter() {
+                @Override
                 public void windowOpened(WindowEvent e) {
                     mPasswordField.requestFocus();
                 }
@@ -137,6 +138,7 @@ public class AuthDialog extends JDialog
 
         addWindowListener(
             new WindowAdapter() {
+                @Override
                 public void windowClosing(WindowEvent e) {
                     //setVisible(false);
                     dispose();
@@ -167,6 +169,7 @@ public class AuthDialog extends JDialog
     /*==========================================================
 	 * EVNET HANDLER METHODS
      *==========================================================*/
+    @Override
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mOK)) {
             mPassword = mPasswordField.getText().trim();
@@ -185,26 +188,34 @@ public class AuthDialog extends JDialog
     }
 
     //== DocumentListener ==
+    @Override
     public void insertUpdate(DocumentEvent e) {
         setButtons();
     }
 
+    @Override
     public void removeUpdate(DocumentEvent e){
         setButtons();
     }
 
+    @Override
     public void changedUpdate(DocumentEvent e){
         setButtons();
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         setButtons();
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {}
+    @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
     public void mouseExited(MouseEvent e) {
         setButtons();
     }
@@ -240,13 +251,16 @@ public class AuthDialog extends JDialog
      */
 	class TextFieldKeyListener implements KeyListener
 	{
-		public void keyTyped(KeyEvent e) {
+		@Override
+        public void keyTyped(KeyEvent e) {
 		}
 
-		public void keyPressed(KeyEvent e) {
+		@Override
+        public void keyPressed(KeyEvent e) {
 		}
 
-		public void keyReleased(KeyEvent e) {
+		@Override
+        public void keyReleased(KeyEvent e) {
 			if(e.getKeyCode() == KeyEvent.VK_ENTER) {
 				if (!mPasswordField.getText().trim().equals("")) {
                         mOK.doClick();

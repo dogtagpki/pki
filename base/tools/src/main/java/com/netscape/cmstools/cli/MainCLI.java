@@ -129,6 +129,7 @@ public class MainCLI extends CLI {
         createOptions();
     }
 
+    @Override
     public ClientConfig getConfig() {
         return config;
     }
@@ -137,6 +138,7 @@ public class MainCLI extends CLI {
         return nssdb;
     }
 
+    @Override
     public String getFullModuleName(String moduleName) {
         return moduleName;
     }
@@ -151,6 +153,7 @@ public class MainCLI extends CLI {
         System.out.println("PKI Command-Line Interface " + pkg.getImplementationVersion());
     }
 
+    @Override
     public void printHelp() throws Exception {
 
         formatter.printHelp(name + " [OPTIONS..] <command> [ARGS..]", options);
@@ -579,6 +582,7 @@ public class MainCLI extends CLI {
         initialized = true;
     }
 
+    @Override
     public PKIClient getClient() throws Exception {
 
         if (client != null) return client;
@@ -628,6 +632,7 @@ public class MainCLI extends CLI {
         return client;
     }
 
+    @Override
     public void execute(String[] args) throws Exception {
 
         CommandLine cmd = parser.parse(options, args, true);

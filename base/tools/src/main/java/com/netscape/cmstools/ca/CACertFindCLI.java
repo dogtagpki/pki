@@ -48,10 +48,12 @@ public class CACertFindCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = null;
 
@@ -191,6 +193,7 @@ public class CACertFindCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

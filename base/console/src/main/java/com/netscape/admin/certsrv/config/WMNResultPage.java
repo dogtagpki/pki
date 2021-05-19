@@ -49,6 +49,7 @@ class WMNResultPage extends WizardBasePanel
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return true;
     }
@@ -56,21 +57,26 @@ class WMNResultPage extends WizardBasePanel
     /*==========================================================
      * public methods
      *==========================================================*/
+    @Override
     public boolean initializePanel(WizardInfo info) {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         return true;
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
@@ -80,6 +86,7 @@ class WMNResultPage extends WizardBasePanel
      *==========================================================*/
 
     //initialize the panel
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();

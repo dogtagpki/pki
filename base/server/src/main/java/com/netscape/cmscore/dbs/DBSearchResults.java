@@ -50,6 +50,7 @@ public class DBSearchResults implements IDBSearchResults {
     /**
      * Checks if any element is available.
      */
+    @Override
     public boolean hasMoreElements() {
         return mRes.hasMoreElements();
     }
@@ -57,6 +58,7 @@ public class DBSearchResults implements IDBSearchResults {
     /**
      * Retrieves next element.
      */
+    @Override
     public Object nextElement() {
         LDAPEntry entry = null;
 

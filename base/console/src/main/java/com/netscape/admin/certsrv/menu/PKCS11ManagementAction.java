@@ -40,6 +40,7 @@ public class PKCS11ManagementAction implements IMenuAction {
         mConsoleInfo = info;
     }
 
+    @Override
     public void perform(IPage viewInstance) {
         (new PKCS11ManagementDialog( mConsoleInfo )).showModal();
     }

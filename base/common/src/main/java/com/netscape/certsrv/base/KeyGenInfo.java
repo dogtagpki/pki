@@ -186,6 +186,7 @@ public class KeyGenInfo {
      *
      * @return string representation of KeGenInfo
      */
+    @Override
     public String toString() {
         if (mSPKACString != null)
             return mSPKACString;

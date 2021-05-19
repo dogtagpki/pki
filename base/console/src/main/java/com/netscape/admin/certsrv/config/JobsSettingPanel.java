@@ -67,6 +67,7 @@ public class JobsSettingPanel extends CMSBaseTab {
         mParent = parent;
     }
 
+    @Override
     public void init() {
         mAdmin = mModel.getServerInfo().getAdmin();
         JPanel serverInfo = new JPanel();
@@ -115,6 +116,7 @@ public class JobsSettingPanel extends CMSBaseTab {
 		refresh();
     }
 
+    @Override
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
@@ -169,6 +171,7 @@ public class JobsSettingPanel extends CMSBaseTab {
 		mFrequencyLabel.repaint(1);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
 		if (mEnable.isSelected()) {
@@ -182,6 +185,7 @@ public class JobsSettingPanel extends CMSBaseTab {
      * Implementation for saving panel information
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean applyCallback() {
         // check blank fields
         String freq = mFrequencyText.getText().trim();
@@ -234,6 +238,7 @@ public class JobsSettingPanel extends CMSBaseTab {
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean resetCallback() {
         refresh();
         return true;

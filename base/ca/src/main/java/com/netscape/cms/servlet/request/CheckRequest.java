@@ -103,6 +103,7 @@ public class CheckRequest extends CMSServlet {
     private String mFormPath = null;
     private String mAuthorityId = null;
 
+    @Override
     public CMSRequest newCMSRequest() {
         return new CMSRequest();
     }
@@ -121,6 +122,7 @@ public class CheckRequest extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
 
         super.init(sc);
@@ -142,6 +144,7 @@ public class CheckRequest extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         logger.debug("checkRequest: in process!");
         SET transIds = null, sNonces = null;

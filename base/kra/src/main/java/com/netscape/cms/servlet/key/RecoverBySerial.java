@@ -102,6 +102,7 @@ public class RecoverBySerial extends CMSServlet {
     /**
      * Initializes the servlet.
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
@@ -116,6 +117,7 @@ public class RecoverBySerial extends CMSServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -133,6 +135,7 @@ public class RecoverBySerial extends CMSServlet {
      * [pkcs12Delivery=<delivery mechanism for pkcs12>]
      * [cert=<encryption certificate>]
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
 
         HttpServletRequest req = cmsReq.getHttpReq();
@@ -505,6 +508,7 @@ public class RecoverBySerial extends CMSServlet {
             theSc = sc;
         }
 
+        @Override
         public void run() {
             SessionContext.setContext(theSc);
             Credential creds[] = null;

@@ -96,12 +96,14 @@ public class EncryptionPane extends JPanel implements ActionListener {
      *
      * @deprecated implement IEncryptionPaneListener instead
      */
+    @Override
     @Deprecated
     public void actionPerformed(ActionEvent e) {
     }
 
 
     class EncryptionPaneActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals(".doCipherSetting")) {
                 for (int i = 0; i < encryptionPaneListeners.size(); i++) {
@@ -571,6 +573,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
     }
 
     class wizardButtonActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("WIZARD")) {
                 //save the old setting
@@ -620,6 +623,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
     }
 
     class CipherPaneToggleListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("ENABLED")) {
                 setEnableAll(on.isSelected());
@@ -637,6 +641,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
             _switchPanel = sp;
         }
 
+        @Override
         public void paintBorder(Component c, Graphics g, int x, int y,
                 int width, int height) {
             Color save = g.getColor();

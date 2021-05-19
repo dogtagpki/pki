@@ -43,10 +43,12 @@ public class KRAKeyFindCLI extends CommandCLI {
         this.keyCLI = keyCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "clientKeyID", true, "Unique client key identifier");
         option.setArgName("client key ID");
@@ -81,6 +83,7 @@ public class KRAKeyFindCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

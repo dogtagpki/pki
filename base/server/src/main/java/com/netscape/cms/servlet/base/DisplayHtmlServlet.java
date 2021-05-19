@@ -50,6 +50,7 @@ public class DisplayHtmlServlet extends CMSServlet {
         super();
     }
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mHTMLPath = sc.getInitParameter(PROP_HTML_PATH);
@@ -59,6 +60,7 @@ public class DisplayHtmlServlet extends CMSServlet {
     /**
      * Serves HTTP request.
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         logger.debug("DisplayHtmlServlet about to service ");
         authenticate(cmsReq);

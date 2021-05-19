@@ -43,28 +43,34 @@ class WIInstallIntroPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         setBorder(makeTitledBorder(mPanelName));
 
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         return true;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(mHelpIndex);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -113,6 +119,7 @@ class WIInstallIntroPage extends WizardBasePanel implements IWizardPanel {
         super.init();
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (mNo.isSelected())
@@ -121,6 +128,7 @@ class WIInstallIntroPage extends WizardBasePanel implements IWizardPanel {
             wizardInfo.setInstallCertNow(Constants.TRUE);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
     }
 }

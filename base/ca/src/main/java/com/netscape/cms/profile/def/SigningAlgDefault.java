@@ -55,6 +55,7 @@ public class SigningAlgDefault extends EnrollDefault {
         addValueName(VAL_ALGORITHM);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_ALGORITHM)) {
             return new Descriptor(IDescriptor.CHOICE, DEF_CONFIG_ALGORITHMS,
@@ -99,6 +100,7 @@ public class SigningAlgDefault extends EnrollDefault {
         return allowed.toString();
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_ALGORITHM)) {
             String allowed = getDefSigningAlgorithms();
@@ -109,6 +111,7 @@ public class SigningAlgDefault extends EnrollDefault {
         return null;
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -132,6 +135,7 @@ public class SigningAlgDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -161,6 +165,7 @@ public class SigningAlgDefault extends EnrollDefault {
 
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_SIGNING_ALGORITHM",
                 getSigningAlg());
@@ -169,6 +174,7 @@ public class SigningAlgDefault extends EnrollDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         try {

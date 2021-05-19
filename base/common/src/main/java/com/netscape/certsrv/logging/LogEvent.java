@@ -164,6 +164,7 @@ public class LogEvent implements ILogEvent {
      * @return the component source
      *         where this message event was triggered
      */
+    @Override
     public LogSource getSource() {
         return mSource;
     }
@@ -185,6 +186,7 @@ public class LogEvent implements ILogEvent {
      *
      * @return Integer log level value.
      */
+    @Override
     public int getLevel() {
         return mLevel;
     }
@@ -194,6 +196,7 @@ public class LogEvent implements ILogEvent {
      *
      * @return Integer NTEventType value.
      */
+    @Override
     public int getNTEventType() {
         return mNTEventType;
     }
@@ -236,6 +239,7 @@ public class LogEvent implements ILogEvent {
      * @return Boolean whether or not this event is multiline.
      *         A multiline message simply consists of more than one line.
      */
+    @Override
     public boolean getMultiline() {
         return mMultiline;
     }
@@ -255,6 +259,7 @@ public class LogEvent implements ILogEvent {
      *
      * @return Long integer of the time the event was created.
      */
+    @Override
     public long getTimeStamp() {
         return mTimeStamp;
     }
@@ -265,6 +270,7 @@ public class LogEvent implements ILogEvent {
      *
      * @return String containing the type of event.
      */
+    @Override
     public String getEventType() {
         return mEventType;
     }
@@ -275,6 +281,7 @@ public class LogEvent implements ILogEvent {
      *
      * @param eventType String containing the type of event.
      */
+    @Override
     public void setEventType(String eventType) {
         mEventType = eventType;
     }
@@ -284,6 +291,7 @@ public class LogEvent implements ILogEvent {
      *
      * @return String containing log message.
      */
+    @Override
     public String toString() {
         MessageFormat detailMessage = new MessageFormat(mMessage);
         return detailMessage.format(mParams);

@@ -43,6 +43,7 @@ public class SDHostAddCLI extends CommandCLI {
         super("add", "Add security domain host", parent);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "hostname", true, "Hostname");
         option.setArgName("hostname");
@@ -60,6 +61,7 @@ public class SDHostAddCLI extends CommandCLI {
         options.addOption(null, "clone", false, "Clone");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

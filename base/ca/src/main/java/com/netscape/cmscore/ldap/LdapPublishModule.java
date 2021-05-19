@@ -105,9 +105,11 @@ public class LdapPublishModule implements IRequestListener {
     /**
      * initialize ldap publishing module with config store
      */
+    @Override
     public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
     }
 
+    @Override
     public void set(String name, String val) {
     }
 
@@ -267,6 +269,7 @@ public class LdapPublishModule implements IRequestListener {
      *
      * @param request The publishing request.
      */
+    @Override
     public void accept(IRequest request) {
         String type = request.getRequestType();
 
@@ -514,12 +517,15 @@ class HandleEnrollment implements IRequestListener {
         mModule = module;
     }
 
+    @Override
     public void set(String name, String val) {
     }
 
+    @Override
     public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
     }
 
+    @Override
     public void accept(IRequest r) {
         logger.debug("handling publishing for enrollment request id " + r.getRequestId());
 
@@ -587,12 +593,15 @@ class HandleRenewal implements IRequestListener {
         mModule = module;
     }
 
+    @Override
     public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
     }
 
+    @Override
     public void set(String name, String val) {
     }
 
+    @Override
     public void accept(IRequest r) {
         // Note we do not remove old certs from directory during renewal
         X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
@@ -650,12 +659,15 @@ class HandleRevocation implements IRequestListener {
         mModule = module;
     }
 
+    @Override
     public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
     }
 
+    @Override
     public void set(String name, String val) {
     }
 
+    @Override
     public void accept(IRequest r) {
         logger.debug("Handle publishing for revoke request id " + r.getRequestId());
 
@@ -713,12 +725,15 @@ class HandleUnrevocation implements IRequestListener {
         mModule = module;
     }
 
+    @Override
     public void set(String name, String val) {
     }
 
+    @Override
     public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
     }
 
+    @Override
     public void accept(IRequest r) {
         logger.debug("Handle publishing for unrevoke request id " + r.getRequestId());
 

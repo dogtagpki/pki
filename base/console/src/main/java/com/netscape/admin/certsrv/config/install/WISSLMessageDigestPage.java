@@ -43,6 +43,7 @@ class WISSLMessageDigestPage extends WMessageDigestPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning())
@@ -57,6 +58,7 @@ class WISSLMessageDigestPage extends WMessageDigestPage {
         return super.initializePanel(info);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (mDSAHashTypeBox.isVisible())

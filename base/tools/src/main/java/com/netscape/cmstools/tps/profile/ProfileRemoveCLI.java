@@ -38,10 +38,12 @@ public class ProfileRemoveCLI extends CommandCLI {
         this.profileCLI = profileCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Profile ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

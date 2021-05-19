@@ -39,10 +39,12 @@ public class TPSCertShowCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Certificate ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -35,6 +35,7 @@ public interface IRAService extends IService {
      *
      * @param req request data
      */
+    @Override
     public boolean serviceRequest(IRequest req);
 
     /**

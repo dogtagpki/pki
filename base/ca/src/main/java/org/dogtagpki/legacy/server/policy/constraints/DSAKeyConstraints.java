@@ -79,6 +79,7 @@ public class DSAKeyConstraints extends APolicyRule
         DESC = "Enforces DSA Key Constraints.";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_MIN_SIZE + ";number;Minimum key size",
@@ -103,6 +104,7 @@ public class DSAKeyConstraints extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EPolicyException {
 
@@ -162,6 +164,7 @@ public class DSAKeyConstraints extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
 
         PolicyResult result = PolicyResult.ACCEPTED;
@@ -230,6 +233,7 @@ public class DSAKeyConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> confParams = new Vector<String>();
 
@@ -247,6 +251,7 @@ public class DSAKeyConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return defConfParams;
     }

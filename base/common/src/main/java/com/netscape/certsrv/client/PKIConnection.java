@@ -400,6 +400,7 @@ public class PKIConnection implements AutoCloseable {
         this.output = output;
     }
 
+    @Override
     public void close() {
         client.close();
         engine.close();

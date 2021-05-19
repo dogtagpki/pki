@@ -43,10 +43,12 @@ public class TPSCertFindCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [FILTER] [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "token", true, "Token ID");
         option.setArgName("ID");
@@ -61,6 +63,7 @@ public class TPSCertFindCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

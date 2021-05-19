@@ -61,10 +61,12 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
 		//System.out.println("extension");
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
@@ -145,6 +147,7 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
         return super.initializePanel(info);
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
 
@@ -251,14 +254,17 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
             nvps.put(Constants.PR_OCSP_SIGNING, Constants.TRUE);
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         super.init();
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 }

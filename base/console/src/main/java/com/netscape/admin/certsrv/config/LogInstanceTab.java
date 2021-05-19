@@ -57,7 +57,8 @@ public class LogInstanceTab extends CMSPluginInstanceTab {
     }
 
 
-	public CMSBaseConfigDialog makeNewConfigDialog(
+	@Override
+    public CMSBaseConfigDialog makeNewConfigDialog(
 			NameValuePairs nvp,
 			JFrame parent,
 			AdminConnection conn,
@@ -71,7 +72,8 @@ public class LogInstanceTab extends CMSPluginInstanceTab {
 			dest);
 	}
 
-	public PluginSelectionDialog getPluginSelectionDialog(
+	@Override
+    public PluginSelectionDialog getPluginSelectionDialog(
 			JFrame parent,
 			AdminConnection conn,
 			String dest,

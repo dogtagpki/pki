@@ -46,6 +46,7 @@ public class CMCSharedTokenSubjectNameConstraint extends EnrollConstraint {
     public CMCSharedTokenSubjectNameConstraint() {
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         return null;
     }
@@ -59,6 +60,7 @@ public class CMCSharedTokenSubjectNameConstraint extends EnrollConstraint {
      * during the validation. User encoded subject name
      * is copied into the certificate template.
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         String method = "CMCSharedTokenSubjectNameConstraint: ";
@@ -104,11 +106,13 @@ public class CMCSharedTokenSubjectNameConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale,
                    "CMS_PROFILE_CONSTRAINT_CMC_SELF_SIGNED_SUBJECT_NAME_TEXT");
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         String method = "CMCSharedTokenSubjectNameConstraint: isApplicable: ";
         if (def instanceof AuthTokenSubjectNameDefault) {

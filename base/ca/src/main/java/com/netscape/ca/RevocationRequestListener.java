@@ -22,12 +22,15 @@ public class RevocationRequestListener implements IRequestListener {
         this.crlIssuingPoint = crlIssuingPoint;
     }
 
+    @Override
     public void init(ISubsystem sys, IConfigStore config) throws EBaseException {
     }
 
+    @Override
     public void set(String name, String val) {
     }
 
+    @Override
     public void accept(IRequest r) {
         String requestType = r.getRequestType();
 

@@ -74,6 +74,7 @@ public class CertSetupWizard extends WizardWidget {
         setVisible(true);
     }
 
+    @Override
     protected void callHelp() {
         if (mCurrent instanceof IWizardPanel) {
             ((IWizardPanel)mCurrent).callHelp();

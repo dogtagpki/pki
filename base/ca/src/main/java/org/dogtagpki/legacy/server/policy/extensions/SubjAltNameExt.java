@@ -94,6 +94,7 @@ public class SubjAltNameExt extends APolicyRule
         DESC = "Sets alternative subject names for certificates";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_CRITICAL
@@ -124,6 +125,7 @@ public class SubjAltNameExt extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         // future use.
@@ -141,6 +143,7 @@ public class SubjAltNameExt extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
@@ -328,6 +331,7 @@ public class SubjAltNameExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> params = new Vector<String>();
 
@@ -344,6 +348,7 @@ public class SubjAltNameExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> defParams = new Vector<String>();
 

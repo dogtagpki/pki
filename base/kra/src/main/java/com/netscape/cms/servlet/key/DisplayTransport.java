@@ -59,6 +59,7 @@ public class DisplayTransport extends CMSServlet {
     /**
      * Initializes the servlet.
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mTemplates.remove(ICMSRequest.SUCCESS);
@@ -67,6 +68,7 @@ public class DisplayTransport extends CMSServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -76,6 +78,7 @@ public class DisplayTransport extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
 
         HttpServletResponse resp = cmsReq.getHttpResp();

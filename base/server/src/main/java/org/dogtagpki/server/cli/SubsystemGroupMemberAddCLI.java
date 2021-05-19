@@ -43,6 +43,7 @@ public class SubsystemGroupMemberAddCLI extends CommandCLI {
         super("add", "Add " + parent.getParent().getParent().getName().toUpperCase() + " group member", parent);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

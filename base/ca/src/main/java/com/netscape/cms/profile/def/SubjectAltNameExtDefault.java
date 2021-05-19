@@ -90,11 +90,13 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         return num;
     }
 
+    @Override
     public void init(IConfigStore config) throws EProfileException {
         super.init(config);
         refreshConfigAndValueNames();
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
         int num = 0;
@@ -115,11 +117,13 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         super.setConfig(name, value);
     }
 
+    @Override
     public Enumeration<String> getConfigNames() {
         refreshConfigAndValueNames();
         return super.getConfigNames();
     }
 
+    @Override
     protected void refreshConfigAndValueNames() {
         super.refreshConfigAndValueNames();
 
@@ -136,6 +140,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null,
@@ -165,6 +170,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         return null;
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null,
@@ -179,6 +185,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -265,6 +272,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -339,6 +347,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
      * returns text that goes into description for this extension on
      * a profile
      */
+    @Override
     public String getText(Locale locale) {
         StringBuffer sb = new StringBuffer();
         int num = getNumGNs();
@@ -366,6 +375,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         SubjectAlternativeNameExtension ext = null;
@@ -482,6 +492,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         return ext;
     }
 
+    @Override
     public String mapPattern(IRequest request, String pattern)
             throws IOException {
         Pattern p = new Pattern(pattern);

@@ -39,16 +39,19 @@ public class ClientCertModifyCLI extends CommandCLI {
         this.clientCLI = clientCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <nickname> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "trust", true, "Trust attributes. Default: u,u,u.");
         option.setArgName("trust attributes");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

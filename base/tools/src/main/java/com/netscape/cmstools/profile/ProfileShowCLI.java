@@ -22,10 +22,12 @@ public class ProfileShowCLI extends CommandCLI {
         this.profileCLI = profileCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Profile ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option optFilename = new Option(null, "output", true, "Output filename");
         optFilename.setArgName("filename");
@@ -36,6 +38,7 @@ public class ProfileShowCLI extends CommandCLI {
         options.addOption(optRaw);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

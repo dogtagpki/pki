@@ -1224,6 +1224,7 @@ public class NSSDatabase {
 
     public void readStdout(Process process) {
         new Thread() {
+            @Override
             public void run() {
                 try (InputStream is = process.getInputStream();
                         InputStreamReader isr = new InputStreamReader(is);
@@ -1243,6 +1244,7 @@ public class NSSDatabase {
 
     public void readStderr(Process process) {
         new Thread() {
+            @Override
             public void run() {
                 try (InputStream is = process.getErrorStream();
                         InputStreamReader isr = new InputStreamReader(is);

@@ -45,6 +45,7 @@ public class CertNotFoundException extends ResourceNotFoundException {
         certId = new CertId(data.getAttribute("certId"));
     }
 
+    @Override
     public Data getData() {
         Data data = super.getData();
         data.setAttribute("certId", certId.toString());

@@ -91,6 +91,7 @@ IKeyCertPage {
      * Get the panel that is going to be displayed
      * @return a panel to be displayed by the key & cert wizard
      */
+    @Override
     public JPanel getPanel() {
         return this;
     }
@@ -100,6 +101,7 @@ IKeyCertPage {
       * Checks if this panel can be shown
       * @return true if this page can be shown
       */
+    @Override
     public boolean pageShow(WizardObservable observable) {
 
         boolean show =
@@ -122,6 +124,7 @@ IKeyCertPage {
       * Checks if this panel can be hidden
       * @return true if this page can be hide
       */
+    @Override
     public boolean pageHide(WizardObservable observable) {
         KeyCertTaskInfo taskInfo = observable.getTaskInfo();
 
@@ -154,12 +157,16 @@ IKeyCertPage {
       * then determain (call setEnableNextButton()) if wizard can proceed
       */
     class TypeActionListener implements KeyListener, ActionListener {
+        @Override
         public void keyTyped(KeyEvent e) {}
+        @Override
         public void keyPressed(KeyEvent e) {}
+        @Override
         public void keyReleased(KeyEvent e) {
             setEnableNextButton();
             modified = true;
         }
+        @Override
         public void actionPerformed(ActionEvent e) {
 
             if (e.getActionCommand().equals("SHOWCA")) {

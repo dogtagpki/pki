@@ -50,16 +50,19 @@ public class RevokedInfo implements CertStatus {
         mRevokedAt = revokedAt;
     }
 
+    @Override
     public Tag getTag() {
         return Tag.get(1);
     }
 
+    @Override
     public void encode(Tag t, OutputStream os) throws IOException {
         SEQUENCE seq = new SEQUENCE();
         seq.addElement(mRevokedAt);
         seq.encode(t, os);
     }
 
+    @Override
     public void encode(OutputStream os) throws IOException {
         encode(getTag(), os);
     }
@@ -90,15 +93,18 @@ public class RevokedInfo implements CertStatus {
 
         }
 
+        @Override
         public boolean tagMatch(Tag tag) {
             return TAG.equals(tag);
         }
 
+        @Override
         public ASN1Value decode(InputStream istream)
                         throws InvalidBERException, IOException {
             return decode(TAG, istream);
         }
 
+        @Override
         public ASN1Value decode(Tag implicitTag, InputStream istream)
                         throws InvalidBERException, IOException {
             SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag,

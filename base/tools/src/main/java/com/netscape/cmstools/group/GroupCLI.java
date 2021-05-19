@@ -49,6 +49,7 @@ public class GroupCLI extends CLI {
         addModule(new GroupMemberCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

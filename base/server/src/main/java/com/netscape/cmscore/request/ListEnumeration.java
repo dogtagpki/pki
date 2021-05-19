@@ -33,6 +33,7 @@ public class ListEnumeration implements IRequestVirtualList {
         this.list = list;
     }
 
+    @Override
     public IRequest getElementAt(int i) {
         RequestRecord record = (RequestRecord) list.getElementAt(i);
 
@@ -48,10 +49,12 @@ public class ListEnumeration implements IRequestVirtualList {
         }
     }
 
+    @Override
     public int getCurrentIndex() {
         return list.getCurrentIndex();
     }
 
+    @Override
     public int getSize() {
         return list.getSize();
     }

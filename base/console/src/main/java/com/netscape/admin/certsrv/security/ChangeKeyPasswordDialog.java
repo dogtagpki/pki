@@ -61,6 +61,7 @@ public class ChangeKeyPasswordDialog extends AbstractDialog {
      * Called when OK button is pressed, and start the password change process
      *
      */
+    @Override
     protected void okInvoked() {
 
         taskInfo = new KeyCertTaskInfo(_consoleInfo);
@@ -95,6 +96,7 @@ public class ChangeKeyPasswordDialog extends AbstractDialog {
     /**
       * Called when HELP button is pressed, invoke online help
       */
+    @Override
     protected void helpInvoked() {
         Help help = new Help(resource);
         help.help("ChangeKeyPasswordDialog", "help");

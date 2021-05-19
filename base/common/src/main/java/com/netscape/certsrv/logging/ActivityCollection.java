@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name="Activities")
 public class ActivityCollection extends DataCollection<ActivityData> {
 
+    @Override
     @XmlElementRef
     public Collection<ActivityData> getEntries() {
         return super.getEntries();

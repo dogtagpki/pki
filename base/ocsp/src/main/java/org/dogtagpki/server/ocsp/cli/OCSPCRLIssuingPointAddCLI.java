@@ -48,6 +48,7 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
         super("add", "Add OCSP CRL issuing point", parent);
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option(null, "cert-chain", true, "Path to PKCS #7 certificate chain");
@@ -59,6 +60,7 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();

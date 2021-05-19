@@ -44,6 +44,7 @@ class WIInstallRACertStatusPage extends WIInstallCertStatusPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning() && wizardInfo.isRACloningDone())

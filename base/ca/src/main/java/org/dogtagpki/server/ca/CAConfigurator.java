@@ -136,6 +136,7 @@ public class CAConfigurator extends Configurator {
         certificateRepository.addCertificateRecord(certRecord);
     }
 
+    @Override
     public X509CertImpl createLocalCert(
             String subjectDN,
             String keyAlgorithm,
@@ -268,6 +269,7 @@ public class CAConfigurator extends Configurator {
         }
     }
 
+    @Override
     public Cert setupCert(CertificateSetupRequest request) throws Exception {
         Cert cert = super.setupCert(request);
 
@@ -288,6 +290,7 @@ public class CAConfigurator extends Configurator {
         return cert;
     }
 
+    @Override
     public void loadCert(
             String type,
             String tag,
@@ -309,6 +312,7 @@ public class CAConfigurator extends Configurator {
         }
     }
 
+    @Override
     public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
 
         logger.info("CAConfigurator: Generating admin cert");

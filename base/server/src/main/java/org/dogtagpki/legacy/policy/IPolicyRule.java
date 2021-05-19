@@ -100,6 +100,7 @@ public interface IPolicyRule
      * @param req The request on which to apply policy.
      * @return The PolicyResult object.
      */
+    @Override
     PolicyResult apply(IRequest req);
 
     /**

@@ -98,6 +98,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab {
         mLDAPPublishing = flag;
     }
 
+    @Override
     public void init() {
         mAdmin = mModel.getServerInfo().getAdmin();
         JPanel serverInfo = new JPanel();
@@ -247,6 +248,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab {
         CMSAdminUtil.addEntryField(serverInfo, mAuthLabel, mAuthBox, dummy4, gbc);
     }
 
+    @Override
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
@@ -479,6 +481,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab {
         component.repaint(1);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
         if (mEnablePublishing.isSelected()) {
@@ -499,6 +502,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab {
         }
     }
 
+    @Override
     public void itemStateChanged(ItemEvent e) {
         super.itemStateChanged(e);
         if (e.getSource().equals(mAuthBox)) {
@@ -519,6 +523,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab {
      * Implementation for saving panel information
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean applyCallback() {
         // check blank fields
         NameValuePairs nvps = new NameValuePairs();
@@ -698,6 +703,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab {
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean resetCallback() {
         refresh();
         return true;

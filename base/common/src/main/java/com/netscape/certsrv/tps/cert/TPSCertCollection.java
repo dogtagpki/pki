@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name="Certificates")
 public class TPSCertCollection extends DataCollection<TPSCertData> {
 
+    @Override
     @XmlElementRef
     public Collection<TPSCertData> getEntries() {
         return super.getEntries();

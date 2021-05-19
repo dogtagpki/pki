@@ -179,12 +179,14 @@ public class CMSCipherPreferenceDialog extends AbstractDialog {
         }
     }
 
+    @Override
     protected void cancelInvoked() {
         reset();
         modified = false;
         super.cancelInvoked();
     }
 
+    @Override
     protected void okInvoked() {
         modified = (((ssl2CipherPref==null)?false:ssl2CipherPref.isModified()) ||
           ((ssl3CipherPref==null)?false:ssl3CipherPref.isModified()));
@@ -192,6 +194,7 @@ public class CMSCipherPreferenceDialog extends AbstractDialog {
         super.okInvoked();
     }
 
+    @Override
     protected void helpInvoked() {
       new Help(mHelpResource).help("configuration-overview");
 //    help.help("SSL", "Preference");

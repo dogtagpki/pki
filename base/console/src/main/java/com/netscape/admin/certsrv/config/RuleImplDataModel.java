@@ -59,6 +59,7 @@ public class RuleImplDataModel extends CMSContentTableModel
     /*==========================================================
 	 * public methods
      *==========================================================*/
+    @Override
     public void processData(Object data) {
         Vector<Object> v = new Vector<>();
         NameValuePairs obj = (NameValuePairs) data;

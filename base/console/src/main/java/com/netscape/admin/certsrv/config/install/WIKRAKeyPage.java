@@ -52,6 +52,7 @@ class WIKRAKeyPage extends WIKeyPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         mWizardInfo = (InstallWizardInfo)info;
         if (mWizardInfo.isCloning() && mWizardInfo.isKRACloningDone())
@@ -86,6 +87,7 @@ class WIKRAKeyPage extends WIKeyPage {
         return true;
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         super.getUpdateInfo(info);
         mWizardInfo.setKRATokenName(mWizardInfo.getTokenName());

@@ -136,6 +136,7 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
 	}
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mRefresh)) {
             Debug.println("Refresh");
@@ -206,10 +207,12 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         setButtons();
     }
 
+    @Override
     public void mouseReleased(MouseEvent e) {
         setButtons();
     }
@@ -217,6 +220,7 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
     /*==========================================================
 	 * protected methods
      *==========================================================*/
+    @Override
     public void refresh() {
 
         mDataModel.removeAllRows();
@@ -240,6 +244,7 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
 		return CMSAdminUtil.makeJButtonVPanel( buttons );
     }
 
+    @Override
     protected JPanel createActionPanel() {
 		Debug.println("CMSPluginInstanceTab::createActionPanel()");
         //edit, add, delete, help buttons required
@@ -251,6 +256,7 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
 		return makeJButtonPanel( buttons , true);
     }
 
+    @Override
     protected JPanel createListPanel() {
 		Debug.println("CMSPluginInstanceTab::createListPanel()");
 		try {

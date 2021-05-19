@@ -48,6 +48,7 @@ public class WBaseKeyPage extends WizardBasePanel {
         super(panelName);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();

@@ -140,6 +140,7 @@ public class EnrollmentService implements IService {
      * @return serving successful or not
      * @exception EBaseException failed to serve
      */
+    @Override
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
 

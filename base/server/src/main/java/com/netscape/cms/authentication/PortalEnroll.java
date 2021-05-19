@@ -135,6 +135,7 @@ public class PortalEnroll extends DirBasedAuthentication {
      * @param config - The configuration store for this instance.
      * @exception EBaseException If an error occurs during initialization.
      */
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         super.init(name, implName, config);
@@ -177,6 +178,7 @@ public class PortalEnroll extends DirBasedAuthentication {
      * @exception EInvalidCredentials If the uid and password are not valid
      * @exception EBaseException If an internal error occurs.
      */
+    @Override
     protected String authenticate(LDAPConnection conn,
             IAuthCredentials authCreds,
             AuthToken token)
@@ -271,10 +273,12 @@ public class PortalEnroll extends DirBasedAuthentication {
      *
      * @return String array of configuration parameter names.
      */
+    @Override
     public String[] getConfigParams() {
         return (mConfigParams);
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] s = {
                 PROP_DNPATTERN + ";string;Template for cert" +
@@ -318,6 +322,7 @@ public class PortalEnroll extends DirBasedAuthentication {
      *
      * @return Array of required credentials.
      */
+    @Override
     public String[] getRequiredCreds() {
         return mRequiredCreds;
     }

@@ -106,10 +106,12 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public DefStore() {
     }
 
+    @Override
     public boolean isByName() {
         return mByName;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         Vector<String> v = new Vector<String>();
 
@@ -123,6 +125,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         return org.mozilla.jss.netscape.security.util.Utils.getStringArrayFromVector(v);
     }
 
+    @Override
     public void init(IConfigStore config, DBSubsystem dbSubsystem) throws EBaseException {
 
         mConfig = config;
@@ -167,6 +170,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             throws EBaseException {
     }
 
+    @Override
     public IRepositoryRecord createRepositoryRecord() {
         return new RepositoryRecord();
     }
@@ -174,6 +178,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Returns to the client once the CRL is received.
      */
+    @Override
     public boolean waitOnCRLUpdate() {
         boolean defaultVal = true;
 
@@ -188,10 +193,12 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         return mIncludeNextUpdate;
     }
 
+    @Override
     public boolean isNotFoundGood() {
         return mNotFoundGood;
     }
 
+    @Override
     public long getReqCount(String id) {
         Long c = mReqCounts.get(id);
 
@@ -272,6 +279,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
+    @Override
     public void startup() throws EBaseException {
         int refresh = mConfig.getInteger(PROP_REFRESH_IN_SEC,
                 DEF_REFRESH_IN_SEC);
@@ -282,6 +290,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
+    @Override
     public void shutdown() {
     }
 
@@ -300,6 +309,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Check against the database for status.
      */
+    @Override
     public SingleResponse processRequest(Request req) throws Exception {
         // need to find the right CA
 
@@ -474,6 +484,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         return dbSubsystem.getBaseDN();
     }
 
+    @Override
     public Enumeration<ICRLIssuingPointRecord> searchAllCRLIssuingPointRecord(int maxSize)
             throws EBaseException {
         return searchCRLIssuingPointRecord(
@@ -481,6 +492,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 maxSize);
     }
 
+    @Override
     public Enumeration<ICRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
             int maxSize)
             throws EBaseException {
@@ -520,6 +532,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Returns an issuing point.
      */
+    @Override
     public ICRLIssuingPointRecord readCRLIssuingPoint(String name)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
@@ -539,6 +552,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         return rec;
     }
 
+    @Override
     public ICRLIssuingPointRecord createCRLIssuingPointRecord(
             String name, BigInteger crlNumber,
             Long crlSize, Date thisUpdate, Date nextUpdate) {
@@ -546,6 +560,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 name, crlNumber, crlSize, thisUpdate, nextUpdate);
     }
 
+    @Override
     public void deleteCRLIssuingPointRecord(String id)
             throws EBaseException {
 
@@ -568,6 +583,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Creates a new issuing point in OCSP.
      */
+    @Override
     public void addCRLIssuingPoint(String name, ICRLIssuingPointRecord rec)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
@@ -604,6 +620,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Creates a new issuing point in OCSP.
      */
+    @Override
     public void addRepository(String name, String thisUpdate,
             IRepositoryRecord rec)
             throws EBaseException {
@@ -695,6 +712,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
+    @Override
     public NameValuePairs getConfigParameters() {
         try {
             NameValuePairs params = new NameValuePairs();
@@ -713,6 +731,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
+    @Override
     public void setConfigParameters(NameValuePairs pairs)
             throws EBaseException {
 
@@ -721,6 +740,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
+    @Override
     public void updateCRL(X509CRL crl) throws EBaseException {
         try {
             mStateCount++;
@@ -790,6 +810,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
+    @Override
     public int getStateCount() {
         return mStateCount;
     }
@@ -803,6 +824,7 @@ class DeleteOldCRLsThread extends Thread {
         mDefStore = defStore;
     }
 
+    @Override
     public void run() {
         try {
             mDefStore.deleteOldCRLs();
@@ -847,6 +869,7 @@ class DefStoreCRLUpdater extends Thread {
         mSec = sec;
     }
 
+    @Override
     public void run() {
         while (true) {
             try {

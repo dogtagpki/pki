@@ -93,6 +93,7 @@ public class SSLClientCertAuthentication implements AuthManager {
         this.authenticationConfig = authenticationConfig;
     }
 
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
@@ -100,6 +101,7 @@ public class SSLClientCertAuthentication implements AuthManager {
         mConfig = config;
     }
 
+    @Override
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
@@ -218,6 +220,7 @@ public class SSLClientCertAuthentication implements AuthManager {
     /**
      * prepare this authentication manager for shutdown.
      */
+    @Override
     public void shutdown() {
     }
 
@@ -228,6 +231,7 @@ public class SSLClientCertAuthentication implements AuthManager {
      *
      * @return String array of configuration parameter names.
      */
+    @Override
     public String[] getConfigParams() {
         return (mConfigParams);
     }
@@ -237,6 +241,7 @@ public class SSLClientCertAuthentication implements AuthManager {
      *
      * @return Array of required credentials.
      */
+    @Override
     public String[] getRequiredCreds() {
         return mRequiredCreds;
     }
@@ -246,6 +251,7 @@ public class SSLClientCertAuthentication implements AuthManager {
      *
      * @return configuration store
      */
+    @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
@@ -253,6 +259,7 @@ public class SSLClientCertAuthentication implements AuthManager {
     /**
      * gets the name of this authentication manager instance
      */
+    @Override
     public String getName() {
         return mName;
     }
@@ -260,6 +267,7 @@ public class SSLClientCertAuthentication implements AuthManager {
     /**
      * gets the plugin name of this authentication manager.
      */
+    @Override
     public String getImplName() {
         return mImplName;
     }

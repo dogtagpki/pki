@@ -50,6 +50,7 @@ public class ProfileSubsystem
      *
      * @exception EBaseException failed to initialize
      */
+    @Override
     public void init(IConfigStore cs)
             throws EBaseException {
 
@@ -237,6 +238,7 @@ public class ProfileSubsystem
     /**
      * Notifies this subsystem if owner is in running mode.
      */
+    @Override
     public void startup() throws EBaseException {
         logger.debug("ProfileSubsystem: startup");
     }
@@ -246,6 +248,7 @@ public class ProfileSubsystem
      * anytime after initialization.
      * <P>
      */
+    @Override
     public void shutdown() {
         mProfiles.clear();
         mProfileClassIds.clear();

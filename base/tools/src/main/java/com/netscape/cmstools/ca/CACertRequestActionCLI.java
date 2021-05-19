@@ -34,6 +34,7 @@ public class CACertRequestActionCLI extends CommandCLI {
         formatter.printHelp(getFullName() + " <Request ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "input-file", true, "Input file containing certificate request.");
         option.setArgName("filename");

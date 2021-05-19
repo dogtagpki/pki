@@ -42,6 +42,7 @@ public class AuthzRealmDefault extends EnrollDefault {
         addValueName(VAL_REALM);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_REALM)) {
             return new Descriptor(IDescriptor.STRING, null, null,

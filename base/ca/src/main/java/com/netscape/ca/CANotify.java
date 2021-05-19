@@ -17,6 +17,7 @@ public class CANotify extends RequestNotifier {
     public CANotify() {
     }
 
+    @Override
     public boolean checkAvailablePublishingConnections() {
 
         CAEngine engine = CAEngine.getInstance();

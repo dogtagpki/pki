@@ -34,6 +34,7 @@ public class CMSRALDAPPanel extends CMSBaseLDAPPanel {
         mHelpToken = HELPINDEX;
     }
 
+    @Override
     public void init() {
         super.init();
         refresh();

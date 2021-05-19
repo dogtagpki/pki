@@ -45,6 +45,7 @@ public class ClientCLI extends CLI {
         addModule(new ClientCertValidateCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

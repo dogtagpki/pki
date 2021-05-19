@@ -53,6 +53,7 @@ public class SessionAuthentication
     public SessionAuthentication() {
     }
 
+    @Override
     public void init(String instName, String implName, AuthManagerConfig config)
             throws EBaseException {
         this.instName = instName;
@@ -63,6 +64,7 @@ public class SessionAuthentication
     /**
      * Gets the name of this authentication manager.
      */
+    @Override
     public String getName() {
         return instName;
     }
@@ -70,10 +72,12 @@ public class SessionAuthentication
     /**
      * Gets the plugin name of authentication manager.
      */
+    @Override
     public String getImplName() {
         return implName;
     }
 
+    @Override
     public boolean isSSLClientRequired() {
         return false;
     }
@@ -84,6 +88,7 @@ public class SessionAuthentication
      * @return the auth token from existing session context, if any.
      * @throws EMissingCredential if no auth token or no session
      */
+    @Override
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential {
         SessionContext context = SessionContext.getExistingContext();
@@ -100,11 +105,13 @@ public class SessionAuthentication
         return authToken;
     }
 
+    @Override
     public String[] getRequiredCreds() {
         String[] requiredCreds = { };
         return requiredCreds;
     }
 
+    @Override
     public String[] getConfigParams() {
         return null;
     }
@@ -112,6 +119,7 @@ public class SessionAuthentication
     /**
      * prepare this authentication manager for shutdown.
      */
+    @Override
     public void shutdown() {
     }
 
@@ -121,18 +129,21 @@ public class SessionAuthentication
      *
      * @return configuration store
      */
+    @Override
     public AuthManagerConfig getConfigStore() {
         return config;
     }
 
     // Profile-related methods
 
+    @Override
     public void init(Profile profile, IConfigStore config) {
     }
 
     /**
      * Retrieves the localizable name of this policy.
      */
+    @Override
     public String getName(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_AUTHENTICATION_AGENT_NAME");
     }
@@ -140,6 +151,7 @@ public class SessionAuthentication
     /**
      * Retrieves the localizable description of this policy.
      */
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_AUTHENTICATION_AGENT_TEXT");
     }
@@ -147,10 +159,12 @@ public class SessionAuthentication
     /**
      * Retrieves a list of names of the value parameter.
      */
+    @Override
     public Enumeration<String> getValueNames() {
         return Collections.emptyEnumeration();
     }
 
+    @Override
     public boolean isValueWriteable(String name) {
         return false;
     }
@@ -159,10 +173,12 @@ public class SessionAuthentication
      * Retrieves the descriptor of the given value
      * parameter by name.
      */
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public void populate(IAuthToken token, IRequest request) {
     }
 }

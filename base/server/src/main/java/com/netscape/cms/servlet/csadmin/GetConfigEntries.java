@@ -59,6 +59,7 @@ public class GetConfigEntries extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     protected void process(CMSRequest cmsReq) throws EBaseException {
 
         HttpServletResponse httpResp = cmsReq.getHttpResp();
@@ -186,6 +187,7 @@ public class GetConfigEntries extends CMSServlet {
     /**
      * Retrieves locale based on the request.
      */
+    @Override
     protected Locale getLocale(HttpServletRequest req) {
         Locale locale = null;
         String lang = req.getHeader("accept-language");
@@ -200,6 +202,7 @@ public class GetConfigEntries extends CMSServlet {
         return locale;
     }
 
+    @Override
     protected void renderResult(CMSRequest cmsReq) throws IOException {// do nothing, ie, it will not return the default javascript.
     }
 

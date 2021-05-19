@@ -111,10 +111,12 @@ public class CAApplication extends Application {
         singletons.add(new MessageFormatInterceptor());
     }
 
+    @Override
     public Set<Class<?>> getClasses() {
         return classes;
     }
 
+    @Override
     public Set<Object> getSingletons() {
         return singletons;
     }

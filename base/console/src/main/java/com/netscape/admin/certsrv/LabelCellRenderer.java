@@ -75,6 +75,7 @@ public class LabelCellRenderer
 
     //==== Implementing TableCellRenderer =========
 
+    @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
 						   boolean isSelected,
 						   boolean hasFocus,

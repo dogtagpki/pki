@@ -82,6 +82,7 @@ public class FlatFileAuth
                     PROP_DEFERONFAILURE
         };
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
                 PROP_FILENAME + ";string;Pathname of password file",
@@ -144,6 +145,7 @@ public class FlatFileAuth
         return p;
     }
 
+    @Override
     public boolean isSSLClientRequired() {
         return false;
     }
@@ -169,6 +171,7 @@ public class FlatFileAuth
         return p;
     }
 
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
@@ -526,6 +529,7 @@ public class FlatFileAuth
      * Authenticate the request
      *
      */
+    @Override
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
         IAuthToken authToken = null;
@@ -595,6 +599,7 @@ public class FlatFileAuth
      * Note that this method will not be called until after the
      * init() method is called
      */
+    @Override
     public String[] getRequiredCreds() {
         logger.debug("FlatFileAuth: getRequiredCreds returning: " + joinStringArray(reqCreds, ","));
         return reqCreds;
@@ -605,6 +610,7 @@ public class FlatFileAuth
      * Returns a list of configuration parameters, so the console
      * can prompt the user when configuring.
      */
+    @Override
     public String[] getConfigParams() {
         return mConfigParams;
     }
@@ -612,21 +618,26 @@ public class FlatFileAuth
     /**
      * Returns the configuration store used by this authentication manager
      */
+    @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public void shutdown() {
     }
 
+    @Override
     public String getName() {
         return mName;
     }
 
+    @Override
     public String getImplName() {
         return mImplName;
     }
 
+    @Override
     public void init(Profile profile, IConfigStore config)
             throws EProfileException {
     }
@@ -634,6 +645,7 @@ public class FlatFileAuth
     /**
      * Retrieves the localizable name of this policy.
      */
+    @Override
     public String getName(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_AUTHENTICATION_AGENT_NAME");
     }
@@ -641,18 +653,22 @@ public class FlatFileAuth
     /**
      * Retrieves a list of names of the value parameter.
      */
+    @Override
     public Enumeration<String> getValueNames() {
         return null;
     }
 
+    @Override
     public boolean isValueWriteable(String name) {
         return false;
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public void populate(IAuthToken token, IRequest request)
             throws EProfileException {
     }
@@ -660,6 +676,7 @@ public class FlatFileAuth
     /**
      * Retrieves the localizable description of this policy.
      */
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_AUTHENTICATION_AGENT_TEXT");
     }

@@ -71,6 +71,7 @@ public class CloneRedirect extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
@@ -99,6 +100,7 @@ public class CloneRedirect extends CMSServlet {
     /**
      * Serves HTTP request.
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();

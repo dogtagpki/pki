@@ -69,6 +69,7 @@ public class NullAuthentication implements AuthManager {
      * @param config - The configuration store used by the
      *            authentication subsystem.
      */
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
@@ -93,6 +94,7 @@ public class NullAuthentication implements AuthManager {
      * @exception com.netscape.certsrv.base.EBaseException If an internal
      *                error occurred.
      */
+    @Override
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
         AuthToken authToken = new AuthToken(this);
@@ -105,6 +107,7 @@ public class NullAuthentication implements AuthManager {
     /**
      * gets the name of this authentication manager instance
      */
+    @Override
     public String getName() {
         return mName;
     }
@@ -112,6 +115,7 @@ public class NullAuthentication implements AuthManager {
     /**
      * gets the name of the authentication manager plugin
      */
+    @Override
     public String getImplName() {
         return mImplName;
     }
@@ -124,6 +128,7 @@ public class NullAuthentication implements AuthManager {
      *
      * @return attribute names in Vector
      */
+    @Override
     public String[] getRequiredCreds() {
         return (mRequiredCred);
     }
@@ -134,6 +139,7 @@ public class NullAuthentication implements AuthManager {
      *
      * @return String array of configuration parameters.
      */
+    @Override
     public String[] getConfigParams() {
         return (mConfigParams);
     }
@@ -141,6 +147,7 @@ public class NullAuthentication implements AuthManager {
     /**
      * disconnects the member connection
      */
+    @Override
     public void shutdown() {
     }
 
@@ -150,6 +157,7 @@ public class NullAuthentication implements AuthManager {
      *
      * @return configuration store
      */
+    @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
     }

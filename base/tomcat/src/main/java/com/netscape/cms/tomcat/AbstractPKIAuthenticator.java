@@ -73,6 +73,7 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
 
     }
 
+    @Override
     public boolean doAuthenticate(Request request, HttpServletResponse response) throws IOException {
         X509Certificate certs[] = (X509Certificate[]) request.getAttribute(Globals.CERTIFICATES_ATTR);
         boolean result;
@@ -80,9 +81,11 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
         if (certs != null && certs.length > 0) {
             logger.info("PKIAuthenticator: Authenticate with client certificate authentication");
             HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
+                @Override
                 public void setHeader(String name, String value) {
                     logger.debug("PKIAuthenticator: SSL auth header: " + name + "=" + value);
                 };
+                @Override
                 public void sendError(int code) {
                     logger.debug("PKIAuthenticator: SSL auth return code: " + code);
                 }
@@ -92,9 +95,11 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
         } else {
             logger.info("PKIAuthenticator: Authenticating with " + fallbackMethod + " authentication");
             HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
+                @Override
                 public void setHeader(String name, String value) {
                     logger.debug("PKIAuthenticator: Fallback auth header: " + name + "=" + value);
                 };
+                @Override
                 public void sendError(int code) {
                     logger.debug("PKIAuthenticator: Fallback auth return code: " + code);
                 }

@@ -110,6 +110,7 @@ public class UpdateDir extends CMSServlet {
      * Initialize the servlet. This servlet uses the template
      * 'updateDir.template' to render the response
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
@@ -136,6 +137,7 @@ public class UpdateDir extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();

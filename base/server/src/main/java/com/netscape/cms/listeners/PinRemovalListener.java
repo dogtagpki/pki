@@ -89,6 +89,7 @@ public class PinRemovalListener implements IRequestListener {
         return configParams;
     }
 
+    @Override
     public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
         init(null, null, config);
     }
@@ -117,6 +118,7 @@ public class PinRemovalListener implements IRequestListener {
 
     }
 
+    @Override
     public void accept(IRequest r) {
         if (mEnabled != true)
             return;
@@ -170,6 +172,7 @@ public class PinRemovalListener implements IRequestListener {
         }
     }
 
+    @Override
     public void set(String name, String val) {
     }
 }

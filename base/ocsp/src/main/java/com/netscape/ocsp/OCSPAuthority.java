@@ -112,6 +112,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     /**
      * Retrieves the name of this subsystem.
      */
+    @Override
     public String getId() {
         return mId;
     }
@@ -119,6 +120,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     /**
      * Sets specific to this subsystem.
      */
+    @Override
     public void setId(String id) throws EBaseException {
         mId = id;
     }
@@ -131,6 +133,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
      *
      * @exception EBaseException failed to initialize
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
 
@@ -210,6 +213,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
         }
     }
 
+    @Override
     public ResponderID getResponderIDByName() {
         try {
             X500Name name = getName();
@@ -224,6 +228,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
         }
     }
 
+    @Override
     public ResponderID getResponderIDByHash() {
 
         /*
@@ -247,6 +252,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     /**
      * Retrieves supported signing algorithms.
      */
+    @Override
     public String[] getOCSPSigningAlgorithms() {
         if (mOCSPSigningAlgorithms != null) {
             return mOCSPSigningAlgorithms;
@@ -284,6 +290,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     /**
      * Retrieves the name of this OCSP server.
      */
+    @Override
     public X500Name getName() {
         X509CertImpl certImpl = mSigningUnit.getCertImpl();
         return (X500Name) certImpl.getSubjectDN();
@@ -313,6 +320,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     /**
      * Notifies this subsystem if owner is in running mode.
      */
+    @Override
     public void startup() throws EBaseException {
         OCSPEngine engine = OCSPEngine.getInstance();
         try {
@@ -343,6 +351,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
      * @exception EBaseException an error associated with the inability to
      *                process the supplied OCSP request
      */
+    @Override
     public OCSPResponse validate(OCSPRequest request) throws EBaseException {
 
         logger.info("OCSPAuthority: Validating OCSP request");
@@ -464,6 +473,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
      * anytime after initialization.
      * <P>
      */
+    @Override
     public void shutdown() {
     }
 
@@ -473,10 +483,12 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
      *
      * @return configuration store of this subsystem
      */
+    @Override
     public OCSPConfig getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public String getDefaultAlgorithm() {
         return mSigningUnit.getDefaultAlgorithm();
     }
@@ -484,6 +496,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     public void log(int level, String msg) {
     }
 
+    @Override
     public void setDefaultAlgorithm(String algorithm)
             throws EBaseException {
         mSigningUnit.setDefaultAlgorithm(algorithm);
@@ -492,6 +505,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     /**
      * Signs the Response Data.
      */
+    @Override
     public BasicOCSPResponse sign(ResponseData rd)
             throws EBaseException {
 
@@ -564,6 +578,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
      *
      * @return request identifier
      */
+    @Override
     public SigningUnit getSigningUnit() {
         return mSigningUnit;
     }
@@ -571,18 +586,21 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     /**
      * Registers request completed class.
      */
+    @Override
     public void registerRequestListener(IRequestListener listener) {
     }
 
     /**
      * Registers pending request class.
      */
+    @Override
     public void registerPendingListener(IRequestListener listener) {
     }
 
     /**
      * nickname of signing (id) cert
      */
+    @Override
     public String getNickname() {
         return mSigningUnit.getNickname();
     }
@@ -602,6 +620,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     /**
      * return official product name.
      */
+    @Override
     public String getOfficialName() {
         return "ocsp";
     }
@@ -660,6 +679,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
      *
      * @return number of processed OCSP requests in memory
      */
+    @Override
     public long getNumOCSPRequest() {
         return mNumOCSPRequest;
     }
@@ -670,6 +690,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
      *
      * @return processed times for OCSP requests
      */
+    @Override
     public long getOCSPRequestTotalTime() {
         return mTotalTime;
     }
@@ -680,10 +701,12 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
      *
      * @return processed times for OCSP requests
      */
+    @Override
     public long getOCSPTotalSignTime() {
         return mSignTime;
     }
 
+    @Override
     public long getOCSPTotalLookupTime() {
         return mLookupTime;
     }
@@ -694,22 +717,27 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
      *
      * @return processed times for OCSP requests
      */
+    @Override
     public long getOCSPTotalData() {
         return mTotalData;
     }
 
+    @Override
     public void incTotalTime(long inc) {
         mTotalTime += inc;
     }
 
+    @Override
     public void incSignTime(long inc) {
         mSignTime += inc;
     }
 
+    @Override
     public void incLookupTime(long inc) {
         mLookupTime += inc;
     }
 
+    @Override
     public void incNumOCSPRequest(long inc) {
         mNumOCSPRequest += inc;
     }

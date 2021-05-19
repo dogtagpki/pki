@@ -50,6 +50,7 @@ public class LdapRule implements IExtendedPluginInfo {
         return mConfig;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         //dont know why it's null here.
         //if (mProcessor == null) logger.warn("p null");

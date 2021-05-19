@@ -44,6 +44,7 @@ public class ProfileNotFoundException extends ResourceNotFoundException {
         profileId = data.getAttribute("profileId");
     }
 
+    @Override
     public Data getData() {
         Data data = super.getData();
         data.setAttribute("profileId", profileId);

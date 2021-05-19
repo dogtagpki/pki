@@ -45,6 +45,7 @@ public class CADBUpgradeCLI extends SubsystemDBUpgradeCLI {
         super("upgrade", "Upgrade CA database", parent);
     }
 
+    @Override
     public void upgrade(LDAPConfig ldapConfig, LdapBoundConnection conn) throws Exception {
 
         logger.info("Searching certificates records with missing issuerName");

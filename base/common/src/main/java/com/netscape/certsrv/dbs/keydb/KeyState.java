@@ -54,6 +54,7 @@ public final class KeyState implements Serializable {
      * @param other object to be compared
      * @return true if both objects are the same
      */
+    @Override
     public boolean equals(Object other) {
         if (this == other)
             return true;
@@ -68,6 +69,7 @@ public final class KeyState implements Serializable {
      *
      * @return hash code
      */
+    @Override
     public int hashCode() {
         return mStateCode;
     }
@@ -77,6 +79,7 @@ public final class KeyState implements Serializable {
      *
      * @return string value
      */
+    @Override
     public String toString() {
         if (mStateCode == -1)
             return "ANY";

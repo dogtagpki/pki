@@ -55,6 +55,7 @@ public class CommandQueue implements Runnable, ICommandQueue {
     /**
      * Overrides Thread.run(), calls batchPublish().
      */
+    @Override
     public void run() {
         //int  priority = Thread.MIN_PRIORITY;
         //Thread.currentThread().setPriority(priority);
@@ -72,6 +73,7 @@ public class CommandQueue implements Runnable, ICommandQueue {
         }
     } // run
 
+    @Override
     public boolean registerProcess(ICMSRequest currentRequest, Servlet currentServlet) {
         if (mShuttingDown == false) {
             if ((currentServlet instanceof com.netscape.cms.servlet.base.CMSStartServlet) == false)
@@ -82,6 +84,7 @@ public class CommandQueue implements Runnable, ICommandQueue {
 
     }
 
+    @Override
     public void unRegisterProccess(Object currentRequest, Object currentServlet) {
         Enumeration<ICMSRequest> e = mCommandQueue.keys();
 

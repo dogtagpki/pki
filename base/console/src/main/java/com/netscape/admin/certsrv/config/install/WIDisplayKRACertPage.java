@@ -45,6 +45,7 @@ class WIDisplayKRACertPage extends WIDisplayCertPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning() && wizardInfo.isKRACloningDone())
@@ -63,6 +64,7 @@ class WIDisplayKRACertPage extends WIDisplayCertPage {
         return super.initializePanel(info);
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         if (super.concludePanel(info)) {
             InstallWizardInfo wizardInfo = (InstallWizardInfo)info;

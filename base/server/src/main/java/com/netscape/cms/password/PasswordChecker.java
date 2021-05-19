@@ -40,6 +40,7 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
     public PasswordChecker() {
     }
 
+    @Override
     public boolean isGoodConfigPassword(String mPassword) {
         if (mPassword == null || mPassword.length() == 0) {
             return false;
@@ -49,6 +50,7 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
         return true;
     }
 
+    @Override
     public String getConfigReason(String mPassword) {
         if (mPassword == null || mPassword.length() == 0) {
             EPasswordCheckException e = new EPasswordCheckException(
@@ -72,6 +74,7 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
      * @return true if the password meets the quality requirement; otherwise
      *         returns false.
      */
+    @Override
     public boolean isGoodPassword(String mPassword) {
         if (mPassword == null || mPassword.length() == 0) {
             return false;
@@ -86,6 +89,7 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
      *
      * @return string as a reason if the password quality requirement is not met.
      */
+    @Override
     public String getReason(String mPassword) {
         if (mPassword == null || mPassword.length() == 0) {
             EPasswordCheckException e = new EPasswordCheckException(

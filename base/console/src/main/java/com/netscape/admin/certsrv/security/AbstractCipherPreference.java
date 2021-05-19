@@ -94,6 +94,7 @@ public class AbstractCipherPreference extends JPanel {
 
 
     class CipherPrefActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             _ismodified = true;
             Enumeration<ActionListener> l = listenerList.elements();

@@ -44,6 +44,7 @@ public class AttrCellRenderer<E> extends JLabel implements ListCellRenderer<E> {
         setFont(temp.getFont());
     }
 
+    @Override
     public Component getListCellRendererComponent(JList<? extends E> list,
         E value, int index, boolean isSelected, boolean cellHasFocus) {
 

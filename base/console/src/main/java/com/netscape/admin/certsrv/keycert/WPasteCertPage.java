@@ -62,10 +62,12 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.REQUESTTYPE))
@@ -74,6 +76,7 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         if (mBase64Btn.isSelected()) {
             mCertContent = mBase64Text.getText().trim();
@@ -91,6 +94,7 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         startProgressStatus();
@@ -138,10 +142,12 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -237,9 +243,11 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
         super.init();
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mPaste)) {
             mBase64Text.paste();

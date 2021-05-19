@@ -55,6 +55,7 @@ public class WBaseDNValidityPage extends WizardBasePanel {
         super(panelName);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -167,14 +168,17 @@ public class WBaseDNValidityPage extends WizardBasePanel {
             super(rows, columns);
         }
 
+        @Override
         public void insertUpdate(DocumentEvent e) {
             super.setText(updateStr());
         }
 
+        @Override
         public void removeUpdate(DocumentEvent e) {
             super.setText(updateStr());
         }
 
+        @Override
         public void changedUpdate(DocumentEvent e) {
             super.setText(updateStr());
         }

@@ -95,11 +95,13 @@ public class DefaultTableCellEditor
     }
 
     //Interface javax.swing.CellEditor
+    @Override
     public Object getCellEditorValue() {
         mValue.mData = mEditorComponent.getText();
         return mValue;
     }
 
+    @Override
     public boolean isCellEditable(EventObject anEvent) {
         if (anEvent instanceof MouseEvent) {
             if (((MouseEvent)anEvent).getClickCount() < clickCountToStart)
@@ -108,6 +110,7 @@ public class DefaultTableCellEditor
         return true;
     }
 
+    @Override
     public boolean shouldSelectCell(EventObject anEvent) {
         boolean retValue = true;
 
@@ -129,29 +132,35 @@ public class DefaultTableCellEditor
         return true;
     }
 
+    @Override
     public boolean stopCellEditing() {
         fireEditingStopped();
         return true;
     }
 
+    @Override
     public void cancelCellEditing() {
         fireEditingCanceled();
     }
 
     //  Handle the event listener bookkeeping
+    @Override
     public void addCellEditorListener(CellEditorListener l) {
         listenerList.add(CellEditorListener.class, l);
     }
 
+    @Override
     public void removeCellEditorListener(CellEditorListener l) {
         listenerList.remove(CellEditorListener.class, l);
     }
 
     // Implementing ActionListener interface
+        @Override
         public void actionPerformed(ActionEvent e) {
         fireEditingStopped();
     }
 
+    @Override
     public Component getTableCellEditorComponent(JTable table,
                          Object value,
                          boolean isSelected,

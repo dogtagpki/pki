@@ -77,10 +77,12 @@ public class ClientCertRequestCLI extends CommandCLI {
         this.clientCLI = clientCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [Subject DN] [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "type", true, "Request type (default: pkcs10)");
         option.setArgName("request type");
@@ -146,6 +148,7 @@ public class ClientCertRequestCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -16,10 +16,12 @@ public class AuthorityEnableCLI extends CommandCLI {
         this.authorityCLI = authorityCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <ID>", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

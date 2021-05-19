@@ -91,6 +91,7 @@ public class CMSServerInfo implements IConnectionListener {
 	 * public methods
      *==========================================================*/
 
+    @Override
     public void restartCallback() {
         JFrame frame = UtilConsoleGlobals.getActivatedFrame();
         if (frame != null) {
@@ -160,7 +161,8 @@ public class CMSServerInfo implements IConnectionListener {
         return mInstallDate;
     }
 
-	public Object clone() {
+	@Override
+    public Object clone() {
 		try {
 			return new CMSServerInfo(mHost, mPort, mUserid, mPassword,
 			                mServerId, mServerVersion, mInstallDate, mServerRoot, mPath);

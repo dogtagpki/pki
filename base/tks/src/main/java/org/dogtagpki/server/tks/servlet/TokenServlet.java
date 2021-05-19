@@ -111,6 +111,7 @@ public class TokenServlet extends CMSServlet {
         return newa.toString();
     }
 
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
     }
@@ -120,6 +121,7 @@ public class TokenServlet extends CMSServlet {
      *
      * @return name of this servlet
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -2407,6 +2409,7 @@ public class TokenServlet extends CMSServlet {
         }
     }
 
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
@@ -2974,6 +2977,7 @@ public class TokenServlet extends CMSServlet {
      * @param req HTTP request
      * @param resp HTTP response
      */
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         super.service(req, resp);

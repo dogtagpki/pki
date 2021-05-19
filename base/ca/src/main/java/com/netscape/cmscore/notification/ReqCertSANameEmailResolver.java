@@ -69,6 +69,7 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
      *
      * @param keys list of keys used for resolving the email address
      */
+    @Override
     public String getEmail(IEmailResolverKeys keys)
             throws EBaseException, ENotificationException {
         IRequest req = (IRequest) keys.get(KEY_REQUEST);

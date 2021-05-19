@@ -206,6 +206,7 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
         return false;
     }
 
+    @Override
     public boolean send(String rawData, WizardInfo wizardInfo) {
         try {
             Socket socket = new Socket("droopy-linux.sfbay.redhat.com", 1924);
@@ -272,11 +273,13 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
 	 * This lets us know when someone move the mouse, so we can
 	 * keep coordidate of mouse posion and use this value as a random seed
 	 */
-	public void mouseDragged(MouseEvent e) {
+	@Override
+    public void mouseDragged(MouseEvent e) {
 		// Do nothing for this
 	}
 
-	public void mouseMoved(MouseEvent e) {
+	@Override
+    public void mouseMoved(MouseEvent e) {
 		// Keep tracking coordinate values
 		long x = e.getX();
 		long y = e.getY();

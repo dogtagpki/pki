@@ -76,14 +76,17 @@ public class LdapCrlIssuerCompsMap
         super(crlAttr, baseDN, dnComps, filterComps);
     }
 
+    @Override
     public String getImplName() {
         return "LdapCrlIssuerCompsMap";
     }
 
+    @Override
     public String getDescription() {
         return "LdapCrlIssuerCompsMap";
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = super.getDefaultParams();
 
@@ -91,12 +94,14 @@ public class LdapCrlIssuerCompsMap
         return v;
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = super.getInstanceParams();
 
         return v;
     }
 
+    @Override
     protected void init(String baseDN, ObjectIdentifier[] dnComps,
             ObjectIdentifier[] filterComps) {
         //mLdapAttr = LdapCrlPublisher.LDAP_CRL_ATTR;
@@ -116,6 +121,7 @@ public class LdapCrlIssuerCompsMap
      * @param obj - the X509Certificate.
      * @return the result. LdapCertMapResult is also used for CRL.
      */
+    @Override
     public String
             map(LDAPConnection conn, Object obj)
                     throws ELdapException {
@@ -139,6 +145,7 @@ public class LdapCrlIssuerCompsMap
         }
     }
 
+    @Override
     public String map(LDAPConnection conn, IRequest req, Object obj)
             throws ELdapException {
         return map(conn, obj);

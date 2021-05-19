@@ -29,6 +29,7 @@ import com.netscape.certsrv.base.Link;
 @XmlRootElement(name = "ProfileDataInfos")
 public class ProfileDataInfos extends DataCollection<ProfileDataInfo> {
 
+    @Override
     @XmlElementRef
     public Collection<ProfileDataInfo> getEntries() {
         return super.getEntries();

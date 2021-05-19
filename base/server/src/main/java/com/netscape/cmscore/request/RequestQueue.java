@@ -82,6 +82,7 @@ public class RequestQueue extends ARequestQueue {
         this.mBaseDN = requestRepository.getBaseDN();
     }
 
+    @Override
     public IRequest cloneRequest(IRequest request) throws EBaseException {
 
         // 1. check for valid state. (Are any invalid ?)
@@ -112,6 +113,7 @@ public class RequestQueue extends ARequestQueue {
         return mRepository.readRequest(id);
     }
 
+    @Override
     public void updateRequest(IRequest request) throws EBaseException {
 
         String name = getUserIdentity();
@@ -140,6 +142,7 @@ public class RequestQueue extends ARequestQueue {
         mRepository.addRequest(request);
     }
 
+    @Override
     public void markRequestPending(IRequest request) throws EBaseException {
 
         RequestStatus rs = request.getRequestStatus();
@@ -158,6 +161,7 @@ public class RequestQueue extends ARequestQueue {
         stateEngine(request);
     }
 
+    @Override
     public void cancelRequest(IRequest request) throws EBaseException {
 
         request.setRequestStatus(RequestStatus.CANCELED);
@@ -166,6 +170,7 @@ public class RequestQueue extends ARequestQueue {
         stateEngine(request);
     }
 
+    @Override
     public void rejectRequest(IRequest request) throws EBaseException {
 
         RequestStatus rs = request.getRequestStatus();
@@ -180,6 +185,7 @@ public class RequestQueue extends ARequestQueue {
         stateEngine(request); // does nothing
     }
 
+    @Override
     public void approveRequest(IRequest request) throws EBaseException {
 
         RequestStatus rs = request.getRequestStatus();
@@ -217,6 +223,7 @@ public class RequestQueue extends ARequestQueue {
         stateEngine(request);
     }
 
+    @Override
     public void markAsServiced(IRequest request) throws EBaseException {
 
         request.setRequestStatus(RequestStatus.COMPLETE);
@@ -228,6 +235,7 @@ public class RequestQueue extends ARequestQueue {
         }
     }
 
+    @Override
     public RequestId findRequestBySourceId(String id) {
         IRequestList irl = findRequestsBySourceId(id);
 
@@ -237,6 +245,7 @@ public class RequestQueue extends ARequestQueue {
         return irl.nextRequestId();
     }
 
+    @Override
     public IRequestList findRequestsBySourceId(String id) {
         IDBSearchResults results = null;
         DBSSession dbs = null;
@@ -266,6 +275,7 @@ public class RequestQueue extends ARequestQueue {
 
     }
 
+    @Override
     protected Enumeration<RequestId> getRawList() {
         IDBSearchResults results = null;
         DBSSession dbs = null;
@@ -290,6 +300,7 @@ public class RequestQueue extends ARequestQueue {
         return new SearchEnumeration(results);
     }
 
+    @Override
     public IRequestList listRequestsByStatus(RequestStatus s) {
         IDBSearchResults results = null;
         DBSSession dbs = null;
@@ -341,6 +352,7 @@ public class RequestQueue extends ARequestQueue {
      * Recovers from a crash. Resends all requests that are in
      * the APPROVED state.
      */
+    @Override
     public void recoverWillBlock() {
 
         IRequestList list = listRequestsByStatus(RequestStatus.APPROVED);

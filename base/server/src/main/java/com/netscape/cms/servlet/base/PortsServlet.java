@@ -47,6 +47,7 @@ public class PortsServlet extends CMSServlet {
     public PortsServlet() {
     }
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override these to output directly ourselves.
@@ -57,6 +58,7 @@ public class PortsServlet extends CMSServlet {
     /**
      * Serves HTTP request.
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         // process query if authentication is successful
         HttpServletRequest req = cmsReq.getHttpReq();
@@ -86,6 +88,7 @@ public class PortsServlet extends CMSServlet {
         }
     }
 
+    @Override
     protected void renderResult(CMSRequest cmsReq) throws IOException {
         // do nothing, ie, it will not return the default javascript.
     }

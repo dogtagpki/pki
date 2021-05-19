@@ -61,6 +61,7 @@ public class ManualAuthentication extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EPolicyException {
     }
@@ -72,6 +73,7 @@ public class ManualAuthentication extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         IAuthToken authToken = req.getExtDataInAuthToken(IRequest.AUTH_TOKEN);
 
@@ -86,6 +88,7 @@ public class ManualAuthentication extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         return null;
     }
@@ -95,6 +98,7 @@ public class ManualAuthentication extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return null;
     }

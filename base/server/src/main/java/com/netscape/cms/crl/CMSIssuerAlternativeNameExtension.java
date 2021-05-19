@@ -67,6 +67,7 @@ public class CMSIssuerAlternativeNameExtension
     public CMSIssuerAlternativeNameExtension() {
     }
 
+    @Override
     public Extension setCRLExtensionCriticality(Extension ext,
             boolean critical) {
         IssuerAlternativeNameExtension issuerAltNameExt = null;
@@ -83,6 +84,7 @@ public class CMSIssuerAlternativeNameExtension
         return issuerAltNameExt;
     }
 
+    @Override
     public Extension getCRLExtension(IConfigStore config,
             Object ip,
             boolean critical) {
@@ -191,10 +193,12 @@ public class CMSIssuerAlternativeNameExtension
         return issuerAltNameExt;
     }
 
+    @Override
     public String getCRLExtOID() {
         return PKIXExtensions.IssuerAlternativeName_Id.toString();
     }
 
+    @Override
     public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
         int numNames = 0;
 
@@ -252,6 +256,7 @@ public class CMSIssuerAlternativeNameExtension
         }
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 //"type;choice(CRLExtension,CRLEntryExtension);"+

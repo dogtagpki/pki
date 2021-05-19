@@ -83,6 +83,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
         DESC = "Ensure the uniqueness of the subject name.";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_PRE_AGENT_APPROVAL_CHECKING
@@ -112,6 +113,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         // get CA's public key to create authority key id.
@@ -147,6 +149,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         if (!mPreAgentApprovalChecking) {
             // post agent approval checking
@@ -284,6 +287,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> confParams = new Vector<String>();
 
@@ -299,6 +303,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> defParams = new Vector<String>();
 

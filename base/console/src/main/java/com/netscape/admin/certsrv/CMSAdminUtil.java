@@ -819,6 +819,7 @@ public class CMSAdminUtil {
                                     Object listener) {
 
         JTextField pf = new JTextField(DEFAULT_TEXTFIELD_WIDTH){
+            @Override
             public void setEnabled( boolean enabled ) {
                 super.setEnabled( enabled );
                 //super.setEditable(enabled);
@@ -850,6 +851,7 @@ public class CMSAdminUtil {
                                     int len,
                                     Object listener) {
         JPasswordField pf = new JPasswordField(DEFAULT_TEXTFIELD_WIDTH) {
+            @Override
             public void setEnabled( boolean enabled ) {
                 super.setEnabled( enabled );
                 super.setEditable(enabled);
