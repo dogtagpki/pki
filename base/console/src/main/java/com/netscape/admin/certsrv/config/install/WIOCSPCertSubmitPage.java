@@ -17,9 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
 
 /**
  * OCSP Certificate Submission.
@@ -28,7 +30,7 @@ import com.netscape.certsrv.common.*;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WIOCSPCertSubmitPage extends WICertSubmitPage implements IWizardPanel {
+class WIOCSPCertSubmitPage extends WICertSubmitPage {
     private static final String PANELNAME = "INSTALLOCSPCERTWIZARD";
     private static final String OCSPHELPINDEX = "install-ocsptype-wizard-help";
 

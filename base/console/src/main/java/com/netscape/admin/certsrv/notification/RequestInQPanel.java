@@ -22,7 +22,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -47,7 +46,7 @@ import com.netscape.certsrv.common.ScopeDef;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class RequestInQPanel extends CMSBaseTab implements ItemListener {
+public class RequestInQPanel extends CMSBaseTab {
     private static final String RA_HELPINDEX =
       "notification-ra-reqinq-help";
     private static final String CA_HELPINDEX =

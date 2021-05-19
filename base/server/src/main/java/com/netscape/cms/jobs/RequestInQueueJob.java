@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.IRequestList;
@@ -52,7 +51,7 @@ import com.netscape.cmscore.request.ARequestQueue;
  * @see com.netscape.cms.jobs.AJobBase
  */
 public class RequestInQueueJob extends AJobBase
-        implements IJob, Runnable, IExtendedPluginInfo {
+        implements IExtendedPluginInfo {
     protected static final String PROP_SUBSYSTEM_ID = "subsystemId";
 
     IAuthority mSub = null;

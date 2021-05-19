@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.security.*;
 /**
  * Constructs panel containing a SSL2 cipher suites
  *
@@ -26,8 +25,7 @@ import com.netscape.admin.certsrv.security.*;
  * @see com.netscape.admin.certsrv.config
  */
 
-public class CMSSSL2CipherPreference extends CMSCipherPreferencePane
-  implements ICipherConstants {
+public class CMSSSL2CipherPreference extends CMSCipherPreferencePane {
 
     public CMSSSL2CipherPreference(boolean isDomestic) {
         super(new CMSSSL2CipherSet(isDomestic), true);

@@ -17,10 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
 
 /**
  * Policy Parameter Configuration Dialog
@@ -30,7 +31,6 @@ import com.netscape.certsrv.common.*;
  * @see com.netscape.admin.certsrv.config
  */
 public class PolicyConfigDialog extends CMSBaseConfigDialog
-    implements ActionListener
 {
 
     /*==========================================================

@@ -18,7 +18,6 @@
 
 package org.dogtagpki.server.tps;
 
-import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import com.netscape.cmscore.apps.CMS;
@@ -27,7 +26,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 
 @WebListener
-public class TPSEngine extends CMSEngine implements ServletContextListener {
+public class TPSEngine extends CMSEngine {
 
     public TPSEngine() throws Exception {
         super("TPS");

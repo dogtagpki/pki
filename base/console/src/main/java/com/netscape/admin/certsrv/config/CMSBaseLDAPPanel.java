@@ -23,7 +23,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.StringTokenizer;
 
 import javax.swing.JCheckBox;
@@ -52,7 +51,7 @@ import com.netscape.management.client.util.UtilConsoleGlobals;
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
-public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListener {
+public abstract class CMSBaseLDAPPanel extends CMSBaseTab {
     private static final String SERVER_CERT_NICKNAME = "Server-Cert";
     private JTextField mHostNameText;
     private JTextField mPortText;

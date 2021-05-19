@@ -17,10 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
+import java.awt.event.ActionEvent;
+
 import com.netscape.admin.certsrv.security.EncryptionPane;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.util.*;
-import java.awt.event.*;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Encryption set preference panel glue between CMS and KingPin
@@ -38,7 +39,6 @@ import java.awt.event.*;
 public class CMStoAdminEncryptionPane extends EncryptionPane implements IPluginConfigPanel{
 */
 public class CMStoAdminEncryptionPane extends EncryptionPane
-    implements ActionListener
 {
     protected boolean mEncryptionPaneDirty = false;
 

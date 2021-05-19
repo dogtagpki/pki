@@ -24,9 +24,9 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.AuthManager;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -54,8 +54,7 @@ import com.netscape.cmscore.apps.CMSEngine;
  *         <P>
  *
  */
-public class SSLclientCertAuthentication implements AuthManager,
-        ProfileAuthenticator {
+public class SSLclientCertAuthentication implements ProfileAuthenticator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SSLclientCertAuthentication.class);
 

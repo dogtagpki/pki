@@ -47,13 +47,12 @@ import com.netscape.management.client.util.GridBagUtil;
 import com.netscape.management.client.util.JButtonFactory;
 import com.netscape.management.client.util.ModalDialogUtil;
 import com.netscape.management.client.util.MultilineLabel;
-import com.netscape.management.nmclf.SuiConstants;
 
 /**
  * Dialog box that prompts user to either accept or reject
  * an untrusted certificate.
  */
-public class PromptForTrustDialog extends AbstractDialog implements SuiConstants {
+public class PromptForTrustDialog extends AbstractDialog {
 
     private static boolean certIsAccepted = false;
     private X509Certificate mCert;

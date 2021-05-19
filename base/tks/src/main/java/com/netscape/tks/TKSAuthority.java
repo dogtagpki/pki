@@ -24,10 +24,9 @@ import org.dogtagpki.server.tks.TKSEngineConfig;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequestListener;
 
-public class TKSAuthority implements IAuthority, ISubsystem {
+public class TKSAuthority implements IAuthority {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TKSAuthority.class);
 

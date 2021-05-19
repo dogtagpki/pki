@@ -20,7 +20,6 @@ package com.netscape.admin.certsrv.config;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemListener;
 import java.math.BigInteger;
 import java.util.StringTokenizer;
 
@@ -46,7 +45,7 @@ import com.netscape.management.client.util.Debug;
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
-public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
+public class CMSCAGeneralPanel extends CMSBaseTab {
 
     private static String PANEL_NAME = "CAGENERAL";
     private static CMSBaseResourceModel mModel;

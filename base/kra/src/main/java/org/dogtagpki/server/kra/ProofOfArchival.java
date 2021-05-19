@@ -19,7 +19,6 @@ package org.dogtagpki.server.kra;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -71,7 +70,7 @@ import com.netscape.cmscore.apps.CMS;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
+public class ProofOfArchival implements IDBObj, IProofOfArchival {
 
     private static final long serialVersionUID = -2533562170977678799L;
 
