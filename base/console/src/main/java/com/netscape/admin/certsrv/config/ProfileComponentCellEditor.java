@@ -34,31 +34,38 @@ public class ProfileComponentCellEditor implements TableCellEditor {
         return editorComponent;
     }
 
+    @Override
     public Object getCellEditorValue() {
         return editorComponent;
     }
 
+    @Override
     public boolean isCellEditable(EventObject anEvent) {
         return true;
     }
 
+    @Override
     public boolean shouldSelectCell(EventObject anEvent) {
         return true;
     }
 
+    @Override
     public boolean stopCellEditing() {
         fireEditingStopped();
         return true;
     }
 
+    @Override
     public void cancelCellEditing() {
         fireEditingCanceled();
     }
 
+    @Override
     public void addCellEditorListener(CellEditorListener l) {
         listenerList.add(CellEditorListener.class, l);
     }
 
+    @Override
     public void removeCellEditorListener(CellEditorListener l) {
         listenerList.remove(CellEditorListener.class, l);
     }
@@ -93,6 +100,7 @@ public class ProfileComponentCellEditor implements TableCellEditor {
     }
 
     // implements javax.swing.table.TableCellEditor
+    @Override
     public Component getTableCellEditorComponent(JTable table, Object value,
         boolean isSelected, int row, int column) {
 

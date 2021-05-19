@@ -46,6 +46,7 @@ public class PKIServerCLI extends CLI {
         createOptions();
     }
 
+    @Override
     public String getFullModuleName(String moduleName) {
         return moduleName;
     }
@@ -65,6 +66,7 @@ public class PKIServerCLI extends CLI {
         options.addOption(null, "help", false, "Show help message.");
     }
 
+    @Override
     public void printHelp() throws Exception {
 
         formatter.printHelp(name + " [OPTIONS..] <command> [ARGS..]", options);
@@ -73,6 +75,7 @@ public class PKIServerCLI extends CLI {
         super.printHelp();
     }
 
+    @Override
     public void execute(String[] args) throws Exception {
 
         CommandLine cmd = parser.parse(options, args, true);

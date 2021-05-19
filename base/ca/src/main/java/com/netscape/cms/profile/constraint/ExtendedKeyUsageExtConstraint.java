@@ -55,6 +55,7 @@ public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
         addConfigName(CONFIG_OIDS);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.CHOICE, "true,false,-",
@@ -72,6 +73,7 @@ public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
      * Validates the request. The request is not modified
      * during the validation.
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         ExtendedKeyUsageExtension ext = (ExtendedKeyUsageExtension)
@@ -125,6 +127,7 @@ public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         String params[] = {
                 getConfig(CONFIG_CRITICAL),
@@ -136,6 +139,7 @@ public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
                 params);
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;

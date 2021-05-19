@@ -170,6 +170,7 @@ public class AuthBaseDialog extends JDialog
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent evt) {
 
         if (evt.getSource().equals(mOK)) {
@@ -345,6 +346,7 @@ public class AuthBaseDialog extends JDialog
             super(x);
         }
 
+        @Override
         public Component getTableCellRendererComponent(JTable table,
           Object value, boolean isSelected, boolean hasFocus, int row,
           int column) {

@@ -45,10 +45,12 @@ public class PKCS12CertAddCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <nickname> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "pkcs12-file", true, "PKCS #12 file");
         option.setArgName("path");
@@ -68,6 +70,7 @@ public class PKCS12CertAddCLI extends CommandCLI {
         options.addOption(null, "no-chain", false, "Do not include certificate chain");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         System.err.println("WARNING: pki pkcs12-cert-add has been deprecated. Use pki pkcs12-cert-import instead.");

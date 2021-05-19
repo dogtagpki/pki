@@ -43,32 +43,38 @@ public class ProfilePolicyEditDataModel extends AbstractTableModel
     columnNames = _columnNames;
   }
 
-  public String getColumnName(int column)
+  @Override
+public String getColumnName(int column)
   {
      return columnNames.elementAt(column).toString();
   }
-  public int getRowCount()
+  @Override
+public int getRowCount()
   {
     return rowData.size();
   }
-  public int getColumnCount()
+  @Override
+public int getColumnCount()
   {
     return columnNames.size();
   }
 
-  public Object getValueAt(int row, int column)
+  @Override
+public Object getValueAt(int row, int column)
   {
     return rowData.elementAt(row).elementAt(column);
   }
 
-  public boolean isCellEditable(int row, int column)
+  @Override
+public boolean isCellEditable(int row, int column)
   {
     if (column == 1)
      return true;
     return false;
   }
 
-  public void setValueAt(Object value, int row, int column)
+  @Override
+public void setValueAt(Object value, int row, int column)
   {
     rowData.elementAt(row).setElementAt(value, column);
     fireTableCellUpdated(row, column);

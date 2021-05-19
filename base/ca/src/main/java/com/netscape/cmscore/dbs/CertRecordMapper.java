@@ -48,6 +48,7 @@ public class CertRecordMapper extends DBAttrMapper {
         mDB = db;
     }
 
+    @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
         Vector<String> v = new Vector<String>();
 
@@ -55,6 +56,7 @@ public class CertRecordMapper extends DBAttrMapper {
         return v.elements();
     }
 
+    @Override
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
             Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
@@ -69,6 +71,7 @@ public class CertRecordMapper extends DBAttrMapper {
         attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_CERT_RECORD_ID, rec.getSerialNumber().toString()));
     }
 
+    @Override
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
             String name, IDBObj parent) throws EBaseException {
         try {
@@ -88,6 +91,7 @@ public class CertRecordMapper extends DBAttrMapper {
         }
     }
 
+    @Override
     public String mapSearchFilter(String name, String op, String value)
             throws EBaseException {
         return name + op + value;

@@ -108,6 +108,7 @@ public class CertificateRevokedListener implements IRequestListener {
     public CertificateRevokedListener() {
     }
 
+    @Override
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
         CAEngine engine = CAEngine.getInstance();
@@ -169,6 +170,7 @@ public class CertificateRevokedListener implements IRequestListener {
         mSubsystem.registerRequestListener(this);
     }
 
+    @Override
     public void accept(IRequest r) {
         if (mEnabled != true)
             return;
@@ -329,6 +331,7 @@ public class CertificateRevokedListener implements IRequestListener {
     /**
      * sets the configurable parameters
      */
+    @Override
     public void set(String name, String val) {
         if (name.equalsIgnoreCase(PROP_ENABLED)) {
             if (val.equalsIgnoreCase("true")) {

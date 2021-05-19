@@ -49,6 +49,7 @@ class WICertDNPage extends WBaseDNPage {
         init();
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         setBorder(makeTitledBorder(mPanelName));
 /*
@@ -61,10 +62,12 @@ class WICertDNPage extends WBaseDNPage {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return super.validatePanel();
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         String str1 = mSubjectDNText.getText().trim();
@@ -135,10 +138,12 @@ class WICertDNPage extends WBaseDNPage {
         return ready;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(mHelpIndex);
     }
 
+    @Override
     protected void init() {
         super.init();
     }

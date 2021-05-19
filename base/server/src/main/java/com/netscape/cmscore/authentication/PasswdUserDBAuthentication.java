@@ -89,6 +89,7 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
      * @param config - The configuration store used by the
      *            authentication subsystem.
      */
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
@@ -124,6 +125,7 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
      * @exception com.netscape.certsrv.base.EBaseException If an internal
      *                error occurred.
      */
+    @Override
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
         AuthToken authToken = new AuthToken(this);
@@ -198,6 +200,7 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
     /**
      * gets the name of this authentication manager instance
      */
+    @Override
     public String getName() {
         return mName;
     }
@@ -205,6 +208,7 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
     /**
      * gets the name of the authentication manager plugin
      */
+    @Override
     public String getImplName() {
         return mImplName;
     }
@@ -217,6 +221,7 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
      *
      * @return attribute names in Vector
      */
+    @Override
     public String[] getRequiredCreds() {
         return mRequiredCred;
     }
@@ -227,6 +232,7 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
      *
      * @return String array of configuration parameters.
      */
+    @Override
     public String[] getConfigParams() {
         return mConfigParams;
     }
@@ -234,6 +240,7 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
     /**
      * disconnects the member connection
      */
+    @Override
     public void shutdown() {
         try {
             // disconnect all outstanding connections in the factory
@@ -249,6 +256,7 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
      *
      * @return configuration store
      */
+    @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
     }

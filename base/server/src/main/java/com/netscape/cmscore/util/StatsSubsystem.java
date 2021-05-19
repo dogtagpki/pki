@@ -51,10 +51,12 @@ public class StatsSubsystem implements IStatsSubsystem {
     /**
      * Retrieves subsystem identifier.
      */
+    @Override
     public String getId() {
         return mId;
     }
 
+    @Override
     public void setId(String id) throws EBaseException {
         mId = id;
     }
@@ -72,18 +74,22 @@ public class StatsSubsystem implements IStatsSubsystem {
      * <P>
      * @param config configuration store
      */
+    @Override
     public synchronized void init(IConfigStore config)
             throws EBaseException {
     }
 
+    @Override
     public Date getStartTime() {
         return mStartTime;
     }
 
+    @Override
     public void startTiming(String id) {
         startTiming(id, false /* not the main */);
     }
 
+    @Override
     public void startTiming(String id, boolean mainAction) {
         Thread t = Thread.currentThread();
         Vector<StatsMilestone> milestones = null;
@@ -118,6 +124,7 @@ public class StatsSubsystem implements IStatsSubsystem {
         milestones.addElement(new StatsMilestone(id, startTime, newST));
     }
 
+    @Override
     public void endTiming(String id) {
         long endTime = new Date().getTime();
         Thread t = Thread.currentThread();
@@ -137,21 +144,25 @@ public class StatsSubsystem implements IStatsSubsystem {
         }
     }
 
+    @Override
     public void resetCounters() {
         mStartTime = new Date();
         mAllTrans.resetCounters();
     }
 
+    @Override
     public StatsEvent getMainStatsEvent() {
         return mAllTrans;
     }
 
+    @Override
     public void startup() throws EBaseException {
     }
 
     /**
      * Stops this system.
      */
+    @Override
     public synchronized void shutdown() {
     }
 
@@ -161,6 +172,7 @@ public class StatsSubsystem implements IStatsSubsystem {
      *
      * @return configuration store of this subsystem
      */
+    @Override
     public IConfigStore getConfigStore() {
         return null;
     }

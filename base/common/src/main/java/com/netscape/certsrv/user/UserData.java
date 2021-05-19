@@ -267,6 +267,7 @@ public class UserData {
         return mapper.readValue(json, UserData.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toXML();
@@ -277,6 +278,7 @@ public class UserData {
 
     public static class MapAdapter extends XmlAdapter<AttributeList, Map<String, String>> {
 
+        @Override
         public AttributeList marshal(Map<String, String> map) {
             AttributeList list = new AttributeList();
             for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -288,6 +290,7 @@ public class UserData {
             return list;
         }
 
+        @Override
         public Map<String, String> unmarshal(AttributeList list) {
             Map<String, String> map = new LinkedHashMap<String, String>();
             for (Attribute attribute : list.attributes) {

@@ -48,6 +48,7 @@ public class EExtensionsException extends EBaseException {
         super(msgFormat, params);
     }
 
+    @Override
     protected String getBundleName() {
         return EXTENSIONS_RESOURCES;
     }

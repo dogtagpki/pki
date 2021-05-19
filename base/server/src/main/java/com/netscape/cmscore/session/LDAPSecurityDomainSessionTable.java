@@ -65,6 +65,7 @@ public class LDAPSecurityDomainSessionTable
         mLdapConnFactory.init(socketConfig, internaldb, engine.getPasswordStore());
     }
 
+    @Override
     public int addEntry(String sessionId, String ip,
             String uid, String group) throws Exception {
 
@@ -130,6 +131,7 @@ public class LDAPSecurityDomainSessionTable
         return status;
     }
 
+    @Override
     public int removeEntry(String sessionId) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -164,6 +166,7 @@ public class LDAPSecurityDomainSessionTable
         return status;
     }
 
+    @Override
     public boolean sessionExists(String sessionId) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -195,6 +198,7 @@ public class LDAPSecurityDomainSessionTable
         return ret;
     }
 
+    @Override
     public Enumeration<String> getSessionIDs() throws Exception {
 
         logger.debug("LDAPSecurityDomainSessionTable: getSessionIds() ");
@@ -283,18 +287,22 @@ public class LDAPSecurityDomainSessionTable
         return ret;
     }
 
+    @Override
     public String getIP(String sessionId) throws Exception {
         return getStringValue(sessionId, "host");
     }
 
+    @Override
     public String getUID(String sessionId) throws Exception {
         return getStringValue(sessionId, "uid");
     }
 
+    @Override
     public String getGroup(String sessionId) throws Exception {
         return getStringValue(sessionId, "cmsUserGroup");
     }
 
+    @Override
     public long getBeginTime(String sessionId) throws Exception {
         String beginStr = getStringValue(sessionId, "dateOfCreate");
         if (beginStr != null) {
@@ -303,10 +311,12 @@ public class LDAPSecurityDomainSessionTable
         return -1;
     }
 
+    @Override
     public long getTimeToLive() {
         return m_timeToLive;
     }
 
+    @Override
     public int getSize() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -338,6 +348,7 @@ public class LDAPSecurityDomainSessionTable
         return ret;
     }
 
+    @Override
     public void shutdown() {
         try {
             mLdapConnFactory.reset();

@@ -181,6 +181,7 @@ public class CMSPasswordDialog extends JDialog
         /* Cancel if the window is closed */
         addWindowListener(
             new WindowAdapter() {
+                @Override
                 public void windowClosing(WindowEvent e) {
                     dispose();
                     mCanceled = true;
@@ -225,6 +226,7 @@ public class CMSPasswordDialog extends JDialog
      * EVNET HANDLER METHODS
      *==========================================================*/
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mOK)) {
             String userid = mUsernameField.getText().trim();
@@ -275,26 +277,34 @@ public class CMSPasswordDialog extends JDialog
 
 
     //== DocumentListener ==
+    @Override
     public void insertUpdate(DocumentEvent e) {
         setButtons();
     }
 
+    @Override
     public void removeUpdate(DocumentEvent e){
         setButtons();
     }
 
+    @Override
     public void changedUpdate(DocumentEvent e){
         setButtons();
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         setButtons();
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {}
+    @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
     public void mouseExited(MouseEvent e) {
         setButtons();
     }

@@ -70,6 +70,7 @@ public class ACLAdminServlet extends AdminServlet {
      *
      * @param config servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         mAuthzMgr = mAuthz.get(mAclMethod);
@@ -78,6 +79,7 @@ public class ACLAdminServlet extends AdminServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -89,6 +91,7 @@ public class ACLAdminServlet extends AdminServlet {
      * @param resp the object holding the response information
      */
 
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 

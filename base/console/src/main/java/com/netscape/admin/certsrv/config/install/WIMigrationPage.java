@@ -90,10 +90,12 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         mWizardInfo = (InstallWizardInfo)info;
         if (!mWizardInfo.isMigrationEnable() || !mWizardInfo.isCAInstalled() ||
@@ -160,6 +162,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel {
         }
     }
 
+    @Override
     public boolean validatePanel() {
         int caindex = mCATokenBox.getSelectedIndex();
         boolean status = false;
@@ -245,6 +248,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         Hashtable<String, Object> data = new Hashtable<>();
         String caTokenName = "";
@@ -333,6 +337,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel {
         return ready;
     }
 
+    @Override
     public void itemStateChanged(ItemEvent e) {
         super.itemStateChanged(e);
         int index = 0;
@@ -411,10 +416,12 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel {
         }
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(mHelpIndex);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -728,6 +735,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel {
         add(dumLbl, gbc);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 }

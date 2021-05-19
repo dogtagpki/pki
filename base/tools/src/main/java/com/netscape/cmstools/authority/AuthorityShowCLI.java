@@ -18,16 +18,19 @@ public class AuthorityShowCLI extends CommandCLI {
         this.authorityCLI = authorityCLI;
     }
 
+    @Override
     public void createOptions() {
         Option optParent = new Option(
             null, "host-authority", false, "Show host authority");
         options.addOption(optParent);
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <ID>", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

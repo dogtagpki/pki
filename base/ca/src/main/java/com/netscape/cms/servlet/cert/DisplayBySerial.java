@@ -101,6 +101,7 @@ public class DisplayBySerial extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
@@ -134,6 +135,7 @@ public class DisplayBySerial extends CMSServlet {
      * 0x)
      * </ul>
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         BigInteger serialNumber = MINUS_ONE;
         EBaseException error = null;

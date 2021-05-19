@@ -44,16 +44,19 @@ public class AuditFileRetrieveCLI extends CommandCLI {
         this.auditCLI = auditCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <filename> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "output", true, "Output file.");
         option.setArgName("path");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

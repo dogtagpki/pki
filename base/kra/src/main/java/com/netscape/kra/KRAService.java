@@ -75,6 +75,7 @@ public class KRAService implements IService {
      * @param r request from request subsystem
      * @exception EBaseException failed to serve
      */
+    @Override
     public boolean serviceRequest(IRequest r) throws EBaseException {
 
         logger.info("KRA services request " + r.getRequestId());

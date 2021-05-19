@@ -47,12 +47,14 @@ public class SubsystemGroupMemberFindCLI extends CommandCLI {
         super("find", "Find " + parent.getParent().getParent().getName().toUpperCase() + " group members", parent);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "output-format", true, "Output format: text (default), json.");
         option.setArgName("format");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

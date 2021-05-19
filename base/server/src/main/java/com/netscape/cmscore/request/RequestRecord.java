@@ -98,6 +98,7 @@ public class RequestRecord implements IDBObj {
      * @param name attribute name
      * @return attribute value
      */
+    @Override
     public Object get(String name) {
         if (name.equals(ATTR_REQUEST_ID)) {
             return mRequestId;
@@ -142,6 +143,7 @@ public class RequestRecord implements IDBObj {
      * @param name attribute name
      * @param o attribute value
      */
+    @Override
     @SuppressWarnings("unchecked")
     public void set(String name, Object o) {
         if (name.equals(ATTR_REQUEST_ID)) {
@@ -184,6 +186,7 @@ public class RequestRecord implements IDBObj {
      *
      * @param name attribute name
      */
+    @Override
     public void delete(String name)
             throws EBaseException {
         throw new EBaseException("Invalid call to delete");
@@ -194,11 +197,13 @@ public class RequestRecord implements IDBObj {
      *
      * @return attribute list
      */
+    @Override
     public Enumeration<String> getElements() {
         return mAttrs.elements();
     }
 
     // IDBObj.getSerializableAttrNames
+    @Override
     public Enumeration<String> getSerializableAttrNames() {
         return mAttrs.elements();
     }

@@ -133,6 +133,7 @@ public class ACMEAuthorization {
         return mapper.readValue(json, ACMEAuthorization.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

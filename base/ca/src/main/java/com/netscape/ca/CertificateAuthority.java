@@ -270,10 +270,12 @@ public class CertificateAuthority
         this.mNickname = signingKeyNickname;
     }
 
+    @Override
     public boolean isHostAuthority() {
         return hostCA;
     }
 
+    @Override
     public void ensureReady()
             throws ECAException {
         if (!authorityEnabled)
@@ -286,10 +288,12 @@ public class CertificateAuthority
         }
     }
 
+    @Override
     public boolean isReady() {
         return hasKeys;
     }
 
+    @Override
     public boolean getAuthorityEnabled() {
         return authorityEnabled;
     }
@@ -301,6 +305,7 @@ public class CertificateAuthority
     /**
      * Retrieves subsystem identifier.
      */
+    @Override
     public String getId() {
         return mId;
     }
@@ -308,6 +313,7 @@ public class CertificateAuthority
     /**
      * Sets subsystem identifier.
      */
+    @Override
     public void setId(String id) throws EBaseException {
         mId = id;
     }
@@ -315,6 +321,7 @@ public class CertificateAuthority
     /**
      * updates the Master CRL now
      */
+    @Override
     public void updateCRLNow() throws EBaseException {
         CAEngine engine = CAEngine.getInstance();
         CRLIssuingPoint masterCRLIssuingPoint = (CRLIssuingPoint) engine.getMasterCRLIssuingPoint();
@@ -322,6 +329,7 @@ public class CertificateAuthority
         masterCRLIssuingPoint.updateCRLNow();
     }
 
+    @Override
     public void publishCRLNow() throws EBaseException {
         CAEngine engine = CAEngine.getInstance();
         CRLIssuingPoint masterCRLIssuingPoint = (CRLIssuingPoint) engine.getMasterCRLIssuingPoint();
@@ -329,16 +337,19 @@ public class CertificateAuthority
         masterCRLIssuingPoint.publishCRL();
     }
 
+    @Override
     public IPolicyProcessor getPolicyProcessor() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getCAPolicy().getPolicyProcessor();
     }
 
+    @Override
     public boolean noncesEnabled() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getEnableNonces();
     }
 
+    @Override
     public Map<Object, Long> getNonces(HttpServletRequest request, String name) {
 
         // Create a new session or use an existing one.
@@ -378,6 +389,7 @@ public class CertificateAuthority
      *
      * @exception EBaseException failed to initialize this CA
      */
+    @Override
     public void init(IConfigStore config) throws
             EBaseException {
 
@@ -409,16 +421,19 @@ public class CertificateAuthority
         }
     }
 
+    @Override
     public PublicKey getIssuanceProtPubKey() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getIssuanceProtectionPublicKey();
     }
 
+    @Override
     public PrivateKey getIssuanceProtPrivKey() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getIssuanceProtectionPrivateKey();
     }
 
+    @Override
     public X509Certificate getIssuanceProtCert() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getIssuanceProtectionCert();
@@ -495,6 +510,7 @@ public class CertificateAuthority
     /**
      * registers listener
      */
+    @Override
     public void registerRequestListener(IRequestListener listener) {
         CAEngine engine = CAEngine.getInstance();
         engine.registerRequestListener(listener);
@@ -503,6 +519,7 @@ public class CertificateAuthority
     /**
      * registers listener with a name.
      */
+    @Override
     public void registerRequestListener(String name, IRequestListener listener) {
         CAEngine engine = CAEngine.getInstance();
         engine.registerRequestListener(name, listener);
@@ -511,6 +528,7 @@ public class CertificateAuthority
     /**
      * removes listener
      */
+    @Override
     public void removeRequestListener(IRequestListener listener) {
         CAEngine engine = CAEngine.getInstance();
         engine.removeRequestListener(listener);
@@ -527,6 +545,7 @@ public class CertificateAuthority
     /**
      * register listener for pending requests
      */
+    @Override
     public void registerPendingListener(IRequestListener listener) {
         CAEngine engine = CAEngine.getInstance();
         engine.registerPendingListener(listener);
@@ -543,6 +562,7 @@ public class CertificateAuthority
     /**
      * get listener from listener list
      */
+    @Override
     public IRequestListener getRequestListener(String name) {
         CAEngine engine = CAEngine.getInstance();
         return engine.getRequestListener(name);
@@ -551,6 +571,7 @@ public class CertificateAuthority
     /**
      * get notifiers registered by CA
      */
+    @Override
     public IRequestNotifier getRequestNotifier() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getRequestNotifier();
@@ -564,6 +585,7 @@ public class CertificateAuthority
         return engine.getPendingListener(name);
     }
 
+    @Override
     public Enumeration<String> getRequestListenerNames() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getRequestListenerNames();
@@ -572,6 +594,7 @@ public class CertificateAuthority
     /**
      * return CA's request queue service object.
      */
+    @Override
     public IService getCAService() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getCAService();
@@ -580,6 +603,7 @@ public class CertificateAuthority
     /**
      * check if the ca is a clone.
      */
+    @Override
     public boolean isClone() {
         if (CAService.mCLAConnector != null)
             return true;
@@ -590,6 +614,7 @@ public class CertificateAuthority
     /**
      * Starts up this subsystem.
      */
+    @Override
     public void startup() throws EBaseException {
     }
 
@@ -597,6 +622,7 @@ public class CertificateAuthority
      * Shutdowns this subsystem.
      * <P>
      */
+    @Override
     public void shutdown() {
     }
 
@@ -604,6 +630,7 @@ public class CertificateAuthority
      * Retrieves the configuration store of this subsystem.
      * <P>
      */
+    @Override
     public CAConfig getConfigStore() {
         return mConfig;
     }
@@ -612,23 +639,28 @@ public class CertificateAuthority
         mConfig = config;
     }
 
+    @Override
     public long getDefaultValidity() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getDefaultCertValidity();
     }
 
+    @Override
     public SignatureAlgorithm getDefaultSignatureAlgorithm() {
         return mSigningUnit.getDefaultSignatureAlgorithm();
     }
 
+    @Override
     public String getDefaultAlgorithm() {
         return mSigningUnit.getDefaultAlgorithm();
     }
 
+    @Override
     public void setDefaultAlgorithm(String algorithm) throws EBaseException {
         mSigningUnit.setDefaultAlgorithm(algorithm);
     }
 
+    @Override
     public String getStartSerial() {
 
         CAEngine engine = CAEngine.getInstance();
@@ -647,12 +679,14 @@ public class CertificateAuthority
         }
     }
 
+    @Override
     public void setStartSerial(String serial) throws EBaseException {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
         certificateRepository.setTheSerialNumber(new BigInteger(serial));
     }
 
+    @Override
     public String getMaxSerial() {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
@@ -665,6 +699,7 @@ public class CertificateAuthority
         }
     }
 
+    @Override
     public void setMaxSerial(String serial) throws EBaseException {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
@@ -678,6 +713,7 @@ public class CertificateAuthority
      *
      * @return certificate repository
      */
+    @Override
     public CertificateRepository getCertificateRepository() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getCertificateRepository();
@@ -689,6 +725,7 @@ public class CertificateAuthority
      *
      * @return replica repository
      */
+    @Override
     public ReplicaIDRepository getReplicaRepository() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getReplicaIDRepository();
@@ -697,6 +734,7 @@ public class CertificateAuthority
     /**
      * Adds CRL issuing point with the given identifier and description.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public boolean addCRLIssuingPoint(IConfigStore crlSubStore, String id,
                                       boolean enable, String description) {
@@ -846,6 +884,7 @@ public class CertificateAuthority
     /**
      * Deletes CRL issuing point with the given identifier.
      */
+    @Override
     public void deleteCRLIssuingPoint(IConfigStore crlSubStore, String id) {
 
         CAEngine engine = CAEngine.getInstance();
@@ -869,18 +908,22 @@ public class CertificateAuthority
      *
      * @return CA name
      */
+    @Override
     public X500Name getX500Name() {
         return mName;
     }
 
+    @Override
     public CertificateIssuerName getIssuerObj() {
        return mIssuerObj;
     }
 
+    @Override
     public CertificateSubjectName getSubjectObj() {
        return mSubjectObj;
     }
 
+    @Override
     public X500Name getCRLX500Name() {
         X509CertImpl crlCertImpl = mCRLSigningUnit.getCertImpl();
         return (X500Name) crlCertImpl.getSubjectDN();
@@ -897,6 +940,7 @@ public class CertificateAuthority
      *
      * @return CA signing cert nickname.
      */
+    @Override
     public String getNickname() {
         return mNickname;
     }
@@ -907,18 +951,22 @@ public class CertificateAuthority
      *
      * @return request identifier
      */
+    @Override
     public CASigningUnit getSigningUnit() {
         return mSigningUnit;
     }
 
+    @Override
     public CASigningUnit getCRLSigningUnit() {
         return mCRLSigningUnit;
     }
 
+    @Override
     public CASigningUnit getOCSPSigningUnit() {
         return mOCSPSigningUnit;
     }
 
+    @Override
     public void setBasicConstraintMaxLen(int num) {
         mConfig.putString("Policy.rule.BasicConstraintsExt.maxPathLen", "" + num);
     }
@@ -936,6 +984,7 @@ public class CertificateAuthority
      *
      * @return the signed CRL
      */
+    @Override
     public X509CRLImpl sign(X509CRLImpl crl, String algname)
             throws EBaseException {
 
@@ -1024,6 +1073,7 @@ public class CertificateAuthority
      *            signing algorithm will be used.
      * @return signed certificate
      */
+    @Override
     public X509CertImpl sign(X509CertInfo certInfo, String algname)
             throws EBaseException {
 
@@ -1154,6 +1204,7 @@ public class CertificateAuthority
      * @param level the debug level.
      * @param msg the message to debug.
      */
+    @Override
     public void log(int level, String msg) {
     }
 
@@ -1162,10 +1213,12 @@ public class CertificateAuthority
      *
      * @return this CA's cert chain.
      */
+    @Override
     public CertificateChain getCACertChain() {
         return mSigningUnit.getCertChain();
     }
 
+    @Override
     public X509CertImpl getCACert() throws EBaseException {
 
         X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
@@ -1193,10 +1246,12 @@ public class CertificateAuthority
         }
     }
 
+    @Override
     public org.mozilla.jss.crypto.X509Certificate getCaX509Cert() {
         return mSigningUnit.getCert();
     }
 
+    @Override
     public String[] getCASigningAlgorithms() {
 
         if (mCASigningAlgorithms != null)
@@ -1388,26 +1443,32 @@ public class CertificateAuthority
      }
      */
 
+    @Override
     public String getOfficialName() {
         return OFFICIAL_NAME;
     }
 
+    @Override
     public long getNumOCSPRequest() {
         return mNumOCSPRequest;
     }
 
+    @Override
     public long getOCSPRequestTotalTime() {
         return mTotalTime;
     }
 
+    @Override
     public long getOCSPTotalData() {
         return mTotalData;
     }
 
+    @Override
     public long getOCSPTotalSignTime() {
         return mSignTime;
     }
 
+    @Override
     public long getOCSPTotalLookupTime() {
         return mLookupTime;
     }
@@ -1449,6 +1510,7 @@ public class CertificateAuthority
     /**
      * Process OCSPRequest.
      */
+    @Override
     public OCSPResponse validate(OCSPRequest request)
             throws EBaseException {
 
@@ -1781,6 +1843,7 @@ public class CertificateAuthority
             null /* nextUpdate */);
     }
 
+    @Override
     public AuthorityID getAuthorityID() {
         return authorityID;
     }
@@ -1789,10 +1852,12 @@ public class CertificateAuthority
         authorityID = aid;
     }
 
+    @Override
     public AuthorityID getAuthorityParentID() {
         return authorityParentID;
     }
 
+    @Override
     public String getAuthorityDescription() {
         return authorityDescription;
     }
@@ -1897,6 +1962,7 @@ public class CertificateAuthority
     /**
      * Renew certificate of this CA.
      */
+    @Override
     public void renewAuthority(HttpServletRequest httpReq) throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
@@ -1948,6 +2014,7 @@ public class CertificateAuthority
         checkForNewerCert();
     }
 
+    @Override
     public synchronized void deleteAuthority(HttpServletRequest httpReq)
             throws EBaseException {
         if (hostCA)

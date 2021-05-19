@@ -35,10 +35,12 @@ public class FeatureFindCLI extends CommandCLI {
         this.featureCLI = featureCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName(), options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();

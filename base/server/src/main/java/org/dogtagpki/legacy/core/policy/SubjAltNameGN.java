@@ -62,14 +62,17 @@ public class SubjAltNameGN extends GeneralNameConfig implements ISubjAltNameConf
         }
     }
 
+    @Override
     public String getPfx() {
         return mPfx;
     }
 
+    @Override
     public String getAttr() {
         return mAttr;
     }
 
+    @Override
     public void getInstanceParams(Vector<String> params) {
         params.addElement(mNameDot + PROP_REQUEST_ATTR + "=" + mRequestAttr);
         super.getInstanceParams(params);

@@ -98,6 +98,7 @@ public class LdapDNCompsMap
     public LdapDNCompsMap() {
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -105,6 +106,7 @@ public class LdapDNCompsMap
     /**
      * for initializing from config store.
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -125,6 +127,7 @@ public class LdapDNCompsMap
         return "LdapDNCompsMap";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] s = {
                 "baseDN;string;Base to search from. E.g ou=Engineering,o=Fedora",

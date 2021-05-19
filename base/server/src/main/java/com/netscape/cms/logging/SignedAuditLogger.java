@@ -51,6 +51,7 @@ public class SignedAuditLogger extends Logger {
         return INSTANCE;
     }
 
+    @Override
     public void log(LogCategory category, LogSource source, int level, String message,
             Object params[], boolean multiline) {
 
@@ -99,6 +100,7 @@ public class SignedAuditLogger extends Logger {
         mLogQueue.log(event);
     }
 
+    @Override
     public void log(LogEvent event) {
 
         String messageID = event.getMessage();
@@ -110,6 +112,7 @@ public class SignedAuditLogger extends Logger {
         log(category, source, level, message, null, ILogger.L_SINGLELINE);
     }
 
+    @Override
     public void update(LogEvent event, LogSource source,
             int level, String message, Object params[], boolean multiline) {
 

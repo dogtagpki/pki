@@ -123,6 +123,7 @@ public class AuditVerify {
             this.prefix = prefix;
         }
 
+        @Override
         public boolean accept(File dir, String name) {
             // look for <prefix>cert* in this directory
             return (name.indexOf(prefix + "cert") != -1);

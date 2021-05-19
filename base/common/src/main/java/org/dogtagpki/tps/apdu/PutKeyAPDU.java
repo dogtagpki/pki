@@ -35,6 +35,7 @@ public class PutKeyAPDU extends APDU {
         setData(theData);
     }
 
+    @Override
     public Type getType()
     {
         return Type.APDU_PUT_KEY;

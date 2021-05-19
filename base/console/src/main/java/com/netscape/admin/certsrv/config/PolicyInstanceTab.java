@@ -65,7 +65,8 @@ public class PolicyInstanceTab extends CMSPluginInstanceTab {
     }
 
 
-	public CMSBaseConfigDialog makeNewConfigDialog(
+	@Override
+    public CMSBaseConfigDialog makeNewConfigDialog(
 			NameValuePairs nvp,
 			JFrame parent,
 			AdminConnection conn,
@@ -79,7 +80,8 @@ public class PolicyInstanceTab extends CMSPluginInstanceTab {
 			dest);
 	}
 
-	public PluginSelectionDialog getPluginSelectionDialog(
+	@Override
+    public PluginSelectionDialog getPluginSelectionDialog(
 			JFrame parent,
 			AdminConnection conn,
 			String dest,
@@ -91,6 +93,7 @@ public class PolicyInstanceTab extends CMSPluginInstanceTab {
 
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void moreActionPerformed(ActionEvent e) {
         if (e.getSource().equals(mOrder)) {
             Debug.println("Order");
@@ -105,6 +108,7 @@ public class PolicyInstanceTab extends CMSPluginInstanceTab {
     /**
      * create the user action button panel
      */
+    @Override
     protected JPanel createUserButtonPanel() {
         //edit, add, delete, help buttons required
         //actionlister to this object
@@ -119,6 +123,7 @@ public class PolicyInstanceTab extends CMSPluginInstanceTab {
 
 
     //set buttons
+    @Override
     protected void setButtons() {
 		super.setButtons();
 

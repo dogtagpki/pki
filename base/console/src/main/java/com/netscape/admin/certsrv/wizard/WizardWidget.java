@@ -163,6 +163,7 @@ public class WizardWidget extends JDialog implements ActionListener
      * Action Performed when button pressed. ActionListener implementation.
      * @param event
      */
+    @Override
     public void actionPerformed(ActionEvent e) {
 
         //DONE or NEXT Pressed

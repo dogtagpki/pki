@@ -75,6 +75,7 @@ public class RegisterUser extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         logger.debug("RegisterUser: initializing...");
         super.init(sc);
@@ -86,6 +87,7 @@ public class RegisterUser extends CMSServlet {
     /**
      * Process the HTTP request.
      */
+    @Override
     protected void process(CMSRequest cmsReq) throws EBaseException {
 
         logger.debug("RegisterUser: Processing request");
@@ -300,20 +302,24 @@ public class RegisterUser extends CMSServlet {
         }
     }
 
+    @Override
     protected void setDefaultTemplates(ServletConfig sc) {
     }
 
+    @Override
     protected void renderTemplate(
             CMSRequest cmsReq, String templateName, ICMSTemplateFiller filler)
             throws IOException {// do nothing
     }
 
+    @Override
     protected void renderResult(CMSRequest cmsReq) throws IOException {// do nothing, ie, it will not return the default javascript.
     }
 
     /**
      * Retrieves locale based on the request.
      */
+    @Override
     protected Locale getLocale(HttpServletRequest req) {
         Locale locale = null;
         String lang = req.getHeader("accept-language");

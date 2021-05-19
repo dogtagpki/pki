@@ -112,6 +112,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mProfileId = sc.getInitParameter(PROP_PROFILE_ID);
@@ -265,6 +266,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
      * @param cmsReq the object holding the request and response information
      * @exception EBaseException an error has occurred
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();

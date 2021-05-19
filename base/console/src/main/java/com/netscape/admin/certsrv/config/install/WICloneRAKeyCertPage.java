@@ -75,10 +75,12 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         mWizardInfo = wizardInfo;
@@ -118,10 +120,12 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         String ranickname = (String)mRANicknameBox.getSelectedItem();
         mRATokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
@@ -172,10 +176,12 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         return ready;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(CAHELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -245,11 +251,13 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         add(dummy, gbc);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         mWizardInfo.setRATokenName(mRATokenname);
         mWizardInfo.setSSLTokenName(mSSLTokenname);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
     }
 }

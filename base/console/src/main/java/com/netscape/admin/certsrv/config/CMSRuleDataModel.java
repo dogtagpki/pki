@@ -64,6 +64,7 @@ public abstract class CMSRuleDataModel extends CMSContentTableModel
     /**
      * clean up the table including the datat objects
      */
+    @Override
     public void removeAllRows() {
         super.removeAllRows();
         mRules.removeAllElements();
@@ -74,6 +75,7 @@ public abstract class CMSRuleDataModel extends CMSContentTableModel
         return (Vector<String>) mRules.clone();
     }
 
+    @Override
     public boolean isCellEditable(int row, int col) {
         return false;
     }

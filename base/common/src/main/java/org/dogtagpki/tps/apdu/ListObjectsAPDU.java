@@ -38,6 +38,7 @@ public class ListObjectsAPDU extends APDU {
         return Type.APDU_LIST_OBJECTS;
     }
 
+    @Override
     public TPSBuffer getEncoding()
     {
         TPSBuffer encoding = new TPSBuffer();

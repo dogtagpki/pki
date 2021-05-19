@@ -76,6 +76,7 @@ public class PKIRESTProvider implements MessageBodyReader<StreamingOutput>, Mess
                 IOUtils.copy(in, out);
             }
 
+            @Override
             public void finalize() {
                 file.delete();
             }

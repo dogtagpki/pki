@@ -119,10 +119,12 @@ public class CMSTableModel extends AbstractTableModel {
 	 * public methods
      *==========================================================*/
 
+    @Override
     public int getColumnCount() {
         return _columnNames.size();
     }
 
+    @Override
     public int getRowCount() {
         if (getColumnCount() > 0 ) {
             Vector<Object> v = _tableColumns.elementAt(0);
@@ -131,21 +133,25 @@ public class CMSTableModel extends AbstractTableModel {
         return 0;
     }
 
+    @Override
     public String getColumnName(int column) {
         if (column >= _columnNames.size())
             return "";
         return _columnNames.elementAt(column);
     }
 
+    @Override
     public boolean isCellEditable(int row, int col) {
         return false;
     }
 
+    @Override
     public synchronized void setValueAt(Object aValue, int row, int column) {
             Vector<Object> col = _tableColumns.elementAt(column);
             col.setElementAt(aValue, row);
     }
 
+    @Override
     public synchronized Object getValueAt(int row, int col) {
         if ( getColumnCount() > 0 ) {
             Vector<Object> v = _tableColumns.elementAt(col);
@@ -191,6 +197,7 @@ public class CMSTableModel extends AbstractTableModel {
         _tableColumns.addElement(new Vector<Object>());
     }
 
+    @Override
     public Class<?> getColumnClass(int c) {
         return getValueAt(0, c).getClass();
     }

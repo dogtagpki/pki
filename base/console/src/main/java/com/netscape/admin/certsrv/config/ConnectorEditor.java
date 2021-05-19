@@ -211,6 +211,7 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         }
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
         //setButtons();
 
@@ -224,15 +225,19 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         }
     }
 
+    @Override
     public void mouseReleased(MouseEvent e) {
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {
     }
 
+    @Override
     public void mouseEntered(MouseEvent e) {
     }
 
+    @Override
     public void mouseExited(MouseEvent e) {
     }
 
@@ -568,6 +573,7 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         return CMSAdminUtil.makeJButtonPanel( buttons, true);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
 
         if (e.getSource().equals(mEnableBox)) {

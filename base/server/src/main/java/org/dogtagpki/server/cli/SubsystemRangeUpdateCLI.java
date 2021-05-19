@@ -46,6 +46,7 @@ public class SubsystemRangeUpdateCLI extends CommandCLI {
         super("update", "Update " + parent.getParent().getName().toUpperCase() + " ranges", parent);
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option("d", true, "NSS database location");
@@ -57,6 +58,7 @@ public class SubsystemRangeUpdateCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String catalinaBase = System.getProperty("catalina.base");

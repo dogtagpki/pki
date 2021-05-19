@@ -83,6 +83,7 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
     /**
      * Actual Instantiation of the UI components
      */
+    @Override
     public void init() {
         mAdmin = mModel.getServerInfo().getAdmin();
 		GridBagLayout gb = new GridBagLayout();
@@ -364,6 +365,7 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
         if (e.getSource().equals(activateLog) ||

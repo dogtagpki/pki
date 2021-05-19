@@ -59,10 +59,12 @@ public class RevocationInfoMapper extends DBAttrMapper {
     public RevocationInfoMapper() {
     }
 
+    @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
         return mNames.elements();
     }
 
+    @Override
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
             Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
@@ -114,6 +116,7 @@ public class RevocationInfoMapper extends DBAttrMapper {
         }
     }
 
+    @Override
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
             String name, IDBObj parent) throws EBaseException {
         try {
@@ -174,6 +177,7 @@ public class RevocationInfoMapper extends DBAttrMapper {
         }
     }
 
+    @Override
     public String mapSearchFilter(String name, String op, String value)
             throws EBaseException {
         return CertDBSchema.LDAP_ATTR_REVO_INFO + op + value;

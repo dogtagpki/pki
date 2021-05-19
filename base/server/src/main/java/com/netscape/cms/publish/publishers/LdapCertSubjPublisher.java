@@ -68,14 +68,17 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
     public LdapCertSubjPublisher() {
     }
 
+    @Override
     public String getImplName() {
         return "LdapCertSubjPublisher";
     }
 
+    @Override
     public String getDescription() {
         return "LdapCertSubjPublisher";
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
 
@@ -84,6 +87,7 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
         return v;
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
@@ -92,10 +96,12 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
         return v;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         if (mInited)
@@ -146,6 +152,7 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
      *                if cert encoding fails, if getting cert subject name fails.
      *                Use ELdapException.getException() to find underlying exception.
      */
+    @Override
     public void publish(LDAPConnection conn, String dn, Object certObj)
             throws ELdapException {
         if (conn == null) {
@@ -229,6 +236,7 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
      * also takes out the subject name if no other certificate remain
      * with the same subject name.
      */
+    @Override
     public void unpublish(LDAPConnection conn, String dn, Object certObj)
             throws ELdapException {
         if (!(certObj instanceof X509Certificate))

@@ -93,6 +93,7 @@ public class RenewalServlet extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override success template. has same info as enrollment.
@@ -122,6 +123,7 @@ public class RenewalServlet extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
         long startTime = new Date().getTime();

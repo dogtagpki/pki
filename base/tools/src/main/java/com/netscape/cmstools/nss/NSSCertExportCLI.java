@@ -28,10 +28,12 @@ public class NSSCertExportCLI extends CommandCLI {
         super("export", "Export certificate", nssCertCLI);
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] nickname [path]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "format", true, "Certificate format: PEM (default), DER, RAW");
         option.setArgName("format");
@@ -42,6 +44,7 @@ public class NSSCertExportCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -18,6 +18,7 @@ public class ResourceNotFoundException extends PKIException {
         super(data);
     }
 
+    @Override
     public Data getData() {
         return super.getData();
     }

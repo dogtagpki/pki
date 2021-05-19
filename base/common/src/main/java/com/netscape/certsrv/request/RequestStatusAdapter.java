@@ -28,10 +28,12 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class RequestStatusAdapter extends XmlAdapter<String, RequestStatus> {
 
+    @Override
     public RequestStatus unmarshal(String value) throws Exception {
         return StringUtils.isEmpty(value) ? null : RequestStatus.valueOf(value);
     }
 
+    @Override
     public String marshal(RequestStatus value) throws Exception {
         return value == null ? null : value.toString();
     }

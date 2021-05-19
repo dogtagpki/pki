@@ -87,6 +87,7 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
      * @param implName The name of the authentication manager plugin.
      * @param config The configuration store for this authentication manager.
      */
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
@@ -97,6 +98,7 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
     /**
      * Gets the name of this authentication manager.
      */
+    @Override
     public String getName() {
         return mName;
     }
@@ -104,10 +106,12 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
     /**
      * Gets the plugin name of authentication manager.
      */
+    @Override
     public String getImplName() {
         return mImplName;
     }
 
+    @Override
     public boolean isSSLClientRequired() {
         return true;
     }
@@ -128,6 +132,7 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
      * @see org.dogtagpki.server.authentication.AuthToken
      * @see com.netscape.certsrv.usrgrp.Certificates
      */
+    @Override
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
@@ -270,6 +275,7 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
      *
      * @return attribute names in Vector
      */
+    @Override
     public String[] getRequiredCreds() {
         return (mRequiredCreds);
     }
@@ -286,6 +292,7 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
      *         Vector of parameter names. If no substore, the parameter name
      *         is the Hashtable key itself, with value same as key.
      */
+    @Override
     public String[] getConfigParams() {
         return (mConfigParams);
     }
@@ -293,6 +300,7 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
     /**
      * prepare this authentication manager for shutdown.
      */
+    @Override
     public void shutdown() {
     }
 
@@ -302,12 +310,14 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
      *
      * @return configuration store
      */
+    @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
 
     // Profile-related methods
 
+    @Override
     public void init(Profile profile, IConfigStore config)
             throws EProfileException {
     }
@@ -315,6 +325,7 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
     /**
      * Retrieves the localizable name of this policy.
      */
+    @Override
     public String getName(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_AUTHENTICATION_SSL_CLIENT_NAME");
     }
@@ -322,6 +333,7 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
     /**
      * Retrieves the localizable description of this policy.
      */
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_AUTHENTICATION_SSL_CLIENT_TEXT");
     }
@@ -329,10 +341,12 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
     /**
      * Retrieves a list of names of the value parameter.
      */
+    @Override
     public Enumeration<String> getValueNames() {
         return null;
     }
 
+    @Override
     public boolean isValueWriteable(String name) {
         return false;
     }
@@ -341,10 +355,12 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
      * Retrieves the descriptor of the given value
      * parameter by name.
      */
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public void populate(IAuthToken token, IRequest request)
             throws EProfileException {
         request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,

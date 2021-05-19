@@ -33,6 +33,7 @@ public class GeneralNamesAsConstraintsConfig extends GeneralNamesConfig implemen
         super(name, config, isValueConfigured, isPolicyEnabled);
     }
 
+    @Override
     protected GeneralNameConfig newGeneralNameConfig(
             String name, IConfigStore config,
             boolean isValueConfigured, boolean isPolicyEnabled)

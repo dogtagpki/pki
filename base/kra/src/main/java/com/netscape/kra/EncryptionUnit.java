@@ -61,12 +61,14 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
     public abstract CryptoToken getInternalToken();
 
+    @Override
     public abstract PublicKey getPublicKey();
 
     public abstract PrivateKey getPrivateKey();
 
     public abstract PrivateKey getPrivateKey(org.mozilla.jss.crypto.X509Certificate cert);
 
+    @Override
     public WrappingParams getOldWrappingParams() {
         return new WrappingParams(
                 SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
@@ -74,6 +76,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
                 KeyWrapAlgorithm.DES3_CBC_PAD, IV, IV);
     }
 
+    @Override
     public SymmetricKey unwrap_session_key(CryptoToken token, byte encSymmKey[], SymmetricKey.Usage usage,
             WrappingParams params) throws Exception {
         PrivateKey wrappingKey = getPrivateKey();
@@ -93,6 +96,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     /**
      * Verify the given key pair.
      */
+    @Override
     public void verify(PublicKey publicKey, PrivateKey privateKey) throws
             EBaseException {
     }

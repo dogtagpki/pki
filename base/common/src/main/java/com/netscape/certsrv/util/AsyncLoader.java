@@ -166,6 +166,7 @@ public class AsyncLoader {
     }
 
     private class AsyncLoaderWatchdog extends TimerTask {
+        @Override
         public void run() {
             forceUnlock();
         }

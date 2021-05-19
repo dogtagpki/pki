@@ -22,10 +22,12 @@ public class TKSKeyRemoveCLI extends CommandCLI {
         this.tksKeyCLI = tksKeyCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <Key ID>", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

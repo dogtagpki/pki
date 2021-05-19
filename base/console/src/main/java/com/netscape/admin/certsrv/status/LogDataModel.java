@@ -72,6 +72,7 @@ public class LogDataModel extends CMSTableModel
     /**
      * Process data called back
      */
+    @Override
     public void processData(Object data) {
         Vector<Object> row;
         if (mParser == null)
@@ -90,6 +91,7 @@ public class LogDataModel extends CMSTableModel
      * SINCE WE ARE PROVIDING REVERSE ORDER ENTRIES IN
      * LOG FILES
      */
+    @Override
     public synchronized void addRow(Vector<Object> values) {
         int row = 0;
         for (int i=0; i < values.size(); i++) {

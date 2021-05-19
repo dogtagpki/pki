@@ -46,6 +46,7 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
     /**
      * initialization. nothing for now.
      */
+    @Override
     public void init() {
     }
 
@@ -54,6 +55,7 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
      *
      * @return type for this acl evaluator: ipaddress
      */
+    @Override
     public String getType() {
         return mType;
     }
@@ -63,10 +65,12 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
      *
      * @return description for this acl evaluator
      */
+    @Override
     public String getDescription() {
         return mDescription;
     }
 
+    @Override
     public String[] getSupportedOperators() {
         String[] s = new String[2];
 
@@ -83,6 +87,7 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
      * @param op must be "=" or "!="
      * @param value the ipaddress
      */
+    @Override
     public boolean evaluate(IAuthToken authToken, String type, String op, String value) {
 
         return evaluate(type, op, value);
@@ -98,6 +103,7 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
      * @return true if SessionContext uid belongs to the group value,
      *         false otherwise
      */
+    @Override
     public boolean evaluate(String type, String op, String value) {
 
         SessionContext mSC = SessionContext.getContext();

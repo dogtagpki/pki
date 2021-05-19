@@ -34,6 +34,7 @@ public class ProxyUserCLI extends ProxyCLI {
         super(new UserCLI(parent), "ca");
     }
 
+    @Override
     public void execute(String[] args) throws Exception {
         logger.warn("pki user has been deprecated. Use pki <subsystem>-user instead.");
         super.execute(args);

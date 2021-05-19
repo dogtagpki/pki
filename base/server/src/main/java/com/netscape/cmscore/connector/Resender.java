@@ -109,6 +109,7 @@ public class Resender implements IResender {
         }
     }
 
+    @Override
     public void addRequest(IRequest r) {
         synchronized (mRequestIds) {
             // note the request ids are added as strings.
@@ -117,11 +118,13 @@ public class Resender implements IResender {
         logger.debug("added " + r.getRequestId() + " to resend queue");
     }
 
+    @Override
     public void start(final String name) {
         logger.debug("Starting resender thread with interval " + mInterval);
 
         // schedule task to run immediately and repeat after specified interval
         executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            @Override
             public Thread newThread(Runnable r) {
                 return new Thread(r, name);
             }
@@ -130,6 +133,7 @@ public class Resender implements IResender {
 
     }
 
+    @Override
     public void run() {
         CMSEngine engine = CMS.getCMSEngine();
         if (! engine.isInRunningState())
@@ -148,6 +152,7 @@ public class Resender implements IResender {
         resend();
     }
 
+    @Override
     public void stop() {
         // shutdown executorService without interrupting running task
         if (executorService != null) executorService.shutdown();

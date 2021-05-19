@@ -66,6 +66,7 @@ public class ConfigCertApprovalCallback
         return "UNKNOWN_ERROR";
     }
 
+    @Override
     public boolean approve(X509Certificate cert,
             SSLCertificateApprovalCallback.ValidityStatus status) {
 

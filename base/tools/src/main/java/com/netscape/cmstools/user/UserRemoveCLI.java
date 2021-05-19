@@ -38,10 +38,12 @@ public class UserRemoveCLI extends CommandCLI {
         this.userCLI = userCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <User ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -53,6 +53,7 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
     /**
      * initialization. nothing for now.
      */
+    @Override
     public void init() {
         logger.debug("UserOrigReqAccessEvaluator: init");
     }
@@ -62,6 +63,7 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
      *
      * @return type for this acl evaluator: "user_origreq" or "at_user_origreq"
      */
+    @Override
     public String getType() {
         return mType;
     }
@@ -71,10 +73,12 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
      *
      * @return description for this acl evaluator
      */
+    @Override
     public String getDescription() {
         return mDescription;
     }
 
+    @Override
     public String[] getSupportedOperators() {
         String[] s = new String[2];
 
@@ -92,6 +96,7 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
      * @param value the request param name
      * @return true if AuthToken userid is same as value, false otherwise
      */
+    @Override
     public boolean evaluate(IAuthToken authToken, String type, String op, String value) {
         logger.debug("UserOrigReqAccessEvaluator: evaluate() begins");
         if (type.equals(mType)) {
@@ -139,6 +144,7 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
      * @param value the user id
      * @return true if SessionContext uid is same as value, false otherwise
      */
+    @Override
     public boolean evaluate(String type, String op, String value) {
 
         SessionContext mSC = SessionContext.getContext();

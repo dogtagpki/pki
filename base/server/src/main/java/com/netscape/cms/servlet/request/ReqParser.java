@@ -49,6 +49,7 @@ public class ReqParser implements IReqParser {
     /**
      * Maps request object into argument block.
      */
+    @Override
     public void fillRequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
             throws EBaseException {
         arg.addStringValue(TYPE, req.getRequestType());

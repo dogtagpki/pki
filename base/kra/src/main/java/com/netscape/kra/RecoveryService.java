@@ -133,6 +133,7 @@ public class RecoveryService implements IService {
      * @return operation success or not
      * @exception EBaseException failed to serve
      */
+    @Override
     public boolean serviceRequest(IRequest request) throws EBaseException {
 
         CryptoManager cm = null;

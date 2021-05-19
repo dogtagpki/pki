@@ -16,6 +16,7 @@ public class ACMEMaintenanceTask extends ACMETask {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEMaintenanceTask.class);
 
+    @Override
     public void run() throws Exception {
 
         logger.info("Running ACME maintenance");

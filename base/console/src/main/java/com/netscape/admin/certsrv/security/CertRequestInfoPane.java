@@ -82,10 +82,12 @@ IKeyCertPage {
 
     JPanel statePanel = new JPanel();
 
+    @Override
     public JPanel getPanel() {
         return this;
     }
 
+    @Override
     public boolean pageShow(WizardObservable observable) {
         boolean show =
                 ((Boolean)(observable.get("requestCert"))).booleanValue();
@@ -97,6 +99,7 @@ IKeyCertPage {
         return show;
     }
 
+    @Override
     public boolean pageHide(WizardObservable observable) {
 
         KeyCertTaskInfo taskInfo = observable.getTaskInfo();
@@ -138,6 +141,7 @@ IKeyCertPage {
     }
 
     class InfoPaneActionListener implements ActionListener, KeyListener, FocusListener{
+        @Override
         public void actionPerformed(ActionEvent e) {
             modified = true;
             setEnableNextButton();
@@ -146,8 +150,11 @@ IKeyCertPage {
                 setupState(c.getSelectedItem().toString());
             }
         }
+        @Override
         public void keyTyped(KeyEvent e) {}
+        @Override
         public void keyPressed(KeyEvent e) {}
+        @Override
         public void keyReleased(KeyEvent e) {
             modified = true;
             setEnableNextButton();
@@ -157,7 +164,9 @@ IKeyCertPage {
             }
         }
 
+        @Override
         public void focusGained(FocusEvent e) {}
+        @Override
         public void focusLost(FocusEvent e) {
             if (!(e.isTemporary()) && (e.getComponent() == dn) &&
                 (dn.getText().indexOf(".") == -1)) {

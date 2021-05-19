@@ -74,6 +74,7 @@ class WMNOldAgent extends WizardBasePanel
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
@@ -82,6 +83,7 @@ class WMNOldAgent extends WizardBasePanel
      * public methods
      *==========================================================*/
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         //let's set the values
         mInfo = (MNSchemeWizardInfo)info;
@@ -108,6 +110,7 @@ class WMNOldAgent extends WizardBasePanel
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
 
         Component component = mTable.getEditorComponent();
@@ -128,15 +131,18 @@ class WMNOldAgent extends WizardBasePanel
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         return true;
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
             String val = getUIDPassword();
             mInfo.add(Constants.PR_OLD_RECOVERY_AGENT,val);
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
@@ -168,6 +174,7 @@ class WMNOldAgent extends WizardBasePanel
      *==========================================================*/
 
     //initialize the panel
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();

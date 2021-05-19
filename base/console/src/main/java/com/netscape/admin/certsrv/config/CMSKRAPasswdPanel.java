@@ -78,6 +78,7 @@ public class CMSKRAPasswdPanel extends CMSBaseUGTab {
         mHelpToken = HELPINDEX;
     }
 
+    @Override
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
@@ -130,6 +131,7 @@ public class CMSKRAPasswdPanel extends CMSBaseUGTab {
         return vals;
     }
 
+    @Override
     protected JPanel createActionPanel() {
         //edit, add, delete, help buttons required
         //actionlister to this object
@@ -140,6 +142,7 @@ public class CMSKRAPasswdPanel extends CMSBaseUGTab {
         return makeJButtonPanel(buttons, true);
     }
 
+    @Override
     protected JPanel createListPanel() {
         JPanel mainPanel = new JPanel();
         GridBagLayout gb3 = new GridBagLayout();
@@ -177,6 +180,7 @@ public class CMSKRAPasswdPanel extends CMSBaseUGTab {
         mAgentList = makeJList(mAgentModel, 10);
         mAgentList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         MouseListener mouseListener = new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2)
                     displayPasswordDialog();
@@ -231,6 +235,7 @@ public class CMSKRAPasswdPanel extends CMSBaseUGTab {
         return scrollPane;
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mRefresh)) {
             refresh();
@@ -280,6 +285,7 @@ public class CMSKRAPasswdPanel extends CMSBaseUGTab {
             mPwdBtn.setEnabled(true);
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
 /*
                 if (e.getClickCount() == 2)

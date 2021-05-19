@@ -28,10 +28,12 @@ public class ConfigExportCLI extends CommandCLI {
         this.configCLI = configCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <type>", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "names", true, "Comma-separated list of configuration property names.");
         option.setArgName("names");
@@ -54,6 +56,7 @@ public class ConfigExportCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String installToken = cmd.getOptionValue("install-token");

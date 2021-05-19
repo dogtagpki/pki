@@ -52,6 +52,7 @@ public class KRACLI extends SubsystemCLI {
         addModule(new UserCLI(this));
     }
 
+    @Override
     public SubsystemClient getSubsystemClient() throws Exception {
 
         if (kraClient != null) return kraClient;

@@ -52,6 +52,7 @@ public class LogQueue implements ILogQueue {
      * <P>
      *
      */
+    @Override
     public void init() {
         mListeners.clear();
 
@@ -61,6 +62,7 @@ public class LogQueue implements ILogQueue {
      * Stops this log queue: shuts down all registered listeners
      * <P>
      */
+    @Override
     public void shutdown() {
         for (int i = 0; i < mListeners.size(); i++) {
             ILogEventListener listener = mListeners.elementAt(i);
@@ -73,6 +75,7 @@ public class LogQueue implements ILogQueue {
      *
      * @param listener the log event listener
      */
+    @Override
     public void addLogEventListener(ILogEventListener listener) {
         //Make sure we don't have duplicated listener
         if (!mListeners.contains(listener)) {
@@ -85,6 +88,7 @@ public class LogQueue implements ILogQueue {
      *
      * @param listener the log event listener
      */
+    @Override
     public void removeLogEventListener(ILogEventListener listener) {
         mListeners.removeElement(listener);
     }
@@ -94,6 +98,7 @@ public class LogQueue implements ILogQueue {
      *
      * @param event the log event
      */
+    @Override
     public void log(ILogEvent event) {
         for (int i = 0; i < mListeners.size(); i++) {
 
@@ -116,6 +121,7 @@ public class LogQueue implements ILogQueue {
     /**
      * Flushes the log buffers (if any)
      */
+    @Override
     public void flush() {
         for (int i = 0; i < mListeners.size(); i++) {
             mListeners.elementAt(i).flush();

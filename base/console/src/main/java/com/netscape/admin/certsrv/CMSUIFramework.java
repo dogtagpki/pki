@@ -174,6 +174,7 @@ interface ISubSystemLocator {
 //XXX installed on the srever side
 class DefaultSubSystemLocator implements ISubSystemLocator {
 
+    @Override
     public SubSystemInfo[] getInstalledSubSystem() throws EAdminException {
         SubSystemInfo[] subsystems = new SubSystemInfo[4];
         for (int i=0; i< subsystems.length; i++)
@@ -199,6 +200,7 @@ class HTTPSSubSystemLocator implements ISubSystemLocator {
         mConnection = conn;
     }
 
+    @Override
     public SubSystemInfo[] getInstalledSubSystem() throws EAdminException {
         NameValuePairs input = getSubSystem();
         Debug.println("getInstalledSubSystem() - "+input.toString());

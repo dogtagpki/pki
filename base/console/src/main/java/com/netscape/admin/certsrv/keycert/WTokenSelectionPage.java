@@ -54,10 +54,12 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         String tokenList = (String)wizardInfo.getEntry(Constants.PR_TOKEN_LIST);
@@ -68,10 +70,12 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         info.addEntry(CertSetupWizardInfo.TOKENNAME, mToken.getSelectedItem());
@@ -82,10 +86,12 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -163,6 +169,7 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
         super.init();
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 }

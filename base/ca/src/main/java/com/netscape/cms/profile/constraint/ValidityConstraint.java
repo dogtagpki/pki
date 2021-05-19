@@ -65,6 +65,7 @@ public class ValidityConstraint extends EnrollConstraint {
         addConfigName(CONFIG_CHECK_NOT_AFTER);
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
         if (name.equals(CONFIG_RANGE) ||
@@ -79,6 +80,7 @@ public class ValidityConstraint extends EnrollConstraint {
         super.setConfig(name, value);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_RANGE)) {
             return new Descriptor(IDescriptor.INTEGER, null, "365",
@@ -125,6 +127,7 @@ public class ValidityConstraint extends EnrollConstraint {
      * Validates the request. The request is not modified
      * during the validation.
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
 
@@ -239,10 +242,12 @@ public class ValidityConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_CONSTRAINT_VALIDITY_TEXT", getConfig(CONFIG_RANGE));
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;

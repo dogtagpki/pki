@@ -50,6 +50,7 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE))
@@ -61,22 +62,27 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
         return false;
     }
 
+    @Override
     public boolean validatePanel() {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         return true;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -193,6 +199,7 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
         super.init();
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
 
@@ -214,6 +221,7 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
             wizardInfo.addEntry(CertSetupWizardInfo.SUBMIT_METHOD, CertSetupWizardInfo.MANUAL);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mCABtn))
             if (mCABtn.isSelected())

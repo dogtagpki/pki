@@ -35,6 +35,7 @@ public class FeatureCLI extends CLI {
         addModule(new FeatureShowCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

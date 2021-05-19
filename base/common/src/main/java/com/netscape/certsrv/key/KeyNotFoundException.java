@@ -46,6 +46,7 @@ public class KeyNotFoundException extends ResourceNotFoundException {
         keyID = new KeyId(data.getAttribute("KeyId"));
     }
 
+    @Override
     public Data getData() {
         Data data = super.getData();
         data.setAttribute("KeyId", keyID.toString());

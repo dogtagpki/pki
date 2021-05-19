@@ -55,6 +55,7 @@ public class ACMERevocation {
         return mapper.readValue(json, ACMERevocation.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

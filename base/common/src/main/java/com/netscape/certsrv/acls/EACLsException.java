@@ -113,6 +113,7 @@ public class EACLsException extends EBaseException {
      *
      * @return list of message format parameters
      */
+    @Override
     public Object[] getParameters() {
         return mParams;
     }
@@ -122,6 +123,7 @@ public class EACLsException extends EBaseException {
      *
      * @return String representation for the corresponding exception.
      */
+    @Override
     public String toString() {
         return toString(Locale.getDefault());
     }
@@ -132,6 +134,7 @@ public class EACLsException extends EBaseException {
      * @param locale client specified locale for string representation.
      * @return String representation for the corresponding exception.
      */
+    @Override
     public String toString(Locale locale) {
         return MessageFormatter.getLocalizedString(locale, getBundleName(),
                 super.getMessage(), mParams);
@@ -142,6 +145,7 @@ public class EACLsException extends EBaseException {
      *
      * @return class name of the resource bundle.
      */
+    @Override
     protected String getBundleName() {
         return ACL_RESOURCES;
     }

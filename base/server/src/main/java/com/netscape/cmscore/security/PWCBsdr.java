@@ -80,6 +80,7 @@ public class PWCBsdr implements PasswordCallback {
      * the tag we are hoping to match in the cache.
      */
 
+    @Override
     public Password getPasswordFirstAttempt(PasswordCallbackInfo info)
             throws PasswordCallback.GiveUpException {
 
@@ -154,6 +155,7 @@ public class PWCBsdr implements PasswordCallback {
      * Now we will try and get the password from the user and hopefully add
      * the password to the cache pw cache
      */
+    @Override
     public Password getPasswordAgain(PasswordCallbackInfo info)
             throws PasswordCallback.GiveUpException {
 
@@ -195,6 +197,7 @@ class PWsdrConsolePasswordCallback implements PasswordCallback {
         return mPrompt;
     }
 
+    @Override
     public Password getPasswordFirstAttempt(PasswordCallbackInfo info)
             throws PasswordCallback.GiveUpException {
         if (mPrompt == null) {
@@ -208,6 +211,7 @@ class PWsdrConsolePasswordCallback implements PasswordCallback {
         return (tmppw);
     }
 
+    @Override
     public Password getPasswordAgain(PasswordCallbackInfo info)
             throws PasswordCallback.GiveUpException {
         System.out.println("Password Incorrect.");
@@ -231,6 +235,7 @@ class PWsdrDialogPasswordCallback extends JDialogPasswordCallback {
         mPrompt = p;
     }
 
+    @Override
     public String getPrompt(PasswordCallbackInfo info) {
         if (mPrompt == null) {
             return super.getPrompt(info);

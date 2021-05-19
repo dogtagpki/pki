@@ -63,6 +63,7 @@ public class SecurityDataRecoveryService implements IService {
      *         'false' means the request will wait for further notification.
      * @exception EBaseException indicates major processing failure.
      */
+    @Override
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
 

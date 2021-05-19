@@ -80,6 +80,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
         addConfigName(CONFIG_ALLOW_SAME_KEY_RENEWAL);
     }
 
+    @Override
     public void init(IConfigStore config)
             throws EProfileException {
         super.init(config);
@@ -88,6 +89,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
         mCA = engine.getCA();
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         /*
         if (name.equals(CONFIG_REVOKE_DUPKEY_CERT)) {
@@ -128,6 +130,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
      * This contraint has to go before the RenewGracePeriodConstraint,
      * but after any of the SubjectName Default and Constraint
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         String method = "UniqueKeyConstraint: validate: ";
@@ -337,6 +340,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
      *         }
      */
 
+    @Override
     public String getText(Locale locale) {
         String params[] = {
         /*
@@ -360,6 +364,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
         return sb.toString();
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;

@@ -127,7 +127,8 @@ public class CMSBaseMenuInfo implements IMenuInfo {
     /**
       * Returns supported menu categories.
       */
-	public String[] getMenuCategoryIDs() {
+	@Override
+    public String[] getMenuCategoryIDs() {
 	    if (mMenuCategoryIDs.size() == 0) {
 	        return null;
 	    }
@@ -141,7 +142,8 @@ public class CMSBaseMenuInfo implements IMenuInfo {
     /**
       * Returns menu items for a particular menu category.
       */
-	public IMenuItem[] getMenuItems(String category) {
+	@Override
+    public IMenuItem[] getMenuItems(String category) {
         int i = mMenuCategoryIDs.indexOf(category);
         if (i != -1) {
             Vector<IMenuItem> v = mCategoryIDMenuItems.elementAt(i);
@@ -157,7 +159,8 @@ public class CMSBaseMenuInfo implements IMenuInfo {
     /**
       * Notification that a menu item has been selected.
       */
-	public void actionMenuSelected(IPage viewInstance, IMenuItem item) {
+	@Override
+    public void actionMenuSelected(IPage viewInstance, IMenuItem item) {
         int i = mMenuItemsIDs.indexOf(item.getID());
         if (i == -1)
             return;

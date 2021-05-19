@@ -50,6 +50,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
     /**
      * initialization. nothing for now.
      */
+    @Override
     public void init() {
         logger.debug("UserAccessEvaluator: init");
     }
@@ -59,6 +60,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
      *
      * @return type for this acl evaluator: "user" or "at_user"
      */
+    @Override
     public String getType() {
         return mType;
     }
@@ -68,10 +70,12 @@ public class UserAccessEvaluator implements IAccessEvaluator {
      *
      * @return description for this acl evaluator
      */
+    @Override
     public String getDescription() {
         return mDescription;
     }
 
+    @Override
     public String[] getSupportedOperators() {
         String[] s = new String[2];
 
@@ -89,6 +93,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
      * @param value the user id
      * @return true if AuthToken uid is same as value, false otherwise
      */
+    @Override
     public boolean evaluate(IAuthToken authToken, String type, String op, String value) {
 
         if (type.equals(mType)) {
@@ -127,6 +132,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
      * @param value the user id
      * @return true if SessionContext uid is same as value, false otherwise
      */
+    @Override
     public boolean evaluate(String type, String op, String value) {
 
         SessionContext mSC = SessionContext.getContext();

@@ -37,6 +37,7 @@ public class PostgreSQLConfigMonitor implements Runnable {
         this.interval = interval;
     }
 
+    @Override
     public void run() {
 
         logger.info("Start monitoring ACME configuration");

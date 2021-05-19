@@ -121,7 +121,8 @@ public class RegisterDialog extends JDialog
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
-	public void actionPerformed(ActionEvent evt) {
+	@Override
+    public void actionPerformed(ActionEvent evt) {
 
 	    if (evt.getSource().equals(mCancel)) {
             mIsOK = false;
@@ -160,26 +161,34 @@ public class RegisterDialog extends JDialog
 	}
 
     //== DocumentListener ==
+    @Override
     public void insertUpdate(DocumentEvent e) {
         setButtons();
     }
 
+    @Override
     public void removeUpdate(DocumentEvent e){
         setButtons();
     }
 
+    @Override
     public void changedUpdate(DocumentEvent e){
         setButtons();
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         setButtons();
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {}
+    @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
     public void mouseExited(MouseEvent e) {
         setButtons();
     }

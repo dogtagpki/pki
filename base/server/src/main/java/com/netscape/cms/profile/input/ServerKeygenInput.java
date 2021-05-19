@@ -53,6 +53,7 @@ public class ServerKeygenInput extends EnrollInput {
     /**
      * Initializes this default policy.
      */
+    @Override
     public void init(Profile profile, IConfigStore config)
             throws EProfileException {
         super.init(profile, config);
@@ -61,6 +62,7 @@ public class ServerKeygenInput extends EnrollInput {
     /**
      * Retrieves the localizable name of this policy.
      */
+    @Override
     public String getName(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_SERVER_KEYGEN_NAME");
     }
@@ -68,10 +70,12 @@ public class ServerKeygenInput extends EnrollInput {
     /**
      * Retrieves the localizable description of this policy.
      */
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_SERVER_KEYGEN_TEXT");
     }
 
+    @Override
     public String getConfig(String name) {
         String config = super.getConfig(name);
         if (config == null || config.equals(""))
@@ -82,6 +86,7 @@ public class ServerKeygenInput extends EnrollInput {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(Map<String, String> ctx, IRequest request)
             throws EProfileException {
     }
@@ -90,6 +95,7 @@ public class ServerKeygenInput extends EnrollInput {
      * Retrieves the descriptor of the given value
      * parameter by name.
      */
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(P12PASSWORD)) {
             return new Descriptor(IDescriptor.SERVER_SIDE_KEYGEN_REQUEST_TYPE, null,

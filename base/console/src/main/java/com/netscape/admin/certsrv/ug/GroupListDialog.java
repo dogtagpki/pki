@@ -142,7 +142,8 @@ public class GroupListDialog extends JDialog
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
-	public void actionPerformed(ActionEvent evt) {
+	@Override
+    public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mOK)) {
             //check if selection has been made
             //Debug.println("Row Selected = "+mDataModel.getRowCount());

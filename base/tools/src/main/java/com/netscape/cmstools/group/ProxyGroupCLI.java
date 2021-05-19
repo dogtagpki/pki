@@ -32,6 +32,7 @@ public class ProxyGroupCLI extends ProxyCLI {
         super(new GroupCLI(parent), "ca");
     }
 
+    @Override
     public void execute(String[] args) throws Exception {
         System.err.println("WARNING: pki group has been deprecated. Use pki <subsystem>-group instead.");
         super.execute(args);

@@ -64,6 +64,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
         addConfigName(CONFIG_PATTERN);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null,
@@ -85,6 +86,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null,
@@ -99,6 +101,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -181,6 +184,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -251,6 +255,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
         return null;
     }
 
+    @Override
     public String getText(Locale locale) {
         String params[] = {
                 getConfig(CONFIG_CRITICAL),
@@ -264,6 +269,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         IssuerAlternativeNameExtension ext = null;

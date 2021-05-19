@@ -170,6 +170,7 @@ public class ClientConfig {
 
     public static class NSSPasswordsAdapter extends XmlAdapter<NSSPasswordList, Map<String, String>> {
 
+        @Override
         public NSSPasswordList marshal(Map<String, String> map) {
             NSSPasswordList list = new NSSPasswordList();
             for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -181,6 +182,7 @@ public class ClientConfig {
             return list;
         }
 
+        @Override
         public Map<String, String> unmarshal(NSSPasswordList list) {
             Map<String, String> map = new LinkedHashMap<String, String>();
             for (NSSPassword password : list.passwords) {
@@ -339,6 +341,7 @@ public class ClientConfig {
         return true;
     }
 
+    @Override
     public String toString() {
         try {
             StringWriter sw = new StringWriter();

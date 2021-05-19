@@ -86,7 +86,8 @@ public class CMSMessageBox extends JDialog
 		setTitle(sTitle);
 	}
 
-	public void setVisible(boolean b)
+	@Override
+    public void setVisible(boolean b)
 	{
 		super.setVisible(b);
 	}
@@ -96,7 +97,8 @@ public class CMSMessageBox extends JDialog
 		(new CMSMessageBox()).setVisible(true);
 	}
 
-	public void addNotify()
+	@Override
+    public void addNotify()
 	{
 		// Record the size of the window prior to calling parents addNotify.
 		Dimension size = getSize();

@@ -26,10 +26,12 @@ public class PublisherOCSPAddCLI extends CommandCLI {
         this.publisherOCSPCLI = publisherOCSPCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option(null, "url", true, "Publisher URL");
@@ -45,6 +47,7 @@ public class PublisherOCSPAddCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

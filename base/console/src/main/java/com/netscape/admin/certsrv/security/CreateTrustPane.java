@@ -54,10 +54,12 @@ class CreateTrustPane extends JPanel implements SuiConstants, IKeyCertPage {
 
     String _noNeedToRequestInstallCert;
 
+    @Override
     public JPanel getPanel() {
         return this;
     }
 
+    @Override
     public boolean pageShow(WizardObservable observable) {
         boolean show = false;
 
@@ -85,6 +87,7 @@ class CreateTrustPane extends JPanel implements SuiConstants, IKeyCertPage {
         return show;
     }
 
+    @Override
     public boolean pageHide(WizardObservable observable) {
         boolean hide = false;
 
@@ -133,8 +136,11 @@ class CreateTrustPane extends JPanel implements SuiConstants, IKeyCertPage {
 
 
     class KeyActionListener implements KeyListener {
+        @Override
         public void keyTyped(KeyEvent e) {}
+        @Override
         public void keyPressed(KeyEvent e) {}
+        @Override
         public void keyReleased(KeyEvent e) {
             if (_passwd.getText().length() > 0) {
                 control.setCanGoForward(true);

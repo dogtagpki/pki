@@ -99,6 +99,7 @@ public class CertUserDBAuthentication implements AuthManager {
      * @param config - The configuration store used by the
      *            authentication subsystem
      */
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
@@ -127,6 +128,7 @@ public class CertUserDBAuthentication implements AuthManager {
     /**
      * Gets the name of this authentication manager.
      */
+    @Override
     public String getName() {
         return mName;
     }
@@ -134,6 +136,7 @@ public class CertUserDBAuthentication implements AuthManager {
     /**
      * Gets the plugin name of authentication manager.
      */
+    @Override
     public String getImplName() {
         return mImplName;
     }
@@ -152,6 +155,7 @@ public class CertUserDBAuthentication implements AuthManager {
      * @see org.dogtagpki.server.authentication.AuthToken
      * @see com.netscape.certsrv.usrgrp.Certificates
      */
+    @Override
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
         logger.debug("CertUserDBAuth: started");
@@ -227,6 +231,7 @@ public class CertUserDBAuthentication implements AuthManager {
      *
      * @return attribute names in Vector
      */
+    @Override
     public String[] getRequiredCreds() {
         return (mRequiredCreds);
     }
@@ -243,6 +248,7 @@ public class CertUserDBAuthentication implements AuthManager {
      *         Vector of parameter names. If no substore, the parameter name
      *         is the Hashtable key itself, with value same as key.
      */
+    @Override
     public String[] getConfigParams() {
         return (mConfigParams);
     }
@@ -250,6 +256,7 @@ public class CertUserDBAuthentication implements AuthManager {
     /**
      * prepare this authentication manager for shutdown.
      */
+    @Override
     public void shutdown() {
     }
 
@@ -259,6 +266,7 @@ public class CertUserDBAuthentication implements AuthManager {
      *
      * @return configuration store
      */
+    @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
     }

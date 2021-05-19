@@ -55,6 +55,7 @@ public class ACMEError {
         return mapper.readValue(json, ACMEError.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

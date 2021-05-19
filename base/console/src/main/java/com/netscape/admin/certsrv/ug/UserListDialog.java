@@ -150,7 +150,8 @@ public class UserListDialog extends JDialog
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
-	public void actionPerformed(ActionEvent evt) {
+	@Override
+    public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mOK)) {
             //get selected user
             int[] rowIndex = mList.getSelectedIndices();
@@ -170,16 +171,21 @@ public class UserListDialog extends JDialog
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         setButtons();
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {}
 
+    @Override
     public void mouseEntered(MouseEvent e) {
         setButtons();
     }
+    @Override
     public void mouseExited(MouseEvent e) {
         setButtons();
     }

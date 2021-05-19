@@ -92,6 +92,7 @@ public class LDAPProfileSubsystem
      *
      * @exception EBaseException failed to initialize
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
 
@@ -133,6 +134,7 @@ public class LDAPProfileSubsystem
         logger.debug("LDAPProfileSubsystem: finished init");
     }
 
+    @Override
     public Profile getProfile(String id)
             throws EProfileException {
         try {
@@ -144,6 +146,7 @@ public class LDAPProfileSubsystem
         return super.getProfile(id);
     }
 
+    @Override
     public Enumeration<String> getProfileIds() {
         try {
             loader.awaitLoadDone();
@@ -212,6 +215,7 @@ public class LDAPProfileSubsystem
         }
     }
 
+    @Override
     public synchronized Profile createProfile(String id, String classid, String className)
             throws EProfileException {
         return createProfile(id, classid, className, null);
@@ -263,6 +267,7 @@ public class LDAPProfileSubsystem
         }
     }
 
+    @Override
     public synchronized void deleteProfile(String id) throws EBaseException {
         if (isProfileEnable(id)) {
             throw new EProfileException("CMS_PROFILE_DELETE_ENABLEPROFILE");
@@ -372,6 +377,7 @@ public class LDAPProfileSubsystem
     /**
      * Notifies this subsystem if owner is in running mode.
      */
+    @Override
     public void startup() throws EBaseException {
         logger.info("LDAPProfileSubsystem: startup");
     }
@@ -381,6 +387,7 @@ public class LDAPProfileSubsystem
      * anytime after initialization.
      * <P>
      */
+    @Override
     public void shutdown() {
         stopped = true;
         monitor = null;
@@ -424,6 +431,7 @@ public class LDAPProfileSubsystem
         }
     }
 
+    @Override
     public void run() {
         int op = LDAPPersistSearchControl.ADD
             | LDAPPersistSearchControl.MODIFY

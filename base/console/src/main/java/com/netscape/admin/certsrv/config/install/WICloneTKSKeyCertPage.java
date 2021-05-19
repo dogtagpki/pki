@@ -69,10 +69,12 @@ class WICloneTKSKeyCertPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         mWizardInfo = wizardInfo;
@@ -99,10 +101,12 @@ class WICloneTKSKeyCertPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         String sslnickname = (String)mSSLNicknameBox.getSelectedItem();
         mSSLTokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
@@ -137,10 +141,12 @@ class WICloneTKSKeyCertPage extends WizardBasePanel implements IWizardPanel {
         return ready;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(TKSHELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -183,10 +189,12 @@ class WICloneTKSKeyCertPage extends WizardBasePanel implements IWizardPanel {
         add(dummy, gbc);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         mWizardInfo.setSSLTokenName(mSSLTokenname);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
     }
 }

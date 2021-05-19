@@ -109,6 +109,7 @@ public class RollingLogFile extends LogFile {
      *
      * @param config The property config store to find values in
      */
+    @Override
     public void init(IConfigStore config) throws IOException,
             EBaseException {
         super.init(config);
@@ -129,6 +130,7 @@ public class RollingLogFile extends LogFile {
         setExpirationTime(expirationTime);
     }
 
+    @Override
     public void startup() throws EBaseException {
         super.startup();
     }
@@ -136,6 +138,7 @@ public class RollingLogFile extends LogFile {
     /**
      * Shutdown this log file.
      */
+    @Override
     public synchronized void shutdown() {
         logger.debug("Destroying RollingLogFile(" + mFileName + ")");
         setRolloverTime("0");
@@ -395,6 +398,7 @@ public class RollingLogFile extends LogFile {
             super.setName(mFileName + ".rollover-" + (Thread.activeCount() + 1));
         }
 
+        @Override
         public void run() {
             while (mRolloverInterval > 0) {
                 // Sleep for the interval and then rotate the log
@@ -441,6 +445,7 @@ public class RollingLogFile extends LogFile {
             super.setName(mFileName + ".expiration-" + (Thread.activeCount() + 1));
         }
 
+        @Override
         public void run() {
             synchronized (mExpLock) {
                 while (mExpirationTime > 0) {
@@ -488,6 +493,7 @@ public class RollingLogFile extends LogFile {
      *
      * @param ev The event to be logged.
      **/
+    @Override
     public synchronized void log(ILogEvent ev) throws ELogException {
         //xxx, Shall we log first without checking if it exceed the maximum?
         super.log(ev); // Will increment mBytesWritten
@@ -505,6 +511,7 @@ public class RollingLogFile extends LogFile {
     /**
      * Retrieve log file list.
      */
+    @Override
     public synchronized NameValuePairs retrieveLogList(Hashtable<String, String> req
             ) throws ServletException,
                     IOException, EBaseException {
@@ -562,14 +569,17 @@ public class RollingLogFile extends LogFile {
         return filelist;
     }
 
+    @Override
     public String getImplName() {
         return "RollingLogFile";
     }
 
+    @Override
     public String getDescription() {
         return "RollingLogFile";
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = super.getDefaultParams();
 
@@ -579,6 +589,7 @@ public class RollingLogFile extends LogFile {
         return v;
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = super.getInstanceParams();
 
@@ -601,6 +612,7 @@ public class RollingLogFile extends LogFile {
         return v;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] p = super.getExtendedPluginInfo(locale);
         Vector<String> info = new Vector<String>();
@@ -638,6 +650,7 @@ class fileFilter implements FilenameFilter {
         patternToMatch = pattern;
     }
 
+    @Override
     public boolean accept(File dir, String name) {
         if (name.startsWith(patternToMatch))
             return true;

@@ -75,6 +75,7 @@ public class RenewalConstraints extends APolicyRule
         DESC = "Whether to allow renewal of expired certs.";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_ALLOW_EXPIRED_CERTS + ";boolean;Allow a user to renew an already-expired certificate",
@@ -102,6 +103,7 @@ public class RenewalConstraints extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EPolicyException {
         // Get min and max validity in days and configure them.
@@ -130,6 +132,7 @@ public class RenewalConstraints extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         PolicyResult result = PolicyResult.ACCEPTED;
 
@@ -220,6 +223,7 @@ public class RenewalConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> confParams = new Vector<String>();
 
@@ -235,6 +239,7 @@ public class RenewalConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return defConfParams;
     }

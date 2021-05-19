@@ -44,10 +44,12 @@ public class CACertShowCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Serial Number> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "output", true, "DEPRECATED: Output file");
         option.setArgName("file");
@@ -57,6 +59,7 @@ public class CACertShowCLI extends CommandCLI {
         options.addOption(null, "encoded", false, "DEPRECATED: Base-64 encoded");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

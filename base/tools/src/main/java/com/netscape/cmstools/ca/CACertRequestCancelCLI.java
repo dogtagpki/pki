@@ -11,6 +11,7 @@ public class CACertRequestCancelCLI extends CACertRequestActionCLI {
         super("cancel", "Cancel certificate request", certRequestCLI);
     }
 
+    @Override
     public void performAction(
             CACertClient certClient,
             RequestId requestId,

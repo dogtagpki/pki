@@ -33,10 +33,12 @@ public class PKCS11CertExportCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <Cert ID>", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "output-format", true, "Output format: pem (default), der");
         option.setArgName("format");
@@ -47,6 +49,7 @@ public class PKCS11CertExportCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -48,6 +48,7 @@ public class LogResources extends ListResourceBundle {
      *
      * @return Array of objects making up the contents of this resource.
      */
+    @Override
     public Object[][] getContents() {
         return contents;
     }

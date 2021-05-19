@@ -33,15 +33,18 @@ class StatusPane extends JPanel implements IKeyCertPage, SuiConstants {
 
     MultilineLabel statusText = new MultilineLabel();
 
+    @Override
     public JPanel getPanel() {
         show = false;
         return this;
     }
 
+    @Override
     public boolean pageShow(WizardObservable observable) {
         return show;
     }
 
+    @Override
     public boolean pageHide(WizardObservable observable) {
         show = false;
         error = false;

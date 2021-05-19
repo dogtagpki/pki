@@ -158,6 +158,7 @@ public class SharedSecret extends DirBasedAuthentication
         super();
     }
 
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         String method = "SharedSecret.init: ";
@@ -262,6 +263,7 @@ public class SharedSecret extends DirBasedAuthentication
      * Note: caller should clear the memory for the returned token
      *       after each use
      */
+    @Override
     public char[] getSharedToken(String identification, IAuthToken authToken)
             throws EBaseException {
         String method = "SharedSecret.getSharedToken(String identification, IAuthToken authToken): ";
@@ -401,6 +403,7 @@ public class SharedSecret extends DirBasedAuthentication
     /**
      * unsupported
      */
+    @Override
     public char[] getSharedToken(PKIData cmcdata)
             throws EBaseException {
         String method = "SharedSecret.getSharedToken(PKIData cmcdata): ";
@@ -418,6 +421,7 @@ public class SharedSecret extends DirBasedAuthentication
      * Note: caller should clear the memory for the returned token
      *       after each use
      */
+    @Override
     public char[] getSharedToken(BigInteger serial)
             throws EBaseException {
         String method = "SharedSecret.getSharedToken(BigInteger serial): ";
@@ -460,6 +464,7 @@ public class SharedSecret extends DirBasedAuthentication
      * This is an unconventional authentication plugin implementation that
      * does not support authenticate()
      */
+    @Override
     protected String authenticate(LDAPConnection conn,
             IAuthCredentials authCreds,
             AuthToken token)
@@ -476,6 +481,7 @@ public class SharedSecret extends DirBasedAuthentication
      *
      * @return String array of configuration parameter names.
      */
+    @Override
     public String[] getConfigParams() {
         return (mConfigParams);
     }
@@ -485,6 +491,7 @@ public class SharedSecret extends DirBasedAuthentication
      *
      * @return Array of required credentials.
      */
+    @Override
     public String[] getRequiredCreds() {
         return mRequiredCreds;
     }

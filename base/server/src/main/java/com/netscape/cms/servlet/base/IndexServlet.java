@@ -54,6 +54,7 @@ public class IndexServlet extends CMSServlet {
         super();
     }
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mTemplateName = sc.getInitParameter(PROP_TEMPLATE);
@@ -67,6 +68,7 @@ public class IndexServlet extends CMSServlet {
         mTemplates.remove(ICMSRequest.SUCCESS);
     }
 
+    @Override
     public CMSRequest newCMSRequest() {
         return new CMSRequest();
     }
@@ -74,6 +76,7 @@ public class IndexServlet extends CMSServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -81,6 +84,7 @@ public class IndexServlet extends CMSServlet {
     /**
      * Serves HTTP request.
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         if (CMSGateway.getEnableAdminEnroll() &&
                 mAuthority != null &&

@@ -38,6 +38,7 @@ public class SecurityDomainSessionTable
         m_timeToLive = timeToLive;
     }
 
+    @Override
     public int addEntry(String sessionId, String ip,
             String uid, String group) {
         Vector<Comparable<?>> v = new Vector<Comparable<?>>();
@@ -51,19 +52,23 @@ public class SecurityDomainSessionTable
         return SUCCESS;
     }
 
+    @Override
     public int removeEntry(String sessionId) {
         m_sessions.remove(sessionId);
         return SUCCESS;
     }
 
+    @Override
     public boolean sessionExists(String sessionId) {
         return m_sessions.containsKey(sessionId);
     }
 
+    @Override
     public Enumeration<String> getSessionIDs() {
         return m_sessions.keys();
     }
 
+    @Override
     public String getIP(String sessionId) {
         Vector<Comparable<?>> v = m_sessions.get(sessionId);
         if (v != null)
@@ -71,6 +76,7 @@ public class SecurityDomainSessionTable
         return null;
     }
 
+    @Override
     public String getUID(String sessionId) {
         Vector<Comparable<?>> v = m_sessions.get(sessionId);
         if (v != null)
@@ -78,6 +84,7 @@ public class SecurityDomainSessionTable
         return null;
     }
 
+    @Override
     public String getGroup(String sessionId) {
         Vector<Comparable<?>> v = m_sessions.get(sessionId);
         if (v != null)
@@ -85,6 +92,7 @@ public class SecurityDomainSessionTable
         return null;
     }
 
+    @Override
     public long getBeginTime(String sessionId) {
         Vector<Comparable<?>> v = m_sessions.get(sessionId);
         if (v != null) {
@@ -95,14 +103,17 @@ public class SecurityDomainSessionTable
         return -1;
     }
 
+    @Override
     public long getTimeToLive() {
         return m_timeToLive;
     }
 
+    @Override
     public int getSize() {
         return m_sessions.size();
     }
 
+    @Override
     public void shutdown() {
     }
 }

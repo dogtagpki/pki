@@ -64,6 +64,7 @@ public class KRAAdminServlet extends AdminServlet {
         super();
     }
 
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         KRAEngine engine = KRAEngine.getInstance();
@@ -75,6 +76,7 @@ public class KRAAdminServlet extends AdminServlet {
      *
      * @return name of this servlet
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -85,6 +87,7 @@ public class KRAAdminServlet extends AdminServlet {
      * @param req HTTP request
      * @param resp HTTP response
      */
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         super.service(req, resp);

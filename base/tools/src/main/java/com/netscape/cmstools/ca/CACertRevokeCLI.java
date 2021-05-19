@@ -48,10 +48,12 @@ public class CACertRevokeCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Serial Number> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         StringBuilder sb = new StringBuilder();
 
@@ -77,6 +79,7 @@ public class CACertRevokeCLI extends CommandCLI {
         options.addOption(null, "force", false, "Force");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

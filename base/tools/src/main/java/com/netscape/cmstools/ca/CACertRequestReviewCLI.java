@@ -40,6 +40,7 @@ public class CACertRequestReviewCLI extends CommandCLI {
         formatter.printHelp(getFullName() + " <Request ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "action", true, "DEPRECATED: Action: " + StringUtils.join(actions, ", "));
         option.setArgName("action");

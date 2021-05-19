@@ -19,6 +19,7 @@ public class TPSPhoneHome extends HttpServlet {
     private static final long serialVersionUID = 1864386666927370987L;
     private static String phoneHomeName = "phoneHome.xml";
 
+    @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         //Simply return xml file to the client
         //In the future we could get this info from elsewhere such as LDAP

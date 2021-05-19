@@ -47,6 +47,7 @@ class WICATokenLogonPage extends WITokenLogonPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         String tokenname = wizardInfo.getCATokenName();

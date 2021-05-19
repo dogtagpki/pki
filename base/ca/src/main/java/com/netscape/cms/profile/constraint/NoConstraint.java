@@ -43,18 +43,22 @@ public class NoConstraint extends PolicyConstraint {
     private IConfigStore mConfig = null;
     private Vector<String> mNames = new Vector<String>();
 
+    @Override
     public Enumeration<String> getConfigNames() {
         return mNames.elements();
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
     }
 
+    @Override
     public String getConfig(String name) {
         return null;
     }
@@ -63,10 +67,12 @@ public class NoConstraint extends PolicyConstraint {
         return null;
     }
 
+    @Override
     public void init(IConfigStore config) throws EProfileException {
         mConfig = config;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -75,15 +81,18 @@ public class NoConstraint extends PolicyConstraint {
      * Validates the request. The request is not modified
      * during the validation.
      */
+    @Override
     public void validate(IRequest request)
             throws ERejectException {
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale,
                 "CMS_PROFILE_CONSTRAINT_NO_CONSTRAINT_TEXT");
     }
 
+    @Override
     public String getName(Locale locale) {
         try {
             return mConfig.getString(CONFIG_NAME);
@@ -92,6 +101,7 @@ public class NoConstraint extends PolicyConstraint {
         }
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         return true;
     }

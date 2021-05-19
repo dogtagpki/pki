@@ -38,6 +38,7 @@ public class HourGlass extends Thread {
         start();
     }
 
+    @Override
     public void run() {
         Cursor cursor = new Cursor(Cursor.WAIT_CURSOR);
         mActiveFrame.setCursor(cursor);

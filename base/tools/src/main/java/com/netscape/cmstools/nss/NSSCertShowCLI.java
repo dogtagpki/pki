@@ -22,10 +22,12 @@ public class NSSCertShowCLI extends CommandCLI {
         super("show", "Show certificate", nssCertCLI);
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <nickname>", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

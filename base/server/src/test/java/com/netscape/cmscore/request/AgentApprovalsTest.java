@@ -17,10 +17,12 @@ public class AgentApprovalsTest extends CMSBaseTestCase {
         super(name);
     }
 
+    @Override
     public void cmsTestSetUp() {
         agentApprovals = new AgentApprovals();
     }
 
+    @Override
     public void cmsTestTearDown() {
     }
 

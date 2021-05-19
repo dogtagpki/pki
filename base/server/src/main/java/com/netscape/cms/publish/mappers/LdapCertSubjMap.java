@@ -106,14 +106,17 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         mInited = true;
     }
 
+    @Override
     public String getImplName() {
         return "LdapCertSubjMap";
     }
 
+    @Override
     public String getDescription() {
         return "LdapCertSubjMap";
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
@@ -123,6 +126,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         return v;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 "certSubjNameAttr;string;Name of Ldap attribute containing cert subject name",
@@ -138,6 +142,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         return params;
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
 
@@ -155,10 +160,12 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         return v;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         if (mInited == true)
@@ -178,6 +185,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
      * @param conn - the LDAP connection.
      * @param obj - the X509Certificate.
      */
+    @Override
     public String
             map(LDAPConnection conn, Object obj)
                     throws ELdapException {
@@ -249,6 +257,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
          */
     }
 
+    @Override
     public String map(LDAPConnection conn, IRequest req, Object obj)
             throws ELdapException {
         return map(conn, obj);

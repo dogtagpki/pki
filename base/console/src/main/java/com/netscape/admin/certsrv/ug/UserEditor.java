@@ -197,6 +197,7 @@ public class UserEditor extends JDialog
 
     //=== ACTIONLISTENER =====================
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
 
         mUserAdded = false;
@@ -310,28 +311,36 @@ public class UserEditor extends JDialog
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         //check if stuff is selected
         updateView();
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {
         updateView();
     }
+    @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
     public void mouseExited(MouseEvent e) {}
 
 
     //== DocumentListener ==
+    @Override
     public void insertUpdate(DocumentEvent e) {
         updateView();
     }
 
+    @Override
     public void removeUpdate(DocumentEvent e){
         updateView();
     }
 
+    @Override
     public void changedUpdate(DocumentEvent e){
         updateView();
     }

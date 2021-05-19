@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name="Authenticators")
 public class AuthenticatorCollection extends DataCollection<AuthenticatorData> {
 
+    @Override
     @XmlElementRef
     public Collection<AuthenticatorData> getEntries() {
         return super.getEntries();

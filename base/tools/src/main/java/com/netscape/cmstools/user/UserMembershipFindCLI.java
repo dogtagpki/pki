@@ -43,10 +43,12 @@ public class UserMembershipFindCLI extends CommandCLI {
         this.userMembershipCLI = userMembershipCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <User ID> [FILTER] [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "start", true, "Page start");
         option.setArgName("start");
@@ -57,6 +59,7 @@ public class UserMembershipFindCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

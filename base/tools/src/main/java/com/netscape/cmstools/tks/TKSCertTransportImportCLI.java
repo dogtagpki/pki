@@ -35,10 +35,12 @@ public class TKSCertTransportImportCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option(null, "security-domain", true, "Security domain URL");
@@ -62,6 +64,7 @@ public class TKSCertTransportImportCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

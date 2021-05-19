@@ -392,7 +392,8 @@ public class CMSBaseConfigDialog extends JDialog
 	 * From focuslistener interface. This lets us know when a component
 	 * has received focus, so we can update the help text.
 	 */
-	public void focusGained(FocusEvent f) {
+	@Override
+    public void focusGained(FocusEvent f) {
 		Component comp = f.getComponent();
 		mPluginName.addFocusListener(this);
 		mPluginLabel.addMouseListener(this);
@@ -417,7 +418,8 @@ public class CMSBaseConfigDialog extends JDialog
 	/** need to supply this method for focuslistener, but we
 	 * really don't care about it
 	 */
-	public void focusLost(FocusEvent f) {
+	@Override
+    public void focusLost(FocusEvent f) {
 	}
 
 
@@ -429,7 +431,8 @@ public class CMSBaseConfigDialog extends JDialog
 	 * This lets us know when someone clicked a label, so we can
 	 * update the help text
 	 */
-	public void mouseClicked(MouseEvent e) {
+	@Override
+    public void mouseClicked(MouseEvent e) {
 		Component c = e.getComponent();
 		String helpText = "";
 		if (c instanceof JLabel) {
@@ -445,13 +448,17 @@ public class CMSBaseConfigDialog extends JDialog
 		mHelpLabel.repaint();
 	}
 
-	public void mouseEntered(MouseEvent e) {
+	@Override
+    public void mouseEntered(MouseEvent e) {
 	}
-	public void mouseExited(MouseEvent e) {
+	@Override
+    public void mouseExited(MouseEvent e) {
 	}
-	public void mousePressed(MouseEvent e) {
+	@Override
+    public void mousePressed(MouseEvent e) {
 	}
-	public void mouseReleased(MouseEvent e) {
+	@Override
+    public void mouseReleased(MouseEvent e) {
 	}
 
 
@@ -475,7 +482,8 @@ public class CMSBaseConfigDialog extends JDialog
 	 *  this gets called when a someone made some kind of event happen.
 	 *  We really only check for the OK, Cancel, or Help buttons here
 	 */
-	public void actionPerformed(ActionEvent evt) {
+	@Override
+    public void actionPerformed(ActionEvent evt) {
 
         if (evt.getSource().equals(mOK)) {
 
@@ -820,11 +828,13 @@ implements ExtendedPluginInfoComponent
 		mEpi = epi;
 	}
 
-	public ExtendedPluginInfo getExtendedPluginInfo() {
+	@Override
+    public ExtendedPluginInfo getExtendedPluginInfo() {
 		return mEpi;
 	}
 
-	public String getValueAsString() {
+	@Override
+    public String getValueAsString() {
 		if (isSelected()) {
 			return "true";
 		}
@@ -846,11 +856,13 @@ implements ExtendedPluginInfoComponent
 		mEpi = epi;
 	}
 
-	public ExtendedPluginInfo getExtendedPluginInfo() {
+	@Override
+    public ExtendedPluginInfo getExtendedPluginInfo() {
 		return mEpi;
 	}
 
-	public String getValueAsString() {
+	@Override
+    public String getValueAsString() {
 		return (String)getSelectedItem();
 	}
 }
@@ -866,11 +878,13 @@ implements ExtendedPluginInfoComponent
 		mEpi = epi;
 	}
 
-	public ExtendedPluginInfo getExtendedPluginInfo() {
+	@Override
+    public ExtendedPluginInfo getExtendedPluginInfo() {
 		return mEpi;
 	}
 
-	public String getValueAsString() {
+	@Override
+    public String getValueAsString() {
 		return getText();
 	}
 }
@@ -886,11 +900,13 @@ implements ExtendedPluginInfoComponent
 		mEpi = epi;
 	}
 
-	public ExtendedPluginInfo getExtendedPluginInfo() {
+	@Override
+    public ExtendedPluginInfo getExtendedPluginInfo() {
 		return mEpi;
 	}
 
-	public String getValueAsString() {
+	@Override
+    public String getValueAsString() {
 		return getText();
 	}
 }
@@ -906,21 +922,25 @@ implements ExtendedPluginInfoComponent
 		mEpi = epi;
 	}
 
-	public ExtendedPluginInfo getExtendedPluginInfo() {
+	@Override
+    public ExtendedPluginInfo getExtendedPluginInfo() {
 		return mEpi;
 	}
 
-	public String getValueAsString() {
+	@Override
+    public String getValueAsString() {
 		return getText();
 	}
 
-	protected Document createDefaultModel() {
+	@Override
+    protected Document createDefaultModel() {
 		return new NumberDocument();
 	}
 
 	static class NumberDocument extends PlainDocument {
 
-      public void insertString(int offs, String str, AttributeSet a)
+      @Override
+    public void insertString(int offs, String str, AttributeSet a)
 		throws BadLocationException {
 
 		if (str == null) {

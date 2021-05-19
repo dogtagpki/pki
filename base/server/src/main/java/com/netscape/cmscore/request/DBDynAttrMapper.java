@@ -27,17 +27,21 @@ public class DBDynAttrMapper extends DBAttrMapper {
         return false;
     }
 
+    @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
         return null;
     }
 
+    @Override
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
     }
 
+    @Override
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, String name, IDBObj parent) throws EBaseException {
     }
 
+    @Override
     public String mapSearchFilter(String name, String op, String value) throws EBaseException {
         return null;
     }

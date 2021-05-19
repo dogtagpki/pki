@@ -48,12 +48,14 @@ public abstract class CMSBaseTab extends CMSBaseConfigPanel
      *==========================================================*/
 
     //set dirty flag
+    @Override
     protected void setDirtyFlag() {
         super.setDirtyFlag();
         mParent.setDirtyTab(this);
     }
 
     //clear dirty flag
+    @Override
     protected void clearDirtyFlag() {
         super.clearDirtyFlag();
         mParent.clearDirtyTab(this);
@@ -61,26 +63,32 @@ public abstract class CMSBaseTab extends CMSBaseConfigPanel
 
     //=== OVERWRITE DIALOG MESSAGE =====================
 
+    @Override
     protected void showMessageDialog(String keyword, int messageType ) {
         CMSAdminUtil.showMessageDialog(mParent.mModel.getFrame(), mResource, mPanelName, keyword, messageType);
     }
 
+    @Override
     protected void showMessageDialog(String keyword) {
         showMessageDialog(keyword, ERROR_MESSAGE);
     }
 
+    @Override
     protected int showConfirmDialog(String keyword, int messageType ) {
         return CMSAdminUtil.showConfirmDialog(mParent.mModel.getFrame(), mResource, mPanelName, keyword, messageType);
     }
 
+    @Override
     protected int showConfirmDialog(String keyword) {
         return showConfirmDialog(keyword, WARNING_MESSAGE);
     }
 
+    @Override
     protected void showErrorDialog(String message) {
         CMSAdminUtil.showErrorDialog(mParent.mModel.getFrame(), mResource, message, ERROR_MESSAGE);
     }
 
+    @Override
     public void refresh() {
     }
 }

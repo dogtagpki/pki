@@ -33,6 +33,7 @@ public class ListenersResources extends ListResourceBundle {
      *
      * @return the content of this resource is a value pairs array of keys and values.
      */
+    @Override
     public Object[][] getContents() {
         return contents;
     }

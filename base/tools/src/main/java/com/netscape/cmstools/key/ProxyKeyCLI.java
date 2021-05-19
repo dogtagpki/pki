@@ -33,6 +33,7 @@ public class ProxyKeyCLI extends ProxyCLI {
         super(new KRAKeyCLI(parent), "kra");
     }
 
+    @Override
     public void execute(String[] args) throws Exception {
         System.err.println("WARNING: pki key has been deprecated. Use pki kra-key instead.");
         super.execute(args);

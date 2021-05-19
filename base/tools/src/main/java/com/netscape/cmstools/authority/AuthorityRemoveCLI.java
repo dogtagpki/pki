@@ -18,14 +18,17 @@ public class AuthorityRemoveCLI extends CommandCLI {
         this.authorityCLI = authorityCLI;
     }
 
+    @Override
     public void createOptions() {
         options.addOption(null, "force", false, "Force delete");
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <ID>", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

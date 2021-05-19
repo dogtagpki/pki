@@ -71,6 +71,7 @@ public class RefreshTabPane implements IMenuAction {
      * tab panel, if the tab panel support the IRefreshTab
      * intreface.
      */
+    @Override
     public void perform(IPage viewInstance) {
         if (mPanel != null) {
             CMSBasePanel panel = mPanel.getSelectedTab();

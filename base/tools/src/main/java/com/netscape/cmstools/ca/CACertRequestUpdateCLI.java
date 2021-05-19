@@ -11,6 +11,7 @@ public class CACertRequestUpdateCLI extends CACertRequestActionCLI {
         super("update", "Update certificate request", certRequestCLI);
     }
 
+    @Override
     public void performAction(
             CACertClient certClient,
             RequestId requestId,

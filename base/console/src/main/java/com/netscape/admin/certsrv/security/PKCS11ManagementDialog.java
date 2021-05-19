@@ -121,6 +121,7 @@ public class PKCS11ManagementDialog extends AbstractDialog {
     }
 
     class PKCS11ActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("CLOSE")) {
                 privateCloseInvoked();

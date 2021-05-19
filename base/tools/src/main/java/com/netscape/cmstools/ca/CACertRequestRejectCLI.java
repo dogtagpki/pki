@@ -11,6 +11,7 @@ public class CACertRequestRejectCLI extends CACertRequestActionCLI {
         super("reject", "Reject certificate request", certRequestCLI);
     }
 
+    @Override
     public void performAction(
             CACertClient certClient,
             RequestId requestId,

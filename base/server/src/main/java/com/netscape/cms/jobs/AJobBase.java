@@ -87,6 +87,7 @@ public abstract class AJobBase implements IJob, Runnable {
      * @return a boolean value indicating whether the job is enabled
      *         or not
      */
+    @Override
     public boolean isEnabled() {
         boolean enabled = false;
 
@@ -100,9 +101,11 @@ public abstract class AJobBase implements IJob, Runnable {
     /***********************
      * abstract methods
      ***********************/
+    @Override
     public abstract void init(ISubsystem owner, String id, String implName, IConfigStore
             config) throws EBaseException;
 
+    @Override
     public abstract void run();
 
     /***********************
@@ -114,6 +117,7 @@ public abstract class AJobBase implements IJob, Runnable {
      *
      * @return a String identifier
      */
+    @Override
     public String getId() {
         return mId;
     }
@@ -123,6 +127,7 @@ public abstract class AJobBase implements IJob, Runnable {
      *
      * @param id String id of the instance
      */
+    @Override
     public void setId(String id) {
         mId = id;
     }
@@ -132,6 +137,7 @@ public abstract class AJobBase implements IJob, Runnable {
      *
      * @return a JobCron object that represents the schedule of this job
      */
+    @Override
     public IJobCron getJobCron() {
         return mJobCron;
     }
@@ -141,6 +147,7 @@ public abstract class AJobBase implements IJob, Runnable {
      *
      * @return a String that is the name of this implementation
      */
+    @Override
     public String getImplName() {
         return mImplName;
     }
@@ -150,6 +157,7 @@ public abstract class AJobBase implements IJob, Runnable {
      *
      * @return configuration store
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -256,10 +264,12 @@ public abstract class AJobBase implements IJob, Runnable {
         }
     }
 
+    @Override
     public void stop() {
         stopped = true;
     }
 
+    @Override
     public boolean isStopped() {
         return stopped;
     }

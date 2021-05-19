@@ -45,10 +45,12 @@ public class ProfileModifyCLI extends CommandCLI {
         this.profileCLI = profileCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Profile ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "action", true, "Action: update (default), submit, cancel, approve, reject, enable, disable.");
         option.setArgName("action");
@@ -59,6 +61,7 @@ public class ProfileModifyCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

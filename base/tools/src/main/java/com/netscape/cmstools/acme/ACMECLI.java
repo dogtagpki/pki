@@ -22,6 +22,7 @@ public class ACMECLI extends CLI {
         addModule(new ACMEDisableCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

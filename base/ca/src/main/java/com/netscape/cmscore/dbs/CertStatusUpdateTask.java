@@ -58,6 +58,7 @@ public class CertStatusUpdateTask implements Runnable {
     public void start() {
         // schedule task to run immediately and repeat after specified interval
         executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            @Override
             public Thread newThread(Runnable r) {
                 return new Thread(r, "CertStatusUpdateTask");
             }
@@ -236,6 +237,7 @@ public class CertStatusUpdateTask implements Runnable {
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
     }
 
+    @Override
     public void run() {
         try {
             updateCertStatus();

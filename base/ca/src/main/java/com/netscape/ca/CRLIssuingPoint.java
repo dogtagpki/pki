@@ -391,10 +391,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     public CRLIssuingPoint() {
     }
 
+    @Override
     public boolean isCRLIssuingPointEnabled() {
         return mEnable;
     }
 
+    @Override
     public void enableCRLIssuingPoint(boolean enable) {
         if (!enable && mEnable) {
             clearCRLCache();
@@ -415,59 +417,73 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         setAutoUpdates();
     }
 
+    @Override
     public boolean isCRLGenerationEnabled() {
         return mEnableCRLUpdates;
     }
 
+    @Override
     public String getCrlUpdateStatusStr() {
         return mCrlUpdateStatus;
     }
 
+    @Override
     public String getCrlUpdateErrorStr() {
         return mCrlUpdateError;
     }
 
+    @Override
     public String getCrlPublishStatusStr() {
         return mCrlPublishStatus;
     }
 
+    @Override
     public String getCrlPublishErrorStr() {
         return mCrlPublishError;
     }
 
+    @Override
     public ICMSCRLExtensions getCRLExtensions() {
         return mCMSCRLExtensions;
     }
 
+    @Override
     public void setCustomFutureThisUpdateValue(Date futureThisUpdate) {
         mCustomFutureThisUpdateValue = futureThisUpdate;
     }
 
+    @Override
     public void setCancelCurFutureThisUpdateValue(boolean b) {
         mCancelCurFutureThisUpdateValue = b;
 
     }
 
+    @Override
     public boolean isCRLIssuingPointInitialized() {
         return mInitialized == CRLIssuingPointStatus.Initialized;
     }
 
+    @Override
     public boolean isManualUpdateSet() {
         return mDoManualUpdate;
     }
 
+    @Override
     public boolean areExpiredCertsIncluded() {
         return mIncludeExpiredCerts;
     }
 
+    @Override
     public boolean isCACertsOnly() {
         return mCACertsOnly;
     }
 
+    @Override
     public boolean isProfileCertsOnly() {
         return (mProfileCertsOnly && mProfileList != null && mProfileList.size() > 0);
     }
 
+    @Override
     public boolean checkCurrentProfile(String id) {
         boolean b = false;
 
@@ -495,6 +511,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * @exception EBaseException if initialization failed
      * @exception IOException
      */
+    @Override
     public void init(ISubsystem ca, String id, IConfigStore config)
             throws EBaseException {
         mCA = (ICertificateAuthority) ca;
@@ -1043,6 +1060,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     private Object configMonitor = new Object();
 
+    @Override
     public boolean updateConfig(NameValuePairs params) {
         synchronized (configMonitor) {
             boolean noRestart = true;
@@ -1355,6 +1373,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * This method is called during shutdown.
      * <P>
      */
+    @Override
     public synchronized void shutdown() {
         // this should stop a thread if necessary
         if (mEnableCRLCache && mCacheUpdateInterval > 0) {
@@ -1380,6 +1399,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return internal id of this CRL issuing point
      */
+    @Override
     public String getId() {
         return mId;
     }
@@ -1390,6 +1410,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return internal description of this CRL issuing point
      */
+    @Override
     public String getDescription() {
         return mDescription;
     }
@@ -1399,6 +1420,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @param description description for this CRL issuing point.
      */
+    @Override
     public void setDescription(String description) {
         mDescription = description;
     }
@@ -1410,6 +1432,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return DN of the directory entry where CRLs are published.
      */
+    @Override
     public String getPublishDN() {
         return mPublishDN;
     }
@@ -1420,10 +1443,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return SigningAlgorithm.
      */
+    @Override
     public String getSigningAlgorithm() {
         return mSigningAlgorithm;
     }
 
+    @Override
     public synchronized String getLastSigningAlgorithm() {
         return mLastSigningAlgorithm;
     }
@@ -1434,6 +1459,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return current CRL generation schema for this CRL issuing point
      */
+    @Override
     public int getCRLSchema() {
         return mUpdateSchema;
     }
@@ -1444,6 +1470,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return current CRL number of this CRL issuing point
      */
+    @Override
     public BigInteger getCRLNumber() {
         return mCRLNumber;
     }
@@ -1454,6 +1481,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return current delta CRL number of this CRL issuing point
      */
+    @Override
     public BigInteger getDeltaCRLNumber() {
         return (isDeltaCRLEnabled() && mDeltaCRLSize > -1) ? mDeltaCRLNumber : BigInteger.ZERO;
     }
@@ -1464,6 +1492,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return next CRL number of this CRL issuing point
      */
+    @Override
     public BigInteger getNextCRLNumber() {
         return mNextDeltaCRLNumber;
     }
@@ -1474,6 +1503,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return number of entries in the CRL
      */
+    @Override
     public long getCRLSize() {
         return (mCRLCerts.size() > 0 && mCRLSize == 0) ? mCRLCerts.size() : mCRLSize;
     }
@@ -1484,6 +1514,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return number of entries in delta CRL
      */
+    @Override
     public long getDeltaCRLSize() {
         return mDeltaCRLSize;
     }
@@ -1494,6 +1525,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return last CRL update time
      */
+    @Override
     public Date getLastUpdate() {
         return mLastUpdate;
     }
@@ -1504,6 +1536,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return next CRL update time
      */
+    @Override
     public Date getNextUpdate() {
         return mNextUpdate;
     }
@@ -1514,6 +1547,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return next CRL update time
      */
+    @Override
     public Date getNextDeltaUpdate() {
         return mNextDeltaUpdate;
     }
@@ -1524,6 +1558,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return set of all the revoked certificates or null if there are none.
      */
+    @Override
     public Set<RevokedCertificate> getRevokedCertificates(int start, int end) {
         if (mCRLCacheIsCleared || mCRLCerts == null || mCRLCerts.isEmpty()) {
             return null;
@@ -1539,6 +1574,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      *
      * @return certificate authority
      */
+    @Override
     public ISubsystem getCertificateAuthority() {
         return mCA;
     }
@@ -1583,6 +1619,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * Sets CRL manual-update
      * Starts or stops worker thread as necessary.
      */
+    @Override
     public synchronized void setManualUpdate(String signatureAlgorithm) {
         if (!mDoManualUpdate) {
             mDoManualUpdate = true;
@@ -1598,6 +1635,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * @return auto update interval in milliseconds.
      */
+    @Override
     public long getAutoUpdateInterval() {
         return (mEnableUpdateFreq) ? mAutoUpdateInterval : 0;
     }
@@ -1605,6 +1643,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * @return always update the CRL
      */
+    @Override
     public boolean getAlwaysUpdate() {
         return mAlwaysUpdate;
     }
@@ -1613,6 +1652,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * @return next update grace period in minutes.
      */
 
+    @Override
     public long getNextUpdateGracePeriod() {
         return mNextUpdateGracePeriod;
     }
@@ -1900,6 +1940,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * logic used by worker thread.
      * <P>
      */
+    @Override
     public void run() {
         /*
          * mechnism to slow down the infinite loop when depending
@@ -2024,6 +2065,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * This method may be overrided by CRLWithExpiredCerts.java
      */
+    @Override
     public String getFilter() {
         // PLEASE DONT CHANGE THE FILTER. It is indexed.
         // Changing it will degrade performance. See
@@ -2091,6 +2133,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * @return Enumeration of CertRecords to put into CRL.
      * @exception EBaseException if an error occured in the database.
      */
+    @Override
     public void processRevokedCerts(IElementProcessor p)
             throws EBaseException {
         CertRecordProcessor cp = (CertRecordProcessor) p;
@@ -2120,6 +2163,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * clears CRL cache
      */
+    @Override
     public void clearCRLCache() {
         mCRLCacheIsCleared = true;
         mCRLCerts.clear();
@@ -2132,6 +2176,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * clears Delta-CRL cache
      */
+    @Override
     public void clearDeltaCRLCache() {
         mRevokedCerts.clear();
         mUnrevokedCerts.clear();
@@ -2225,14 +2270,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
     }
 
+    @Override
     public int getNumberOfRecentlyRevokedCerts() {
         return mRevokedCerts.size();
     }
 
+    @Override
     public int getNumberOfRecentlyUnrevokedCerts() {
         return mUnrevokedCerts.size();
     }
 
+    @Override
     public int getNumberOfRecentlyExpiredCerts() {
         return mExpiredCerts.size();
     }
@@ -2268,6 +2316,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * get required crl entry extensions
      */
+    @Override
     public CRLExtensions getRequiredEntryExtensions(CRLExtensions exts) {
         CRLExtensions entryExt = null;
 
@@ -2374,10 +2423,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * registers revoked certificates
      */
+    @Override
     public void addRevokedCert(BigInteger serialNumber, RevokedCertImpl revokedCert) {
         addRevokedCert(serialNumber, revokedCert, null);
     }
 
+    @Override
     public void addRevokedCert(BigInteger serialNumber, RevokedCertImpl revokedCert,
                                String requestId) {
 
@@ -2403,10 +2454,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * registers unrevoked certificates
      */
+    @Override
     public void addUnrevokedCert(BigInteger serialNumber) {
         addUnrevokedCert(serialNumber, null);
     }
 
+    @Override
     public void addUnrevokedCert(BigInteger serialNumber, String requestId) {
         if (mEnable && mEnableCRLCache) {
             updateRevokedCert(UNREVOKED_CERT, serialNumber, null, requestId);
@@ -2425,6 +2478,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * registers expired certificates
      */
+    @Override
     public void addExpiredCert(BigInteger serialNumber) {
 
         if (mEnable && mEnableCRLCache && (!mIncludeExpiredCerts)) {
@@ -2454,6 +2508,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     private Object repositoryMonitor = new Object();
 
+    @Override
     public void updateCRLCacheRepository() {
         synchronized (repositoryMonitor) {
             try {
@@ -2466,6 +2521,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
     }
 
+    @Override
     public boolean isDeltaCRLEnabled() {
         return (mAllowExtensions && mEnableCRLCache &&
                 mCMSCRLExtensions.isCRLExtensionEnabled(DeltaCRLIndicatorExtension.NAME) &&
@@ -2473,6 +2529,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mCMSCRLExtensions.isCRLExtensionEnabled(CRLReasonExtension.NAME));
     }
 
+    @Override
     public boolean isThisCurrentDeltaCRL(X509CRLImpl deltaCRL) {
         boolean result = false;
 
@@ -2504,18 +2561,22 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return (result);
     }
 
+    @Override
     public boolean isCRLCacheEnabled() {
         return mEnableCRLCache;
     }
 
+    @Override
     public boolean isCRLCacheEmpty() {
         return ((mCRLCerts != null) ? mCRLCerts.isEmpty() : true);
     }
 
+    @Override
     public boolean isCRLCacheTestingEnabled() {
         return mEnableCacheTesting;
     }
 
+    @Override
     public Date getRevocationDateFromCache(BigInteger serialNumber,
             boolean checkDeltaCache,
             boolean includeExpiredCerts) {
@@ -2540,6 +2601,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return revocationDate;
     }
 
+    @Override
     public synchronized Vector<Long> getSplitTimes() {
         Vector<Long> splits = new Vector<Long>();
 
@@ -2549,6 +2611,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return splits;
     }
 
+    @Override
     public synchronized int isCRLUpdateInProgress() {
         return mUpdatingCRL;
     }
@@ -2556,12 +2619,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * updates CRL and publishes it now
      */
+    @Override
     public void updateCRLNow()
             throws EBaseException {
 
         updateCRLNow(null);
     }
 
+    @Override
     public synchronized void updateCRLNow(String signingAlgorithm)
             throws EBaseException {
 

@@ -63,6 +63,7 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
         addConfigName(CONFIG_MAX_PATH_LEN);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.CHOICE, "true,false,-",
@@ -88,6 +89,7 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
      * Validates the request. The request is not modified
      * during the validation.
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
 
@@ -161,6 +163,7 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         String params[] = {
                 getConfig(CONFIG_CRITICAL),
@@ -174,6 +177,7 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
                 params);
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;
@@ -184,6 +188,7 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
         return false;
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
 

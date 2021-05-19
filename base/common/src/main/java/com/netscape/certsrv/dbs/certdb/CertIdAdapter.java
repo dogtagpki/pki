@@ -28,10 +28,12 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class CertIdAdapter extends XmlAdapter<String, CertId> {
 
+    @Override
     public CertId unmarshal(String value) throws Exception {
         return StringUtils.isEmpty(value) ? null : new CertId(value);
     }
 
+    @Override
     public String marshal(CertId value) throws Exception {
         return value == null ? null : value.toHexString();
     }

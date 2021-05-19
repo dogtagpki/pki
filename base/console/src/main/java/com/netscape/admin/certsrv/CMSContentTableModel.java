@@ -52,6 +52,7 @@ public class  CMSContentTableModel extends CMSTableModel {
      * Returns the number of rows in the table
      * @return number of rows
      */
+    @Override
     public int getRowCount() {
         return mObjectContainer.size();
     }
@@ -70,6 +71,7 @@ public class  CMSContentTableModel extends CMSTableModel {
      * Remove row at the specified index position
      * @param index row index to be removed
      */
+    @Override
     public void removeRow(int index)
         throws ArrayIndexOutOfBoundsException
     {
@@ -82,6 +84,7 @@ public class  CMSContentTableModel extends CMSTableModel {
     /**
      * clean up the table including the datat objects
      */
+    @Override
     public void removeAllRows() {
         super.removeAllRows();
         mObjectContainer.removeAllElements();

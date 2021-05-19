@@ -58,6 +58,7 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
         addConfigName(CONFIG_SKIP_CERTS);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null, "true",
@@ -70,6 +71,7 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
         if (name.equals(CONFIG_SKIP_CERTS)) {
@@ -83,6 +85,7 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
         super.setConfig(name, value);
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null, "true",
@@ -95,6 +98,7 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -160,6 +164,7 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -212,6 +217,7 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
      * returns text that goes into description for this extension on
      * a profile
      */
+    @Override
     public String getText(Locale locale) {
         StringBuffer sb = new StringBuffer();
         sb.append(SKIP_CERTS + ":");
@@ -225,6 +231,7 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         InhibitAnyPolicyExtension ext = null;

@@ -74,6 +74,7 @@ public class Range {
         return mapper.readValue(json, Range.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

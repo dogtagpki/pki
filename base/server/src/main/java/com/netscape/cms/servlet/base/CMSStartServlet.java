@@ -45,6 +45,7 @@ public class CMSStartServlet extends HttpServlet {
     private static final long serialVersionUID = 515623839479425172L;
     public final static String PROP_CMS_ENGINE = "engine";
 
+    @Override
     public void init() throws ServletException {
 
         String className = getServletConfig().getInitParameter(PROP_CMS_ENGINE);
@@ -73,6 +74,7 @@ public class CMSStartServlet extends HttpServlet {
         }
     }
 
+    @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
         res.setContentType("text/html");
@@ -86,6 +88,7 @@ public class CMSStartServlet extends HttpServlet {
         out.print("</body></html>");
     }
 
+    @Override
     public String getServletInfo() {
         return "CMS startup servlet";
     }
@@ -93,6 +96,7 @@ public class CMSStartServlet extends HttpServlet {
     /**
      * This method will be called when Tomcat is shutdown.
      */
+    @Override
     public void destroy() {
 
         String className = getServletConfig().getInitParameter(PROP_CMS_ENGINE);

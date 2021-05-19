@@ -68,6 +68,7 @@ public class EDBException extends EBaseException {
         super(msgFormat, params);
     }
 
+    @Override
     protected String getBundleName() {
         return DB_RESOURCES;
     }

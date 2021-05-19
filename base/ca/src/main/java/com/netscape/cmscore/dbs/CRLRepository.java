@@ -470,6 +470,7 @@ public class CRLRepository extends Repository {
         modifyCRLIssuingPointRecord(id, mods);
     }
 
+    @Override
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound)
             throws EBaseException {
 

@@ -39,6 +39,7 @@ public class InMemoryRealm extends ACMERealm {
         roles.add("Administrators");
     }
 
+    @Override
     public Principal authenticate(String username, String password) throws Exception {
 
         logger.info("Authenticating user " + username + " with password");

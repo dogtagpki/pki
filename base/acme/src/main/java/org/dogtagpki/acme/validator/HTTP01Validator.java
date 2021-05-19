@@ -32,6 +32,7 @@ public class HTTP01Validator extends ACMEValidator {
         super("HTTP-01", "http-01");
     }
 
+    @Override
     public ValidationResult validateChallenge(
             ACMEAuthorization authorization,
             ACMEChallenge challenge) {

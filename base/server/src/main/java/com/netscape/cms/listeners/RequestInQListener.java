@@ -90,6 +90,7 @@ public class RequestInQListener implements IRequestListener {
     /**
      * initializes the listener from the configuration
      */
+    @Override
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
 
@@ -137,6 +138,7 @@ public class RequestInQListener implements IRequestListener {
      * @param r IRequest structure holding the request information
      * @see com.netscape.certsrv.request.IRequest
      */
+    @Override
     public void accept(IRequest r) {
 
         if (mEnabled != true)
@@ -241,6 +243,7 @@ public class RequestInQListener implements IRequestListener {
      * @param name a String represents the name of the configuration parameter to be set
      * @param val a String containing the value to be set for name
      */
+    @Override
     public void set(String name, String val) {
         if (name.equalsIgnoreCase(PROP_ENABLED)) {
             if (val.equalsIgnoreCase("true")) {

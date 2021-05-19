@@ -22,16 +22,19 @@ public class ProfileModifyCLI extends CommandCLI {
         this.profileCLI = profileCLI;
     }
 
+    @Override
     public void createOptions() {
         Option optRaw = new Option(null, "raw", false, "Use raw format");
         optRaw.setArgName("raw");
         options.addOption(optRaw);
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <file> [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

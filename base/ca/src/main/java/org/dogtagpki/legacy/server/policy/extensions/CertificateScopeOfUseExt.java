@@ -76,6 +76,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
         DESC = "Sets scope of use extension for certificates";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         Vector<String> v = new Vector<String>();
 
@@ -107,6 +108,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -160,6 +162,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
@@ -241,6 +244,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> params = new Vector<String>();
 
@@ -297,6 +301,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> defParams = new Vector<String>();
 

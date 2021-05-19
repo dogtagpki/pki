@@ -89,10 +89,12 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
 
@@ -156,6 +158,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return true;
     }
@@ -234,6 +237,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
     /**
      *  the operation is finished after we receive the http stream
      */
+    @Override
     public void replyHandler(InputStream response, CommRecord cr) {
         try {
             int nBytes = response.available();
@@ -266,6 +270,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
     /**
      *  this function will be called if error occurs
      */
+    @Override
     public void errorHandler(Exception error, CommRecord cr) {
         Debug.println("CGITask.errorHandler: " + error );
 
@@ -279,6 +284,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
     /**
      *  pass the username to the admin server
      */
+    @Override
     public String username(Object authObject, CommRecord cr) {
         Debug.println( "username = " +
             _consoleInfo.getAuthenticationDN());
@@ -288,6 +294,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
     /**
      *  pass the user password to the admin server
      */
+    @Override
     public String password(Object authObject, CommRecord cr) {
         Debug.println( "password = " +
                        (String)_consoleInfo.get( "AdminUserPassword" ) );
@@ -336,6 +343,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         // Comment out the single signon codes for now.
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
@@ -426,10 +434,12 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         return ready;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -527,6 +537,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         add(dummy, gbc);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 }

@@ -141,7 +141,8 @@ public class PolicyRuleOrderDialog extends JDialog
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
-	public void actionPerformed(ActionEvent evt) {
+	@Override
+    public void actionPerformed(ActionEvent evt) {
 
         if (evt.getSource().equals(mOK)) {
             try {
@@ -181,15 +182,20 @@ public class PolicyRuleOrderDialog extends JDialog
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         setArrowButtons();
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {
         setArrowButtons();
     }
+    @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
     public void mouseExited(MouseEvent e) {
         setArrowButtons();
     }

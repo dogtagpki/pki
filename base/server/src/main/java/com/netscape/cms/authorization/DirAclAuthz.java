@@ -109,6 +109,7 @@ public class DirAclAuthz extends AAclAuthz
                 };
     }
 
+    @Override
     public void init(String name, String implName, AuthzManagerConfig config) throws EBaseException {
 
         super.init(name, implName, config);
@@ -204,6 +205,7 @@ public class DirAclAuthz extends AAclAuthz
      *            on the ldap server
      * @param desc The description for this resource
      */
+    @Override
     public void updateACLs(String id, String rights, String strACLs,
             String desc) throws EACLsException {
         try {
@@ -272,6 +274,7 @@ public class DirAclAuthz extends AAclAuthz
     /**
      * graceful shutdown
      */
+    @Override
     public void shutdown() {
         if (needsFlush) {
             // flush the changes

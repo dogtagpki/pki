@@ -38,6 +38,7 @@ public class ProfileDataTable extends JTable
         super(model);
     }
 
+    @Override
     public TableCellRenderer getCellRenderer(int row, int column) {
         TableColumn tableColumn = getColumnModel().getColumn(column);
         TableCellRenderer renderer = tableColumn.getCellRenderer();
@@ -54,6 +55,7 @@ public class ProfileDataTable extends JTable
         return renderer;
     }
 
+    @Override
     public TableCellEditor getCellEditor(int row, int column) {
         TableColumn tableColumn = getColumnModel().getColumn(column);
         TableCellEditor editor = tableColumn.getCellEditor();

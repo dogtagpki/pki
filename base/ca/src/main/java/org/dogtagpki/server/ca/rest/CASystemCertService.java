@@ -47,6 +47,7 @@ public class CASystemCertService extends PKIService implements CASystemCertResou
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CASystemCertService.class);
 
+    @Override
     public Response getSigningCert() throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
@@ -70,6 +71,7 @@ public class CASystemCertService extends PKIService implements CASystemCertResou
         return sendConditionalGetResponse(DEFAULT_LONG_CACHE_LIFETIME, certData, request);
     }
 
+    @Override
     public Response getTransportCert() throws Exception {
 
         CAEngine engine = CAEngine.getInstance();

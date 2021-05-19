@@ -118,6 +118,7 @@ public class SimpleExpression implements IExpression {
             hasWildCard = false;
     }
 
+    @Override
     public boolean evaluate(IRequest req)
             throws EPolicyException {
         // mPfx and mVar are looked up case-indendently
@@ -291,6 +292,7 @@ public class SimpleExpression implements IExpression {
         return result;
     }
 
+    @Override
     public String toString() {
         String op = null;
 

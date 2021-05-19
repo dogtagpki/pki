@@ -72,6 +72,7 @@ public class ExternalProcessConstraint extends EnrollConstraint {
         addConfigName(CONFIG_TIMEOUT);
     }
 
+    @Override
     public void init(IConfigStore config) throws EProfileException {
         super.init(config);
 
@@ -112,6 +113,7 @@ public class ExternalProcessConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_EXECUTABLE)) {
             return new Descriptor(
@@ -124,6 +126,7 @@ public class ExternalProcessConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         logger.debug("About to execute command: " + this.executable);

@@ -44,6 +44,7 @@ public class AutoAssignDefault extends EnrollDefault {
         addConfigName(CONFIG_ASSIGN_TO);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_ASSIGN_TO)) {
             return new Descriptor(IDescriptor.STRING,
@@ -54,21 +55,25 @@ public class AutoAssignDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
         return null;
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_AUTO_ASSIGN",
                 getConfig(CONFIG_ASSIGN_TO));
@@ -77,6 +82,7 @@ public class AutoAssignDefault extends EnrollDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         try {

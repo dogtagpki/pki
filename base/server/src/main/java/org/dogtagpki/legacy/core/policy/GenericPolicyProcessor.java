@@ -121,6 +121,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     public void shutdown() {
     }
 
+    @Override
     public ISubsystem getAuthority() {
         return mAuthority;
     }
@@ -375,6 +376,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      * @param request The given request
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest request) {
         IPolicySet rules = null;
         String op = request.getRequestType();
@@ -453,10 +455,12 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         mKeyArchivalRules.printPolicies();
     }
 
+    @Override
     public String getPolicySubstoreId() {
         return mAuthority.getId() + ".Policy";
     }
 
+    @Override
     public Enumeration<IPolicyRule> getPolicyImpls() {
         Vector<IPolicyRule> impls = new Vector<IPolicyRule>();
         Enumeration<RegisteredPolicy> enum1 = mImplTable.elements();
@@ -478,6 +482,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         return ret;
     }
 
+    @Override
     public Enumeration<String> getPolicyImplsInfo() {
         Vector<String> impls = new Vector<String>();
         Enumeration<RegisteredPolicy> enum1 = mImplTable.elements();
@@ -495,6 +500,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         return ret;
     }
 
+    @Override
     public IPolicyRule getPolicyImpl(String id) {
         RegisteredPolicy regImpl = mImplTable.get(id);
 
@@ -510,6 +516,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         return impl;
     }
 
+    @Override
     public Vector<String> getPolicyImplConfig(String id) {
         IPolicyRule rp = getPolicyImpl(id);
 
@@ -524,6 +531,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         return v;
     }
 
+    @Override
     public void deletePolicyImpl(String id)
             throws EBaseException {
         // First check if the id is valid;
@@ -569,6 +577,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         }
     }
 
+    @Override
     public void addPolicyImpl(String id, String classPath)
             throws EBaseException {
         // See if the id is unique
@@ -618,6 +627,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         }
     }
 
+    @Override
     public Enumeration<IPolicyRule> getPolicyInstances() {
         Vector<IPolicyRule> rules = new Vector<IPolicyRule>();
         Enumeration<String> enum1 = mPolicyOrder.elements();
@@ -637,6 +647,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         return ret;
     }
 
+    @Override
     public Enumeration<String> getPolicyInstancesInfo() {
         Vector<String> rules = new Vector<String>();
         Enumeration<String> enum1 = mPolicyOrder.elements();
@@ -655,12 +666,14 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         return ret;
     }
 
+    @Override
     public IPolicyRule getPolicyInstance(String id) {
         PolicyInstance policyInstance = mInstanceTable.get(id);
 
         return (policyInstance == null) ? null : policyInstance.getRule();
     }
 
+    @Override
     public Vector<String> getPolicyInstanceConfig(String id) {
         PolicyInstance policyInstance = mInstanceTable.get(id);
 
@@ -680,6 +693,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         return v;
     }
 
+    @Override
     public void deletePolicyInstance(String id)
             throws EBaseException {
         // If the rule is a persistent rule, we can't delete it.
@@ -740,6 +754,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         mInstanceTable.remove(id);
     }
 
+    @Override
     public void addPolicyInstance(String id, Hashtable<String, String> ht)
             throws EBaseException {
         // The instance id should be unique
@@ -819,6 +834,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         addRule(id, rule);
     }
 
+    @Override
     public void modifyPolicyInstance(String id, Hashtable<String, String> ht)
             throws EBaseException {
         // The instance id should be there already
@@ -996,6 +1012,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         }
     }
 
+    @Override
     public synchronized void changePolicyInstanceOrdering(
             String policyOrderStr)
             throws EBaseException {

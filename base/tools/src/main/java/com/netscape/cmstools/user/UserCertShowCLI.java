@@ -44,10 +44,12 @@ public class UserCertShowCLI extends CommandCLI {
         this.userCertCLI = userCertCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <User ID> <Cert ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "output", true, "Output file");
         option.setArgName("file");
@@ -57,6 +59,7 @@ public class UserCertShowCLI extends CommandCLI {
         options.addOption(null, "encoded", false, "Base-64 encoded");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -168,7 +168,8 @@ public class GroupEditor extends JDialog
 
     //=== ACTIONLISTENER =====================
 
-	public void actionPerformed(ActionEvent evt) {
+	@Override
+    public void actionPerformed(ActionEvent evt) {
 
         if (evt.getSource().equals(mOK)) {
 
@@ -294,6 +295,7 @@ public class GroupEditor extends JDialog
         return false;
     }
 
+    @Override
     public void valueChanged(ListSelectionEvent e) {
         setButtons();
     }

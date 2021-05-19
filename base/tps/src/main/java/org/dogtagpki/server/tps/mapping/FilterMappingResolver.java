@@ -20,6 +20,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
     public FilterMappingResolver() {
     }
 
+    @Override
     public String getResolvedMapping(FilterMappingParams mappingParams)
             throws TPSException {
         //map tokenType by default
@@ -27,6 +28,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
     }
 
     // from TPS: RA_Processor::ProcessMappingFilter
+    @Override
     public String getResolvedMapping(FilterMappingParams mappingParams, String nameToMap)
             throws TPSException {
         String method = "FilterMappingResolver.getResolvedMapping for "+ nameToMap + ": ";

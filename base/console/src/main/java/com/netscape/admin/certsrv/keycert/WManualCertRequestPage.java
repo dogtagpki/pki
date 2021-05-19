@@ -66,10 +66,12 @@ class WManualCertRequestPage extends WBaseManualCertRequestPage implements IWiza
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
 
@@ -125,10 +127,12 @@ class WManualCertRequestPage extends WBaseManualCertRequestPage implements IWiza
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return super.validatePanel();
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
 		if (!mSendNowBox.isSelected())
 			return true;
@@ -188,14 +192,17 @@ class WManualCertRequestPage extends WBaseManualCertRequestPage implements IWiza
         return ready;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         super.init();
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 }

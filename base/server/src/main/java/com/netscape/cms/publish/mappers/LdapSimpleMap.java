@@ -97,6 +97,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     public LdapSimpleMap() {
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String params[] = {
                 "dnPattern;string;Describes how to form the Ldap Subject name in" +
@@ -112,6 +113,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         return params;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -119,6 +121,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     /**
      * for initializing from config store.
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -158,6 +161,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
      * @param obj the object to map.
      * @exception ELdapException if any LDAP exceptions occured.
      */
+    @Override
     public String map(LDAPConnection conn, Object obj)
             throws ELdapException {
         return map(conn, null, obj);
@@ -172,6 +176,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
      * @param obj the object to map.
      * @exception ELdapException if any LDAP exceptions occured.
      */
+    @Override
     public String map(LDAPConnection conn, IRequest req, Object obj) throws ELdapException {
 
         if (conn == null) {
@@ -288,14 +293,17 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         }
     }
 
+    @Override
     public String getImplName() {
         return "LdapSimpleMap";
     }
 
+    @Override
     public String getDescription() {
         return "LdapSimpleMap";
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
@@ -303,6 +311,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         return v;
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
 

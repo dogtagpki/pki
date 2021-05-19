@@ -95,6 +95,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mRefresh)) {
             refresh();
@@ -128,10 +129,12 @@ public class TKSKeysTab extends CMSBaseUGTab {
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         setButtons();
     }
 
+    @Override
     public void mouseReleased(MouseEvent e) {
         setButtons();
     }
@@ -139,6 +142,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
     /*==========================================================
      * protected methods
      *==========================================================*/
+    @Override
     public void refresh() {
 
         mDataModel.removeAllRows();
@@ -167,6 +171,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
         return rightPanel;
     }
 
+    @Override
     protected JPanel createActionPanel() {
         //edit, add, delete, help buttons required
         //actionlister to this object
@@ -177,6 +182,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
         return makeJButtonPanel(buttons, true);
     }
 
+    @Override
     protected JPanel createListPanel() {
         mListPanel = new JPanel();
         GridBagLayout gb = new GridBagLayout();

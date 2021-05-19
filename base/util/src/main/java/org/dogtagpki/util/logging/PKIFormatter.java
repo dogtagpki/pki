@@ -27,6 +27,7 @@ import java.util.logging.LogRecord;
 
 public class PKIFormatter extends Formatter {
 
+    @Override
     public String format(LogRecord record) {
 
         // 2018-02-23 10:18:51 [main] INFO: Log message

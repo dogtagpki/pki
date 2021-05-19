@@ -46,6 +46,7 @@ public class SubsystemUserAddCLI extends CommandCLI {
         super("add", "Add " + parent.getParent().getName().toUpperCase() + " user", parent);
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option(null, "full-name", true, "Full name");
@@ -77,6 +78,7 @@ public class SubsystemUserAddCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

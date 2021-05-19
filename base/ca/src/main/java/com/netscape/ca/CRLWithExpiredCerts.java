@@ -37,6 +37,7 @@ public class CRLWithExpiredCerts extends CRLIssuingPoint {
      * @exception EBaseException if an exception occured getting revoked
      *                certificates from the database.
      */
+    @Override
     public String getFilter() {
         // PLEASE DONT CHANGE THE FILTER. It is indexed.
         // Changing it will degrade performance. See
@@ -62,6 +63,7 @@ public class CRLWithExpiredCerts extends CRLIssuingPoint {
     /**
      * registers expired certificates
      */
+    @Override
     public void addExpiredCert(BigInteger serialNumber) {
         // don't do anything
     }

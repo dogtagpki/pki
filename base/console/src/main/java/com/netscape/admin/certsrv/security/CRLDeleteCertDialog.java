@@ -60,6 +60,7 @@ class CRLDeleteCertDialog extends AbstractDialog {
 
 
     class CRLDeleteCertActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("DELETE")) {
                 //call delete cert cgi

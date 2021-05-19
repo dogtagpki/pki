@@ -45,6 +45,7 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         this.certRequestCLI = CACertRequestCLI;
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option(null, "issuer-id", true, "Authority ID (host authority if omitted)");
@@ -102,6 +103,7 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <filename> [OPTIONS...]", options);
     }

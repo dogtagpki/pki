@@ -127,32 +127,38 @@ public abstract class CMSBaseConfigPanel extends CMSBasePanel {
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (mInit)
             this.setDirtyFlag();
     }
 
     //== DocumentListener ==
+    @Override
     public void insertUpdate(DocumentEvent e) {
         if (mInit)
             this.setDirtyFlag();
     }
+    @Override
     public void removeUpdate(DocumentEvent e){
         if (mInit)
             this.setDirtyFlag();
     }
+    @Override
     public void changedUpdate(DocumentEvent e){
         if (mInit)
             this.setDirtyFlag();
     }
 
     //== ItemListener ==
+    @Override
     public void itemStateChanged(ItemEvent e){
         if (mInit)
             this.setDirtyFlag();
     }
 
     //== ListSelectionListener ==
+    @Override
     public void valueChanged(ListSelectionEvent e){
         if (mInit)
             this.setDirtyFlag();

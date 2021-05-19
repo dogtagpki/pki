@@ -96,6 +96,7 @@ public class RemoteAuthConfig extends CMSServlet {
      * List of remotely set instances can be found in CMS.cfg
      * at "auths.remotelySetInstances=<name1>,<name2>,...,<nameN>"
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
@@ -149,6 +150,7 @@ public class RemoteAuthConfig extends CMSServlet {
      * [uid=<uid>]&
      * [baseDN=<baseDN>]
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();

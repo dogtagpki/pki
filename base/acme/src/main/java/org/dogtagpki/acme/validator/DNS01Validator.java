@@ -43,6 +43,7 @@ public class DNS01Validator extends ACMEValidator {
         return Base64.encodeBase64URLSafeString(hash);
     }
 
+    @Override
     public ValidationResult validateChallenge(
             ACMEAuthorization authorization,
             ACMEChallenge challenge) {

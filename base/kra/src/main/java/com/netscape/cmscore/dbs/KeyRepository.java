@@ -221,6 +221,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
      * @param record key record
      * @exception EBaseException failed to archive key
      */
+    @Override
     public void addKeyRecord(IKeyRecord record) throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
 
@@ -244,6 +245,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
      * @return key record
      * @exception EBaseException failed to recover key
      */
+    @Override
     public IKeyRecord readKeyRecord(BigInteger serialNo)
             throws EBaseException {
         if (serialNo == null) {
@@ -276,6 +278,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
      * @return key record
      * @exception EBaseException failed to recover key
      */
+    @Override
     public IKeyRecord readKeyRecord(X500Name ownerName)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
@@ -299,6 +302,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     /**
      * Recovers archived key using public key.
      */
+    @Override
     public IKeyRecord readKeyRecord(PublicKey publicKey)
             throws EBaseException {
         // XXX - setup binary search attributes
@@ -327,6 +331,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     /**
      * Recovers archived key using b64 encoded cert
      */
+    @Override
     public IKeyRecord readKeyRecord(String cert)
             throws EBaseException {
 
@@ -352,6 +357,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     /**
      * Modifies key record.
      */
+    @Override
     public void modifyKeyRecord(BigInteger serialNo, ModificationSet mods)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
@@ -370,6 +376,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
         }
     }
 
+    @Override
     public void deleteKeyRecord(BigInteger serialNo)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
@@ -398,6 +405,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
         return result.toString();
     }
 
+    @Override
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
@@ -415,6 +423,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
         return v.elements();
     }
 
+    @Override
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize, int timeLimit)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
@@ -435,12 +444,14 @@ public class KeyRepository extends Repository implements IKeyRepository {
     /**
      * Retrieves key record list.
      */
+    @Override
     public IKeyRecordList findKeyRecordsInList(String filter,
             String attrs[], int pageSize) throws EBaseException {
         return findKeyRecordsInList(filter, attrs, IKeyRecord.ATTR_ID,
                 pageSize);
     }
 
+    @Override
     public IKeyRecordList findKeyRecordsInList(String filter,
             String attrs[], String sortKey, int pageSize)
             throws EBaseException {
@@ -491,6 +502,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
         return list;
     }
 
+    @Override
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound) throws
             EBaseException {
 

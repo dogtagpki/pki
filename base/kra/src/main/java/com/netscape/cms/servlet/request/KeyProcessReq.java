@@ -43,6 +43,7 @@ public class KeyProcessReq extends ProcessReq {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
 
         super.init(sc);
@@ -56,6 +57,7 @@ public class KeyProcessReq extends ProcessReq {
         }
     }
 
+    @Override
     public void addAuthorityName(IArgBlock header) throws EBaseException {
         header.addStringValue("localkra", "yes");
     }

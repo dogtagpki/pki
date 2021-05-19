@@ -83,6 +83,7 @@ public class ProfileNonPolicyNewDialog extends CMSBaseConfigDialog
     }
 
 
+    @Override
     protected JPanel makeContentPane() {
         JPanel mListPanel = new JPanel();
         GridBagLayout gb = new GridBagLayout();
@@ -296,6 +297,7 @@ setLabelCellEditor(mTable, 1);
         return mListPanel;
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
 
         if (evt.getSource().equals(mHelp)) {

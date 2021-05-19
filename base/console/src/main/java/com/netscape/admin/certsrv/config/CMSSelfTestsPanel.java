@@ -67,6 +67,7 @@ public class CMSSelfTestsPanel extends CMSBaseTab
     }
 
 
+    @Override
     public void init()
     {
         Debug.println( "SelfTestsPanel: init()" );
@@ -145,12 +146,14 @@ public class CMSSelfTestsPanel extends CMSBaseTab
     }
 
 
+    @Override
     public void refresh()
     {
         clearDirtyFlag();
     }
 
 
+    @Override
     public void actionPerformed( ActionEvent evt )
     {
         super.actionPerformed( evt );
@@ -211,6 +214,7 @@ public class CMSSelfTestsPanel extends CMSBaseTab
      * Implementation for saving panel information
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean applyCallback()
     {
         clearDirtyFlag();
@@ -222,6 +226,7 @@ public class CMSSelfTestsPanel extends CMSBaseTab
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean resetCallback()
     {
         refresh();

@@ -43,16 +43,19 @@ public class SelfTestShowCLI extends CommandCLI {
         this.selfTestCLI = selfTestCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <SelfTest ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "output", true, "Output file to store selfTest properties.");
         option.setArgName("file");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

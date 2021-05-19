@@ -44,6 +44,7 @@ public class CMSCRLReasonExtension
     public CMSCRLReasonExtension() {
     }
 
+    @Override
     public Extension setCRLExtensionCriticality(Extension ext,
             boolean critical) {
         RevocationReason reason = null;
@@ -58,6 +59,7 @@ public class CMSCRLReasonExtension
         return crlReasonExt;
     }
 
+    @Override
     public Extension getCRLExtension(IConfigStore config,
             Object crlIssuingPoint,
             boolean critical) {
@@ -66,13 +68,16 @@ public class CMSCRLReasonExtension
         return crlReasonExt;
     }
 
+    @Override
     public String getCRLExtOID() {
         return PKIXExtensions.ReasonCode_Id.toString();
     }
 
+    @Override
     public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 //"type;choice(CRLExtension,CRLEntryExtension);"+

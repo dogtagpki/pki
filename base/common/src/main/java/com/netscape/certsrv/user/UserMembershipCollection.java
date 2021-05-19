@@ -33,6 +33,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name="UserMemberships")
 public class UserMembershipCollection extends DataCollection<UserMembershipData> {
 
+    @Override
     @XmlElement(name="Membership")
     public Collection<UserMembershipData> getEntries() {
         return super.getEntries();

@@ -52,6 +52,7 @@ public class CertificateVersionDefault extends EnrollExtDefault {
         addConfigName(CONFIG_VERSION);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_VERSION)) {
             return new Descriptor(IDescriptor.INTEGER, null,
@@ -62,6 +63,7 @@ public class CertificateVersionDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
         if (name.equals(CONFIG_VERSION)) {
@@ -75,6 +77,7 @@ public class CertificateVersionDefault extends EnrollExtDefault {
         super.setConfig(name, value);
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_VERSION)) {
             return new Descriptor(IDescriptor.INTEGER, null,
@@ -85,6 +88,7 @@ public class CertificateVersionDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -121,6 +125,7 @@ public class CertificateVersionDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -150,6 +155,7 @@ public class CertificateVersionDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         String params[] = {
                 getConfig(CONFIG_VERSION)
@@ -161,6 +167,7 @@ public class CertificateVersionDefault extends EnrollExtDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         String v = getConfig(CONFIG_VERSION);

@@ -40,12 +40,14 @@ public class TKSAuthority implements IAuthority {
     /**
      * Registers request completed class.
      */
+    @Override
     public void registerRequestListener(IRequestListener listener) {
     }
 
     /**
      * Registers pending request class.
      */
+    @Override
     public void registerPendingListener(IRequestListener listener) {
     }
 
@@ -62,11 +64,13 @@ public class TKSAuthority implements IAuthority {
         mNickname = nickname;
     }
 
+    @Override
     public String getNickname() {
         logger.debug("Error: TKSAuthority::getNickname - nickname of signing (id) cert");
         return mNickname;
     }
 
+    @Override
     public String getOfficialName() {
         return "tks";
     }
@@ -78,6 +82,7 @@ public class TKSAuthority implements IAuthority {
      *
      * @exception EBaseException failed to initialize this RA
      */
+    @Override
     public void init(IConfigStore config) throws
             EBaseException {
 
@@ -96,6 +101,7 @@ public class TKSAuthority implements IAuthority {
      *
      * @exception EBaseException failed to start up
      */
+    @Override
     public void startup() throws EBaseException {
 
         // Note that we use our instance id for registration.
@@ -109,6 +115,7 @@ public class TKSAuthority implements IAuthority {
      * anytime after initialization.
      * <P>
      */
+    @Override
     public void shutdown() {
         logger.info("TKSAuthority is stopped");
     }
@@ -119,10 +126,12 @@ public class TKSAuthority implements IAuthority {
      *
      * @return configuration store of this subsystem
      */
+    @Override
     public TKSConfig getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public String getId() {
         return mId;
     }
@@ -133,6 +142,7 @@ public class TKSAuthority implements IAuthority {
      * @param id subsystem id
      * @exception EBaseException failed to set id
      */
+    @Override
     public void setId(String id) throws EBaseException {
         mId = id;
     }

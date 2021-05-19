@@ -39,6 +39,7 @@ public class KeyQueryReq extends QueryReq {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
 
         super.init(sc);
@@ -52,11 +53,13 @@ public class KeyQueryReq extends QueryReq {
         }
     }
 
+    @Override
     public void validateAuthToken(HttpServletRequest request, IAuthToken authToken) throws EBaseException {
         String realm = request.getParameter(REALM);
         mAuthz.checkRealm(realm, authToken, null, mAuthzResourceName, "list");
     }
 
+    @Override
     public String getFilter(HttpServletRequest request) {
 
         String filter = super.getFilter(request);

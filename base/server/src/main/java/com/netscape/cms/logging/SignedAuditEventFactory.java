@@ -40,6 +40,7 @@ public class SignedAuditEventFactory extends LogFactory {
     /**
      * Creates a log event.
      */
+    @Override
     public ILogEvent create() {
         return new SignedAuditEvent();
     }

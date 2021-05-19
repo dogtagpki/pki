@@ -229,6 +229,7 @@ public class KRAConnectorInfo {
         return (KRAConnectorInfo) unmarshaller.unmarshal(new StringReader(xml));
     }
 
+    @Override
     public String toString() {
         try {
             return toXML();

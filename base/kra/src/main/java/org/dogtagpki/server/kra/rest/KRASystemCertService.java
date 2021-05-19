@@ -44,6 +44,7 @@ public class KRASystemCertService extends PKIService implements KRASystemCertRes
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRASystemCertService.class);
 
+    @Override
     public Response getTransportCert() throws Exception {
 
         KRAEngine engine = KRAEngine.getInstance();

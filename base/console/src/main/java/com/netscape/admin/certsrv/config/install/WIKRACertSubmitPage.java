@@ -41,6 +41,7 @@ class WIKRACertSubmitPage extends WICertSubmitPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning() && wizardInfo.isKRACloningDone())
@@ -65,6 +66,7 @@ class WIKRACertSubmitPage extends WICertSubmitPage {
         return super.initializePanel(info);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (mSelfButton.isSelected())

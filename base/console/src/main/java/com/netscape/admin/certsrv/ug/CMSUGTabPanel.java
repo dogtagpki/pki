@@ -70,6 +70,7 @@ public class CMSUGTabPanel extends CMSBasePanel
 
     //== IResourceListener ===
 
+    @Override
     public void select(IResourceObject parent, Object viewInstance) {
         //System.out.println("CMSTabPanel: select() "+ parent);
         if (parent == mParent) {
@@ -87,17 +88,20 @@ public class CMSUGTabPanel extends CMSBasePanel
         }
     }
 
+    @Override
     public boolean unselect(IResourceObject parent, Object viewInstance) {
         return true;
     }
 
+    @Override
     public CMSBasePanel getSelectedTab() {
         //Debug.println("CMSUGTabPanel: getSelectedTab()");
         return (CMSBasePanel)mTabbedPane.getSelectedComponent();
     }
 
     //== ChangeListener ==
-	public void stateChanged(ChangeEvent e) {
+	@Override
+    public void stateChanged(ChangeEvent e) {
 	    //Debug.println("CMSTabPanel: stateChanged()");
 		CMSBaseUGTab selectedPanel = (CMSBaseUGTab)mTabbedPane.getSelectedComponent();
         if ( selectedPanel != null )

@@ -60,6 +60,7 @@ public class EOCSPException extends EBaseException {
         super(msgFormat, params);
     }
 
+    @Override
     protected String getBundleName() {
         return OCSP_RESOURCES;
     }

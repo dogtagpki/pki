@@ -175,18 +175,22 @@ public class CAEngine extends CMSEngine {
         return (CAEngine) CMS.getCMSEngine();
     }
 
+    @Override
     public EngineConfig createConfig(ConfigStorage storage) throws Exception {
         return new CAEngineConfig(storage);
     }
 
+    @Override
     public CAEngineConfig getConfig() {
         return (CAEngineConfig) mConfig;
     }
 
+    @Override
     public CAConfigurator createConfigurator() throws Exception {
         return new CAConfigurator(this);
     }
 
+    @Override
     public void initDatabase() throws Exception {
         CAEngineConfig config = getConfig();
         PKISocketConfig socketConfig = config.getSocketConfig();
@@ -723,6 +727,7 @@ public class CAEngine extends CMSEngine {
         serialNumberUpdateTask.start();
     }
 
+    @Override
     public void initSubsystems() throws Exception {
 
         CertificateAuthority hostCA = getCA();
@@ -832,6 +837,7 @@ public class CAEngine extends CMSEngine {
         super.initSubsystems();
     }
 
+    @Override
     public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof CertificateAuthority) {
@@ -887,6 +893,7 @@ public class CAEngine extends CMSEngine {
         publisherProcessor.publishCACert(hostCA.getCACert());
     }
 
+    @Override
     public void startupSubsystems() throws Exception {
 
         if (!isPreOpMode()) {
@@ -1613,6 +1620,7 @@ public class CAEngine extends CMSEngine {
         replicaIDRepository = new ReplicaIDRepository(dbSubsystem);
     }
 
+    @Override
     public void init() throws Exception {
         initCertificateRepository();
         initCrlDatabase();
@@ -1620,6 +1628,7 @@ public class CAEngine extends CMSEngine {
         super.init();
     }
 
+    @Override
     public boolean isRevoked(X509Certificate[] certificates) {
 
         if (certificates == null) {
@@ -1663,6 +1672,7 @@ public class CAEngine extends CMSEngine {
         return revoked;
     }
 
+    @Override
     public void shutdownDatabase() {
         try {
             connectionFactory.shutdown();
@@ -1671,6 +1681,7 @@ public class CAEngine extends CMSEngine {
         }
     }
 
+    @Override
     protected void shutdownSubsystems() {
 
         super.shutdownSubsystems();
@@ -1716,6 +1727,7 @@ public class CAEngine extends CMSEngine {
         loader.shutdown();
     }
 
+    @Override
     public void shutdown() {
         shutdownAuthorityMonitor();
         super.shutdown();

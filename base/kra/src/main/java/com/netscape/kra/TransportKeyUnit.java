@@ -78,6 +78,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
     /**
      * Retrieves subsystem identifier.
      */
+    @Override
     public String getId() {
         return "transportKeyUnit";
     }
@@ -85,6 +86,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
     /**
      * Sets subsystem identifier.
      */
+    @Override
     public void setId(String id) throws EBaseException {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
     }
@@ -92,6 +94,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
     /**
      * Initializes this subsystem.
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -141,6 +144,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
         }
     }
 
+    @Override
     public CryptoToken getInternalToken() {
         try {
             return CryptoManager.getInstance().getInternalKeyStorageToken();
@@ -149,12 +153,14 @@ public class TransportKeyUnit extends EncryptionUnit implements
         }
     }
 
+    @Override
     public CryptoToken getToken() {
         // 390148: returning the token that owns the private
         //         key.
         return getPrivateKey().getOwningToken();
     }
 
+    @Override
     public CryptoToken getToken(org.mozilla.jss.crypto.X509Certificate cert) {
         return getPrivateKey(cert).getOwningToken();
     }
@@ -162,18 +168,21 @@ public class TransportKeyUnit extends EncryptionUnit implements
     /**
      * Starts up this subsystem.
      */
+    @Override
     public void startup() throws EBaseException {
     }
 
     /**
      * Shutdowns this subsystem.
      */
+    @Override
     public void shutdown() {
     }
 
     /**
      * Returns the configuration store of this token.
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -195,10 +204,12 @@ public class TransportKeyUnit extends EncryptionUnit implements
         return newNickName;
     }
 
+    @Override
     public String getSigningAlgorithm() throws EBaseException {
         return mConfig.getString(PROP_SIGNING_ALGORITHM);
     }
 
+    @Override
     public void setSigningAlgorithm(String str) throws EBaseException {
         mConfig.putString(PROP_SIGNING_ALGORITHM, str);
     }
@@ -206,18 +217,21 @@ public class TransportKeyUnit extends EncryptionUnit implements
     /**
      * Logins to this token.
      */
+    @Override
     public void login(String pin) throws EBaseException {
     }
 
     /**
      * Logout from this token.
      */
+    @Override
     public void logout() {
     }
 
     /**
      * Retrieves public key.
      */
+    @Override
     public org.mozilla.jss.crypto.X509Certificate getCertificate() {
         return mCert;
     }
@@ -226,10 +240,12 @@ public class TransportKeyUnit extends EncryptionUnit implements
         return chain;
     }
 
+    @Override
     public org.mozilla.jss.crypto.X509Certificate getNewCertificate() {
         return mNewCert;
     }
 
+    @Override
     public org.mozilla.jss.crypto.X509Certificate verifyCertificate(String transportCert) {
         org.mozilla.jss.crypto.X509Certificate cert = null;
         if (transportCert != null && transportCert.length() > 0) {
@@ -260,14 +276,17 @@ public class TransportKeyUnit extends EncryptionUnit implements
         return cert;
     }
 
+    @Override
     public PublicKey getPublicKey() {
         return mCert.getPublicKey();
     }
 
+    @Override
     public PrivateKey getPrivateKey() {
         return getPrivateKey(mCert);
     }
 
+    @Override
     public PrivateKey getPrivateKey(org.mozilla.jss.crypto.X509Certificate cert) {
         if (cert == null) {
             cert = mCert;
@@ -289,6 +308,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
         // XXX
     }
 
+    @Override
     public SymmetricKey unwrap_sym(byte encSymmKey[], WrappingParams params) throws Exception {
         return unwrap_session_key(getToken(), encSymmKey, SymmetricKey.Usage.WRAP, params);
     }
@@ -296,6 +316,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
     /**
      * Decrypts the user private key.  This is called on the transport unit.
      */
+    @Override
     public byte[] decryptExternalPrivate(byte encSymmKey[],
             String wrapOID, byte wrapIV[], byte encValue[],
             org.mozilla.jss.crypto.X509Certificate transCert)
@@ -343,6 +364,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
      * External unwrapping. Unwraps the symmetric key using
      * the transport private key.
      */
+    @Override
     public SymmetricKey unwrap_symmetric(byte encSymmKey[],
             String symmAlgOID, byte symmAlgParams[],
             byte encValue[], SymmetricKey.Type algorithm, int strength)
@@ -377,6 +399,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
      * External unwrapping. Unwraps the data using
      * the transport private key.
      */
+    @Override
     public PrivateKey unwrap(byte encSymmKey[],
             String wrapOID, byte wrapIV[],
             byte encValue[], PublicKey pubKey,

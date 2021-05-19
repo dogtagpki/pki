@@ -64,6 +64,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
                 DEF_KEY_ALGORITHM);
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String params[] = {
                 "algorithms;choice(RSA\\,DSA,RSA,DSA);Certificate's key can be one of these algorithms",
@@ -92,6 +93,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EPolicyException {
 
@@ -154,6 +156,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
 
         PolicyResult result = PolicyResult.ACCEPTED;
@@ -199,6 +202,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
         StringBuffer sb = new StringBuffer();
@@ -218,6 +222,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return defConfParams;
     }

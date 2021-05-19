@@ -118,6 +118,7 @@ public class LdapSimpleExpression implements ILdapExpression {
             hasWildCard = false;
     }
 
+    @Override
     public boolean evaluate(SessionContext sc) throws ELdapException {
 
         Object givenVal;
@@ -158,6 +159,7 @@ public class LdapSimpleExpression implements ILdapExpression {
 
     }
 
+    @Override
     public boolean evaluate(IRequest req)
             throws ELdapException {
         boolean result = false;
@@ -334,6 +336,7 @@ public class LdapSimpleExpression implements ILdapExpression {
         return result;
     }
 
+    @Override
     public String toString() {
         String op = null;
 

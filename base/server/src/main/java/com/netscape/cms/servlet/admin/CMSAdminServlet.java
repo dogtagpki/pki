@@ -109,6 +109,7 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * Initializes this servlet.
      */
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
     }
@@ -116,6 +117,7 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -123,6 +125,7 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * Serves HTTP request.
      */
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         super.service(req, resp);

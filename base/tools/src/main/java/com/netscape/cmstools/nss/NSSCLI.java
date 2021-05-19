@@ -27,6 +27,7 @@ public class NSSCLI extends CLI {
         addModule(new NSSKeyCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

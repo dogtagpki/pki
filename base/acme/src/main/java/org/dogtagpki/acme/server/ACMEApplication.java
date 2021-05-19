@@ -47,10 +47,12 @@ public class ACMEApplication extends Application {
         singletons.add(new ACMERequestFilter());
     }
 
+    @Override
     public Set<Class<?>> getClasses() {
         return classes;
     }
 
+    @Override
     public Set<Object> getSingletons() {
         return singletons;
     }

@@ -50,6 +50,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
         addValueName(VAL_NAME);
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_NAME)) {
             return new Descriptor(IDescriptor.STRING, null, null,
@@ -59,6 +60,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -91,6 +93,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -115,6 +118,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale,
                 "CMS_PROFILE_DEF_AUTHTOKEN_SUBJECT_NAME");
@@ -123,6 +127,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
 

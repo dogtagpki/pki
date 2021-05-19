@@ -98,14 +98,17 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         mDefErrorIfDown = defErrorIfDown;
     }
 
+    @Override
     public int totalConn() {
         return mTotal;
     }
 
+    @Override
     public synchronized int freeConn() {
         return mNumConns;
     }
 
+    @Override
     public int maxConn() {
         return mMaxConns;
     }
@@ -397,6 +400,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      * }
      * </pre>
      */
+    @Override
     public LDAPConnection getConn()
             throws ELdapException {
         return getConn(true);
@@ -528,6 +532,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      * }
      * </pre>
      */
+    @Override
     public synchronized void returnConn(LDAPConnection conn) {
         if (conn == null) {
             return;
@@ -557,6 +562,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         notify();
     }
 
+    @Override
     protected void finalize()
             throws Exception {
         reset();
@@ -568,6 +574,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      * shutdown or process exit.
      * useful only if no connections are outstanding.
      */
+    @Override
     public synchronized void reset()
             throws ELdapException {
         logger.debug("Destroying LdapBoundConnFactory(" + id + ")");

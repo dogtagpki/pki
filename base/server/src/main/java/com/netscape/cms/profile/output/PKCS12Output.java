@@ -48,6 +48,7 @@ public class PKCS12Output extends EnrollOutput {
     /**
      * Retrieves the localizable name of this policy.
      */
+    @Override
     public String getName(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_OUTPUT_PKCS12");
     }
@@ -55,6 +56,7 @@ public class PKCS12Output extends EnrollOutput {
     /**
      * Retrieves the localizable description of this policy.
      */
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_OUTPUT_PKCS12_TEXT");
     }
@@ -62,6 +64,7 @@ public class PKCS12Output extends EnrollOutput {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(Map<String, String> ctx, IRequest request)
             throws EProfileException {
     }
@@ -70,6 +73,7 @@ public class PKCS12Output extends EnrollOutput {
      * Retrieves the descriptor of the given value
      * parameter by name.
      */
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_P12_RESPONSE)) {
             return new Descriptor(IDescriptor.SERVER_SIDE_KEYGEN_PKCS12, null,
@@ -80,6 +84,7 @@ public class PKCS12Output extends EnrollOutput {
         return null;
     }
 
+    @Override
     public String getValue(String name, Locale locale, IRequest request)
             throws EProfileException {
 

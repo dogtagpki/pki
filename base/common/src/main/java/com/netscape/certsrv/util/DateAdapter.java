@@ -30,10 +30,12 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DateAdapter extends XmlAdapter<String, Date> {
 
+    @Override
     public Date unmarshal(String value) throws Exception {
         return StringUtils.isEmpty(value) ? null : new Date(Long.parseLong(value));
     }
 
+    @Override
     public String marshal(Date value) throws Exception {
         return value == null ? null : Long.toString(value.getTime());
     }

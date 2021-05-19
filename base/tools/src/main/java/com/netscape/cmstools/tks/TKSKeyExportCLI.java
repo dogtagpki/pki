@@ -27,16 +27,19 @@ public class TKSKeyExportCLI extends CommandCLI {
         this.tksKeyCLI = tksKeyCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <Key ID>", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "output", true, "File to store the exported key");
         option.setArgName("path");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

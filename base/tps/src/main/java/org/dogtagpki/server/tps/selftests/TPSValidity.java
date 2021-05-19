@@ -61,6 +61,7 @@ public class TPSValidity extends ASelfTest {
      * @exception EInvalidSelfTestException subsystem has invalid name/value
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
+    @Override
     public void initSelfTest(ISelfTestSubsystem subsystem, String instanceName,
             IConfigStore parameters) throws EDuplicateSelfTestException,
             EInvalidSelfTestException, EMissingSelfTestException {
@@ -92,6 +93,7 @@ public class TPSValidity extends ASelfTest {
      *
      * @exception ESelfTestException failed to start
      */
+    @Override
     public void startupSelfTest() throws ESelfTestException {
     }
 
@@ -100,6 +102,7 @@ public class TPSValidity extends ASelfTest {
      * anytime after initialization.
      * <P>
      */
+    @Override
     public void shutdownSelfTest() {
     }
 
@@ -110,6 +113,7 @@ public class TPSValidity extends ASelfTest {
      *
      * @return instanceName of this self test
      */
+    @Override
     public String getSelfTestName() {
         return super.getSelfTestName();
     }
@@ -121,6 +125,7 @@ public class TPSValidity extends ASelfTest {
      *
      * @return configuration store (self test parameters) of this subsystem
      */
+    @Override
     public IConfigStore getSelfTestConfigStore() {
         return super.getSelfTestConfigStore();
     }
@@ -133,6 +138,7 @@ public class TPSValidity extends ASelfTest {
      * @param locale locale of the client that requests the description
      * @return description of self test
      */
+    @Override
     public String getSelfTestDescription(Locale locale) {
         return CMS.getUserMessage(locale,
                 "CMS_SELFTESTS_TPS_VALIDITY_DESCRIPTION");
@@ -145,6 +151,7 @@ public class TPSValidity extends ASelfTest {
      * @param logger specifies logging subsystem
      * @exception Exception self test exception
      */
+    @Override
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();

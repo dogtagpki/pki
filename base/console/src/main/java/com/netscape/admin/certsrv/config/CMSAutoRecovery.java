@@ -92,6 +92,7 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
         setDisplay();
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("ok")) {
 
@@ -263,11 +264,17 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
         setLabelCellEditor(mTable, 2);
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {}
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {}
+    @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
     public void mouseExited(MouseEvent e) {}
+    @Override
     public void valueChanged(ListSelectionEvent e){
     }
 }

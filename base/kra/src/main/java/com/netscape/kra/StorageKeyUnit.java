@@ -133,6 +133,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         throw new EBaseException(CMS.getUserMessage("CMS_INVALID_OPERATION"));
     }
 
+    @Override
     public WrappingParams getWrappingParams(boolean encrypt) throws Exception {
         String choice = null;
         try {
@@ -551,6 +552,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     /**
      * Logins to this token.
      */
+    @Override
     public void login(String pin) throws EBaseException {
         if (mConfig.getString(PROP_HARDWARE, null) != null) {
             Password password = new Password(pin.toCharArray());
@@ -588,6 +590,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     /**
      * Logins to this token.
      */
+    @Override
     public void login(Credential creds[])
             throws EBaseException {
         String pwd = constructPassword(creds);
@@ -598,6 +601,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     /**
      * Logout from this token.
      */
+    @Override
     public void logout() {
         try {
             if (mConfig.getString(PROP_HARDWARE, null) != null) {
@@ -615,6 +619,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     /**
      * Returns a list of recovery agent identifiers.
      */
+    @Override
     public Enumeration<String> getAgentIdentifiers() {
         Vector<String> v = new Vector<String>();
 
@@ -636,6 +641,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     /**
      * Changes agent password.
      */
+    @Override
     public boolean changeAgentPassword(String id, String oldpwd,
             String newpwd) throws EBaseException {
 
@@ -672,6 +678,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     /**
      * Changes the m out of n recovery schema.
      */
+    @Override
     public boolean changeAgentMN(int new_n, int new_m,
             Credential oldcreds[],
             Credential newcreds[])
@@ -743,6 +750,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     /**
      * Returns number of recovery agents.
      */
+    @Override
     public int getNoOfAgents() throws EBaseException {
         return mStorageConfig.getInteger(PROP_N);
     }
@@ -751,14 +759,17 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
      * Returns number of recovery agents required for
      * recovery operation.
      */
+    @Override
     public int getNoOfRequiredAgents() throws EBaseException {
         return mStorageConfig.getInteger(PROP_M);
     }
 
+    @Override
     public void setNoOfRequiredAgents(int number) {
         mStorageConfig.putInteger(PROP_M, number);
     }
 
+    @Override
     public CryptoToken getInternalToken() {
         try {
             return CryptoManager.getInstance().getInternalKeyStorageToken();
@@ -767,6 +778,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         }
     }
 
+    @Override
     public CryptoToken getToken() {
         try {
             String tokenName = mConfig.getString(PROP_HARDWARE, null);
@@ -777,6 +789,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         }
     }
 
+    @Override
     public CryptoToken getToken(org.mozilla.jss.crypto.X509Certificate cert) {
         return getToken();
     }
@@ -784,11 +797,13 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     /**
      * Returns the certificate blob.
      */
+    @Override
     public PublicKey getPublicKey() {
         // NEED to move this key into internal storage token.
         return mCert.getPublicKey();
     }
 
+    @Override
     public PrivateKey getPrivateKey() {
 
         if (!mKeySplitting) {
@@ -808,6 +823,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         }
     }
 
+    @Override
     public PrivateKey getPrivateKey(org.mozilla.jss.crypto.X509Certificate cert) {
         return getPrivateKey();
     }
@@ -1100,6 +1116,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
      * Methods to encrypt and store secrets in the database
      ***************************************************************************************/
 
+    @Override
     public byte[] encryptInternalPrivate(byte priKey[], WrappingParams params) throws Exception {
         try (DerOutputStream out = new DerOutputStream()) {
             logger.debug("StorageKeyUnit.encryptInternalPrivate");
@@ -1144,10 +1161,12 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         }
     }
 
+    @Override
     public byte[] wrap(PrivateKey privKey, WrappingParams params) throws Exception {
         return _wrap(privKey,null, params);
     }
 
+    @Override
     public byte[] wrap(SymmetricKey symmKey, WrappingParams params) throws Exception {
         return _wrap(null,symmKey, params);
     }
@@ -1226,6 +1245,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
      * Methods to decrypt and retrieve secrets from the database
      ***************************************************************************************/
 
+    @Override
     public byte[] decryptInternalPrivate(byte wrappedKeyData[], WrappingParams params)
             throws Exception {
         logger.debug("StorageKeyUnit.decryptInternalPrivate");
@@ -1252,6 +1272,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
                 params.getPayloadEncryptionAlgorithm());
     }
 
+    @Override
     public SymmetricKey unwrap(byte wrappedKeyData[], SymmetricKey.Type algorithm, int keySize,
             WrappingParams params) throws Exception {
         DerValue val = new DerValue(wrappedKeyData);
@@ -1278,6 +1299,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
                 params.getPayloadWrappingIV());
     }
 
+    @Override
     public PrivateKey unwrap(byte wrappedKeyData[], PublicKey pubKey, boolean temporary, WrappingParams params)
             throws Exception {
         DerValue val = new DerValue(wrappedKeyData);

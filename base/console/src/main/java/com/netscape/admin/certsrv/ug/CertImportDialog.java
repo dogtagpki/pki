@@ -115,7 +115,8 @@ public class CertImportDialog extends JDialog
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
-	public void actionPerformed(ActionEvent evt) {
+	@Override
+    public void actionPerformed(ActionEvent evt) {
 
         if (evt.getSource().equals(mPaste)) {
            mTextArea.paste();
@@ -136,26 +137,34 @@ public class CertImportDialog extends JDialog
 	}
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         setButtons();
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {}
+    @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
     public void mouseExited(MouseEvent e) {
         setButtons();
     }
 
     //== DocumentListener ==
+    @Override
     public void insertUpdate(DocumentEvent e) {
         setButtons();
     }
 
+    @Override
     public void removeUpdate(DocumentEvent e){
         setButtons();
     }
 
+    @Override
     public void changedUpdate(DocumentEvent e){
         setButtons();
     }

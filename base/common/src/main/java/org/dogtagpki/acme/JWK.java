@@ -66,6 +66,7 @@ public class JWK {
         return mapper.readValue(json, JWK.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

@@ -83,6 +83,7 @@ class NameType {
         return map.get(s);
     }
 
+    @Override
     public String toString() {
         return stringRep;
     }
@@ -204,6 +205,7 @@ public class CRLDistributionPointsExt extends APolicyRule
         mExtParams = org.mozilla.jss.netscape.security.util.Utils.getStringArrayFromVector(v);
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         if (mExtParams == null) {
             setExtendedPluginInfo();
@@ -215,6 +217,7 @@ public class CRLDistributionPointsExt extends APolicyRule
     /**
      * Performs one-time initialization of the policy.
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         // Register the CRL Distribution Points extension.
@@ -397,6 +400,7 @@ public class CRLDistributionPointsExt extends APolicyRule
     /**
      * Applies the policy to the given request.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
 
         // if the extension was not configured correctly, just skip it
@@ -460,6 +464,7 @@ public class CRLDistributionPointsExt extends APolicyRule
     }
 
     // parameters must be entered in the config file
+    @Override
     public Vector<String> getDefaultParams() {
         for (int i = DEFAULT_NUM_BLANK_POINTS; i < mNumPoints; i++) {
             defaultParams.addElement(PROP_POINT_NAME + i + "=");
@@ -476,6 +481,7 @@ public class CRLDistributionPointsExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         return mParams;
     }

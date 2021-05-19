@@ -49,6 +49,7 @@ public class PasswordCellRenderer extends JLabel
         setFont(temp.getFont());
     }
 
+    @Override
     public Component getListCellRendererComponent(JList<? extends String> list,
             String value, int index, boolean isSelected, boolean cellHasFocus) {
         StringBuffer buf = new StringBuffer();
@@ -60,6 +61,7 @@ public class PasswordCellRenderer extends JLabel
         return this;
     }
 
+    @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
         boolean isSelected, boolean hasFocus, int row, int column) {
         if (value!=null) {

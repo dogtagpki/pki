@@ -58,10 +58,12 @@ public class RemoveBasicConstraintsExt extends APolicyRule
         DESC = "Remove Basic Constraints extension";
     }
 
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
     }
 
+    @Override
     public PolicyResult apply(IRequest req) {
 
         // get cert info.
@@ -114,6 +116,7 @@ public class RemoveBasicConstraintsExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> params = new Vector<String>();
 
@@ -125,12 +128,14 @@ public class RemoveBasicConstraintsExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> defParams = new Vector<String>();
 
         return defParams;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 IExtendedPluginInfo.HELP_TOKEN +

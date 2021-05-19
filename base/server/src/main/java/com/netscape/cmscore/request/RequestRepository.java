@@ -403,6 +403,7 @@ public class RequestRepository extends Repository {
         return new ListEnumeration(results);
     }
 
+    @Override
     public BigInteger getLastSerialNumberInRange(BigInteger min, BigInteger max) throws EBaseException {
 
         logger.info("RequestRepository: Getting last serial number in range");

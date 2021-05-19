@@ -63,6 +63,7 @@ public class HttpRequest extends HttpMessage {
     /**
      * write request to the http client
      */
+    @Override
     public void write(OutputStreamWriter writer)
             throws IOException {
         if (mMethod == null || mURI == null) {
@@ -80,6 +81,7 @@ public class HttpRequest extends HttpMessage {
     /**
      * parse a http request from a http client
      */
+    @Override
     public void parse(BufferedReader reader)
             throws IOException {
         super.parse(reader);
@@ -107,6 +109,7 @@ public class HttpRequest extends HttpMessage {
         }
     }
 
+    @Override
     public void reset() {
         mMethod = null;
         mURI = null;

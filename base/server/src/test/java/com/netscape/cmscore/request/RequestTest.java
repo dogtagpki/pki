@@ -35,10 +35,12 @@ public class RequestTest extends CMSBaseTestCase {
         super(name);
     }
 
+    @Override
     public void cmsTestSetUp() {
         request = new Request(new RequestId("0xabcdef"));
     }
 
+    @Override
     public void cmsTestTearDown() {
     }
 
@@ -574,6 +576,7 @@ public class RequestTest extends CMSBaseTestCase {
         public X509CertInfoStub() {
         }
 
+        @Override
         public byte[] getEncodedInfo(boolean ignoreCache) throws CertificateEncodingException {
             getEncodedCalled = true;
             return new byte[] {};
@@ -617,6 +620,7 @@ public class RequestTest extends CMSBaseTestCase {
         private static final long serialVersionUID = -9088436260566619005L;
         boolean getEncodedCalled = false;
 
+        @Override
         public byte[] getEncoded() throws CRLException {
             getEncodedCalled = true;
             return new byte[] {};

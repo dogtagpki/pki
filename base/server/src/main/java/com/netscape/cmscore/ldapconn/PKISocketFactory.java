@@ -157,6 +157,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         return s;
     }
 
+    @Override
     public Socket makeSocket(String host, int port) throws LDAPException {
         Socket s = null;
 
@@ -204,10 +205,12 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         return s;
     }
 
+    @Override
     public boolean isClientAuth() {
         return mClientAuth;
     }
 
+    @Override
     public Object getCipherSuites() {
         return null;
     }
@@ -240,6 +243,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
             this.sc = sc;
         }
 
+        @Override
         public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
             log("SSL handshake happened");
         }

@@ -51,6 +51,7 @@ public class CMSHoldInstructionExtension
     public CMSHoldInstructionExtension() {
     }
 
+    @Override
     public Extension setCRLExtensionCriticality(Extension ext,
             boolean critical) {
         HoldInstructionExtension holdInstrExt = null;
@@ -67,6 +68,7 @@ public class CMSHoldInstructionExtension
         return holdInstrExt;
     }
 
+    @Override
     public Extension getCRLExtension(IConfigStore config,
             Object ip,
             boolean critical) {
@@ -100,10 +102,12 @@ public class CMSHoldInstructionExtension
         return holdInstrExt;
     }
 
+    @Override
     public String getCRLExtOID() {
         return PKIXExtensions.HoldInstructionCode_Id.toString();
     }
 
+    @Override
     public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
         String instruction = null;
 
@@ -126,6 +130,7 @@ public class CMSHoldInstructionExtension
         nvp.put(PROP_INSTR, instruction);
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 //"type;choice(CRLExtension,CRLEntryExtension);"+

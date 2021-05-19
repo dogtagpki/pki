@@ -31,6 +31,7 @@ public class RESTServlet extends HttpServlet {
 
     private static final long serialVersionUID = -466592331169846158L;
 
+    @Override
     public void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         logger.debug("RESTServlet: Attempt to access REST services using " + request.getRequestURI());

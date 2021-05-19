@@ -39,18 +39,22 @@ public class TKSEngine extends CMSEngine {
         return (TKSEngine) CMS.getCMSEngine();
     }
 
+    @Override
     public EngineConfig createConfig(ConfigStorage storage) throws Exception {
         return new TKSEngineConfig(storage);
     }
 
+    @Override
     public TKSEngineConfig getConfig() {
         return (TKSEngineConfig) mConfig;
     }
 
+    @Override
     public TKSConfigurator createConfigurator() throws Exception {
         return new TKSConfigurator(this);
     }
 
+    @Override
     public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof TKSAuthority) {

@@ -40,6 +40,7 @@ public class GenSuccessTemplateFiller implements ICMSTemplateFiller {
      * @param locale locale of template.
      * @param e unexpected exception e. ignored.
      */
+    @Override
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
         ArgBlock fixed = new ArgBlock();

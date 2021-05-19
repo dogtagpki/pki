@@ -197,6 +197,7 @@ public class ProfilePolicySelectionDialog extends JDialog
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent evt) {
 
 		if (evt.getSource().equals(mOK)) {
@@ -269,15 +270,20 @@ public class ProfilePolicySelectionDialog extends JDialog
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         setArrowButtons();
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {
         setArrowButtons();
     }
+    @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
     public void mouseExited(MouseEvent e) {
         setArrowButtons();
     }
@@ -422,6 +428,7 @@ public class ProfilePolicySelectionDialog extends JDialog
         mOK.setEnabled(true);
     }
 
+    @Override
     public void valueChanged(ListSelectionEvent e) {
         if (e.getSource().equals(mDefaultList)) {
             if (mDefaultList.getSelectedIndex() < 0)

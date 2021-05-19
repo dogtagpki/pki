@@ -68,6 +68,7 @@ public class KeyConstraint extends EnrollConstraint {
         addConfigName(CONFIG_KEY_PARAMETERS);
     }
 
+    @Override
     public void init(IConfigStore config) throws EProfileException {
         super.init(config);
 
@@ -86,6 +87,7 @@ public class KeyConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_KEY_TYPE)) {
             return new Descriptor(IDescriptor.CHOICE, "-,RSA,EC",
@@ -103,6 +105,7 @@ public class KeyConstraint extends EnrollConstraint {
      * Validates the request. The request is not modified
      * during the validation.
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         try {
@@ -235,6 +238,7 @@ public class KeyConstraint extends EnrollConstraint {
         return len;
     }
 
+    @Override
     public String getText(Locale locale) {
         String params[] = {
                 getConfig(CONFIG_KEY_TYPE),
@@ -245,6 +249,7 @@ public class KeyConstraint extends EnrollConstraint {
                 "CMS_PROFILE_CONSTRAINT_KEY_TEXT", params);
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;
@@ -253,6 +258,7 @@ public class KeyConstraint extends EnrollConstraint {
         return false;
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
 

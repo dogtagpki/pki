@@ -91,6 +91,7 @@ public class CRLManagementDialog extends AbstractDialog {
     }
 
     class CertManagementActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("CLOSE")) {
                 privateCloseInvoked();
@@ -191,6 +192,7 @@ public class CRLManagementDialog extends AbstractDialog {
 
         CRLAddCertDialog _crlAddCertDialog =
                 new CRLAddCertDialog(_consoleInfo, resource);
+        @Override
         protected void okInvoked() {
             _crlAddCertDialog.show(_filename.getText(),
                     _ckl.isSelected() ? "CKL" : "CRL");
@@ -211,6 +213,7 @@ public class CRLManagementDialog extends AbstractDialog {
             }
         }
 
+        @Override
         protected void helpInvoked() {
             Help help = new Help(resource);
             help.help("AddCRLCertificateDialog", "help");

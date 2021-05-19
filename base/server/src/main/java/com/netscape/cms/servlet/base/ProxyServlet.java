@@ -95,6 +95,7 @@ public class ProxyServlet extends HttpServlet {
         }
     }
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         String mMatchStrs = sc.getInitParameter("matchURIStrings");
@@ -116,6 +117,7 @@ public class ProxyServlet extends HttpServlet {
         }
     }
 
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse res) throws
             IOException, ServletException {
         RequestDispatcher dispatcher = null;
@@ -185,6 +187,7 @@ class ProxyWrapper extends HttpServletRequestWrapper {
             mValueMap = v;
     }
 
+    @Override
     public Map<String, String[]> getParameterMap() {
         try {
             // If we haven't specified any parameter mapping, just

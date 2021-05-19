@@ -39,6 +39,7 @@ public class AuditEventFactory extends LogFactory {
     /**
      * Creates a log event.
      */
+    @Override
     public ILogEvent create() {
         return new AuditEvent();
     }

@@ -139,6 +139,7 @@ public class HashEnrollServlet extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override success template to allow direct import of keygen certs.
@@ -173,6 +174,7 @@ public class HashEnrollServlet extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
         IArgBlock httpParams = cmsReq.getHttpParams();

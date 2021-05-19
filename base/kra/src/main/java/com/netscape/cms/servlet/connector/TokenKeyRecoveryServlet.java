@@ -72,6 +72,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         super();
     }
 
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
@@ -91,6 +92,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
      *
      * @return name of this servlet
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -319,6 +321,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
      *   proofOfArchival=value3
      */
 
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();

@@ -112,9 +112,13 @@ public abstract class CMSBaseUGTab  extends CMSBasePanel
         CMSAdminUtil.help(mHelpToken);
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {}
+    @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
     public void mouseExited(MouseEvent e) {}
 
     /*==========================================================
@@ -125,29 +129,36 @@ public abstract class CMSBaseUGTab  extends CMSBasePanel
 
     //=== OVERWRITE DIALOG MESSAGE =====================
 
+    @Override
     protected void showMessageDialog(String keyword, int messageType ) {
         CMSAdminUtil.showMessageDialog(mModel.getFrame(), mResource, mPanelName, keyword, messageType);
     }
 
+    @Override
     protected void showMessageDialog(String keyword) {
         showMessageDialog(keyword, ERROR_MESSAGE);
     }
 
+    @Override
     protected int showConfirmDialog(String keyword, int messageType ) {
         return CMSAdminUtil.showConfirmDialog(mModel.getFrame(), mResource, mPanelName, keyword, messageType);
     }
 
+    @Override
     protected int showConfirmDialog(String keyword) {
         return showConfirmDialog(keyword, WARNING_MESSAGE);
     }
 
+    @Override
     protected int showConfirmDialog(String keyword, String[] params) {
         return showConfirmDialog(keyword, params, WARNING_MESSAGE);
     }
 
+    @Override
     protected void showErrorDialog(String message) {
         CMSAdminUtil.showErrorDialog(mModel.getFrame(), mResource, message, ERROR_MESSAGE);
     }
 
+    @Override
     public abstract void refresh();
 }

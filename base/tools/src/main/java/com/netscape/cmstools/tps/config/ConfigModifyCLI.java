@@ -47,10 +47,12 @@ public class ConfigModifyCLI extends CommandCLI {
         this.configCLI = configCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " --input <file> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "input", true, "Input file containing general properties.");
         option.setArgName("file");
@@ -61,6 +63,7 @@ public class ConfigModifyCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

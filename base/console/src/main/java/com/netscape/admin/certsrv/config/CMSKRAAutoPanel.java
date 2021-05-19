@@ -72,6 +72,7 @@ public class CMSKRAAutoPanel extends CMSBaseUGTab {
         mHelpToken = HELPINDEX;
     }
 
+    @Override
     protected JPanel createListPanel() {
         JPanel mainPanel = new JPanel();
         GridBagLayout gb3 = new GridBagLayout();
@@ -128,6 +129,7 @@ public class CMSKRAAutoPanel extends CMSBaseUGTab {
         return mainPanel;
     }
 
+    @Override
     protected JPanel createActionPanel() {
         //edit, add, delete, help buttons required
         //actionlister to this object
@@ -138,6 +140,7 @@ public class CMSKRAAutoPanel extends CMSBaseUGTab {
         return makeJButtonPanel(buttons, true);
     }
 
+    @Override
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
@@ -185,6 +188,7 @@ public class CMSKRAAutoPanel extends CMSBaseUGTab {
         }
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
 
         if (e.getActionCommand().equals("autoButton")) {
@@ -214,6 +218,7 @@ public class CMSKRAAutoPanel extends CMSBaseUGTab {
         }
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
     }
 }

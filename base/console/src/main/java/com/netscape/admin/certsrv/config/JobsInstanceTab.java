@@ -56,7 +56,8 @@ public class JobsInstanceTab extends CMSPluginInstanceTab {
     }
 
 
-	public CMSBaseConfigDialog makeNewConfigDialog(
+	@Override
+    public CMSBaseConfigDialog makeNewConfigDialog(
 			NameValuePairs nvp,
 			JFrame parent,
 			AdminConnection conn,
@@ -70,7 +71,8 @@ public class JobsInstanceTab extends CMSPluginInstanceTab {
 			dest);
 	}
 
-	public PluginSelectionDialog getPluginSelectionDialog(
+	@Override
+    public PluginSelectionDialog getPluginSelectionDialog(
 			JFrame parent,
 			AdminConnection conn,
 			String dest,
@@ -84,6 +86,7 @@ public class JobsInstanceTab extends CMSPluginInstanceTab {
     /**
      * create the user action button panel
      */
+    @Override
     protected JPanel createUserButtonPanel() {
         //edit, add, delete, help buttons required
         //actionlister to this object

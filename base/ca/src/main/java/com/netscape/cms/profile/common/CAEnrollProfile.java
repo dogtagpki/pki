@@ -67,11 +67,13 @@ public class CAEnrollProfile extends EnrollProfile {
     public CAEnrollProfile() {
     }
 
+    @Override
     public IAuthority getAuthority() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getCA();
     }
 
+    @Override
     public X500Name getIssuerName() {
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
@@ -85,6 +87,7 @@ public class CAEnrollProfile extends EnrollProfile {
     public void populate() throws EBaseException {
     }
 
+    @Override
     public void execute(IRequest request)
             throws EProfileException, ERejectException {
 

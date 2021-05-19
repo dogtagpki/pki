@@ -78,10 +78,12 @@ public class BasicOCSPResponse implements Response {
 
     private static final Tag TAG = SEQUENCE.TAG;
 
+    @Override
     public Tag getTag() {
         return TAG;
     }
 
+    @Override
     public void encode(Tag t, OutputStream os) throws IOException {
         if (mData != null) {
             os.write(mData);
@@ -102,10 +104,12 @@ public class BasicOCSPResponse implements Response {
         }
     }
 
+    @Override
     public void encode(OutputStream os) throws IOException {
         encode(TAG, os);
     }
 
+    @Override
     public OCTET_STRING getBytes() {
         return null;
     }
@@ -156,15 +160,18 @@ public class BasicOCSPResponse implements Response {
                             Certificate.getTemplate())));
         }
 
+        @Override
         public boolean tagMatch(Tag tag) {
             return TAG.equals(tag);
         }
 
+        @Override
         public ASN1Value decode(InputStream istream)
                 throws InvalidBERException, IOException {
             return decode(TAG, istream);
         }
 
+        @Override
         public ASN1Value decode(Tag implicitTag, InputStream istream)
                 throws InvalidBERException, IOException {
             SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag, istream);

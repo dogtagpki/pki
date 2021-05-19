@@ -33,16 +33,19 @@ public class PKCS7ExportCLI extends CommandCLI {
         this.pkcs7CLI = pkcs7CLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <nickname>", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "pkcs7", true, "PKCS #7 file");
         option.setArgName("path");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

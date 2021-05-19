@@ -92,6 +92,7 @@ public class AppInfo {
         return mapper.readValue(json, AppInfo.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

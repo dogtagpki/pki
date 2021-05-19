@@ -50,6 +50,7 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
         addConfigName(CONFIG_CRITICAL);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null,
@@ -60,6 +61,7 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null,
@@ -70,6 +72,7 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -107,6 +110,7 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -147,6 +151,7 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_OCSP_NO_CHECK_EXT",
                 getConfig(CONFIG_CRITICAL));
@@ -155,6 +160,7 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         OCSPNoCheckExtension ext = createExtension();

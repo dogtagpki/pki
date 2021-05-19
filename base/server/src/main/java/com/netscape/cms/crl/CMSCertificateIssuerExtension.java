@@ -48,6 +48,7 @@ public class CMSCertificateIssuerExtension
     public CMSCertificateIssuerExtension() {
     }
 
+    @Override
     public Extension setCRLExtensionCriticality(Extension ext,
             boolean critical) {
         CertificateIssuerExtension certIssuerExt = null;
@@ -65,6 +66,7 @@ public class CMSCertificateIssuerExtension
         return certIssuerExt;
     }
 
+    @Override
     public Extension getCRLExtension(IConfigStore config,
             Object ip,
             boolean critical) {
@@ -140,10 +142,12 @@ public class CMSCertificateIssuerExtension
         return certIssuerExt;
     }
 
+    @Override
     public String getCRLExtOID() {
         return PKIXExtensions.CertificateIssuer_Id.toString();
     }
 
+    @Override
     public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
         int numNames = 0;
 
@@ -201,6 +205,7 @@ public class CMSCertificateIssuerExtension
         }
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 //"type;choice(CRLExtension,CRLEntryExtension);CRL Entry Extension type."+

@@ -39,18 +39,22 @@ public class OCSPEngine extends CMSEngine {
         return (OCSPEngine) CMS.getCMSEngine();
     }
 
+    @Override
     public EngineConfig createConfig(ConfigStorage storage) throws Exception {
         return new OCSPEngineConfig(storage);
     }
 
+    @Override
     public OCSPEngineConfig getConfig() {
         return (OCSPEngineConfig) mConfig;
     }
 
+    @Override
     public OCSPConfigurator createConfigurator() throws Exception {
         return new OCSPConfigurator(this);
     }
 
+    @Override
     public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof OCSPAuthority) {

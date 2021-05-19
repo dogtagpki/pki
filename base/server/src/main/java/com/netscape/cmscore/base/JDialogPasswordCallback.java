@@ -49,11 +49,13 @@ import org.mozilla.jss.util.PasswordCallbackInfo;
  */
 public class JDialogPasswordCallback implements PasswordCallback {
 
+    @Override
     public Password getPasswordFirstAttempt(PasswordCallbackInfo info)
             throws PasswordCallback.GiveUpException {
         return getPW(info, false);
     }
 
+    @Override
     public Password getPasswordAgain(PasswordCallbackInfo info)
             throws PasswordCallback.GiveUpException {
         return getPW(info, true);
@@ -140,6 +142,7 @@ public class JDialogPasswordCallback implements PasswordCallback {
 
         // Listener for the text field
         ActionListener getPasswordListener = new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 //input = (JPasswordField)e.getSource();
 
@@ -184,6 +187,7 @@ public class JDialogPasswordCallback implements PasswordCallback {
 
         JButton cancel = new JButton("Cancel");
         ActionListener buttonListener = new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 pwHolder.cancelled = true;
                 f.dispose();
@@ -213,6 +217,7 @@ public class JDialogPasswordCallback implements PasswordCallback {
         JDialog d = new JDialog(f, "Fedora Certificate System", true);
 
         WindowListener windowListener = new WindowAdapter() {
+            @Override
             public void windowOpened(WindowEvent e) {
                 pwField.requestFocus();
             }

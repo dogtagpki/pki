@@ -53,6 +53,7 @@ public class MNSchemeWizard extends WizardWidget {
     /*==========================================================
 	 * protected methods
      *==========================================================*/
+    @Override
     protected void callHelp() {
         if (mCurrent instanceof IWizardPanel) {
 			((IWizardPanel)mCurrent).callHelp();

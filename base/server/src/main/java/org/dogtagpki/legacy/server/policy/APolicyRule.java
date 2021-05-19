@@ -70,6 +70,7 @@ public abstract class APolicyRule implements IPolicyRule {
      *
      * @param config The config store reference
      */
+    @Override
     public abstract void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException;
 
@@ -79,6 +80,7 @@ public abstract class APolicyRule implements IPolicyRule {
      *
      * @return The Description for this rule.
      */
+    @Override
     public String getDescription() {
         return DESC;
     }
@@ -89,6 +91,7 @@ public abstract class APolicyRule implements IPolicyRule {
      *
      * @param exp The predicate expression for the rule.
      */
+    @Override
     public void setPredicate(IExpression exp) {
         mFilterExp = exp;
     }
@@ -99,6 +102,7 @@ public abstract class APolicyRule implements IPolicyRule {
      *
      * @return The predicate expression for the rule.
      */
+    @Override
     public IExpression getPredicate() {
         return mFilterExp;
     }
@@ -109,6 +113,7 @@ public abstract class APolicyRule implements IPolicyRule {
      *
      * @return The name of the policy class.
      */
+    @Override
     public String getName() {
         return NAME;
     }
@@ -119,6 +124,7 @@ public abstract class APolicyRule implements IPolicyRule {
      *
      * @param instanceName The name of the rule instance.
      */
+    @Override
     public void setInstanceName(String instanceName) {
         mInstanceName = instanceName;
     }
@@ -130,6 +136,7 @@ public abstract class APolicyRule implements IPolicyRule {
      * @return The name of the policy rule instance if set, else
      *         the name of the rule class.
      */
+    @Override
     public String getInstanceName() {
         return mInstanceName != null ? mInstanceName : NAME;
     }
@@ -141,6 +148,7 @@ public abstract class APolicyRule implements IPolicyRule {
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public abstract PolicyResult apply(IRequest req);
 
     /**
@@ -148,6 +156,7 @@ public abstract class APolicyRule implements IPolicyRule {
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public abstract Vector<String> getInstanceParams();
 
     /**
@@ -155,8 +164,10 @@ public abstract class APolicyRule implements IPolicyRule {
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public abstract Vector<String> getDefaultParams();
 
+    @Override
     public void setError(IRequest req, String format, Object[] params) {
         setPolicyException(req, format, params);
     }
@@ -177,6 +188,7 @@ public abstract class APolicyRule implements IPolicyRule {
         setPolicyException(req, format, np);
     }
 
+    @Override
     public void setPolicyException(IRequest req, EBaseException ex) {
         Vector<String> ev = req.getExtDataInStringVector(IRequest.ERRORS);
         if (ev == null) {

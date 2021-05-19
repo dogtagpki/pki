@@ -71,14 +71,17 @@ public class AuthToken implements IAuthToken {
         set(TOKEN_AUTHTIME, new Date());
     }
 
+    @Override
     public Object get(String attrName) {
         return mAttrs.get(attrName);
     }
 
+    @Override
     public String getInString(String attrName) {
         return (String) mAttrs.get(attrName);
     }
 
+    @Override
     public boolean set(String attrName, String value) {
         if (value == null) {
             return false;
@@ -101,10 +104,12 @@ public class AuthToken implements IAuthToken {
      *
      * @return Enumeration of all attribute names in this AuthToken.
      */
+    @Override
     public Enumeration<String> getElements() {
         return (mAttrs.keys());
     }
 
+    @Override
     public byte[] getInByteArray(String name) {
         String value = getInString(name);
         if (value == null) {
@@ -113,6 +118,7 @@ public class AuthToken implements IAuthToken {
         return Utils.base64decode(value);
     }
 
+    @Override
     public boolean set(String name, byte[] value) {
         if (value == null) {
             return false;
@@ -120,6 +126,7 @@ public class AuthToken implements IAuthToken {
         return set(name, Utils.base64encode(value, true));
     }
 
+    @Override
     public Integer getInInteger(String name) {
         String strVal = getInString(name);
         if (strVal == null) {
@@ -132,6 +139,7 @@ public class AuthToken implements IAuthToken {
         }
     }
 
+    @Override
     public boolean set(String name, Integer value) {
         if (value == null) {
             return false;
@@ -139,6 +147,7 @@ public class AuthToken implements IAuthToken {
         return set(name, value.toString());
     }
 
+    @Override
     public BigInteger[] getInBigIntegerArray(String name) {
         String value = getInString(name);
         if (value == null) {
@@ -159,6 +168,7 @@ public class AuthToken implements IAuthToken {
         return result;
     }
 
+    @Override
     public boolean set(String name, BigInteger[] value) {
         if (value == null) {
             return false;
@@ -173,6 +183,7 @@ public class AuthToken implements IAuthToken {
         return set(name, buffer.toString());
     }
 
+    @Override
     public Date getInDate(String name) {
         String value = getInString(name);
         if (value == null) {
@@ -185,6 +196,7 @@ public class AuthToken implements IAuthToken {
         }
     }
 
+    @Override
     public boolean set(String name, Date value) {
         if (value == null) {
             return false;
@@ -192,6 +204,7 @@ public class AuthToken implements IAuthToken {
         return set(name, String.valueOf(value.getTime()));
     }
 
+    @Override
     public String[] getInStringArray(String name) {
         String[] stringValues;
 
@@ -212,6 +225,7 @@ public class AuthToken implements IAuthToken {
         return stringValues;
     }
 
+    @Override
     public boolean set(String name, String[] value) {
         if (value == null) {
             return false;
@@ -229,6 +243,7 @@ public class AuthToken implements IAuthToken {
         }
     }
 
+    @Override
     public X509CertImpl getInCert(String name) {
         byte[] data = getInByteArray(name);
         if (data == null) {
@@ -241,6 +256,7 @@ public class AuthToken implements IAuthToken {
         }
     }
 
+    @Override
     public boolean set(String name, X509CertImpl value) {
         if (value == null) {
             return false;
@@ -254,6 +270,7 @@ public class AuthToken implements IAuthToken {
         return set(name, out.toByteArray());
     }
 
+    @Override
     public CertificateExtensions getInCertExts(String name) throws IOException {
         CertificateExtensions exts = null;
         byte[] data = getInByteArray(name);
@@ -265,6 +282,7 @@ public class AuthToken implements IAuthToken {
         return exts;
     }
 
+    @Override
     public boolean set(String name, CertificateExtensions value) {
         if (value == null) {
             return false;
@@ -280,6 +298,7 @@ public class AuthToken implements IAuthToken {
         return set(name, out.toByteArray());
     }
 
+    @Override
     public Certificates getInCertificates(String name) throws IOException, CertificateException {
         X509CertImpl[] certArray;
 
@@ -298,6 +317,7 @@ public class AuthToken implements IAuthToken {
         return new Certificates(certArray);
     }
 
+    @Override
     public boolean set(String name, Certificates value) {
         if (value == null) {
             return false;
@@ -324,6 +344,7 @@ public class AuthToken implements IAuthToken {
         }
     }
 
+    @Override
     public byte[][] getInByteArrayArray(String name) throws IOException {
         byte[][] retval;
 
@@ -340,6 +361,7 @@ public class AuthToken implements IAuthToken {
         return retval;
     }
 
+    @Override
     public boolean set(String name, byte[][] value) {
         if (value == null) {
             return false;

@@ -64,6 +64,7 @@ public class MetaInfoMapper extends DBAttrMapper {
     /**
      * Returns a list of supported ldap attribute names.
      */
+    @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
         return v.elements();
     }
@@ -71,6 +72,7 @@ public class MetaInfoMapper extends DBAttrMapper {
     /**
      * Maps object into ldap attribute set.
      */
+    @Override
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
@@ -105,6 +107,7 @@ public class MetaInfoMapper extends DBAttrMapper {
      * Maps LDAP attributes into object, and put the object into
      * 'parent'.
      */
+    @Override
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
             String name, IDBObj parent) throws EBaseException {
         LDAPAttribute attr = attrs.getAttribute(mLdapName);
@@ -128,6 +131,7 @@ public class MetaInfoMapper extends DBAttrMapper {
      * Possible search filter:
      * (&(metaInfo=reserver0:value0)(metaInfo=reserved1:value1))
      */
+    @Override
     public String mapSearchFilter(String name, String op,
             String value) throws EBaseException {
         return mLdapName + op + value;

@@ -85,6 +85,7 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
     public HashAuthentication() {
     }
 
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
@@ -194,6 +195,7 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
         return "{SHA}" + b64E;
     }
 
+    @Override
     public void shutdown() {
     }
 
@@ -205,6 +207,7 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
      * @exception EInvalidCredentials If the uid and password are not valid
      * @exception EBaseException If an internal error occurs.
      */
+    @Override
     public IAuthToken authenticate(IAuthCredentials authCreds)
             throws EBaseException {
         AuthToken token = new AuthToken(this);
@@ -230,6 +233,7 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
      *
      * @return Array of required credentials.
      */
+    @Override
     public String[] getRequiredCreds() {
         return mRequiredCreds;
     }
@@ -239,6 +243,7 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
      *
      * @return configuration store
      */
+    @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
@@ -246,6 +251,7 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
     /**
      * gets the name of this authentication manager instance
      */
+    @Override
     public String getName() {
         return mName;
     }
@@ -253,10 +259,12 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
     /**
      * gets the plugin name of this authentication manager.
      */
+    @Override
     public String getImplName() {
         return mImplName;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] s = Utils.getStringArrayFromVector(mExtendedPluginInfo);
 
@@ -271,6 +279,7 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
      *
      * @return String array of configuration parameter names.
      */
+    @Override
     public String[] getConfigParams() {
         return (mConfigParams);
     }

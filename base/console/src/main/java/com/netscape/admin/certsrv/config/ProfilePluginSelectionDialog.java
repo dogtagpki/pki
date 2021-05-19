@@ -79,6 +79,7 @@ public class ProfilePluginSelectionDialog extends PluginSelectionDialog
         setDisplay();
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
 
         if (evt.getSource().equals(mOK)) {
@@ -132,6 +133,7 @@ public class ProfilePluginSelectionDialog extends PluginSelectionDialog
     }
 
     //this returns the default configuration
+    @Override
     protected NameValuePairs getDefaultConfig() throws EAdminException {
         String id = mDataModel.getObjectValueAt(mList.getSelectedIndex());
         NameValuePairs response;
@@ -144,6 +146,7 @@ public class ProfilePluginSelectionDialog extends PluginSelectionDialog
     }
 
     //save order information to the server
+    @Override
     protected boolean update() {
 
         NameValuePairs response;

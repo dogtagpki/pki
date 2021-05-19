@@ -98,6 +98,7 @@ public class ACIDialog extends JDialog
         setDisplay();
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mCancel)) {
             mDone = false;
@@ -241,6 +242,7 @@ public class ACIDialog extends JDialog
         return result;
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getSource() == mList) {
             if (mList.getSelectedIndex() < 0)
@@ -263,10 +265,14 @@ public class ACIDialog extends JDialog
         mHelpArea.setText(text);
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {
     }
+    @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
     public void mouseExited(MouseEvent e) {
     }
 

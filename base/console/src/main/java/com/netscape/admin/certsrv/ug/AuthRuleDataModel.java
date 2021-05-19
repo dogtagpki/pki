@@ -45,13 +45,15 @@ public class AuthRuleDataModel extends CMSRuleDataModel
         super();
     }
 
-	protected String[] getColumns() {
+	@Override
+    protected String[] getColumns() {
 		Debug.println("PolicyRuleDataModel.getColumns()");
 		String x[] = {RULE, PLUGIN};
 		return x;
 	}
 
-	    public void processData(Object data) {
+	    @Override
+        public void processData(Object data) {
         Vector<Object> v = new Vector<>();
         NameValuePairs obj = (NameValuePairs) data;
 

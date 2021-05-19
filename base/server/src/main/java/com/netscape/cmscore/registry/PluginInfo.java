@@ -38,14 +38,17 @@ public class PluginInfo implements IPluginInfo {
         mClassPath = classPath;
     }
 
+    @Override
     public String getName(Locale locale) {
         return mName;
     }
 
+    @Override
     public String getDescription(Locale locale) {
         return mDesc;
     }
 
+    @Override
     public String getClassName() {
         return mClassPath;
     }

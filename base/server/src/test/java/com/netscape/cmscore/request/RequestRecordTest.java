@@ -25,11 +25,13 @@ public class RequestRecordTest extends CMSBaseTestCase {
         super(name);
     }
 
+    @Override
     public void cmsTestSetUp() {
         requestRecord = new RequestRecord();
         request = new Request(new RequestId("0xabcdef"));
     }
 
+    @Override
     public void cmsTestTearDown() {
     }
 
@@ -120,6 +122,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         public boolean addCalledWithExtData = false;
         public Object addExtDataObject = null;
 
+        @Override
         public void add(String name, int op, Object value) {
             if (RequestRecord.ATTR_EXT_DATA.equals(name)) {
                 addCalledWithExtData = true;
@@ -131,6 +134,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
     class DBSubsystemStub extends DBSubsystem {
         DBRegistryStub registry = new DBRegistryStub();
 
+        @Override
         public DBRegistry getRegistry() {
             return registry;
         }
@@ -146,11 +150,13 @@ public class RequestRecordTest extends CMSBaseTestCase {
         private boolean registerDynamicMapperCalled = false;
         private DBDynAttrMapper dynamicMapper;
 
+        @Override
         public void registerObjectClass(String className, String ldapNames[]) throws EDBException {
             registerObjectClassCalled = true;
             registerObjectClassLdapNames = ldapNames;
         }
 
+        @Override
         public void registerAttribute(String ufName, DBAttrMapper mapper) throws EDBException {
             if (RequestRecord.ATTR_EXT_DATA.equals(ufName)) {
                 registerCalledWithExtAttr = true;
@@ -158,6 +164,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
             }
         }
 
+        @Override
         public void registerDynamicMapper(DBDynAttrMapper mapper) {
             registerDynamicMapperCalled = true;
             dynamicMapper = mapper;

@@ -586,6 +586,7 @@ public class Console implements CommClient {
 
         _splashScreen = new com.netscape.management.client.console.SplashScreen(_frame);
         _splashScreen.addWindowListener (new WindowAdapter() {
+                    @Override
                     public void windowClosing(WindowEvent e) {
                         System.exit(0);
                     }
@@ -1508,6 +1509,7 @@ public class Console implements CommClient {
      * @param is input stream for the response
      * @param cr communication record
      */
+    @Override
     public synchronized void replyHandler(InputStream is, CommRecord cr) {
 		HttpChannel channel = (HttpChannel)cr.getChannel();
 		if (channel != null) {
@@ -1527,6 +1529,7 @@ public class Console implements CommClient {
       * @param e exception
       * @param cr communication record
       */
+    @Override
     public synchronized void errorHandler(Exception e, CommRecord cr) {
         ((Response)(cr.getArg())).setError(e);
         notifyAll();
@@ -1539,6 +1542,7 @@ public class Console implements CommClient {
       * @param cr	communication record
       * @return username
       */
+    @Override
     public String username(Object realm, CommRecord cr) {
         return ((Response)(cr.getArg())).getUsername();
     }
@@ -1550,6 +1554,7 @@ public class Console implements CommClient {
       * @param cr	communication record
       * @return password
       */
+    @Override
     public String password(Object realm, CommRecord cr) {
         return ((Response)(cr.getArg())).getPassword();
     }
@@ -1857,6 +1862,7 @@ class TeeStream extends PrintStream {
 
 
     // PrintStream override.
+    @Override
     public void write(int b) {
         try {
             logfile.write(b);
@@ -1868,6 +1874,7 @@ class TeeStream extends PrintStream {
     }
 
     // PrintStream override.
+    @Override
     public void write(
      byte buf[], int off, int len) {
         try {

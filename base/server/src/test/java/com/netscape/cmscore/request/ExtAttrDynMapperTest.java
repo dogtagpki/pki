@@ -23,10 +23,12 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         super(name);
     }
 
+    @Override
     public void cmsTestSetUp() {
         mapper = new ExtAttrDynMapper();
     }
 
+    @Override
     public void cmsTestTearDown() {
     }
 
@@ -258,6 +260,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         Hashtable<String, Object> extAttrData = new Hashtable<String, Object>();
         int setCallCounter = 0;
 
+        @Override
         public void set(String name, Object o) {
             setCallCounter++;
             if (RequestRecord.ATTR_EXT_DATA.equals(name)) {
@@ -265,6 +268,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
             }
         }
 
+        @Override
         public RequestId getRequestId() {
             return new RequestId("1");
         }

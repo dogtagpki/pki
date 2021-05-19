@@ -68,6 +68,7 @@ public class GetEnableStatus extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // coming from agent
@@ -76,6 +77,7 @@ public class GetEnableStatus extends CMSServlet {
         mTemplates.remove(ICMSRequest.SUCCESS);
     }
 
+    @Override
     protected CMSRequest newCMSRequest() {
         return new CMSRequest();
     }
@@ -88,6 +90,7 @@ public class GetEnableStatus extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();

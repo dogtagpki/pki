@@ -73,12 +73,14 @@ public class TestListener extends RunListener {
         reportsDir = System.getProperty("junit.reports.dir");
     }
 
+    @Override
     public void testRunFinished(Result result) throws Exception {
         if (currentTestSuiteName != null) {
             finishTestSuite(); // finish last suite
         }
     }
 
+    @Override
     public void testStarted(Description description) throws Exception {
 
         String testSuiteName = description.getClassName();
@@ -96,11 +98,13 @@ public class TestListener extends RunListener {
         startTestCase(description);
     }
 
+    @Override
     public void testFinished(Description description) throws Exception {
         finishTestCase();
         recordTestCaseSuccess();
     }
 
+    @Override
     public void testFailure(Failure failure) throws Exception {
         finishTestCase();
         recordTestCaseFailure(failure);

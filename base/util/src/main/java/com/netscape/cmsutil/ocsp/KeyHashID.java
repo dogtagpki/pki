@@ -47,14 +47,17 @@ public class KeyHashID implements ResponderID {
         _hash = hash;
     }
 
+    @Override
     public Tag getTag() {
         return Tag.get(2);
     }
 
+    @Override
     public void encode(Tag tag, OutputStream os) throws IOException {
         _hash.encode(os);
     }
 
+    @Override
     public void encode(OutputStream os) throws IOException {
         _hash.encode(os);
     }
@@ -84,15 +87,18 @@ public class KeyHashID implements ResponderID {
 
         }
 
+        @Override
         public boolean tagMatch(Tag tag) {
             return TAG.equals(tag);
         }
 
+        @Override
         public ASN1Value decode(InputStream istream)
                         throws InvalidBERException, IOException {
             return decode(TAG, istream);
         }
 
+        @Override
         public ASN1Value decode(Tag implicitTag, InputStream istream)
                         throws InvalidBERException, IOException {
             SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag,

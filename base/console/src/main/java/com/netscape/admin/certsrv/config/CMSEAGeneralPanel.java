@@ -58,6 +58,7 @@ public class CMSEAGeneralPanel extends CMSBaseTab {
         mHelpToken = EAHELPINDEX;
     }
 
+    @Override
     public void init() {
         Debug.println("CMSEAGeneral: init()");
         mAdmin = mModel.getServerInfo().getAdmin();
@@ -95,6 +96,7 @@ public class CMSEAGeneralPanel extends CMSBaseTab {
         refresh();
     }
 
+    @Override
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
@@ -122,6 +124,7 @@ public class CMSEAGeneralPanel extends CMSBaseTab {
         }
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
     }
@@ -130,6 +133,7 @@ public class CMSEAGeneralPanel extends CMSBaseTab {
      * Implementation for saving panel information
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean applyCallback() {
         String numberOfAgents = mNumberOfAgentsText.getText().trim();
 
@@ -172,6 +176,7 @@ public class CMSEAGeneralPanel extends CMSBaseTab {
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean resetCallback() {
         refresh();
         return true;

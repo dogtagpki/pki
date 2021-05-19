@@ -62,6 +62,7 @@ public class ACMEValidatorsConfig extends HashMap<String, ACMEValidatorConfig> {
         return validatorsConfig;
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

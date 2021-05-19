@@ -46,6 +46,7 @@ public class AutoRecoveryModel extends CMSTableModel
         init(mColumns);
     }
 
+    @Override
     public boolean isCellEditable(int row, int col) {
         if(col >= 1)
             return true;

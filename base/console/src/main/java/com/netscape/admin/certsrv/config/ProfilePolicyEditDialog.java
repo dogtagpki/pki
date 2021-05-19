@@ -89,6 +89,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
     }
 
 
+    @Override
     protected JPanel makeContentPane() {
         JPanel mListPanel = new JPanel();
         GridBagLayout gb = new GridBagLayout();
@@ -432,6 +433,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         return CMSAdminUtil.makeJButtonVPanel( buttons );
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mHelp)) {
             CMSAdminUtil.help(mHelpToken);
@@ -573,6 +575,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         return null;
     }
 
+    @Override
     public void showDialog(NameValuePairs data, String name) {
 
         mHelpDesc.clear();
@@ -693,6 +696,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
     }
 
     class JComponentCellRenderer implements TableCellRenderer {
+        @Override
         public Component getTableCellRendererComponent(JTable table,
           Object value, boolean isSelected, boolean hasFocus, int row,
           int column) {
@@ -704,6 +708,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
          * From focuslistener interface. This lets us know when a component
          * has received focus, so we can update the help text.
          */
+        @Override
         public void focusGained(FocusEvent f) {
            Debug.println("focusGained");
            Component comp = f.getComponent();
@@ -716,6 +721,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         /** need to supply this method for focuslistener, but we
          * really don't care about it
          */
+        @Override
         public void focusLost(FocusEvent f) {
           Debug.println("focusLost");
         }

@@ -72,6 +72,7 @@ public class ACMEValidatorConfig {
         return mapper.readValue(json, ACMEValidatorConfig.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

@@ -89,6 +89,7 @@ public class LDAPConfigStore extends ConfigStorage {
      *
      * @param createBackup Ignored.
      */
+    @Override
     public void commit(IConfigStore config, boolean createBackup) throws EBaseException {
         String[] attrs = {};
         commitReturn(config, createBackup, attrs);

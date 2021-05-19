@@ -54,6 +54,7 @@ public class ExtensionConstraint extends EnrollConstraint {
         addConfigName(CONFIG_OID);
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
 
@@ -75,6 +76,7 @@ public class ExtensionConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.CHOICE, "true,false,-",
@@ -92,6 +94,7 @@ public class ExtensionConstraint extends EnrollConstraint {
      * Validates the request. The request is not modified
      * during the validation.
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
 
@@ -119,6 +122,7 @@ public class ExtensionConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         String params[] = {
                 getConfig(CONFIG_CRITICAL),
@@ -129,6 +133,7 @@ public class ExtensionConstraint extends EnrollConstraint {
                 "CMS_PROFILE_CONSTRAINT_EXTENSION_TEXT", params);
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;

@@ -48,18 +48,22 @@ public class HttpPKIMessage implements IHttpPKIMessage {
     public HttpPKIMessage() {
     }
 
+    @Override
     public String getReqStatus() {
         return reqStatus;
     }
 
+    @Override
     public String getReqType() {
         return reqType;
     }
 
+    @Override
     public String getReqId() {
         return reqId;
     }
 
+    @Override
     public String getReqRealm() {
         return reqRealm;
     }
@@ -67,6 +71,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
     /**
      * copy contents of request to make a simple name/value message.
      */
+    @Override
     public void fromRequest(IRequest r) {
         // actually don't need to copy source id since
         reqType = r.getRequestType();
@@ -98,6 +103,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
     /**
      * copy contents to request.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public void toRequest(IRequest r) {
         // id, type and status

@@ -46,6 +46,7 @@ public class SecurityDomainCLI extends CLI {
         addModule(new SecurityDomainHostCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

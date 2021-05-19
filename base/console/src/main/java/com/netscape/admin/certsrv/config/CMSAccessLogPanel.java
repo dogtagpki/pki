@@ -54,12 +54,14 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
     /**
      * Actual Instantiation of the UI components
      */
+    @Override
     public void init() {
         Debug.println("AccessLogPanel: init()");
         super.init();
         refresh();
 	}
 
+    @Override
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvp = new NameValuePairs();
@@ -123,6 +125,7 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
 	 * Implementation for saving panel information
 	 * @return true if save successful; otherwise, false.
 	 */
+    @Override
     public boolean applyCallback() {
         // check blank fields
         if ((mlogMaxSizText.getText().trim().equals("")) ||
@@ -194,6 +197,7 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean resetCallback() {
         refresh();
         return true;
@@ -204,6 +208,7 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
 	}

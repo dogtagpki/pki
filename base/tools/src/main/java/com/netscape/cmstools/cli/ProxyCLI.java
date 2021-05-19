@@ -46,62 +46,77 @@ public class ProxyCLI extends CLI {
         this.defaultSubsystem = defaultSubsystem;
     }
 
+    @Override
     public String getName() {
         return module.getName();
     }
 
+    @Override
     public void setName(String name) {
         module.setName(name);
     }
 
+    @Override
     public String getFullName() {
         return module.getFullName();
     }
 
+    @Override
     public String getFullModuleName(String moduleName) {
         return module.getFullModuleName(moduleName);
     }
 
+    @Override
     public String getDescription() {
         return module.getDescription();
     }
 
+    @Override
     public void setDescription(String description) {
         module.setDescription(description);
     }
 
+    @Override
     public CLI getParent() {
         return module.getParent();
     }
 
+    @Override
     public Collection<CLIModule> getModules() {
         return module.getModules();
     }
 
+    @Override
     public CLIModule getModule(String name) {
         return module.getModule(name);
     }
 
+    @Override
     public void addModule(CLI module) {
         this.module.addModule(module);
     }
 
+    @Override
     public CLIModule removeModule(String name) {
         return module.removeModule(name);
     }
 
+    @Override
     public PKIClient getClient() throws Exception {
         return module.getClient();
     }
 
+    @Override
     public Object getClient(String name) throws Exception {
         return module.getClient(name);
     }
 
+    @Override
     public void printHelp() throws Exception {
         module.printHelp();
     }
 
+    @Override
     public void execute(String[] args) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();

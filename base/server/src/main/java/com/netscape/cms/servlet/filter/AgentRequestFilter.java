@@ -41,11 +41,13 @@ public class AgentRequestFilter implements Filter {
     public AgentRequestFilter() {
     }
 
+    @Override
     public void init(FilterConfig filterConfig)
                 throws ServletException {
         this.config = filterConfig;
     }
 
+    @Override
     public void doFilter(ServletRequest request,
                           ServletResponse response,
                           FilterChain chain)
@@ -130,6 +132,7 @@ public class AgentRequestFilter implements Filter {
         chain.doFilter(request, response);
     }
 
+    @Override
     public void destroy() {
     }
 }

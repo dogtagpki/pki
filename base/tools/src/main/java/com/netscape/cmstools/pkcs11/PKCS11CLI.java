@@ -37,6 +37,7 @@ public class PKCS11CLI extends CLI {
         addModule(new PKCS11KeyCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

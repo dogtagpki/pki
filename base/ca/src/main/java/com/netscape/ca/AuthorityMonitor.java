@@ -45,6 +45,7 @@ public class AuthorityMonitor implements Runnable {
     public AuthorityMonitor() {
     }
 
+    @Override
     public void run() {
 
         int op = LDAPPersistSearchControl.ADD

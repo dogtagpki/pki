@@ -48,6 +48,7 @@ public class SubsystemUserFindCLI extends CommandCLI {
         super("find", "Find " + parent.getParent().getName().toUpperCase() + " users", parent);
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option(null, "see-also", true, "Find users linked to a certificate.");
@@ -59,6 +60,7 @@ public class SubsystemUserFindCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String catalinaBase = System.getProperty("catalina.base");

@@ -85,6 +85,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
      *	 values corresponding to the $tokens
      * @return mail content
      */
+    @Override
     public String getEmailContent(String form,
             Hashtable<String, Object> tok2vals) {
         mTok2vals = tok2vals;
@@ -219,6 +220,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
     /**
      * takes a vector of strings and concatenate them
      */
+    @Override
     public String formContent(Vector<String> vec) {
         StringBuffer content = new StringBuffer();
 
@@ -237,6 +239,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
         return content.toString();
     }
 
+    @Override
     public void log(int level, String msg) {
     }
 }

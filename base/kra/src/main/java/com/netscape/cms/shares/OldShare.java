@@ -36,6 +36,7 @@ public class OldShare implements IShare {
     public OldShare() {
     }
 
+    @Override
     public void initialize(byte[] secret, int threshold) throws Exception {
         try {
             Class<?> c = Class.forName("com.netscape.cmscore.shares.Share");
@@ -47,6 +48,7 @@ public class OldShare implements IShare {
         }
     }
 
+    @Override
     public byte[] createShare(int sharenumber) {
         if (mOldImpl == null)
             return null;

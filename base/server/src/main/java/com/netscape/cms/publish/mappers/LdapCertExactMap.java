@@ -58,10 +58,12 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
     public LdapCertExactMap() {
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         if (mInited == true)
@@ -70,6 +72,7 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
         mInited = true;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 IExtendedPluginInfo.HELP_TOKEN +
@@ -81,20 +84,24 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
         return params;
     }
 
+    @Override
     public String getImplName() {
         return "LdapCertExactMap";
     }
 
+    @Override
     public String getDescription() {
         return "LdapCertExactMap";
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
         return v;
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
 
@@ -108,6 +115,7 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
      * @param conn - the LDAP connection.
      * @param obj - the X509Certificate.
      */
+    @Override
     public String
             map(LDAPConnection conn, Object obj)
                     throws ELdapException {
@@ -177,6 +185,7 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
          */
     }
 
+    @Override
     public String map(LDAPConnection conn, IRequest req, Object obj)
             throws ELdapException {
         return map(conn, obj);

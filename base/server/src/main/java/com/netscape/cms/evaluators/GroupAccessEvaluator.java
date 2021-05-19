@@ -60,6 +60,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
     /**
      * initialization. nothing for now.
      */
+    @Override
     public void init() {
         logger.debug("GroupAccessEvaluator: init");
     }
@@ -69,6 +70,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
      *
      * @return type for this acl evaluator: "group" or "at_group"
      */
+    @Override
     public String getType() {
         return mType;
     }
@@ -78,10 +80,12 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
      *
      * @return description for this acl evaluator
      */
+    @Override
     public String getDescription() {
         return mDescription;
     }
 
+    @Override
     public String[] getSupportedOperators() {
         String[] s = new String[2];
 
@@ -101,6 +105,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
      * @return true if AuthToken uid belongs to the group value,
      *         false otherwise
      */
+    @Override
     public boolean evaluate(IAuthToken authToken, String type, String op, String value) {
 
         if (type.equals(mType)) {
@@ -155,6 +160,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
      * @return true if SessionContext uid belongs to the group value,
      *         false otherwise
      */
+    @Override
     public boolean evaluate(String type, String op, String value) {
 
         SessionContext mSC = SessionContext.getContext();

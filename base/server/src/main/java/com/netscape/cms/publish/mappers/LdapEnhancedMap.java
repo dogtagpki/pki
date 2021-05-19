@@ -315,6 +315,7 @@ public class LdapEnhancedMap
      * implementation for extended
      * ILdapPlugin interface method
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -357,22 +358,27 @@ public class LdapEnhancedMap
      * implementation for extended
      * ILdapPlugin interface method
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public String getImplName() {
         return "LdapEnhancedMap";
     }
 
+    @Override
     public String getDescription() {
         return "LdapEnhancedMap";
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         return defaultParams;
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
 
@@ -423,6 +429,7 @@ public class LdapEnhancedMap
      * @param obj the object to map.
      * @exception ELdapException if any LDAP exceptions occurred.
      */
+    @Override
     public String map(LDAPConnection conn, Object obj)
             throws ELdapException {
         return map(conn, null, obj);
@@ -437,6 +444,7 @@ public class LdapEnhancedMap
      * @param obj the object to map.
      * @exception ELdapException if any LDAP exceptions occurred.
      */
+    @Override
     public String map(LDAPConnection conn, IRequest req, Object obj)
             throws ELdapException {
         if (conn == null) {
@@ -546,6 +554,7 @@ public class LdapEnhancedMap
     // IExtendedPluginInfo methods //
     /////////////////////////////////
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         Vector<String> v = new Vector<String>();
 

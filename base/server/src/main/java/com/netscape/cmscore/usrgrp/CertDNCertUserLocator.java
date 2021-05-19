@@ -50,6 +50,7 @@ public class CertDNCertUserLocator implements CertUserLocator {
     /**
      * Retrieves description.
      */
+    @Override
     public String getDescription() {
         return "A subject is authenticated if its first" +
                 " certificate can be matched with one of the" +
@@ -59,6 +60,7 @@ public class CertDNCertUserLocator implements CertUserLocator {
     /**
      * Do the cert-user mapping
      */
+    @Override
     public User locateUser(Certificates certs) throws
             EUsrGrpException, LDAPException, ELdapException {
 

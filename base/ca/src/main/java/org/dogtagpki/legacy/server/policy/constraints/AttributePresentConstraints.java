@@ -77,6 +77,7 @@ public class AttributePresentConstraints extends APolicyRule
                 "directory.";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String params[] = {
                 PROP_ATTR + ";string,required;Ldap attribute to check presence of (default " +
@@ -121,6 +122,7 @@ public class AttributePresentConstraints extends APolicyRule
         return params;
     }
 
+    @Override
     public String getName() {
         return mName;
     }
@@ -239,6 +241,7 @@ public class AttributePresentConstraints extends APolicyRule
         }
     }
 
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
 
@@ -272,6 +275,7 @@ public class AttributePresentConstraints extends APolicyRule
         mCheckAttrLdapConnection = mConnFactory.getConn();
     }
 
+    @Override
     public PolicyResult apply(IRequest r) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
@@ -345,6 +349,7 @@ public class AttributePresentConstraints extends APolicyRule
         return res;
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> params = new Vector<String>();
 
@@ -364,6 +369,7 @@ public class AttributePresentConstraints extends APolicyRule
         return params;
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> params = new Vector<String>();
 

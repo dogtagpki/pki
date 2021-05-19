@@ -60,6 +60,7 @@ public class CMSAuthInfoAccessExtension
     public CMSAuthInfoAccessExtension() {
     }
 
+    @Override
     public Extension setCRLExtensionCriticality(Extension ext,
             boolean critical) {
         AuthInfoAccessExtension authInfoAccessExt = (AuthInfoAccessExtension) ext;
@@ -69,6 +70,7 @@ public class CMSAuthInfoAccessExtension
         return authInfoAccessExt;
     }
 
+    @Override
     public Extension getCRLExtension(IConfigStore config, Object ip,
             boolean critical) {
         AuthInfoAccessExtension authInfoAccessExt = new AuthInfoAccessExtension(critical);
@@ -156,10 +158,12 @@ public class CMSAuthInfoAccessExtension
         return authInfoAccessExt;
     }
 
+    @Override
     public String getCRLExtOID() {
         return AuthInfoAccessExtension.ID.toString();
     }
 
+    @Override
     public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
 
         int numberOfAccessDescriptions = 0;
@@ -234,6 +238,7 @@ public class CMSAuthInfoAccessExtension
         }
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 "enable;boolean;Check to enable Authority Information Access extension.",

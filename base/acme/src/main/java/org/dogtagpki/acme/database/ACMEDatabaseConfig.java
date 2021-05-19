@@ -94,6 +94,7 @@ public class ACMEDatabaseConfig {
         return config;
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

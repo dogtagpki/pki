@@ -74,6 +74,7 @@ public class ECAException extends EBaseException {
      *
      * @return name of bundle class associated with this exception.
      */
+    @Override
     protected String getBundleName() {
         return CA_RESOURCES;
     }

@@ -63,6 +63,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
         DESC = "Enforces Subordinate CA name.";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 IExtendedPluginInfo.HELP_TOKEN +
@@ -85,6 +86,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         // get CA's public key to create authority key id.
@@ -125,6 +127,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         PolicyResult result = PolicyResult.ACCEPTED;
 
@@ -173,6 +176,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
 
@@ -184,6 +188,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 

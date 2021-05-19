@@ -41,10 +41,12 @@ public class UserCertRemoveCLI extends CommandCLI {
         this.userCertCLI = userCertCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <User ID> <Cert ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

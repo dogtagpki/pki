@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name="UserCerts")
 public class UserCertCollection extends DataCollection<UserCertData> {
 
+    @Override
     @XmlElement(name="Cert")
     public Collection<UserCertData> getEntries() {
         return super.getEntries();

@@ -90,6 +90,7 @@ public class CMSCAConnectorPanel  extends CMSBaseTab
     /**
      * initialize the UI components
      */
+    @Override
     public void init() {
 //        setLayout(new BorderLayout());
 
@@ -151,6 +152,7 @@ public class CMSCAConnectorPanel  extends CMSBaseTab
     /**
      * refresh the panel data
      */
+    @Override
     public void refresh() {
 	repaint(1);
     }
@@ -160,6 +162,7 @@ public class CMSCAConnectorPanel  extends CMSBaseTab
      *==========================================================*/
 
     //======= ActionLister ============================
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mEdit)) {
             mModel.getFrame();
@@ -205,6 +208,7 @@ public class CMSCAConnectorPanel  extends CMSBaseTab
     }
 
     //=== MOUSELISTENER ========================
+    @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getSource() == mList) {
             if (mList.getSelectedIndex() < 0)
@@ -214,12 +218,17 @@ public class CMSCAConnectorPanel  extends CMSBaseTab
         }
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {}
+    @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
     public void mouseExited(MouseEvent e) {}
 
     //======== CMSBaseConfigPanel ==============
+    @Override
     public boolean applyCallback() {
         return true;
     }
@@ -228,6 +237,7 @@ public class CMSCAConnectorPanel  extends CMSBaseTab
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean resetCallback() {
         refresh();
         return true;

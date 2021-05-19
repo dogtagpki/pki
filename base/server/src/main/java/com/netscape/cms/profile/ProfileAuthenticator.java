@@ -58,6 +58,7 @@ public interface ProfileAuthenticator extends AuthManager {
      *
      * @return configuration store
      */
+    @Override
     public AuthManagerConfig getConfigStore();
 
     /**

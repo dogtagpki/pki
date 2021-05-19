@@ -30,6 +30,7 @@ public class PlainPasswordWriter implements IPasswordWriter {
     public PlainPasswordWriter() {
     }
 
+    @Override
     public void init(String pwdPath)
             throws IOException {
         mPwdStore = new Properties();
@@ -48,10 +49,12 @@ public class PlainPasswordWriter implements IPasswordWriter {
         }
     }
 
+    @Override
     public Object putPassword(String tag, String password) {
         return mPwdStore.setProperty(tag, password);
     }
 
+    @Override
     public void commit()
             throws IOException, ClassCastException, NullPointerException {
         FileOutputStream file = null;

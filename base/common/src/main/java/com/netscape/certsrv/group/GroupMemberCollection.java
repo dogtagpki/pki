@@ -37,6 +37,7 @@ import com.netscape.certsrv.base.DataCollection;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class GroupMemberCollection extends DataCollection<GroupMemberData> {
 
+    @Override
     @XmlElement(name="Member")
     public Collection<GroupMemberData> getEntries() {
         return super.getEntries();

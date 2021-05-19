@@ -70,6 +70,7 @@ public class EUsrGrpException extends EBaseException {
     /**
      * Retrieves bundle name.
      */
+    @Override
     protected String getBundleName() {
         return USRGRP_RESOURCES;
     }

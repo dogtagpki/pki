@@ -33,6 +33,7 @@ public class KRAConnectorServlet extends ConnectorServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAConnectorServlet.class);
 
+    @Override
     public void normalizeProfileRequest(IRequest request) {
 
         super.normalizeProfileRequest(request);

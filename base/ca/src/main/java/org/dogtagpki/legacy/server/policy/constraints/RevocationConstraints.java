@@ -70,6 +70,7 @@ public class RevocationConstraints extends APolicyRule
         DESC = "Whether to allow revocation of expired certs and on-hold.";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_ALLOW_EXPIRED_CERTS + ";boolean;Allow a user to revoke an already-expired certificate",
@@ -98,6 +99,7 @@ public class RevocationConstraints extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EPolicyException {
         // Get min and max validity in days and onfigure them.
@@ -121,6 +123,7 @@ public class RevocationConstraints extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         logger.debug("RevocationConstraints: apply begins");
         if (req.getExtDataInInteger(IRequest.REVOKED_REASON) == null) {
@@ -196,6 +199,7 @@ public class RevocationConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> confParams = new Vector<String>();
 
@@ -211,6 +215,7 @@ public class RevocationConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return defConfParams;
     }

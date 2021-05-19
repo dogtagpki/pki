@@ -108,6 +108,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -160,6 +161,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         // get certInfo from request.
         X509CertInfo[] ci =
@@ -334,6 +336,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         return mInstanceParams;
     }
@@ -343,6 +346,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return mDefaultParams;
     }
@@ -350,6 +354,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
     /**
      * Gets extended plugin info for pretty Console displays.
      */
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_CRITICAL + ";boolean;RFC 2459 recommendation: MUST NOT be marked critical.",

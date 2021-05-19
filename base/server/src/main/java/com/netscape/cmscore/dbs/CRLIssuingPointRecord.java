@@ -124,6 +124,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
         mExpiredCerts = expiredCerts;
     }
 
+    @Override
     @SuppressWarnings({ "unchecked" })
     public void set(String name, Object obj) throws EBaseException {
         if (name.equalsIgnoreCase(ATTR_ID)) {
@@ -161,6 +162,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
         }
     }
 
+    @Override
     public Object get(String name) throws EBaseException {
         if (name.equalsIgnoreCase(ATTR_ID)) {
             return mId;
@@ -197,14 +199,17 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
         }
     }
 
+    @Override
     public void delete(String name) throws EBaseException {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
+    @Override
     public Enumeration<String> getElements() {
         return mNames.elements();
     }
 
+    @Override
     public Enumeration<String> getSerializableAttrNames() {
         return mNames.elements();
     }
@@ -212,6 +217,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieve unique CRL identifier.
      */
+    @Override
     public String getId() {
         return mId;
     }
@@ -219,6 +225,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves CRL number.
      */
+    @Override
     public BigInteger getCRLNumber() {
         return mCRLNumber;
     }
@@ -226,6 +233,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves CRL size.
      */
+    @Override
     public Long getCRLSize() {
         return mCRLSize;
     }
@@ -233,6 +241,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves this update time.
      */
+    @Override
     public Date getThisUpdate() {
         return mThisUpdate;
     }
@@ -240,6 +249,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves next update time.
      */
+    @Override
     public Date getNextUpdate() {
         return mNextUpdate;
     }
@@ -247,6 +257,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves delta CRL number.
      */
+    @Override
     public BigInteger getDeltaCRLNumber() {
         return mDeltaCRLNumber;
     }
@@ -254,6 +265,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves CRL size.
      */
+    @Override
     public Long getDeltaCRLSize() {
         return mDeltaCRLSize;
     }
@@ -261,6 +273,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieve unique CRL identifier.
      */
+    @Override
     public String getFirstUnsaved() {
         return mFirstUnsaved;
     }
@@ -268,6 +281,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves CRL encodings.
      */
+    @Override
     public byte[] getCRL() {
         return mCRL;
     }
@@ -275,14 +289,17 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves CRL encodings.
      */
+    @Override
     public byte[] getDeltaCRL() {
         return mDeltaCRL;
     }
 
+    @Override
     public byte[] getCACert() {
         return mCACert;
     }
 
+    @Override
     public Hashtable<BigInteger, RevokedCertificate> getCRLCacheNoClone() {
         if (mCRLCache == null)
             return null;
@@ -290,6 +307,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
             return mCRLCache;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Hashtable<BigInteger, RevokedCertificate> getCRLCache() {
         if (mCRLCache == null)
@@ -301,6 +319,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves cache info of revoked certificates.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public Hashtable<BigInteger, RevokedCertificate> getRevokedCerts() {
         if (mRevokedCerts == null)
@@ -312,6 +331,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves cache info of unrevoked certificates.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public Hashtable<BigInteger, RevokedCertificate> getUnrevokedCerts() {
         if (mUnrevokedCerts == null)
@@ -323,6 +343,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves cache info of expired certificates.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public Hashtable<BigInteger, RevokedCertificate> getExpiredCerts() {
         if (mExpiredCerts == null)

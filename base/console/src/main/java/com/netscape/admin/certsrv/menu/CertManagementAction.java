@@ -40,6 +40,7 @@ public class CertManagementAction implements IMenuAction {
         mConsoleInfo = info;
     }
 
+    @Override
     public void perform(IPage viewInstance) {
         (new CertManagementDialog( mConsoleInfo )).showModal();
     }

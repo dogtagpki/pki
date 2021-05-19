@@ -102,6 +102,7 @@ public class IssuerAltNameExt extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -141,6 +142,7 @@ public class IssuerAltNameExt extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
@@ -225,6 +227,7 @@ public class IssuerAltNameExt extends APolicyRule
      * @return Empty Vector since this policy has no configuration parameters.
      *         for this policy instance.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         return mParams;
     }
@@ -235,10 +238,12 @@ public class IssuerAltNameExt extends APolicyRule
      * @return Empty Vector since this policy implementation has no
      *         configuration parameters.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return defaultParams;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         return mInfo;
     }

@@ -32,6 +32,7 @@ public class UnblockPinAPDU extends APDU {
         setP2((byte) 0x00);
     }
 
+    @Override
     public Type getType()
     {
         return Type.APDU_UNBLOCK_PIN;

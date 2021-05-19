@@ -69,6 +69,7 @@ public class SSLConnectionFactory implements IConnectionFactory {
     /**
      * Creates connection using the host and port
      */
+    @Override
     public IConnection create(String host, int port)
         throws IOException, UnknownHostException {
 

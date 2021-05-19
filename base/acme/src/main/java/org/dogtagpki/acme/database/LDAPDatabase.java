@@ -119,6 +119,7 @@ public class LDAPDatabase extends ACMEDatabase {
     Boolean enabled;
     LDAPConfigMonitor monitor;
 
+    @Override
     public void init() throws Exception {
 
         EngineConfig cs;
@@ -242,6 +243,7 @@ public class LDAPDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public Boolean getEnabled() throws Exception {
 
         // If monitor is not enabled, get config from database on each request.
@@ -272,6 +274,7 @@ public class LDAPDatabase extends ACMEDatabase {
         return enabled;
     }
 
+    @Override
     public void setEnabled(Boolean enabled) throws Exception {
 
         // always update config both in database and memory
@@ -309,6 +312,7 @@ public class LDAPDatabase extends ACMEDatabase {
         return nonce;
     }
 
+    @Override
     public void addNonce(ACMENonce nonce) throws Exception {
         LDAPAttribute[] attrs = {
             new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_NONCE),
@@ -322,6 +326,7 @@ public class LDAPDatabase extends ACMEDatabase {
         ldapAdd(entry);
     }
 
+    @Override
     public ACMENonce removeNonce(String nonceID) throws Exception {
         ACMENonce nonce = getNonce(nonceID);
         if (nonce == null) return null;
@@ -332,6 +337,7 @@ public class LDAPDatabase extends ACMEDatabase {
         return nonce;
     }
 
+    @Override
     public void removeExpiredNonces(Date currentTime) throws Exception {
         String[] attrs = {"1.1"};  // suppress attrs for performance; we only need DN
         List<LDAPEntry> entries = ldapSearch(
@@ -344,6 +350,7 @@ public class LDAPDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public ACMEAccount getAccount(String accountID) throws Exception {
         String dn = ATTR_ACCOUNT_ID + "=" + accountID + "," + RDN_ACCOUNT + "," + baseDN;
         LDAPEntry entry = ldapGet(dn);
@@ -372,6 +379,7 @@ public class LDAPDatabase extends ACMEDatabase {
         return account;
     }
 
+    @Override
     public void addAccount(ACMEAccount account) throws Exception {
         LDAPAttribute[] attrs = {
             new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_ACCOUNT),
@@ -395,6 +403,7 @@ public class LDAPDatabase extends ACMEDatabase {
      * Update account status.  Assume that AccountService has validated all data
      * and just perform the update.
      */
+    @Override
     public void updateAccount(ACMEAccount account) throws Exception {
         String dn = ATTR_ACCOUNT_ID + "=" + account.getID() + "," + RDN_ACCOUNT + "," + baseDN;
         LDAPModificationSet mods = new LDAPModificationSet();
@@ -412,6 +421,7 @@ public class LDAPDatabase extends ACMEDatabase {
         ldapModify(dn, mods);
     }
 
+    @Override
     public ACMEOrder getOrder(String orderID) throws Exception {
         String dn = ATTR_ORDER_ID + "=" + orderID + "," + RDN_ORDER + "," + baseDN;
         LDAPEntry entry = ldapGet(dn);
@@ -419,6 +429,7 @@ public class LDAPDatabase extends ACMEDatabase {
         return loadOrder(entry);
     }
 
+    @Override
     public Collection<ACMEOrder> getOrdersByAccount(String accountID) throws Exception {
         Collection<ACMEOrder> orders = new ArrayList<>();
 
@@ -433,6 +444,7 @@ public class LDAPDatabase extends ACMEDatabase {
         return orders;
     }
 
+    @Override
     public Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(String authzID, String status)
             throws Exception {
         Collection<ACMEOrder> orders = new ArrayList<>();
@@ -449,6 +461,7 @@ public class LDAPDatabase extends ACMEDatabase {
         return orders;
     }
 
+    @Override
     public ACMEOrder getOrderByCertificate(String certID)
             throws Exception {
         List<LDAPEntry> entries = ldapSearch(
@@ -515,6 +528,7 @@ public class LDAPDatabase extends ACMEDatabase {
         return order;
     }
 
+    @Override
     public void addOrder(ACMEOrder order) throws Exception {
         LDAPAttribute[] attrs = {
             new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_ORDER),
@@ -553,6 +567,7 @@ public class LDAPDatabase extends ACMEDatabase {
         ldapAdd(entry);
     }
 
+    @Override
     public void updateOrder(ACMEOrder order) throws Exception {
         String dn = ATTR_ORDER_ID + "=" + order.getID() + "," + RDN_ORDER + "," + baseDN;
         LDAPModificationSet mods = new LDAPModificationSet();
@@ -592,6 +607,7 @@ public class LDAPDatabase extends ACMEDatabase {
         ldapModify(dn, mods);
     }
 
+    @Override
     public void removeExpiredOrders(Date currentTime) throws Exception {
         String[] attrs = {"1.1"};  // suppress attrs for performance; we only need DN
         List<LDAPEntry> entries = ldapSearch(
@@ -604,6 +620,7 @@ public class LDAPDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public ACMEAuthorization getAuthorization(String authzID) throws Exception {
         return getAuthorization(authzID, LoadChallenges.DoLoad);
     }
@@ -724,6 +741,7 @@ public class LDAPDatabase extends ACMEDatabase {
     /**
      * Get the authorization for the given challenge.
      */
+    @Override
     public ACMEAuthorization getAuthorizationByChallenge(String challengeID) throws Exception {
         ACMEChallenge challenge = getChallenge(challengeID);
         if (challenge == null) return null;
@@ -734,6 +752,7 @@ public class LDAPDatabase extends ACMEDatabase {
         return getAuthorization(challenge.getAuthzID());
     }
 
+    @Override
     public void addAuthorization(ACMEAuthorization authorization) throws Exception {
         ACMEIdentifier identifier = authorization.getIdentifier();
         LDAPAttribute[] attrs = {
@@ -790,6 +809,7 @@ public class LDAPDatabase extends ACMEDatabase {
         ldapAdd(entry);
     }
 
+    @Override
     public void updateAuthorization(ACMEAuthorization authorization) throws Exception {
         String dn = ATTR_AUTHORIZATION_ID + "=" + authorization.getID()
                         + "," + RDN_AUTHORIZATION + "," + baseDN;
@@ -887,6 +907,7 @@ public class LDAPDatabase extends ACMEDatabase {
         return !entries.isEmpty();
     }
 
+    @Override
     public void removeExpiredAuthorizations(Date currentTime) throws Exception {
         String[] attrs = {"1.1"};  // suppress attrs for performance; we only need DN
         List<LDAPEntry> entries = ldapSearch(
@@ -899,6 +920,7 @@ public class LDAPDatabase extends ACMEDatabase {
         }
     }
 
+    @Override
     public ACMECertificate getCertificate(String certID) throws Exception {
         String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + baseDN;
         LDAPEntry entry = ldapGet(dn);
@@ -921,6 +943,7 @@ public class LDAPDatabase extends ACMEDatabase {
         return certificate;
     }
 
+    @Override
     public void addCertificate(String certID, ACMECertificate certificate) throws Exception {
 
         String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + baseDN;
@@ -943,6 +966,7 @@ public class LDAPDatabase extends ACMEDatabase {
         ldapAdd(entry);
     }
 
+    @Override
     public void removeExpiredCertificates(Date currentTime) throws Exception {
         String[] attrs = {"1.1"};  // suppress attrs for performance; we only need DN
         List<LDAPEntry> entries = ldapSearch(
@@ -1065,6 +1089,7 @@ public class LDAPDatabase extends ACMEDatabase {
         return l;
     }
 
+    @Override
     public void close() throws Exception {
         if (monitor != null) {
             monitor.stop();

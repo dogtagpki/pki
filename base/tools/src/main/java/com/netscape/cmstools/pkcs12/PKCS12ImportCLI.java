@@ -43,10 +43,12 @@ public class PKCS12ImportCLI extends CommandCLI {
         this.pkcs12CLI = pkcs12CLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] [nicknames...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "pkcs12", true, "PKCS #12 file");
         option.setArgName("path");
@@ -76,6 +78,7 @@ public class PKCS12ImportCLI extends CommandCLI {
         options.addOption(null, "overwrite", false, "Overwrite existing certificates");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] nicknames = cmd.getArgs();

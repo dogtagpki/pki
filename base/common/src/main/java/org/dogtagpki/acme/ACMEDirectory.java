@@ -96,6 +96,7 @@ public class ACMEDirectory {
         return mapper.readValue(json, ACMEDirectory.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

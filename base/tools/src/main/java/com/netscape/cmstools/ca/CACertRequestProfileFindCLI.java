@@ -23,10 +23,12 @@ public class CACertRequestProfileFindCLI extends CommandCLI {
         this.certRequestCLI = certRequestCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "start", true, "Page start");
         option.setArgName("start");
@@ -37,6 +39,7 @@ public class CACertRequestProfileFindCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

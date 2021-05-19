@@ -36,6 +36,7 @@ public abstract class LogFactory implements ILogEventFactory {
      *
      * @param e the log event
      */
+    @Override
     public void release(ILogEvent e) {
         // do nothing
     }

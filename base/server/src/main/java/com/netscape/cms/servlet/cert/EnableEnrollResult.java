@@ -71,6 +71,7 @@ public class EnableEnrollResult extends CMSServlet {
     /**
      * Initializes the servlet.
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override success to display own output.
@@ -85,6 +86,7 @@ public class EnableEnrollResult extends CMSServlet {
         random = jssSubsystem.getRandomNumberGenerator();
     }
 
+    @Override
     protected CMSRequest newCMSRequest() {
         return new CMSRequest();
     }
@@ -92,6 +94,7 @@ public class EnableEnrollResult extends CMSServlet {
     /**
      * Services the request
      */
+    @Override
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
