@@ -24,6 +24,7 @@ package com.netscape.certsrv.kra;
  * @deprecated
  * @version $Revision$ $Date$
  */
+@Deprecated
 public interface IShare {
 
     public void initialize(byte[] secret, int threshold) throws Exception;

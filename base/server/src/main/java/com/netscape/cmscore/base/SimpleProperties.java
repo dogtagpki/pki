@@ -272,6 +272,7 @@ public class SimpleProperties extends Hashtable<String, String> {
      * @exception ClassCastException if this <code>Properties</code> object
      *                contains any keys or values that are not <code>Strings</code>.
      */
+    @Deprecated
     public synchronized void save(OutputStream out, String header) {
         try {
             store(out, header);
