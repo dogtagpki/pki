@@ -47,9 +47,9 @@ import javax.ws.rs.ProcessingException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
@@ -1607,7 +1607,7 @@ public class Console implements CommClient {
         options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption("h", "help", false, "Show help message.");
 
-        CommandLineParser parser = new PosixParser();
+        CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, argv);
 
         String[] cmdArgs = cmd.getArgs();
