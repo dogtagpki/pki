@@ -24,6 +24,7 @@ package com.netscape.certsrv.kra;
  * @deprecated
  * @version $Revision$ $Date$
  */
+@Deprecated
 public interface IJoinShares {
 
     public void initialize(int threshold) throws Exception;

@@ -96,6 +96,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
      *
      * @deprecated implement IEncryptionPaneListener instead
      */
+    @Deprecated
     public void actionPerformed(ActionEvent e) {
     }
 

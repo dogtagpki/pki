@@ -47,6 +47,7 @@ import netscape.ldap.LDAPAttributeSet;
  * @version $Revision$ $Date$
  * @deprecated
  */
+@Deprecated
 public class RequestAttrsMapper extends DBAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestAttrsMapper.class);

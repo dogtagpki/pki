@@ -29,6 +29,7 @@ import com.netscape.certsrv.kra.IShare;
  * @deprecated
  * @version $Revision$ $Date$
  */
+@Deprecated
 public class OldShare implements IShare {
     public Object mOldImpl = null;
 
