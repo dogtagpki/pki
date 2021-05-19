@@ -140,7 +140,7 @@ public class CAProcessor extends Processor {
 
     //logging and stats
 
-    protected LinkedHashSet<String> statEvents = new LinkedHashSet<String>();
+    protected LinkedHashSet<String> statEvents = new LinkedHashSet<>();
 
     public CAProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         super(id, locale);
@@ -331,7 +331,7 @@ public class CAProcessor extends Processor {
     }
 
     protected static Hashtable<String, String> toHashtable(HttpServletRequest req) {
-        Hashtable<String, String> httpReqHash = new Hashtable<String, String>();
+        Hashtable<String, String> httpReqHash = new Hashtable<>();
         Enumeration<?> names = req.getParameterNames();
 
         while (names.hasMoreElements()) {

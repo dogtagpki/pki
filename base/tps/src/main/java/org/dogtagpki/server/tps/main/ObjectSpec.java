@@ -12,7 +12,7 @@ public class ObjectSpec {
 
     public ObjectSpec()
     {
-        attributeSpecs = new ArrayList<AttributeSpec>();
+        attributeSpecs = new ArrayList<>();
     }
 
     final static int DATATYPE_STRING = 0;

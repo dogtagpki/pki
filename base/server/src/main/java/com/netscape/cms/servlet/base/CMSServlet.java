@@ -222,14 +222,14 @@ public abstract class CMSServlet extends HttpServlet {
 
     protected boolean mRenderResult = true;
     protected String mFinalErrorMsg = FINAL_ERROR_MSG;
-    protected Hashtable<Integer, CMSLoadTemplate> mTemplates = new Hashtable<Integer, CMSLoadTemplate>();
+    protected Hashtable<Integer, CMSLoadTemplate> mTemplates = new Hashtable<>();
 
     protected ServletConfig mServletConfig = null;
     protected ServletContext mServletContext = null;
     private CMSFileLoader mFileLoader = null;
 
-    protected Vector<String> mDontSaveHttpParams = new Vector<String>();
-    protected Vector<String> mSaveHttpHeaders = new Vector<String>();
+    protected Vector<String> mDontSaveHttpParams = new Vector<>();
+    protected Vector<String> mSaveHttpHeaders = new Vector<>();
 
     protected String mId = null;
     protected IConfigStore mConfig = null;
@@ -259,7 +259,7 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     public static Hashtable<String, String> toHashtable(HttpServletRequest req) {
-        Hashtable<String, String> httpReqHash = new Hashtable<String, String>();
+        Hashtable<String, String> httpReqHash = new Hashtable<>();
         Enumeration<?> names = req.getParameterNames();
 
         while (names.hasMoreElements()) {
@@ -979,7 +979,7 @@ public abstract class CMSServlet extends HttpServlet {
     protected void saveHttpHeaders(
             HttpServletRequest httpReq, IRequest req)
             throws EBaseException {
-        Hashtable<String, String> headers = new Hashtable<String, String>();
+        Hashtable<String, String> headers = new Hashtable<>();
         Enumeration<String> hdrs = mSaveHttpHeaders.elements();
 
         while (hdrs.hasMoreElements()) {
@@ -998,7 +998,7 @@ public abstract class CMSServlet extends HttpServlet {
      */
     protected void saveHttpParams(
             IArgBlock httpParams, IRequest req) {
-        Hashtable<String, String> saveParams = new Hashtable<String, String>();
+        Hashtable<String, String> saveParams = new Hashtable<>();
 
         Enumeration<String> names = httpParams.elements();
 

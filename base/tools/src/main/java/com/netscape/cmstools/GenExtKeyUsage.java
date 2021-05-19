@@ -57,7 +57,7 @@ public class GenExtKeyUsage {
             }
 
             // Generate vector of object identifiers from command line
-            Vector<ObjectIdentifier> oids = new Vector<ObjectIdentifier>();
+            Vector<ObjectIdentifier> oids = new Vector<>();
 
             for (int i = 1; i < args.length; i++) {
                 ObjectIdentifier oid = new ObjectIdentifier(args[i]);

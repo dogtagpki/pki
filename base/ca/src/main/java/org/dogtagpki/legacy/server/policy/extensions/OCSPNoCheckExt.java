@@ -174,7 +174,7 @@ public class OCSPNoCheckExt extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         params.addElement(PROP_CRITICAL + "=" + mCritical);
         return params;
@@ -186,7 +186,7 @@ public class OCSPNoCheckExt extends APolicyRule
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> defParams = new Vector<String>();
+        Vector<String> defParams = new Vector<>();
 
         defParams.addElement(PROP_CRITICAL + "=false");
         return defParams;

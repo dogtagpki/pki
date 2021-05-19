@@ -33,7 +33,7 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  */
 public class FilterBuilder {
 
-    private List<String> filters = new ArrayList<String>();
+    private List<String> filters = new ArrayList<>();
     private CertSearchRequest request;
 
     public FilterBuilder(CertSearchRequest request) {

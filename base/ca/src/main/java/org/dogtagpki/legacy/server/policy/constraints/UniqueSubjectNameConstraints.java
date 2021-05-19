@@ -289,7 +289,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> confParams = new Vector<String>();
+        Vector<String> confParams = new Vector<>();
 
         confParams.addElement(PROP_PRE_AGENT_APPROVAL_CHECKING +
                 "=" + mPreAgentApprovalChecking);
@@ -305,7 +305,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> defParams = new Vector<String>();
+        Vector<String> defParams = new Vector<>();
 
         defParams.addElement(PROP_PRE_AGENT_APPROVAL_CHECKING + "=");
         defParams.addElement(PROP_KEY_USAGE_EXTENSION_CHECKING + "=");

@@ -382,7 +382,7 @@ public class SimpleProperties extends Hashtable<String, String> {
      * @see java.util.Properties#defaults
      */
     public Enumeration<String> propertyNames() {
-        Hashtable<String, String> h = new Hashtable<String, String>();
+        Hashtable<String, String> h = new Hashtable<>();
 
         enumerate(h);
         return h.keys();
@@ -396,7 +396,7 @@ public class SimpleProperties extends Hashtable<String, String> {
      */
     public void list(PrintStream out) {
         out.println("-- listing properties --");
-        Hashtable<String, String> h = new Hashtable<String, String>();
+        Hashtable<String, String> h = new Hashtable<>();
 
         enumerate(h);
         for (Enumeration<String> e = h.keys(); e.hasMoreElements();) {
@@ -425,7 +425,7 @@ public class SimpleProperties extends Hashtable<String, String> {
      */
     public void list(PrintWriter out) {
         out.println("-- listing properties --");
-        Hashtable<String, String> h = new Hashtable<String, String>();
+        Hashtable<String, String> h = new Hashtable<>();
 
         enumerate(h);
         for (Enumeration<String> e = h.keys(); e.hasMoreElements();) {

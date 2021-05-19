@@ -939,7 +939,7 @@ public class KeyCertUtil {
         String signing = properties.getOCSPSigning();
 
         if ((signing != null) && (signing.equals(Constants.TRUE))) {
-            Vector<ObjectIdentifier> oidSet = new Vector<ObjectIdentifier>();
+            Vector<ObjectIdentifier> oidSet = new Vector<>();
             oidSet.addElement(
                     ObjectIdentifier.getObjectIdentifier(
                             ExtendedKeyUsageExtension.OID_OCSPSigning));

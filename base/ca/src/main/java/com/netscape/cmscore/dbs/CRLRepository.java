@@ -165,7 +165,7 @@ public class CRLRepository extends Repository {
             String[] attrs = { ICRLIssuingPointRecord.ATTR_ID, "objectclass" };
             String filter = "objectclass=" + CRLIssuingPointRecord.class.getName();
             IDBSearchResults res = s.search(mBaseDN, filter, attrs);
-            Vector<String> v = new Vector<String>();
+            Vector<String> v = new Vector<>();
             while (res.hasMoreElements()) {
                 ICRLIssuingPointRecord nextelement =
                         (ICRLIssuingPointRecord) res.nextElement();

@@ -258,7 +258,7 @@ public class SubjAltNameExt extends APolicyRule
      */
     protected Vector<String> getEmailList(IAuthToken tok) throws IOException {
 
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         addValues(tok, "mail", v);
         addValues(tok, "mailalternateaddress", v);
@@ -333,7 +333,7 @@ public class SubjAltNameExt extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         //params.addElement("PROP_AGENT_OVERR = " + mAllowAgentOverride);
         //params.addElement("PROP_EE_OVERR = " + mAllowEEOverride);
@@ -350,7 +350,7 @@ public class SubjAltNameExt extends APolicyRule
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> defParams = new Vector<String>();
+        Vector<String> defParams = new Vector<>();
 
         //defParams.addElement("PROP_AGENT_OVERR = " + DEF_AGENT_OVERR);
         //defParams.addElement("PROP_EE_OVERR = " + DEF_EE_OVERR);

@@ -74,9 +74,9 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     protected IConfigStore mConfig;
     protected SubjectDirAttributesExtension mExt = null;
 
-    protected Vector<String> mParams = new Vector<String>();
+    protected Vector<String> mParams = new Vector<>();
     private String[] mEPI = null; // extended plugin info
-    protected static Vector<String> mDefParams = new Vector<String>();
+    protected static Vector<String> mDefParams = new Vector<>();
 
     static {
         setDefaultParams();
@@ -227,7 +227,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     }
 
     private void setExtendedPluginInfo() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(PROP_CRITICAL + ";boolean;" +
                 "RFC 2459 recommendation: MUST be non-critical.");
@@ -249,7 +249,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
 
     private SubjectDirAttributesExtension formExt(IRequest req)
             throws IOException {
-        Vector<Attribute> attrs = new Vector<Attribute>();
+        Vector<Attribute> attrs = new Vector<>();
 
         // if we're called from init and one attribute is from request attribute
         // the ext can't be formed yet.

@@ -109,7 +109,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         String host = "";
         String port = "";
         String path = "";
@@ -149,7 +149,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig config = engine.getConfig();

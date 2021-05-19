@@ -77,12 +77,12 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     // Policies that can't be deleted nor disabled.
     public final static Hashtable<String, IExpression> DEF_UNDELETABLE_POLICIES =
-            new Hashtable<String, IExpression>();
+            new Hashtable<>();
 
     private String mId = "Policy";
-    private Vector<String> mPolicyOrder = new Vector<String>();
-    private Hashtable<String, RegisteredPolicy> mImplTable = new Hashtable<String, RegisteredPolicy>();
-    private Hashtable<String, PolicyInstance> mInstanceTable = new Hashtable<String, PolicyInstance>();
+    private Vector<String> mPolicyOrder = new Vector<>();
+    private Hashtable<String, RegisteredPolicy> mImplTable = new Hashtable<>();
+    private Hashtable<String, PolicyInstance> mInstanceTable = new Hashtable<>();
     PolicySet mEnrollmentRules = new PolicySet("EnrollmentRules");
     PolicySet mRenewalRules = new PolicySet("RenewalRules");
     PolicySet mRevocationRules = new PolicySet("RevocationRules");
@@ -462,7 +462,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     @Override
     public Enumeration<IPolicyRule> getPolicyImpls() {
-        Vector<IPolicyRule> impls = new Vector<IPolicyRule>();
+        Vector<IPolicyRule> impls = new Vector<>();
         Enumeration<RegisteredPolicy> enum1 = mImplTable.elements();
         Enumeration<IPolicyRule> ret = null;
 
@@ -484,7 +484,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     @Override
     public Enumeration<String> getPolicyImplsInfo() {
-        Vector<String> impls = new Vector<String>();
+        Vector<String> impls = new Vector<>();
         Enumeration<RegisteredPolicy> enum1 = mImplTable.elements();
         Enumeration<String> ret = null;
 
@@ -525,7 +525,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         Vector<String> v = rp.getDefaultParams();
 
         if (v == null)
-            v = new Vector<String>();
+            v = new Vector<>();
         v.insertElementAt(IPolicyRule.PROP_ENABLE + "=" + "true", 0);
         v.insertElementAt(IPolicyRule.PROP_PREDICATE + "=" + " ", 1);
         return v;
@@ -629,7 +629,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     @Override
     public Enumeration<IPolicyRule> getPolicyInstances() {
-        Vector<IPolicyRule> rules = new Vector<IPolicyRule>();
+        Vector<IPolicyRule> rules = new Vector<>();
         Enumeration<String> enum1 = mPolicyOrder.elements();
         Enumeration<IPolicyRule> ret = null;
 
@@ -649,7 +649,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     @Override
     public Enumeration<String> getPolicyInstancesInfo() {
-        Vector<String> rules = new Vector<String>();
+        Vector<String> rules = new Vector<>();
         Enumeration<String> enum1 = mPolicyOrder.elements();
         Enumeration<String> ret = null;
 
@@ -682,7 +682,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         Vector<String> v = policyInstance.getRule().getInstanceParams();
 
         if (v == null)
-            v = new Vector<String>();
+            v = new Vector<>();
         v.insertElementAt(PROP_IMPL_NAME + "=" + policyInstance.getImplId(), 0);
         v.insertElementAt(PROP_ENABLE + "=" + policyInstance.isActive(), 1);
         String predicate = " ";
@@ -1016,7 +1016,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     public synchronized void changePolicyInstanceOrdering(
             String policyOrderStr)
             throws EBaseException {
-        Vector<String> policyOrder = new Vector<String>();
+        Vector<String> policyOrder = new Vector<>();
         StringTokenizer tokens = new StringTokenizer(policyOrderStr, ",");
 
         // Get all the elements
@@ -1202,7 +1202,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 configuredDefaults.trim().length() == 0)
             mSystemDefaults = DEF_POLICIES;
         else {
-            Vector<String> rules = new Vector<String>();
+            Vector<String> rules = new Vector<>();
             StringTokenizer tokenizer = new
                     StringTokenizer(configuredDefaults.trim(), ",");
 
@@ -1351,7 +1351,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             return;
         }
 
-        Vector<String> rules = new Vector<String>();
+        Vector<String> rules = new Vector<>();
         StringTokenizer tokenizer = new
                 StringTokenizer(configuredUndeletables.trim(), ",");
 
@@ -1368,7 +1368,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
         // For each rule read from the config file, see if any
         // predicate is set.
-        mUndeletablePolicies = new Hashtable<String, IExpression>();
+        mUndeletablePolicies = new Hashtable<>();
         for (Enumeration<String> e = rules.elements(); e.hasMoreElements();) {
             String urn = e.nextElement();
 

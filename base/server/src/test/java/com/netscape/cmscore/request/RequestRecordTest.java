@@ -40,7 +40,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
     }
 
     public void testGetExtData() {
-        Hashtable<String, Object> hash = new Hashtable<String, Object>();
+        Hashtable<String, Object> hash = new Hashtable<>();
 
         assertNotSame(hash, requestRecord.get(RequestRecord.ATTR_EXT_DATA));
         requestRecord.mExtData = hash;
@@ -48,7 +48,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
     }
 
     public void testSetExtData() {
-        Hashtable<String, Object> hash = new Hashtable<String, Object>();
+        Hashtable<String, Object> hash = new Hashtable<>();
 
         assertNotSame(requestRecord.mExtData, hash);
         requestRecord.set(RequestRecord.ATTR_EXT_DATA, hash);
@@ -61,7 +61,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
 
     public void testAddExtData() throws EBaseException {
         request.setExtData("foo", "bar");
-        Hashtable<String, String> requestHashValue = new Hashtable<String, String>();
+        Hashtable<String, String> requestHashValue = new Hashtable<>();
         requestHashValue.put("red", "rum");
         requestHashValue.put("blue", "gin");
         request.setExtData("hashkey", requestHashValue);
@@ -73,9 +73,9 @@ public class RequestRecordTest extends CMSBaseTestCase {
     }
 
     public void testReadExtData() throws EBaseException {
-        Hashtable<String, Object> extData = new Hashtable<String, Object>();
+        Hashtable<String, Object> extData = new Hashtable<>();
         extData.put("foo", "bar");
-        Hashtable<String, String> extDataHashValue = new Hashtable<String, String>();
+        Hashtable<String, String> extDataHashValue = new Hashtable<>();
         extDataHashValue.put("red", "rum");
         extDataHashValue.put("blue", "gin");
         extData.put("hashkey", extDataHashValue);

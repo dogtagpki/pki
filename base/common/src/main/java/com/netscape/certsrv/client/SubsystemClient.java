@@ -103,7 +103,7 @@ public class SubsystemClient extends Client {
 
         logger.info("Requesting " + type + " range");
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
         content.putSingle("type", type);
         content.putSingle("xmlOutput", "true");
         content.putSingle("sessionID", sessionID);
@@ -155,7 +155,7 @@ public class SubsystemClient extends Client {
             String subsystemCert,
             String sessionId) throws Exception {
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
         content.putSingle("uid", uid);
         content.putSingle("xmlOutput", "true");
         content.putSingle("sessionID", sessionId);

@@ -178,7 +178,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         return v;
     }
@@ -190,7 +190,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         return v;
     }

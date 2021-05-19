@@ -143,7 +143,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         String dir = "";
         String ext = "";
 
@@ -194,7 +194,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(PROP_DIR + "=");
         v.addElement(PROP_DER + "=true");

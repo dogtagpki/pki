@@ -50,10 +50,10 @@ public class ProfileInput {
     private String text;
 
     @XmlElement(name = "Attribute")
-    private List<ProfileAttribute> attrs = new ArrayList<ProfileAttribute>();
+    private List<ProfileAttribute> attrs = new ArrayList<>();
 
     @XmlElement(name = "ConfigAttribute")
-    private List<ProfileAttribute> configAttrs = new ArrayList<ProfileAttribute>();
+    private List<ProfileAttribute> configAttrs = new ArrayList<>();
 
     public ProfileInput() {
         // required for jaxb

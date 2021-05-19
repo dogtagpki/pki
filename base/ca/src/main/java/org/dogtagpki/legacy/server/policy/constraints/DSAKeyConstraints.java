@@ -65,7 +65,7 @@ public class DSAKeyConstraints extends APolicyRule
     private final static String PROP_MIN_SIZE = "minSize";
     private final static String PROP_MAX_SIZE = "maxSize";
 
-    private final static Vector<String> defConfParams = new Vector<String>();
+    private final static Vector<String> defConfParams = new Vector<>();
 
     private IConfigStore mConfig = null;
 
@@ -235,7 +235,7 @@ public class DSAKeyConstraints extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> confParams = new Vector<String>();
+        Vector<String> confParams = new Vector<>();
 
         try {
             confParams.addElement(PROP_MIN_SIZE + "=" + mConfig.getInteger(PROP_MIN_SIZE, DEF_MIN_SIZE));

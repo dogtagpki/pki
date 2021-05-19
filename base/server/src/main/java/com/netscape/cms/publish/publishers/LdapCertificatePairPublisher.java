@@ -97,7 +97,7 @@ public class LdapCertificatePairPublisher
 
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement("crossCertPairAttr=" + mCrossCertPairAttr);
         v.addElement("caObjectClass=" + mCaObjectclass);
@@ -110,7 +110,7 @@ public class LdapCertificatePairPublisher
 
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement("crossCertPairAttr=" + mCrossCertPairAttr);
         v.addElement("caObjectClass=" + mCaObjectclass);

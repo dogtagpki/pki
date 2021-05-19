@@ -103,7 +103,7 @@ public class DNS01Validator extends ACMEValidator {
 
         // TODO: remove dependency on Sun's library
 
-        Hashtable<String, String> env = new Hashtable<String, String>();
+        Hashtable<String, String> env = new Hashtable<>();
         env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
 
         DirContext dirContext = new InitialDirContext(env);

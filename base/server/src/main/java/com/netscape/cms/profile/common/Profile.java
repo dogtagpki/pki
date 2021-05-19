@@ -100,18 +100,18 @@ public abstract class Profile {
     protected IConfigStore mConfig = null;
     protected PluginRegistry registry;
 
-    protected Vector<String> mInputNames = new Vector<String>();
-    protected Hashtable<String, ProfileInput> mInputs = new Hashtable<String, ProfileInput>();
-    protected Vector<String> mInputIds = new Vector<String>();
-    protected Hashtable<String, ProfileOutput> mOutputs = new Hashtable<String, ProfileOutput>();
-    protected Vector<String> mOutputIds = new Vector<String>();
-    protected Hashtable<String, IProfileUpdater> mUpdaters = new Hashtable<String, IProfileUpdater>();
-    protected Vector<String> mUpdaterIds = new Vector<String>();
+    protected Vector<String> mInputNames = new Vector<>();
+    protected Hashtable<String, ProfileInput> mInputs = new Hashtable<>();
+    protected Vector<String> mInputIds = new Vector<>();
+    protected Hashtable<String, ProfileOutput> mOutputs = new Hashtable<>();
+    protected Vector<String> mOutputIds = new Vector<>();
+    protected Hashtable<String, IProfileUpdater> mUpdaters = new Hashtable<>();
+    protected Vector<String> mUpdaterIds = new Vector<>();
     protected String mAuthInstanceId = null;
     protected String mId = null;
     protected String mAuthzAcl = "";
 
-    protected Hashtable<String, Vector<ProfilePolicy>> mPolicySet = new Hashtable<String, Vector<ProfilePolicy>>();
+    protected Hashtable<String, Vector<ProfilePolicy>> mPolicySet = new Hashtable<>();
 
     public Profile() {
     }
@@ -550,7 +550,7 @@ public abstract class Profile {
     public void deleteAllProfilePolicies() throws EProfileException {
         for (Map.Entry<String, Vector<ProfilePolicy>> entry : mPolicySet.entrySet()) {
             String setId = entry.getKey();
-            Vector<ProfilePolicy> pList = new Vector<ProfilePolicy>(entry.getValue());
+            Vector<ProfilePolicy> pList = new Vector<>(entry.getValue());
             for (ProfilePolicy policy: pList) {
                 deleteProfilePolicy(setId, policy.getId());
             }
@@ -611,7 +611,7 @@ public abstract class Profile {
      */
     public void deleteAllProfileInputs() throws EProfileException {
         // need to use a copy here because we are removing elements from the vector
-        Vector<String> inputs = new Vector<String>(mInputIds);
+        Vector<String> inputs = new Vector<>(mInputIds);
         for (String id: inputs) {
             deleteProfileInput(id);
         }
@@ -669,7 +669,7 @@ public abstract class Profile {
      */
     public void deleteAllProfileOutputs() throws EProfileException {
      // need to use a copy here because we are removing elements from the vector
-        Vector<String> outputs = new Vector<String>(mOutputIds);
+        Vector<String> outputs = new Vector<>(mOutputIds);
         for (String id: outputs) {
             deleteProfileOutput(id);
         }
@@ -913,7 +913,7 @@ public abstract class Profile {
 
         IConfigStore policyStore = mConfig.getSubStore("policyset." + setId);
         if (policies == null) {
-            policies = new Vector<ProfilePolicy>();
+            policies = new Vector<>();
             mPolicySet.put(setId, policies);
             if (createConfig) {
                 // re-create policyset.list
@@ -1339,7 +1339,7 @@ public abstract class Profile {
         if (policies == null)
             return null;
 
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         for (int i = 0; i < policies.size(); i++) {
             ProfilePolicy policy = policies.elementAt(i);

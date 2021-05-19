@@ -161,7 +161,7 @@ public class DynamicVariablesServlet extends CMSServlet {
             String dynvarconfig = sc.getInitParameter(PROP_DYNVAR);
             StringTokenizer s = new StringTokenizer(dynvarconfig, ",");
 
-            dynvars = new Hashtable<Integer, String>();
+            dynvars = new Hashtable<>();
 
             while (s.hasMoreTokens()) {
                 String token = s.nextToken();

@@ -369,7 +369,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
         String minS = null;
         String maxS = null;
 
-        Vector<GeneralSubtree> subtrees = new Vector<GeneralSubtree>();
+        Vector<GeneralSubtree> subtrees = new Vector<>();
 
         for (int i = 0; i < size; i++) {
             NameValuePairs nvps = v.elementAt(i);
@@ -601,7 +601,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
 
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
 
-            Vector<GeneralSubtree> v = new Vector<GeneralSubtree>();
+            Vector<GeneralSubtree> v = new Vector<>();
 
             for (int i = 0; i < num; i++) {
                 String enable = getConfig(CONFIG_PERMITTED_ENABLE + i);
@@ -616,7 +616,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                 }
             }
 
-            Vector<GeneralSubtree> v1 = new Vector<GeneralSubtree>();
+            Vector<GeneralSubtree> v1 = new Vector<>();
 
             num = getNumExcluded();
             for (int i = 0; i < num; i++) {

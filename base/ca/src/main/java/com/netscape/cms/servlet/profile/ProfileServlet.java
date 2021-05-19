@@ -159,7 +159,7 @@ public class ProfileServlet extends CMSServlet {
     protected String mProfileSubId = null;
 
     // stats
-    protected LinkedHashSet<String> statEvents = new LinkedHashSet<String>();
+    protected LinkedHashSet<String> statEvents = new LinkedHashSet<>();
 
     public ProfileServlet() {
         super();

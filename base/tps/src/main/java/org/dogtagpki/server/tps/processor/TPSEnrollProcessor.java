@@ -1518,7 +1518,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
          */
         Collection<TPSCertRecord> allCerts = tps.tdb.tdbGetCertRecordsByCUID(tokenRecord.getId());
 
-        Collection<TPSCertRecord> oldEncCertsToRecover = new ArrayList<TPSCertRecord>();
+        Collection<TPSCertRecord> oldEncCertsToRecover = new ArrayList<>();
 
         certsInfo.setNumCertsToEnroll(keyTypeNum);
 
@@ -2167,7 +2167,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         logger.debug("TPSEnrollProcessor.buildTokenLabel: pattern: " + pattern);
 
-        Map<String, String> nv = new LinkedHashMap<String, String>();
+        Map<String, String> nv = new LinkedHashMap<>();
 
         nv.put("cuid", ainfo.getCUIDhexString());
         nv.put("msn", ainfo.getMSNString());
@@ -2596,7 +2596,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     /*
                      * build up name/value pairs for pattern mapping
                      */
-                    LinkedHashMap<String, String> nv = new LinkedHashMap<String, String>();
+                    LinkedHashMap<String, String> nv = new LinkedHashMap<>();
 
                     nv.put("cuid", aInfo.getCUIDhexStringPlain());
                     nv.put("msn", aInfo.getMSNString());
@@ -3203,7 +3203,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
-        Map<String, String> nv = new LinkedHashMap<String, String>();
+        Map<String, String> nv = new LinkedHashMap<>();
 
         nv.put("cuid", ainfo.getCUIDhexString());
         nv.put("msn", ainfo.getMSNString());

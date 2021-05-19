@@ -68,7 +68,7 @@ public class RSAKeyConstraints extends APolicyRule
     private final static String PROP_EXPONENTS = "exponents";
     private final static String RSA = "RSA";
 
-    private final static Vector<String> defConfParams = new Vector<String>();
+    private final static Vector<String> defConfParams = new Vector<>();
 
     static {
         defConfParams.addElement(PROP_MIN_SIZE + "=" + DEF_MIN_SIZE);
@@ -134,7 +134,7 @@ public class RSAKeyConstraints extends APolicyRule
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_A_GREATER_THAN_EQUAL_B", PROP_MIN_SIZE, PROP_MAX_SIZE));
 
-        mExponents = new Vector<BigInt>();
+        mExponents = new Vector<>();
 
         // Get exponents
         exponents = config.getString(PROP_EXPONENTS, null);
@@ -258,7 +258,7 @@ public class RSAKeyConstraints extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> confParams = new Vector<String>();
+        Vector<String> confParams = new Vector<>();
 
         confParams.addElement(PROP_MIN_SIZE + "=" + mMinSize);
         confParams.addElement(PROP_MAX_SIZE + "=" + mMaxSize);

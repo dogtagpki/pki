@@ -99,7 +99,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
             curveList = "nistp256,nistp384,nistp521";
         }
 
-        supportedECCurves_ht = new Hashtable<String, String>();
+        supportedECCurves_ht = new Hashtable<>();
         String[] supportedECCurves = curveList.split(",");
         for ( int i = 0; i < supportedECCurves.length; i++) {
             supportedECCurves_ht.put(supportedECCurves[i], supportedECCurves[i]);

@@ -17,7 +17,7 @@ public class ExtDataHashtableTest extends CMSBaseTestCase {
 
     @Override
     public void cmsTestSetUp() {
-        hash = new ExtDataHashtable<String>();
+        hash = new ExtDataHashtable<>();
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ExtDataHashtableTest extends CMSBaseTestCase {
     }
 
     public void testPutAll() {
-        Hashtable<String, String> hash2 = new Hashtable<String, String>();
+        Hashtable<String, String> hash2 = new Hashtable<>();
         hash2.put("KEY1", "VAL1");
         hash2.put("KEY2", "val2");
 
@@ -69,11 +69,11 @@ public class ExtDataHashtableTest extends CMSBaseTestCase {
     }
 
     public void testMapConstructor() {
-        Hashtable<String, String> hash2 = new Hashtable<String, String>();
+        Hashtable<String, String> hash2 = new Hashtable<>();
         hash2.put("KEY1", "VAL1");
         hash2.put("KEY2", "val2");
 
-        hash = new ExtDataHashtable<String>(hash2);
+        hash = new ExtDataHashtable<>(hash2);
 
         assertTrue(hash.containsKey("key1"));
         assertEquals("VAL1", hash.get("key1"));

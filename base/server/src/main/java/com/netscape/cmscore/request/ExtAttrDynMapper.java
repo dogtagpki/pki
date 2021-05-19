@@ -57,7 +57,7 @@ public class ExtAttrDynMapper extends DBDynAttrMapper {
 
     protected final static String extAttrPrefix = "extdata-";
 
-    protected final static Vector<String> mAttrs = new Vector<String>();
+    protected final static Vector<String> mAttrs = new Vector<>();
 
     static {
         mAttrs.add(Schema.LDAP_ATTR_EXT_ATTR);
@@ -276,7 +276,7 @@ public class ExtAttrDynMapper extends DBDynAttrMapper {
             IDBObj parent)
             throws EBaseException {
 
-        Hashtable<String, Object> ht = new Hashtable<String, Object>();
+        Hashtable<String, Object> ht = new Hashtable<>();
         Hashtable<String, String> valueHashtable;
 
         Enumeration<LDAPAttribute> attrEnum = attrs.getAttributes();
@@ -330,7 +330,7 @@ public class ExtAttrDynMapper extends DBDynAttrMapper {
 
             valueHashtable = (Hashtable<String, String>) value;
             if (valueHashtable == null) {
-                valueHashtable = new Hashtable<String, String>();
+                valueHashtable = new Hashtable<>();
                 ht.put(keyName, valueHashtable);
             }
 

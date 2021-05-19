@@ -55,7 +55,7 @@ public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
     @Override
     public Collection<ConnectorRecord> findRecords(String filter) throws Exception {
 
-        Collection<ConnectorRecord> result = new ArrayList<ConnectorRecord>();
+        Collection<ConnectorRecord> result = new ArrayList<>();
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 

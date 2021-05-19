@@ -128,13 +128,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     protected TransportKeyUnit mTransportKeyUnit = null;
     protected StorageKeyUnit mStorageKeyUnit = null;
-    protected Hashtable<String, Credential[]> mAutoRecovery = new Hashtable<String, Credential[]>();
+    protected Hashtable<String, Credential[]> mAutoRecovery = new Hashtable<>();
     protected boolean mAutoRecoveryOn = false;
     protected KeyRepository mKeyDB = null;
     protected ReplicaIDRepository mReplicaRepot = null;
     protected int mRecoveryIDCounter = 0;
     protected Hashtable<String, Hashtable<String, Object>> mRecoveryParams =
-            new Hashtable<String, Hashtable<String, Object>>();
+            new Hashtable<>();
     protected org.mozilla.jss.crypto.X509Certificate mJssCert = null;
     protected CryptoToken mKeygenToken = null;
 
@@ -643,7 +643,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     @Override
     public Hashtable<String, Object> createRecoveryParams(String recoveryID)
             throws EBaseException {
-        Hashtable<String, Object> h = new Hashtable<String, Object>();
+        Hashtable<String, Object> h = new Hashtable<>();
 
         h.put(PARAM_CREDS, new Vector<Credential>());
         h.put(PARAM_LOCK, new Object());
@@ -1548,7 +1548,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     */
 
     public Hashtable<String, Hashtable<String, Object>> mVolatileRequests =
-            new Hashtable<String, Hashtable<String, Object>>();
+            new Hashtable<>();
 
     /**
      * Creates a request object to store attributes that
@@ -1559,7 +1559,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     @Override
     public Hashtable<String, Object> createVolatileRequest(RequestId id) {
-        Hashtable<String, Object> params = new Hashtable<String, Object>();
+        Hashtable<String, Object> params = new Hashtable<>();
 
         mVolatileRequests.put(id.toString(), params);
         return params;

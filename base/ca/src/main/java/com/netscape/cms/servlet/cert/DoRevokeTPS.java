@@ -356,8 +356,8 @@ public class DoRevokeTPS extends CMSServlet {
         X509CertImpl[] oldCerts;
 
         try {
-            Vector<X509CertImpl> oldCertsV = new Vector<X509CertImpl>();
-            Vector<RevokedCertImpl> revCertImplsV = new Vector<RevokedCertImpl>();
+            Vector<X509CertImpl> oldCertsV = new Vector<>();
+            Vector<RevokedCertImpl> revCertImplsV = new Vector<>();
 
             // Construct a CRL reason code extension.
 

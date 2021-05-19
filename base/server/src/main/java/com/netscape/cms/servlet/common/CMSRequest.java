@@ -75,7 +75,7 @@ public class CMSRequest implements ICMSRequest {
 
     // any request resulting data;
     Object mResult = null;
-    Hashtable<String, Object> mResults = new Hashtable<String, Object>();
+    Hashtable<String, Object> mResults = new Hashtable<>();
 
     /**
      * Constructor
@@ -163,7 +163,7 @@ public class CMSRequest implements ICMSRequest {
 
     public void setErrorDescription(String descr) {
         if (mErrorDescr == null)
-            mErrorDescr = new Vector<String>();
+            mErrorDescr = new Vector<>();
         mErrorDescr.addElement(descr);
     }
 

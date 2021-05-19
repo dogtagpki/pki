@@ -31,7 +31,7 @@ public class ModificationSet {
     /**
      * A list of modifications
      */
-    private Vector<Modification> mods = new Vector<Modification>();
+    private Vector<Modification> mods = new Vector<>();
 
     /**
      * Constructs modification set.

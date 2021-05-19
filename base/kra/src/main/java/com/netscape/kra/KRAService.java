@@ -52,7 +52,7 @@ public class KRAService implements IService {
 
 
     // private variables
-    private Hashtable<String, IService> mServices = new Hashtable<String, IService>();
+    private Hashtable<String, IService> mServices = new Hashtable<>();
 
     /**
      * Constructs KRA service.

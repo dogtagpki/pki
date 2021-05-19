@@ -38,7 +38,7 @@ public class Processor {
      */
     public Map<String, String> getParams(Object object) {
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
 
         // for each fields in the object
         for (Method method : object.getClass().getMethods()) {

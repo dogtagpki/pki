@@ -213,7 +213,7 @@ public class CryptoUtil {
         SSLSocket.TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256
 */
     };
-    static public List<Integer> clientECCipherList = new ArrayList<Integer>(Arrays.asList(clientECCiphers));
+    static public List<Integer> clientECCipherList = new ArrayList<>(Arrays.asList(clientECCiphers));
 
     private static final String[] ecCurves = {
             "nistp256", "nistp384", "nistp521", "sect163k1", "nistk163", "sect163r1", "sect163r2",
@@ -233,7 +233,7 @@ public class CryptoUtil {
     };
 
 
-    private final static HashMap<String, Vector<String>> ecOIDs = new HashMap<String, Vector<String>>();
+    private final static HashMap<String, Vector<String>> ecOIDs = new HashMap<>();
     static {
         ecOIDs.put("1.2.840.10045.3.1.7", new Vector<String>() {
             {
@@ -1799,7 +1799,7 @@ public class CryptoUtil {
     public static X509CertImpl[] getAllUserCerts()
             throws NotInitializedException,
                 TokenException {
-        Vector<X509CertImpl> certs = new Vector<X509CertImpl>();
+        Vector<X509CertImpl> certs = new Vector<>();
         CryptoManager cm = CryptoManager.getInstance();
         Enumeration<CryptoToken> enums = cm.getAllTokens();
 
@@ -2313,7 +2313,7 @@ public class CryptoUtil {
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = cm.getInternalKeyStorageToken();
 
-        List<byte[]> listWrappedKeys = new ArrayList<byte[]>();
+        List<byte[]> listWrappedKeys = new ArrayList<>();
 
         KeyManager km = new KeyManager(token);
         if (!km.uniqueNamedKeyExists(nickname)) {

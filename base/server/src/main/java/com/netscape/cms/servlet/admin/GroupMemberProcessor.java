@@ -119,7 +119,7 @@ public class GroupMemberProcessor extends Processor {
             GroupMemberCollection response = new GroupMemberCollection();
 
             Enumeration<String> members = group.getMemberNames();
-            List<String> results = new ArrayList<String>();
+            List<String> results = new ArrayList<>();
 
             // filter members
             while (members.hasMoreElements()) {

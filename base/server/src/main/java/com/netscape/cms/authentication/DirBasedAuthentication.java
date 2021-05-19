@@ -147,7 +147,7 @@ public abstract class DirBasedAuthentication
     protected static Vector<String> mExtendedPluginInfo = null;
 
     static {
-        mExtendedPluginInfo = new Vector<String>();
+        mExtendedPluginInfo = new Vector<>();
         mExtendedPluginInfo.add(PROP_DNPATTERN + ";string;Template for cert" +
                 " Subject Name. ($dn.xxx - get value from user's LDAP " +
                 "DN.  $attr.yyy - get value from LDAP attributes in " +
@@ -698,7 +698,7 @@ public abstract class DirBasedAuthentication
         if (values == null)
             return;
 
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         Enumeration<String> e = values.getStringValues();
 
         while (e.hasMoreElements()) {
@@ -719,7 +719,7 @@ public abstract class DirBasedAuthentication
         if (values == null)
             return;
 
-        Vector<byte[]> v = new Vector<byte[]>();
+        Vector<byte[]> v = new Vector<>();
         Enumeration<byte[]> e = values.getByteValues();
 
         while (e.hasMoreElements()) {

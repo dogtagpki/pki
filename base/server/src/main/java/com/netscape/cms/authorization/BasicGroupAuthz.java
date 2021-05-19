@@ -64,7 +64,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
     protected static String[] configParams;
 
     static {
-        extendedPluginInfo = new Vector<String>();
+        extendedPluginInfo = new Vector<>();
         extendedPluginInfo.add("group;string,required;" +
                 "Group to permit access");
     }

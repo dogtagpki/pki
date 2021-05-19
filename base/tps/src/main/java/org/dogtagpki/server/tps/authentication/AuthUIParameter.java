@@ -46,8 +46,8 @@ public class AuthUIParameter {
     public AuthUIParameter(String id)
             throws EBaseException {
         paramId = id;
-        uiParamIdName = new HashMap<String, String>();
-        uiParamIdDescription = new HashMap<String, String>();
+        uiParamIdName = new HashMap<>();
+        uiParamIdDescription = new HashMap<>();
     }
 
     public void setParamName(String locale, String name) {

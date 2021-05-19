@@ -116,7 +116,7 @@ public class ClientCertValidateCLI extends CommandCLI {
                 System.out.println("Cert is good for nothing: " + nickname);
                 return false;
             } else {
-                List<String> usages = new ArrayList<String>();
+                List<String> usages = new ArrayList<>();
                 if ((ccu & CertificateUsage.SSLServer.getUsage()) != 0)
                     usages.add("SSLServer");
                 if ((ccu & CertificateUsage.SSLClient.getUsage()) != 0)

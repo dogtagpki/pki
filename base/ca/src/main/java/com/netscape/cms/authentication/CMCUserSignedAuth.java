@@ -188,7 +188,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
 
     /* actual help messages */
     static {
-        mExtendedPluginInfo = new Vector<String>();
+        mExtendedPluginInfo = new Vector<>();
 
         mExtendedPluginInfo
                 .add(IExtendedPluginInfo.HELP_TEXT +
@@ -981,7 +981,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
 
             SET dais = cmcFullReq.getDigestAlgorithmIdentifiers();
             int numDig = dais.size();
-            Hashtable<String, byte[]> digs = new Hashtable<String, byte[]>();
+            Hashtable<String, byte[]> digs = new Hashtable<>();
 
             //if request key is used for signing, there MUST be only one signerInfo
             //object in the signedData object.
@@ -1263,7 +1263,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
      */
     @Override
     public Enumeration<String> getValueNames() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         v.addElement("cert_request");
         return v.elements();
     }

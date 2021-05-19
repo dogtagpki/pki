@@ -70,7 +70,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
         };
 
     // stores the eventual content of the email
-    Vector<String> mContent = new Vector<String>();
+    Vector<String> mContent = new Vector<>();
     Hashtable<String, Object> mTok2vals = null;
 
     public EmailFormProcessor() {

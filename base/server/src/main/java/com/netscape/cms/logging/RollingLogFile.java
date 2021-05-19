@@ -615,7 +615,7 @@ public class RollingLogFile extends LogFile {
     @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] p = super.getExtendedPluginInfo(locale);
-        Vector<String> info = new Vector<String>();
+        Vector<String> info = new Vector<>();
 
         for (int i = 0; i < p.length; i++) {
             if (!p[i].startsWith(IExtendedPluginInfo.HELP_TOKEN) && !p[i].startsWith(IExtendedPluginInfo.HELP_TEXT))

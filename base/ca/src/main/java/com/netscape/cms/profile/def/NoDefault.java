@@ -38,8 +38,8 @@ public class NoDefault extends PolicyDefault {
 
     public static final String PROP_NAME = "name";
 
-    protected Vector<String> mValues = new Vector<String>();
-    protected Vector<String> mNames = new Vector<String>();
+    protected Vector<String> mValues = new Vector<>();
+    protected Vector<String> mNames = new Vector<>();
     protected IConfigStore mConfig = null;
 
     @Override

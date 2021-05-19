@@ -17,7 +17,7 @@ public class KRAKeyTemplateFindCLI extends CommandCLI {
 
     public KRAKeyCLI keyCLI;
 
-    public ArrayList<KeyTemplate> templates = new ArrayList<KeyTemplate>();
+    public ArrayList<KeyTemplate> templates = new ArrayList<>();
 
     public KRAKeyTemplateFindCLI(KRAKeyCLI keyCLI) {
         super("template-find", "List request template IDs", keyCLI);

@@ -122,7 +122,7 @@ public class MapDNPattern {
 
     private void parse(PushbackReader in)
             throws ELdapException {
-        Vector<MapRDNPattern> rdnPatterns = new Vector<MapRDNPattern>();
+        Vector<MapRDNPattern> rdnPatterns = new Vector<>();
         MapRDNPattern rdnPattern = null;
         int lastChar = -1;
 
@@ -140,7 +140,7 @@ public class MapDNPattern {
         mRDNPatterns = new MapRDNPattern[rdnPatterns.size()];
         rdnPatterns.copyInto(mRDNPatterns);
 
-        Vector<String> reqAttrs = new Vector<String>();
+        Vector<String> reqAttrs = new Vector<>();
 
         for (int i = 0; i < mRDNPatterns.length; i++) {
             String[] rdnAttrs = mRDNPatterns[i].getReqAttrs();
@@ -152,7 +152,7 @@ public class MapDNPattern {
         mReqAttrs = new String[reqAttrs.size()];
         reqAttrs.copyInto(mReqAttrs);
 
-        Vector<String> certAttrs = new Vector<String>();
+        Vector<String> certAttrs = new Vector<>();
 
         for (int i = 0; i < mRDNPatterns.length; i++) {
             String[] rdnAttrs = mRDNPatterns[i].getCertAttrs();

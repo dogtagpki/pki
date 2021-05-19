@@ -62,12 +62,12 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
     public final static String PROP_PUBLISHER = "publisher";
     public final static String PROP_TYPE = "type";
 
-    public Hashtable<String, PublisherPlugin> mPublisherPlugins = new Hashtable<String, PublisherPlugin>();
-    public Hashtable<String, PublisherProxy> mPublisherInsts = new Hashtable<String, PublisherProxy>();
-    public Hashtable<String, MapperPlugin> mMapperPlugins = new Hashtable<String, MapperPlugin>();
-    public Hashtable<String, MapperProxy> mMapperInsts = new Hashtable<String, MapperProxy>();
-    public Hashtable<String, RulePlugin> mRulePlugins = new Hashtable<String, RulePlugin>();
-    public Hashtable<String, LdapRule> mRuleInsts = new Hashtable<String, LdapRule>();
+    public Hashtable<String, PublisherPlugin> mPublisherPlugins = new Hashtable<>();
+    public Hashtable<String, PublisherProxy> mPublisherInsts = new Hashtable<>();
+    public Hashtable<String, MapperPlugin> mMapperPlugins = new Hashtable<>();
+    public Hashtable<String, MapperProxy> mMapperInsts = new Hashtable<>();
+    public Hashtable<String, RulePlugin> mRulePlugins = new Hashtable<>();
+    public Hashtable<String, LdapRule> mRuleInsts = new Hashtable<>();
 
     // protected PublishRuleSet mRuleSet;
 

@@ -56,11 +56,11 @@ public class ProxyServlet extends HttpServlet {
     private String mDestContext = null;
     private String mSrcContext = null;
     private String mAppendPathInfo = null;
-    private Vector<String> mMatchStrings = new Vector<String>();
+    private Vector<String> mMatchStrings = new Vector<>();
     private String mDestServletOnNoMatch = null;
     private String mAppendPathInfoOnNoMatch = null;
-    private Map<String, String> mParamMap = new HashMap<String, String>();
-    private Map<String, String[]> mParamValue = new HashMap<String, String[]>();
+    private Map<String, String> mParamMap = new HashMap<>();
+    private Map<String, String[]> mParamValue = new HashMap<>();
 
     public ProxyServlet() {
     }
@@ -196,7 +196,7 @@ class ProxyWrapper extends HttpServletRequestWrapper {
                 return super.getParameterMap();
             else {
                 // Make a new Map for us to put stuff in
-                Map<String, String[]> n = new HashMap<String, String[]>();
+                Map<String, String[]> n = new HashMap<>();
                 // get the HTTP parameters the user supplied.
                 Map<String, String[]> m = super.getParameterMap();
                 Set<Map.Entry<String, String[]>> s = m.entrySet();

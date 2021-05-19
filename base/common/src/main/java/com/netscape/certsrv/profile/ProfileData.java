@@ -96,14 +96,14 @@ public class ProfileData {
     protected boolean xmlOutput;
 
     @XmlElement(name = "Input")
-    protected List<ProfileInput> inputs = new ArrayList<ProfileInput>();
+    protected List<ProfileInput> inputs = new ArrayList<>();
 
     @XmlElement(name = "Output")
-    protected List<ProfileOutput> outputs = new ArrayList<ProfileOutput>();
+    protected List<ProfileOutput> outputs = new ArrayList<>();
 
     @XmlElement(name = "PolicySets")
     @XmlJavaTypeAdapter(PolicySetAdapter.class)
-    protected Map<String, List<ProfilePolicy>> policySets = new LinkedHashMap<String, List<ProfilePolicy>>();
+    protected Map<String, List<ProfilePolicy>> policySets = new LinkedHashMap<>();
 
     protected Link link;
 
@@ -269,7 +269,7 @@ public class ProfileData {
 
         @Override
         public Map<String, Vector<ProfilePolicy>> unmarshal(PolicySetList list) {
-            Map<String, Vector<ProfilePolicy>> map = new LinkedHashMap<String, Vector<ProfilePolicy>>();
+            Map<String, Vector<ProfilePolicy>> map = new LinkedHashMap<>();
             for (PolicySet pset : list.psets) {
                 map.put(pset.name, pset.value);
             }
@@ -279,7 +279,7 @@ public class ProfileData {
 
     public static class PolicySetList {
         @XmlElement(name="PolicySet")
-        public List<PolicySet> psets = new ArrayList<PolicySet>();
+        public List<PolicySet> psets = new ArrayList<>();
     }
 
     public static class PolicySet {
@@ -292,7 +292,7 @@ public class ProfileData {
     }
 
     public static void main(String args[]) throws Exception {
-        List<ProfileInput> inputs = new ArrayList<ProfileInput>();
+        List<ProfileInput> inputs = new ArrayList<>();
         //ProfileInput input = new ProfileInput();
         //input.setClassId(classId);
         //input.setInputId(inputId);

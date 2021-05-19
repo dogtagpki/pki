@@ -55,11 +55,11 @@ public class Group implements IAttrSet {
     private String mName = null;
 
     // TODO: replace Vector with Set
-    private Vector<String> mMembers = new Vector<String>();
+    private Vector<String> mMembers = new Vector<>();
 
     private String mDescription = null;
 
-    private static final Vector<String> mNames = new Vector<String>();
+    private static final Vector<String> mNames = new Vector<>();
     static {
         mNames.addElement(ATTR_NAME);
         mNames.addElement(ATTR_ID);

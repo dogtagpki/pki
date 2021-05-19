@@ -73,7 +73,7 @@ class NameType {
         stringRep = s;
     }
 
-    private static Hashtable<String, NameType> map = new Hashtable<String, NameType>();
+    private static Hashtable<String, NameType> map = new Hashtable<>();
 
     /**
      * Looks up a NameType from its string representation. Returns null
@@ -145,9 +145,9 @@ public class CRLDistributionPointsExt extends APolicyRule
     // PKIX specifies the that the extension SHOULD NOT be critical
     public static final boolean DEFAULT_CRITICALITY = false;
 
-    private Vector<String> defaultParams = new Vector<String>();
+    private Vector<String> defaultParams = new Vector<>();
 
-    private Vector<String> mParams = new Vector<String>();
+    private Vector<String> mParams = new Vector<>();
     private String mExtParams[] = null;
     private CRLDistributionPointsExtension mCrldpExt = null;
 
@@ -166,7 +166,7 @@ public class CRLDistributionPointsExt extends APolicyRule
     }
 
     private void setExtendedPluginInfo() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         // should replace MAX_POINTS with mNumPoints if bug 385118 is fixed
         for (int i = 0; i < MAX_POINTS; i++) {

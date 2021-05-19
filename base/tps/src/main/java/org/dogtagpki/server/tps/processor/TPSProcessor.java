@@ -1371,7 +1371,7 @@ public class TPSProcessor {
                 description = auth.getUiTitle("en");
             // parameters
             HashMap<String, AuthUIParameter> authParamSet = auth.getUiParamSet();
-            Set<String> params = new HashSet<String>();
+            Set<String> params = new HashSet<>();
             for (Map.Entry<String, AuthUIParameter> entry : authParamSet.entrySet()) {
                 params.add(auth.getUiParam(entry.getKey()).toString(locale));
                 logger.debug("TPSProcessor.requestUserId: for extendedLoginRequest, added param: " +
@@ -1925,7 +1925,7 @@ public class TPSProcessor {
             vals = authToken.getInStringArray(erAttrs.ldapAttrNameCertsToRecover);
             if (vals != null) {
                 // A temporary list to hold retainable certs.
-                ArrayList<ExternalRegCertToRecover> retainableCerts = new ArrayList<ExternalRegCertToRecover>();
+                ArrayList<ExternalRegCertToRecover> retainableCerts = new ArrayList<>();
 
                 // if any cert is mis-configured, the whole thing will bail
                 for (String val : vals) {

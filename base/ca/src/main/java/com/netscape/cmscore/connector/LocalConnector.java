@@ -42,7 +42,7 @@ public class LocalConnector implements IConnector {
 
     ICertAuthority mSource = null;
     IAuthority mDest = null;
-    Hashtable<String, IRequest> mSourceReqs = new Hashtable<String, IRequest>();
+    Hashtable<String, IRequest> mSourceReqs = new Hashtable<>();
 
     public LocalConnector(ICertAuthority source, IAuthority dest) {
         mSource = source;

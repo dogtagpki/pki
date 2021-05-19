@@ -46,8 +46,8 @@ public class CMSExtensionsMap {
 
     private static final String PROP_CLASS = "class";
 
-    private Hashtable<String, CMSExtension> mName2Ext = new Hashtable<String, CMSExtension>();
-    private Hashtable<String, CMSExtension> mOID2Ext = new Hashtable<String, CMSExtension>();
+    private Hashtable<String, CMSExtension> mName2Ext = new Hashtable<>();
+    private Hashtable<String, CMSExtension> mOID2Ext = new Hashtable<>();
     private IConfigStore mConfig = null;
 
     /**

@@ -32,7 +32,7 @@ public class ConfigRecord {
     String id;
     String displayName;
     String pattern;
-    Collection<String> keys = new LinkedHashSet<String>();
+    Collection<String> keys = new LinkedHashSet<>();
 
     public String getID() {
         return id;

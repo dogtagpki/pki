@@ -91,7 +91,7 @@ public class TPSMessage {
     public static final String PARAMETER_NAME = "parameter";
     public static final String STATUS_UPDATE_EXTENSION_NAME = "statusUpdate";
 
-    private Map<String, String> map = new LinkedHashMap<String, String>();
+    private Map<String, String> map = new LinkedHashMap<>();
 
     public TPSMessage() {
     }
@@ -146,7 +146,7 @@ public class TPSMessage {
 
     public static Map<String, String> decodeToMap(String message) {
 
-        Map<String, String> msgMap = new LinkedHashMap<String, String>();
+        Map<String, String> msgMap = new LinkedHashMap<>();
 
         for (String nvp : message.split("&")) {
             String[] s = nvp.split("=");

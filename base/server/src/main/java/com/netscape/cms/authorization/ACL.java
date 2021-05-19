@@ -48,7 +48,7 @@ public class ACL implements IACL, java.io.Serializable {
     */
     private static final long serialVersionUID = -1867465948611161868L;
 
-    protected Vector<ACLEntry> entries = new Vector<ACLEntry>(); // ACL entries
+    protected Vector<ACLEntry> entries = new Vector<>(); // ACL entries
     protected TreeSet<String> rights = null; // possible rights entries
     protected String name = null; // resource name
     protected String description = null; // resource description
@@ -241,7 +241,7 @@ public class ACL implements IACL, java.io.Serializable {
             }
 
             if (rightsString != null) {
-                rights = new Vector<String>();
+                rights = new Vector<>();
                 StringTokenizer rtok = new StringTokenizer(rightsString, ",");
 
                 while (rtok.hasMoreTokens()) {

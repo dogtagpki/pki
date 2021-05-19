@@ -44,12 +44,12 @@ public class RenewableCertificateCollection {
     public void addCertificate(String renewalFlag, Object o) {
         if (renewalFlag.equals(CertRecord.AUTO_RENEWAL_ENABLED)) {
             if (mToRenew == null)
-                mToRenew = new Vector<Object>();
+                mToRenew = new Vector<>();
             mToRenew.addElement(o);
         }
         if (renewalFlag.equals(CertRecord.AUTO_RENEWAL_DISABLED)) {
             if (mToNotify == null)
-                mToNotify = new Vector<Object>();
+                mToNotify = new Vector<>();
             mToNotify.addElement(o);
         }
     }

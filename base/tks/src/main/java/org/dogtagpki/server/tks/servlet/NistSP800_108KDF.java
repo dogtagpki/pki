@@ -87,7 +87,7 @@ public class NistSP800_108KDF extends KDF {
             throw new EBaseException(method + " Invalid input parameters!");
         }
 
-        Map<String, SymmetricKey> keys = new HashMap<String, SymmetricKey>();
+        Map<String, SymmetricKey> keys = new HashMap<>();
 
         byte[] kdf_output = null;
 

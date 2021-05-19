@@ -4531,7 +4531,7 @@ public class KRATool {
         }
 
         // Create a vector for LDIF input
-        record = new Vector<String>(INITIAL_LDIF_RECORD_CAPACITY);
+        record = new Vector<>(INITIAL_LDIF_RECORD_CAPACITY);
 
         // Process each line in the source LDIF file
         // and store it in the target LDIF file
@@ -4805,7 +4805,7 @@ public class KRATool {
                          new FileReader(mKratoolCfgFilename));
 
             // Create a hashtable for relevant name/value pairs
-            kratoolCfg = new Hashtable<String, Boolean>();
+            kratoolCfg = new Hashtable<>();
 
             System.out.print("PROCESSING KRATOOL CONFIG FILE: ");
             while ((line = reader.readLine()) != null) {

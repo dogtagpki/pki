@@ -79,7 +79,7 @@ public class TestCRLSigning {
         // generate revoked certificates
         long startPutting = System.currentTimeMillis();
         Date curDate = new Date();
-        Hashtable<BigInteger, RevokedCertificate> badCerts = new Hashtable<BigInteger, RevokedCertificate>();
+        Hashtable<BigInteger, RevokedCertificate> badCerts = new Hashtable<>();
         int n = Integer.parseInt(num);
         for (int i = 0; i < n; i++) {
             badCerts.put(new BigInteger(Integer.toString(i)),

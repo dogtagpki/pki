@@ -72,7 +72,7 @@ public class ValidityConstraints extends APolicyRule
     public final static long DAYS_TO_MS_FACTOR = 24L * 3600 * 1000;
     public final static long MINS_TO_MS_FACTOR = 60L * 1000;
 
-    private final static Vector<String> defConfParams = new Vector<String>();
+    private final static Vector<String> defConfParams = new Vector<>();
 
     static {
         defConfParams.addElement(PROP_MIN_VALIDITY + "=" +
@@ -264,7 +264,7 @@ public class ValidityConstraints extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> confParams = new Vector<String>();
+        Vector<String> confParams = new Vector<>();
 
         confParams.addElement(PROP_MIN_VALIDITY + "=" +
                 mMinValidity / DAYS_TO_MS_FACTOR);

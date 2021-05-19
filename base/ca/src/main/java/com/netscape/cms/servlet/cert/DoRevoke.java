@@ -394,7 +394,7 @@ public class DoRevoke extends CMSServlet {
         processor.setInvalidityDate(invalidityDate);
         processor.setComments(comments);
 
-        Hashtable<BigInteger, Long> nonceMap = new Hashtable<BigInteger, Long>();
+        Hashtable<BigInteger, Long> nonceMap = new Hashtable<>();
         X509Certificate clientCert = getSSLClientCertificate(req);
 
         if (mAuthority instanceof ICertificateAuthority) {
@@ -465,7 +465,7 @@ public class DoRevoke extends CMSServlet {
 
             } else if (mAuthority instanceof IRegistrationAuthority) {
                 String reqIdStr = req.getParameter("requestId");
-                Collection<CertId> certSerialNumbers = new ArrayList<CertId>();
+                Collection<CertId> certSerialNumbers = new ArrayList<>();
 
                 if (revokeAll != null && revokeAll.length() > 0) {
                     for (int i = revokeAll.indexOf('='); i > -1; i = revokeAll.indexOf('=', i)) {

@@ -47,7 +47,7 @@ public class ExtendedLoginRequestMsg extends TPSMessage {
     @Override
     public String encode() {
 
-        List<String> orderedParams = new ArrayList<String>();
+        List<String> orderedParams = new ArrayList<>();
 
         //The UID param will always be first in the list
         if (!params.isEmpty()) {
@@ -91,7 +91,7 @@ public class ExtendedLoginRequestMsg extends TPSMessage {
         final String title = "LDAP Authentication";
         final String description = "This authenticates user against the LDAP directory.";
 
-        Set<String> params = new HashSet<String>();
+        Set<String> params = new HashSet<>();
 
         params.add("id=UID&name=LDAP User ID&desc=LDAP User ID&type=string&option=");
         params.add("id=PASSWORD&name=LDAP Password&desc=LDAP Password&type=password&option=");

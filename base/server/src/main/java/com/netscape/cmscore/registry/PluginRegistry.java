@@ -53,7 +53,7 @@ public class PluginRegistry {
     private IConfigStore mConfig = null;
     private PropConfigStore fileConfig;
     private Hashtable<String, Hashtable<String, IPluginInfo>> mTypes =
-            new Hashtable<String, Hashtable<String, IPluginInfo>>();
+            new Hashtable<>();
 
     public PluginRegistry() {
     }
@@ -159,7 +159,7 @@ public class PluginRegistry {
         Hashtable<String, IPluginInfo> plugins = mTypes.get(type);
 
         if (plugins == null) {
-            plugins = new Hashtable<String, IPluginInfo>();
+            plugins = new Hashtable<>();
             mTypes.put(type, plugins);
         }
 

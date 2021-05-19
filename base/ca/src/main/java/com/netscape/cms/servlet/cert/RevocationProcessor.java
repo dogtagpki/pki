@@ -82,8 +82,8 @@ public class RevocationProcessor extends CertProcessor {
     String requestType;
 
     CRLExtensions entryExtn;
-    Collection<X509CertImpl> certificates = new ArrayList<X509CertImpl>();
-    Collection<RevokedCertImpl> revCertImpls = new ArrayList<RevokedCertImpl>();
+    Collection<X509CertImpl> certificates = new ArrayList<>();
+    Collection<RevokedCertImpl> revCertImpls = new ArrayList<>();
     IRequest request;
     RequestStatus requestStatus;
 
@@ -368,7 +368,7 @@ public class RevocationProcessor extends CertProcessor {
 
         request.setExtData(IRequest.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
 
-        Collection<BigInteger> serialNumbers = new ArrayList<BigInteger>();
+        Collection<BigInteger> serialNumbers = new ArrayList<>();
         for (X509CertImpl cert : certificates) {
             serialNumbers.add(cert.getSerialNumber());
         }

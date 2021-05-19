@@ -120,7 +120,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
             loadProperties();
 
             String value = properties.getProperty(name);
-            Collection<String> authMethods = new HashSet<String>();
+            Collection<String> authMethods = new HashSet<>();
             if (value != null) {
                 for (String v : value.split(",")) {
                     authMethods.add(v.trim());

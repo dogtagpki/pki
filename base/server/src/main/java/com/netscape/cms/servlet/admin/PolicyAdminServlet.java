@@ -910,7 +910,7 @@ public class PolicyAdminServlet extends AdminServlet {
             // We need to fetch parameters: enable, predicate and implname
             // always, and any additional parameters as required by the
             // implementation.
-            Hashtable<String, String> ht = new Hashtable<String, String>();
+            Hashtable<String, String> ht = new Hashtable<>();
             String val = req.getParameter(IPolicyRule.PROP_ENABLE).trim();
 
             if (val == null)
@@ -1158,7 +1158,7 @@ public class PolicyAdminServlet extends AdminServlet {
             // We need to fetch parameters: enable, predicate and implname
             // always, and any additional parameters as required by the
             // implementation.
-            Hashtable<String, String> ht = new Hashtable<String, String>();
+            Hashtable<String, String> ht = new Hashtable<>();
             String val = req.getParameter(IPolicyRule.PROP_ENABLE).trim();
 
             if (val == null)

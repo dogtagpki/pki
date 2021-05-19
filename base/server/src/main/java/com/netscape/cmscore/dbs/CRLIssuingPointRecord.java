@@ -57,7 +57,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     protected Hashtable<BigInteger, RevokedCertificate> mUnrevokedCerts = null;
     protected Hashtable<BigInteger, RevokedCertificate> mExpiredCerts = null;
     protected byte mDeltaCRL[] = null;
-    protected static Vector<String> mNames = new Vector<String>();
+    protected static Vector<String> mNames = new Vector<>();
     static {
         mNames.addElement(ATTR_ID);
         mNames.addElement(ATTR_CRL_NUMBER);

@@ -54,7 +54,7 @@ public class ProfileDatabase extends CSCfgDatabase<ProfileRecord> {
     @Override
     public Collection<ProfileRecord> findRecords(String filter) throws Exception {
 
-        Collection<ProfileRecord> result = new ArrayList<ProfileRecord>();
+        Collection<ProfileRecord> result = new ArrayList<>();
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 

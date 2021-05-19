@@ -43,7 +43,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
     public String reqId = "";
     protected String reqStatus = "";
     protected String reqRealm = "";
-    protected Vector<Object> mNameVals = new Vector<Object>(); // sequence of name/vals.
+    protected Vector<Object> mNameVals = new Vector<>(); // sequence of name/vals.
 
     public HttpPKIMessage() {
     }
@@ -185,7 +185,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         reqId = (String) in.readObject();
         reqStatus = (String) in.readObject();
         reqRealm = (String) in.readObject();
-        mNameVals = new Vector<Object>();
+        mNameVals = new Vector<>();
         Object keyorval = null;
 
         try {

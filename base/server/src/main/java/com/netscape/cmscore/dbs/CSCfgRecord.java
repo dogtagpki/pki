@@ -30,7 +30,7 @@ public class CSCfgRecord {
 
     String id;
     String status;
-    Map<String, String> properties = new TreeMap<String, String>();
+    Map<String, String> properties = new TreeMap<>();
 
     public String getID() {
         return id;

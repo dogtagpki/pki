@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  public class SecurityDomainSubsystem {
 
     String name;
-    Map<String, SecurityDomainHost> hosts = new LinkedHashMap<String, SecurityDomainHost>();
+    Map<String, SecurityDomainHost> hosts = new LinkedHashMap<>();
 
     @XmlAttribute(name="id")
     public String getName() {

@@ -101,7 +101,7 @@ public class PKIConnection implements AutoCloseable {
         httpClient.setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(0, false));
 
         if (config.getUsername() != null && config.getPassword() != null) {
-            List<String> authPref = new ArrayList<String>();
+            List<String> authPref = new ArrayList<>();
             authPref.add(AuthPolicy.BASIC);
             httpClient.getParams().setParameter(AuthPNames.PROXY_AUTH_PREF, authPref);
 

@@ -45,7 +45,7 @@ public class Account extends ResourceMessage {
     String id;
     String fullName;
     String email;
-    Collection<String> roles = new TreeSet<String>();
+    Collection<String> roles = new TreeSet<>();
 
     @XmlAttribute(name="id")
     public String getID() {
@@ -176,7 +176,7 @@ public class Account extends ResourceMessage {
 
         @Override
         public Collection<String> unmarshal(RoleList list) {
-            Collection<String> roles = new TreeSet<String>();
+            Collection<String> roles = new TreeSet<>();
             if (list.roles != null) {
                 roles.addAll(Arrays.asList(list.roles));
             }

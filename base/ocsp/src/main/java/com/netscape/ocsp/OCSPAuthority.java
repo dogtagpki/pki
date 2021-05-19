@@ -95,7 +95,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
 
     public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
 
-    private Hashtable<String, IOCSPStore> mStores = new Hashtable<String, IOCSPStore>();
+    private Hashtable<String, IOCSPStore> mStores = new Hashtable<>();
     private String mId = "ocsp";
     private OCSPConfig mConfig;
     private OCSPSigningUnit mSigningUnit;
@@ -375,7 +375,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
 
         try {
             // (3) look into database to check the certificate's status
-            Vector<SingleResponse> singleResponses = new Vector<SingleResponse>();
+            Vector<SingleResponse> singleResponses = new Vector<>();
 
             if (statsSub != null) {
                 statsSub.startTiming("lookup");

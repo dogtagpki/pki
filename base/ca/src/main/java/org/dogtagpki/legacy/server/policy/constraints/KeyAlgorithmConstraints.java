@@ -57,7 +57,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
     private final static String[] supportedAlgorithms =
         { "RSA", "DSA", "DH" };
 
-    private final static Vector<String> defConfParams = new Vector<String>();
+    private final static Vector<String> defConfParams = new Vector<>();
 
     static {
         defConfParams.addElement(PROP_ALGORITHMS + "=" +
@@ -97,7 +97,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EPolicyException {
 
-        mAlgorithms = new Vector<String>();
+        mAlgorithms = new Vector<>();
 
         if (config == null || config.size() == 0) {
             mAlgorithms.addElement(DEF_KEY_ALGORITHM);
@@ -204,7 +204,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         StringBuffer sb = new StringBuffer();
 
         for (Enumeration<String> e = mAlgorithms.elements(); e.hasMoreElements();) {

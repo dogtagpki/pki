@@ -19,7 +19,7 @@ public class PKCS11Obj {
     private ArrayList<ObjectSpec> objectSpecs;
 
     public PKCS11Obj() {
-        objectSpecs = new ArrayList<ObjectSpec>();
+        objectSpecs = new ArrayList<>();
     }
 
     private int oldFormatVersion;

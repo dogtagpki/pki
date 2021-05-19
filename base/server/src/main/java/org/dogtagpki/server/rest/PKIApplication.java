@@ -25,8 +25,8 @@ import javax.ws.rs.core.Application;
 
 public class PKIApplication extends Application {
 
-    private Set<Object> singletons = new LinkedHashSet<Object>();
-    private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+    private Set<Object> singletons = new LinkedHashSet<>();
+    private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public PKIApplication() {
 

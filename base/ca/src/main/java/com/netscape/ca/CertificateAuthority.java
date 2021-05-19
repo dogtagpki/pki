@@ -1584,7 +1584,7 @@ public class CertificateAuthority
 
             // (3) look into database to check the
             //     certificate's status
-            Vector<SingleResponse> singleResponses = new Vector<SingleResponse>();
+            Vector<SingleResponse> singleResponses = new Vector<>();
 
             if (statsSub != null) {
                 statsSub.startTiming("lookup");

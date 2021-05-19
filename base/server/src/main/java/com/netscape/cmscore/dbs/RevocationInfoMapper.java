@@ -48,7 +48,7 @@ public class RevocationInfoMapper extends DBAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RevocationInfoMapper.class);
 
-    protected static Vector<String> mNames = new Vector<String>();
+    protected static Vector<String> mNames = new Vector<>();
     static {
         mNames.addElement(CertDBSchema.LDAP_ATTR_REVO_INFO);
     }

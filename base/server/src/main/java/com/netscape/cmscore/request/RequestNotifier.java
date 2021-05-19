@@ -41,9 +41,9 @@ public class RequestNotifier implements IRequestNotifier {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestNotifier.class);
 
-    private Hashtable<String, IRequestListener> mListeners = new Hashtable<String, IRequestListener>();
-    private Vector<Thread> mNotifierThreads = new Vector<Thread>();
-    private Vector<String> mRequests = new Vector<String>();
+    private Hashtable<String, IRequestListener> mListeners = new Hashtable<>();
+    private Vector<Thread> mNotifierThreads = new Vector<>();
+    private Vector<String> mRequests = new Vector<>();
     private int mMaxRequests = 100;
     private boolean mSearchForRequests = false;
     private int mMaxThreads = 1;

@@ -230,7 +230,7 @@ public class CRSEnrollment extends HttpServlet {
     }
 
     public static Hashtable<String, String> toHashtable(HttpServletRequest req) {
-        Hashtable<String, String> httpReqHash = new Hashtable<String, String>();
+        Hashtable<String, String> httpReqHash = new Hashtable<>();
         Enumeration<String> names = req.getParameterNames();
         while (names.hasMoreElements()) {
             String name = names.nextElement();
@@ -1319,9 +1319,9 @@ public class CRSEnrollment extends HttpServlet {
             //   many RDN's with one AVA in each.
 
             Enumeration<RDN> rdne = p10subject.getRDNs();
-            Vector<RDN> rdnv = new Vector<RDN>();
+            Vector<RDN> rdnv = new Vector<>();
 
-            Hashtable<String, String> sanehash = new Hashtable<String, String>();
+            Hashtable<String, String> sanehash = new Hashtable<>();
 
             X500NameAttrMap xnap = X500NameAttrMap.getDefault();
             while (rdne.hasMoreElements()) {
@@ -1819,7 +1819,7 @@ public class CRSEnrollment extends HttpServlet {
 
         Hashtable<?, ?> fingerprints = (Hashtable<?, ?>) req.get(IRequest.FINGERPRINTS);
         if (fingerprints.size() > 0) {
-            Hashtable<String, String> encodedPrints = new Hashtable<String, String>(fingerprints.size());
+            Hashtable<String, String> encodedPrints = new Hashtable<>(fingerprints.size());
             Enumeration<?> e = fingerprints.keys();
             while (e.hasMoreElements()) {
                 String key = (String) e.nextElement();
@@ -1850,7 +1850,7 @@ public class CRSEnrollment extends HttpServlet {
     }
 
     public Hashtable<String, byte[]> makeFingerPrints(CRSPKIMessage req) {
-        Hashtable<String, byte[]> fingerprints = new Hashtable<String, byte[]>();
+        Hashtable<String, byte[]> fingerprints = new Hashtable<>();
 
         MessageDigest md;
         String[] hashes = new String[] { "MD2", "MD5", "SHA1", "SHA256", "SHA512" };

@@ -63,7 +63,7 @@ public class RenewalConstraints extends APolicyRule
     public final static int DEF_RENEWAL_NOT_AFTER = 30;
     public final static long DAYS_TO_MS_FACTOR = 24L * 3600 * 1000;
 
-    private final static Vector<String> defConfParams = new Vector<String>();
+    private final static Vector<String> defConfParams = new Vector<>();
     static {
         defConfParams.addElement(PROP_ALLOW_EXPIRED_CERTS + "=" + true);
         defConfParams.addElement(PROP_RENEWAL_NOT_AFTER + "=" +
@@ -225,7 +225,7 @@ public class RenewalConstraints extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> confParams = new Vector<String>();
+        Vector<String> confParams = new Vector<>();
 
         confParams.addElement(
                 PROP_ALLOW_EXPIRED_CERTS + "=" + mAllowExpiredCerts);

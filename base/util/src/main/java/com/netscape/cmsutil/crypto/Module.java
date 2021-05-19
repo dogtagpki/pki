@@ -34,14 +34,14 @@ public class Module {
     public Module(String name, String printName) {
         mCommonName = name;
         mUserFriendlyName = printName;
-        mTokens = new Vector<Token>();
+        mTokens = new Vector<>();
     }
 
     public Module(String name, String printName, String image) {
         mCommonName = name;
         mUserFriendlyName = printName;
         mImagePath = image;
-        mTokens = new Vector<Token>();
+        mTokens = new Vector<>();
     }
 
     public void addToken(CryptoToken t) {

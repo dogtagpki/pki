@@ -89,12 +89,12 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     private final static String PROP_INCLUDE_NEXT_UPDATE =
             "includeNextUpdate";
 
-    protected Hashtable<String, Long> mReqCounts = new Hashtable<String, Long>();
+    protected Hashtable<String, Long> mReqCounts = new Hashtable<>();
     protected boolean mNotFoundGood = true;
     protected boolean mUseCache = true;
     protected boolean mByName = true;
     protected boolean mIncludeNextUpdate = false;
-    protected Hashtable<String, CRLIPContainer> mCacheCRLIssuingPoints = new Hashtable<String, CRLIPContainer>();
+    protected Hashtable<String, CRLIPContainer> mCacheCRLIssuingPoints = new Hashtable<>();
     private IConfigStore mConfig = null;
     private String mId = null;
     private DBSubsystem dbSubsystem;
@@ -113,7 +113,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
     @Override
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         v.addElement(PROP_NOT_FOUND_GOOD
                 + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_NOT_FOUND_GOOD"));
@@ -497,7 +497,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             int maxSize)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
-        Vector<ICRLIssuingPointRecord> v = new Vector<ICRLIssuingPointRecord>();
+        Vector<ICRLIssuingPointRecord> v = new Vector<>();
 
         try {
             IDBSearchResults sr = s.search(getBaseDN(), filter, maxSize);
@@ -602,7 +602,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public Enumeration<IRepositoryRecord> searchRepository(String name, String filter)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
-        Vector<IRepositoryRecord> v = new Vector<IRepositoryRecord>();
+        Vector<IRepositoryRecord> v = new Vector<>();
 
         try {
             IDBSearchResults sr = s.search("cn=" + transformDN(name) + "," + getBaseDN(),
@@ -657,7 +657,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public Enumeration<CertRecord> searchCertRecord(String name, String thisUpdate,
             String filter) throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
-        Vector<CertRecord> v = new Vector<CertRecord>();
+        Vector<CertRecord> v = new Vector<>();
 
         try {
             IDBSearchResults sr = s.search("ou=" + thisUpdate + ",cn=" +

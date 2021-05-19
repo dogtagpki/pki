@@ -1512,7 +1512,7 @@ public class CMCOutputTemplate {
 
             SET dias = msgData.getDigestAlgorithmIdentifiers();
             int numDig = dias.size();
-            Hashtable<String, byte[]> digs = new Hashtable<String, byte[]>();
+            Hashtable<String, byte[]> digs = new Hashtable<>();
             for (int i = 0; i < numDig; i++) {
                 AlgorithmIdentifier dai = (AlgorithmIdentifier) dias.elementAt(i);
                 String name = DigestAlgorithm.fromOID(dai.getOID()).toString();

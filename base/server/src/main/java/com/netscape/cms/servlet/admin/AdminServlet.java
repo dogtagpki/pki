@@ -944,7 +944,7 @@ public class AdminServlet extends HttpServlet {
         String id = req.getParameter(Constants.RS_ID);
 
         // identify any remaining request parameters
-        Map<String, String> params = new LinkedHashMap<String, String>();
+        Map<String, String> params = new LinkedHashMap<>();
 
         Enumeration<String> e = req.getParameterNames();
 

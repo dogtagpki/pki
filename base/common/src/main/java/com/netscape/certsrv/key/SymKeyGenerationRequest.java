@@ -44,7 +44,7 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
 
         String usageString = attributes.get(KEY_USAGE);
         if (!StringUtils.isBlank(usageString)) {
-            setUsages(new ArrayList<String>(Arrays.asList(usageString.split(","))));
+            setUsages(new ArrayList<>(Arrays.asList(usageString.split(","))));
         }
         setClassName(getClass().getName());
     }
@@ -80,7 +80,7 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
     }
 
     public static List<String> getValidUsagesList() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.add(WRAP_USAGE);
         list.add(UWRAP_USAGE);
         list.add(DECRYPT_USAGE);

@@ -72,19 +72,19 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     private CRLIssuingPointConfig mConfig;
     private IConfigStore mCRLExtConfig = null;
 
-    private Vector<String> mCRLExtensionNames = new Vector<String>();
-    private Vector<String> mCRLEntryExtensionNames = new Vector<String>();
-    private Vector<String> mEnabledCRLExtensions = new Vector<String>();
-    private Vector<String> mCriticalCRLExtensions = new Vector<String>();
-    private Hashtable<String, String> mCRLExtensionClassNames = new Hashtable<String, String>();
-    private Hashtable<String, String> mCRLExtensionIDs = new Hashtable<String, String>();
+    private Vector<String> mCRLExtensionNames = new Vector<>();
+    private Vector<String> mCRLEntryExtensionNames = new Vector<>();
+    private Vector<String> mEnabledCRLExtensions = new Vector<>();
+    private Vector<String> mCriticalCRLExtensions = new Vector<>();
+    private Hashtable<String, String> mCRLExtensionClassNames = new Hashtable<>();
+    private Hashtable<String, String> mCRLExtensionIDs = new Hashtable<>();
 
-    private static final Vector<String> mDefaultCRLExtensionNames = new Vector<String>();
-    private static final Vector<String> mDefaultCRLEntryExtensionNames = new Vector<String>();
-    private static final Vector<String> mDefaultEnabledCRLExtensions = new Vector<String>();
-    private static final Vector<String> mDefaultCriticalCRLExtensions = new Vector<String>();
-    private static final Hashtable<String, String> mDefaultCRLExtensionClassNames = new Hashtable<String, String>();
-    private static final Hashtable<String, String> mDefaultCRLExtensionIDs = new Hashtable<String, String>();
+    private static final Vector<String> mDefaultCRLExtensionNames = new Vector<>();
+    private static final Vector<String> mDefaultCRLEntryExtensionNames = new Vector<>();
+    private static final Vector<String> mDefaultEnabledCRLExtensions = new Vector<>();
+    private static final Vector<String> mDefaultCriticalCRLExtensions = new Vector<>();
+    private static final Hashtable<String, String> mDefaultCRLExtensionClassNames = new Hashtable<>();
+    private static final Hashtable<String, String> mDefaultCRLExtensionIDs = new Hashtable<>();
 
     static {
 
@@ -451,11 +451,11 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     public Vector<String> getCRLExtensionNames() {
-        return new Vector<String>(mCRLExtensionNames);
+        return new Vector<>(mCRLExtensionNames);
     }
 
     public Vector<String> getCRLEntryExtensionNames() {
-        return new Vector<String>(mCRLEntryExtensionNames);
+        return new Vector<>(mCRLEntryExtensionNames);
     }
 
     public void addToCRLExtensions(CRLExtensions crlExts, String extName, Extension ext) {

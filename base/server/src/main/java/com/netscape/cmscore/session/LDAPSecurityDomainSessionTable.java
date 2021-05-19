@@ -208,7 +208,7 @@ public class LDAPSecurityDomainSessionTable
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         LDAPConnection conn = null;
-        Vector<String> ret = new Vector<String>();
+        Vector<String> ret = new Vector<>();
 
         try {
             String basedn = ldapConfig.getBaseDN();

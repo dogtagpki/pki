@@ -159,7 +159,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
      */
     @Override
     public Vector<String> getInstanceParams() {
-        Vector<String> params = new Vector<String>();
+        Vector<String> params = new Vector<>();
 
         params.addElement(PROP_CRITICAL + "=" + mCritical);
         int numIds = MAX_PURPOSE_ID;
@@ -190,7 +190,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
     }
 
     private void setExtendedPluginInfo() {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         int mNum = MAX_PURPOSE_ID;
 
         if (mConfig != null) {
@@ -233,7 +233,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
      */
     @Override
     public Vector<String> getDefaultParams() {
-        Vector<String> defParams = new Vector<String>();
+        Vector<String> defParams = new Vector<>();
 
         defParams.addElement(PROP_CRITICAL + "=false");
         defParams.addElement(PROP_NUM_IDS + "=" + MAX_PURPOSE_ID);
@@ -250,7 +250,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
 
         mCritical = mConfig.getBoolean(PROP_CRITICAL, false);
         if (mUsages == null) {
-            mUsages = new Vector<ObjectIdentifier>();
+            mUsages = new Vector<>();
         }
 
         int mNum = mConfig.getInteger(PROP_NUM_IDS, MAX_PURPOSE_ID);

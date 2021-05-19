@@ -59,9 +59,9 @@ public class LDAPRegistry extends DBRegistry {
     public final static Logger logger = LoggerFactory.getLogger(LDAPRegistry.class);
 
     private IConfigStore mConfig = null;
-    private Hashtable<String, String[]> mOCclassNames = new Hashtable<String, String[]>();
-    private Hashtable<String, NameAndObject> mOCldapNames = new Hashtable<String, NameAndObject>();
-    private Hashtable<String, DBAttrMapper> mAttrufNames = new Hashtable<String, DBAttrMapper>();
+    private Hashtable<String, String[]> mOCclassNames = new Hashtable<>();
+    private Hashtable<String, NameAndObject> mOCldapNames = new Hashtable<>();
+    private Hashtable<String, DBAttrMapper> mAttrufNames = new Hashtable<>();
     private IFilterConverter mConverter = null;
     private Vector<DBDynAttrMapper> mDynAttrMappers = new Vector<>();
 
@@ -252,7 +252,7 @@ public class LDAPRegistry extends DBRegistry {
         int level = 0;
         int start = 0;
         int end = 0;
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         for (int i = 0; i < f.length(); i++) {
             if (f.charAt(i) == '(') {
@@ -382,7 +382,7 @@ public class LDAPRegistry extends DBRegistry {
             return null;
 
         // ignore duplicates, maintain order
-        Set<String> v = new LinkedHashSet<String>();
+        Set<String> v = new LinkedHashSet<>();
 
         logger.debug("LDAPRegistry: mapping attributes:");
 
@@ -549,7 +549,7 @@ public class LDAPRegistry extends DBRegistry {
      * Sorts and concate given strings.
      */
     private String sortAndConcate(String s[]) {
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
 
         // sort it first
         for (int i = 0; i < s.length; i++) {

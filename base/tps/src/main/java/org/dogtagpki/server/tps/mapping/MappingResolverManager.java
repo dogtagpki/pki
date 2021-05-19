@@ -45,7 +45,7 @@ public class MappingResolverManager
     protected HashMap<String, BaseMappingResolver> mappingResolvers = null;
 
     public MappingResolverManager() {
-        mappingResolvers = new HashMap<String, BaseMappingResolver>();
+        mappingResolvers = new HashMap<>();
     }
 
     /**

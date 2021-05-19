@@ -192,7 +192,7 @@ public class CACertClient extends Client {
             String requestor,
             String sessionID) throws Exception {
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
         content.putSingle("profileId", profileID);
         content.putSingle("cert_request_type", certRequestType);
         content.putSingle("cert_request", certRequest);

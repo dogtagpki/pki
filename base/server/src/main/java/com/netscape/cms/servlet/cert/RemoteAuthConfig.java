@@ -78,7 +78,7 @@ public class RemoteAuthConfig extends CMSServlet {
     private AuthSubsystem mAuthSubsystem;
     private AuthenticationConfig mAuthConfig = null;
     private IConfigStore mFileConfig = null;
-    private Vector<String> mRemotelySetInstances = new Vector<String>();
+    private Vector<String> mRemotelySetInstances = new Vector<>();
     private boolean mEnableRemoteConfiguration = false;
 
     /**

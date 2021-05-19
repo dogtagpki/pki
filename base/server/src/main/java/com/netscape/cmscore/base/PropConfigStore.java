@@ -195,7 +195,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     @Override
     public Enumeration<String> keys() {
-        Hashtable<String, String> h = new Hashtable<String, String>();
+        Hashtable<String, String> h = new Hashtable<>();
         enumerate(h);
         return h.keys();
     }
@@ -207,7 +207,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     @Override
     public Map<String, String> getProperties() {
-        Map<String, String> map = new TreeMap<String, String>();
+        Map<String, String> map = new TreeMap<>();
         enumerate(map);
         return map;
     }
@@ -217,7 +217,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     @Override
     public int size() {
-        Hashtable<String, String> h = new Hashtable<String, String>();
+        Hashtable<String, String> h = new Hashtable<>();
         enumerate(h);
         return h.size();
     }
@@ -727,7 +727,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         // XXX - this operation is expensive!!!
         Map<String, String> map = getProperties();
 
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         for (String name : map.keySet()) {
             int i = name.indexOf('.'); // substores have "."
             if (i >= 0) continue;
@@ -750,7 +750,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         // XXX - this operation is expensive!!!
         Map<String, String> map = getProperties();
 
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         for (String name : map.keySet()) {
             int i = name.indexOf('.'); // substores have "."
             if (i < 0) continue;

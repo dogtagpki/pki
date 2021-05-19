@@ -147,7 +147,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
 
             IDBSearchResults results = session.search(baseDN, ldapFilter);
 
-            Collection<E> list = new ArrayList<E>();
+            Collection<E> list = new ArrayList<>();
             while (results.hasMoreElements()) {
                 @SuppressWarnings("unchecked")
                 E result = (E)results.nextElement();

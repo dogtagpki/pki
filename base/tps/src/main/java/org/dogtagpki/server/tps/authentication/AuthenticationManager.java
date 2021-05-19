@@ -87,7 +87,7 @@ public class AuthenticationManager
 
         AuthManagersConfig authInstSubstore = authConfig.getAuthManagersConfig();
         Enumeration<String> auth_enu = authInstSubstore.getSubStoreNames();
-        authInstances = new Hashtable<String, TPSAuthenticator>();
+        authInstances = new Hashtable<>();
         while (auth_enu.hasMoreElements()) {
             String authInstID = auth_enu.nextElement();
             logger.debug("AuthenticationManager: initAuthInstances(): initializing authentication instance " + authInstID);

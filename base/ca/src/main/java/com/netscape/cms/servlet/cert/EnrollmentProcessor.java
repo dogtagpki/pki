@@ -57,7 +57,7 @@ public class EnrollmentProcessor extends CertProcessor {
 
     private void setInputsIntoContext(CertEnrollmentRequest data, Profile profile, Map<String, String> ctx) {
         // put profile inputs into a local map
-        HashMap<String, String> dataInputs = new HashMap<String, String>();
+        HashMap<String, String> dataInputs = new HashMap<>();
         for (ProfileInput input : data.getInputs()) {
             for (ProfileAttribute attr : input.getAttributes()) {
                 dataInputs.put(attr.getName(), attr.getValue());
@@ -207,7 +207,7 @@ public class EnrollmentProcessor extends CertProcessor {
             String errorCode = submitRequests(locale, profile, authToken, reqs);
             String errorReason = null;
 
-            List<String> errors = new ArrayList<String>();
+            List<String> errors = new ArrayList<>();
             if (errorCode != null) {
                 for (IRequest req: reqs) {
                     String error = req.getError(locale);
@@ -219,7 +219,7 @@ public class EnrollmentProcessor extends CertProcessor {
                 errorReason = StringUtils.join(errors, '\n');
             }
 
-            HashMap<String, Object> ret = new HashMap<String, Object>();
+            HashMap<String, Object> ret = new HashMap<>();
             ret.put(ARG_REQUESTS, reqs);
             ret.put(ARG_ERROR_CODE, errorCode);
             ret.put(ARG_ERROR_REASON, errorReason);

@@ -75,7 +75,7 @@ public class PolicyMappingsExt extends APolicyRule
     protected PolicyMap[] mPolicyMaps = null;
     protected PolicyMappingsExtension mPolicyMappingsExtension = null;
 
-    protected Vector<String> mInstanceParams = new Vector<String>();
+    protected Vector<String> mInstanceParams = new Vector<>();
 
     public PolicyMappingsExt() {
         NAME = "PolicyMappingsExt";
@@ -147,7 +147,7 @@ public class PolicyMappingsExt extends APolicyRule
         // create instance of policy mappings extension if enabled.
         if (mEnabled) {
             try {
-                Vector<CertificatePolicyMap> certPolicyMaps = new Vector<CertificatePolicyMap>();
+                Vector<CertificatePolicyMap> certPolicyMaps = new Vector<>();
 
                 for (int j = 0; j < mNumPolicyMappings; j++) {
                     certPolicyMaps.addElement(
@@ -273,7 +273,7 @@ public class PolicyMappingsExt extends APolicyRule
      * increase the num to greater than 0 and more configuration params
      * will show up in the console.
      */
-    private static Vector<String> mDefParams = new Vector<String>();
+    private static Vector<String> mDefParams = new Vector<>();
     static {
         mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
         mDefParams.addElement(
@@ -298,7 +298,7 @@ public class PolicyMappingsExt extends APolicyRule
 
     @Override
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector<String> theparams = new Vector<String>();
+        Vector<String> theparams = new Vector<>();
 
         theparams.addElement(PROP_CRITICAL + ";boolean;RFC 2459 recommendation: MUST be non-critical.");
         theparams.addElement(PROP_NUM_POLICYMAPPINGS

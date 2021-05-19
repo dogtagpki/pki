@@ -44,7 +44,7 @@ import com.netscape.certsrv.request.RequestIdAdapter;
 public class CertReviewResponse extends CertEnrollmentRequest {
 
     @XmlElement(name="ProfilePolicySet")
-    protected List<ProfilePolicySet> policySets = new ArrayList<ProfilePolicySet>();
+    protected List<ProfilePolicySet> policySets = new ArrayList<>();
 
     protected String nonce;
 

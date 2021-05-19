@@ -78,13 +78,13 @@ public class LdapPublishModule implements IRequestListener {
      * to publish the crl.
      * When publishers are null, the certs are not published.
      */
-    protected Hashtable<String, LdapMappers> mMappers = new Hashtable<String, LdapMappers>();
+    protected Hashtable<String, LdapMappers> mMappers = new Hashtable<>();
 
     /**
      * handlers for request types (events)
      * values implement IRequestListener
      */
-    protected Hashtable<String, IRequestListener> mEventHandlers = new Hashtable<String, IRequestListener>();
+    protected Hashtable<String, IRequestListener> mEventHandlers = new Hashtable<>();
 
     /**
      * instantiate connection factory.

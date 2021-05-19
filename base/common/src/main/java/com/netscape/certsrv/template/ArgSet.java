@@ -31,7 +31,7 @@ import java.util.Hashtable;
  * @version $Revision$, $Date$
  */
 public class ArgSet implements IArgValue {
-    private Hashtable<String, IArgValue> mArgs = new Hashtable<String, IArgValue>();
+    private Hashtable<String, IArgValue> mArgs = new Hashtable<>();
 
     /**
      * Returns a list of argument names.

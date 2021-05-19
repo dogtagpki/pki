@@ -58,7 +58,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
     // virtual list size
     private int mSize = -1;
 
-    private Vector<E> mEntries = new Vector<E>();
+    private Vector<E> mEntries = new Vector<>();
     // mSize is get or not?
     private boolean mInitialized = false;
     private LDAPSortKey[] mKeys;

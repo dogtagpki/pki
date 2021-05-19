@@ -197,7 +197,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
         Collection<TokenStatus> nextStates = subsystem.getUINextTokenStates(tokenRecord);
         if(nextStates != null) {
-            Collection<TokenStatusData> nextStatesData = new ArrayList<TokenStatusData>();
+            Collection<TokenStatusData> nextStatesData = new ArrayList<>();
             for (TokenStatus nextState : nextStates) {
                 TokenStatusData nextStateData = new TokenStatusData();
                 nextStateData.name = nextState;
@@ -247,7 +247,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             throw new BadRequestException("Filter too short");
         }
 
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
 
         if (StringUtils.isNotEmpty(tokenID)) {
             attributes.put("id", tokenID);
@@ -406,7 +406,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         logger.info("TokenService: Adding token");
         String method = "TokenService.addToken";
 
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (tokenData == null) {
             BadRequestException ex = new BadRequestException("Missing token data");
@@ -501,7 +501,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         logger.info("TokenService: Replacing token " + tokenID);
         String method = "TokenService.replaceToken";
 
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (tokenID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing token ID");
@@ -581,7 +581,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         logger.info("TokenService: Modifying token " + tokenID);
         String method = "TokenService.modifyToken";
 
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (tokenID == null) {
             BadRequestException e = new BadRequestException("Missing token ID");
@@ -689,7 +689,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             throw new BadRequestException("Missing token status");
         }
 
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
         auditModParams.put("tokenID", tokenID);
         auditModParams.put("tokenStatus", tokenStatus.toString());
 
@@ -798,7 +798,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         logger.info("TokenService: Removing token " + tokenID);
         String method = "TokenService.removeToken";
 
-        Map<String, String> auditModParams = new HashMap<String, String>();
+        Map<String, String> auditModParams = new HashMap<>();
 
         if (tokenID == null) {
             BadRequestException ex = new BadRequestException("Missing token ID");

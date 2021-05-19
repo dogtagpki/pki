@@ -221,7 +221,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                     getXMLparser(content);
 
             Hashtable<String, Object> response =
-                    new Hashtable<String, Object>();
+                    new Hashtable<>();
 
             /**
              * When a value is not found in response, keep going so we know
@@ -337,7 +337,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                     getXMLparser(content);
 
             Hashtable<String, Object> response =
-                    new Hashtable<String, Object>();
+                    new Hashtable<>();
 
             //logger.debug(method + ": received:" +
             //        content);
@@ -446,7 +446,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                     getXMLparser(content);
 
             Hashtable<String, Object> response =
-                    new Hashtable<String, Object>();
+                    new Hashtable<>();
 
             logger.debug(method + ": received:" +
                     content);
