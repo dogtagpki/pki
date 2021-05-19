@@ -1111,6 +1111,7 @@ public class CertificateRepository extends Repository {
      * @return a list of certificate records
      * @exception EBaseException failed to retrieve cert records
      */
+    @Deprecated
     public Enumeration<Object> findCertRecs(String filter)
             throws EBaseException {
         logger.debug("findCertRecs " + filter);

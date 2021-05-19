@@ -29,6 +29,7 @@ import com.netscape.certsrv.kra.IJoinShares;
  * @deprecated
  * @version $Revision$ $Date$
  */
+@Deprecated
 public class OldJoinShares implements IJoinShares {
 
     public Object mOldImpl = null;
