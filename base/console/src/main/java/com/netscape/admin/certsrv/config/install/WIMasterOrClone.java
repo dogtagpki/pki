@@ -65,10 +65,12 @@ class WIMasterOrClone extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         setBorder(makeTitledBorder(PANELNAME));
@@ -85,10 +87,12 @@ class WIMasterOrClone extends WizardBasePanel implements IWizardPanel {
             return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         cleanUpWizardInfo(wizardInfo);
@@ -120,10 +124,12 @@ class WIMasterOrClone extends WizardBasePanel implements IWizardPanel {
         return ready;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -170,6 +176,7 @@ class WIMasterOrClone extends WizardBasePanel implements IWizardPanel {
         add(dummy, gbc);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (mYes.isSelected()) {

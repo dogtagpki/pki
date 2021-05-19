@@ -66,6 +66,7 @@ public class MemberDataModel extends CMSContentTableModel
     /*==========================================================
 	 * public methods
      *==========================================================*/
+    @Override
     public void processData(Object data) {
         Vector<Object> v = new Vector<>();
 
@@ -91,6 +92,7 @@ public class MemberDataModel extends CMSContentTableModel
     /**
      * clean up the table including the datat objects
      */
+    @Override
     public void removeAllRows() {
         super.removeAllRows();
         mObjectContainer.removeAllElements();
@@ -102,6 +104,7 @@ public class MemberDataModel extends CMSContentTableModel
      * Remove row at the specified index position
      * @param index row index to be removed
      */
+    @Override
     public void removeRow(int index)
         throws ArrayIndexOutOfBoundsException
     {
@@ -120,6 +123,7 @@ public class MemberDataModel extends CMSContentTableModel
      * @param values row values for the table
      * @param obj data object
      */
+    @Override
     public void addRow(Vector<Object> values, Object obj) {
         super.addRow(values);
         mObjectContainer.addElement(obj);

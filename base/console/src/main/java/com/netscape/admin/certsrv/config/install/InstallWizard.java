@@ -174,18 +174,21 @@ public class InstallWizard extends WizardWidget implements Runnable {
         setVisible(true);
     }
 
+    @Override
     protected void callHelp() {
         if (mCurrent instanceof IWizardPanel) {
             ((IWizardPanel)mCurrent).callHelp();
         }
     }
 
+    @Override
     protected void back_cb(WizardInfo info) {
         if (mCurrent instanceof WIManualCertRequestPage) {
             ((WIManualCertRequestPage)mCurrent).back_cb(info);
         }
     }
 
+    @Override
     public void run() {
         setVisible(true);
     }

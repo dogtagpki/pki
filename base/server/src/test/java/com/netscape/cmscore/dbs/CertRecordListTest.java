@@ -31,9 +31,11 @@ public class CertRecordListTest extends CMSBaseTestCase {
         super(name);
     }
 
+    @Override
     public void cmsTestSetUp() {
     }
 
+    @Override
     public void cmsTestTearDown() {
     }
 
@@ -63,6 +65,7 @@ public class CertRecordListTest extends CMSBaseTestCase {
         public int getElementAtCallCount = 0;
         public int lastIndexGetElementAtCalledWith = 0;
 
+        @Override
         public T getElementAt(int index) {
             getElementAtCallCount++;
             lastIndexGetElementAtCalledWith = index;
@@ -75,12 +78,14 @@ public class CertRecordListTest extends CMSBaseTestCase {
             return null;
         }
 
+        @Override
         public int getSize() {
             return size;
         }
     }
 
     public static class ElementProcessorStub implements IElementProcessor {
+        @Override
         public void process(Object o) throws EBaseException {
         }
     }

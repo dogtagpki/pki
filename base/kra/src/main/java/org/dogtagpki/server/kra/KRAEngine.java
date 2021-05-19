@@ -40,14 +40,17 @@ public class KRAEngine extends CMSEngine {
         return (KRAEngine) CMS.getCMSEngine();
     }
 
+    @Override
     public EngineConfig createConfig(ConfigStorage storage) throws Exception {
         return new KRAEngineConfig(storage);
     }
 
+    @Override
     public KRAEngineConfig getConfig() {
         return (KRAEngineConfig) mConfig;
     }
 
+    @Override
     public KRAConfigurator createConfigurator() throws Exception {
         return new KRAConfigurator(this);
     }
@@ -56,6 +59,7 @@ public class KRAEngine extends CMSEngine {
         return (KeyRequestRepository) requestRepository;
     }
 
+    @Override
     public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof KeyRecoveryAuthority) {
@@ -66,6 +70,7 @@ public class KRAEngine extends CMSEngine {
         super.initSubsystem(subsystem, subsystemConfig);
     }
 
+    @Override
     public void startupSubsystems() throws Exception {
 
         super.startupSubsystems();

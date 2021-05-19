@@ -68,6 +68,7 @@ public class OCSPNoCheckExt extends APolicyRule
         DESC = "Sets OCSPNoCheck extension for certificates";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_CRITICAL + ";boolean;RFC 2560 recommendation: SHOULD be non-critical.",
@@ -84,6 +85,7 @@ public class OCSPNoCheckExt extends APolicyRule
     /**
      * Performs one-time initialization of the policy.
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         try {
@@ -103,6 +105,7 @@ public class OCSPNoCheckExt extends APolicyRule
     /**
      * Applies the policy to the given request.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
 
         // if the extension was not configured correctly, just skip it
@@ -169,6 +172,7 @@ public class OCSPNoCheckExt extends APolicyRule
     /**
      * Returns instance parameters.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> params = new Vector<String>();
 
@@ -180,6 +184,7 @@ public class OCSPNoCheckExt extends APolicyRule
     /**
      * Returns default parameters.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> defParams = new Vector<String>();
 

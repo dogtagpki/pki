@@ -65,6 +65,7 @@ public class SigningAlgConstraint extends EnrollConstraint {
         addConfigName(CONFIG_ALGORITHMS_ALLOWED);
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
 
@@ -88,6 +89,7 @@ public class SigningAlgConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_ALGORITHMS_ALLOWED)) {
             return new Descriptor(IDescriptor.STRING, null,
@@ -102,6 +104,7 @@ public class SigningAlgConstraint extends EnrollConstraint {
      * Validates the request. The request is not modified
      * during the validation.
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         CertificateAlgorithmId algId = null;
@@ -137,11 +140,13 @@ public class SigningAlgConstraint extends EnrollConstraint {
 
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_CONSTRAINT_SIGNING_ALG_TEXT",
                 getConfig(CONFIG_ALGORITHMS_ALLOWED));
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;

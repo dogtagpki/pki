@@ -99,6 +99,7 @@ public class AuthzToken implements IAttrSet {
      * @param attrName The attribute name
      * @return The value of attrName if any.
      */
+    @Override
     public Object get(String attrName) {
         return mAttrs.get(attrName);
     }
@@ -110,6 +111,7 @@ public class AuthzToken implements IAttrSet {
      * @param attrName The name of the attribute
      * @param value The value of the attribute to set.
      */
+    @Override
     public void set(String attrName, Object value) {
         mAttrs.put(attrName, value);
     }
@@ -119,6 +121,7 @@ public class AuthzToken implements IAttrSet {
      *
      * @param attrName The name of the attribute to remove.
      */
+    @Override
     public void delete(String attrName) {
         mAttrs.remove(attrName);
     }
@@ -128,6 +131,7 @@ public class AuthzToken implements IAttrSet {
      *
      * @return Enumeration of all attribute names in this AuthzToken.
      */
+    @Override
     public Enumeration<String> getElements() {
         return mAttrs.keys();
     }

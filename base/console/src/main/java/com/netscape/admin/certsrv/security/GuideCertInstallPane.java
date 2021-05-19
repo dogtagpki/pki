@@ -26,14 +26,17 @@ import com.netscape.management.nmclf.*;
 class GuideCertInstallPane extends JPanel implements SuiConstants,
 IKeyCertPage {
 
+    @Override
     public JPanel getPanel() {
         return this;
     }
 
+    @Override
     public boolean pageShow(WizardObservable observable) {
         return ((Boolean)(observable.get("installCert"))).booleanValue();
     }
 
+    @Override
     public boolean pageHide(WizardObservable observable) {
         return true;
     }

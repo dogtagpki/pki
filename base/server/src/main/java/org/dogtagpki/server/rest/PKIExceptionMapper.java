@@ -15,6 +15,7 @@ public class PKIExceptionMapper implements ExceptionMapper<PKIException> {
     @Context
     private HttpHeaders headers;
 
+    @Override
     public Response toResponse(PKIException exception) {
         // convert PKIException into HTTP response
 

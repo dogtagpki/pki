@@ -96,6 +96,7 @@ IKeyCertPage {
      * Get the panel that is going to be displayed
      * @return a panel to be displayed by the key & cert wizard
      */
+    @Override
     public JPanel getPanel() {
         return this;
     }
@@ -104,6 +105,7 @@ IKeyCertPage {
       * Checks if this panel can be shown
       * @return true if this page can be shown
       */
+    @Override
     public boolean pageShow(WizardObservable observable) {
         obs = observable;
         boolean show =
@@ -167,6 +169,7 @@ IKeyCertPage {
       * Checks if this panel can be hidden
       * @return true if this page can be hide
       */
+    @Override
     public boolean pageHide(WizardObservable observable) {
         return true;
     }
@@ -180,6 +183,7 @@ IKeyCertPage {
       *
       */
     class CertInfoActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent event) {
             if (event.getActionCommand().equals("add_replace")) {
                 Hashtable<String, Object> certInstInfo = (Hashtable<String, Object>)(obs.get("certInstInfo"));

@@ -73,6 +73,7 @@ public class EAuthzException extends EBaseException {
      *
      * @return resource bundle name
      */
+    @Override
     protected String getBundleName() {
         return AUTHZ_RESOURCES;
     }

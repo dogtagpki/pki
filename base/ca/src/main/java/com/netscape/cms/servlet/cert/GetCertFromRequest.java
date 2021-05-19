@@ -86,6 +86,7 @@ public class GetCertFromRequest extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mTemplates.remove(ICMSRequest.SUCCESS);
@@ -136,6 +137,7 @@ public class GetCertFromRequest extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
         IArgBlock httpParams = cmsReq.getHttpParams();
@@ -272,6 +274,7 @@ class CertFrRequestFiller extends ImportCertsTemplateFiller {
     public CertFrRequestFiller() {
     }
 
+    @Override
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e)
             throws Exception {

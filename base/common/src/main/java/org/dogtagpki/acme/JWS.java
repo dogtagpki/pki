@@ -72,6 +72,7 @@ public class JWS {
         return mapper.readValue(json, JWS.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

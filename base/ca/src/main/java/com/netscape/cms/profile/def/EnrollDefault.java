@@ -86,10 +86,12 @@ public abstract class EnrollDefault extends PolicyDefault {
     public EnrollDefault() {
     }
 
+    @Override
     public Enumeration<String> getConfigNames() {
         return mConfigNames.elements();
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         return null;
     }
@@ -98,6 +100,7 @@ public abstract class EnrollDefault extends PolicyDefault {
         mConfigNames.addElement(name);
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
         if (mConfig.getSubStore("params") == null) {
@@ -107,6 +110,7 @@ public abstract class EnrollDefault extends PolicyDefault {
         }
     }
 
+    @Override
     public String getConfig(String name) {
         return getConfig(name, "");
     }
@@ -140,6 +144,7 @@ public abstract class EnrollDefault extends PolicyDefault {
         }
     }
 
+    @Override
     public void init(IConfigStore config) throws EProfileException {
         mConfig = config;
     }
@@ -150,12 +155,15 @@ public abstract class EnrollDefault extends PolicyDefault {
      * @param locale locale of the end user
      * @return localized description of this default policy
      */
+    @Override
     public abstract String getText(Locale locale);
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public String getName(Locale locale) {
         try {
             return mConfig.getString(PROP_NAME);
@@ -212,6 +220,7 @@ public abstract class EnrollDefault extends PolicyDefault {
      * @param request request to be populated
      * @exception EProfileException failed to populate
      */
+    @Override
     public void populate(IRequest request)
             throws EProfileException {
         String method = "EnrollDefault: populate: ";
@@ -232,6 +241,7 @@ public abstract class EnrollDefault extends PolicyDefault {
         mValueNames.addElement(name);
     }
 
+    @Override
     public Enumeration<String> getValueNames() {
         return mValueNames.elements();
     }
@@ -252,6 +262,7 @@ public abstract class EnrollDefault extends PolicyDefault {
      * @param value value to be set in the given request
      * @exception EPropertyException failed to set property
      */
+    @Override
     public void setValue(String name, Locale locale, IRequest request,
             String value)
             throws EPropertyException {
@@ -279,6 +290,7 @@ public abstract class EnrollDefault extends PolicyDefault {
      * @param request request
      * @exception EPropertyException failed to get property
      */
+    @Override
     public String getValue(String name, Locale locale, IRequest request)
             throws EPropertyException {
         X509CertInfo info =

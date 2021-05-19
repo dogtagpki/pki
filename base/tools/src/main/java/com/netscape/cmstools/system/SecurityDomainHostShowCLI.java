@@ -24,10 +24,12 @@ public class SecurityDomainHostShowCLI extends CommandCLI {
         this.securityDomainHostCLI = securityDomainHostCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <Host ID>", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

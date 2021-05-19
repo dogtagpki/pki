@@ -113,6 +113,7 @@ public class DynamicVariablesServlet extends CMSServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -145,6 +146,7 @@ public class DynamicVariablesServlet extends CMSServlet {
      * @see javax.servlet.Servlet#init(ServletConfig)
      */
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mAuthMgr = sc.getInitParameter(PROP_AUTHMGR);
@@ -192,6 +194,7 @@ public class DynamicVariablesServlet extends CMSServlet {
         }
     }
 
+    @Override
     public void service(HttpServletRequest httpReq,
             HttpServletResponse httpResp)
             throws ServletException, IOException {

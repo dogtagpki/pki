@@ -46,6 +46,7 @@ public final class OCSPSigningUnit extends SigningUnit {
     public OCSPSigningUnit() {
     }
 
+    @Override
     public void updateConfig(String nickname, String tokenname) {
         mConfig.putString(PROP_CERT_NICKNAME, nickname);
         mConfig.putString(PROP_TOKEN_NAME, tokenname);
@@ -118,6 +119,7 @@ public final class OCSPSigningUnit extends SigningUnit {
     /**
      * @param algname is expected to be one of JCA's algorithm names.
      */
+    @Override
     public byte[] sign(byte[] data, String algname) throws Exception {
 
         if (!mInited) {
@@ -144,6 +146,7 @@ public final class OCSPSigningUnit extends SigningUnit {
         return signer.sign();
     }
 
+    @Override
     public boolean verify(byte[] data, byte[] signature, String algname) throws Exception {
 
         if (!mInited) {

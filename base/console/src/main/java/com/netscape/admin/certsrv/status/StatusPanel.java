@@ -89,6 +89,7 @@ public class StatusPanel extends CMSBasePanel
 
     //== IResourceListener ===
 
+    @Override
     public void select(IResourceObject parent, Object viewInstance) {
         if (!mInit) {
             init();
@@ -101,15 +102,18 @@ public class StatusPanel extends CMSBasePanel
         repaint(1);
     }
 
+    @Override
     public boolean unselect(IResourceObject parent, Object viewInstance) {
         return true;
     }
 
+    @Override
     public CMSBasePanel getSelectedTab() {
         return this;
     }
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mRefresh)) {
             Debug.println("StatusPanel: Refresh");
@@ -211,7 +215,8 @@ public class StatusPanel extends CMSBasePanel
 	//=============================================
 
 	//retrieve stat from server
-	public void refresh() {
+	@Override
+    public void refresh() {
 
 	    NameValuePairs params = new NameValuePairs();
 	    params.put(Constants.PR_STAT_STARTUP, "");

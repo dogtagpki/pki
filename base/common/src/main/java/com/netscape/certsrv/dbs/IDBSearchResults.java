@@ -33,6 +33,7 @@ public interface IDBSearchResults extends Enumeration<Object> {
      *
      * @return true if there is more elements
      */
+    @Override
     public boolean hasMoreElements();
 
     /**
@@ -40,5 +41,6 @@ public interface IDBSearchResults extends Enumeration<Object> {
      *
      * @return next element
      */
+    @Override
     public Object nextElement();
 }

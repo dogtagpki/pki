@@ -35,6 +35,7 @@ public class ExternalAuthenticationValve extends ValveBase {
 
     final static Logger logger = LoggerFactory.getLogger(ExternalAuthenticationValve.class);
 
+    @Override
     public void invoke(Request req, Response resp)
             throws IOException, ServletException {
 

@@ -44,6 +44,7 @@ public class SubsystemDBRemoveCLI extends CommandCLI {
         super("remove", "Remove " + parent.getParent().getName().toUpperCase() + " database", parent);
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option("d", true, "NSS database location");
@@ -61,6 +62,7 @@ public class SubsystemDBRemoveCLI extends CommandCLI {
         options.addOption(null, "help", false, "Show help message.");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String catalinaBase = System.getProperty("catalina.base");

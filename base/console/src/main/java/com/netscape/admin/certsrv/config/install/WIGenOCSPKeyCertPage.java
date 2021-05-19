@@ -43,6 +43,7 @@ class WIGenOCSPKeyCertPage extends WIGenKeyCertPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
 

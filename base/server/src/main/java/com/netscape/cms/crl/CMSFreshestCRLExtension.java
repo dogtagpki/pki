@@ -56,6 +56,7 @@ public class CMSFreshestCRLExtension
     public CMSFreshestCRLExtension() {
     }
 
+    @Override
     public Extension setCRLExtensionCriticality(Extension ext,
             boolean critical) {
         FreshestCRLExtension freshestCRLExt = (FreshestCRLExtension) ext;
@@ -65,6 +66,7 @@ public class CMSFreshestCRLExtension
         return freshestCRLExt;
     }
 
+    @Override
     public Extension getCRLExtension(IConfigStore config, Object ip,
             boolean critical) {
         FreshestCRLExtension freshestCRLExt = null;
@@ -149,10 +151,12 @@ public class CMSFreshestCRLExtension
         return freshestCRLExt;
     }
 
+    @Override
     public String getCRLExtOID() {
         return PKIXExtensions.FreshestCRL_Id.toString();
     }
 
+    @Override
     public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
 
         int numPoints = 0;
@@ -204,6 +208,7 @@ public class CMSFreshestCRLExtension
         }
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 "enable;boolean;Check to enable Freshest CRL extension.",

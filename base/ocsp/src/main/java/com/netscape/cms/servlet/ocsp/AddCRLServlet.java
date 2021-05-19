@@ -89,6 +89,7 @@ public class AddCRLServlet extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override success to display own output.
@@ -117,6 +118,7 @@ public class AddCRLServlet extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      * @exception EBaseException an error has occurred
      */
+    @Override
     protected synchronized void process(CMSRequest cmsReq)
             throws EBaseException {
 
@@ -576,6 +578,7 @@ class UpdateCRLThread extends Thread {
         mCRL = crl;
     }
 
+    @Override
     public void run() {
         try {
             if (!((X509CRLImpl) mCRL).areEntriesIncluded())

@@ -141,6 +141,7 @@ public class AdminServlet extends HttpServlet {
     /**
      * Initializes the servlet.
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
@@ -217,6 +218,7 @@ public class AdminServlet extends HttpServlet {
     /**
      * Serves HTTP admin request.
      */
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         CMSEngine engine = CMS.getCMSEngine();

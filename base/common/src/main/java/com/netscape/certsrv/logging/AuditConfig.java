@@ -116,6 +116,7 @@ public class AuditConfig {
 
     public static class EventConfigsAdapter extends XmlAdapter<EventConfigList, Map<String, String>> {
 
+        @Override
         public EventConfigList marshal(Map<String, String> map) {
             EventConfigList list = new EventConfigList();
             for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -127,6 +128,7 @@ public class AuditConfig {
             return list;
         }
 
+        @Override
         public Map<String, String> unmarshal(EventConfigList list) {
             Map<String, String> map = new TreeMap<String, String>();
             for (EventConfig eventConfig : list.entries) {
@@ -214,6 +216,7 @@ public class AuditConfig {
         return true;
     }
 
+    @Override
     public String toString() {
         try {
             StringWriter sw = new StringWriter();

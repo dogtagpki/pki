@@ -41,11 +41,13 @@ public class EEClientAuthRequestFilter implements Filter {
     public EEClientAuthRequestFilter() {
     }
 
+    @Override
     public void init(FilterConfig filterConfig)
                 throws ServletException {
         this.config = filterConfig;
     }
 
+    @Override
     public void doFilter(ServletRequest request,
                           ServletResponse response,
                           FilterChain chain)
@@ -129,6 +131,7 @@ public class EEClientAuthRequestFilter implements Filter {
         chain.doFilter(request, response);
     }
 
+    @Override
     public void destroy() {
     }
 }

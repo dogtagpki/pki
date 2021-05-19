@@ -64,6 +64,7 @@ public class CMSResourcePage extends ResourcePage {
 	 * DSResourcePage instead of ResourcePage
 	 * @return copy of resource page
 	 */
+    @Override
     public Object clone() {
 		CMSResourcePage rp = new CMSResourcePage((CMSBaseResourceModel)_model);
 		rp.setCellRenderer( _treeRenderer );
@@ -84,7 +85,8 @@ public class CMSResourcePage extends ResourcePage {
      * Implements TreeSelectionListener.  Called when an object is selected
 	 * in the resource tree.  Informs IResourceModelListeners of this event.
      */
-	public void valueChanged(TreeSelectionEvent ev)
+	@Override
+    public void valueChanged(TreeSelectionEvent ev)
 	{
 		IResourceObject[] selection = getSelection();
 		if(selection != null) {
@@ -101,7 +103,8 @@ public class CMSResourcePage extends ResourcePage {
     /**
      * Called internally when page is unselected
      */
-	public void pageUnselected(IFramework framework) {
+	@Override
+    public void pageUnselected(IFramework framework) {
         super.pageUnselected(framework);
         //check if the data is not saved
 	}
@@ -112,7 +115,8 @@ public class CMSResourcePage extends ResourcePage {
 	 *  bars, and add event notification listeners. COVERWRITES the method in
 	 *  the ResourcePage class to provide the menu contain separartion.
 	 */
-	public void initialize(IFramework framework) {
+	@Override
+    public void initialize(IFramework framework) {
 	    //Debug.println("CMSResourcePage - initialize() "+mMenuInfo);
 	    super.initialize(framework);
 	    if (mMenuInfo != null)

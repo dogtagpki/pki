@@ -70,6 +70,7 @@ public class LogInstancePanel extends CMSLogPanel {
     /**
      * retrieve data and process it
      */
+    @Override
     protected void update() {
          AdminConnection connection = mModel.getServerInfo().getAdmin();
 
@@ -117,6 +118,7 @@ public class LogInstancePanel extends CMSLogPanel {
      * retrieve archieve log file listing from the server
      * side and poupulate the combobox
      */
+    @Override
     protected void updateArchive() {
         AdminConnection connection = mModel.getServerInfo().getAdmin();
         String value = mResource.getString("LOGCONTENT_COMBOBOX_FILE_DEFAULT");
@@ -148,6 +150,7 @@ public class LogInstancePanel extends CMSLogPanel {
         mFile.setSelectedItem(mSelectedFile);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
         if (e.getSource().equals(mHelp)) {

@@ -55,10 +55,12 @@ public class SSLCert extends CertificateInfo {
         //mProperties.put(Constants.PR_SSL_SERVER_BIT, Constants.TRUE);
     }
 
+    @Override
     public String getSubjectName() {
         return (String) mProperties.get(Constants.PR_SUBJECT_NAME);
     }
 
+    @Override
     public String getNickname() {
         String name = (String) mProperties.get(Constants.PR_NICKNAME);
         String instanceName =
@@ -85,10 +87,12 @@ public class SSLCert extends CertificateInfo {
      }
      */
 
+    @Override
     public String getKeyAlgorithm() {
         return (String) mProperties.get(Constants.PR_KEY_TYPE);
     }
 
+    @Override
     protected KeyUsageExtension getKeyUsageExtension() throws IOException {
         KeyUsageExtension extension = new KeyUsageExtension();
 

@@ -83,6 +83,7 @@ public class CloneServlet extends CMSServlet {
     public CloneServlet() {
     }
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
@@ -96,6 +97,7 @@ public class CloneServlet extends CMSServlet {
         mAuthSubsystem = engine.getAuthSubsystem();
     }
 
+    @Override
     public void service(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException, IOException {
 
@@ -566,6 +568,7 @@ public class CloneServlet extends CMSServlet {
         return getSSLClientCertificate(req);
     }
 
+    @Override
     public String getServletInfo() {
         return INFO;
     }

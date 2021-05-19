@@ -42,6 +42,7 @@ public class SmtpClient extends TransferProtocolClient {
     /**
      * issue the QUIT command to the SMTP server and close the connection.
      */
+    @Override
     public void closeServer() throws IOException {
         if (serverIsOpen()) {
             closeMessage();
@@ -171,6 +172,7 @@ class SmtpPrintStream extends java.io.PrintStream {
         target = cl;
     }
 
+    @Override
     public void close() {
         if (target == null)
             return;
@@ -187,6 +189,7 @@ class SmtpPrintStream extends java.io.PrintStream {
         }
     }
 
+    @Override
     public void write(int b) {
         try {
             // quote a dot at the beginning of a line
@@ -204,6 +207,7 @@ class SmtpPrintStream extends java.io.PrintStream {
         }
     }
 
+    @Override
     public void write(byte b[], int off, int len) {
         try {
             int lc = lastc;
@@ -226,6 +230,7 @@ class SmtpPrintStream extends java.io.PrintStream {
         }
     }
 
+    @Override
     public void print(String s) {
         int len = s.length();
         for (int i = 0; i < len; i++) {

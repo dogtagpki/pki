@@ -33,10 +33,12 @@ public class CACertSubsystemExportCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "output-format", true, "Output format: PEM (default), DER");
         option.setArgName("format");
@@ -49,6 +51,7 @@ public class CACertSubsystemExportCLI extends CommandCLI {
         options.addOption(null, "pkcs7", false, "Export PKCS #7 certificate chain");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();

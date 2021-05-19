@@ -76,14 +76,17 @@ public class ResponseData implements ASN1Value {
         this(v1, rid, produced, sr, exts);
     }
 
+    @Override
     public Tag getTag() {
         return TAG;
     }
 
+    @Override
     public void encode(OutputStream os) throws IOException {
         encode(null, os);
     }
 
+    @Override
     public void encode(Tag t, OutputStream os) throws IOException {
         SEQUENCE seq = new SEQUENCE();
 
@@ -162,15 +165,18 @@ public class ResponseData implements ASN1Value {
                             Extension.getTemplate())));
         }
 
+        @Override
         public boolean tagMatch(Tag tag) {
             return TAG.equals(tag);
         }
 
+        @Override
         public ASN1Value decode(InputStream istream)
                 throws InvalidBERException, IOException {
             return decode(TAG, istream);
         }
 
+        @Override
         public ASN1Value decode(Tag implicitTag, InputStream istream)
                 throws InvalidBERException, IOException {
             SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag,

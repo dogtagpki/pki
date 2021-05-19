@@ -52,6 +52,7 @@ public class ProfileCLI extends CLI {
         addModule(new ProfileDisableCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

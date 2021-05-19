@@ -95,6 +95,7 @@ public class KeyRequestInfo extends CMSRequestInfo {
         return true;
     }
 
+    @Override
     public String toXML() throws Exception {
         Marshaller marshaller = JAXBContext.newInstance(KeyRequestInfo.class).createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -108,6 +109,7 @@ public class KeyRequestInfo extends CMSRequestInfo {
         return (KeyRequestInfo)unmarshaller.unmarshal(new StringReader(string));
     }
 
+    @Override
     public String toJSON() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
@@ -121,6 +123,7 @@ public class KeyRequestInfo extends CMSRequestInfo {
         return mapper.readValue(json, KeyRequestInfo.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toXML();

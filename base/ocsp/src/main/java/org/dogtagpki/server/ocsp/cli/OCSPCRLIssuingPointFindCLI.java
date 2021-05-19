@@ -43,12 +43,14 @@ public class OCSPCRLIssuingPointFindCLI extends CommandCLI {
         super("find", "Find OCSP CRL issuing points", parent);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "size", true, "Page size");
         option.setArgName("size");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String s = cmd.getOptionValue("size", "100");

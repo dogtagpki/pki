@@ -40,6 +40,7 @@ public class LdapRequestListener implements IRequestListener {
     public LdapRequestListener() {
     }
 
+    @Override
     public void set(String name, String val) {
     }
 
@@ -58,6 +59,7 @@ public class LdapRequestListener implements IRequestListener {
                 new LdapUnrevocationListener(publisherProcessor));
     }
 
+    @Override
     public void init(ISubsystem sys, IConfigStore config) throws EBaseException {
     }
 
@@ -129,6 +131,7 @@ public class LdapRequestListener implements IRequestListener {
 
     }
 
+    @Override
     public void accept(IRequest r) {
         String type = r.getRequestType();
 

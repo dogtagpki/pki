@@ -66,10 +66,12 @@ class WIIntroMigrationPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (!wizardInfo.isCAInstalled() || wizardInfo.isMigrationDone())
@@ -82,10 +84,12 @@ class WIIntroMigrationPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         Hashtable<String, Object> data = new Hashtable<>();
@@ -121,10 +125,12 @@ class WIIntroMigrationPage extends WizardBasePanel implements IWizardPanel {
         return ready;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(mHelpIndex);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -165,6 +171,7 @@ class WIIntroMigrationPage extends WizardBasePanel implements IWizardPanel {
         super.init();
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 }

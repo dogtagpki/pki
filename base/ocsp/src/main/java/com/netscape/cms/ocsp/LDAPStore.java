@@ -100,10 +100,12 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     public LDAPStore() {
     }
 
+    @Override
     public boolean isByName() {
         return mByName;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         Vector<String> v = new Vector<String>();
 
@@ -124,6 +126,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Fetch CA certificate and CRL from LDAP server.
      */
+    @Override
     public void init(IConfigStore config, DBSubsystem dbSubsystem) throws EBaseException {
 
         mConfig = config;
@@ -211,6 +214,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         mCRLs.put(caCert, crl);
     }
 
+    @Override
     public void startup() throws EBaseException {
         int num = mConfig.getInteger(PROP_NUM_CONNS, 0);
 
@@ -234,6 +238,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
+    @Override
     public void shutdown() {
     }
 
@@ -250,10 +255,12 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     }
 
 
+    @Override
     public int getStateCount() {
         return 0;
     }
 
+    @Override
     public long getReqCount(String id) {
         Long c = mReqCounts.get(id);
 
@@ -263,29 +270,35 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             return c.longValue();
     }
 
+    @Override
     public IRepositoryRecord createRepositoryRecord() {
         return null;
     }
 
+    @Override
     public void addRepository(String name, String thisUpdate,
             IRepositoryRecord rec)
             throws EBaseException {
         throw new EBaseException("NOT SUPPORTED");
     }
 
+    @Override
     public boolean waitOnCRLUpdate() {
         return false;
     }
 
+    @Override
     public void updateCRL(X509CRL crl) throws EBaseException {
         throw new EBaseException("NOT SUPPORTED");
     }
 
+    @Override
     public ICRLIssuingPointRecord readCRLIssuingPoint(String name)
             throws EBaseException {
         throw new EBaseException("NOT SUPPORTED");
     }
 
+    @Override
     public Enumeration<ICRLIssuingPointRecord> searchAllCRLIssuingPointRecord(int maxSize)
             throws EBaseException {
         Vector<ICRLIssuingPointRecord> recs = new Vector<ICRLIssuingPointRecord>();
@@ -300,28 +313,33 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         return recs.elements();
     }
 
+    @Override
     public Enumeration<ICRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
             int maxSize)
             throws EBaseException {
         return null;
     }
 
+    @Override
     public ICRLIssuingPointRecord createCRLIssuingPointRecord(
             String name, BigInteger crlNumber,
             Long crlSize, Date thisUpdate, Date nextUpdate) {
         return null;
     }
 
+    @Override
     public void addCRLIssuingPoint(String name, ICRLIssuingPointRecord rec)
             throws EBaseException {
         throw new EBaseException("NOT SUPPORTED");
     }
 
+    @Override
     public void deleteCRLIssuingPointRecord(String id)
             throws EBaseException {
         throw new EBaseException("NOT SUPPORTED");
     }
 
+    @Override
     public boolean isNotFoundGood() {
         try {
             return isNotFoundGood1();
@@ -345,6 +363,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Check against the database for status.
      */
+    @Override
     public SingleResponse processRequest(Request req) throws Exception {
 
         CertID cid = req.getCertID();
@@ -417,6 +436,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Provides configuration parameters.
      */
+    @Override
     public NameValuePairs getConfigParameters() {
         try {
             NameValuePairs params = new NameValuePairs();
@@ -456,6 +476,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
+    @Override
     public void setConfigParameters(NameValuePairs pairs)
             throws EBaseException {
 
@@ -482,6 +503,7 @@ class CRLUpdater extends Thread {
         mStore = store;
     }
 
+    @Override
     public void run() {
         while (true) {
             try {
@@ -513,6 +535,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
         mCRL = crl;
     }
 
+    @Override
     public String getId() {
         return mCACert.getSubjectDN().toString();
     }
@@ -520,6 +543,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves CRL serial number.
      */
+    @Override
     public BigInteger getCRLNumber() {
         return null;
     }
@@ -527,6 +551,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves delta CRL serial number.
      */
+    @Override
     public BigInteger getDeltaCRLNumber() {
         return null;
     }
@@ -534,6 +559,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves CRL size.
      */
+    @Override
     public Long getCRLSize() {
         return Long.valueOf(mCRL.getNumberOfRevokedCertificates());
     }
@@ -541,6 +567,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves CRL size.
      */
+    @Override
     public Long getDeltaCRLSize() {
         return Long.valueOf(-1);
     }
@@ -548,6 +575,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves this update time.
      */
+    @Override
     public Date getThisUpdate() {
         return mCRL.getThisUpdate();
     }
@@ -555,18 +583,22 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves next update time.
      */
+    @Override
     public Date getNextUpdate() {
         return mCRL.getNextUpdate();
     }
 
+    @Override
     public String getFirstUnsaved() {
         return null;
     }
 
+    @Override
     public Hashtable<BigInteger, RevokedCertificate> getCRLCacheNoClone() {
         return null;
     }
 
+    @Override
     public Hashtable<BigInteger, RevokedCertificate> getCRLCache() {
         return null;
     }
@@ -574,6 +606,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves CRL encodings.
      */
+    @Override
     public byte[] getCRL() {
         try {
             return mCRL.getEncoded();
@@ -585,6 +618,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves CRL encodings.
      */
+    @Override
     public byte[] getDeltaCRL() {
         return null;
     }
@@ -593,6 +627,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
         return 1;
     }
 
+    @Override
     public byte[] getCACert() {
         try {
             return mCACert.getEncoded();
@@ -604,6 +639,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves cache info of revoked certificates.
      */
+    @Override
     public Hashtable<BigInteger, RevokedCertificate> getRevokedCerts() {
         return mCRL.getListOfRevokedCertificates();
     }
@@ -611,6 +647,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves cache info of unrevoked certificates.
      */
+    @Override
     public Hashtable<BigInteger, RevokedCertificate> getUnrevokedCerts() {
         return null;
     }
@@ -618,25 +655,31 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves cache info of expired certificates.
      */
+    @Override
     public Hashtable<BigInteger, RevokedCertificate> getExpiredCerts() {
         return null;
     }
 
+    @Override
     public Enumeration<String> getSerializableAttrNames() {
         return null;
     }
 
+    @Override
     public void set(String name, Object obj) throws EBaseException {
     }
 
+    @Override
     public Object get(String name) throws EBaseException {
         return null;
     }
 
+    @Override
     public void delete(String name) throws EBaseException {
 
     }
 
+    @Override
     public Enumeration<String> getElements() {
         return null;
     }

@@ -87,6 +87,7 @@ public class KRAPresence
      * @exception EInvalidSelfTestException subsystem has invalid name/value
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
+    @Override
     public void initSelfTest(ISelfTestSubsystem subsystem,
                               String instanceName,
                               IConfigStore parameters)
@@ -136,6 +137,7 @@ public class KRAPresence
      *
      * @exception ESelfTestException failed to start
      */
+    @Override
     public void startupSelfTest()
             throws ESelfTestException {
         return;
@@ -146,6 +148,7 @@ public class KRAPresence
      * anytime after initialization.
      * <P>
      */
+    @Override
     public void shutdownSelfTest() {
         return;
     }
@@ -157,6 +160,7 @@ public class KRAPresence
      *
      * @return instanceName of this self test
      */
+    @Override
     public String getSelfTestName() {
         return super.getSelfTestName();
     }
@@ -168,6 +172,7 @@ public class KRAPresence
      *
      * @return configuration store (self test parameters) of this subsystem
      */
+    @Override
     public IConfigStore getSelfTestConfigStore() {
         return super.getSelfTestConfigStore();
     }
@@ -180,6 +185,7 @@ public class KRAPresence
      * @param locale locale of the client that requests the description
      * @return description of self test
      */
+    @Override
     public String getSelfTestDescription(Locale locale) {
         return CMS.getUserMessage(locale,
                                    "CMS_SELFTESTS_KRA_PRESENCE_DESCRIPTION");
@@ -192,6 +198,7 @@ public class KRAPresence
      * @param logger specifies logging subsystem
      * @exception Exception self test exception
      */
+    @Override
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
         KRAEngine engine = KRAEngine.getInstance();

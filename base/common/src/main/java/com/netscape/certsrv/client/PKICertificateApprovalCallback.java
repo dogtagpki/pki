@@ -127,6 +127,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
 
     // Callback to approve or deny returned SSL server cert.
     // Right now, simply approve the cert.
+    @Override
     public boolean approve(X509Certificate serverCert,
             SSLCertificateApprovalCallback.ValidityStatus status) {
 

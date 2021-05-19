@@ -95,6 +95,7 @@ public class ConnectorData {
 
     public static class MapAdapter extends XmlAdapter<PropertyList, Map<String, String>> {
 
+        @Override
         public PropertyList marshal(Map<String, String> map) {
             PropertyList list = new PropertyList();
             for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -106,6 +107,7 @@ public class ConnectorData {
             return list;
         }
 
+        @Override
         public Map<String, String> unmarshal(PropertyList list) {
             Map<String, String> map = new LinkedHashMap<String, String>();
             for (Property property : list.properties) {
@@ -181,6 +183,7 @@ public class ConnectorData {
         return true;
     }
 
+    @Override
     public String toString() {
         try {
             StringWriter sw = new StringWriter();

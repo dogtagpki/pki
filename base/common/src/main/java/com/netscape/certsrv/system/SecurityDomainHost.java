@@ -183,6 +183,7 @@ public class SecurityDomainHost {
         return (SecurityDomainHost)unmarshaller.unmarshal(new StringReader(string));
     }
 
+    @Override
     public String toString() {
         try {
             return toXML();

@@ -59,6 +59,7 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab {
         mHelpToken = OCSPHELPINDEX;
     }
 
+    @Override
     public void init() {
         Debug.println("CMSCAGeneral: init()");
         mAdmin = mModel.getServerInfo().getAdmin();
@@ -125,6 +126,7 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab {
         refresh();
     }
 
+    @Override
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
@@ -168,6 +170,7 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab {
         }
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
     }
@@ -176,6 +179,7 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab {
      * Implementation for saving panel information
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean applyCallback() {
         NameValuePairs nvps = new NameValuePairs();
 
@@ -201,6 +205,7 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab {
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean resetCallback() {
         refresh();
         return true;

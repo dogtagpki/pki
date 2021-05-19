@@ -58,6 +58,7 @@ public class CertDataModel extends CMSContentTableModel
     /*==========================================================
 	 * public methods
      *==========================================================*/
+    @Override
     public void processData(Object data) {
         Vector<Object> v = new Vector<>();
 

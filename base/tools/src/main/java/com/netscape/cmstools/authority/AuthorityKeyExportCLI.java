@@ -38,6 +38,7 @@ public class AuthorityKeyExportCLI extends CommandCLI {
         this.authorityCLI = authorityCLI;
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option("o", "output", true, "Output file");
@@ -61,6 +62,7 @@ public class AuthorityKeyExportCLI extends CommandCLI {
 
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(
             getFullName()
@@ -69,6 +71,7 @@ public class AuthorityKeyExportCLI extends CommandCLI {
             options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String filename = cmd.getOptionValue("output");

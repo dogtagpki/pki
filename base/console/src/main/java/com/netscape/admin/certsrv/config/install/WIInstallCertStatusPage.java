@@ -51,6 +51,7 @@ class WIInstallCertStatusPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         setBorder(makeTitledBorder(mPanelName));
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
@@ -59,10 +60,12 @@ class WIInstallCertStatusPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean validatePanel() {
         if (mFileBtn.isSelected()) {
             mCertFilePath = mFileText.getText().trim();
@@ -80,6 +83,7 @@ class WIInstallCertStatusPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         String rawData = ConfigConstants.TASKID+"="+TaskId.TASK_IMPORT_CERT_CHAIN;
@@ -121,10 +125,12 @@ class WIInstallCertStatusPage extends WizardBasePanel implements IWizardPanel {
         return ready;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(mHelpIndex);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -219,9 +225,11 @@ class WIInstallCertStatusPage extends WizardBasePanel implements IWizardPanel {
         super.init();
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mPaste)) {
             mBase64Text.paste();

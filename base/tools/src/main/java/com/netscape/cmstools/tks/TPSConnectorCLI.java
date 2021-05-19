@@ -45,6 +45,7 @@ public class TPSConnectorCLI extends CLI {
         addModule(new TPSConnectorShowCLI(this));
     }
 
+    @Override
     public String getFullName() {
         return parent.getFullName() + "-" + name;
     }

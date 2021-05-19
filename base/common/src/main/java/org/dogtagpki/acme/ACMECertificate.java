@@ -82,6 +82,7 @@ public class ACMECertificate {
         return mapper.readValue(json, ACMECertificate.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

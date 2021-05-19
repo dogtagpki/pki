@@ -11,6 +11,7 @@ public class CACertRequestValidateCLI extends CACertRequestActionCLI {
         super("validate", "Validate certificate request", certRequestCLI);
     }
 
+    @Override
     public void performAction(
             CACertClient certClient,
             RequestId requestId,

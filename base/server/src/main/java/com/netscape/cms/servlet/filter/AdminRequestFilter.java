@@ -41,11 +41,13 @@ public class AdminRequestFilter implements Filter {
     public AdminRequestFilter() {
     }
 
+    @Override
     public void init(FilterConfig filterConfig)
                 throws ServletException {
         this.config = filterConfig;
     }
 
+    @Override
     public void doFilter(ServletRequest request,
                           ServletResponse response,
                           FilterChain chain)
@@ -130,6 +132,7 @@ public class AdminRequestFilter implements Filter {
         chain.doFilter(request, response);
     }
 
+    @Override
     public void destroy() {
     }
 }

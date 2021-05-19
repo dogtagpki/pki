@@ -33,10 +33,12 @@ public class NSSKeyExportCLI extends CommandCLI {
         this.nssKeyCLI = nssKeyCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <key nickname>", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "output", true, "File to store the exported key");
         option.setArgName("path");
@@ -47,6 +49,7 @@ public class NSSKeyExportCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -64,7 +64,8 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
         mHelpToken = HELPINDEX;
     }
 
-	public CMSBaseConfigDialog makeEditConfigDialog(
+	@Override
+    public CMSBaseConfigDialog makeEditConfigDialog(
 			NameValuePairs nvp,
 			JFrame parent,
 			AdminConnection conn,
@@ -77,7 +78,8 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
 			dest);
 	}
 
-	public CMSBaseConfigDialog makeNewConfigDialog(
+	@Override
+    public CMSBaseConfigDialog makeNewConfigDialog(
 			NameValuePairs nvp,
 			JFrame parent,
 			AdminConnection conn,
@@ -91,7 +93,8 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
 			dest);
 	}
 
-	public PluginSelectionDialog getPluginSelectionDialog(
+	@Override
+    public PluginSelectionDialog getPluginSelectionDialog(
 			JFrame parent,
 			AdminConnection conn,
 			String dest,
@@ -103,6 +106,7 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
 
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent e) {
       if (e.getSource().equals(mEdit) || e.getSource().equals(mDelete)) {
           if(mTable.getSelectedRow()< 0)
@@ -116,6 +120,7 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
       super.actionPerformed(e);
     }
 
+    @Override
     public void moreActionPerformed(ActionEvent e) {
         if (e.getSource().equals(mOrder)) {
             Debug.println("Order");
@@ -130,6 +135,7 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
     /**
      * create the user action button panel
      */
+    @Override
     protected JPanel createUserButtonPanel() {
         //edit, add, delete, help buttons required
         //actionlister to this object
@@ -144,6 +150,7 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
 
 
     //set buttons
+    @Override
     protected void setButtons() {
 		super.setButtons();
 

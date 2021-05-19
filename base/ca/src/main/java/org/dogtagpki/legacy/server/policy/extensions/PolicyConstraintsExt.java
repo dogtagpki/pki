@@ -98,6 +98,7 @@ public class PolicyConstraintsExt extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -167,6 +168,7 @@ public class PolicyConstraintsExt extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         // if extension hasn't been properly configured reject requests until
         // it has been resolved (or disabled).
@@ -247,6 +249,7 @@ public class PolicyConstraintsExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         return mInstanceParams;
     }
@@ -256,6 +259,7 @@ public class PolicyConstraintsExt extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return mDefaultParams;
     }
@@ -263,6 +267,7 @@ public class PolicyConstraintsExt extends APolicyRule
     /**
      * gets plugin info for pretty console edit displays.
      */
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(

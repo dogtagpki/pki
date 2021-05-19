@@ -73,6 +73,7 @@ public class LdapCaCertPublisher
     public LdapCaCertPublisher() {
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
                 "caCertAttr;string;Name of Ldap attribute in which to store certificate",
@@ -89,14 +90,17 @@ public class LdapCaCertPublisher
         return s;
     }
 
+    @Override
     public String getImplName() {
         return "LdapCaCertPublisher";
     }
 
+    @Override
     public String getDescription() {
         return "LdapCaCertPublisher";
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
 
@@ -105,6 +109,7 @@ public class LdapCaCertPublisher
         return v;
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
@@ -113,10 +118,12 @@ public class LdapCaCertPublisher
         return v;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         if (mInited)
@@ -161,6 +168,7 @@ public class LdapCaCertPublisher
      * @param dn dn of the entry to publish the certificate
      * @param certObj the certificate object.
      */
+    @Override
     public void publish(LDAPConnection conn, String dn, Object certObj)
             throws ELdapException {
         if (conn == null) {
@@ -351,6 +359,7 @@ public class LdapCaCertPublisher
      * if it's the last cert will also remove the certificateAuthority
      * objectclass.
      */
+    @Override
     public void unpublish(LDAPConnection conn, String dn, Object certObj)
             throws ELdapException {
         if (!(certObj instanceof X509Certificate))

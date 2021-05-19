@@ -30,10 +30,12 @@ public class NSSCertIssueCLI extends CommandCLI {
         super("issue", "Issue certificate", nssCertCLI);
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "issuer", true, "Issuer nickname (default is self-signed)");
         option.setArgName("nickname");
@@ -68,6 +70,7 @@ public class NSSCertIssueCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String issuerNickname = cmd.getOptionValue("issuer");

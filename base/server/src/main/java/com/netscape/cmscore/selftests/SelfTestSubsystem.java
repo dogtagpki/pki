@@ -239,6 +239,7 @@ public class SelfTestSubsystem
     // SelfTestSubsystem methods //
     ///////////////////////////////
 
+    @Override
     public Collection<String> getSelfTestNames() {
         return mSelfTestInstances.keySet();
     }
@@ -254,6 +255,7 @@ public class SelfTestSubsystem
      *
      * @return list of self test instance names run on demand
      */
+    @Override
     public String[] listSelfTestsEnabledOnDemand() {
         String[] mList;
 
@@ -400,6 +402,7 @@ public class SelfTestSubsystem
      * @return true if the specified self test is enabled on demand
      * @exception EMissingSelfTestException subsystem has missing name
      */
+    @Override
     public boolean isSelfTestEnabledOnDemand(String instanceName)
             throws EMissingSelfTestException {
         // strip preceding/trailing whitespace
@@ -439,6 +442,7 @@ public class SelfTestSubsystem
      *         it is executed on demand
      * @exception EMissingSelfTestException subsystem has missing name
      */
+    @Override
     public boolean isSelfTestCriticalOnDemand(String instanceName)
             throws EMissingSelfTestException {
         String instanceFullName = null;
@@ -484,6 +488,7 @@ public class SelfTestSubsystem
      * @exception EMissingSelfTestException subsystem has missing name
      * @exception ESelfTestException self test exception
      */
+    @Override
     public void runSelfTestsOnDemand()
             throws EMissingSelfTestException, ESelfTestException {
 
@@ -545,6 +550,7 @@ public class SelfTestSubsystem
         }
     }
 
+    @Override
     public void runSelfTest(String instanceName) throws Exception {
 
         logger.debug("SelfTestSubsystem: runSelfTest(" + instanceName + ")");
@@ -569,6 +575,7 @@ public class SelfTestSubsystem
      *
      * @return list of self test instance names run at server startup
      */
+    @Override
     public String[] listSelfTestsEnabledAtStartup() {
         String[] mList;
 
@@ -716,6 +723,7 @@ public class SelfTestSubsystem
      * @return true if the specified self test is executed at server startup
      * @exception EMissingSelfTestException subsystem has missing name
      */
+    @Override
     public boolean isSelfTestEnabledAtStartup(String instanceName)
             throws EMissingSelfTestException {
         // strip preceding/trailing whitespace
@@ -755,6 +763,7 @@ public class SelfTestSubsystem
      *         server startup
      * @exception EMissingSelfTestException subsystem has missing name
      */
+    @Override
     public boolean isSelfTestCriticalAtStartup(String instanceName)
             throws EMissingSelfTestException {
         String instanceFullName = null;
@@ -804,6 +813,7 @@ public class SelfTestSubsystem
      * @exception EMissingSelfTestException subsystem has missing name
      * @exception Exception self test exception
      */
+    @Override
     public void runSelfTestsAtStartup() throws Exception {
 
         // log that execution of startup self tests has begun
@@ -890,6 +900,7 @@ public class SelfTestSubsystem
      * @param instanceName instance name of self test
      * @return individual self test
      */
+    @Override
     public ISelfTest getSelfTest(String instanceName) {
         // strip preceding/trailing whitespace
         // from passed-in String parameters
@@ -924,6 +935,7 @@ public class SelfTestSubsystem
      *
      * @return ILogEventListener of this subsystem
      */
+    @Override
     public ILogEventListener getSelfTestLogger() {
         return mLogger;
     }
@@ -935,6 +947,7 @@ public class SelfTestSubsystem
      * @param logger log event listener
      * @param msg self test log message
      */
+    @Override
     public void log(ILogEventListener logger, String msg) {
 
         if (logger != null) {
@@ -1172,6 +1185,7 @@ public class SelfTestSubsystem
      *
      * @return identification of this subsystem
      */
+    @Override
     public String getId() {
         return ID;
     }
@@ -1183,6 +1197,7 @@ public class SelfTestSubsystem
      * @param id identification of this subsystem
      * @exception EBaseException base CMS exception
      */
+    @Override
     public void setId(String id)
             throws EBaseException {
 
@@ -1204,6 +1219,7 @@ public class SelfTestSubsystem
      *
      * @exception EBaseException base CMS exception
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
 
@@ -1740,6 +1756,7 @@ public class SelfTestSubsystem
      *
      * @exception EBaseException base CMS exception
      */
+    @Override
     public void startup() throws EBaseException {
 
         // loop through all self test plugin instances
@@ -1816,6 +1833,7 @@ public class SelfTestSubsystem
      * anytime after initialization.
      * <P>
      */
+    @Override
     public void shutdown() {
         // reverse order of all self test plugin instances
         Collection<ISelfTest> collection = mSelfTestInstances.values();
@@ -1843,6 +1861,7 @@ public class SelfTestSubsystem
      *
      * @return configuration store of this subsystem
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }

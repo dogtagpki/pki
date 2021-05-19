@@ -55,6 +55,7 @@ public abstract class CMSCertSettingPanel extends CMSBaseTab {
     /**
      * Actual UI construction
      */
+    @Override
     public void init() {
         _admin = _model.getServerInfo().getAdmin();
         GridBagLayout gb = new GridBagLayout();

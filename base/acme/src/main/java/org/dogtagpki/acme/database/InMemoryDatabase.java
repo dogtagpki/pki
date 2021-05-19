@@ -31,37 +31,46 @@ public class InMemoryDatabase extends ACMEDatabase {
     private Map<String, ACMEAuthorization> authorizations = new ConcurrentHashMap<>();
     private Map<String, ACMECertificate> certificates = new ConcurrentHashMap<>();
 
+    @Override
     public void init() throws Exception {
         logger.info("Initializing in-memory database");
     }
 
+    @Override
     public void addNonce(ACMENonce nonce) throws Exception {
         nonces.put(nonce.getID(), nonce);
     }
 
+    @Override
     public ACMENonce removeNonce(String nonceID) throws Exception {
         return nonces.remove(nonceID);
     }
 
+    @Override
     public void removeExpiredNonces(Date currentTime) throws Exception {
         nonces.values().removeIf(n -> !currentTime.before(n.getExpirationTime()));
     }
 
+    @Override
     public ACMEAccount getAccount(String accountID) throws Exception {
         return accounts.get(accountID);
     }
 
+    @Override
     public void addAccount(ACMEAccount account) throws Exception {
         accounts.put(account.getID(), account);
     }
 
+    @Override
     public void updateAccount(ACMEAccount account) throws Exception {
     }
 
+    @Override
     public ACMEOrder getOrder(String orderID) throws Exception {
         return orders.get(orderID);
     }
 
+    @Override
     public Collection<ACMEOrder> getOrdersByAccount(String accountID) throws Exception {
 
         Collection<ACMEOrder> results = new ArrayList<>();
@@ -75,6 +84,7 @@ public class InMemoryDatabase extends ACMEDatabase {
         return results;
     }
 
+    @Override
     public Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(
             String authzID, String status) throws Exception {
 
@@ -94,6 +104,7 @@ public class InMemoryDatabase extends ACMEDatabase {
         return results;
     }
 
+    @Override
     public ACMEOrder getOrderByCertificate(String certID) throws Exception {
         for (ACMEOrder order : orders.values()) {
             if (certID.equals(order.getCertID())) {
@@ -106,23 +117,28 @@ public class InMemoryDatabase extends ACMEDatabase {
         return null;
     }
 
+    @Override
     public void addOrder(ACMEOrder order) throws Exception {
         orders.put(order.getID(), order);
     }
 
+    @Override
     public void updateOrder(ACMEOrder order) throws Exception {
         orders.put(order.getID(), order);
     }
 
+    @Override
     public void removeExpiredOrders(Date currentTime) throws Exception {
         orders.values().removeIf(
                 n -> n.getExpirationTime() != null && !currentTime.before(n.getExpirationTime()));
     }
 
+    @Override
     public ACMEAuthorization getAuthorization(String authzID) throws Exception {
         return authorizations.get(authzID);
     }
 
+    @Override
     public ACMEAuthorization getAuthorizationByChallenge(String challengeID) throws Exception {
         for (ACMEAuthorization authorization : authorizations.values()) {
 
@@ -134,6 +150,7 @@ public class InMemoryDatabase extends ACMEDatabase {
         return null;
     }
 
+    @Override
     public Collection<ACMEAuthorization> getRevocationAuthorizations(String accountID, Date time) throws Exception {
 
         Collection<ACMEAuthorization> results = new ArrayList<>();
@@ -162,6 +179,7 @@ public class InMemoryDatabase extends ACMEDatabase {
         return results;
     }
 
+    @Override
     public boolean hasRevocationAuthorization(String accountID, Date time, ACMEIdentifier identifier) throws Exception {
 
         for (ACMEAuthorization authorization : authorizations.values()) {
@@ -208,27 +226,33 @@ public class InMemoryDatabase extends ACMEDatabase {
         return false;
     }
 
+    @Override
     public void addAuthorization(ACMEAuthorization authorization) throws Exception {
         authorizations.put(authorization.getID(), authorization);
     }
 
+    @Override
     public void updateAuthorization(ACMEAuthorization authorization) throws Exception {
         authorizations.put(authorization.getID(), authorization);
     }
 
+    @Override
     public void removeExpiredAuthorizations(Date currentTime) throws Exception {
         authorizations.values().removeIf(
                 n -> n.getExpirationTime() != null && !currentTime.before(n.getExpirationTime()));
     }
 
+    @Override
     public ACMECertificate getCertificate(String certID) throws Exception {
         return certificates.get(certID);
     }
 
+    @Override
     public void addCertificate(String certID, ACMECertificate certificate) throws Exception {
         certificates.put(certID, certificate);
     }
 
+    @Override
     public void removeExpiredCertificates(Date currentTime) throws Exception {
         certificates.values().removeIf(
                 n -> n.getExpirationTime() != null && !currentTime.before(n.getExpirationTime()));

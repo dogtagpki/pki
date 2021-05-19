@@ -48,12 +48,14 @@ public class MainPageServlet extends CMSServlet {
     public MainPageServlet() {
     }
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mTemplates.remove(ICMSRequest.SUCCESS);
         mTemplates.remove(ICMSRequest.ERROR);
     }
 
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();

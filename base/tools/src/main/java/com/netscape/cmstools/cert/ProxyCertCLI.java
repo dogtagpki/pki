@@ -33,6 +33,7 @@ public class ProxyCertCLI extends ProxyCLI {
         super(new CACertCLI(parent), "ca");
     }
 
+    @Override
     public void execute(String[] args) throws Exception {
         System.err.println("WARNING: pki cert has been deprecated. Use pki ca-cert instead.");
         super.execute(args);

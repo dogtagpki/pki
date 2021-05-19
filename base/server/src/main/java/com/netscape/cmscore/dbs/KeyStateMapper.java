@@ -46,6 +46,7 @@ public class KeyStateMapper extends DBAttrMapper {
         mLdapName = ldapName;
     }
 
+    @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
         Vector<String> v = new Vector<String>();
 
@@ -53,6 +54,7 @@ public class KeyStateMapper extends DBAttrMapper {
         return v.elements();
     }
 
+    @Override
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
@@ -69,6 +71,7 @@ public class KeyStateMapper extends DBAttrMapper {
      * Maps LDAP attributes into object, and put the object
      * into 'parent'.
      */
+    @Override
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
             String name, IDBObj parent) throws EBaseException {
         LDAPAttribute attr = attrs.getAttribute(mLdapName);
@@ -82,6 +85,7 @@ public class KeyStateMapper extends DBAttrMapper {
     /**
      * Maps search filters into LDAP search filter.
      */
+    @Override
     public String mapSearchFilter(String name, String op,
             String value) throws EBaseException {
         return mLdapName + op + value;

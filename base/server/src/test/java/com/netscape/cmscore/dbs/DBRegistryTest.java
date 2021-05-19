@@ -28,6 +28,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
         super(name);
     }
 
+    @Override
     public void cmsTestSetUp() {
         db = new DBSubsystemStub();
         registry = new LDAPRegistry();
@@ -49,6 +50,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
         }
     }
 
+    @Override
     public void cmsTestTearDown() {
     }
 
@@ -111,6 +113,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
     static class DBSubsystemStub extends DBSubsystem {
         DBRegistry registry;
 
+        @Override
         public DBRegistry getRegistry() {
             return registry;
         }
@@ -121,16 +124,19 @@ public class DBRegistryTest extends CMSBaseTestCase {
         Object mapObjectCalledWithObject = null;
         boolean mapLDAPAttrsCalled = false;
 
+        @Override
         public boolean supportsLDAPAttributeName(String attrName) {
             return (attrName != null) &&
                     attrName.toLowerCase().startsWith("extdata-");
         }
 
+        @Override
         public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, String name, IDBObj parent)
                 throws EBaseException {
             mapLDAPAttrsCalled = true;
         }
 
+        @Override
         public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
                                                 Object obj,
                                                 LDAPAttributeSet attrs)
@@ -160,12 +166,14 @@ class RequestRecordStub extends RequestRecordDefaultStub {
     String getCalledWith = null;
     boolean getSerializedAttrNamesCalled = false;
 
+    @Override
     public Object get(String name) {
         getCalled = true;
         getCalledWith = name;
         return "foo";
     }
 
+    @Override
     public Enumeration<String> getSerializableAttrNames() {
         getSerializedAttrNamesCalled = true;
         return Collections.enumeration(Arrays.asList(attrs));

@@ -95,6 +95,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
     }
 
 
+    @Override
     protected JPanel makeContentPane() {
         JPanel mListPanel = new JPanel();
         GridBagLayout gb = new GridBagLayout();
@@ -459,10 +460,12 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         showDialog(null, mName);
     }
 
+    @Override
     public void stateChanged(ChangeEvent evt) {
         setProfileOtherInfo(mName);
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
 
         if (evt.getSource().equals(mHelp)) {
@@ -764,6 +767,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
           ScopeDef.SC_PROFILE_OUTPUT, profileId, nvps);
     }
 
+    @Override
     public void showDialog(NameValuePairs data, String name) {
 
         mName = name;

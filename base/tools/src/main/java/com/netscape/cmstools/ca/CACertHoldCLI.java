@@ -48,10 +48,12 @@ public class CACertHoldCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Serial Number> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "comments", true, "Comments");
         option.setArgName("comments");
@@ -60,6 +62,7 @@ public class CACertHoldCLI extends CommandCLI {
         options.addOption(null, "force", false, "Force");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

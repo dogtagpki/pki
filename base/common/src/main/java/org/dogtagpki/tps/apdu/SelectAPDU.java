@@ -32,6 +32,7 @@ public class SelectAPDU extends APDU {
         setData(theData);
     }
 
+    @Override
     public Type getType()
     {
         return Type.APDU_SELECT;

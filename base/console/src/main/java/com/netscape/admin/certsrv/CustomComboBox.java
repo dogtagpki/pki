@@ -60,6 +60,7 @@ class CustomCellRenderer<E> extends JLabel implements ListCellRenderer<E>   {
         setOpaque(true);
     }
 
+    @Override
     public Component getListCellRendererComponent(
         JList<? extends E> listbox, E value, int index,
         boolean isSelected, boolean cellHasFocus)

@@ -81,6 +81,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
     /**
      * Initializes the servlet.
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
@@ -93,6 +94,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -103,6 +105,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
      * confirmRecoverBySerial?
      * [serialNumber=<serialno>]
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
 
         // Note that we should try to handle all the exceptions

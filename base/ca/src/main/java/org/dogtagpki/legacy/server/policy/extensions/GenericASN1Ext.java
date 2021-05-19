@@ -117,6 +117,7 @@ public class GenericASN1Ext extends APolicyRule implements
 
     private String pattern = null;
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
                 "enable" + ";boolean;Enable this policy",
@@ -220,6 +221,7 @@ public class GenericASN1Ext extends APolicyRule implements
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -347,6 +349,7 @@ public class GenericASN1Ext extends APolicyRule implements
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
         X509CertInfo certInfo;
@@ -456,6 +459,7 @@ public class GenericASN1Ext extends APolicyRule implements
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         int idx = 0;
         Vector<String> params = new Vector<String>();
@@ -488,6 +492,7 @@ public class GenericASN1Ext extends APolicyRule implements
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         int idx = 0;
 

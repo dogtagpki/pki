@@ -89,7 +89,8 @@ public class CGITask extends CMSTaskObject
 	 *
 	 * @param viewInstance The calling page
 	 */
-	public boolean run(IPage viewInstance) {
+	@Override
+    public boolean run(IPage viewInstance) {
 		if ( mCmd == null ) {
 			Debug.println( "Could not get execref for " + getDN() );
 			return false;
@@ -184,6 +185,7 @@ public class CGITask extends CMSTaskObject
 	/**
 	 *	the operation is finished after we receive the http stream
 	 */
+    @Override
     public void replyHandler(InputStream response, CommRecord cr) {
 /*
 		try {
@@ -291,6 +293,7 @@ public class CGITask extends CMSTaskObject
 	/**
 	 *	this function will be called if error occurs
 	 */
+    @Override
     public void errorHandler(Exception error, CommRecord cr) {
 		Debug.println("CGITask.errorHandler: " + error );
 
@@ -310,7 +313,8 @@ public class CGITask extends CMSTaskObject
 	/**
 	 *	pass the username to the admin server
 	 */
-	public String username(Object authObject, CommRecord cr) {
+	@Override
+    public String username(Object authObject, CommRecord cr) {
 		Debug.println( "username = " +
 		    _consoleInfo.getAuthenticationDN());
         return _consoleInfo.getAuthenticationDN();
@@ -319,7 +323,8 @@ public class CGITask extends CMSTaskObject
 	/**
 	 *	pass the user password to the admin server
 	 */
-	public String password(Object authObject, CommRecord cr) {
+	@Override
+    public String password(Object authObject, CommRecord cr) {
 		Debug.println( "password = " +
 					   (String)_consoleInfo.get( "AdminUserPassword" ) );
 		return (String)_consoleInfo.get( "AdminUserPassword" );

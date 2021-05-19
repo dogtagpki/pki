@@ -85,6 +85,7 @@ public class ACMEIdentifier {
         return mapper.readValue(json, ACMEIdentifier.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

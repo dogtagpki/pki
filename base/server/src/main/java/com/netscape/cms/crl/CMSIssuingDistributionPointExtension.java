@@ -72,6 +72,7 @@ public class CMSIssuingDistributionPointExtension
     public CMSIssuingDistributionPointExtension() {
     }
 
+    @Override
     public Extension setCRLExtensionCriticality(Extension ext,
             boolean critical) {
         IssuingDistributionPointExtension issuingDPointExt =
@@ -82,6 +83,7 @@ public class CMSIssuingDistributionPointExtension
         return issuingDPointExt;
     }
 
+    @Override
     public Extension getCRLExtension(IConfigStore config,
             Object ip,
             boolean critical) {
@@ -221,10 +223,12 @@ public class CMSIssuingDistributionPointExtension
         return issuingDPointExt;
     }
 
+    @Override
     public String getCRLExtOID() {
         return PKIXExtensions.IssuingDistributionPoint_Id.toString();
     }
 
+    @Override
     public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
         String pointType = null;
 
@@ -308,6 +312,7 @@ public class CMSIssuingDistributionPointExtension
         */
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         StringBuffer sb_reasons = new StringBuffer();
         sb_reasons.append(reasonFlags[1]);

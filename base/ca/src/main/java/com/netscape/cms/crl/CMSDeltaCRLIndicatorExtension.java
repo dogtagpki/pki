@@ -45,6 +45,7 @@ public class CMSDeltaCRLIndicatorExtension
     public CMSDeltaCRLIndicatorExtension() {
     }
 
+    @Override
     public Extension setCRLExtensionCriticality(Extension ext,
             boolean critical) {
         BigInteger baseCRLNumber = null;
@@ -62,6 +63,7 @@ public class CMSDeltaCRLIndicatorExtension
         return deltaCRLIndicatorExt;
     }
 
+    @Override
     public Extension getCRLExtension(IConfigStore config,
             Object ip,
             boolean critical) {
@@ -78,13 +80,16 @@ public class CMSDeltaCRLIndicatorExtension
         return deltaCRLIndicatorExt;
     }
 
+    @Override
     public String getCRLExtOID() {
         return PKIXExtensions.DeltaCRLIndicator_Id.toString();
     }
 
+    @Override
     public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 //"type;choice(CRLExtension,CRLEntryExtension);"+

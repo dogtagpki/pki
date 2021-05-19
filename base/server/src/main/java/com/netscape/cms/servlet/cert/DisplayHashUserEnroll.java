@@ -68,6 +68,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
     /**
      * Initializes the servlet.
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
@@ -82,6 +83,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
         mTemplates.remove(ICMSRequest.SUCCESS);
     }
 
+    @Override
     protected CMSRequest newCMSRequest() {
         return new CMSRequest();
     }
@@ -89,6 +91,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
     /**
      * Services the request
      */
+    @Override
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();

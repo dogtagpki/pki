@@ -72,10 +72,12 @@ public class LogSubsystem implements ILogSubsystem {
     private LogSubsystem() {
     }
 
+    @Override
     public String getId() {
         return ID;
     }
 
+    @Override
     public void setId(String id) throws EBaseException {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
     }
@@ -85,6 +87,7 @@ public class LogSubsystem implements ILogSubsystem {
      * <P>
      * @param config configuration store
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -164,6 +167,7 @@ public class LogSubsystem implements ILogSubsystem {
         return auditEvents;
     }
 
+    @Override
     public void startup() throws EBaseException {
         logger.trace("entering LogSubsystem.startup()");
         Enumeration<String> enum1 = mLogInsts.keys();
@@ -182,6 +186,7 @@ public class LogSubsystem implements ILogSubsystem {
      * Stops this subsystem.
      * <P>
      */
+    @Override
     public void shutdown() {
         mLogQueue.shutdown();
     }
@@ -192,6 +197,7 @@ public class LogSubsystem implements ILogSubsystem {
      *
      * @return configuration store of this subsystem
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -203,6 +209,7 @@ public class LogSubsystem implements ILogSubsystem {
         return mInstance;
     }
 
+    @Override
     public String getLogPluginName(ILogEventListener log) {
         IConfigStore cs = log.getConfigStore();
         if (cs == null) {
@@ -219,18 +226,22 @@ public class LogSubsystem implements ILogSubsystem {
     /**
      * Retrieve log instance by it's name
      */
+    @Override
     public ILogEventListener getLogInstance(String insName) {
         return mLogInsts.get(insName);
     }
 
+    @Override
     public Hashtable<String, LogPlugin> getLogPlugins() {
         return mLogPlugins;
     }
 
+    @Override
     public Hashtable<String, ILogEventListener> getLogInsts() {
         return mLogInsts;
     }
 
+    @Override
     public Vector<String> getLogDefaultParams(String implName) throws
             ELogException {
         // is this a registered implname?
@@ -255,6 +266,7 @@ public class LogSubsystem implements ILogSubsystem {
         }
     }
 
+    @Override
     public Vector<String> getLogInstanceParams(String insName) throws
             ELogException {
         ILogEventListener logInst = getLogInstance(insName);

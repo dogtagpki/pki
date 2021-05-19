@@ -42,6 +42,7 @@ class WIOCSPCertDNPage extends WICertDNPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning() && wizardInfo.isOCSPCloningDone())
@@ -59,6 +60,7 @@ class WIOCSPCertDNPage extends WICertDNPage {
         return super.initializePanel(info);
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
 
@@ -70,6 +72,7 @@ class WIOCSPCertDNPage extends WICertDNPage {
         return false;
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         String str = mOText.getText().trim();

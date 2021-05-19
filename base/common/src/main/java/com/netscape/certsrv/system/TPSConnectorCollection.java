@@ -10,6 +10,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name="TPSConnectors")
 public class TPSConnectorCollection extends DataCollection<TPSConnectorData> {
 
+    @Override
     @XmlElementRef
     public Collection<TPSConnectorData> getEntries() {
         return super.getEntries();

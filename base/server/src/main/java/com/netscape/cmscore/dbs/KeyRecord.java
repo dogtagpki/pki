@@ -116,6 +116,7 @@ public class KeyRecord implements IKeyRecord {
      * Sets an attribute.
      * <P>
      */
+    @Override
     public void set(String name, Object object) throws EBaseException {
         if (name.equalsIgnoreCase(ATTR_STATE)) {
             mState = (KeyState) object;
@@ -158,6 +159,7 @@ public class KeyRecord implements IKeyRecord {
      * Retrieves an attribute.
      * <P>
      */
+    @Override
     public Object get(String name) throws EBaseException {
         if (name.equalsIgnoreCase(ATTR_STATE)) {
             return mState;
@@ -200,6 +202,7 @@ public class KeyRecord implements IKeyRecord {
      * Deletes an attribute.
      * <P>
      */
+    @Override
     public void delete(String name) throws EBaseException {
         throw new EBaseException(com.netscape.cmscore.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
     }
@@ -208,6 +211,7 @@ public class KeyRecord implements IKeyRecord {
      * Retrieves an enumeration of attributes.
      * <P>
      */
+    @Override
     public Enumeration<String> getElements() {
         return mNames.elements();
     }
@@ -215,6 +219,7 @@ public class KeyRecord implements IKeyRecord {
     /**
      * Retrieves serializable attribute names.
      */
+    @Override
     public Enumeration<String> getSerializableAttrNames() {
         return mNames.elements();
     }
@@ -226,6 +231,7 @@ public class KeyRecord implements IKeyRecord {
      *
      * @return serial number of this key record
      */
+    @Override
     public BigInteger getSerialNumber() throws EBaseException {
         return mSerialNo;
     }
@@ -244,6 +250,7 @@ public class KeyRecord implements IKeyRecord {
      *
      * @return key state
      */
+    @Override
     public KeyState getState() throws EBaseException {
         return mState;
     }
@@ -259,6 +266,7 @@ public class KeyRecord implements IKeyRecord {
     /**
      * Retrieves the uid of person who archived this record.
      */
+    @Override
     public String getArchivedBy() {
         return mArchivedBy;
     }
@@ -286,6 +294,7 @@ public class KeyRecord implements IKeyRecord {
      *
      * @return key size
      */
+    @Override
     public Integer getKeySize() throws EBaseException {
         return mSize;
     }
@@ -296,6 +305,7 @@ public class KeyRecord implements IKeyRecord {
      *
      * @return metaInfo
      */
+    @Override
     public MetaInfo getMetaInfo() {
         return mMetaInfo;
     }
@@ -312,6 +322,7 @@ public class KeyRecord implements IKeyRecord {
      * Retrieves owner name.
      * <P>
      */
+    @Override
     public String getOwnerName() throws EBaseException {
         return mOwnerName;
     }
@@ -328,6 +339,7 @@ public class KeyRecord implements IKeyRecord {
      * Retrieves the public key.
      * <P>
      */
+    @Override
     public byte[] getPublicKeyData() throws EBaseException {
         return mPublicKey;
     }
@@ -344,6 +356,7 @@ public class KeyRecord implements IKeyRecord {
      * Retrieves the date(s) of revocation.
      * <P>
      */
+    @Override
     public Date[] getDateOfRevocation() throws EBaseException {
         return mDatesOfRecovery;
     }
@@ -359,6 +372,7 @@ public class KeyRecord implements IKeyRecord {
     /**
      * Retrieves algorithm of the key pair.
      */
+    @Override
     public String getAlgorithm() {
         return mAlgorithm;
     }
@@ -366,6 +380,7 @@ public class KeyRecord implements IKeyRecord {
     /**
      * Retrieves the creation time of this record.
      */
+    @Override
     public Date getCreateTime() {
         return mCreateTime;
     }
@@ -374,6 +389,7 @@ public class KeyRecord implements IKeyRecord {
      * Retrieves the last modification time of
      * this record.
      */
+    @Override
     public Date getModifyTime() {
         return mModifyTime;
     }
@@ -381,6 +397,7 @@ public class KeyRecord implements IKeyRecord {
     /**
      * Retrieves the client ID of this record.
      */
+    @Override
     public String getClientId() throws EBaseException {
         return mClientId ;
     }
@@ -388,6 +405,7 @@ public class KeyRecord implements IKeyRecord {
     /**
      * Retrieves the key status of this record.
      */
+    @Override
     public String getKeyStatus() throws EBaseException {
         return mStatus;
 
@@ -396,6 +414,7 @@ public class KeyRecord implements IKeyRecord {
     /**
      * Retrieves the key data type of this record.
      */
+    @Override
     public String getDataType() throws EBaseException {
         return mDataType;
     }
@@ -405,6 +424,7 @@ public class KeyRecord implements IKeyRecord {
         return realm;
     }
 
+    @Override
     public void setWrappingParams(WrappingParams params, boolean doEncrypt) throws Exception {
         if (mMetaInfo == null) {
             mMetaInfo = new MetaInfo();
@@ -457,6 +477,7 @@ public class KeyRecord implements IKeyRecord {
         mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTED, Boolean.toString(doEncrypt));
     }
 
+    @Override
     public WrappingParams getWrappingParams(WrappingParams oldParams) throws Exception {
         if ((mMetaInfo == null) || (mMetaInfo.get(KeyRecordParser.OUT_SK_TYPE) == null)) {
             // This is likely a legacy record. Return the old DES3 parameters.
@@ -503,6 +524,7 @@ public class KeyRecord implements IKeyRecord {
         return params;
     }
 
+    @Override
     public Boolean isEncrypted() throws EBaseException {
         String encrypted = (String) mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTED);
         if (encrypted == null)

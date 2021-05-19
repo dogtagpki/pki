@@ -254,6 +254,7 @@ public abstract class DirBasedAuthentication
      * @param config - The configuration store for this instance.
      * @exception EBaseException If an error occurs during initialization.
      */
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         init(name, implName, config, true);
@@ -391,6 +392,7 @@ public abstract class DirBasedAuthentication
     /**
      * gets the name of this authentication manager instance
      */
+    @Override
     public String getName() {
         return mName;
     }
@@ -398,6 +400,7 @@ public abstract class DirBasedAuthentication
     /**
      * gets the plugin name of this authentication manager.
      */
+    @Override
     public String getImplName() {
         return mImplName;
     }
@@ -417,6 +420,7 @@ public abstract class DirBasedAuthentication
      *                If an internal error occurred.
      * @see org.dogtagpki.server.authentication.AuthToken
      */
+    @Override
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
@@ -530,6 +534,7 @@ public abstract class DirBasedAuthentication
      *
      * @return list of required credentials as strings.
      */
+    @Override
     public abstract String[] getRequiredCreds();
 
     /**
@@ -539,11 +544,13 @@ public abstract class DirBasedAuthentication
      *
      * @return String array of configuration parameter names.
      */
+    @Override
     public abstract String[] getConfigParams();
 
     /**
      * disconnects the ldap connections
      */
+    @Override
     public void shutdown() {
         try {
             if (mConnFactory != null) {
@@ -560,6 +567,7 @@ public abstract class DirBasedAuthentication
      *
      * @return configuration store
      */
+    @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
@@ -768,6 +776,7 @@ public abstract class DirBasedAuthentication
         return mPattern.formDN(entry);
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] s = Utils.getStringArrayFromVector(mExtendedPluginInfo);
 

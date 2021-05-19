@@ -68,6 +68,7 @@ public class LdapCertificatePairPublisher
     public LdapCertificatePairPublisher() {
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
                 "crossCertPairAttr;string;Name of Ldap attribute in which to store cross certificates",
@@ -84,14 +85,17 @@ public class LdapCertificatePairPublisher
         return s;
     }
 
+    @Override
     public String getImplName() {
         return "LdapCertificatePairPublisher";
     }
 
+    @Override
     public String getDescription() {
         return "LdapCertificatePairPublisher";
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
 
@@ -104,6 +108,7 @@ public class LdapCertificatePairPublisher
         return getInstanceParams();
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
@@ -112,10 +117,12 @@ public class LdapCertificatePairPublisher
         return v;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         if (mInited)
@@ -159,6 +166,7 @@ public class LdapCertificatePairPublisher
      * @param dn dn of the entry to publish the XcertificatePair
      * @param pair the Xcertificate bytes object.
      */
+    @Override
     public synchronized void publish(LDAPConnection conn, String dn, Object pair)
             throws ELdapException {
         publish(conn, dn, (byte[]) pair);
@@ -298,6 +306,7 @@ public class LdapCertificatePairPublisher
     /**
      * unsupported
      */
+    @Override
     public void unpublish(LDAPConnection conn, String dn, Object certObj)
             throws ELdapException {
         logger.debug("LdapCertificatePairPublisher: unpublish() is unsupported in this revision");

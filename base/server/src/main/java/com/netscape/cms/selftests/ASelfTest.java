@@ -87,6 +87,7 @@ public abstract class ASelfTest
      * @exception EInvalidSelfTestException subsystem has invalid name/value
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
+    @Override
     public void initSelfTest(ISelfTestSubsystem subsystem,
             String instanceName,
             IConfigStore parameters)
@@ -139,6 +140,7 @@ public abstract class ASelfTest
      *
      * @exception ESelfTestException failed to start
      */
+    @Override
     public abstract void startupSelfTest()
             throws ESelfTestException;
 
@@ -147,6 +149,7 @@ public abstract class ASelfTest
      * anytime after initialization.
      * <P>
      */
+    @Override
     public abstract void shutdownSelfTest();
 
     /**
@@ -156,6 +159,7 @@ public abstract class ASelfTest
      *
      * @return instanceName of this self test
      */
+    @Override
     public String getSelfTestName() {
         return mInstanceName;
     }
@@ -167,6 +171,7 @@ public abstract class ASelfTest
      *
      * @return configuration store (self test parameters) of this subsystem
      */
+    @Override
     public IConfigStore getSelfTestConfigStore() {
         return mConfig;
     }
@@ -179,6 +184,7 @@ public abstract class ASelfTest
      * @param locale locale of the client that requests the description
      * @return description of self test
      */
+    @Override
     public abstract String getSelfTestDescription(Locale locale);
 
     /**
@@ -188,5 +194,6 @@ public abstract class ASelfTest
      * @param logger specifies logging subsystem
      * @exception Exception self test exception
      */
+    @Override
     public abstract void runSelfTest(ILogEventListener logger) throws Exception;
 }

@@ -71,6 +71,7 @@ public class CMSCipherPreferencePane extends AbstractCipherPreference implements
     }
 
     class actionListener implements ActionListener{
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("ENABLED")) {
                 _ismodified = true;
@@ -79,11 +80,13 @@ public class CMSCipherPreferencePane extends AbstractCipherPreference implements
         }
     }
 
+    @Override
     public void setEnabled(boolean enable) {
         on.setSelected(enable);
         super.setEnableAll(enable);
     }
 
+    @Override
     public boolean isEnabled() {
         return on.isSelected();
     }
@@ -96,6 +99,7 @@ public class CMSCipherPreferencePane extends AbstractCipherPreference implements
             _switchPanel = sp;
         }
 
+        @Override
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
             Color save = g.getColor();
             int top = y + (_switchPanel.getHeight() >> 1);
@@ -104,16 +108,19 @@ public class CMSCipherPreferencePane extends AbstractCipherPreference implements
         }
     }
 
+    @Override
     public boolean isModified() {
         return (_ismodified | super.isModified());
     }
 
+    @Override
     public void reset() {
         setEnabled(oldValue);
         _ismodified = false;
         super.reset();
     }
 
+    @Override
     public void setSaved() {
         oldValue = isEnabled();
         _ismodified = false;

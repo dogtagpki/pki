@@ -166,6 +166,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
         Debug.println("JSSConnection Debug: end of JSSConnection constructor");
     }
 
+    @Override
     public boolean approve(org.mozilla.jss.crypto.X509Certificate serverCert,
        ValidityStatus status)
     {
@@ -296,6 +297,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
         return mServerCertImported;
     }
 
+    @Override
     public String select(Vector<String> nicknames)
     {
         selectCertDialog = null;
@@ -318,6 +320,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
         private static final int MAX_PASSWORD_PROMPT = 20;
         GetPasswordDialog getPasswordDialog = null;
 
+        @Override
         public Password getPasswordFirstAttempt(PasswordCallbackInfo info)
             throws PasswordCallback.GiveUpException {
 
@@ -341,6 +344,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
             return getPasswordDialog.getPassword();
         }
 
+        @Override
         public Password getPasswordAgain(PasswordCallbackInfo info)
           throws GiveUpException
         {
@@ -372,7 +376,8 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
      * @return status 1-success, 0- failed
      * @excpetion IOExcpetion
      */
-	public int sendRequest(String req)
+	@Override
+    public int sendRequest(String req)
 	    throws Exception {
 
 		int stat = 1;
@@ -435,7 +440,8 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
     /**
      * Get response
      */
-	public byte[] getResponse() {
+	@Override
+    public byte[] getResponse() {
 		if (totalRead == 0)
 			return null;
 		else {
@@ -457,7 +463,8 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
     /**
      * Disconnect this connection
      */
-	public void disconnect() {
+	@Override
+    public void disconnect() {
 	    try {
 		    s.close();
 	    } catch (Exception e) {
@@ -468,6 +475,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
     /**
      * Set time out
      */
+    @Override
     public void setSoTimeout(int timeout) throws SocketException {
         //System.out.println("JSSConnection: setSoTimeout() - "+timeout);
         s.setSoTimeout(timeout);
@@ -656,6 +664,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
             pack();
         }
 
+        @Override
         protected void okInvoked() {
             if (!pwd.getText().equals(pwdAgain.getText())) {
                 pwdSame = false;
@@ -679,6 +688,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
             return tokenPasswdInit;
         }
 
+        @Override
         public void setVisible(boolean visible) {
             pack();
             pwd.grabFocus();
@@ -720,6 +730,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
             pack();
         }
 
+        @Override
         public void setVisible(boolean visible) {
             pack();
             pwd.grabFocus();

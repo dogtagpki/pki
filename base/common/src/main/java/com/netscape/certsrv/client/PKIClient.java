@@ -255,6 +255,7 @@ public class PKIClient implements AutoCloseable {
         connection.setOutput(output);
     }
 
+    @Override
     public void close() {
         connection.close();
     }

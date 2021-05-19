@@ -41,6 +41,7 @@ public interface IEmailTemplate {
     /**
      * @return Content of the template
      */
+    @Override
     public String toString();
 
     public int length();

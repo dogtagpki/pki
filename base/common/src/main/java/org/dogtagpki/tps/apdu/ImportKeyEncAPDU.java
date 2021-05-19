@@ -57,6 +57,7 @@ public class ImportKeyEncAPDU extends APDU {
         setData(theData);
     }
 
+    @Override
     public Type getType()
     {
         return Type.APDU_IMPORT_KEY_ENC;

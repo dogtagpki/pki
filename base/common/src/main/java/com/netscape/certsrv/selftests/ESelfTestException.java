@@ -94,6 +94,7 @@ public class ESelfTestException
      *
      * @return name of bundle class associated with this exception.
      */
+    @Override
     protected String getBundleName() {
         return SELFTEST_RESOURCES;
     }

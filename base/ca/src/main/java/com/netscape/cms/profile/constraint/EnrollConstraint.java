@@ -53,6 +53,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
     public EnrollConstraint() {
     }
 
+    @Override
     public Enumeration<String> getConfigNames() {
         return mConfigNames.elements();
     }
@@ -61,6 +62,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
         mConfigNames.addElement(name);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         return null;
     }
@@ -79,6 +81,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
         return locale;
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
         if (mConfig.getSubStore(CONFIG_PARAMS) == null) {
@@ -88,6 +91,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
         }
     }
 
+    @Override
     public String getConfig(String name) {
         return getConfig(name, "");
     }
@@ -121,10 +125,12 @@ public abstract class EnrollConstraint extends PolicyConstraint {
         }
     }
 
+    @Override
     public void init(IConfigStore config) throws EProfileException {
         mConfig = config;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -153,6 +159,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
      * @exception ERejectException request is rejected due
      *                to violation of constraint
      */
+    @Override
     public void validate(IRequest request)
             throws ERejectException {
         String name = getClass().getName();
@@ -168,10 +175,12 @@ public abstract class EnrollConstraint extends PolicyConstraint {
         logger.debug(name + ": validate end");
     }
 
+    @Override
     public String getText(Locale locale) {
         return "Enroll Constraint";
     }
 
+    @Override
     public String getName(Locale locale) {
         try {
             return mConfig.getString(CONFIG_NAME);
@@ -226,6 +235,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
         return getInt(getConfig(value));
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         return true;
     }

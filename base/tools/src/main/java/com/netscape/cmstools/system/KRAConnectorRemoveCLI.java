@@ -36,10 +36,12 @@ public class KRAConnectorRemoveCLI extends CommandCLI {
         this.kraConnectorCLI = kraConnectorCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "host", true, "KRA host");
         option.setArgName("host");
@@ -50,6 +52,7 @@ public class KRAConnectorRemoveCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

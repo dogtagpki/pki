@@ -67,6 +67,7 @@ public class AuthInstanceTab extends CMSPluginInstanceTab {
      * public methods
      *==========================================================*/
 
+    @Override
     public CMSBaseConfigDialog makeNewConfigDialog(
             NameValuePairs nvp,
             JFrame parent,
@@ -81,6 +82,7 @@ public class AuthInstanceTab extends CMSPluginInstanceTab {
             dest);
     }
 
+    @Override
     public PluginSelectionDialog getPluginSelectionDialog(
             JFrame parent,
             AdminConnection conn,

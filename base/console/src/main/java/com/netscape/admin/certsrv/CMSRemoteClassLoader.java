@@ -54,6 +54,7 @@ class CMSRemoteClassLoader extends ClassLoader {
 	 * @return the Class object of the named class.
 	 * @throws ClassNotFoundException if the class cannot be found.
 	 */
+    @Override
     public synchronized Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException
     {
@@ -81,7 +82,8 @@ class CMSRemoteClassLoader extends ClassLoader {
 	 * @return the Class object of the named class.
 	 * @throws ClassNotFoundException if the class cannot be found.
 	 */
-	public Class<?> loadClass(String name) throws ClassNotFoundException {
+	@Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
         return this.loadClass(name, true);
     }
 

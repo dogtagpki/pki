@@ -44,6 +44,7 @@ public class SubsystemGroupFindCLI extends CommandCLI {
         super("find", "Find " + parent.getParent().getName().toUpperCase() + " groups", parent);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String catalinaBase = System.getProperty("catalina.base");

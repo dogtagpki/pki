@@ -59,6 +59,7 @@ public class RequestNotifier implements IRequestNotifier {
         mPublishingQueuePriority = Thread.currentThread().getPriority();
     }
 
+    @Override
     public void setPublishingQueue(boolean isPublishingQueueEnabled,
                                     int publishingQueuePriorityLevel,
                                     int maxNumberOfPublishingThreads,
@@ -108,6 +109,7 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @param listener listener to be registered
      */
+    @Override
     public void registerListener(IRequestListener listener) {
         // XXX should check for duplicates here or allow listeners
         // to register twice and call twice ?
@@ -120,6 +122,7 @@ public class RequestNotifier implements IRequestNotifier {
      * @param name listener name
      * @param listener listener to be registered
      */
+    @Override
     public void registerListener(String name, IRequestListener listener) {
         mListeners.put(name, listener);
     }
@@ -129,6 +132,7 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @param listener listener to be removed from the list
      */
+    @Override
     public void removeListener(IRequestListener listener) {
         // XXX should check for duplicates here or allow listeners
         // to register twice and call twice ?
@@ -140,6 +144,7 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @return enumeration of listener names
      */
+    @Override
     public Enumeration<String> getListenerNames() {
         return mListeners.keys();
     }
@@ -149,6 +154,7 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @param name listener name to be removed from the list
      */
+    @Override
     public void removeListener(String name) {
         mListeners.remove(name);
     }
@@ -159,6 +165,7 @@ public class RequestNotifier implements IRequestNotifier {
      * @param name listener name
      * @return listener
      */
+    @Override
     public IRequestListener getListener(String name) {
         return mListeners.get(name);
     }
@@ -168,12 +175,14 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @return enumeration of listeners
      */
+    @Override
     public Enumeration<IRequestListener> getListeners() {
         return mListeners.elements();
     }
 
     private Object publishingCounterMonitor = new Object();
 
+    @Override
     public void updatePublishingStatus(String id) {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -202,6 +211,7 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @return request
      */
+    @Override
     public synchronized IRequest getRequest() {
         IRequest r = null;
         String id = null;
@@ -307,6 +317,7 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @return number of requests in publishing queue
      */
+    @Override
     public int getNumberOfRequests() {
         return mRequests.size();
     }
@@ -316,6 +327,7 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @return true if publishing queue is enabled, false otherwise
      */
+    @Override
     public boolean isPublishingQueueEnabled() {
         return mIsPublishingQueueEnabled;
     }
@@ -325,6 +337,7 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @param notifierThread Thread
      */
+    @Override
     public void removeNotifierThread(Thread notifierThread) {
         if (mNotifierThreads.size() > 0) {
             mNotifierThreads.remove(notifierThread);
@@ -344,6 +357,7 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @param r request
      */
+    @Override
     public void notify(IRequest r) {
         logger.debug("ARequestNotifier  notify mIsPublishingQueueEnabled=" + mIsPublishingQueueEnabled +
                   " mMaxThreads=" + mMaxThreads);
@@ -409,6 +423,7 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @param r request
      */
+    @Override
     public synchronized void addToNotify(IRequest r) {
         if (!mSearchForRequests) {
             if (mRequests.size() < mMaxRequests) {

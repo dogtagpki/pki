@@ -61,6 +61,7 @@ public class nsTokenDeviceKeySubjectNameDefault extends EnrollDefault {
         addValueName(CONFIG_DNPATTERN);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         logger.debug("nsTokenDeviceKeySubjectNameDefault: in getConfigDescriptor, name=" + name);
         if (name.equals(CONFIG_DNPATTERN)) {
@@ -72,6 +73,7 @@ public class nsTokenDeviceKeySubjectNameDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         logger.debug("nsTokenDeviceKeySubjectNameDefault: in getValueDescriptor name=" + name);
 
@@ -86,6 +88,7 @@ public class nsTokenDeviceKeySubjectNameDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -121,6 +124,7 @@ public class nsTokenDeviceKeySubjectNameDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -151,6 +155,7 @@ public class nsTokenDeviceKeySubjectNameDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         logger.debug("nsTokenDeviceKeySubjectNameDefault: in getText");
         return CMS.getUserMessage(locale, "CMS_PROFILE_SUBJECT_NAME",
@@ -160,6 +165,7 @@ public class nsTokenDeviceKeySubjectNameDefault extends EnrollDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         X500Name name = null;

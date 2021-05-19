@@ -34,6 +34,7 @@ public class BeginOpMsg extends TPSMessage {
 
     }
 
+    @Override
     public OpType getOpType() {
 
         int opTypeInt = getInt(OPERATION_TYPE_NAME);

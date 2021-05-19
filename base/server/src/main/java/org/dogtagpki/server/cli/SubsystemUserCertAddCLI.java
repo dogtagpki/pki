@@ -47,6 +47,7 @@ public class SubsystemUserCertAddCLI extends CommandCLI {
         super("add", "Add " + parent.getParent().getParent().getName().toUpperCase() + " user cert", parent);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "cert", true, "Certificate to add");
         option.setArgName("path");
@@ -57,6 +58,7 @@ public class SubsystemUserCertAddCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

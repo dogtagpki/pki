@@ -73,6 +73,7 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
     /*==========================================================
      * public methods
      *==========================================================*/
+    @Override
     public void register() {
 
         //register subsystem UI

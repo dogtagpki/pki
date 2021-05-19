@@ -235,6 +235,7 @@ public class CertReviewResponse extends CertEnrollmentRequest {
         return ret;
     }
 
+    @Override
     public String toXML() throws Exception {
         JAXBContext context = JAXBContext.newInstance(CertReviewResponse.class);
         Marshaller marshaller = context.createMarshaller();

@@ -33,10 +33,12 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         this.securityDomainCLI = securityDomainCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] <host ID>", options);
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option(null, "session", true, "Session ID");
@@ -67,6 +69,7 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         options.addOption(null, "clone", false, "Clone");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

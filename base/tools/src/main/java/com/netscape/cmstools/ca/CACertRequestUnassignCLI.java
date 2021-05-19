@@ -11,6 +11,7 @@ public class CACertRequestUnassignCLI extends CACertRequestActionCLI {
         super("unassign", "Unassign certificate request", certRequestCLI);
     }
 
+    @Override
     public void performAction(
             CACertClient certClient,
             RequestId requestId,

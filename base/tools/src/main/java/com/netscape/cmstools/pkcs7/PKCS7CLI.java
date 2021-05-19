@@ -35,6 +35,7 @@ public class PKCS7CLI extends CLI {
         addModule(new PKCS7ExportCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

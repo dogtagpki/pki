@@ -19,14 +19,17 @@ public class InfoCLI extends CommandCLI {
         super("info", "Display server info", mainCLI);
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public String getFullName() {
         return name;
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();

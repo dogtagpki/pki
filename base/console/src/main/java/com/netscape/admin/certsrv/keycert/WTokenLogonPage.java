@@ -68,10 +68,12 @@ class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         setBorder(makeTitledBorder(mPanelName));
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
@@ -85,6 +87,7 @@ class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         String passwd = mPasswordText.getText();
         if (passwd.equals("")) {
@@ -95,6 +98,7 @@ class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         AdminConnection connection = wizardInfo.getAdminConnection();
@@ -124,10 +128,12 @@ class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -186,6 +192,7 @@ class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {
         add(dummy, gbc);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 }

@@ -30,6 +30,7 @@ public class TKSKeyCLI extends CLI {
         addModule(new TKSKeyShowCLI(this));
     }
 
+    @Override
     public String getFullName() {
         return parent.getFullName() + "-" + name;
     }

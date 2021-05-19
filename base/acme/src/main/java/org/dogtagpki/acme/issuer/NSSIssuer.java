@@ -45,6 +45,7 @@ public class NSSIssuer extends ACMEIssuer {
     Integer monthsValid;
     String hash;
 
+    @Override
     public void init() throws Exception {
 
         logger.info("Initializing NSS issuer");
@@ -97,6 +98,7 @@ public class NSSIssuer extends ACMEIssuer {
         extGenerator.init(extPath.toString());
     }
 
+    @Override
     public String issueCertificate(PKCS10 pkcs10) throws Exception {
 
         logger.info("Issuing certificate");
@@ -147,6 +149,7 @@ public class NSSIssuer extends ACMEIssuer {
         return caCertChainImpl;
     }
 
+    @Override
     public String getCertificateChain(String certID) throws Exception {
 
         logger.info("Retrieving certificate");

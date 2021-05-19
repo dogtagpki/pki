@@ -243,6 +243,7 @@ public class ManageCertDialog extends JDialog implements ActionListener,
           new DefaultTableCellRenderer());
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if (source.equals(mClose)) {
@@ -309,6 +310,7 @@ public class ManageCertDialog extends JDialog implements ActionListener,
     }
 
     //==== MOUSELISTENER ======================
+    @Override
     public void mouseClicked(MouseEvent e) {
         setButtons();
 
@@ -320,15 +322,19 @@ public class ManageCertDialog extends JDialog implements ActionListener,
         }
     }
 
+    @Override
     public void mouseReleased(MouseEvent e) {
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {
     }
 
+    @Override
     public void mouseEntered(MouseEvent e) {
     }
 
+    @Override
     public void mouseExited(MouseEvent e) {
     }
 

@@ -47,12 +47,15 @@ public class LdapUnrevocationListener implements IRequestListener {
         this.processor = processor;
     }
 
+    @Override
     public void init(ISubsystem sys, IConfigStore config) throws EBaseException {
     }
 
+    @Override
     public void set(String name, String val) {
     }
 
+    @Override
     public void accept(IRequest r) {
 
         logger.info("LdapUnrevocationListener: Handling unrevoke request " + r.getRequestId());

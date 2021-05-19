@@ -25,6 +25,7 @@ public class AuthorityID implements Comparable<AuthorityID> {
         uuid = UUID.randomUUID();
     }
 
+    @Override
     public String toString() {
         return uuid.toString();
     }
@@ -33,6 +34,7 @@ public class AuthorityID implements Comparable<AuthorityID> {
         return this.compareTo(aid) == 0;
     }
 
+    @Override
     public int compareTo(AuthorityID aid) {
         return uuid.compareTo(aid.uuid);
     }

@@ -58,10 +58,12 @@ public class RequestAttrsMapper extends DBAttrMapper {
         mAttrs.add(Schema.LDAP_ATTR_REQUEST_ATTRS);
     }
 
+    @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
         return mAttrs.elements();
     }
 
+    @Override
     public void mapObjectToLDAPAttributeSet(
             IDBObj parent,
             String name,
@@ -199,6 +201,7 @@ public class RequestAttrsMapper extends DBAttrMapper {
      *
      * @see DBAttrMapper#mapLDAPAttributeSetToObject
      */
+    @Override
     public void mapLDAPAttributeSetToObject(
             LDAPAttributeSet attrs,
             String name,
@@ -234,6 +237,7 @@ public class RequestAttrsMapper extends DBAttrMapper {
         parent.set(name, ht);
     }
 
+    @Override
     public String mapSearchFilter(String name, String op, String value) {
         return Schema.LDAP_ATTR_REQUEST_ID + op + value;
     }

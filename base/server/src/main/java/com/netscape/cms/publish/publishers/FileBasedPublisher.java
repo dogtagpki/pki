@@ -94,6 +94,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Returns the implementation name.
      */
+    @Override
     public String getImplName() {
         return "FileBasedPublisher";
     }
@@ -102,10 +103,12 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
      * Returns the description of the ldap publisher.
      */
 
+    @Override
     public String getDescription() {
         return "This publisher writes the Certificates and CRLs into files.";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_DIR
@@ -138,6 +141,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Returns the current instance parameters.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
         String dir = "";
@@ -188,6 +192,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Returns the initial default parameters.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
@@ -207,6 +212,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Initializes this plugin.
      */
+    @Override
     public void init(IConfigStore config) {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -259,6 +265,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
         }
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -322,6 +329,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
      *            (java.security.cert.X509Certificate or,
      *            java.security.cert.X509CRL)
      */
+    @Override
     public void publish(LDAPConnection conn, String dn, Object object)
             throws ELdapException {
         logger.debug("FileBasedPublisher: publish");
@@ -569,6 +577,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
      * @param object object to unpublish
      *            (java.security.cert.X509Certificate)
      */
+    @Override
     public void unpublish(LDAPConnection conn, String dn, Object object)
             throws ELdapException {
         logger.debug("FileBasedPublisher: unpublish");

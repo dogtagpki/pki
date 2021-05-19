@@ -76,6 +76,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
         super();
     }
 
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         mConfig = config;
@@ -111,6 +112,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
      *
      * @return name of this servlet
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -302,6 +304,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
      *   proofOfArchival=value3
      */
 
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
@@ -351,6 +354,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
      * @param req HTTP request
      * @param resp HTTP response
      */
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         super.service(req, resp);

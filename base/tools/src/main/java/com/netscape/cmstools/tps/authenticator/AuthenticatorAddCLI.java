@@ -45,16 +45,19 @@ public class AuthenticatorAddCLI extends CommandCLI {
         this.authenticatorCLI = authenticatorCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " --input <file> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "input", true, "Input file containing authenticator properties.");
         option.setArgName("file");
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

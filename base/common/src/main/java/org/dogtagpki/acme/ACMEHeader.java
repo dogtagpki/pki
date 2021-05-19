@@ -75,6 +75,7 @@ public class ACMEHeader {
         return mapper.readValue(json, ACMEHeader.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

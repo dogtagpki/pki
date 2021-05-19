@@ -48,6 +48,7 @@ public class AuthCredentials implements IAuthCredentials {
      * @param name credential name
      * @param cred credential object
      */
+    @Override
     public void set(String name, Object cred) {
         if (name != null && cred != null)
             authCreds.put(name, cred);
@@ -60,6 +61,7 @@ public class AuthCredentials implements IAuthCredentials {
      * @param name credential name
      * @return the authentication credential for the given name
      */
+    @Override
     public Object get(String name) {
         return authCreds.get(name);
     }
@@ -71,6 +73,7 @@ public class AuthCredentials implements IAuthCredentials {
      *
      * @param name credential name
      */
+    @Override
     public void delete(String name) {
         authCreds.remove(name);
     }
@@ -82,6 +85,7 @@ public class AuthCredentials implements IAuthCredentials {
      *
      * @return an enumeration of the names in this credential set
      */
+    @Override
     public Enumeration<String> getElements() {
         return authCreds.keys();
     }
@@ -90,6 +94,7 @@ public class AuthCredentials implements IAuthCredentials {
      * Set the given argblock
      * i * @param blk the given argblock.
      */
+    @Override
     public void setArgBlock(IArgBlock blk) {
         argblk = blk;
     }
@@ -99,6 +104,7 @@ public class AuthCredentials implements IAuthCredentials {
      *
      * @return the argblock.
      */
+    @Override
     public IArgBlock getArgBlock() {
         return argblk;
     }

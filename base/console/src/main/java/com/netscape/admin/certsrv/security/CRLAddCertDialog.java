@@ -60,6 +60,7 @@ class CRLAddCertDialog extends AbstractDialog {
 
 
     class CRLAddCertActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             modified = false;
             if (e.getActionCommand().equals("ACTION")) {

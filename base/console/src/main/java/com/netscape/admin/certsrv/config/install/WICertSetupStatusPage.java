@@ -48,10 +48,12 @@ class WICertSetupStatusPage extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return true;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         String str = "";
@@ -94,18 +96,22 @@ class WICertSetupStatusPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
 	return true;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -129,6 +135,7 @@ class WICertSetupStatusPage extends WizardBasePanel implements IWizardPanel {
         add(desc, gbc);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 }

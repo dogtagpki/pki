@@ -33,6 +33,7 @@ public class SANToCNDefault extends EnrollExtDefault {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SANToCNDefault.class);
 
+    @Override
     public void populate(IRequest request, X509CertInfo info) throws EProfileException {
 
         X500Name subjectDN = info.getSubjectObj().getX500Name();
@@ -107,19 +108,23 @@ public class SANToCNDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return "This default constructs a Subject DN from the first DNS name in "
             + "Subject Alternative Name extension.";
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public String getValue(String name, Locale locale, X509CertInfo info) {
         return null;
     }
 
+    @Override
     public void setValue(String name, Locale locale, X509CertInfo info, String value) {
     }
 }

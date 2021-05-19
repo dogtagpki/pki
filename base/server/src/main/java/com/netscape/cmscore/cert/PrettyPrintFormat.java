@@ -102,6 +102,7 @@ public class PrettyPrintFormat implements IPrettyPrintFormat {
      * @return string representation
      */
 
+    @Override
     public String toHexString(byte[] in, int indentSize,
             int lineLen, String separator) {
 
@@ -150,14 +151,17 @@ public class PrettyPrintFormat implements IPrettyPrintFormat {
         return sb.toString();
     }
 
+    @Override
     public String toHexString(byte[] in, int indentSize, int lineLen) {
         return toHexString(in, indentSize, lineLen, mSeparator);
     }
 
+    @Override
     public String toHexString(byte[] in, int indentSize) {
         return toHexString(in, indentSize, mLineLen);
     }
 
+    @Override
     public String toHexString(byte[] in) {
         return toHexString(in, mIndentSize);
     }

@@ -38,10 +38,12 @@ public class ClientCertRemoveCLI extends CommandCLI {
         this.clientCLI = clientCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <nickname> [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

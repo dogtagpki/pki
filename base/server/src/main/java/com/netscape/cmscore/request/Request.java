@@ -76,22 +76,26 @@ public class Request implements IRequest {
     }
 
     // IRequest.getRequestId
+    @Override
     public RequestId getRequestId() {
         return mRequestId;
     }
 
     // IRequest.getRequestStatus
+    @Override
     public RequestStatus getRequestStatus() {
         return mRequestStatus;
     }
 
     // Obsolete
+    @Override
     public void setRequestStatus(RequestStatus s) {
         mRequestStatus = s;
         // expose request status so that we can do predicate upon it
         setExtData(IRequest.REQ_STATUS, s.toString());
     }
 
+    @Override
     public boolean isSuccess() {
         Integer result = getExtDataInInteger(IRequest.RESULT);
 
@@ -101,72 +105,87 @@ public class Request implements IRequest {
             return false;
     }
 
+    @Override
     public String getError(Locale locale) {
         return getExtDataInString(IRequest.ERROR);
     }
 
+    @Override
     public String getErrorCode(Locale locale) {
         return getExtDataInString(IRequest.ERROR_CODE);
     }
 
     // IRequest.getSourceId
+    @Override
     public String getSourceId() {
         return mSourceId;
     }
 
     // IRequest.setSourceId
+    @Override
     public void setSourceId(String id) {
         mSourceId = id;
     }
 
     // IRequest.getRequestOwner
+    @Override
     public String getRequestOwner() {
         return mOwner;
     }
 
     // IRequest.setRequestOwner
+    @Override
     public void setRequestOwner(String id) {
         mOwner = id;
     }
 
     // IRequest.getRequestType
+    @Override
     public String getRequestType() {
         return mRequestType;
     }
 
     // IRequest.setRequestType
+    @Override
     public void setRequestType(String type) {
         mRequestType = type;
         setExtData(IRequest.REQ_TYPE, type);
     }
 
     // IRequest.getRequestVersion
+    @Override
     public String getRequestVersion() {
         return getExtDataInString(IRequest.REQ_VERSION);
     }
 
     // IRequest.getCreationTime
+    @Override
     public Date getCreationTime() {
         return mCreationTime;
     }
 
+    @Override
     public void setCreationTime(Date date) {
         mCreationTime = date;
     }
 
+    @Override
     public String getContext() {
         return mContext;
     }
 
+    @Override
     public void setContext(String ctx) {
         mContext = ctx;
     }
 
     // IRequest.getModificationTime
+    @Override
     public Date getModificationTime() {
         return mModificationTime;
     }
 
+    @Override
     public void setModificationTime(Date date) {
         mModificationTime = date;
     }
@@ -174,6 +193,7 @@ public class Request implements IRequest {
     /**
      * this isn't that efficient but will do for now.
      */
+    @Override
     public void copyContents(IRequest req) {
         Enumeration<String> e = req.getExtDataKeys();
         while (e.hasMoreElements()) {
@@ -225,6 +245,7 @@ public class Request implements IRequest {
         return true;
     }
 
+    @Override
     public boolean setExtData(String key, String value) {
         if (!isValidExtDataKey(key)) {
             return false;
@@ -237,6 +258,7 @@ public class Request implements IRequest {
         return true;
     }
 
+    @Override
     public boolean setExtData(String key, Hashtable<String, String> value) {
         if (!(isValidExtDataKey(key) && isValidExtDataHashtableValue(value))) {
             return false;
@@ -246,10 +268,12 @@ public class Request implements IRequest {
         return true;
     }
 
+    @Override
     public boolean isSimpleExtDataValue(String key) {
         return (mExtData.get(key) instanceof String);
     }
 
+    @Override
     public String getExtDataInString(String key) {
         Object value = mExtData.get(key);
         if (value == null) {
@@ -261,6 +285,7 @@ public class Request implements IRequest {
         return (String) value;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Hashtable<String, String> getExtDataInHashtable(String key) {
         Object value = mExtData.get(key);
@@ -273,14 +298,17 @@ public class Request implements IRequest {
         return new ExtDataHashtable<String>((Hashtable<String, String>) value);
     }
 
+    @Override
     public Enumeration<String> getExtDataKeys() {
         return mExtData.keys();
     }
 
+    @Override
     public void deleteExtData(String type) {
         mExtData.remove(type);
     }
 
+    @Override
     public boolean setExtData(String key, String subkey, String value) {
         if (!(isValidExtDataKey(key) && isValidExtDataKey(subkey))) {
             return false;
@@ -302,6 +330,7 @@ public class Request implements IRequest {
         return true;
     }
 
+    @Override
     public String getExtDataInString(String key, String subkey) {
         Hashtable<String, String> value = getExtDataInHashtable(key);
         if (value == null) {
@@ -310,6 +339,7 @@ public class Request implements IRequest {
         return value.get(subkey);
     }
 
+    @Override
     public boolean setExtData(String key, Integer value) {
         if (value == null) {
             return false;
@@ -317,6 +347,7 @@ public class Request implements IRequest {
         return setExtData(key, value.toString());
     }
 
+    @Override
     public Integer getExtDataInInteger(String key) {
         String strVal = getExtDataInString(key);
         if (strVal == null) {
@@ -329,6 +360,7 @@ public class Request implements IRequest {
         }
     }
 
+    @Override
     public boolean setExtData(String key, Integer[] data) {
         if (data == null) {
             return false;
@@ -340,6 +372,7 @@ public class Request implements IRequest {
         return setExtData(key, stringArray);
     }
 
+    @Override
     public Integer[] getExtDataInIntegerArray(String key) {
         String[] stringArray = getExtDataInStringArray(key);
         if (stringArray == null) {
@@ -356,6 +389,7 @@ public class Request implements IRequest {
         return intArray;
     }
 
+    @Override
     public boolean setExtData(String key, BigInteger value) {
         if (value == null) {
             return false;
@@ -363,6 +397,7 @@ public class Request implements IRequest {
         return setExtData(key, value.toString());
     }
 
+    @Override
     public BigInteger getExtDataInBigInteger(String key) {
         String strVal = getExtDataInString(key);
         if (strVal == null) {
@@ -375,6 +410,7 @@ public class Request implements IRequest {
         }
     }
 
+    @Override
     public boolean setExtData(String key, BigInteger[] data) {
         if (data == null) {
             return false;
@@ -386,6 +422,7 @@ public class Request implements IRequest {
         return setExtData(key, stringArray);
     }
 
+    @Override
     public BigInteger[] getExtDataInBigIntegerArray(String key) {
         String[] stringArray = getExtDataInStringArray(key);
         if (stringArray == null) {
@@ -402,6 +439,7 @@ public class Request implements IRequest {
         return intArray;
     }
 
+    @Override
     public boolean setExtData(String key, Throwable e) {
         if (e == null) {
             return false;
@@ -409,6 +447,7 @@ public class Request implements IRequest {
         return setExtData(key, e.toString());
     }
 
+    @Override
     public boolean setExtData(String key, byte[] data) {
         if (data == null) {
             return false;
@@ -416,6 +455,7 @@ public class Request implements IRequest {
         return setExtData(key, Utils.base64encode(data, true));
     }
 
+    @Override
     public byte[] getExtDataInByteArray(String key) {
         String value = getExtDataInString(key);
         if (value != null) {
@@ -424,6 +464,7 @@ public class Request implements IRequest {
         return null;
     }
 
+    @Override
     public boolean setExtData(String key, X509CertImpl data) {
         if (data == null) {
             return false;
@@ -435,6 +476,7 @@ public class Request implements IRequest {
         }
     }
 
+    @Override
     public X509CertImpl getExtDataInCert(String key) {
         byte[] data = getExtDataInByteArray(key);
         if (data != null) {
@@ -448,6 +490,7 @@ public class Request implements IRequest {
         return null;
     }
 
+    @Override
     public boolean setExtData(String key, X509CertImpl[] data) {
         if (data == null) {
             return false;
@@ -463,6 +506,7 @@ public class Request implements IRequest {
         return setExtData(key, stringArray);
     }
 
+    @Override
     public X509CertImpl[] getExtDataInCertArray(String key) {
         String[] stringArray = getExtDataInStringArray(key);
         if (stringArray == null) {
@@ -480,6 +524,7 @@ public class Request implements IRequest {
         return certArray;
     }
 
+    @Override
     public boolean setExtData(String key, X509CertInfo data) {
         if (data == null) {
             return false;
@@ -491,6 +536,7 @@ public class Request implements IRequest {
         }
     }
 
+    @Override
     public X509CertInfo getExtDataInCertInfo(String key) {
         byte[] data = getExtDataInByteArray(key);
         if (data != null) {
@@ -504,6 +550,7 @@ public class Request implements IRequest {
         return null;
     }
 
+    @Override
     public boolean setExtData(String key, X509CertInfo[] data) {
         if (data == null) {
             return false;
@@ -519,6 +566,7 @@ public class Request implements IRequest {
         return setExtData(key, stringArray);
     }
 
+    @Override
     public X509CertInfo[] getExtDataInCertInfoArray(String key) {
         String[] stringArray = getExtDataInStringArray(key);
         if (stringArray == null) {
@@ -536,6 +584,7 @@ public class Request implements IRequest {
         return certArray;
     }
 
+    @Override
     public boolean setExtData(String key, RevokedCertImpl[] data) {
         if (data == null) {
             return false;
@@ -551,6 +600,7 @@ public class Request implements IRequest {
         return setExtData(key, stringArray);
     }
 
+    @Override
     public RevokedCertImpl[] getExtDataInRevokedCertArray(String key) {
         String[] stringArray = getExtDataInStringArray(key);
         if (stringArray == null) {
@@ -569,6 +619,7 @@ public class Request implements IRequest {
         return certArray;
     }
 
+    @Override
     public boolean setExtData(String key, Vector<?> stringVector) {
         String[] stringArray;
         if (stringVector == null) {
@@ -582,6 +633,7 @@ public class Request implements IRequest {
         return setExtData(key, stringArray);
     }
 
+    @Override
     public Vector<String> getExtDataInStringVector(String key) {
         String[] stringArray = getExtDataInStringArray(key);
         if (stringArray == null) {
@@ -590,6 +642,7 @@ public class Request implements IRequest {
         return new Vector<String>(Arrays.asList(stringArray));
     }
 
+    @Override
     public boolean getExtDataInBoolean(String key, boolean defVal) {
         String val = getExtDataInString(key);
         if (val == null)
@@ -597,6 +650,7 @@ public class Request implements IRequest {
         return val.equalsIgnoreCase("true") || val.equalsIgnoreCase("ON");
     }
 
+    @Override
     public boolean getExtDataInBoolean(String prefix, String type, boolean defVal) {
         String val = getExtDataInString(prefix, type);
         if (val == null)
@@ -604,6 +658,7 @@ public class Request implements IRequest {
         return val.equalsIgnoreCase("true") || val.equalsIgnoreCase("ON");
     }
 
+    @Override
     public boolean setExtData(String key, IAuthToken data) {
         if (data == null) {
             return false;
@@ -621,6 +676,7 @@ public class Request implements IRequest {
         return setExtData(key, hash);
     }
 
+    @Override
     public IAuthToken getExtDataInAuthToken(String key) {
         Hashtable<String, String> hash = getExtDataInHashtable(key);
         if (hash == null) {
@@ -639,6 +695,7 @@ public class Request implements IRequest {
         return authToken;
     }
 
+    @Override
     public boolean setExtData(String key, CertificateExtensions data) {
         if (data == null) {
             return false;
@@ -656,6 +713,7 @@ public class Request implements IRequest {
         return setExtData(key, byteStream.toByteArray());
     }
 
+    @Override
     public CertificateExtensions getExtDataInCertExts(String key) {
         CertificateExtensions exts = null;
         byte[] extensionsData = getExtDataInByteArray(key);
@@ -672,6 +730,7 @@ public class Request implements IRequest {
         return exts;
     }
 
+    @Override
     public boolean setExtData(String key, CertificateSubjectName data) {
         if (data == null) {
             return false;
@@ -685,6 +744,7 @@ public class Request implements IRequest {
         return setExtData(key, byteStream.toByteArray());
     }
 
+    @Override
     public CertificateSubjectName getExtDataInCertSubjectName(String key) {
         CertificateSubjectName name = null;
         byte[] nameData = getExtDataInByteArray(key);
@@ -701,6 +761,7 @@ public class Request implements IRequest {
         return name;
     }
 
+    @Override
     public boolean setExtData(String key, String[] values) {
         if (values == null) {
             return false;
@@ -712,6 +773,7 @@ public class Request implements IRequest {
         return setExtData(key, hashValue);
     }
 
+    @Override
     public String[] getExtDataInStringArray(String key) {
         int index;
 
@@ -743,6 +805,7 @@ public class Request implements IRequest {
         return listValue.toArray(new String[0]);
     }
 
+    @Override
     public IAttrSet asIAttrSet() {
         return new RequestIAttrSetWrapper(this);
     }

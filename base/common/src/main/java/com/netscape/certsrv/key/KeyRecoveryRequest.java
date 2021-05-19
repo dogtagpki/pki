@@ -253,6 +253,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
         return mapper.readValue(json, KeyRecoveryRequest.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toXML();

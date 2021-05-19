@@ -28,10 +28,12 @@ public class NSSCertRequestCLI extends CommandCLI {
         super("request", "Generate certificate signing request", nssCertCLI);
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "subject", true, "Subject name");
         option.setArgName("name");
@@ -70,6 +72,7 @@ public class NSSCertRequestCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String subject = cmd.getOptionValue("subject");

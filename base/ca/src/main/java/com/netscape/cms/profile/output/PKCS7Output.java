@@ -58,6 +58,7 @@ public class PKCS7Output extends EnrollOutput {
     /**
      * Retrieves the localizable name of this policy.
      */
+    @Override
     public String getName(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_OUTPUT_CERT_NAME");
     }
@@ -65,6 +66,7 @@ public class PKCS7Output extends EnrollOutput {
     /**
      * Retrieves the localizable description of this policy.
      */
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_OUTPUT_CERT_TEXT");
     }
@@ -72,6 +74,7 @@ public class PKCS7Output extends EnrollOutput {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(Map<String, String> ctx, IRequest request)
             throws EProfileException {
     }
@@ -80,6 +83,7 @@ public class PKCS7Output extends EnrollOutput {
      * Retrieves the descriptor of the given value
      * parameter by name.
      */
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_PRETTY_CERT)) {
             return new Descriptor(IDescriptor.PRETTY_PRINT, null,
@@ -95,6 +99,7 @@ public class PKCS7Output extends EnrollOutput {
         return null;
     }
 
+    @Override
     public String getValue(String name, Locale locale, IRequest request)
             throws EProfileException {
 

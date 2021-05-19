@@ -117,6 +117,7 @@ public class HttpConnector implements IConnector {
     // Insert end
 
     // cfu
+    @Override
     public HttpResponse send(String op, String msg)
         throws EBaseException {
         logger.debug("HttpConnector: send(): begins");
@@ -149,6 +150,7 @@ public class HttpConnector implements IConnector {
         return resp;
     }
 
+    @Override
     public boolean send(IRequest r)
             throws EBaseException {
         IHttpConnection curConn = null;
@@ -250,12 +252,14 @@ public class HttpConnector implements IConnector {
         }
     }
 
+    @Override
     public void start() {
         logger.debug("Starting HttpConnector resender thread");
         if (mResender != null)
             mResender.start("HttpConnector");
     }
 
+    @Override
     public void stop() {
         logger.debug("Stopping HttpConnector resender thread");
         if (mResender != null)

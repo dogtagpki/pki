@@ -54,6 +54,7 @@ public class CMSAuthorityKeyIdentifierExtension
     public CMSAuthorityKeyIdentifierExtension() {
     }
 
+    @Override
     public Extension setCRLExtensionCriticality(Extension ext,
             boolean critical) {
         AuthorityKeyIdentifierExtension authKeyIdExt = null;
@@ -75,6 +76,7 @@ public class CMSAuthorityKeyIdentifierExtension
         return authKeyIdExt;
     }
 
+    @Override
     public Extension getCRLExtension(IConfigStore config,
             Object ip,
             boolean critical) {
@@ -135,13 +137,16 @@ public class CMSAuthorityKeyIdentifierExtension
         return authKeyIdExt;
     }
 
+    @Override
     public String getCRLExtOID() {
         return PKIXExtensions.AuthorityKey_Id.toString();
     }
 
+    @Override
     public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 //"type;choice(CRLExtension,CRLEntryExtension);CRL Extension Type. "+

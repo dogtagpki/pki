@@ -26,6 +26,7 @@ public class GroupNotFoundException extends ResourceNotFoundException {
         groupId = data.getAttribute("groupId");
     }
 
+    @Override
     public Data getData() {
         Data data = super.getData();
         data.setAttribute("groupId", groupId);

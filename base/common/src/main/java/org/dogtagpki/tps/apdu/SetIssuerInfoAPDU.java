@@ -59,6 +59,7 @@ public class SetIssuerInfoAPDU extends APDU {
         return getData();
     }
 
+    @Override
     public Type getType()
     {
         return Type.APDU_SET_ISSUERINFO;

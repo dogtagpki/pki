@@ -43,6 +43,7 @@ import com.netscape.certsrv.request.RequestStatus;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertRequestInfos extends DataCollection<CertRequestInfo> {
 
+    @Override
     @XmlElementRef
     public Collection<CertRequestInfo> getEntries() {
         return super.getEntries();
@@ -95,6 +96,7 @@ public class CertRequestInfos extends DataCollection<CertRequestInfo> {
         return (CertRequestInfos)unmarshaller.unmarshal(new StringReader(string));
     }
 
+    @Override
     public String toString() {
         try {
             return toXML();

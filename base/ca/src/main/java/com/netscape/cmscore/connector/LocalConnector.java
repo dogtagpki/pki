@@ -59,6 +59,7 @@ public class LocalConnector implements IConnector {
      * send request to local authority.
      * returns resulting request
      */
+    @Override
     public boolean send(IRequest r) throws EBaseException {
         logger.debug("send request type " + r.getRequestType() + " status=" + r.getRequestStatus());
         logger.debug("to " + mDest.getId() + " id=" + r.getRequestId());
@@ -120,6 +121,7 @@ public class LocalConnector implements IConnector {
         }
     }
 
+    @Override
     public HttpResponse send(String op, String r) throws EBaseException {
         logger.debug("LocalConnector send() with String.  Should not get here.");
         return null;
@@ -127,13 +129,16 @@ public class LocalConnector implements IConnector {
 
     public class LocalConnListener implements IRequestListener {
 
+        @Override
         public void init(ISubsystem sys, IConfigStore config)
                 throws EBaseException {
         }
 
+        @Override
         public void set(String name, String val) {
         }
 
+        @Override
         public void accept(IRequest destreq) {
             try {
                 acceptImpl(destreq);
@@ -206,9 +211,11 @@ public class LocalConnector implements IConnector {
         }
     }
 
+    @Override
     public void start() {
     }
 
+    @Override
     public void stop() {
     }
 

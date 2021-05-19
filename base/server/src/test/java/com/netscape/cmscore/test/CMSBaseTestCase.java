@@ -24,6 +24,7 @@ public abstract class CMSBaseTestCase extends TestCase {
         super(name);
     }
 
+    @Override
     public final void setUp() throws Exception {
         dbSubsystem = new DBSubsystemStub();
         registry = new DBRegistry();
@@ -32,6 +33,7 @@ public abstract class CMSBaseTestCase extends TestCase {
         cmsTestSetUp();
     }
 
+    @Override
     public final void tearDown() {
         cmsTestTearDown();
     }
@@ -68,10 +70,12 @@ public abstract class CMSBaseTestCase extends TestCase {
     }
 
     class DBSubsystemStub extends DBSubsystem {
+        @Override
         public DBSSession createSession() {
             return session;
         }
 
+        @Override
         public DBRegistry getRegistry() {
             return registry;
         }

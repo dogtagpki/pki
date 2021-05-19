@@ -65,6 +65,7 @@ public class CertManagementDialog extends AbstractDialog {
     }
 
     class CertManagementActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("CLOSE")) {
                 privateCloseInvoked();

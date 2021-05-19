@@ -63,10 +63,12 @@ IKeyCertPage {
     IWizardControl control;
     boolean modified = true;
 
+    @Override
     public JPanel getPanel() {
         return this;
     }
 
+    @Override
     public boolean pageShow(WizardObservable observable) {
         boolean show =
                 ((Boolean)(observable.get("installCert"))).booleanValue();
@@ -87,6 +89,7 @@ IKeyCertPage {
         return show;
     }
 
+    @Override
     public boolean pageHide(WizardObservable observable) {
 
 
@@ -123,13 +126,17 @@ IKeyCertPage {
     }
 
     class TypeActionListener implements ActionListener, KeyListener {
+        @Override
         public void keyTyped(KeyEvent e) {}
+        @Override
         public void keyPressed(KeyEvent e) {}
+        @Override
         public void keyReleased(KeyEvent e) {
             modified = true;
             setEnableNextButton();
         }
 
+        @Override
         public void actionPerformed(ActionEvent event) {
             modified = true;
 

@@ -173,6 +173,7 @@ public class ProfileServlet extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mTemplate = sc.getServletContext().getRealPath(
@@ -464,6 +465,7 @@ public class ProfileServlet extends CMSServlet {
     /**
      * Retrieves locale based on the request.
      */
+    @Override
     protected Locale getLocale(HttpServletRequest req) {
         Locale locale = null;
         String lang = req.getHeader(HDR_LANG);
@@ -478,6 +480,7 @@ public class ProfileServlet extends CMSServlet {
         return locale;
     }
 
+    @Override
     protected void renderResult(CMSRequest cmsReq)
             throws IOException {
         // do nothing

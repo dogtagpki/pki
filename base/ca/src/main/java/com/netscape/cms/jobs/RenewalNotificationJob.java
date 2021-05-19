@@ -206,6 +206,7 @@ public class RenewalNotificationJob
     /**
      * holds help text for this plugin
      */
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
                 IExtendedPluginInfo.HELP_TEXT +
@@ -257,6 +258,7 @@ public class RenewalNotificationJob
      * @param config configuration store for this instance
      * @exception EBaseException
      */
+    @Override
     public void init(ISubsystem owner, String id, String implName, IConfigStore config) throws
             EBaseException {
         mConfig = config;
@@ -282,6 +284,7 @@ public class RenewalNotificationJob
      * finds out which cert needs notification and notifies the
      * responsible parties
      */
+    @Override
     public void run() {
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
@@ -483,6 +486,7 @@ public class RenewalNotificationJob
      *
      * @return a String identifier
      */
+    @Override
     public String getId() {
         return mId;
     }
@@ -492,6 +496,7 @@ public class RenewalNotificationJob
      *
      * @param id String id of the instance
      */
+    @Override
     public void setId(String id) {
         mId = id;
     }
@@ -501,6 +506,7 @@ public class RenewalNotificationJob
      *
      * @return a JobCron object that represents the schedule of this job
      */
+    @Override
     public IJobCron getJobCron() {
         return mJobCron;
     }
@@ -510,6 +516,7 @@ public class RenewalNotificationJob
      *
      * @return a String that is the name of this implementation
      */
+    @Override
     public String getImplName() {
         return mImplName;
     }
@@ -519,6 +526,7 @@ public class RenewalNotificationJob
      *
      * @return configuration store
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -589,6 +597,7 @@ public class RenewalNotificationJob
      *
      * @return String array of configuration parameter names.
      */
+    @Override
     public String[] getConfigParams() {
         return (mConfigParams);
     }
@@ -611,6 +620,7 @@ class CertRecProcessor implements IElementProcessor {
         mIC = ic;
     }
 
+    @Override
     public void process(Object o) throws EBaseException {
 
         // Get each certRecord

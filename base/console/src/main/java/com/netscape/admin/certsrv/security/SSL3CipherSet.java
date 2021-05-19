@@ -105,6 +105,7 @@ IAbstractCipherSet {
       * For purpose of setting title if cipher is placed in a dialog or TitleBorder
       *
       */
+    @Override
     public String getTitle() {
         return title;
     }
@@ -113,6 +114,7 @@ IAbstractCipherSet {
       * Return cipher list
       *
       */
+    @Override
     public Vector<AbstractCipher> getCipherList() {
         return abstractCipherList;
     }

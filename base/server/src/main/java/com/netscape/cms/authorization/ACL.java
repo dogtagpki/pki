@@ -106,6 +106,7 @@ public class ACL implements IACL, java.io.Serializable {
      *
      * @return name of the resource
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -125,6 +126,7 @@ public class ACL implements IACL, java.io.Serializable {
      *
      * @return Description of the protected resource
      */
+    @Override
     public String getDescription() {
         return description;
     }
@@ -134,6 +136,7 @@ public class ACL implements IACL, java.io.Serializable {
      *
      * @return enumeration for the <code>ACLEntry</code> vector
      */
+    @Override
     public Enumeration<ACLEntry> entries() {
         return entries.elements();
     }
@@ -145,6 +148,7 @@ public class ACL implements IACL, java.io.Serializable {
      *         following format:
      *         <resource name>[<ACLEntry1>,<ACLEntry 2>,...<ACLEntry N>]
      */
+    @Override
     public String toString() {
         StringBuilder entries = new StringBuilder();
         Enumeration<ACLEntry> e = entries();
@@ -165,6 +169,7 @@ public class ACL implements IACL, java.io.Serializable {
      * @param permission permission to be checked
      * @return true if it's one of the "rights"; false otherwise
      */
+    @Override
     public boolean checkRight(String permission) {
         return rights.contains(permission);
     }
@@ -174,6 +179,7 @@ public class ACL implements IACL, java.io.Serializable {
      *
      * @return enumeration of rights defined for this ACL
      */
+    @Override
     public Enumeration<String> rights() {
         return Collections.enumeration(rights);
     }

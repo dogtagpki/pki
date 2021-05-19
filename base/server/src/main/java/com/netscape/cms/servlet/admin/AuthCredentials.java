@@ -52,6 +52,7 @@ public class AuthCredentials implements IAuthCredentials {
      * @param cred credential
      * @exception com.netscape.certsrv.base.EBaseException NullPointerException
      */
+    @Override
     public void set(String name, Object cred) throws EBaseException {
         if (cred == null) {
             throw new EBaseException("AuthCredentials.set()");
@@ -67,6 +68,7 @@ public class AuthCredentials implements IAuthCredentials {
      * @param name credential name
      * @return the named authentication credential
      */
+    @Override
     public Object get(String name) {
         return authCreds.get(name);
     }
@@ -78,6 +80,7 @@ public class AuthCredentials implements IAuthCredentials {
      *
      * @param name credential name
      */
+    @Override
     public void delete(String name) {
         authCreds.remove(name);
     }
@@ -90,11 +93,13 @@ public class AuthCredentials implements IAuthCredentials {
      * @return an enumeration of the names in this credential set
      * @see java.util.Enumeration
      */
+    @Override
     public Enumeration<String> getElements() {
         return authCreds.keys();
     }
 
     // Inserted by bskim
+    @Override
     public void setArgBlock(IArgBlock blk) {
         argblk = blk;
         return;
@@ -102,6 +107,7 @@ public class AuthCredentials implements IAuthCredentials {
 
     // Insert end
 
+    @Override
     public IArgBlock getArgBlock() {
         return argblk;
     }

@@ -33,6 +33,7 @@ public abstract class BaseSubsystem implements ISubsystem {
      * Initializes this subsystem.
      * @param config configuration store
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         this.config = config;
@@ -43,6 +44,7 @@ public abstract class BaseSubsystem implements ISubsystem {
      *
      * @return configuration store
      */
+    @Override
     public IConfigStore getConfigStore() {
         return config;
     }
@@ -52,6 +54,7 @@ public abstract class BaseSubsystem implements ISubsystem {
      *
      * @param id subsystem identifier
      */
+    @Override
     public void setId(String id) throws EBaseException {
         this.id = id;
     }
@@ -61,6 +64,7 @@ public abstract class BaseSubsystem implements ISubsystem {
      *
      * @return subsystem identifier
      */
+    @Override
     public String getId() {
         return id;
     }

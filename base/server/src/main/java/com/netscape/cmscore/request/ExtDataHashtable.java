@@ -34,6 +34,7 @@ public class ExtDataHashtable<V> extends Hashtable<String, V> {
         putAll(map);
     }
 
+    @Override
     public boolean containsKey(Object o) {
         if (o instanceof String) {
             String key = (String) o;
@@ -42,6 +43,7 @@ public class ExtDataHashtable<V> extends Hashtable<String, V> {
         return super.containsKey(o);
     }
 
+    @Override
     public V get(Object o) {
         if (o instanceof String) {
             String key = (String) o;
@@ -50,10 +52,12 @@ public class ExtDataHashtable<V> extends Hashtable<String, V> {
         return super.get(o);
     }
 
+    @Override
     public V put(String oKey, V val) {
         return super.put(oKey.toLowerCase(), val);
     }
 
+    @Override
     public V remove(Object o) {
         if (o instanceof String) {
             String key = (String) o;

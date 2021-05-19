@@ -41,6 +41,7 @@ public class KRAConnectorCLI extends CLI {
         addModule(new KRAConnectorShowCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

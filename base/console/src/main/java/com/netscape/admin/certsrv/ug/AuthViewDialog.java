@@ -48,6 +48,7 @@ public class AuthViewDialog extends AuthBaseDialog
         setDisplay();
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
         super.actionPerformed(evt);
         if (evt.getSource().equals(mHelp))

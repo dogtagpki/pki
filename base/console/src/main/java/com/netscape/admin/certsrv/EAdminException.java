@@ -76,7 +76,8 @@ public class EAdminException extends Exception {
 	 *
 	 * @return details message
 	 */
-	public String toString() {
+	@Override
+    public String toString() {
 		return getMessage();
 	}
 
@@ -119,6 +120,7 @@ public class EAdminException extends Exception {
 	 *
 	 * @return localized detial exception string
 	 */
+    @Override
     public String getMessage(){
         if (mIsLocalized)
             return super.getMessage();

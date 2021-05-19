@@ -35,6 +35,7 @@ public class CertDateCompare implements Comparator<X509CertImpl>, java.io.Serial
     public CertDateCompare() {
     }
 
+    @Override
     public int compare(X509CertImpl cert1, X509CertImpl cert2) {
         Date d1 = null;
         Date d2 = null;

@@ -51,6 +51,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
      *
      * @return configuration store of this subsystem
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -58,6 +59,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
     /**
      * Retrieves the name of this subsystem.
      */
+    @Override
     public String getId() {
         return null;
     }
@@ -65,6 +67,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
     /**
      * Sets specific to this subsystem.
      */
+    @Override
     public void setId(String id) throws EBaseException {
     }
 

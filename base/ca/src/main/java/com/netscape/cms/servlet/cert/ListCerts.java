@@ -98,6 +98,7 @@ public class ListCerts extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
@@ -200,6 +201,7 @@ public class ListCerts extends CMSServlet {
      * <li>http.param direction "up", "down", "begin", or "end"
      * </ul>
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();

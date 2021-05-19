@@ -297,6 +297,7 @@ public class AuthSubsystem implements ISubsystem {
      *
      * @param config The configuration store.
      */
+    @Override
     public void init(IConfigStore config) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -488,6 +489,7 @@ public class AuthSubsystem implements ISubsystem {
      *
      * @return name of the authentication subsystem
      */
+    @Override
     public String getId() {
         return (mId);
     }
@@ -499,6 +501,7 @@ public class AuthSubsystem implements ISubsystem {
      *
      * @param id name to be applied to an authentication sybsystem
      */
+    @Override
     public void setId(String id) throws EBaseException {
         mId = id;
     }
@@ -506,6 +509,7 @@ public class AuthSubsystem implements ISubsystem {
     /**
      * registers the administration servlet with the administration subsystem.
      */
+    @Override
     public void startup() throws EBaseException {
         //remove the log since it's already logged from S_ADMIN
         //String infoMsg = "Auth subsystem administration Servlet registered";
@@ -516,6 +520,7 @@ public class AuthSubsystem implements ISubsystem {
      * shuts down authentication managers one by one.
      * <P>
      */
+    @Override
     public void shutdown() {
         for (AuthManagerProxy proxy : mAuthMgrInsts.values()) {
 
@@ -552,6 +557,7 @@ public class AuthSubsystem implements ISubsystem {
      *
      * @return configuration store of this subsystem
      */
+    @Override
     public AuthenticationConfig getConfigStore() {
         return mConfig;
     }

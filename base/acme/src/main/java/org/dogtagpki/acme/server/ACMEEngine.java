@@ -1185,6 +1185,7 @@ public class ACMEEngine implements ServletContextListener {
         return identifiers;
     }
 
+    @Override
     public void contextInitialized(ServletContextEvent event) {
 
         String path = event.getServletContext().getContextPath();
@@ -1203,6 +1204,7 @@ public class ACMEEngine implements ServletContextListener {
         }
     }
 
+    @Override
     public void contextDestroyed(ServletContextEvent event) {
 
         try {

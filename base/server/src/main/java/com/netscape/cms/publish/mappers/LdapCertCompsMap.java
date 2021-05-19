@@ -75,20 +75,24 @@ public class LdapCertCompsMap
         init(baseDN, dnComps, filterComps);
     }
 
+    @Override
     public String getImplName() {
         return "LdapCertCompsMap";
     }
 
+    @Override
     public String getDescription() {
         return "LdapCertCompsMap";
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = super.getDefaultParams();
 
         return v;
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = super.getInstanceParams();
 
@@ -104,6 +108,7 @@ public class LdapCertCompsMap
         super(certAttr, baseDN, dnComps, filterComps);
     }
 
+    @Override
     protected void init(String baseDN, ObjectIdentifier[] dnComps,
             ObjectIdentifier[] filterComps) {
         super.init(baseDN, dnComps, filterComps);
@@ -121,6 +126,7 @@ public class LdapCertCompsMap
      * @param conn - the LDAP connection.
      * @param obj - the X509Certificate.
      */
+    @Override
     public String
             map(LDAPConnection conn, Object obj)
                     throws ELdapException {
@@ -163,6 +169,7 @@ public class LdapCertCompsMap
         }
     }
 
+    @Override
     public String map(LDAPConnection conn, IRequest req, Object obj)
             throws ELdapException {
         return map(conn, obj);

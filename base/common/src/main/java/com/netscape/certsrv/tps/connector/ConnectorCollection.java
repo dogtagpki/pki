@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name="Connectors")
 public class ConnectorCollection extends DataCollection<ConnectorData> {
 
+    @Override
     @XmlElementRef
     public Collection<ConnectorData> getEntries() {
         return super.getEntries();

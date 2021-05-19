@@ -61,6 +61,7 @@ public class SubjectNameConstraint extends EnrollConstraint {
         addConfigName(CONFIG_PATTERN);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_PATTERN)) {
             return new Descriptor(IDescriptor.STRING,
@@ -79,6 +80,7 @@ public class SubjectNameConstraint extends EnrollConstraint {
      * Validates the request. The request is not modified
      * during the validation.
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         logger.debug("SubjectNameConstraint: validate start");
@@ -219,12 +221,14 @@ public class SubjectNameConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale,
                 "CMS_PROFILE_CONSTRAINT_SUBJECT_NAME_TEXT",
                 getConfig(CONFIG_PATTERN));
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;

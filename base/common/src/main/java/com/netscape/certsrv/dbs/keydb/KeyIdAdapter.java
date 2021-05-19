@@ -28,10 +28,12 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class KeyIdAdapter extends XmlAdapter<String, KeyId> {
 
+    @Override
     public KeyId unmarshal(String value) throws Exception {
         return StringUtils.isEmpty(value) ? null : new KeyId(value);
     }
 
+    @Override
     public String marshal(KeyId value) throws Exception {
         return value == null ? null : value.toString();
     }

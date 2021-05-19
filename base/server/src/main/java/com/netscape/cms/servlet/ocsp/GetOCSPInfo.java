@@ -65,6 +65,7 @@ public class GetOCSPInfo extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override success to display own output.
@@ -83,6 +84,7 @@ public class GetOCSPInfo extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();

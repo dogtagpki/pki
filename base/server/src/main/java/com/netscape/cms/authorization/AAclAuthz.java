@@ -108,6 +108,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     /**
      * Initializes
      */
+    @Override
     public void init(String name, String implName, AuthzManagerConfig config)
             throws EBaseException {
         mName = name;
@@ -162,6 +163,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     /**
      * gets the name of this authorization manager instance
      */
+    @Override
     public String getName() {
         return mName;
     }
@@ -169,6 +171,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     /**
      * gets the plugin name of this authorization manager.
      */
+    @Override
     public String getImplName() {
         return mImplName;
     }
@@ -201,10 +204,12 @@ public abstract class AAclAuthz implements IAuthzManager {
         }
     }
 
+    @Override
     public void accessInit(String accessInfo) throws EBaseException {
         addACLs(accessInfo);
     }
 
+    @Override
     public IACL getACL(String target) {
         return mACLs.get(target);
     }
@@ -213,6 +218,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         return mACLs.keys();
     }
 
+    @Override
     public Enumeration<IACL> getACLs() {
         return mACLs.elements();
     }
@@ -220,6 +226,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     /**
      * Returns the configuration store used by this Authz mgr
      */
+    @Override
     public AuthzManagerConfig getConfigStore() {
         return mConfig;
     }
@@ -238,6 +245,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      *
      * @return String array of configuration parameter names.
      */
+    @Override
     public String[] getConfigParams() {
         return mConfigParams;
     }
@@ -245,12 +253,14 @@ public abstract class AAclAuthz implements IAuthzManager {
     /**
      * graceful shutdown
      */
+    @Override
     public abstract void shutdown();
 
     /**
      * Registers new handler for the given attribute type
      * in the expressions.
      */
+    @Override
     public void registerEvaluator(String type, IAccessEvaluator evaluator) {
         mEvaluators.put(type, evaluator);
         logger.info("AAclAuthz: " + type + " evaluator registered");
@@ -747,6 +757,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      * This one only updates the memory. Classes extend this class should
      * also update to a permanent storage
      */
+    @Override
     public void updateACLs(String id, String rights, String strACLs,
             String desc) throws EACLsException {
         String resourceACLs = id;
@@ -780,6 +791,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      *
      * @return an enumeraton of access evaluators
      */
+    @Override
     public Enumeration<IAccessEvaluator> aclEvaluatorElements() {
         return (mEvaluators.elements());
     }
@@ -789,6 +801,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      *
      * @return handle to the access evaluators table
      */
+    @Override
     public Hashtable<String, IAccessEvaluator> getAccessEvaluators() {
         return mEvaluators;
     }
@@ -833,6 +846,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      * @exception EAuthzInternalError If an internal error occurred.
      * @return authzToken
      */
+    @Override
     public AuthzToken authorize(IAuthToken authToken, String resource, String operation)
             throws EAuthzInternalError, EAuthzAccessDenied {
         try {
@@ -854,6 +868,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         }
     }
 
+    @Override
     public AuthzToken authorize(IAuthToken authToken, String expression)
             throws EAuthzAccessDenied {
         if (evaluateACLs(authToken, expression)) {

@@ -55,6 +55,7 @@ class WMNSelection extends WizardBasePanel
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
@@ -63,6 +64,7 @@ class WMNSelection extends WizardBasePanel
 	 * public methods
      *==========================================================*/
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         //let's set the values
         mInfo = (MNSchemeWizardInfo)info;
@@ -73,6 +75,7 @@ class WMNSelection extends WizardBasePanel
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         if ((mMField.getText().trim().equals("")) ||
             (mNField.getText().trim().equals("")) ) {
@@ -111,15 +114,18 @@ class WMNSelection extends WizardBasePanel
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         return true;
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         mInfo.add(Constants.PR_RECOVERY_M, mMField.getText().trim());
         mInfo.add(Constants.PR_RECOVERY_N, mNField.getText().trim());
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }
@@ -133,6 +139,7 @@ class WMNSelection extends WizardBasePanel
      *==========================================================*/
 
     //initialize the panel
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();

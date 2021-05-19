@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name="SelfTests")
 public class SelfTestCollection extends DataCollection<SelfTestData> {
 
+    @Override
     @XmlElementRef
     public Collection<SelfTestData> getEntries() {
         return super.getEntries();

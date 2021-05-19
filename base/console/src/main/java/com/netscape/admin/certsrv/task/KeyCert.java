@@ -48,7 +48,8 @@ public class KeyCert extends CMSTaskObject
     /*==========================================================
 	 * public methods
      *==========================================================*/
-	public boolean run(IPage viewInstance) {
+	@Override
+    public boolean run(IPage viewInstance) {
         ConsoleInfo console = getConsoleInfo();
         CMSServerInfo serverInfo = (CMSServerInfo)console.get("serverInfo");
         CMSBaseResourceModel model = new CMSBaseResourceModel(console, serverInfo);

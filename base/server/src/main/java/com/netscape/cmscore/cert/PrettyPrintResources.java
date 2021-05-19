@@ -34,6 +34,7 @@ public class PrettyPrintResources extends ListResourceBundle {
     /**
      * Returns content
      */
+    @Override
     public Object[][] getContents() {
         return contents;
     }

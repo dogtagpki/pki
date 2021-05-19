@@ -104,6 +104,7 @@ public class NuxwdogPasswordStore implements IPasswordStore {
         // Nothing required here
     }
 
+    @Override
     public void setId(String id) {
         this.id = id;
     }

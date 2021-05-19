@@ -46,6 +46,7 @@ public class SubsystemUserShowCLI extends CommandCLI {
         super("show", "Display " + parent.getParent().getName().toUpperCase() + " user", parent);
     }
 
+    @Override
     public void createOptions() {
 
         Option option = new Option(null, "output-format", true, "Output format: text (default), json.");
@@ -53,6 +54,7 @@ public class SubsystemUserShowCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -74,6 +74,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
         addValueName(VAL_USE_SKI_IF_IN_REQUEST);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) { /* testms */
         if (name.equals(CONFIG_MD)) {
             return new Descriptor(IDescriptor.CHOICE, DEF_CONFIG_MDS,
@@ -88,6 +89,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
     }
 
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
             return new Descriptor(IDescriptor.STRING,
@@ -115,6 +117,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -139,6 +142,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -210,6 +214,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_SUBJECT_KEY_ID_EXT");
     }
@@ -217,6 +222,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
 

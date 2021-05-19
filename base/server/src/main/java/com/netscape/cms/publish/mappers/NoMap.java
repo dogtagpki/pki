@@ -44,6 +44,7 @@ public class NoMap implements ILdapMapper, IExtendedPluginInfo {
     public NoMap() {
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String params[] = {
                 IExtendedPluginInfo.HELP_TOKEN + ";configuration-ldappublish-mapper-simplemapper",
@@ -53,6 +54,7 @@ public class NoMap implements ILdapMapper, IExtendedPluginInfo {
         return params;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -60,6 +62,7 @@ public class NoMap implements ILdapMapper, IExtendedPluginInfo {
     /**
      * for initializing from config store.
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -73,29 +76,35 @@ public class NoMap implements ILdapMapper, IExtendedPluginInfo {
      * @param obj the object to map.
      * @exception ELdapException if any LDAP exceptions occured.
      */
+    @Override
     public String map(LDAPConnection conn, Object obj)
             throws ELdapException {
         return null;
     }
 
+    @Override
     public String map(LDAPConnection conn, IRequest req, Object obj)
             throws ELdapException {
         return null;
     }
 
+    @Override
     public String getImplName() {
         return "NoMap";
     }
 
+    @Override
     public String getDescription() {
         return "NoMap";
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
         return v;
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
         return v;

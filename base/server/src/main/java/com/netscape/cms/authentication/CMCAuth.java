@@ -220,6 +220,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
      * @param config - The configuration store for this instance.
      * @exception EBaseException If an error occurs during initialization.
      */
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
@@ -252,6 +253,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
      *                If an internal error occurred.
      * @see org.dogtagpki.server.authentication.AuthToken
      */
+    @Override
     public IAuthToken authenticate(IAuthCredentials authCred) throws EMissingCredential, EInvalidCredentials,
             EBaseException {
         String method = "CMCAuth: authenticate: ";
@@ -702,6 +704,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
      *
      * @return String array of configuration parameter names.
      */
+    @Override
     public String[] getConfigParams() {
         return (mConfigParams);
     }
@@ -713,6 +716,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
      *
      * @return configuration store
      */
+    @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
@@ -720,6 +724,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
     /**
      * gets the plug-in name of this authentication plug-in.
      */
+    @Override
     public String getImplName() {
         return mImplName;
     }
@@ -727,6 +732,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
     /**
      * gets the name of this authentication plug-in instance
      */
+    @Override
     public String getName() {
         return mName;
     }
@@ -737,6 +743,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
      *
      * @return list of required credentials as strings.
      */
+    @Override
     public String[] getRequiredCreds() {
         return (mRequiredCreds);
     }
@@ -744,6 +751,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
     /**
      * prepares for shutdown.
      */
+    @Override
     public void shutdown() {
     }
 
@@ -1000,12 +1008,14 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
 
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         return null;
     }
 
     // Profile-related methods
 
+    @Override
     public void init(Profile profile, IConfigStore config)
             throws EProfileException {
     }
@@ -1013,6 +1023,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
     /**
      * Retrieves the localizable name of this policy.
      */
+    @Override
     public String getName(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_AUTHENTICATION_CMS_SIGN_NAME");
     }
@@ -1020,6 +1031,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
     /**
      * Retrieves the localizable description of this policy.
      */
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_AUTHENTICATION_CMS_SIGN_TEXT");
     }
@@ -1027,12 +1039,14 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
     /**
      * Retrieves a list of names of the value parameter.
      */
+    @Override
     public Enumeration<String> getValueNames() {
         Vector<String> v = new Vector<String>();
         v.addElement("cert_request");
         return v.elements();
     }
 
+    @Override
     public boolean isValueWriteable(String name) {
         return false;
     }
@@ -1041,6 +1055,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
      * Retrieves the descriptor of the given value
      * parameter by name.
      */
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(CRED_CMC)) {
             return new Descriptor(IDescriptor.STRING_LIST, null, null,
@@ -1049,12 +1064,14 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
         return null;
     }
 
+    @Override
     public void populate(IAuthToken token, IRequest request)
             throws EProfileException {
         request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                 token.getInString(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT));
     }
 
+    @Override
     public boolean isSSLClientRequired() {
         return false;
     }

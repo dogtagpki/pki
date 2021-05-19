@@ -211,6 +211,7 @@ public class CertRecordProcessor implements IElementProcessor {
         return includeCert;
     }
 
+    @Override
     public void process(Object o) throws EBaseException {
         try {
             CertRecord certRecord = (CertRecord) o;

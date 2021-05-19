@@ -48,6 +48,7 @@ public class KeyStatusUpdateTask implements Runnable {
     public void start() {
         // schedule task to run immediately and repeat after specified interval
         executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            @Override
             public Thread newThread(Runnable r) {
                 return new Thread(r, "KeyStatusUpdateTask");
             }
@@ -70,6 +71,7 @@ public class KeyStatusUpdateTask implements Runnable {
         }
     }
 
+    @Override
     public void run() {
         try {
             updateKeyStatus();

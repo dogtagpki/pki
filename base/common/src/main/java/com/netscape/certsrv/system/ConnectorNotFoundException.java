@@ -22,6 +22,7 @@ public class ConnectorNotFoundException extends ResourceNotFoundException {
         super(data);
     }
 
+    @Override
     public Data getData() {
         return super.getData();
     }

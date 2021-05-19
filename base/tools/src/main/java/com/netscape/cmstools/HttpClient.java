@@ -433,6 +433,7 @@ public class HttpClient {
             this.sc = sc;
         }
 
+        @Override
         public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
             System.out.println("handshake happened");
         }

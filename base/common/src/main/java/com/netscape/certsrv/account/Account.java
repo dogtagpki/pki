@@ -156,6 +156,7 @@ public class Account extends ResourceMessage {
         return fromXML(xml);
     }
 
+    @Override
     public String toString() {
         try {
             return toXML();
@@ -166,12 +167,14 @@ public class Account extends ResourceMessage {
 
     public static class RolesAdapter extends XmlAdapter<RoleList, Collection<String>> {
 
+        @Override
         public RoleList marshal(Collection<String> roles) {
             RoleList list = new RoleList();
             list.roles = roles.toArray(new String[roles.size()]);
             return list;
         }
 
+        @Override
         public Collection<String> unmarshal(RoleList list) {
             Collection<String> roles = new TreeSet<String>();
             if (list.roles != null) {

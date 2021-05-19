@@ -57,10 +57,12 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
     /**
      * @param transWrappedSessionKey the wrapped seesion key to set
      */
+    @Override
     public void setTransWrappedSessionKey(String transWrappedSessionKey) {
         attributes.put(TRANS_WRAPPED_SESSION_KEY, transWrappedSessionKey);
     }
 
+    @Override
     public String toString() {
         try {
             return ResourceMessage.marshal(this, SymKeyGenerationRequest.class);

@@ -43,12 +43,14 @@ public class CACertFindCLI extends CommandCLI {
         super("find", "Find certificates in CA", parent);
     }
 
+    @Override
     public void createOptions() {
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String filter = "(certstatus=*)";

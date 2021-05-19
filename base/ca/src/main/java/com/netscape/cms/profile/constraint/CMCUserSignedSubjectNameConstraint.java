@@ -46,6 +46,7 @@ public class CMCUserSignedSubjectNameConstraint extends EnrollConstraint {
     public CMCUserSignedSubjectNameConstraint() {
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         return null;
     }
@@ -59,6 +60,7 @@ public class CMCUserSignedSubjectNameConstraint extends EnrollConstraint {
      * during the validation. User encoded subject name
      * is copied into the certificate template.
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         String method = "CMCUserSignedSubjectNameConstraint: ";
@@ -117,11 +119,13 @@ public class CMCUserSignedSubjectNameConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale,
                    "CMS_PROFILE_CONSTRAINT_CMC_USER_SIGNED_SUBJECT_NAME_TEXT");
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         String method = "CMCUserSignedSubjectNameConstraint: isApplicable: ";
         if (def instanceof CMCUserSignedSubjectNameDefault) {

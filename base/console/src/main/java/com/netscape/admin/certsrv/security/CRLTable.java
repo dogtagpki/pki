@@ -124,6 +124,7 @@ class CRLTable extends JPanel implements MouseListener {
     }
 
     JTable _crlTable;
+    @Override
     public void mouseClicked(MouseEvent e) {
         int row = _crlTable.rowAtPoint(e.getPoint());
 
@@ -135,9 +136,13 @@ class CRLTable extends JPanel implements MouseListener {
             showCert();
         }
     }
+    @Override
     public void mouseEntered(MouseEvent e) { }
+    @Override
     public void mouseExited(MouseEvent e) { }
+    @Override
     public void mousePressed(MouseEvent e) { }
+    @Override
     public void mouseReleased(MouseEvent e) { }
 
 
@@ -216,6 +221,7 @@ class CRLTable extends JPanel implements MouseListener {
 
     CRLTableModel _crlTableModel;
 
+    @Override
     public void repaint() {
         _crlTable.validate();
         _crlTable.repaint();

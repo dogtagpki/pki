@@ -69,6 +69,7 @@ public class HttpResponse extends HttpMessage {
     /**
      * write the response out to the http client
      */
+    @Override
     public void write(OutputStreamWriter writer)
             throws IOException {
         if (mStatusCode == null) {
@@ -85,6 +86,7 @@ public class HttpResponse extends HttpMessage {
     /**
      * parse a http response from a http server
      */
+    @Override
     public void parse(BufferedReader reader)
             throws IOException {
         mHttpVers = null;
@@ -123,6 +125,7 @@ public class HttpResponse extends HttpMessage {
         mReasonPhrase = mLine.substring(code + 1);
     }
 
+    @Override
     public void reset() {
         mStatusCode = null;
         mHttpVers = null;

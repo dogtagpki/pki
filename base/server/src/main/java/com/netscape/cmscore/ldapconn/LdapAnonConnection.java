@@ -96,6 +96,7 @@ public class LdapAnonConnection extends LDAPConnection {
      * overrides superclass connect.
      * does not allow reconnect.
      */
+    @Override
     public void connect(int version, String host, int port,
             String dn, String pw) throws LDAPException {
         throw new RuntimeException(

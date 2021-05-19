@@ -56,6 +56,7 @@ public class LdapConnModule implements ILdapConnModule {
         mInited = true;
     }
 
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
 
@@ -121,6 +122,7 @@ public class LdapConnModule implements ILdapConnModule {
      * @see com.netscape.certsrv.ldap.LdapBoundConnFactory
      * @see com.netscape.certsrv.ldap.ILdapConnFactory
      */
+    @Override
     public ILdapConnFactory getLdapConnFactory() {
         return mLdapConnFactory;
     }

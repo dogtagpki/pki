@@ -140,6 +140,7 @@ public class PanelMapperConfigDialog extends JDialog
      *==========================================================*/
 
     //=== ACTIONLISTENER =====================
+    @Override
     public void actionPerformed(ActionEvent evt) {
 
         if (evt.getSource().equals(mOK)) {
@@ -180,6 +181,7 @@ public class PanelMapperConfigDialog extends JDialog
     }
 
     //== ItemListener ==
+    @Override
     public void itemStateChanged(ItemEvent e){
         if (e.getSource().equals(mSelection)) {
             if (e.getStateChange() == ItemEvent.SELECTED) {

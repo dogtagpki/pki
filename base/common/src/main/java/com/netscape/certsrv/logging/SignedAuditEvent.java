@@ -158,6 +158,7 @@ public class SignedAuditEvent extends LogEvent {
         return sb.toString();
     }
 
+    @Override
     public Object[] getParameters() {
 
         if (mParams != null) {

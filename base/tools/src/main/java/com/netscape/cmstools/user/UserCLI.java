@@ -52,6 +52,7 @@ public class UserCLI extends CLI {
         addModule(new UserMembershipCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

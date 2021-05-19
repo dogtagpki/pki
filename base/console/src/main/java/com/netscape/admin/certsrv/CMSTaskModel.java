@@ -96,6 +96,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
     /**
      * Returns supported menu categories
      */
+    @Override
     public String[] getMenuCategoryIDs() {
         return new String[] {
             Framework.MENU_FILE
@@ -105,6 +106,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
     /**
      * add menu items for this page.
      */
+    @Override
     public IMenuItem[] getMenuItems(String categoryID) {
         if(categoryID.equals(Framework.MENU_FILE)) {
             return new IMenuItem[] {
@@ -117,6 +119,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
         return null;
     }
 
+    @Override
     public void actionObjectSelected(IPage viewInstance,
                                 ITaskObject selection,
                                 ITaskObject previousSelection) {
@@ -127,6 +130,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
     /**
      * Notification that a menu item has been selected.
      */
+    @Override
     public void actionMenuSelected(IPage viewInstance, IMenuItem item) {
 
         if(item.getID().equals(MENU_KEYCERT)) {

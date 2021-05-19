@@ -86,6 +86,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/agent/" + mAuthority.getId() + "/" + TPL_FILE;
@@ -98,6 +99,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -111,6 +113,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
 
         HttpServletRequest req = cmsReq.getHttpReq();

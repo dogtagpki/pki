@@ -48,6 +48,7 @@ public class EmailResolverKeys implements IEmailResolverKeys {
      * @param key key
      * @exception com.netscape.certsrv.base.EBaseException NullPointerException
      */
+    @Override
     public void set(String name, Object key) throws EBaseException {
         try {
             mKeys.put(name, key);
@@ -64,6 +65,7 @@ public class EmailResolverKeys implements IEmailResolverKeys {
      * @param name key name
      * @return the named email resolver key
      */
+    @Override
     public Object get(String name) {
         return mKeys.get(name);
     }
@@ -75,6 +77,7 @@ public class EmailResolverKeys implements IEmailResolverKeys {
      *
      * @param name key name
      */
+    @Override
     public void delete(String name) {
         mKeys.remove(name);
     }
@@ -87,6 +90,7 @@ public class EmailResolverKeys implements IEmailResolverKeys {
      * @return an enumeration of the values in this key set
      * @see java.util.Enumeration
      */
+    @Override
     public Enumeration<String> getElements() {
         return mKeys.keys();
     }

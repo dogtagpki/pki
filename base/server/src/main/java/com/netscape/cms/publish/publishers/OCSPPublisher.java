@@ -74,6 +74,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Returns the implementation name.
      */
+    @Override
     public String getImplName() {
         return "OCSPPublisher";
     }
@@ -81,10 +82,12 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Returns the description of the ldap publisher.
      */
+    @Override
     public String getDescription() {
         return "This publisher writes the CRL to CMS's OCSP server.";
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_HOST + ";string;Host of CMS's OCSP Secure agent service",
@@ -104,6 +107,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Returns the current instance parameters.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> v = new Vector<String>();
         String host = "";
@@ -143,6 +147,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Returns the initial default parameters.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
@@ -170,6 +175,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Initializes this plugin.
      */
+    @Override
     public void init(IConfigStore config) {
         mConfig = config;
         try {
@@ -182,6 +188,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
         }
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -222,6 +229,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
      *            (java.security.cert.X509Certificate or,
      *            java.security.cert.X509CRL)
      */
+    @Override
     public synchronized void publish(LDAPConnection conn, String dn, Object object)
             throws ELdapException {
         try {
@@ -352,6 +360,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
      * @param object object to unpublish
      *            (java.security.cert.X509Certificate)
      */
+    @Override
     public void unpublish(LDAPConnection conn, String dn, Object object)
             throws ELdapException {
         // NOT USED

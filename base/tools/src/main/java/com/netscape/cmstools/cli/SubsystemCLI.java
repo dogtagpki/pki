@@ -38,6 +38,7 @@ public class SubsystemCLI extends CLI {
         this.mainCLI = mainCLI;
     }
 
+    @Override
     public String getFullName() {
         // do not include parent's name
         return name;
@@ -57,11 +58,13 @@ public class SubsystemCLI extends CLI {
         subsystemClient.logout();
     }
 
+    @Override
     public Client getClient(String name) throws Exception {
         SubsystemClient subsystemClient = getSubsystemClient();
         return subsystemClient.getClient(name);
     }
 
+    @Override
     public void execute(String[] args) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();

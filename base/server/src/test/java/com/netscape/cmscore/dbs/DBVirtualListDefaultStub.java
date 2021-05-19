@@ -32,55 +32,69 @@ import com.netscape.certsrv.dbs.IElementProcessor;
  */
 public class DBVirtualListDefaultStub<T extends IDBObj> implements IDBVirtualList<T> {
 
+    @Override
     public void setPageSize(int size) {
     }
 
+    @Override
     public void setSortKey(String sortKey) throws EBaseException {
     }
 
+    @Override
     public void setSortKey(String[] sortKeys) throws EBaseException {
     }
 
+    @Override
     public int getSize() {
         return 0;
     }
 
+    @Override
     public int getSizeBeforeJumpTo() {
         return 0;
     }
 
+    @Override
     public int getSizeAfterJumpTo() {
         return 0;
     }
 
+    @Override
     public int getCurrentIndex() {
         return 0;
     }
 
+    @Override
     public boolean getPage(int first) {
         return false;
     }
 
+    @Override
     public boolean getPage(String text) {
         return false;
     }
 
+    @Override
     public T getElementAt(int index) {
         return null;
     }
 
+    @Override
     public T getJumpToElementAt(int i) {
         return null;
     }
 
+    @Override
     public void processElements(int startidx, int endidx, IElementProcessor ep)
             throws EBaseException {
     }
 
+    @Override
     public int getSelectedIndex() {
         return 0;
     }
 
+    @Override
     public int getFirstIndex() {
         return 0;
     }

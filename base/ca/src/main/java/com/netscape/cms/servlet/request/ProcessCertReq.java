@@ -188,6 +188,7 @@ public class ProcessCertReq extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         try {
             super.init(sc);
@@ -254,6 +255,7 @@ public class ProcessCertReq extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         long startTime = new Date().getTime();
         String toDo = null;
@@ -1676,6 +1678,7 @@ class RAReqCompletedFiller extends ImportCertsTemplateFiller {
         super();
     }
 
+    @Override
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e)
             throws Exception {

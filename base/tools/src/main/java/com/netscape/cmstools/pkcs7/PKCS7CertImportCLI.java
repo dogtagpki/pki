@@ -36,10 +36,12 @@ public class PKCS7CertImportCLI extends CommandCLI {
         this.certCLI = certCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "pkcs7", true, "PKCS #7 file");
         option.setArgName("path");
@@ -56,6 +58,7 @@ public class PKCS7CertImportCLI extends CommandCLI {
         options.addOption(null, "append", false, "Import into an existing PKCS #7 file");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String filename = cmd.getOptionValue("pkcs7");

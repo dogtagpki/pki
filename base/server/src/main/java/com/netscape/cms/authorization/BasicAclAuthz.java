@@ -53,6 +53,7 @@ public class BasicAclAuthz extends AAclAuthz
     /**
      *
      */
+    @Override
     public void init(String name, String implName, AuthzManagerConfig config)
             throws EBaseException {
         super.init(name, implName, config);
@@ -63,6 +64,7 @@ public class BasicAclAuthz extends AAclAuthz
     /**
      * graceful shutdown
      */
+    @Override
     public void shutdown() {
         logger.info("BasicAclAuthz: shutting down");
     }

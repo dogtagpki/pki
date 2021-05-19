@@ -57,6 +57,7 @@ public class SubsystemDBUpgradeCLI extends CommandCLI {
         super(name, description, parent);
    }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String catalinaBase = System.getProperty("catalina.base");

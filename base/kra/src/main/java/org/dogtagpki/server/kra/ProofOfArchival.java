@@ -139,6 +139,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
      * @param obj attribute value
      * @exception EBaseException failed to set attribute
      */
+    @Override
     public void set(String name, Object obj) throws EBaseException {
         if (name.equals(ATTR_VERSION)) {
             mVersion = (BigInteger) obj;
@@ -164,6 +165,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
      * @return attribute value
      * @exception EBaseException failed to get attribute
      */
+    @Override
     public Object get(String name) throws EBaseException {
         if (name.equals(ATTR_VERSION)) {
             return mVersion;
@@ -188,6 +190,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
      * @param name attribute name
      * @exception EBaseException failed to get attribute
      */
+    @Override
     public void delete(String name) throws EBaseException {
         throw new EBaseException(
                 CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
@@ -199,6 +202,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
      *
      * @return a list of names
      */
+    @Override
     public Enumeration<String> getElements() {
         return mNames.elements();
     }
@@ -208,6 +212,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
      *
      * @return a list of serializable attribute names
      */
+    @Override
     public Enumeration<String> getSerializableAttrNames() {
         return mNames.elements();
     }
@@ -218,6 +223,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
      *
      * @return version
      */
+    @Override
     public BigInteger getVersion() {
         return mVersion;
     }
@@ -228,6 +234,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
      *
      * @return serial number
      */
+    @Override
     public BigInteger getSerialNumber() {
         return mSerialNo;
     }
@@ -238,6 +245,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
      *
      * @return subject name
      */
+    @Override
     public String getSubjectName() {
         return mSubject;
     }
@@ -248,6 +256,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
      *
      * @return issuer name
      */
+    @Override
     public String getIssuerName() {
         return mIssuer;
     }
@@ -258,6 +267,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
      *
      * @return date of archival
      */
+    @Override
     public Date getDateOfArchival() {
         return mDateOfArchival;
     }
@@ -454,6 +464,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
      * Retrieves the string reprensetation of this
      * proof of archival.
      */
+    @Override
     public String toString() {
         return "Version: " + mVersion.toString() + "\n" +
                 "SerialNo: " + mSerialNo.toString() + "\n" +

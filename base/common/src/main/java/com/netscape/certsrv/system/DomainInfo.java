@@ -128,6 +128,7 @@ public class DomainInfo {
         return (DomainInfo)unmarshaller.unmarshal(new StringReader(string));
     }
 
+    @Override
     public String toString() {
         try {
             return toXML();

@@ -52,6 +52,7 @@ public class MetaInfo implements IAttrSet {
      *
      * @return information about this certificate attribute.
      */
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("[\n" + "  Meta information:\n");
 
@@ -73,6 +74,7 @@ public class MetaInfo implements IAttrSet {
      * @param name the name of the attribute to return.
      * @exception EBaseException on attribute handling errors.
      */
+    @Override
     public Object get(String name) throws EBaseException {
         return content.get(name);
     }
@@ -85,6 +87,7 @@ public class MetaInfo implements IAttrSet {
      *
      * @exception EBaseException on attribute handling errors.
      */
+    @Override
     public void set(String name, Object obj) throws EBaseException {
         content.put(name, obj);
     }
@@ -96,6 +99,7 @@ public class MetaInfo implements IAttrSet {
      * @param name the name of the attribute to delete.
      * @exception EBaseException on attribute handling errors.
      */
+    @Override
     public void delete(String name) throws EBaseException {
         content.remove(name);
     }
@@ -107,6 +111,7 @@ public class MetaInfo implements IAttrSet {
      *
      * @return an enumeration of the attribute names.
      */
+    @Override
     public Enumeration<String> getElements() {
         return content.keys();
     }

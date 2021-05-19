@@ -118,11 +118,13 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         return num;
     }
 
+    @Override
     public void init(IConfigStore config) throws EProfileException {
         super.init(config);
         refreshConfigAndValueNames();
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
         int num = 0;
@@ -143,11 +145,13 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         super.setConfig(name, value);
     }
 
+    @Override
     public Enumeration<String> getConfigNames() {
         refreshConfigAndValueNames();
         return super.getConfigNames();
     }
 
+    @Override
     protected void refreshConfigAndValueNames() {
 
         super.refreshConfigAndValueNames();
@@ -176,6 +180,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
 
         if (name.equals(CONFIG_CRITICAL)) {
@@ -226,6 +231,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         return null;
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
 
         if (name.equals(VAL_CRITICAL)) {
@@ -260,6 +266,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         return table;
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -371,6 +378,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public String getValue(String name, Locale locale,
             X509CertInfo info)
@@ -553,6 +561,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         StringBuffer sb = new StringBuffer();
         int num = getNumPolicies();
@@ -621,6 +630,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         CertificatePoliciesExtension ext = createExtension();

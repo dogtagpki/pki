@@ -25,6 +25,7 @@ import com.netscape.certsrv.dbs.repository.IRepository;
 
 public class CAUpdateNumberRange extends UpdateNumberRange {
 
+    @Override
     public IRepository getRepository(String type) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();

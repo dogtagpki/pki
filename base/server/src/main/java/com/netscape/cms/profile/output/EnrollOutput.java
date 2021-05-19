@@ -42,10 +42,12 @@ public abstract class EnrollOutput extends ProfileOutput {
     /**
      * Initializes this default policy.
      */
+    @Override
     public void init(IConfigStore config) throws EProfileException {
         mConfig = config;
     }
 
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -61,6 +63,7 @@ public abstract class EnrollOutput extends ProfileOutput {
      * @param request request
      * @exception EProfileException failed to populate
      */
+    @Override
     public abstract void populate(Map<String, String> ctx, IRequest request)
             throws EProfileException;
 
@@ -72,6 +75,7 @@ public abstract class EnrollOutput extends ProfileOutput {
      * @param name property name
      * @return property descriptor
      */
+    @Override
     public abstract IDescriptor getValueDescriptor(Locale locale, String name);
 
     /**
@@ -80,6 +84,7 @@ public abstract class EnrollOutput extends ProfileOutput {
      * @param locale user locale
      * @return output policy name
      */
+    @Override
     public abstract String getName(Locale locale);
 
     /**
@@ -88,15 +93,18 @@ public abstract class EnrollOutput extends ProfileOutput {
      * @param locale user locale
      * @return output policy description
      */
+    @Override
     public abstract String getText(Locale locale);
 
     /**
      * Retrieves a list of names of the value parameter.
      */
+    @Override
     public Enumeration<String> getValueNames() {
         return mValueNames.elements();
     }
 
+    @Override
     public String getValue(String name, Locale locale, IRequest request)
             throws EProfileException {
         return request.getExtDataInString(name);
@@ -105,23 +113,28 @@ public abstract class EnrollOutput extends ProfileOutput {
     /**
      * Sets the value of the given value parameter by name.
      */
+    @Override
     public void setValue(String name, Locale locale, IRequest request,
             String value) throws EPropertyException {
         request.setExtData(name, value);
     }
 
+    @Override
     public Enumeration<String> getConfigNames() {
         return mConfigNames.elements();
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
     }
 
+    @Override
     public String getConfig(String name) {
         return null;
     }

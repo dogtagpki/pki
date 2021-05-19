@@ -36,14 +36,17 @@ public class TPSEngine extends CMSEngine {
         return (TPSEngine) CMS.getCMSEngine();
     }
 
+    @Override
     public EngineConfig createConfig(ConfigStorage storage) throws Exception {
         return new TPSEngineConfig(storage);
     }
 
+    @Override
     public TPSEngineConfig getConfig() {
         return (TPSEngineConfig) mConfig;
     }
 
+    @Override
     public TPSConfigurator createConfigurator() throws Exception {
         return new TPSConfigurator(this);
     }

@@ -30,6 +30,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name = "KeyInfoCollection")
 public class KeyInfoCollection extends DataCollection<KeyInfo> {
 
+    @Override
     @XmlElementRef
     public Collection<KeyInfo> getEntries() {
         return super.getEntries();
@@ -48,6 +49,7 @@ public class KeyInfoCollection extends DataCollection<KeyInfo> {
         return mapper.readValue(json, KeyInfoCollection.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

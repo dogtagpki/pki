@@ -129,14 +129,17 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
     }
 
 
+    @Override
     public int totalConn() {
         return mTotal;
     }
 
+    @Override
     public int freeConn() {
         return mNumConns;
     }
 
+    @Override
     public int maxConn() {
         return mMaxConns;
     }
@@ -269,6 +272,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * }
      * </pre>
      */
+    @Override
     public LDAPConnection getConn()
             throws ELdapException {
         return getConn(true);
@@ -384,6 +388,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * }
      * </pre>
      */
+    @Override
     public synchronized void returnConn(LDAPConnection conn) {
         if (conn == null) {
             return;
@@ -426,6 +431,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         notify();
     }
 
+    @Override
     protected void finalize()
             throws Exception {
         reset();
@@ -445,6 +451,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * shutdown or exit to disconnection & cleanup connections.
      */
     // ok only if no connections outstanding.
+    @Override
     public synchronized void reset()
             throws ELdapException {
         logger.debug("Destroying LdapAnonConnFactory(" + id + ")");

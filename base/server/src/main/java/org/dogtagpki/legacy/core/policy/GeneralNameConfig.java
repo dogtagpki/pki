@@ -95,6 +95,7 @@ public class GeneralNameConfig implements IGeneralNameConfig {
     /**
      * Form a general name from the value string.
      */
+    @Override
     public GeneralName formGeneralName(String value)
             throws EBaseException {
         return formGeneralName(mGenNameChoice, value);
@@ -110,6 +111,7 @@ public class GeneralNameConfig implements IGeneralNameConfig {
      *         either a Vector of strings, string array or just a string.
      *         Returned Vector can be null if value is not of expected type.
      */
+    @Override
     public Vector<GeneralName> formGeneralNames(Object value)
             throws EBaseException {
         Vector<GeneralName> gns = new Vector<GeneralName>();
@@ -192,6 +194,7 @@ public class GeneralNameConfig implements IGeneralNameConfig {
     /**
      * Get instance params
      */
+    @Override
     public void getInstanceParams(Vector<String> params) {
         String value = (mValue == null) ? "" : mValue;
         String choice = (mGenNameChoice == null) ? "" : mGenNameChoice;

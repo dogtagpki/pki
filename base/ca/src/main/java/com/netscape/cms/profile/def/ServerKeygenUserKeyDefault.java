@@ -86,6 +86,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
         addValueName(VAL_LEN);
     }
 
+    @Override
     public void init(IConfigStore config)
             throws EProfileException {
         super.init(config);
@@ -98,6 +99,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
     }
 */
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_ENABLE_ARCHIVAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null,
@@ -121,6 +123,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_LEN)) {
             return new Descriptor(IDescriptor.STRING,
@@ -137,12 +140,14 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
         // this default rule is readonly
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -219,6 +224,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         String params[] = {
                 getConfig(CONFIG_TYPE),
@@ -260,6 +266,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         CertificateX509Key certKey = null;

@@ -220,14 +220,17 @@ public class CAService implements ICAService, IService {
         return mCA;
     }
 
+    @Override
     public IConnector getKRAConnector() {
         return mKRAConnector;
     }
 
+    @Override
     public void setKRAConnector(IConnector c) {
         mKRAConnector = c;
     }
 
+    @Override
     public IConnector getConnector(IConfigStore config)
             throws EBaseException {
 
@@ -328,6 +331,7 @@ public class CAService implements ICAService, IService {
      * After population of defaults, and constraint validation,
      * the profile request is processed here.
      */
+    @Override
     public void serviceProfileRequest(IRequest request)
             throws EBaseException {
         logger.debug("CAService: serviceProfileRequest requestId=" +
@@ -376,6 +380,7 @@ public class CAService implements ICAService, IService {
      * @param request a certificate enrollment request from an RA or CA
      * @return true or false
      */
+    @Override
     public boolean serviceRequest(IRequest request) {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
@@ -540,6 +545,7 @@ public class CAService implements ICAService, IService {
     /**
      * issue cert for enrollment.
      */
+    @Override
     public X509CertImpl issueX509Cert(
             AuthorityID aid, X509CertInfo certi,
             String profileId, String rid)
@@ -987,11 +993,13 @@ public class CAService implements ICAService, IService {
     /**
      * revoke cert, check fields in crlentry, etc.
      */
+    @Override
     public void revokeCert(RevokedCertImpl crlentry)
             throws EBaseException {
         revokeCert(crlentry, null);
     }
 
+    @Override
     public void revokeCert(RevokedCertImpl crlentry, String requestId)
             throws EBaseException {
 
@@ -1296,6 +1304,7 @@ class serviceIssue implements IServant {
         mService = service;
     }
 
+    @Override
     public boolean service(IRequest request)
             throws EBaseException {
         // XXX This is ugly. should associate attributes with
@@ -1384,6 +1393,7 @@ class serviceRenewal implements IServant {
         mService = service;
     }
 
+    @Override
     public boolean service(IRequest request)
             throws EBaseException {
         // XXX if one fails should all fail ? - can't backtrack.
@@ -1546,6 +1556,7 @@ class getCertsForChallenge implements IServant {
     public getCertsForChallenge(CAService service) {
     }
 
+    @Override
     public boolean service(IRequest request)
             throws EBaseException {
 
@@ -1579,6 +1590,7 @@ class getCertStatus implements IServant {
         mCA = mService.getCA();
     }
 
+    @Override
     public boolean service(IRequest request) throws EBaseException {
         BigInteger serialno = request.getExtDataInBigInteger("serialNumber");
         String issuerDN = request.getExtDataInString("issuerDN");
@@ -1629,6 +1641,7 @@ class serviceCheckChallenge implements IServant {
         }
     }
 
+    @Override
     public boolean service(IRequest request)
             throws EBaseException {
         // note: some request attributes used below are set in
@@ -1741,6 +1754,7 @@ class serviceRevoke implements IServant {
         mService = service;
     }
 
+    @Override
     public boolean service(IRequest request)
             throws EBaseException {
         boolean sendStatus = true;
@@ -1834,6 +1848,7 @@ class serviceUnrevoke implements IServant {
         mService = service;
     }
 
+    @Override
     public boolean service(IRequest request)
             throws EBaseException {
         boolean sendStatus = true;
@@ -1925,6 +1940,7 @@ class serviceGetCAChain implements IServant {
         mCA = mService.getCA();
     }
 
+    @Override
     public boolean service(IRequest request) throws EBaseException {
         CertificateChain certChain = mCA.getCACertChain();
         ByteArrayOutputStream certChainOut = new ByteArrayOutputStream();
@@ -1946,6 +1962,7 @@ class serviceGetCRL implements IServant {
     public serviceGetCRL(CAService service) {
     }
 
+    @Override
     public boolean service(IRequest request)
             throws EBaseException {
         try {
@@ -1982,6 +1999,7 @@ class serviceGetRevocationInfo implements IServant {
     public serviceGetRevocationInfo(CAService service) {
     }
 
+    @Override
     public boolean service(IRequest request)
             throws EBaseException {
 
@@ -2020,6 +2038,7 @@ class serviceGetCertificates implements IServant {
     public serviceGetCertificates(CAService service) {
     }
 
+    @Override
     public boolean service(IRequest request)
             throws EBaseException {
 
@@ -2051,6 +2070,7 @@ class serviceCert4Crl implements IServant {
     public serviceCert4Crl(CAService service) {
     }
 
+    @Override
     public boolean service(IRequest request)
             throws EBaseException {
         // XXX Need to think passing as array.
@@ -2131,6 +2151,7 @@ class serviceUnCert4Crl implements IServant {
     public serviceUnCert4Crl(CAService service) {
     }
 
+    @Override
     public boolean service(IRequest request)
             throws EBaseException {
         BigInteger oldSerialNo[] =

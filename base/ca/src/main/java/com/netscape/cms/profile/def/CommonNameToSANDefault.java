@@ -61,6 +61,7 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
 
     private static final String LOG_PREFIX = "CommonNameToSANDefault: ";
 
+    @Override
     public void populate(IRequest _req, X509CertInfo info)
             throws EProfileException {
         // examine the Subject DN
@@ -139,19 +140,23 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return "This default add the Subject DN Common Name to the Subject "
             + "Alternative Name extension, if it looks like a DNS name.";
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public String getValue(String name, Locale locale, X509CertInfo info) {
         return null;
     }
 
+    @Override
     public void setValue(
             String name, Locale locale, X509CertInfo info, String value) {
     }

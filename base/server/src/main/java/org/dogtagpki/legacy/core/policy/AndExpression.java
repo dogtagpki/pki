@@ -40,6 +40,7 @@ public class AndExpression implements IExpression {
         mExp2 = exp2;
     }
 
+    @Override
     public boolean evaluate(IRequest req)
             throws EPolicyException {
         // If an expression is missing we assume applicability.
@@ -54,6 +55,7 @@ public class AndExpression implements IExpression {
             return mExp1.evaluate(req);
     }
 
+    @Override
     public String toString() {
         return mExp1.toString() + " AND " + mExp2.toString();
     }

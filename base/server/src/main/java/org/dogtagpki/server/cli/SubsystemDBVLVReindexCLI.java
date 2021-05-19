@@ -41,6 +41,7 @@ public class SubsystemDBVLVReindexCLI extends CommandCLI {
         super("reindex", "Re-index " + parent.parent.parent.getName().toUpperCase() + " VLVs", parent);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String catalinaBase = System.getProperty("catalina.base");

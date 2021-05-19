@@ -54,7 +54,8 @@ public class AuthConfigDialog extends CMSBaseConfigDialog
 		init (nvp,parent,conn,dest);
 	}
 
-	public String getDefaultInstanceName(String implName)
+	@Override
+    public String getDefaultInstanceName(String implName)
 	{
 		Debug.println("Getting DefaultInstanceName for "+implName);
 		String instanceName = "";

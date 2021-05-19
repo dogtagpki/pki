@@ -40,6 +40,7 @@ public class KeyCertAction implements IMenuAction {
         mConsoleInfo = info;
     }
 
+    @Override
     public void perform(IPage viewInstance) {
         KeyCertWizard wizard = new KeyCertWizard(mConsoleInfo);
     }

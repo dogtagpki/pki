@@ -38,10 +38,12 @@ public class ProfileMappingRemoveCLI extends CommandCLI {
         this.profileMappingCLI = profileMappingCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Profile Mapping ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

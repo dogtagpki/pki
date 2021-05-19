@@ -142,6 +142,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      * jobScheduler.job.[job name].[any job specific params]=[values]
      * @param config jobsScheduler configStore
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException, EJobsException {
 
@@ -239,6 +240,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      * current wakup time runs over the interval, skip the missed interval(s)
      * . sleep till the next wakeup time
      */
+    @Override
     public void run() {
         long wokeupTime = 0;
 
@@ -429,6 +431,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      *
      * @return name of the Jobs Scheduler subsystem
      */
+    @Override
     public String getId() {
         return mId;
     }
@@ -440,6 +443,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      *
      * @param id name to be applied to an Jobs Scheduler subsystem
      */
+    @Override
     public void setId(String id) throws EBaseException {
         mId = id;
     }
@@ -458,6 +462,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
     /**
      * registers the administration servlet with the administration subsystem.
      */
+    @Override
     public void startup() throws EBaseException {
         //remove, already logged from S_ADMIN
         //String infoMsg = "JobsScheduler: subsystem administration Servlet registered";
@@ -468,6 +473,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      * shuts down Jobs one by one.
      * <P>
      */
+    @Override
     public void shutdown() {
         for (IJob job : mJobs.values()) {
             job.stop();
@@ -480,6 +486,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      *
      * @return configuration store of this subsystem
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }

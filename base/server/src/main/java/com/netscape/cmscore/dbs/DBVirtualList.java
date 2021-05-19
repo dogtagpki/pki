@@ -275,6 +275,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      *
      * @param size the page size
      */
+    @Override
     public void setPageSize(int size) {
 
         if (mJumpTo != null) {
@@ -293,6 +294,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      *
      * @param sortKey the attribute to sort by
      */
+    @Override
     public void setSortKey(String sortKey) throws EBaseException {
         String keys[] = new String[1];
 
@@ -305,6 +307,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      *
      * @param sortKey the attributes to sort by
      */
+    @Override
     public void setSortKey(String[] sortKeys) throws EBaseException {
 
         if (sortKeys == null)
@@ -336,6 +339,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * Recommend to call getSize() before getElementAt() or getElements()
      * since you'd better check if the index is out of bound first.
      */
+    @Override
     public int getSize() {
 
         //logger.debug("DBVirtualList.getSize()");
@@ -384,6 +388,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
         return mSize;
     }
 
+    @Override
     public int getSizeBeforeJumpTo() {
 
         if (!mInitialized || mJumpTo == null)
@@ -402,6 +407,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
 
     }
 
+    @Override
     public int getSizeAfterJumpTo() {
 
         if (!mInitialized || mJumpTo == null)
@@ -527,6 +533,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
         return true;
     }
 
+    @Override
     public int getCurrentIndex() {
         return mTop;
     }
@@ -584,6 +591,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      *
      * @param first the index of the first entry of the page you want to fetch
      */
+    @Override
     public boolean getPage(int first) {
 
         logger.debug("DBVirtualList.getPage(" + first + ")");
@@ -654,6 +662,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      *
      * @param text the prefix of the first entry of the page you want to fetch
      */
+    @Override
     public boolean getPage(String text) {
         mPageControls[1] =
                 new LDAPVirtualListControl(text,
@@ -674,6 +683,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      *
      * @param index the index of the element to fetch
      */
+    @Override
     public E getElementAt(int index) {
 
         /* mSize may not be init at this time! Bad !
@@ -762,6 +772,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
             return mEntries.elementAt(offset);
     }
 
+    @Override
     public E getJumpToElementAt(int i) {
         return mEntries.elementAt(i);
     }
@@ -770,6 +781,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * This function processes elements as soon as it arrives. It is
      * more memory-efficient.
      */
+    @Override
     public void processElements(int startidx, int endidx, IElementProcessor ep)
             throws EBaseException {
 
@@ -810,6 +822,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
     /**
      * get the virutal selected index
      */
+    @Override
     public int getSelectedIndex() {
         return mSelectedIndex;
     }
@@ -817,6 +830,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
     /**
      * get the top of the buffer
      */
+    @Override
     public int getFirstIndex() {
         return mTop;
     }

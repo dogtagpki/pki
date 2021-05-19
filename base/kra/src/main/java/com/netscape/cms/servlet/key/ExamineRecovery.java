@@ -79,6 +79,7 @@ public class ExamineRecovery extends CMSServlet {
     /**
      * Initializes the servlet.
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mService = (IKeyService) mAuthority;
@@ -92,6 +93,7 @@ public class ExamineRecovery extends CMSServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -105,6 +107,7 @@ public class ExamineRecovery extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
 
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
 
         HttpServletRequest req = cmsReq.getHttpReq();

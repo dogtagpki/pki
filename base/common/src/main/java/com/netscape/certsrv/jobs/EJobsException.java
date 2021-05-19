@@ -63,6 +63,7 @@ public class EJobsException extends EBaseException {
     /**
      * Retrieves bundle name.
      */
+    @Override
     protected String getBundleName() {
         return JOBS_RESOURCES;
     }

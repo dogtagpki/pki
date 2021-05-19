@@ -253,7 +253,8 @@ public class TPSTokendb {
                  issuer = _issuer;
              }
 
-             public String toString() {
+             @Override
+            public String toString() {
                  return "(cn=" + cn + ", issuerCn=" + issuer + ")";
              }
          }

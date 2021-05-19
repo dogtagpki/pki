@@ -74,6 +74,7 @@ public class EPasswordCheckException extends EBaseException {
      *
      * @return resource bundle name.
      */
+    @Override
     protected String getBundleName() {
         return PASSWORD_CHECK_RESOURCES;
     }

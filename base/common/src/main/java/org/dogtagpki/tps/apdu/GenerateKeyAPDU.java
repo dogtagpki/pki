@@ -59,6 +59,7 @@ public class GenerateKeyAPDU extends APDU {
 
     }
 
+    @Override
     public APDU.Type getType() {
         return APDU.Type.APDU_GENERATE_KEY;
     }

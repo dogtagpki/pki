@@ -117,6 +117,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
      * @param config - The configuration store for this instance.
      * @exception EBaseException If an error occurs during initialization.
      */
+    @Override
     public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         super.init(name, implName, config);
@@ -149,6 +150,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
      * @exception EInvalidCredentials If the attr and password are not valid
      * @exception EBaseException If an internal error occurs.
      */
+    @Override
     protected String authenticate(LDAPConnection conn,
             IAuthCredentials authCreds,
             AuthToken token)
@@ -234,6 +236,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
      *
      * @return String array of configuration parameter names.
      */
+    @Override
     public String[] getConfigParams() {
         return (mConfigParams);
     }
@@ -243,12 +246,14 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
      *
      * @return Array of required credentials.
      */
+    @Override
     public String[] getRequiredCreds() {
         return mRequiredCreds;
     }
 
     // Profile-related methods
 
+    @Override
     public void init(Profile profile, IConfigStore config)
             throws EProfileException {
     }
@@ -256,6 +261,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
     /**
      * Retrieves the localizable name of this policy.
      */
+    @Override
     public String getName(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_AUTHENTICATION_LDAP_UID_NAME");
     }
@@ -263,6 +269,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
     /**
      * Retrieves the localizable description of this policy.
      */
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_AUTHENTICATION_LDAP_UID_TEXT");
     }
@@ -270,6 +277,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
     /**
      * Retrieves a list of names of the value parameter.
      */
+    @Override
     public Enumeration<String> getValueNames() {
         Vector<String> v = new Vector<String>();
 
@@ -278,6 +286,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
         return v.elements();
     }
 
+    @Override
     public boolean isValueWriteable(String name) {
         if (name.equals(mAttr)) {
             return true;
@@ -291,6 +300,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
      * Retrieves the descriptor of the given value
      * parameter by name.
      */
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(mAttr)) {
             return new Descriptor(IDescriptor.STRING, null, null,
@@ -304,12 +314,14 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
         return null;
     }
 
+    @Override
     public void populate(IAuthToken token, IRequest request)
             throws EProfileException {
         request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                 token.getInString(USER_DN));
     }
 
+    @Override
     public boolean isSSLClientRequired() {
         return false;
     }

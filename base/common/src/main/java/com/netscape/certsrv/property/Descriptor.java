@@ -71,6 +71,7 @@ public class Descriptor implements IDescriptor {
      *
      * @return syntax
      */
+    @Override
     public String getSyntax() {
         return mSyntax;
     }
@@ -80,6 +81,7 @@ public class Descriptor implements IDescriptor {
      *
      * @return default value
      */
+    @Override
     public String getDefaultValue() {
         return mDef;
     }
@@ -96,6 +98,7 @@ public class Descriptor implements IDescriptor {
      *
      * @return constraint
      */
+    @Override
     public String getConstraint() {
         return mConstraint;
     }
@@ -106,6 +109,7 @@ public class Descriptor implements IDescriptor {
      * @param locale user locale
      * @return description
      */
+    @Override
     public String getDescription(Locale locale) {
         return mDescription;
     }

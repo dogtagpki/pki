@@ -101,6 +101,7 @@ public class ConnectorServlet extends CMSServlet {
     public ConnectorServlet() {
     }
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
@@ -115,6 +116,7 @@ public class ConnectorServlet extends CMSServlet {
         mAuthSubsystem = engine.getAuthSubsystem();
     }
 
+    @Override
     public void service(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
@@ -959,6 +961,7 @@ public class ConnectorServlet extends CMSServlet {
         return getSSLClientCertificate(req);
     }
 
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -972,10 +975,12 @@ public class ConnectorServlet extends CMSServlet {
      *
      * @param msg signed audit log message
      */
+    @Override
     protected void audit(String msg) {
         signedAuditLogger.log(msg);
     }
 
+    @Override
     protected void audit(LogEvent event) {
         signedAuditLogger.log(event);
     }

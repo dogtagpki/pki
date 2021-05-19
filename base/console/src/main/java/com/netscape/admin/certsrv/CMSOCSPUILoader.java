@@ -50,6 +50,7 @@ public class CMSOCSPUILoader implements ISubSystemUILoader {
     /*==========================================================
      * public methods
      *==========================================================*/
+    @Override
     public void register() {
         //register subsystem UI
         try {

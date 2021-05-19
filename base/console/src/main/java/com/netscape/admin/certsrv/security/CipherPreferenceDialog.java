@@ -296,12 +296,14 @@ public class CipherPreferenceDialog extends AbstractDialog implements ICipherCon
         }
     }
 
+    @Override
     protected void cancelInvoked() {
         reset();
         modified = false;
         super.cancelInvoked();
     }
 
+    @Override
     protected void okInvoked() {
         modified = (((ssl2CipherPref == null) ? false :
                 ssl2CipherPref.isModified()) ||
@@ -312,6 +314,7 @@ public class CipherPreferenceDialog extends AbstractDialog implements ICipherCon
     }
 
 
+    @Override
     protected void helpInvoked() {
         help.help("SSL", "Preference");
     }

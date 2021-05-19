@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.DataCollection;
 @XmlRootElement(name="AuditFiles")
 public class AuditFileCollection extends DataCollection<AuditFile> {
 
+    @Override
     @XmlElementRef
     public Collection<AuditFile> getEntries() {
         return super.getEntries();

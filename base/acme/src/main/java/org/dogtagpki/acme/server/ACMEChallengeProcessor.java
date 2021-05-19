@@ -41,6 +41,7 @@ public class ACMEChallengeProcessor implements Runnable {
         this.validator = validator;
     }
 
+    @Override
     public void run() {
         try {
             processChallenge();

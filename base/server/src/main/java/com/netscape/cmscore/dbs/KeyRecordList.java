@@ -46,6 +46,7 @@ public class KeyRecordList implements IKeyRecordList {
     /**
      * Retrieves the size of key list.
      */
+    @Override
     public int getSize() {
         return mVlist.getSize();
     }
@@ -73,6 +74,7 @@ public class KeyRecordList implements IKeyRecordList {
     /**
      * Retrieves requests.
      */
+    @Override
     public Enumeration<IKeyRecord> getKeyRecords(int startidx, int endidx)
             throws EBaseException {
         Vector<IKeyRecord> entries = new Vector<IKeyRecord>();

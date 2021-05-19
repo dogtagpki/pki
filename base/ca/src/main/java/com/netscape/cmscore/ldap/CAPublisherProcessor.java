@@ -80,6 +80,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         super.init(config);
     }
 
+    @Override
     public void startup() throws EBaseException {
 
         super.startup();
@@ -122,6 +123,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         }
     }
 
+    @Override
     public void shutdown() {
 
         logger.debug("Shuting down CA publishing");
@@ -310,6 +312,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
     /**
      * Publish crossCertificatePair
      */
+    @Override
     public void publishXCertPair(byte[] pair) throws ELdapException {
 
         String errorRule = "";

@@ -14,6 +14,7 @@ import java.util.Properties;
  */
 class ACMEEngineConfigDefaultSource extends ACMEEngineConfigSource {
 
+    @Override
     public void init(Properties _cfg) {
         enabledConsumer.accept(true);
         wildcardConsumer.accept(true);

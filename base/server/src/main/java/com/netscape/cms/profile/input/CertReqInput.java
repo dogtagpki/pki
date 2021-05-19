@@ -67,6 +67,7 @@ public class CertReqInput extends EnrollInput {
     /**
      * Initializes this default policy.
      */
+    @Override
     public void init(Profile profile, IConfigStore config)
             throws EProfileException {
         super.init(profile, config);
@@ -77,6 +78,7 @@ public class CertReqInput extends EnrollInput {
     /**
      * Retrieves the localizable name of this policy.
      */
+    @Override
     public String getName(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_CERT_REQ_NAME");
     }
@@ -84,6 +86,7 @@ public class CertReqInput extends EnrollInput {
     /**
      * Retrieves the localizable description of this policy.
      */
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_CERT_REQ_TEXT");
     }
@@ -91,6 +94,7 @@ public class CertReqInput extends EnrollInput {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(Map<String, String> ctx, IRequest request) throws Exception {
 
         String method = "CertReqInput: populate: ";
@@ -191,6 +195,7 @@ public class CertReqInput extends EnrollInput {
      * Retrieves the descriptor of the given value
      * parameter by name.
      */
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CERT_REQUEST_TYPE)) {
             return new Descriptor(IDescriptor.CERT_REQUEST_TYPE, null,

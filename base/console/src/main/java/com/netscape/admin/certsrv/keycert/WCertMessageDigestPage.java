@@ -47,6 +47,7 @@ class WCertMessageDigestPage extends WMessageDigestPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         String certType = wizardInfo.getCertType();
@@ -81,6 +82,7 @@ class WCertMessageDigestPage extends WMessageDigestPage {
         return super.initializePanel(info);
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         if (mDSAHashTypeBox.isVisible())
@@ -99,6 +101,7 @@ class WCertMessageDigestPage extends WMessageDigestPage {
 
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(HELPINDEX);
     }

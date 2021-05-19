@@ -111,6 +111,7 @@ public class ELogException extends EBaseException {
      *
      * @return list of message format parameters.
      */
+    @Override
     public Object[] getParameters() {
         return mParams;
     }
@@ -122,6 +123,7 @@ public class ELogException extends EBaseException {
      *
      * @return Details message.
      */
+    @Override
     public String toString() {
         return toString(Locale.getDefault());
     }
@@ -133,6 +135,7 @@ public class ELogException extends EBaseException {
      * @param locale Locale.
      * @return Details message.
      */
+    @Override
     public String toString(Locale locale) {
         return MessageFormatter.getLocalizedString(locale, getBundleName(),
                 super.getMessage(), mParams);
@@ -145,6 +148,7 @@ public class ELogException extends EBaseException {
      * @return String containing name of resource bundle.
      */
 
+    @Override
     protected String getBundleName() {
         return LOG_RESOURCES;
     }

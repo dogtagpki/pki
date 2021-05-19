@@ -54,6 +54,7 @@ public class IndexTemplateFiller implements ICMSTemplateFiller {
     public IndexTemplateFiller() {
     }
 
+    @Override
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority mAuthority, Locale locale, Exception e) {
         ArgBlock header = new ArgBlock();

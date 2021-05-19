@@ -63,11 +63,13 @@ public class ExtAttrDynMapper extends DBDynAttrMapper {
         mAttrs.add(Schema.LDAP_ATTR_EXT_ATTR);
     }
 
+    @Override
     public boolean supportsLDAPAttributeName(String attrName) {
         return (attrName != null) &&
                 attrName.toLowerCase().startsWith(extAttrPrefix);
     }
 
+    @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
         return mAttrs.elements();
     }
@@ -220,6 +222,7 @@ public class ExtAttrDynMapper extends DBDynAttrMapper {
         return false;
     }
 
+    @Override
     public void mapObjectToLDAPAttributeSet(
             IDBObj parent,
             String name,
@@ -265,6 +268,7 @@ public class ExtAttrDynMapper extends DBDynAttrMapper {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void mapLDAPAttributeSetToObject(
             LDAPAttributeSet attrs,
@@ -336,6 +340,7 @@ public class ExtAttrDynMapper extends DBDynAttrMapper {
         parent.set(name, ht);
     }
 
+    @Override
     public String mapSearchFilter(String name, String op, String value) throws EBaseException {
         return name + op + value;
     }

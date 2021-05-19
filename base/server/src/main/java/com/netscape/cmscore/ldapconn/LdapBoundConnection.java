@@ -71,8 +71,10 @@ public class LdapBoundConnection extends LDAPConnection {
                 authInfo.getAuthType() != LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
 
             LDAPRebind rebindInfo = new LDAPRebind() {
+                @Override
                 public LDAPRebindAuth getRebindAuthentication(String host, int port) {
                     return new LDAPRebindAuth() {
+                        @Override
                         public String getDN() {
                             try {
                                 return authInfo.getBindDN();
@@ -80,6 +82,7 @@ public class LdapBoundConnection extends LDAPConnection {
                                 throw new RuntimeException("Unable to get bind DN: " + e.getMessage(), e);
                             }
                         }
+                        @Override
                         public String getPassword() {
                             try {
                                 return authInfo.getBindPassword();
@@ -153,6 +156,7 @@ public class LdapBoundConnection extends LDAPConnection {
     /**
      * Overrides same method in LDAPConnection to do prevent re-authentication.
      */
+    @Override
     public void authenticate(int version, String dn, String pw)
             throws LDAPException {
 
@@ -169,6 +173,7 @@ public class LdapBoundConnection extends LDAPConnection {
     /**
      * Overrides same method in LDAPConnection to do prevent re-authentication.
      */
+    @Override
     public void authenticate(String dn, String pw)
             throws LDAPException {
 
@@ -202,6 +207,7 @@ public class LdapBoundConnection extends LDAPConnection {
     /**
      * overrides parent's connect to prevent re-connect.
      */
+    @Override
     public void connect(String host, int port) throws LDAPException {
         throw new RuntimeException(
                 "this LdapBoundConnection is already connected: conn(host,port)");
@@ -210,6 +216,7 @@ public class LdapBoundConnection extends LDAPConnection {
     /**
      * overrides parent's connect to prevent re-connect.
      */
+    @Override
     public void connect(int version, String host, int port,
             String dn, String pw) throws LDAPException {
         throw new RuntimeException(

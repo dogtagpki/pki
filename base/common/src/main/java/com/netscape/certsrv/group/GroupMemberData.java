@@ -112,6 +112,7 @@ public class GroupMemberData {
         return mapper.readValue(json, GroupMemberData.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

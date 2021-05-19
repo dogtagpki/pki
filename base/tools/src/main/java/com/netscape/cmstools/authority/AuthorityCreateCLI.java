@@ -18,6 +18,7 @@ public class AuthorityCreateCLI extends CommandCLI {
         this.authorityCLI = authorityCLI;
     }
 
+    @Override
     public void createOptions() {
         Option optParent = new Option(null, "parent", true, "ID of parent CA");
         optParent.setArgName("id");
@@ -28,10 +29,12 @@ public class AuthorityCreateCLI extends CommandCLI {
         options.addOption(optDesc);
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <dn>", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

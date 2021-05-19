@@ -28,10 +28,12 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class RequestIdAdapter extends XmlAdapter<String, RequestId> {
 
+    @Override
     public RequestId unmarshal(String value) throws Exception {
         return StringUtils.isEmpty(value) ? null : new RequestId(value);
     }
 
+    @Override
     public String marshal(RequestId value) throws Exception {
         return value == null ? null : value.toString();
     }

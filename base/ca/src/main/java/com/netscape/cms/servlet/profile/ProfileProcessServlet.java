@@ -64,10 +64,12 @@ public class ProfileProcessServlet extends ProfileServlet {
     public ProfileProcessServlet() {
     }
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
     }
 
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();

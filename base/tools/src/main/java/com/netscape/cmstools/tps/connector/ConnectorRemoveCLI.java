@@ -38,10 +38,12 @@ public class ConnectorRemoveCLI extends CommandCLI {
         this.connectorCLI = connectorCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Connector ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

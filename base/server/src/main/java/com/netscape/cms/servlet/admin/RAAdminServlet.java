@@ -76,6 +76,7 @@ public class RAAdminServlet extends AdminServlet {
     /**
      * Initializes this servlet.
      */
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         CMSEngine engine = CMS.getCMSEngine();
@@ -85,6 +86,7 @@ public class RAAdminServlet extends AdminServlet {
     /**
      * Returns serlvet information.
      */
+    @Override
     public String getServletInfo() {
         return INFO;
     }
@@ -93,6 +95,7 @@ public class RAAdminServlet extends AdminServlet {
      * Serves HTTP request. Each request is authenticated to
      * the authenticate manager.
      */
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         super.service(req, resp);

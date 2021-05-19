@@ -56,10 +56,12 @@ class WIKRAScheme1Page extends WizardBasePanel implements IWizardPanel {
         init();
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (!wizardInfo.doKeySplitting())
@@ -81,6 +83,7 @@ class WIKRAScheme1Page extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         String str = mRequiredText.getText().trim();
         if (str.equals("")) {
@@ -113,14 +116,17 @@ class WIKRAScheme1Page extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         return true;
     }
 
+    @Override
     public void callHelp() {
         CMSAdminUtil.help(mHelpIndex);
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -178,6 +184,7 @@ class WIKRAScheme1Page extends WizardBasePanel implements IWizardPanel {
         super.init();
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         wizardInfo.setRequiredAgents(mRequiredText.getText().trim());

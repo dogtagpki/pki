@@ -57,6 +57,7 @@ public class FileConfigStore extends ConfigStorage {
         return mFile;
     }
 
+    @Override
     public void load(IConfigStore config) throws Exception {
 
         if (!mFile.exists()) {
@@ -77,6 +78,7 @@ public class FileConfigStore extends ConfigStorage {
      *
      * @param backup
      */
+    @Override
     public void commit(IConfigStore config, boolean createBackup) throws EBaseException {
         if (createBackup) {
             File newName = new File(mFile.getPath() + "." +

@@ -34,6 +34,7 @@ public class ConnectAsync extends Thread {
         setName("ConnectAsync");
     }
 
+    @Override
     public void run() {
         try {
             obj.makeSocket(host, port);

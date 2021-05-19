@@ -27,6 +27,7 @@ public class RequestNotFoundException extends ResourceNotFoundException {
         requestId = new RequestId(data.getAttribute("requestId"));
     }
 
+    @Override
     public Data getData() {
         Data data = super.getData();
         data.setAttribute("requestId", requestId.toString());

@@ -42,6 +42,7 @@ public class UserSubjectNameConstraint extends EnrollConstraint {
     public UserSubjectNameConstraint() {
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         return null;
     }
@@ -55,6 +56,7 @@ public class UserSubjectNameConstraint extends EnrollConstraint {
      * during the validation. User encoded subject name
      * is copied into the certificate template.
      */
+    @Override
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         logger.debug("UserSubjectNameConstraint: validate start");
@@ -72,11 +74,13 @@ public class UserSubjectNameConstraint extends EnrollConstraint {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale,
                    "CMS_PROFILE_CONSTRAINT_USER_SUBJECT_NAME_TEXT");
     }
 
+    @Override
     public boolean isApplicable(PolicyDefault def) {
         if (def instanceof UserSubjectNameDefault)
             return true;

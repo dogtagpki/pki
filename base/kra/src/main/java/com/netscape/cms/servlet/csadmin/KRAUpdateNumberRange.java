@@ -25,6 +25,7 @@ import com.netscape.kra.KeyRecoveryAuthority;
 
 public class KRAUpdateNumberRange extends UpdateNumberRange {
 
+    @Override
     public IRepository getRepository(String type) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();

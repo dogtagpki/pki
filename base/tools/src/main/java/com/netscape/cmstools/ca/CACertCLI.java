@@ -63,6 +63,7 @@ public class CACertCLI extends CLI {
         addModule(new CACertTransportExportCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

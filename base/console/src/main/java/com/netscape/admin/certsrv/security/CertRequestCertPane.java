@@ -57,6 +57,7 @@ IKeyCertPage {
 
 
 
+    @Override
     public JPanel getPanel() {
         return this;
     }
@@ -64,6 +65,7 @@ IKeyCertPage {
 
 
     class CertPaneActionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent event) {
             if (event.getActionCommand().equals("COPY")) {
                 certReq.selectAll();
@@ -73,10 +75,12 @@ IKeyCertPage {
         }
     }
 
+    @Override
     public boolean pageHide(WizardObservable observable) {
         return true;
     }
 
+    @Override
     public boolean pageShow(WizardObservable observable) {
         boolean show =
                 ((Boolean)(observable.get("requestCert"))).booleanValue();

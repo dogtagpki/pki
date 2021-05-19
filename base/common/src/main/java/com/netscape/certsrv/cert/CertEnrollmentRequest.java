@@ -359,6 +359,7 @@ public class CertEnrollmentRequest extends ResourceMessage {
         return (CertEnrollmentRequest) unmarshaller.unmarshal(new StringReader(string));
     }
 
+    @Override
     public String toString() {
         try {
             return toXML();

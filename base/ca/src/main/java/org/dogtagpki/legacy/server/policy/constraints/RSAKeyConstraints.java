@@ -76,6 +76,7 @@ public class RSAKeyConstraints extends APolicyRule
         defConfParams.addElement(PROP_EXPONENTS + "=" + " ");
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_MIN_SIZE + ";number;Minimum size of user's RSA key (bits)",
@@ -108,6 +109,7 @@ public class RSAKeyConstraints extends APolicyRule
      *
      * @param config The config store reference
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
 
@@ -164,6 +166,7 @@ public class RSAKeyConstraints extends APolicyRule
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
 
         PolicyResult result = PolicyResult.ACCEPTED;
@@ -253,6 +256,7 @@ public class RSAKeyConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> confParams = new Vector<String>();
 
@@ -275,6 +279,7 @@ public class RSAKeyConstraints extends APolicyRule
      *
      * @return nvPairs A Vector of name/value pairs.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         return defConfParams;
     }

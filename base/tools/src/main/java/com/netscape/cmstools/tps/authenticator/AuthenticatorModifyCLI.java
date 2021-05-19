@@ -45,10 +45,12 @@ public class AuthenticatorModifyCLI extends CommandCLI {
         this.authenticatorCLI = authenticatorCLI;
     }
 
+    @Override
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Authenticator ID> [OPTIONS...]", options);
     }
 
+    @Override
     public void createOptions() {
         Option option = new Option(null, "action", true, "Action: update (default), approve, reject, enable, disable.");
         option.setArgName("action");
@@ -59,6 +61,7 @@ public class AuthenticatorModifyCLI extends CommandCLI {
         options.addOption(option);
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

@@ -63,6 +63,7 @@ public class ENotificationException extends EBaseException {
     /**
      * Retrieves bundle name.
      */
+    @Override
     protected String getBundleName() {
         return NOTIFICATION_RESOURCES;
     }

@@ -94,6 +94,7 @@ public class ToggleCipherPreferencePane extends AbstractCipherPreference impleme
     }
 
     class actionListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("ENABLED")) {
                 _ismodified = true;
@@ -109,6 +110,7 @@ public class ToggleCipherPreferencePane extends AbstractCipherPreference impleme
       * @param enable
       *
       */
+    @Override
     public void setEnabled(boolean enable) {
         on.setSelected(enable);
         super.setEnableAll(enable);
@@ -118,6 +120,7 @@ public class ToggleCipherPreferencePane extends AbstractCipherPreference impleme
       * Check weather toggle pane is enabled
       *
       */
+    @Override
     public boolean isEnabled() {
         return on.isSelected();
     }
@@ -131,6 +134,7 @@ public class ToggleCipherPreferencePane extends AbstractCipherPreference impleme
             _switchPanel = sp;
         }
 
+        @Override
         public void paintBorder(Component c, Graphics g, int x, int y,
                 int width, int height) {
             Color save = g.getColor();
@@ -150,6 +154,7 @@ public class ToggleCipherPreferencePane extends AbstractCipherPreference impleme
       * @see #setSaved
       *
       */
+    @Override
     public boolean isModified() {
         return (_ismodified | super.isModified());
     }
@@ -159,6 +164,7 @@ public class ToggleCipherPreferencePane extends AbstractCipherPreference impleme
       *
       * @see #setSaved
       */
+    @Override
     public void reset() {
         setEnabled(oldValue);
         _ismodified = false;
@@ -171,6 +177,7 @@ public class ToggleCipherPreferencePane extends AbstractCipherPreference impleme
       *
       * @see #reset
       */
+    @Override
     public void setSaved() {
         oldValue = isEnabled();
         _ismodified = false;

@@ -115,6 +115,7 @@ public class CertificateInfoDialog extends JDialog
         showDialog(name, content, trust);
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mClose)) {
             this.setVisible(false);

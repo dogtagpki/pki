@@ -87,6 +87,7 @@ public class UnpublishExpiredJob extends AJobBase
                     "summary.recipientEmail"
         };
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
                 IExtendedPluginInfo.HELP_TEXT +
@@ -116,6 +117,7 @@ public class UnpublishExpiredJob extends AJobBase
     /**
      * initialize from the configuration file
      */
+    @Override
     public void init(ISubsystem owner, String id, String implName, IConfigStore config) throws
             EBaseException {
         mConfig = config;
@@ -163,6 +165,7 @@ public class UnpublishExpiredJob extends AJobBase
      * <b>InLdapPublishDir</b> flag,
      * else, if remove unsuccessfully, log it
      */
+    @Override
     public void run() {
         //		System.out.println("in ExpiredUnpublishJob "+
         //						   getId()+ " : run()");
@@ -364,6 +367,7 @@ public class UnpublishExpiredJob extends AJobBase
      *
      * @return String array of configuration parameter names.
      */
+    @Override
     public String[] getConfigParams() {
         return (mConfigParams);
     }

@@ -49,26 +49,31 @@ public class SignedCertificateTimestampListExtDefault extends EnrollExtDefault {
         super();
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
         // Nothing to do for read-only values
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
         return null;
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_CT_PRECERT_EXT");
     }
@@ -76,6 +81,7 @@ public class SignedCertificateTimestampListExtDefault extends EnrollExtDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         String method = "SignedCertificateTimestampListExtDefault: populate:";

@@ -86,6 +86,7 @@ public class AuthzSubsystem implements ISubsystem {
      * initialize authorization manager instances.
      * @param config The configuration store.
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
 
@@ -392,6 +393,7 @@ public class AuthzSubsystem implements ISubsystem {
      *
      * @return name of the authorization subsystem
      */
+    @Override
     public String getId() {
         return (mId);
     }
@@ -403,6 +405,7 @@ public class AuthzSubsystem implements ISubsystem {
      *
      * @param id name to be applied to an authorization sybsystem
      */
+    @Override
     public void setId(String id) throws EBaseException {
         mId = id;
     }
@@ -410,6 +413,7 @@ public class AuthzSubsystem implements ISubsystem {
     /**
      * registers the administration servlet with the administration subsystem.
      */
+    @Override
     public void startup() throws EBaseException {
         //remove the log since it's already logged from S_ADMIN
         //String infoMsg = "Authz subsystem administration Servlet registered";
@@ -420,6 +424,7 @@ public class AuthzSubsystem implements ISubsystem {
      * shuts down authorization managers one by one.
      * <P>
      */
+    @Override
     public void shutdown() {
         for (AuthzManagerProxy proxy : mAuthzMgrInsts.values()) {
             IAuthzManager mgr = proxy.getAuthzManager();
@@ -458,6 +463,7 @@ public class AuthzSubsystem implements ISubsystem {
      *
      * @return configuration store of this subsystem
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }

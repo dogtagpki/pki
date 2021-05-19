@@ -110,6 +110,7 @@ public class ACMETaskConfig {
         return mapper.readValue(json, ACMETaskConfig.class);
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

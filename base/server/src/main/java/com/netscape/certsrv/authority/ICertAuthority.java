@@ -63,6 +63,7 @@ public interface ICertAuthority extends IAuthority {
     /**
      * Register a request listener
      */
+    @Override
     public void registerRequestListener(IRequestListener l);
 
     /**
@@ -73,5 +74,6 @@ public interface ICertAuthority extends IAuthority {
     /**
      * Register a pending listener
      */
+    @Override
     public void registerPendingListener(IRequestListener l);
 }

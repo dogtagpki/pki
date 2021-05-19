@@ -52,6 +52,7 @@ public class UserValidityDefault extends EnrollDefault {
         addValueName(VAL_NOT_AFTER);
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_NOT_BEFORE)) {
             return new Descriptor(IDescriptor.STRING,
@@ -68,12 +69,14 @@ public class UserValidityDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
         // this default rule is readonly
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -116,6 +119,7 @@ public class UserValidityDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_USER_VALIDITY");
     }
@@ -123,6 +127,7 @@ public class UserValidityDefault extends EnrollDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         CertificateValidity certValidity = null;

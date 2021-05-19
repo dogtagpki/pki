@@ -108,6 +108,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
      *
      * @param sc servlet configuration, read from the web.xml file
      */
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
@@ -135,6 +136,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      * @throws EBaseException
      */
+    @Override
     protected void process(CMSRequest cmsReq) throws EBaseException {
         IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest req = cmsReq.getHttpReq();

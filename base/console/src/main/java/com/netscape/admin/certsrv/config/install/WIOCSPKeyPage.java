@@ -47,6 +47,7 @@ class WIOCSPKeyPage extends WIKeyPage {
         mAdminFrame = adminFrame;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         mWizardInfo = (InstallWizardInfo)info;
 
@@ -76,6 +77,7 @@ class WIOCSPKeyPage extends WIKeyPage {
         return true;
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
         super.getUpdateInfo(info);
         mWizardInfo.setOCSPTokenName(mWizardInfo.getTokenName());

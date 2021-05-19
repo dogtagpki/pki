@@ -67,10 +67,12 @@ public class CMSSSL2CipherSet implements ICipherConstants, IAbstractCipherSet {
        title = resource.getString("SSL2CIPHERPREF_TITLE");
     }
 
+    @Override
     public String getTitle() {
         return title;
     }
 
+    @Override
     public Vector<AbstractCipher> getCipherList() {
         return cipherList;
     }

@@ -112,6 +112,7 @@ public class ACMESchedulerConfig {
         return schedulerConfig;
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON();

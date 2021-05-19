@@ -58,11 +58,13 @@ public class JssSSLSocketFactory implements ISocketFactory {
             mClientCiphers = ciphers;
     }
 
+    @Override
     public Socket makeSocket(String host, int port)
             throws IOException, UnknownHostException {
         return makeSocket(host, port, null, null, 0);
     }
 
+    @Override
     public Socket makeSocket(String host, int port,
             SSLCertificateApprovalCallback certApprovalCallback,
             SSLClientCertificateSelectionCallback clientCertCallback,
@@ -118,6 +120,7 @@ public class JssSSLSocketFactory implements ISocketFactory {
         return s;
     }
 
+    @Override
     public Socket makeSocket(String host, int port,
             int timeout // milliseconds
             ) throws IOException, UnknownHostException {
@@ -149,6 +152,7 @@ public class JssSSLSocketFactory implements ISocketFactory {
             this.sc = sc;
         }
 
+        @Override
         public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
         }
     }

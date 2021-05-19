@@ -169,11 +169,13 @@ public class HttpConnection implements IHttpConnection {
         throw exception;
     }
 
+    @Override
     public void setRequestURI(String uri)
             throws EBaseException {
         mHttpreq.setURI(uri);
     }
 
+    @Override
     public String getRequestURI() {
         return mHttpreq.getURI();
     }
@@ -182,6 +184,7 @@ public class HttpConnection implements IHttpConnection {
      *
      * @throws EBaseException if request could not be encoded
      */
+    @Override
     public IPKIMessage send(IPKIMessage tomsg)
             throws EBaseException {
         IPKIMessage replymsg = null;
@@ -231,6 +234,7 @@ public class HttpConnection implements IHttpConnection {
      * @author cfu (multi-uri support)
      * @throws EBaseException for any failure
      */
+    @Override
     public HttpResponse send(String content)
             throws EBaseException {
         HttpResponse resp = null;

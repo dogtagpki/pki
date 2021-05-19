@@ -66,6 +66,7 @@ public class ProfileSelectServlet extends ProfileServlet {
     public ProfileSelectServlet() {
     }
 
+    @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
@@ -79,6 +80,7 @@ public class ProfileSelectServlet extends ProfileServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
+    @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();

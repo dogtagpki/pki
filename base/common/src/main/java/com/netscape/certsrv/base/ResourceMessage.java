@@ -105,6 +105,7 @@ public class ResourceMessage {
 
     public static class MapAdapter extends XmlAdapter<AttributeList, Map<String, String>> {
 
+        @Override
         public AttributeList marshal(Map<String, String> map) {
             AttributeList list = new AttributeList();
             for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -116,6 +117,7 @@ public class ResourceMessage {
             return list;
         }
 
+        @Override
         public Map<String, String> unmarshal(AttributeList list) {
             Map<String, String> map = new LinkedHashMap<String, String>();
             for (Attribute attribute : list.attrs) {

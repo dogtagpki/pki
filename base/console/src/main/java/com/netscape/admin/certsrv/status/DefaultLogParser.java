@@ -59,6 +59,7 @@ class DefaultLogParser implements ILogParser {
     /*==========================================================
 	 * public methods
      *==========================================================*/
+    @Override
     public Vector<Object> parse(Object entry) throws ParseException {
         String logEntry = (String)entry;
         //parsing the log Entry and return segments

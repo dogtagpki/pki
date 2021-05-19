@@ -65,6 +65,7 @@ public class WarningDialog extends JDialog
         setDisplay();
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mClose)) {
             this.setVisible(false);

@@ -53,6 +53,7 @@ public class SubjectNameDefault extends EnrollDefault {
         addConfigName(CONFIG_NAME);
     }
 
+    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_NAME)) {
             return new Descriptor(IDescriptor.STRING,
@@ -63,6 +64,7 @@ public class SubjectNameDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_NAME)) {
             return new Descriptor(IDescriptor.STRING, null, null,
@@ -73,6 +75,7 @@ public class SubjectNameDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
@@ -108,6 +111,7 @@ public class SubjectNameDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
@@ -137,6 +141,7 @@ public class SubjectNameDefault extends EnrollDefault {
         }
     }
 
+    @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_SUBJECT_NAME",
                 getConfig(CONFIG_NAME));
@@ -145,6 +150,7 @@ public class SubjectNameDefault extends EnrollDefault {
     /**
      * Populates the request with this policy default.
      */
+    @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         X500Name name = null;

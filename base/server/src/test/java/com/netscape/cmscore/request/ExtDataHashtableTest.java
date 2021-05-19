@@ -15,10 +15,12 @@ public class ExtDataHashtableTest extends CMSBaseTestCase {
         super(name);
     }
 
+    @Override
     public void cmsTestSetUp() {
         hash = new ExtDataHashtable<String>();
     }
 
+    @Override
     public void cmsTestTearDown() {
     }
 

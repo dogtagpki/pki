@@ -49,10 +49,12 @@ public class RequestIdMapper extends DBAttrMapper {
         mAttrs.add(Schema.LDAP_ATTR_REQUEST_ID);
     }
 
+    @Override
     public Enumeration<String> getSupportedLDAPAttributeNames() {
         return mAttrs.elements();
     }
 
+    @Override
     public void mapObjectToLDAPAttributeSet(
             IDBObj parent,
             String name,
@@ -71,6 +73,7 @@ public class RequestIdMapper extends DBAttrMapper {
         attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_ID, v));
     }
 
+    @Override
     public void mapLDAPAttributeSetToObject(
             LDAPAttributeSet attrs,
             String name, IDBObj parent)
@@ -86,6 +89,7 @@ public class RequestIdMapper extends DBAttrMapper {
         parent.set(name, new RequestId(BigIntegerMapper.BigIntegerFromDB(value).toString()));
     }
 
+    @Override
     public String mapSearchFilter(String name, String op, String value) throws EBaseException {
         String v;
 

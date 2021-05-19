@@ -40,12 +40,15 @@ public class LdapEnrollmentListener implements IRequestListener {
         this.processor = processor;
     }
 
+    @Override
     public void init(ISubsystem sys, IConfigStore config) throws EBaseException {
     }
 
+    @Override
     public void set(String name, String val) {
     }
 
+    @Override
     public void accept(IRequest r) {
 
         logger.info("LdapEnrollmentListener: Handling enrollment request " + r.getRequestId());

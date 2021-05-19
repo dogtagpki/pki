@@ -77,6 +77,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
     /**
      * Performs one-time initialization of the policy.
      */
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -92,6 +93,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
     /**
      * Applies the policy to the given request.
      */
+    @Override
     public PolicyResult apply(IRequest req) {
 
         // if the extension was not configured correctly, just skip it
@@ -155,6 +157,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
     /**
      * Returns instance specific parameters.
      */
+    @Override
     public Vector<String> getInstanceParams() {
         Vector<String> params = new Vector<String>();
 
@@ -217,6 +220,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
         mParams = org.mozilla.jss.netscape.security.util.Utils.getStringArrayFromVector(v);
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         if (mParams == null) {
             setExtendedPluginInfo();
@@ -227,6 +231,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
     /**
      * Returns default parameters.
      */
+    @Override
     public Vector<String> getDefaultParams() {
         Vector<String> defParams = new Vector<String>();
 

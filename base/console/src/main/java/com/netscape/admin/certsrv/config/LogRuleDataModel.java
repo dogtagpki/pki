@@ -44,12 +44,14 @@ public class LogRuleDataModel extends CMSRuleDataModel
         super();
     }
 
-	protected String[] getColumns() {
+	@Override
+    protected String[] getColumns() {
 		Debug.println("LogRuleDataModel.getColumns()");
 		String x[] = {LOG_RULE, PLUGIN};
 		return x;
 	}
 
+    @Override
     public void processData(Object data) {
         Vector<Object> v = new Vector<>();
         NameValuePairs obj = (NameValuePairs) data;

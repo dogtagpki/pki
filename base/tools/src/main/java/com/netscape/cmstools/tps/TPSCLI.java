@@ -58,6 +58,7 @@ public class TPSCLI extends SubsystemCLI {
         addModule(new UserCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name
@@ -67,6 +68,7 @@ public class TPSCLI extends SubsystemCLI {
         }
     }
 
+    @Override
     public SubsystemClient getSubsystemClient() throws Exception {
 
         if (tpsClient != null) return tpsClient;

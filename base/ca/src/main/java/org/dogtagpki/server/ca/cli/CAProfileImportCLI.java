@@ -55,6 +55,7 @@ public class CAProfileImportCLI extends CommandCLI {
     }
 
 
+    @Override
     public void createOptions() {
         options.addOption(null, "input-folder", true, "Input folder");
 
@@ -63,6 +64,7 @@ public class CAProfileImportCLI extends CommandCLI {
         options.addOption(null, "help", false, "Show help message.");
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String inputFolder = cmd.getOptionValue("input-folder", "/usr/share/pki/ca/profiles/ca");

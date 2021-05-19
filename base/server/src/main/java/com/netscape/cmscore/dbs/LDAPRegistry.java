@@ -74,6 +74,7 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * Retrieves subsystem identifier.
      */
+    @Override
     public String getId() {
         return "dbsregistry";
     }
@@ -82,6 +83,7 @@ public class LDAPRegistry extends DBRegistry {
      * Sets subsystem identifier. This is an internal
      * subsystem, and is not loadable.
      */
+    @Override
     public void setId(String id) throws EBaseException {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
     }
@@ -92,6 +94,7 @@ public class LDAPRegistry extends DBRegistry {
      * applications can use. Optionally, check the integrity
      * of the database.
      */
+    @Override
     public void init(IConfigStore config)
             throws EBaseException {
         mConfig = config;
@@ -101,6 +104,7 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * Retrieves configuration store.
      */
+    @Override
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -108,12 +112,14 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * Starts up this subsystem.
      */
+    @Override
     public void startup() throws EBaseException {
     }
 
     /**
      * Shutdowns this subsystem gracefully.
      */
+    @Override
     public void shutdown() {
         mOCclassNames.clear();
         mOCldapNames.clear();
@@ -123,6 +129,7 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * Registers object class.
      */
+    @Override
     public void registerObjectClass(String className, String ldapNames[])
             throws EDBException {
         try {
@@ -148,6 +155,7 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * See if an object class is registered.
      */
+    @Override
     public boolean isObjectClassRegistered(String className) {
         return mOCclassNames.containsKey(className);
     }
@@ -155,6 +163,7 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * Registers attribute mapper.
      */
+    @Override
     public void registerAttribute(String ufName, DBAttrMapper mapper)
             throws EDBException {
         // should not allows 'objectclass' as attribute; it has
@@ -165,10 +174,12 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * See if an attribute is registered.
      */
+    @Override
     public boolean isAttributeRegistered(String ufName) {
         return mAttrufNames.containsKey(ufName.toLowerCase());
     }
 
+    @Override
     public void registerDynamicMapper(DBDynAttrMapper mapper) {
         mDynAttrMappers.add(mapper);
     }
@@ -200,10 +211,12 @@ public class LDAPRegistry extends DBRegistry {
      * <final> ::= NULL | <value>
      * </pre>
      */
+    @Override
     public String getFilter(String filter) throws EBaseException {
         return getFilter(filter, mConverter);
     }
 
+    @Override
     public String getFilter(String filter, IFilterConverter c)
             throws EBaseException {
         String f = filter;
@@ -344,6 +357,7 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * Maps object into LDAP attribute set.
      */
+    @Override
     public void mapObject(IDBObj parent, String name, Object obj,
             LDAPAttributeSet attrs) throws EBaseException {
         DBAttrMapper mapper = mAttrufNames.get(name.toLowerCase());
@@ -360,6 +374,7 @@ public class LDAPRegistry extends DBRegistry {
      * This method is used for searches, to map the database attributes
      * to LDAP attributes.
      */
+    @Override
     public String[] getLDAPAttributes(String attrs[])
             throws EBaseException {
 
@@ -446,6 +461,7 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * Creates attribute set from object.
      */
+    @Override
     public LDAPAttributeSet createLDAPAttributeSet(IDBObj obj) throws EBaseException {
 
         Enumeration<String> e = obj.getSerializableAttrNames();
@@ -477,6 +493,7 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * Creates object from attribute set.
      */
+    @Override
     public IDBObj createObject(LDAPAttributeSet attrs)
             throws EDBException {
         // map object class attribute to object

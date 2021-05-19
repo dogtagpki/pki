@@ -75,6 +75,7 @@ public class CMSSNMPPanel extends CMSBaseTab {
         mHelpToken = HELPINDEX;
     }
 
+    @Override
     public void init() {
         Debug.println("SNMPPanel: init()");
         mAdmin = mModel.getServerInfo().getAdmin();
@@ -157,6 +158,7 @@ public class CMSSNMPPanel extends CMSBaseTab {
         refresh();
     }
 
+    @Override
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
@@ -214,6 +216,7 @@ public class CMSSNMPPanel extends CMSBaseTab {
         return false;
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
         if (e.getActionCommand().equals("enable")) {
@@ -261,6 +264,7 @@ public class CMSSNMPPanel extends CMSBaseTab {
      * Implementation for saving panel information
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean applyCallback() {
         String port = mPortText.getText().trim();
 
@@ -302,6 +306,7 @@ public class CMSSNMPPanel extends CMSBaseTab {
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
      */
+    @Override
     public boolean resetCallback() {
         refresh();
         return true;

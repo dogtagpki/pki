@@ -30,6 +30,7 @@ public class PlainPasswordReader implements IPasswordReader {
     public PlainPasswordReader() {
     }
 
+    @Override
     public void init(String pwdPath)
             throws IOException {
         mPwdStore = new Properties();
@@ -48,11 +49,13 @@ public class PlainPasswordReader implements IPasswordReader {
         }
     }
 
+    @Override
     public String getPassword(String tag) {
         return mPwdStore.getProperty(tag);
     }
 
     // return an array of String-based tag
+    @Override
     public Enumeration<String> getTags() {
         Enumeration<?> e = mPwdStore.propertyNames();
         Vector<String> v = new Vector<String>();

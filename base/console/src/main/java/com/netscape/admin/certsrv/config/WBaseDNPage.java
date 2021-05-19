@@ -83,14 +83,17 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
         mPanelName = panelName;
     }
 
+    @Override
     public boolean isLastPage() {
         return false;
     }
 
+    @Override
     public boolean initializePanel(WizardInfo info) {
         return true;
     }
 
+    @Override
     public boolean validatePanel() {
         String str = "";
         if (mDNComponents.isSelected()) {
@@ -127,13 +130,16 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
+    @Override
     public boolean concludePanel(WizardInfo info) {
         return true;
     }
 
+    @Override
     public void callHelp() {
     }
 
+    @Override
     public void getUpdateInfo(WizardInfo info) {
     }
 
@@ -173,6 +179,7 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
         }
     }
 
+    @Override
     protected void init() {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -445,6 +452,7 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
               mActiveColor);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (mDNComponents.isSelected()) {
             enableFields(true, mActiveColor);
@@ -460,14 +468,17 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
             super(rows, columns);
         }
 
+        @Override
         public void insertUpdate(DocumentEvent e) {
             super.setText(updateStr());
         }
 
+        @Override
         public void removeUpdate(DocumentEvent e) {
             super.setText(updateStr());
         }
 
+        @Override
         public void changedUpdate(DocumentEvent e) {
             super.setText(updateStr());
         }

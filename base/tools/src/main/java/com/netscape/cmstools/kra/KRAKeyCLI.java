@@ -62,6 +62,7 @@ public class KRAKeyCLI extends CLI {
         addModule(new KRAKeyRecoverCLI(this));
     }
 
+    @Override
     public String getFullName() {
         if (parent instanceof MainCLI) {
             // do not include MainCLI's name

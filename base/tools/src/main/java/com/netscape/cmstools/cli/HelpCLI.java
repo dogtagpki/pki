@@ -37,10 +37,12 @@ public class HelpCLI extends CommandCLI {
         mainCLI = parent;
     }
 
+    @Override
     public String getFullName() {
         return name;
     }
 
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

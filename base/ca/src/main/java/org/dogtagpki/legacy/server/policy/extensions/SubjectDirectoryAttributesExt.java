@@ -88,6 +88,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
         setExtendedPluginInfo();
     }
 
+    @Override
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         boolean enabled = config.getBoolean("enabled", false);
@@ -123,6 +124,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
         setInstanceParams();
     }
 
+    @Override
     public PolicyResult apply(IRequest req) {
         X509CertInfo[] ci =
                 req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
@@ -189,14 +191,17 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
         }
     }
 
+    @Override
     public Vector<String> getInstanceParams() {
         return mParams; // inited in init()
     }
 
+    @Override
     public Vector<String> getDefaultParams() {
         return mDefParams;
     }
 
+    @Override
     public String[] getExtendedPluginInfo(Locale locale) {
         return mEPI; // inited in the constructor.
     }

@@ -36,6 +36,7 @@ public class ListPinsAPDU extends APDU {
         ret_size = theRet_size;
     }
 
+    @Override
     public Type getType()
     {
         return Type.APDU_LIST_PINS;

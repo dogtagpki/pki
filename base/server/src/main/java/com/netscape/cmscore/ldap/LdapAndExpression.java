@@ -39,6 +39,7 @@ public class LdapAndExpression implements ILdapExpression {
         mExp2 = exp2;
     }
 
+    @Override
     public boolean evaluate(SessionContext sc)
             throws ELdapException {
         // If an expression is missing we assume applicability.
@@ -53,6 +54,7 @@ public class LdapAndExpression implements ILdapExpression {
             return mExp1.evaluate(sc);
     }
 
+    @Override
     public boolean evaluate(IRequest req)
             throws ELdapException {
         // If an expression is missing we assume applicability.
@@ -67,6 +69,7 @@ public class LdapAndExpression implements ILdapExpression {
             return mExp1.evaluate(req);
     }
 
+    @Override
     public String toString() {
         return mExp1.toString() + " AND " + mExp2.toString();
     }

@@ -39,6 +39,7 @@ public class LDAPConfigMonitor implements Runnable {
         this.database = database;
     }
 
+    @Override
     public void run() {
 
         running = true;
