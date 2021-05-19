@@ -27,9 +27,9 @@ import java.net.UnknownHostException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
 import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.CryptoManager;
 
@@ -125,7 +125,7 @@ public class OCSPClient {
 
         Options options = createOptions();
 
-        CommandLineParser parser = new PosixParser();
+        CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
 
         if (cmd.hasOption("help")) {

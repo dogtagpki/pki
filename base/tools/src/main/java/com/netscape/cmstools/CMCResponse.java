@@ -32,10 +32,11 @@ import java.util.Locale;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
@@ -43,6 +44,10 @@ import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.pkix.cmc.CMCStatusInfoV2;
 import org.mozilla.jss.pkix.cmc.EncryptedPOP;
@@ -53,12 +58,6 @@ import org.mozilla.jss.pkix.cmc.TaggedAttribute;
 import org.mozilla.jss.pkix.cms.ContentInfo;
 import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
 import org.mozilla.jss.pkix.cms.SignedData;
-import org.mozilla.jss.CryptoManager;
-
-import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * Tool for parsing a CMC response
@@ -70,7 +69,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
  */
 public class CMCResponse {
 
-    static CommandLineParser parser = new PosixParser();
+    static CommandLineParser parser = new DefaultParser();
     static Options options = new Options();
     static HelpFormatter formatter = new HelpFormatter();
 
@@ -370,7 +369,7 @@ public class CMCResponse {
             System.exit(1);
         }
 
-        //Intialize the crypto manager, just in case we need to use the JSS Provider to parse 
+        //Intialize the crypto manager, just in case we need to use the JSS Provider to parse
         //algorithm parameters. All we have to do is initialize the manager and be done.
 
         if (dbdir == null)
