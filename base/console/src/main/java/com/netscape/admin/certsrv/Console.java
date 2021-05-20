@@ -1127,8 +1127,7 @@ public class Console implements CommClient {
             } else {
                 double days = (secondsToExpiration / (1.0 * 3600 * 24));
                 String msg = MessageFormat.format(
-                        _resource.getString("warning","pwExpireSoon"),
-                        new Object[]{ new Double(days)});
+                        _resource.getString("warning", "pwExpireSoon"), days);
                 Debug.println("Console: " + msg);
                 JOptionPane.showMessageDialog(
                         com.netscape.management.client.console.SplashScreen.getInstance(), msg,
