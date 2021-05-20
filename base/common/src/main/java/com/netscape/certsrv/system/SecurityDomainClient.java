@@ -56,7 +56,7 @@ public class SecurityDomainClient extends Client {
 
     public Collection<SecurityDomainHost> getHosts() throws Exception {
         Response response = securityDomainHostClient.getHosts();
-        GenericType<Collection<SecurityDomainHost>> type = new GenericType<Collection<SecurityDomainHost>>() {};
+        GenericType<Collection<SecurityDomainHost>> type = new GenericType<>() {};
         return client.getEntity(response, type);
     }
 

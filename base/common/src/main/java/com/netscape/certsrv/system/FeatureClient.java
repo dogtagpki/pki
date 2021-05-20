@@ -39,7 +39,7 @@ public class FeatureClient extends Client {
 
   public List<Feature> listFeatures() throws Exception {
       Response response = featureClient.listFeatures();
-      GenericType<List<Feature>> type = new GenericType<List<Feature>>() {};
+      GenericType<List<Feature>> type = new GenericType<>() {};
       return client.getEntity(response, type);
   }
 

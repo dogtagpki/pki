@@ -36,7 +36,7 @@ public class FeatureService extends PKIService implements FeatureResource {
             Feature feature = createFeature(cs, tag);
             features.add(feature);
         }
-        GenericEntity<List<Feature>> entity = new GenericEntity<List<Feature>>(features) {};
+        GenericEntity<List<Feature>> entity = new GenericEntity<>(features) {};
         return createOKResponse(entity);
     }
 

@@ -50,7 +50,7 @@ public class SecurityDomainHostService extends PKIService implements SecurityDom
         }
 
         GenericEntity<Collection<SecurityDomainHost>> entity =
-                new GenericEntity<Collection<SecurityDomainHost>>(hosts) {};
+                new GenericEntity<>(hosts) {};
 
         return createOKResponse(entity);
     }

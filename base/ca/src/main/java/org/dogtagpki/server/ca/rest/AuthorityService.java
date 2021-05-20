@@ -122,7 +122,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         }
 
         GenericEntity<List<AuthorityData>> entity =
-            new GenericEntity<List<AuthorityData>>(results) {};
+            new GenericEntity<>(results) {};
 
         return createOKResponse(entity);
     }
