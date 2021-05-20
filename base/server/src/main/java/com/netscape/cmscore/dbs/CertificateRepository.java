@@ -646,9 +646,7 @@ public class CertificateRepository extends Repository {
      */
     public void addCertificateRecord(CertRecord record) throws EBaseException {
 
-        DBSSession s = dbSubsystem.createSession();
-
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn=" + record.getSerialNumber() + "," + mBaseDN;
             logger.info("CertificateRepository: Adding certificate record " + name);
 
@@ -688,10 +686,6 @@ public class CertificateRepository extends Repository {
         } catch (EBaseException e) {
             throw new EBaseException("Unable to add certificate record: " + e.getMessage(), e);
 
-        } finally {
-            if (s != null) {
-                s.close();
-            }
         }
     }
 
@@ -706,15 +700,11 @@ public class CertificateRepository extends Repository {
      */
     public void addRevokedCertRecord(CertRecord record)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn=" + record.getSerialNumber() + "," + mBaseDN;
 
             s.add(name, record);
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
@@ -750,15 +740,10 @@ public class CertificateRepository extends Repository {
      */
     public void deleteCertificateRecord(BigInteger serialNo)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn=" + serialNo + "," + mBaseDN;
-
             s.delete(name);
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
@@ -771,27 +756,22 @@ public class CertificateRepository extends Repository {
      */
     public CertRecord readCertificateRecord(BigInteger serialNo)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         CertRecord rec = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn=" + serialNo + "," + mBaseDN;
 
             rec = (CertRecord) s.read(name);
-        } finally {
-            if (s != null)
-                s.close();
         }
         return rec;
     }
 
     public boolean checkCertificateRecord(BigInteger serialNo)
         throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         CertRecord rec = null;
         boolean exists = true;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn=" + serialNo + "," + mBaseDN;
             String attrs[] = { "DN" };
 
@@ -801,9 +781,6 @@ public class CertificateRepository extends Repository {
             exists = false;
         } catch (Exception e) {
             throw new EBaseException(e.getMessage());
-        } finally {
-            if (s != null)
-                s.close();
         }
         return exists;
     }
@@ -836,17 +813,13 @@ public class CertificateRepository extends Repository {
      */
     public synchronized void modifyCertificateRecord(BigInteger serialNo,
             ModificationSet mods) throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn=" + serialNo + "," + mBaseDN;
 
             mods.add(CertRecord.ATTR_MODIFY_TIME, Modification.MOD_REPLACE,
                     new Date());
             s.modify(name, mods);
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
@@ -988,15 +961,12 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<Object> searchCertificates(String filter, int maxSize,String sortAttribute)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Enumeration<Object> e = null;
 
         logger.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             e = s.search(mBaseDN, filter, maxSize,sortAttribute);
-        } finally {
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -1032,15 +1002,11 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<Object> searchCertificates(String filter, int maxSize)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         Enumeration<Object> e = null;
 
         logger.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             e = s.search(mBaseDN, filter, maxSize);
-        } finally {
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -1057,18 +1023,15 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> searchCertificates(String filter, int maxSize, int timeLimit)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Vector<CertRecord> v = new Vector<>();
 
         logger.debug("searchCertificateswith time limit filter " + filter);
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             IDBSearchResults sr = s.search(mBaseDN, filter, maxSize, timeLimit);
             while (sr.hasMoreElements()) {
                 v.add((CertRecord) sr.nextElement());
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return v.elements();
     }
@@ -1086,18 +1049,15 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> searchCertificates(String filter, int maxSize,
             int timeLimit,String sortAttribute) throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Vector<CertRecord> v = new Vector<>();
 
         logger.debug("searchCertificateswith time limit filter " + filter);
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             IDBSearchResults sr = s.search(mBaseDN, filter, maxSize, timeLimit,sortAttribute);
             while (sr.hasMoreElements()) {
                 v.add((CertRecord) sr.nextElement());
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return v.elements();
 
@@ -1117,13 +1077,9 @@ public class CertificateRepository extends Repository {
     public Enumeration<Object> findCertRecs(String filter)
             throws EBaseException {
         logger.debug("findCertRecs " + filter);
-        DBSSession s = dbSubsystem.createSession();
         Enumeration<Object> e = null;
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             e = s.search(mBaseDN, filter);
-        } finally {
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -1133,13 +1089,9 @@ public class CertificateRepository extends Repository {
 
         logger.debug("findCertRecs " + filter
                  + "attrs " + Arrays.toString(attrs));
-        DBSSession s = dbSubsystem.createSession();
         Enumeration<Object> e = null;
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             e = s.search(mBaseDN, filter, attrs);
-        } finally {
-            if (s != null)
-                s.close();
         }
         return e;
 
@@ -1177,18 +1129,14 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> findCertRecords(String filter)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         Enumeration<CertRecord> e = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             //e = s.search(getDN(), filter);
             CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
             int size = list.getSize();
 
             e = list.getCertRecords(0, size - 1);
-        } finally {
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -1244,9 +1192,7 @@ public class CertificateRepository extends Repository {
 
         logger.debug("CertificateRepository.findCertRecordsInList()");
 
-        DBSSession session = dbSubsystem.createSession();
-
-        try {
+        try (DBSSession session = dbSubsystem.createSession()) {
             IDBVirtualList<CertRecord> list = session.<CertRecord>createVirtualList(
                     mBaseDN,
                     filter,
@@ -1255,10 +1201,6 @@ public class CertificateRepository extends Repository {
                     pageSize);
 
             return new CertRecordList(list);
-
-        } finally {
-            if (session != null)
-                session.close();
         }
     }
 
@@ -1298,11 +1240,10 @@ public class CertificateRepository extends Repository {
             String attrs[], String jumpTo, boolean hardJumpTo,
                          String sortKey, int pageSize)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         CertRecordList list = null;
 
         logger.debug("In findCertRecordsInList with Jumpto " + jumpTo);
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String jumpToVal = null;
 
             if (hardJumpTo) {
@@ -1327,9 +1268,6 @@ public class CertificateRepository extends Repository {
                     pageSize);
 
             list = new CertRecordList(vlist);
-        } finally {
-            if (s != null)
-                s.close();
         }
         return list;
     }
@@ -1349,12 +1287,11 @@ public class CertificateRepository extends Repository {
     public CertRecordList findCertRecordsInListRawJumpto(String filter,
             String attrs[], String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         CertRecordList list = null;
 
         logger.debug("In findCertRecordsInListRawJumpto with Jumpto " + jumpTo);
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
 
             IDBVirtualList<CertRecord> vlist = s.createVirtualList(
                     mBaseDN,
@@ -1365,9 +1302,6 @@ public class CertificateRepository extends Repository {
                     pageSize);
 
             list = new CertRecordList(vlist);
-        } finally {
-            if (s != null)
-                s.close();
         }
         return list;
     }
@@ -1420,18 +1354,14 @@ public class CertificateRepository extends Repository {
 
     private void changeRenewalAttribute(String serialno, String value)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn=" + serialno + "," + mBaseDN;
             ModificationSet mods = new ModificationSet();
 
             mods.add(CertRecord.ATTR_AUTO_RENEW, Modification.MOD_REPLACE,
                     value);
             s.modify(name, mods);
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
@@ -1444,11 +1374,10 @@ public class CertificateRepository extends Repository {
      */
     public Hashtable<String, RenewableCertificateCollection> getRenewableCertificates(String renewalTime)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
 
         Hashtable<String, RenewableCertificateCollection> tab = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String filter = "(&(" + CertRecord.ATTR_CERT_STATUS + "=" +
                     CertRecord.STATUS_VALID + ")("
                     + CertRecord.ATTR_X509CERT +
@@ -1482,9 +1411,6 @@ public class CertificateRepository extends Repository {
                     ((RenewableCertificateCollection) val).addCertificate(renewalFlag, cert);
                 }
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return tab;
     }
@@ -1501,11 +1427,10 @@ public class CertificateRepository extends Repository {
 
     public X509CertImpl[] getX509Certificates(String subjectDN,
             int validityType) throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
 
         X509CertImpl certs[] = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             // XXX - not checking validityType...
             String filter = "(&(" + CertRecord.ATTR_X509CERT +
                     "." + X509CertInfo.SUBJECT + "=" + subjectDN;
@@ -1540,20 +1465,16 @@ public class CertificateRepository extends Repository {
                 return null;
             certs = new X509CertImpl[v.size()];
             v.copyInto(certs);
-        } finally {
-            if (s != null)
-                s.close();
         }
         return certs;
     }
 
     public X509CertImpl[] getX509Certificates(String filter)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
 
         X509CertImpl certs[] = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             Enumeration<CertRecord> e = null;
 
             if (filter != null && filter.length() > 0) {
@@ -1575,9 +1496,6 @@ public class CertificateRepository extends Repository {
                 certs = new X509CertImpl[v.size()];
                 v.copyInto(certs);
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return certs;
     }
@@ -1592,10 +1510,9 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getValidCertificates(String from, String to)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         Vector<CertRecord> v = new Vector<>();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
 
             // 'from' determines 'jumpto' value
             // 'to' determines where to stop looking
@@ -1637,9 +1554,6 @@ public class CertificateRepository extends Repository {
                 }
             }
 
-        } finally {
-            if (s != null)
-                s.close();
         }
         logger.debug("returning " + v.size() + " elements");
         return v.elements();
@@ -1650,10 +1564,9 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getAllValidCertificates()
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         Enumeration<CertRecord> e = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             Date now = new Date();
             String ldapfilter = "(&(!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
                     CertRecord.ATTR_X509CERT + "." +
@@ -1668,11 +1581,8 @@ public class CertificateRepository extends Repository {
 
             e = list.getCertRecords(0, size - 1);
 
-        } finally {
-            // XXX - transaction is not done at this moment
-            if (s != null)
-                s.close();
         }
+        // XXX - transaction is not done at this moment
         return e;
     }
 
@@ -1686,10 +1596,9 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getValidNotPublishedCertificates(String from, String to)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         Enumeration<CertRecord> e = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             Date now = new Date();
             String ldapfilter = "(&(";
 
@@ -1713,9 +1622,6 @@ public class CertificateRepository extends Repository {
 
             e = list.getCertRecords(0, size - 1);
 
-        } finally {
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -1726,10 +1632,9 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getAllValidNotPublishedCertificates()
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         Enumeration<CertRecord> e = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             Date now = new Date();
             String ldapfilter = "(&(!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
                     CertRecord.ATTR_X509CERT + "." +
@@ -1747,10 +1652,6 @@ public class CertificateRepository extends Repository {
 
             e = list.getCertRecords(0, size - 1);
 
-        } finally {
-            // XXX - transaction is not done at this moment
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -1765,10 +1666,10 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getExpiredCertificates(String from, String to)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Enumeration<CertRecord> e = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             Date now = new Date();
             String ldapfilter = "(&(";
 
@@ -1785,10 +1686,6 @@ public class CertificateRepository extends Repository {
             int size = list.getSize();
 
             e = list.getCertRecords(0, size - 1);
-        } finally {
-            // XXX - transaction is not done at this moment
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -1798,10 +1695,10 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getAllExpiredCertificates()
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Enumeration<CertRecord> e = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             Date now = new Date();
             String ldapfilter = "(!(" + CertRecord.ATTR_X509CERT + "." +
                     CertificateValidity.NOT_AFTER + ">=" +
@@ -1812,10 +1709,6 @@ public class CertificateRepository extends Repository {
 
             e = list.getCertRecords(0, size - 1);
 
-        } finally {
-            // XXX - transaction is not done at this moment
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -1830,10 +1723,10 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getExpiredPublishedCertificates(String from, String to)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Enumeration<CertRecord> e = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             Date now = new Date();
             String ldapfilter = "(&(";
 
@@ -1854,10 +1747,6 @@ public class CertificateRepository extends Repository {
             int size = list.getSize();
 
             e = list.getCertRecords(0, size - 1);
-        } finally {
-            // XXX - transaction is not done at this moment
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -1867,10 +1756,10 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getAllExpiredPublishedCertificates()
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Enumeration<CertRecord> e = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             Date now = new Date();
             String ldapfilter = "(&";
 
@@ -1887,10 +1776,6 @@ public class CertificateRepository extends Repository {
 
             e = list.getCertRecords(0, size - 1);
 
-        } finally {
-            // XXX - transaction is not done at this moment
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -1908,9 +1793,8 @@ public class CertificateRepository extends Repository {
             throws EBaseException {
 
         CertRecordList list = null;
-        DBSSession s = dbSubsystem.createSession();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_INVALID + ")";
 
             String[] attrs = null;
@@ -1928,13 +1812,6 @@ public class CertificateRepository extends Repository {
 
             //e = list.getCertRecords(0, size - 1);
 
-        } finally {
-            // XXX - transaction is not done at this moment
-
-            logger.debug("In getInvalidCertsByNotBeforeDate finally.");
-
-            if (s != null)
-                s.close();
         }
         return list;
 
@@ -1953,9 +1830,8 @@ public class CertificateRepository extends Repository {
             throws EBaseException {
 
         CertRecordList list = null;
-        DBSSession s = dbSubsystem.createSession();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_VALID + ")";
 
             String[] attrs = null;
@@ -1968,11 +1844,6 @@ public class CertificateRepository extends Repository {
             //e = s.search(getDN(), ldapfilter);
             list = findCertRecordsInListRawJumpto(ldapfilter, attrs, DateMapper.dateToDB(date), "notAfter", pageSize);
 
-        } finally {
-            // XXX - transaction is not done at this moment
-
-            if (s != null)
-                s.close();
         }
         return list;
     }
@@ -1990,9 +1861,9 @@ public class CertificateRepository extends Repository {
             throws EBaseException {
 
         CertRecordList list = null;
-        DBSSession s = dbSubsystem.createSession();
 
-        try {
+
+        try (DBSSession s = dbSubsystem.createSession()) {
             String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")";
 
             String[] attrs = null;
@@ -2009,11 +1880,6 @@ public class CertificateRepository extends Repository {
             list = findCertRecordsInListRawJumpto(ldapfilter, attrs,
                         DateMapper.dateToDB(date), "notafter", pageSize);
 
-        } finally {
-            // XXX - transaction is not done at this moment
-
-            if (s != null)
-                s.close();
         }
         return list;
 
@@ -2029,10 +1895,10 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getRevokedCertificates(String from, String to)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Enumeration<CertRecord> e = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String ldapfilter = "(&(" + CertRecord.ATTR_REVO_INFO + "=*)";
 
             if (from != null && from.length() > 0)
@@ -2045,10 +1911,6 @@ public class CertificateRepository extends Repository {
             int size = list.getSize();
 
             e = list.getCertRecords(0, size - 1);
-        } finally {
-            // XXX - transaction is not done at this moment
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -2062,21 +1924,17 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getAllRevokedCertificates()
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         Enumeration<CertRecord> e = null;
         // index is setup for this filter
         String ldapfilter = "(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
                 + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))";
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             //e = s.search(getDN(), ldapfilter);
             CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
             int size = list.getSize();
 
             e = list.getCertRecords(0, size - 1);
-        } finally {
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -2091,10 +1949,9 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getRevokedPublishedCertificates(String from, String to)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         Enumeration<CertRecord> e = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String ldapfilter = "(&(" + CertRecord.ATTR_REVO_INFO + "=*)";
 
             if (from != null && from.length() > 0)
@@ -2110,10 +1967,6 @@ public class CertificateRepository extends Repository {
             int size = list.getSize();
 
             e = list.getCertRecords(0, size - 1);
-        } finally {
-            // XXX - transaction is not done at this moment
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -2124,7 +1977,7 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getAllRevokedPublishedCertificates()
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Enumeration<CertRecord> e = null;
         // index is setup for this filter
         String ldapfilter = "(&(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
@@ -2133,15 +1986,12 @@ public class CertificateRepository extends Repository {
         ldapfilter += "(certMetainfo=" +
                 CertRecord.META_LDAPPUBLISH +
                 ":true))";
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             //e = s.search(getDN(), ldapfilter);
             CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
             int size = list.getSize();
 
             e = list.getCertRecords(0, size - 1);
-        } finally {
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -2155,10 +2005,10 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getRevokedCertificates(Date asOfDate)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Enumeration<CertRecord> e = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
 
             /*e = s.search(getDN(), "(&(" +
              CertRecord.ATTR_REVO_INFO + "=*)(" + CertRecord.ATTR_X509CERT +
@@ -2172,10 +2022,6 @@ public class CertificateRepository extends Repository {
             int size = list.getSize();
 
             e = list.getCertRecords(0, size - 1);
-        } finally {
-            // XXX - transaction is not done at this moment
-            if (s != null)
-                s.close();
         }
         return e;
     }
@@ -2188,19 +2034,16 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getAllRevokedNonExpiredCertificates()
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Enumeration<CertRecord> e = null;
         String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")"; // index is setup for this filter
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             //e = s.search(getDN(), ldapfilter);
             CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
             int size = list.getSize();
 
             e = list.getCertRecords(0, size - 1);
-        } finally {
-            if (s != null)
-                s.close();
         }
         return e;
     }
