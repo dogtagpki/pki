@@ -28,7 +28,7 @@ COPY . /tmp/pki/
 WORKDIR /tmp/pki
 
 # Build PKI packages
-RUN dnf install -y rpm-build
+RUN dnf install -y git rpm-build
 RUN dnf builddep -y --spec pki.spec
 RUN ./build.sh $BUILD_OPTS --work-dir=build rpm
 

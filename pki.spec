@@ -162,10 +162,7 @@ fi;
 # Build Dependencies
 ################################################################################
 
-# autosetup
-BuildRequires:    git
 BuildRequires:    make
-
 BuildRequires:    cmake >= 3.0.2
 BuildRequires:    gcc-c++
 BuildRequires:    zip
@@ -822,7 +819,7 @@ This package contains PKI test suite.
 %prep
 ################################################################################
 
-%autosetup -n pki-%{version}%{?_phase} -p 1 -S git
+%autosetup -n pki-%{version}%{?_phase} -p 1
 
 ################################################################################
 %build
