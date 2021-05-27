@@ -707,9 +707,8 @@ public class PropConfigStore implements IConfigStore, Cloneable {
             if (reference == null) {
                 return constructor.newInstance(fullname, mSource);
 
-            } else {
-                return constructor.newInstance(reference, mSource);
             }
+            return constructor.newInstance(reference, mSource);
 
         } catch (NoSuchMethodException | InvocationTargetException
                 | IllegalAccessException | InstantiationException | IllegalArgumentException e) {
@@ -801,10 +800,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @return fill property name
      */
     protected String getFullName(String name) {
-        if (mStoreName == null)
-            return name;
-        else
-            return mStoreName + "." + name;
+        return mStoreName == null ? name : mStoreName + "." + name;
     }
 
     /**
