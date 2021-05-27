@@ -812,11 +812,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      * @return true if unique; false otherwise
      */
     public boolean isTypeUnique(String type) {
-        if (mACLs.containsKey(type)) {
-            return false;
-        } else {
-            return true;
-        }
+        return !mACLs.containsKey(type);
     }
 
     /*********************************
