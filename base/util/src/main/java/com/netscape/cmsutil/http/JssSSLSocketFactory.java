@@ -69,7 +69,7 @@ public class JssSSLSocketFactory implements ISocketFactory {
             SSLCertificateApprovalCallback certApprovalCallback,
             SSLClientCertificateSelectionCallback clientCertCallback,
             int timeout // milliseconds
-            ) throws IOException, UnknownHostException {
+    ) throws IOException, UnknownHostException {
 
         try {
             /*
@@ -123,7 +123,7 @@ public class JssSSLSocketFactory implements ISocketFactory {
     @Override
     public Socket makeSocket(String host, int port,
             int timeout // milliseconds
-            ) throws IOException, UnknownHostException {
+    ) throws IOException, UnknownHostException {
         Thread t = new ConnectAsync(this, host, port);
 
         t.start();
