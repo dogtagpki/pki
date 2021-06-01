@@ -127,9 +127,9 @@ public class SingleResponse implements ASN1Value {
             seqt.addElement(new ANY.Template());
             seqt.addElement(new GeneralizedTime.Template());
             seqt.addOptionalElement(new EXPLICIT.Template(
-                        new Tag(0), new GeneralizedTime.Template()));
+                    new Tag(0), new GeneralizedTime.Template()));
             seqt.addOptionalElement(new EXPLICIT.Template(new Tag(1),
-                        new SEQUENCE.OF_Template(new Extension.Template())));
+                    new SEQUENCE.OF_Template(new Extension.Template())));
 
         }
 
@@ -140,13 +140,13 @@ public class SingleResponse implements ASN1Value {
 
         @Override
         public ASN1Value decode(InputStream istream)
-                        throws InvalidBERException, IOException {
+                throws InvalidBERException, IOException {
             return decode(TAG, istream);
         }
 
         @Override
         public ASN1Value decode(Tag implicitTag, InputStream istream)
-                        throws InvalidBERException, IOException {
+                throws InvalidBERException, IOException {
             SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag,
                     istream);
 
@@ -154,26 +154,22 @@ public class SingleResponse implements ASN1Value {
             CertStatus status = null;
             ANY e_status = (ANY) seq.elementAt(1);
             if (e_status.getTag().getNum() == 0) {
-                status = (GoodInfo)
-                                        GoodInfo.getTemplate().decode(
-                                                e_status.getTag(),
-                                                new ByteArrayInputStream(e_status.getEncoded()));
+                status = (GoodInfo) GoodInfo.getTemplate().decode(
+                        e_status.getTag(),
+                        new ByteArrayInputStream(e_status.getEncoded()));
                 // good
             } else if (e_status.getTag().getNum() == 1) {
                 // revoked
-                status = (RevokedInfo)
-                                        RevokedInfo.getTemplate().decode(
-                                                e_status.getTag(),
-                                                new ByteArrayInputStream(e_status.getEncoded()));
+                status = (RevokedInfo) RevokedInfo.getTemplate().decode(
+                        e_status.getTag(),
+                        new ByteArrayInputStream(e_status.getEncoded()));
             } else if (e_status.getTag().getNum() == 2) {
                 // unknown
-                status = (UnknownInfo)
-                                        UnknownInfo.getTemplate().decode(
-                                                e_status.getTag(),
-                                                new ByteArrayInputStream(e_status.getEncoded()));
+                status = (UnknownInfo) UnknownInfo.getTemplate().decode(
+                        e_status.getTag(),
+                        new ByteArrayInputStream(e_status.getEncoded()));
             }
-            GeneralizedTime thisUpdate = (GeneralizedTime)
-                    seq.elementAt(2);
+            GeneralizedTime thisUpdate = (GeneralizedTime) seq.elementAt(2);
             GeneralizedTime nextUpdate = null;
 
             return new SingleResponse(cid, status, thisUpdate,
