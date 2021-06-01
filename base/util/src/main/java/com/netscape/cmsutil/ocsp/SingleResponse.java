@@ -108,10 +108,6 @@ public class SingleResponse implements ASN1Value {
         return 0;
     }
 
-    public Extension getExtensionAt(int pos) {
-        return null;
-    }
-
     private static final Template templateInstance = new Template();
 
     public static Template getTemplate() {
