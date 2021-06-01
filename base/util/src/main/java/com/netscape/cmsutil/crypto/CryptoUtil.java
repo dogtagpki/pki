@@ -898,7 +898,7 @@ public class CryptoUtil {
         }
     }
 
-    public static byte[] base64Decode(String s) throws IOException {
+    public static byte[] base64Decode(String s) {
         // BASE64Decoder base64 = new BASE64Decoder();
         // byte[] d = base64.decodeBuffer(s);
         byte[] d = Utils.base64decode(s);
@@ -1096,8 +1096,7 @@ public class CryptoUtil {
     }
 
     public static X509Key getX509KeyFromCRMFMsg(CertReqMsg crmfMsg)
-            throws IOException, NoSuchAlgorithmException,
-            InvalidKeyException, InvalidKeyFormatException {
+            throws NoSuchAlgorithmException, InvalidKeyException, InvalidKeyFormatException {
         CertRequest certreq = crmfMsg.getCertReq();
         CertTemplate certTemplate = certreq.getCertTemplate();
         SubjectPublicKeyInfo spkinfo = certTemplate.getPublicKey();
@@ -1173,7 +1172,6 @@ public class CryptoUtil {
             CertificateExtensions extensions)
             throws IOException,
             CertificateException,
-            InvalidKeyException,
             NoSuchAlgorithmException {
 
         X509CertInfo info = new X509CertInfo();
@@ -1310,8 +1308,7 @@ public class CryptoUtil {
         return pkcs10;
     }
 
-    public static KeyIdentifier createKeyIdentifier(KeyPair keypair)
-            throws NoSuchAlgorithmException, InvalidKeyException {
+    public static KeyIdentifier createKeyIdentifier(KeyPair keypair) throws InvalidKeyException {
         String method = "CryptoUtil: createKeyIdentifier: ";
         logger.debug(method + "begins");
 
@@ -1815,8 +1812,7 @@ public class CryptoUtil {
     /**
      * Deletes a private key.
      */
-    public static void deletePrivateKey(PrivateKey prikey)
-            throws NotInitializedException, TokenException {
+    public static void deletePrivateKey(PrivateKey prikey) throws TokenException {
 
         try {
             CryptoToken token = prikey.getOwningToken();
