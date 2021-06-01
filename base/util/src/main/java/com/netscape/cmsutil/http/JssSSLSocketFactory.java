@@ -29,8 +29,8 @@ import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.ssl.SSLSocketListener;
 
-import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.net.ISocketFactory;
 
 /**
  * Uses NSS ssl socket.
@@ -140,9 +140,6 @@ public class JssSSLSocketFactory implements ISocketFactory {
 
     public void addSocketListener(SSLSocketListener sl) {
         this.sockListener = sl;
-    }
-
-    public void log(int level, String msg) {
     }
 
     static class ClientHandshakeCB implements SSLHandshakeCompletedListener {
