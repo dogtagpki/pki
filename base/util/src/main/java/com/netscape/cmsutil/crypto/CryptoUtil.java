@@ -1553,23 +1553,16 @@ public class CryptoUtil {
      * what we referring.
      */
     public static boolean isCertTrusted(InternalCertificate cert) {
-        if (isTrust(cert.getSSLTrust()) && isTrust(cert.getObjectSigningTrust())
-                && isTrust(cert.getEmailTrust())) {
-            return true;
-        } else {
-            return false;
-        }
+        return isTrust(cert.getSSLTrust())
+                && isTrust(cert.getObjectSigningTrust())
+                && isTrust(cert.getEmailTrust());
     }
 
     public static boolean isTrust(int flag) {
-        if (((flag & InternalCertificate.VALID_CA) > 0)
+        return ((flag & InternalCertificate.VALID_CA) > 0)
                 && ((flag & InternalCertificate.TRUSTED_CA) > 0)
                 && ((flag & InternalCertificate.USER) > 0)
-                && ((flag & InternalCertificate.TRUSTED_CLIENT_CA) > 0)) {
-            return true;
-        } else {
-            return false;
-        }
+                && ((flag & InternalCertificate.TRUSTED_CLIENT_CA) > 0);
     }
 
     public static SymmetricKey generateKey(CryptoToken token, KeyGenAlgorithm alg, int keySize,
@@ -1806,21 +1799,17 @@ public class CryptoUtil {
                         continue;
                     }
                     certs.addElement(impl);
-                } catch (TokenException e) {
-                    continue;
-                } catch (ObjectNotFoundException e) {
-                    continue;
+                } catch (TokenException | ObjectNotFoundException e) {
+                    // Swallow exception - why? TODO
                 }
             }
         }
-        if (certs.size() == 0) {
+        if (certs.isEmpty()) {
             return null;
-        } else {
-            X509CertImpl c[] = new X509CertImpl[certs.size()];
-
-            certs.copyInto(c);
-            return c;
         }
+        X509CertImpl c[] = new X509CertImpl[certs.size()];
+        certs.copyInto(c);
+        return c;
     }
 
     /**
