@@ -175,10 +175,10 @@ public class CryptoUtil {
     public static final int LINE_COUNT = 76;
 
     private static SymmetricKey.Usage sess_key_usages[] = {
-        SymmetricKey.Usage.WRAP,
-        SymmetricKey.Usage.UNWRAP,
-        SymmetricKey.Usage.ENCRYPT,
-        SymmetricKey.Usage.DECRYPT
+            SymmetricKey.Usage.WRAP,
+            SymmetricKey.Usage.UNWRAP,
+            SymmetricKey.Usage.ENCRYPT,
+            SymmetricKey.Usage.DECRYPT
     };
 
     // ECDHE needs SIGN but no DERIVE
@@ -193,25 +193,20 @@ public class CryptoUtil {
     };
 
     static public final Integer[] clientECCiphers = {
-/*
-        SSLSocket.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
-        SSLSocket.TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,
-*/
-        SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
-        SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
-        SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
-//        SSLSocket.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
-        SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-//        SSLSocket.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
-        SSLSocket.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-
-        SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,
-        SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-/*
-        SSLSocket.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,
-        SSLSocket.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-        SSLSocket.TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256
-*/
+            // SSLSocket.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
+            // SSLSocket.TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,
+            SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+            SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+            SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+            // SSLSocket.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
+            SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+            // SSLSocket.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+            SSLSocket.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+            SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,
+            SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+            // SSLSocket.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,
+            // SSLSocket.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+            // SSLSocket.TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256
     };
     static public List<Integer> clientECCipherList = new ArrayList<>(Arrays.asList(clientECCiphers));
 
@@ -231,7 +226,6 @@ public class CryptoUtil {
             "secp128r1", "secp128r2", "sect113r1", "sect113r2",
             "sect131r1", "sect131r2"
     };
-
 
     private final static HashMap<String, Vector<String>> ecOIDs = new HashMap<>();
     static {
@@ -573,6 +567,7 @@ public class CryptoUtil {
 
     /**
      * Generates a RSA key pair.
+     *
      * @throws Exception
      */
     public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize) throws Exception {
@@ -594,7 +589,7 @@ public class CryptoUtil {
     public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize,
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages[],
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[]) throws Exception {
-        return generateRSAKeyPair(token, keysize, false,false,false,usages,usages_mask);
+        return generateRSAKeyPair(token, keysize, false, false, false, usages, usages_mask);
     }
 
     public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize, boolean temporary,
@@ -603,14 +598,14 @@ public class CryptoUtil {
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[]) throws Exception {
         KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
-        if(usages != null) {
+        if (usages != null) {
             kg.setKeyPairUsages(usages, usages_mask);
         }
 
-        if(extractable == true)
+        if (extractable == true)
             kg.extractablePairs(true);
 
-        if(sensitive == true)
+        if (sensitive == true)
             kg.sensitivePairs(true);
 
         if (temporary == true)
@@ -636,8 +631,7 @@ public class CryptoUtil {
      */
     public static KeyPair generateECCKeyPair(
             CryptoToken token,
-            int keySize
-            ) throws Exception {
+            int keySize) throws Exception {
 
         return generateECCKeyPair(token, keySize, null, null);
     }
@@ -646,8 +640,7 @@ public class CryptoUtil {
             CryptoToken token,
             int keySize,
             KeyPairGeneratorSpi.Usage[] usageOps,
-            KeyPairGeneratorSpi.Usage[] usageMask
-            ) throws Exception {
+            KeyPairGeneratorSpi.Usage[] usageMask) throws Exception {
 
         return generateECCKeyPair(token, keySize, false, -1, -1, usageOps, usageMask);
     }
@@ -705,8 +698,7 @@ public class CryptoUtil {
      */
     public static KeyPair generateECCKeyPair(
             CryptoToken token,
-            String curveName
-            ) throws Exception {
+            String curveName) throws Exception {
 
         return generateECCKeyPair(token, curveName, null, null);
     }
@@ -715,8 +707,7 @@ public class CryptoUtil {
             CryptoToken token,
             String curveName,
             KeyPairGeneratorSpi.Usage[] usageOps,
-            KeyPairGeneratorSpi.Usage[] usageMask
-            ) throws Exception {
+            KeyPairGeneratorSpi.Usage[] usageMask) throws Exception {
 
         return generateECCKeyPair(
                 token,
@@ -787,7 +778,8 @@ public class CryptoUtil {
         }
 
         String ciphers[] = list.split(",");
-        if (ciphers.length == 0) return;
+        if (ciphers.length == 0)
+            return;
 
         unsetSSLCiphers();
 
@@ -798,7 +790,8 @@ public class CryptoUtil {
 
     public static void setSSLCiphers(String ciphers) throws SocketException {
 
-        if (ciphers == null) return;
+        if (ciphers == null)
+            return;
 
         StringTokenizer st = new StringTokenizer(ciphers);
 
@@ -832,7 +825,8 @@ public class CryptoUtil {
     public static void setDefaultSSLCiphers() throws SocketException {
 
         int ciphers[] = SSLSocket.getImplementedCipherSuites();
-        if (ciphers == null) return;
+        if (ciphers == null)
+            return;
 
         for (int cipher : ciphers) {
 
@@ -844,7 +838,8 @@ public class CryptoUtil {
             // make sure SSLv2 ciphers are not enabled
             if ((cipher & 0xfff0) == 0xff00) {
 
-                if (!enabled) continue;
+                if (!enabled)
+                    continue;
 
                 //logger.debug("CryptoUtil: disabling SSLv2 NSS Cipher '0x" +
                 //    Integer.toHexString(ciphers[j]) + "'");
@@ -867,7 +862,8 @@ public class CryptoUtil {
     public static void unsetSSLCiphers() throws SocketException {
 
         int cipherIDs[] = SSLSocket.getImplementedCipherSuites();
-        if (cipherIDs == null) return;
+        if (cipherIDs == null)
+            return;
 
         for (int cipherID : cipherIDs) {
             SSLSocket.setCipherPreferenceDefault(cipherID, false);
@@ -1075,21 +1071,19 @@ public class CryptoUtil {
     }
 
     public static SEQUENCE parseCRMFMsgs(byte cert_request[])
-               throws IOException, InvalidBERException {
+            throws IOException, InvalidBERException {
         if (cert_request == null) {
             throw new IOException("invalid certificate requests: cert_request null");
         }
-        ByteArrayInputStream crmfBlobIn =
-                new ByteArrayInputStream(cert_request);
-        SEQUENCE crmfMsgs = (SEQUENCE)
-                new SEQUENCE.OF_Template(new CertReqMsg.Template()).decode(
-                        crmfBlobIn);
+        ByteArrayInputStream crmfBlobIn = new ByteArrayInputStream(cert_request);
+        SEQUENCE crmfMsgs = (SEQUENCE) new SEQUENCE.OF_Template(new CertReqMsg.Template()).decode(
+                crmfBlobIn);
         return crmfMsgs;
     }
 
     public static X509Key getX509KeyFromCRMFMsgs(SEQUENCE crmfMsgs)
-              throws IOException, NoSuchAlgorithmException,
-                  InvalidKeyException, InvalidKeyFormatException {
+            throws IOException, NoSuchAlgorithmException,
+            InvalidKeyException, InvalidKeyFormatException {
         if (crmfMsgs == null) {
             throw new IOException("invalid certificate requests: crmfMsgs null");
         }
@@ -1102,8 +1096,8 @@ public class CryptoUtil {
     }
 
     public static X509Key getX509KeyFromCRMFMsg(CertReqMsg crmfMsg)
-              throws IOException, NoSuchAlgorithmException,
-                  InvalidKeyException, InvalidKeyFormatException {
+            throws IOException, NoSuchAlgorithmException,
+            InvalidKeyException, InvalidKeyFormatException {
         CertRequest certreq = crmfMsg.getCertReq();
         CertTemplate certTemplate = certreq.getCertTemplate();
         SubjectPublicKeyInfo spkinfo = certTemplate.getPublicKey();
@@ -1265,8 +1259,7 @@ public class CryptoUtil {
     public static PKCS10 createCertificationRequest(
             String subjectName,
             KeyPair keyPair,
-            Extensions exts
-            ) throws Exception {
+            Extensions exts) throws Exception {
 
         PublicKey publicKey = keyPair.getPublic();
         X509Key key = createX509Key(publicKey);
@@ -1289,8 +1282,7 @@ public class CryptoUtil {
             String subjectName,
             KeyPair keyPair,
             String alg,
-            Extensions exts
-            ) throws Exception {
+            Extensions exts) throws Exception {
 
         logger.info("CryptoUtil: Creating PKCS #10 request");
         X509Key key = createX509Key(keyPair.getPublic());
@@ -1364,8 +1356,8 @@ public class CryptoUtil {
 
     public static String getSKIString(X509CertImpl cert) throws IOException {
 
-        SubjectKeyIdentifierExtension ext = (SubjectKeyIdentifierExtension)
-                cert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
+        SubjectKeyIdentifierExtension ext = (SubjectKeyIdentifierExtension) cert
+                .getExtension(PKIXExtensions.SubjectKey_Id.toString());
 
         byte[] ski;
 
@@ -1382,14 +1374,16 @@ public class CryptoUtil {
         }
 
         // format SKI: xx:xx:xx:...
-        org.mozilla.jss.netscape.security.util.PrettyPrintFormat pp = new org.mozilla.jss.netscape.security.util.PrettyPrintFormat(":", 20);
+        org.mozilla.jss.netscape.security.util.PrettyPrintFormat pp = new org.mozilla.jss.netscape.security.util.PrettyPrintFormat(
+                ":", 20);
         return pp.toHexString(ski).trim();
     }
 
     /*
      * get extention from  PKCS10 request
      */
-    public static org.mozilla.jss.netscape.security.x509.Extension getExtensionFromPKCS10(PKCS10 pkcs10, String extnName)
+    public static org.mozilla.jss.netscape.security.x509.Extension getExtensionFromPKCS10(PKCS10 pkcs10,
+            String extnName)
             throws IOException, CertificateException {
         Extension extn = null;
 
@@ -1420,7 +1414,7 @@ public class CryptoUtil {
             logger.debug(method + " checking extension in request:" + name);
             if (name.equals(extnName)) {
                 logger.debug(method + "extension matches");
-                extn = (Extension)cas.get(name);
+                extn = (Extension) cas.get(name);
             }
         }
 
@@ -1431,51 +1425,41 @@ public class CryptoUtil {
     /*
      * get extension from CRMF cert request (CertTemplate)
      */
-    public static org.mozilla.jss.netscape.security.x509.Extension getExtensionFromCertTemplate(CertTemplate certTemplate, ObjectIdentifier csOID) {
+    public static org.mozilla.jss.netscape.security.x509.Extension getExtensionFromCertTemplate(
+            CertTemplate certTemplate, ObjectIdentifier csOID) {
         //ObjectIdentifier csOID = PKIXExtensions.SubjectKey_Id;
-        OBJECT_IDENTIFIER jssOID =
-                new OBJECT_IDENTIFIER(csOID.toString());
-/*
-        return getExtensionFromCertTemplate(certTemplate, jssOID);
-    }
-    public static org.mozilla.jss.netscape.security.x509.Extension getExtensionFromCertTemplate(CertTemplate certTemplate, org.mozilla.jss.asn1.OBJECT_IDENTIFIER jssOID) {
-*/
-
+        OBJECT_IDENTIFIER jssOID = new OBJECT_IDENTIFIER(csOID.toString());
         String method = "CryptoUtil: getSKIExtensionFromCertTemplate: ";
         Extension extn = null;
 
-       /*
+        /*
         * there seems to be an issue with constructor in Extension
         * when feeding SubjectKeyIdentifierExtension;
         * Special-case it
         */
-        OBJECT_IDENTIFIER SKIoid =
-                new OBJECT_IDENTIFIER(PKIXExtensions.SubjectKey_Id.toString());
+        OBJECT_IDENTIFIER SKIoid = new OBJECT_IDENTIFIER(PKIXExtensions.SubjectKey_Id.toString());
 
         if (certTemplate.hasExtensions()) {
             int numexts = certTemplate.numExtensions();
             for (int j = 0; j < numexts; j++) {
-                 org.mozilla.jss.pkix.cert.Extension jssext =
-                         certTemplate.extensionAt(j);
-                 org.mozilla.jss.asn1.OBJECT_IDENTIFIER extnoid =
-                         jssext.getExtnId();
-                 logger.debug(method + "checking extension in request:" + extnoid);
-                 if (extnoid.equals(jssOID)) {
-                     logger.debug(method + "extension found");
-                     try {
-                       if (jssOID.equals(SKIoid)) {
-                         System.out.println(method + "SKIoid == jssOID");
-                         extn =
-                             new SubjectKeyIdentifierExtension(false, jssext.getExtnValue().toByteArray());
-                       } else {
-                         System.out.println(method + "SKIoid != jssOID");
-                         extn =
-                             new org.mozilla.jss.netscape.security.x509.Extension(csOID, false, jssext.getExtnValue().toByteArray());
-                       }
-                     } catch (IOException e) {
-                       logger.warn(method + e, e);
-                     }
-                 }
+                org.mozilla.jss.pkix.cert.Extension jssext = certTemplate.extensionAt(j);
+                org.mozilla.jss.asn1.OBJECT_IDENTIFIER extnoid = jssext.getExtnId();
+                logger.debug(method + "checking extension in request:" + extnoid);
+                if (extnoid.equals(jssOID)) {
+                    logger.debug(method + "extension found");
+                    try {
+                        if (jssOID.equals(SKIoid)) {
+                            System.out.println(method + "SKIoid == jssOID");
+                            extn = new SubjectKeyIdentifierExtension(false, jssext.getExtnValue().toByteArray());
+                        } else {
+                            System.out.println(method + "SKIoid != jssOID");
+                            extn = new org.mozilla.jss.netscape.security.x509.Extension(csOID, false,
+                                    jssext.getExtnValue().toByteArray());
+                        }
+                    } catch (IOException e) {
+                        logger.warn(method + e, e);
+                    }
+                }
             }
         } else {
             logger.debug(method + "no extension found");
@@ -1497,7 +1481,7 @@ public class CryptoUtil {
      */
     public static void trustCertByNickname(String nickname)
             throws NotInitializedException,
-                TokenException {
+            TokenException {
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate certs[] = cm.findCertsByNickname(nickname);
 
@@ -1525,7 +1509,8 @@ public class CryptoUtil {
     public static void setTrustFlags(X509Certificate cert, String trustFlags) throws Exception {
 
         String[] flags = trustFlags.split(",", -1); // don't remove empty string
-        if (flags.length < 3) throw new Exception("Invalid trust flags: " + trustFlags);
+        if (flags.length < 3)
+            throw new Exception("Invalid trust flags: " + trustFlags);
 
         InternalCertificate internalCert = (InternalCertificate) cert;
         internalCert.setSSLTrust(PKCS12.decodeFlags(flags[0]));
@@ -1601,8 +1586,8 @@ public class CryptoUtil {
         return kg.generate();
     }
 
-     public static SymmetricKey generateKey(CryptoToken token, KeyGenAlgorithm alg, int keySize,
-            SymmetricKey.Usage[] usages, boolean temporary,boolean sensitive) throws Exception {
+    public static SymmetricKey generateKey(CryptoToken token, KeyGenAlgorithm alg, int keySize,
+            SymmetricKey.Usage[] usages, boolean temporary, boolean sensitive) throws Exception {
         KeyGenerator kg = token.getKeyGenerator(alg);
         if (usages != null)
             kg.setKeyUsages(usages);
@@ -1691,7 +1676,7 @@ public class CryptoUtil {
             int p = KEY_ID_LENGTH - tmp.length;
 
             // create filler byte based op the most significant bit
-            byte b = (byte)(value.signum() >= 0 ? 0x00 : 0xff);
+            byte b = (byte) (value.signum() >= 0 ? 0x00 : 0xff);
 
             // fill the extension with the filler byte
             Arrays.fill(array, 0, p, b);
@@ -1723,7 +1708,7 @@ public class CryptoUtil {
     }
 
     public static char[] bytesToChars(byte[] bytes) {
-        if(bytes == null)
+        if (bytes == null)
             return null;
 
         Charset charset = Charset.forName("UTF-8");
@@ -1739,14 +1724,14 @@ public class CryptoUtil {
     }
 
     public static byte[] charsToBytes(char[] chars) {
-        if(chars == null)
+        if (chars == null)
             return null;
 
         Charset charset = Charset.forName("UTF-8");
         ByteBuffer byteBuffer = charset.encode(CharBuffer.wrap(chars));
         byte[] result = Arrays.copyOf(byteBuffer.array(), byteBuffer.limit());
 
-        if(byteBuffer.hasArray()) {
+        if (byteBuffer.hasArray()) {
             byte[] contentsToBeErased = byteBuffer.array();
             CryptoUtil.obscureBytes(contentsToBeErased, "random");
         }
@@ -1756,9 +1741,9 @@ public class CryptoUtil {
     /**
      * Create a jss Password object from a provided byte array.
      */
-    public static Password createPasswordFromBytes(byte[] bytes ) {
+    public static Password createPasswordFromBytes(byte[] bytes) {
 
-        if(bytes == null)
+        if (bytes == null)
             return null;
 
         char[] pwdChars = bytesToChars(bytes);
@@ -1773,7 +1758,7 @@ public class CryptoUtil {
      */
     public static PrivateKey findPrivateKeyFromID(byte id[])
             throws NotInitializedException,
-                TokenException {
+            TokenException {
         CryptoManager cm = CryptoManager.getInstance();
         Enumeration<CryptoToken> enums = cm.getAllTokens();
 
@@ -1798,7 +1783,7 @@ public class CryptoUtil {
      */
     public static X509CertImpl[] getAllUserCerts()
             throws NotInitializedException,
-                TokenException {
+            TokenException {
         Vector<X509CertImpl> certs = new Vector<>();
         CryptoManager cm = CryptoManager.getInstance();
         Enumeration<CryptoToken> enums = cm.getAllTokens();
@@ -1933,11 +1918,11 @@ public class CryptoUtil {
     public static X509Certificate importUserCertificateChain(String c,
             String nickname)
             throws NotInitializedException,
-                NicknameConflictException,
-                UserCertConflictException,
-                NoSuchItemOnTokenException,
-                TokenException,
-                CertificateEncodingException {
+            NicknameConflictException,
+            UserCertConflictException,
+            NoSuchItemOnTokenException,
+            TokenException,
+            CertificateEncodingException {
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate cert = cm.importCertPackage(c.getBytes(), nickname);
 
@@ -1950,11 +1935,11 @@ public class CryptoUtil {
      */
     public static X509Certificate importUserCertificate(byte[] bytes, String nickname)
             throws NotInitializedException,
-                CertificateEncodingException,
-                NoSuchItemOnTokenException,
-                TokenException,
-                NicknameConflictException,
-                UserCertConflictException {
+            CertificateEncodingException,
+            NoSuchItemOnTokenException,
+            TokenException,
+            NicknameConflictException,
+            UserCertConflictException {
 
         CryptoManager cm = CryptoManager.getInstance();
         return cm.importUserCACertPackage(bytes, nickname);
@@ -1985,7 +1970,7 @@ public class CryptoUtil {
     }
 
     public static SecureRandom getRandomNumberGenerator() throws GeneralSecurityException {
-        SecureRandom  rnd = SecureRandom.getInstance("pkcs11prng","Mozilla-JSS");
+        SecureRandom rnd = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
 
         return rnd;
 
@@ -2013,7 +1998,7 @@ public class CryptoUtil {
         }
 
         if ("zeroes".equals(method)) {
-            Arrays.fill(memory, (byte)0);
+            Arrays.fill(memory, (byte) 0);
         } else {
             rnd.nextBytes(memory);
         }
@@ -2033,12 +2018,10 @@ public class CryptoUtil {
 
         Password pass = new Password(recoveryPassphrase.toCharArray());
         try {
-            PasswordConverter passConverter = new
-                        PasswordConverter();
+            PasswordConverter passConverter = new PasswordConverter();
 
             ByteArrayInputStream inStream = new ByteArrayInputStream(wrappedRecoveredKey);
-            cInfo = (EncryptedContentInfo)
-                          new EncryptedContentInfo.Template().decode(inStream);
+            cInfo = (EncryptedContentInfo) new EncryptedContentInfo.Template().decode(inStream);
 
             return cInfo.decrypt(pass, passConverter);
 
@@ -2115,7 +2098,7 @@ public class CryptoUtil {
     public static byte[] createEncodedPKIArchiveOptions(
             CryptoToken token,
             PublicKey wrappingKey,
-            char []data,
+            char[] data,
             WrappingParams params,
             AlgorithmIdentifier aid) throws Exception {
         PKIArchiveOptions opts = createPKIArchiveOptionsInternal(
@@ -2144,7 +2127,7 @@ public class CryptoUtil {
 
         if (passphraseData != null) {
 
-            byte[] secret =  CryptoUtil.charsToBytes(passphraseData);
+            byte[] secret = CryptoUtil.charsToBytes(passphraseData);
             key_data = encryptSecret(
                     token,
                     secret,
@@ -2209,15 +2192,14 @@ public class CryptoUtil {
         ByteArrayInputStream inStream = new ByteArrayInputStream(encoded);
 
         @SuppressWarnings("unused")
-        PKIArchiveOptions options = (PKIArchiveOptions)
-                  (new PKIArchiveOptions.Template()).decode(inStream);
+        PKIArchiveOptions options = (PKIArchiveOptions) (new PKIArchiveOptions.Template()).decode(inStream);
 
         return encoded;
     }
 
     public static PrivateKey importPKIArchiveOptions(
             CryptoToken token, PrivateKey unwrappingKey,
-            PublicKey pubkey, byte[] data,boolean useOAEPKeyWrap)
+            PublicKey pubkey, byte[] data, boolean useOAEPKeyWrap)
             throws InvalidBERException, Exception {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         PKIArchiveOptions options = (PKIArchiveOptions) (new PKIArchiveOptions.Template()).decode(in);
@@ -2236,31 +2218,31 @@ public class CryptoUtil {
 
         KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
 
-        if(useOAEPKeyWrap == true) {
+        if (useOAEPKeyWrap == true) {
             wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
         }
         // des-ede3-cbc
         if (oid.equals(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"))) {
             SymmetricKey sk = unwrap(
-                token, SymmetricKey.Type.DES3, 0, SymmetricKey.Usage.UNWRAP,
-                unwrappingKey, encSymKey.getBits(), wrapAlg);
+                    token, SymmetricKey.Type.DES3, 0, SymmetricKey.Usage.UNWRAP,
+                    unwrappingKey, encSymKey.getBits(), wrapAlg);
             return unwrap(
-                token, pubkey, false, sk, encPrivKey.getBits(),
-                KeyWrapAlgorithm.DES3_CBC_PAD, ivps);
+                    token, pubkey, false, sk, encPrivKey.getBits(),
+                    KeyWrapAlgorithm.DES3_CBC_PAD, ivps);
 
-        // aes128-cbc
+            // aes128-cbc
         } else if (oid.equals(new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.1.2"))) {
             SymmetricKey sk = unwrap(
-                token, SymmetricKey.Type.AES, 0, SymmetricKey.Usage.UNWRAP,
-                unwrappingKey, encSymKey.getBits(), wrapAlg);
+                    token, SymmetricKey.Type.AES, 0, SymmetricKey.Usage.UNWRAP,
+                    unwrappingKey, encSymKey.getBits(), wrapAlg);
             return unwrap(
-                token, pubkey, false, sk, encPrivKey.getBits(),
-                KeyWrapAlgorithm.AES_CBC_PAD, ivps);
+                    token, pubkey, false, sk, encPrivKey.getBits(),
+                    KeyWrapAlgorithm.AES_CBC_PAD, ivps);
 
-        // unsupported algorithm
+            // unsupported algorithm
         } else {
             throw new IOException(
-                "PKIArchiveOptions symmetric algorithm " + oid.toString() + " not supported");
+                    "PKIArchiveOptions symmetric algorithm " + oid.toString() + " not supported");
         }
 
     }
@@ -2340,7 +2322,8 @@ public class CryptoUtil {
         listWrappedKeys.add(wrappedKey);
         //Use the DES3 key to wrap the shared secret
 
-        byte[] wrappedSharedSecret = wrapUsingSymmetricKey(token, wrappingKey, sharedSecretKey, null, KeyWrapAlgorithm.DES3_ECB);
+        byte[] wrappedSharedSecret = wrapUsingSymmetricKey(token, wrappingKey, sharedSecretKey, null,
+                KeyWrapAlgorithm.DES3_ECB);
         listWrappedKeys.add(wrappedSharedSecret);
 
         if (listWrappedKeys.size() != 2) {
@@ -2350,8 +2333,9 @@ public class CryptoUtil {
         return listWrappedKeys;
     }
 
-
-    public static void importSharedSecret(byte[] wrappedSessionKey,byte[] wrappedSharedSecret,String subsystemCertNickname,String sharedSecretNickname) throws Exception, NotInitializedException, TokenException,
+    public static void importSharedSecret(byte[] wrappedSessionKey, byte[] wrappedSharedSecret,
+            String subsystemCertNickname, String sharedSecretNickname)
+            throws Exception, NotInitializedException, TokenException,
             NoSuchAlgorithmException, ObjectNotFoundException, InvalidKeyException, InvalidAlgorithmParameterException,
             IOException {
 
@@ -2369,7 +2353,7 @@ public class CryptoUtil {
         KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
         X509Certificate cert = cm.findCertByNickname(subsystemCertNickname);
         PrivateKey subsystemPrivateKey = cm.findPrivKeyByCert(cert);
-        keyWrap.initUnwrap(subsystemPrivateKey,null);
+        keyWrap.initUnwrap(subsystemPrivateKey, null);
 
         SymmetricKey unwrappedSessionKey = keyWrap.unwrapSymmetric(wrappedSessionKey, SymmetricKey.DES3,
                 0);
@@ -2379,8 +2363,8 @@ public class CryptoUtil {
         //Unwrap shared secret permanently with session key
 
         KeyWrapper sharedSecretWrap = token.getKeyWrapper(KeyWrapAlgorithm.DES3_ECB);
-        sharedSecretWrap.initUnwrap(unwrappedSessionKey,null);
-        unwrappedSharedSecret = sharedSecretWrap.unwrapSymmetricPerm(wrappedSharedSecret,SymmetricKey.DES3,0 );
+        sharedSecretWrap.initUnwrap(unwrappedSessionKey, null);
+        unwrappedSharedSecret = sharedSecretWrap.unwrapSymmetricPerm(wrappedSharedSecret, SymmetricKey.DES3, 0);
         unwrappedSharedSecret.setNickName(sharedSecretNickname);
     }
 
@@ -2422,7 +2406,7 @@ public class CryptoUtil {
          * Get raw string representation of alg parameters, will give
          * us the curve OID.
          */
-        String params =  null;
+        String params = null;
         if (algid != null) {
             params = algid.getParametersString();
         }
@@ -2492,7 +2476,7 @@ public class CryptoUtil {
             KeyWrapAlgorithm wrapAlgorithm, IVParameterSpec wrappingIV) throws Exception {
         KeyWrapper wrapper = token.getKeyWrapper(wrapAlgorithm);
         wrapper.initUnwrap(wrappingKey, wrappingIV);
-        return wrapper.unwrapSymmetric(wrappedData, keyType, usage, strength/8);
+        return wrapper.unwrapSymmetric(wrappedData, keyType, usage, strength / 8);
     }
 
     public static SymmetricKey unwrap(CryptoToken token, SymmetricKey.Type keyType,
@@ -2510,7 +2494,7 @@ public class CryptoUtil {
             keyWrapper.initUnwrap(wrappingKey, null);
         }
 
-        return keyWrapper.unwrapSymmetric(wrappedData, keyType, usage, strength/8);
+        return keyWrapper.unwrapSymmetric(wrappedData, keyType, usage, strength / 8);
     }
 
     public static PrivateKey unwrap(CryptoToken token, PublicKey pubKey, boolean temporary,
@@ -2599,25 +2583,24 @@ public class CryptoUtil {
     }
 
     public static AlgorithmIdentifier getDefaultHashAlg()
-           throws Exception {
+            throws Exception {
         AlgorithmIdentifier hashAlg;
-            hashAlg = new AlgorithmIdentifier(CryptoUtil.getHashAlgorithmOID(getDefaultHashAlgName()));
+        hashAlg = new AlgorithmIdentifier(CryptoUtil.getHashAlgorithmOID(getDefaultHashAlgName()));
         return hashAlg;
     }
 
     /**
-    * importHmacSha1Key returns a key based on a byte array,
-    * which is originally a password. Used for the HMAC Digest algorithms.
-    *
-    * @param key the byte array representing the original password or secret.
-    * @return The JSS SymKey
-    *
-    */
+     * importHmacSha1Key returns a key based on a byte array,
+     * which is originally a password. Used for the HMAC Digest algorithms.
+     *
+     * @param key the byte array representing the original password or secret.
+     * @return The JSS SymKey
+     *
+     */
     public static Key importHmacSha1Key(byte[] key) throws Exception {
         SecretKeyFactory factory = SecretKeyFactory.getInstance("HmacSHA1", "Mozilla-JSS");
         return factory.generateSecret(new SecretKeySpec(key, "SHA1_HMAC"));
     }
-
 
     // The following are useful mapping functions
 
@@ -2646,7 +2629,7 @@ public class CryptoUtil {
      * @return OID of the HMAC algorithm
      */
     public static OBJECT_IDENTIFIER getHMACAlgorithmOID(String name)
-           throws NoSuchAlgorithmException {
+            throws NoSuchAlgorithmException {
         OBJECT_IDENTIFIER oid = null;
         if (name != null) {
             if (name.equals("SHA-256-HMAC")) {
@@ -2657,7 +2640,7 @@ public class CryptoUtil {
                 oid = (HMACAlgorithm.SHA512).toOID();
             }
         }
-        if ( oid == null) {
+        if (oid == null) {
             throw new NoSuchAlgorithmException();
         }
         return oid;
@@ -2671,7 +2654,7 @@ public class CryptoUtil {
      *
      */
     public static OBJECT_IDENTIFIER getHashAlgorithmOID(String name)
-           throws NoSuchAlgorithmException {
+            throws NoSuchAlgorithmException {
         OBJECT_IDENTIFIER oid = null;
         if (name != null) {
             if (name.equals("SHA-256")) {
@@ -2682,7 +2665,7 @@ public class CryptoUtil {
                 oid = (DigestAlgorithm.SHA512).toOID();
             }
         }
-        if ( oid == null) {
+        if (oid == null) {
             throw new NoSuchAlgorithmException();
         }
         return oid;
@@ -2697,7 +2680,7 @@ public class CryptoUtil {
      *
      */
     public static String getNameFromHashAlgorithm(AlgorithmIdentifier ai)
-           throws NoSuchAlgorithmException {
+            throws NoSuchAlgorithmException {
         logger.debug("CryptoUtil: getNameFromHashAlgorithm: " + ai.getOID().toString());
         if (ai != null) {
             if (ai.getOID().equals((DigestAlgorithm.SHA256).toOID())) {
@@ -2712,10 +2695,10 @@ public class CryptoUtil {
     }
 
     /**
-    * Maps from HMACAlgorithm name to JSS Provider HMAC Alg name.
-    */
+     * Maps from HMACAlgorithm name to JSS Provider HMAC Alg name.
+     */
     public static String getHMACAlgName(String name) {
-	logger.debug("CrytoUtil: getHMaCAlgName: name: " + name);
+        logger.debug("CrytoUtil: getHMaCAlgName: name: " + name);
         String mdName = "HmacSHA256";
         if (name != null) {
             if (name.equals("SHA-256-HMAC")) {
@@ -2727,7 +2710,7 @@ public class CryptoUtil {
             }
         }
 
-	logger.debug("CrytoUtil: getHMaCAlgName: returning: " +mdName);
+        logger.debug("CrytoUtil: getHMaCAlgName: returning: " + mdName);
         return mdName;
     }
 
@@ -2758,13 +2741,13 @@ public class CryptoUtil {
 
     public static String mapSignatureAlgorithmToInternalName(SignatureAlgorithm alg) throws NoSuchAlgorithmException {
         String method = "CryptoUtil.mapSignatureAlgorithmToInternalName ";
-        if(alg == null)
+        if (alg == null)
             throw new NoSuchAlgorithmException(method + alg);
         String algname = alg.toString();
         if (algname.equals(SignatureAlgorithm.RSASignatureWithMD5Digest.toString()))
             return "MD5withRSA";
         else if (algname.equals(SignatureAlgorithm.RSASignatureWithMD2Digest.toString()))
-            return  "MD2withRSA";
+            return "MD2withRSA";
         else if (algname.equals(SignatureAlgorithm.RSASignatureWithSHA1Digest.toString()))
             return "SHA1withRSA";
         else if (algname.equals(SignatureAlgorithm.DSASignatureWithSHA1Digest.toString()))
