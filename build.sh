@@ -153,9 +153,8 @@ generate_rpm_spec() {
 
     # hard-code test option
     if [ "$WITHOUT_TEST" = true ] ; then
-        commands="${commands}; s/%\(bcond_without *test\)\$/# \1\n%global with_test 0/g"
-    else
-        commands="${commands}; s/%\(bcond_without *test\)\$/# \1\n%global with_test 1/g"
+        # convert bcond_without into bcond_with such that unit tests do not run by default
+        commands="${commands}; s/%\(bcond_without *test\)\$/# \1\n%bcond_with test/g"
     fi
 
     # hard-code packages to build
