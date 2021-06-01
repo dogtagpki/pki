@@ -48,10 +48,6 @@ jar(pki-cms-jar
 
 set(PKI_CMS_JAR ${CMAKE_BINARY_DIR}/dist/pki-cms.jar CACHE INTERNAL "pki-cms jar file")
 
-if(WITH_SYSTEMD_NOTIFICATION)
-add_subdirectory(systemd)
-endif(WITH_SYSTEMD_NOTIFICATION)
-
 if(WITH_TEST)
     # build pki-server-test
     javac(pki-server-test-classes
