@@ -43,34 +43,36 @@ install(
 
 set(PKI_CMSUTIL_JAR ${CMAKE_BINARY_DIR}/dist/pki-cmsutil.jar CACHE INTERNAL "pki-cmsutil jar file")
 
-javac(pki-util-test-classes
-    SOURCES
-        src/test/java/*.java
-    CLASSPATH
-        ${PKI_CMSUTIL_JAR}
-        ${JSS_JAR} ${LDAPJDK_JAR} ${COMMONS_CODEC_JAR} ${XALAN_JAR} ${XERCES_JAR}
-        ${HAMCREST_JAR} ${JUNIT_JAR}
-    OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/test/classes
-    DEPENDS
-        pki-cmsutil-jar
-)
+if(WITH_TEST)
+    javac(pki-util-test-classes
+        SOURCES
+            src/test/java/*.java
+        CLASSPATH
+            ${PKI_CMSUTIL_JAR}
+            ${JSS_JAR} ${LDAPJDK_JAR} ${COMMONS_CODEC_JAR} ${XALAN_JAR} ${XERCES_JAR}
+            ${HAMCREST_JAR} ${JUNIT_JAR}
+        OUTPUT_DIR
+            ${CMAKE_BINARY_DIR}/test/classes
+        DEPENDS
+            pki-cmsutil-jar
+    )
 
-# TODO: create CMake function to find all JUnit test classes
-add_junit_test(test-pki-util
-    CLASSPATH
-        ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
-        ${PKI_CMSUTIL_JAR}
-        ${JSS_JAR} ${LDAPJDK_JAR} ${COMMONS_CODEC_JAR}
-        ${HAMCREST_JAR} ${JUNIT_JAR}
-        ${CMAKE_BINARY_DIR}/test/classes
-    TESTS
-        com.netscape.cmsutil.crypto.KeyIDCodecTest
-    REPORTS_DIR
-        reports
-    DEPENDS
-        pki-util-test-classes
-)
+    # TODO: create CMake function to find all JUnit test classes
+    add_junit_test(test-pki-util
+        CLASSPATH
+            ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
+            ${PKI_CMSUTIL_JAR}
+            ${JSS_JAR} ${LDAPJDK_JAR} ${COMMONS_CODEC_JAR}
+            ${HAMCREST_JAR} ${JUNIT_JAR}
+            ${CMAKE_BINARY_DIR}/test/classes
+        TESTS
+            com.netscape.cmsutil.crypto.KeyIDCodecTest
+        REPORTS_DIR
+            reports
+        DEPENDS
+            pki-util-test-classes
+    )
+endif(WITH_TEST)
 
 install(
     FILES
