@@ -52,51 +52,52 @@ if(WITH_SYSTEMD_NOTIFICATION)
 add_subdirectory(systemd)
 endif(WITH_SYSTEMD_NOTIFICATION)
 
-# build pki-server-test
-# TODO: build test only when the test is invoked
-javac(pki-server-test-classes
-    DEPENDS
-        pki-util-test-classes pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-cmsbundle-jar
-    SOURCES
-        src/test/java/*.java
-    CLASSPATH
-        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSBUNDLE_JAR}
-        ${LDAPJDK_JAR} ${SERVLET_JAR} ${XALAN_JAR} ${XERCES_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
-        ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
-        ${CMAKE_BINARY_DIR}/test/classes
-    OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/test/classes
-)
+if(WITH_TEST)
+    # build pki-server-test
+    javac(pki-server-test-classes
+        DEPENDS
+            pki-util-test-classes pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-cmsbundle-jar
+        SOURCES
+            src/test/java/*.java
+        CLASSPATH
+            ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSBUNDLE_JAR}
+            ${LDAPJDK_JAR} ${SERVLET_JAR} ${XALAN_JAR} ${XERCES_JAR}
+            ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
+            ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
+            ${CMAKE_BINARY_DIR}/test/classes
+        OUTPUT_DIR
+            ${CMAKE_BINARY_DIR}/test/classes
+    )
 
-# create test target
-# do not include xalan and xerces in class path
-# TODO: create CMake function to find all JUnit test classes
-add_junit_test(test-pki-server
-    DEPENDS
-        pki-server-test-classes
-    CLASSPATH
-        ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
-        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSBUNDLE_JAR}
-        ${LDAPJDK_JAR} ${SERVLET_JAR}
-        ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
-        ${JSS_JAR} ${SYMKEY_JAR}
-        ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
-        ${CMAKE_BINARY_DIR}/test/classes
-    TESTS
-        com.netscape.cmscore.authentication.AuthTokenTest
-        com.netscape.cmscore.dbs.CertRecordListTest
-        com.netscape.cmscore.dbs.DBRegistryTest
-        com.netscape.cmscore.request.AgentApprovalsTest
-        com.netscape.cmscore.request.ExtAttrDynMapperTest
-        com.netscape.cmscore.request.ExtDataHashtableTest
-        com.netscape.cmscore.request.RequestQueueTest
-        com.netscape.cmscore.request.RequestRecordTest
-        com.netscape.cmscore.request.RequestTest
-        com.netscape.cmscore.password.PlainPasswordFileTest
-    REPORTS_DIR
-        reports
-)
+    # create test target
+    # do not include xalan and xerces in class path
+    # TODO: create CMake function to find all JUnit test classes
+    add_junit_test(test-pki-server
+        DEPENDS
+            pki-server-test-classes
+        CLASSPATH
+            ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
+            ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSBUNDLE_JAR}
+            ${LDAPJDK_JAR} ${SERVLET_JAR}
+            ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
+            ${JSS_JAR} ${SYMKEY_JAR}
+            ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
+            ${CMAKE_BINARY_DIR}/test/classes
+        TESTS
+            com.netscape.cmscore.authentication.AuthTokenTest
+            com.netscape.cmscore.dbs.CertRecordListTest
+            com.netscape.cmscore.dbs.DBRegistryTest
+            com.netscape.cmscore.request.AgentApprovalsTest
+            com.netscape.cmscore.request.ExtAttrDynMapperTest
+            com.netscape.cmscore.request.ExtDataHashtableTest
+            com.netscape.cmscore.request.RequestQueueTest
+            com.netscape.cmscore.request.RequestRecordTest
+            com.netscape.cmscore.request.RequestTest
+            com.netscape.cmscore.password.PlainPasswordFileTest
+        REPORTS_DIR
+            reports
+    )
+endif(WITH_TEST)
 
 # Create /usr/share/pki/server/lib. This can be customized for different platforms in RPM spec.
 
