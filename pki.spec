@@ -59,15 +59,14 @@ ExcludeArch: i686
 # Java
 ################################################################################
 
-%define java_devel java-devel
-%define java_headless java-headless
-
-%if 0%{?fedora} >= 33 || 0%{?rhel} > 8
-%define min_java_version 1:11
-%define java_home /usr/lib/jvm/java-11-openjdk
+%if 0%{?fedora} && 0%{?fedora} <= 32 || 0%{?rhel} && 0%{?rhel} <= 8
+%define java_devel java-1.8.0-openjdk-devel
+%define java_headless java-1.8.0-openjdk-headless
+%define java_home /usr/lib/jvm/jre-1.8.0-openjdk
 %else
-%define min_java_version 1:1.8.0
-%define java_home /usr/lib/jvm/java-1.8.0-openjdk
+%define java_devel java-11-openjdk-devel
+%define java_headless java-11-openjdk-headless
+%define java_home /usr/lib/jvm/jre-11-openjdk
 %endif
 
 ################################################################################
@@ -166,7 +165,7 @@ BuildRequires:    make
 BuildRequires:    cmake >= 3.0.2
 BuildRequires:    gcc-c++
 BuildRequires:    zip
-BuildRequires:    %java_devel >= %{min_java_version}
+BuildRequires:    %{java_devel}
 BuildRequires:    javapackages-tools
 BuildRequires:    redhat-rpm-config
 BuildRequires:    ldapjdk >= 4.22.0
@@ -336,7 +335,7 @@ PKI consists of the following components:
 
 Summary:          PKI Symmetric Key Package
 
-Requires:         %java_headless >= %{min_java_version}
+Requires:         %{java_headless}
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.9.0
 Requires:         nss >= 3.38.0
@@ -407,7 +406,7 @@ This package contains PKI client library for Python 3.
 Summary:          PKI Base Java Package
 BuildArch:        noarch
 
-Requires:         %java_headless >= %{min_java_version}
+Requires:         %{java_headless}
 Requires:         apache-commons-cli
 Requires:         apache-commons-codec
 Requires:         apache-commons-io
@@ -847,8 +846,8 @@ cd build
     -DVAR_INSTALL_DIR:PATH=/var \
     -DP11_KIT_TRUST=/etc/alternatives/libnssckbi.so.%{_arch} \
     -DJAVA_VERSION=${java_version} \
-    -DJAVA_HOME=%java_home \
-    -DPKI_JAVA_PATH=%java_home/bin/java \
+    -DJAVA_HOME=%{java_home} \
+    -DPKI_JAVA_PATH=%{java_home}/bin/java \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
     -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
     -DAPP_SERVER=$app_server \
