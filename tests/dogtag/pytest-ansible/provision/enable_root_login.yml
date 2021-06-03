@@ -1,0 +1,22 @@
+- hosts: all
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Enable Root Login, Password Auth, Disable GSSAPICleanupCredentials and GSSAPIAuthentication. Copy authorized keys to /root/.ssh/
+      shell: |
+        sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
+        sed -i 's/PubkeyAuthentication no/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
+        sed -i 's/GSSAPICleanupCredentials yes/GSSAPICleanupCredentials no/g' /etc/ssh/sshd_config
+        sed -i 's/GSSAPIAuthentication yes/GSSAPIAuthentication no/g' /etc/ssh/sshd_config
+        cp /home/fedora/.ssh/authorized_keys /root/.ssh/
+
+    - name: Edit sudoers file
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        insertafter: EOF
+        line: 'root      ALL=(ALL)       NOPASSWD: ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+
+    - name: Restart sshd service
+      shell: systemctl restart sshd
