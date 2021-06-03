@@ -1,0 +1,36 @@
+- hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: copy SSH keys for provisioned machines - for playbooks execution
+      copy:
+        src: "/root/.ssh/{{ item }}"
+        dest: "config"
+        mode: 0400
+      with_items:
+        - "id_rsa"
+        - "id_rsa.pub"
+
+    - name: copy provisioning config file
+      copy:
+        src: "/root/mrack_env/config/provisioning-config.yaml"
+        dest: "config"
+
+    - name: Replace distro in metadata file
+      replace: dest=config/metadata.yaml regexp="distro" replace="fedora-{{ image[-2:] }}"
+
+    - name: Provision machines
+      shell: mrack up
+
+    - name: List provisioned machines
+      shell: "cat config/test.inventory.yaml | grep meta_ip | awk '{print $2}'"
+      register: meta_ip
+
+    - name: Add parameters in Host file
+      lineinfile:
+        path: "config/hosts"
+        line: "{{ item }}"
+        create: "yes"
+      with_items:
+        - "[master]\n{{ meta_ip.stdout }} hostname={{ meta_ip.stdout }}"
+        - "[all]\n{{ meta_ip.stdout }} hostname={{ meta_ip.stdout }}"

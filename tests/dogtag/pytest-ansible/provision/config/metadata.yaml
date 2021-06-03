@@ -1,0 +1,7 @@
+domains:
+- hosts:
+  - group: runner
+    name: master
+    os: distro
+    provider: beaker
+  name: pki1.example.com
