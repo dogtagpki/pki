@@ -61,7 +61,7 @@ ExcludeArch: i686
 
 %define java_devel java-11-openjdk-devel
 %define java_headless java-11-openjdk-headless
-%define java_home /usr/lib/jvm/java-11-openjdk
+%define java_home /usr/lib/jvm/jre-11-openjdk
 
 ################################################################################
 # RESTEasy
