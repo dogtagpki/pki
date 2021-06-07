@@ -31,6 +31,7 @@ import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
@@ -224,6 +225,9 @@ public class CertProcessor extends CAProcessor {
 
         for (IRequest req : reqs) {
             try {
+                IConfigStore profileConf = profile.getConfigStore().getSubStore("auth");
+                boolean explicitApprovalRequired = profileConf.getBoolean("explicitApprovalRequired", false);
+
                 // reset the "auditRequesterID"
                 auditRequesterID = auditRequesterID(req);
 
@@ -242,7 +246,7 @@ public class CertProcessor extends CAProcessor {
                 */
 
                 CMS.debug("CertProcessor.submitRequest: calling profile submit");
-                profile.submit(authToken, req);
+                profile.submit(authToken, req, explicitApprovalRequired);
                 req.setRequestStatus(RequestStatus.COMPLETE);
 
                 X509CertImpl x509cert = req.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);

@@ -518,6 +518,10 @@ public abstract class EnrollProfile extends BasicProfile
      */
     public void submit(IAuthToken token, IRequest request)
             throws EDeferException, EProfileException {
+        submit(token, request, false);
+    }
+    public void submit(IAuthToken token, IRequest request, boolean explicitApprovalRequired)
+            throws EDeferException, EProfileException {
         // Request Submission Logic:
         //
         // if (Authentication Failed) {
@@ -549,8 +553,21 @@ public abstract class EnrollProfile extends BasicProfile
             CMS.debug(e);
         }
 
-        if (token == null){
-            CMS.debug(method + " auth token is null; agent manual approval required;");
+        /*
+         * this is where we decide whether to let agent do manual approval
+         *  or not
+         * If auth.instance_id is not set, then request automatically goes
+         * into queue for agent approval.
+         * If auth.explicitApprovalRequired is true, then the request goes into
+         * queue for agent approval even though auth and authz succeed.
+         */
+         if ((token == null) || (explicitApprovalRequired == true)){
+
+            if (token ==  null)
+                CMS.debug(method + " auth token is null; agent manual approval required;");
+            else
+                CMS.debug(method + "explicitApprovalRequired is true; agent manual approval required");
+
             CMS.debug(method + " validating request");
             validate(request);
             try {
