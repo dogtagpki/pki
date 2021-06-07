@@ -18,7 +18,6 @@
 package com.netscape.cms.password;
 
 import com.netscape.certsrv.password.EPasswordCheckException;
-import com.netscape.certsrv.password.IConfigPasswordCheck;
 import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.cmscore.apps.CMS;
 
@@ -30,7 +29,7 @@ import com.netscape.cmscore.apps.CMS;
  *
  * @version $Revision$, $Date$
  */
-public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
+public class PasswordChecker implements IPasswordCheck {
 
     public static final int MIN_LEN = 8;
 
@@ -38,32 +37,6 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
      * Default constructor.
      */
     public PasswordChecker() {
-    }
-
-    @Override
-    public boolean isGoodConfigPassword(String mPassword) {
-        if (mPassword == null || mPassword.length() == 0) {
-            return false;
-        } else if (mPassword.length() < MIN_LEN) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String getConfigReason(String mPassword) {
-        if (mPassword == null || mPassword.length() == 0) {
-            EPasswordCheckException e = new EPasswordCheckException(
-                    "Empty Password");
-
-            return e.toString();
-        } else if (mPassword.length() < MIN_LEN) {
-            EPasswordCheckException e = new EPasswordCheckException(
-                    "Minimium Length is " + MIN_LEN);
-
-            return e.toString();
-        }
-        return null;
     }
 
     /**
@@ -76,16 +49,11 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
      */
     @Override
     public boolean isGoodPassword(String mPassword) {
-        if (mPassword == null || mPassword.length() == 0) {
-            return false;
-        } else if (mPassword.length() < MIN_LEN) {
-            return false;
-        }
-        return true;
+        return mPassword != null && mPassword.length() >= MIN_LEN;
     }
 
     /**
-     * Returns a reason if the password doesnt meet the quality requirement.
+     * Returns a reason if the password doesn't meet the quality requirement.
      *
      * @return string as a reason if the password quality requirement is not met.
      */
