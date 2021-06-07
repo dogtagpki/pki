@@ -424,6 +424,8 @@ public interface IProfile {
      */
     public void submit(IAuthToken token, IRequest request)
             throws EDeferException, EProfileException;
+    public void submit(IAuthToken token, IRequest request, boolean explicitApprovalRequired)
+            throws EDeferException, EProfileException;
 
     public void setRenewal(boolean renewal);
 
