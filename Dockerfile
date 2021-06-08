@@ -6,7 +6,7 @@
 # https://docs.fedoraproject.org/en-US/containers/guidelines/guidelines/
 
 ARG VENDOR="Dogtag"
-ARG MAINTAINER="Dogtag PKI Team <pki-devel@redhat.com>"
+ARG MAINTAINER="Dogtag PKI Team <devel@lists.dogtagpki.org>"
 ARG COMPONENT="pki-core"
 ARG LICENSE="GPLv2 and LGPLv2"
 ARG ARCH="x86_64"

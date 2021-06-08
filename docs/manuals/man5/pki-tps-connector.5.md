@@ -193,7 +193,7 @@ tps.connector.tks1.uri.encryptData=/tks/agent/tks/encryptData
 
 ## AUTHORS
 
-Dogtag PKI Team &lt;pki-devel@redhat.com&gt;.
+Dogtag PKI Team &lt;devel@lists.dogtagpki.org&gt;.
 
 ## COPYRIGHT
 

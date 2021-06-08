@@ -15,9 +15,8 @@
   <wiki rdf:resource="https://www.dogtagpki.org/wiki/PKI_Main_Page" />
   <download-page rdf:resource="https://www.dogtagpki.org/wiki/PKI_Download" />
   <bug-database rdf:resource="https://bugzilla.redhat.com/" />
-  <mailing-list>pki-devel@redhat.com</mailing-list>
-  <mailing-list>pki-announce@redhat.com</mailing-list>
-  <mailing-list>pki-users@redhat.com</mailing-list>
+  <mailing-list>devel@lists.dogtagpki.org</mailing-list>
+  <mailing-list>users@lists.dogtagpki.org</mailing-list>
   <os>Linux</os>
   <programming-language>Java</programming-language>
   <programming-language>C</programming-language>

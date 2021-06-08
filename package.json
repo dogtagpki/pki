@@ -14,7 +14,7 @@
     "type": "git",
     "url": "git+https://github.com/dogtagpki/pki.git"
   },
-  "author": "Dogtag PKI Team <pki-devel@redhat.com>",
+  "author": "Dogtag PKI Team <devel@lists.dogtagpki.org>",
   "license": "GPL-2.0-or-later OR LGPL-2.0-or-later",
   "bugs": {
     "url": "https://github.com/dogtagpki/pki/issues"
