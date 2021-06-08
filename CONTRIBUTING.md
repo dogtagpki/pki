@@ -84,11 +84,9 @@ While issuing a Pull Request, Github by default, autofills the PR description fr
 
 We lint our Python code against both *PyLint* and *Flake8*; we run PyLint against our own [pylintrc](tools/pylintrc) file.
 
-## Contact
+## Contact Us
 
-You can reach the Dogtag PKI team over the **#dogtag-pki** channel on freenode.net. Note that you need to be a [registered user](https://freenode.net/kb/answer/registration) to message on this channel. You can also send an email to pki-users@redhat.com.
-
-See also [Contact Us](https://www.dogtagpki.org/wiki/Contact_Us)
+See [Contact Us](https://github.com/dogtagpki/pki/wiki/Contact-Us).
 
 ## License
 

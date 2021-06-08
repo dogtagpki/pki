@@ -107,7 +107,7 @@ VERSION = None
 
 setup(
     author='Dogtag Certificate System Team',
-    author_email='pki-devel@redhat.com',
+    author_email='devel@lists.dogtagpki.org',
     name='dogtag-pki',
     version=VERSION,
     description='Client library for Dogtag Certificate System',
