@@ -97,7 +97,7 @@ To customize the internal logging configuration, edit the CS.cfg as needed, then
 
 ## AUTHORS
 
-Dogtag PKI Team &lt;pki-devel@redhat.com&gt;.
+Dogtag PKI Team &lt;devel@lists.dogtagpki.org&gt;.
 
 ## SEE ALSO
 

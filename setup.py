@@ -47,7 +47,7 @@ upgrades.update(find_upgrade('base/server/upgrade',
 
 setup(
     author='Dogtag Certificate System Team',
-    author_email='pki-devel@redhat.com',
+    author_email='devel@lists.dogtagpki.org',
     name='Dogtag PKI',
     version='10',
     description='Dogtag Certificate System',

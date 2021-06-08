@@ -219,7 +219,7 @@ The property is not applicable to:
 
 ## AUTHORS
 
-Dogtag PKI Team &lt;pki-devel@redhat.com&gt;.
+Dogtag PKI Team &lt;devel@lists.dogtagpki.org&gt;.
 
 ## COPYRIGHT
 
