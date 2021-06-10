@@ -82,7 +82,7 @@ While issuing a Pull Request, Github by default, autofills the PR description fr
 
 ### Python Coding Style
 
-We lint our Python code against both *PyLint* and *Flake8*; we run PyLint against our own [pylintrc](tools/pylintrc) file.
+We lint our Python code against both *PyLint* and *Flake8*; we run PyLint against our own [pylintrc](tests/pylintrc) file.
 
 ## Contact Us
 
