@@ -94,7 +94,7 @@ find_file(COMMONS_NET_JAR
 
 find_file(HAMCREST_JAR
     NAMES
-        core.jar
+        core.jar hamcrest.jar
     PATHS
         /usr/share/java/hamcrest
 )
