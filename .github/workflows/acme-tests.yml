@@ -89,7 +89,7 @@ jobs:
           IMAGE=pki-runner \
           NAME=pki \
           HOSTNAME=pki.example.com \
-          ci/runner-init.sh
+          tests/bin/runner-init.sh
 
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
@@ -98,7 +98,7 @@ jobs:
         run: docker exec pki dnf install -y 389-ds-base
 
       - name: Install DS in PKI container
-        run: docker exec pki ${PKIDIR}/ci/ds-create.sh
+        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
 
       - name: Install CA in PKI container
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
@@ -146,7 +146,7 @@ jobs:
           IMAGE=pki-runner \
           NAME=client \
           HOSTNAME=client.example.com \
-          ci/runner-init.sh
+          tests/bin/runner-init.sh
 
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com
@@ -187,8 +187,8 @@ jobs:
       - name: Gather artifacts from PKI container
         if: always()
         run: |
-          ci/ds-artifacts-save.sh pki
-          ci/pki-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh pki
+          tests/bin/pki-artifacts-save.sh pki
 
       - name: Remove ACME from PKI container
         run: |
@@ -199,7 +199,7 @@ jobs:
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from PKI container
-        run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
+        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -243,7 +243,7 @@ jobs:
           IMAGE=pki-runner \
           NAME=pki \
           HOSTNAME=pki.example.com \
-          ci/runner-init.sh
+          tests/bin/runner-init.sh
 
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com --alias server1.example.com
@@ -252,7 +252,7 @@ jobs:
         run: docker exec pki dnf install -y 389-ds-base jq
 
       - name: Install DS in PKI container
-        run: docker exec pki ${PKIDIR}/ci/ds-create.sh
+        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
 
       - name: Install CA in PKI container
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
@@ -286,7 +286,7 @@ jobs:
           IMAGE=pki-runner \
           NAME=client \
           HOSTNAME=client.example.com \
-          ci/runner-init.sh
+          tests/bin/runner-init.sh
 
       - name: Connect client container to network
         run: docker network connect example client --alias client1.example.com --alias client2.example.com
@@ -355,8 +355,8 @@ jobs:
       - name: Gather artifacts from PKI container
         if: always()
         run: |
-          ci/ds-artifacts-save.sh pki
-          ci/pki-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh pki
+          tests/bin/pki-artifacts-save.sh pki
 
       - name: Remove ACME from PKI container
         run: |
@@ -367,7 +367,7 @@ jobs:
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from PKI container
-        run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
+        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -429,7 +429,7 @@ jobs:
           IMAGE=pki-runner \
           NAME=client \
           HOSTNAME=client.example.com \
-          ci/runner-init.sh
+          tests/bin/runner-init.sh
 
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com

@@ -69,7 +69,7 @@ jobs:
           IMAGE=pki-runner \
           NAME=ipa \
           HOSTNAME=ipa.example.com \
-          ci/runner-init.sh
+          tests/bin/runner-init.sh
 
       - name: Connect IPA container to network
         run: docker network connect example ipa --alias ipa.example.com --alias ipa-ca.example.com
@@ -184,14 +184,14 @@ jobs:
           diff expected actual
 
       - name: Run IPA tests in IPA container
-        run: docker exec ipa ${PKIDIR}/ci/ipa-test.sh
+        run: docker exec ipa ${PKIDIR}/tests/bin/ipa-test.sh
 
       - name: Gather artifacts from IPA container
         if: always()
         run: |
-          ci/ds-artifacts-save.sh ipa EXAMPLE-COM
-          ci/pki-artifacts-save.sh ipa
-          ci/ipa-artifacts-save.sh ipa
+          tests/bin/ds-artifacts-save.sh ipa EXAMPLE-COM
+          tests/bin/pki-artifacts-save.sh ipa
+          tests/bin/ipa-artifacts-save.sh ipa
 
       - name: Remove IPA server from IPA container
         run: docker exec ipa ipa-server-install --uninstall -U
@@ -236,7 +236,7 @@ jobs:
           IMAGE=pki-runner \
           NAME=primary \
           HOSTNAME=primary.example.com \
-          ci/runner-init.sh
+          tests/bin/runner-init.sh
 
       - name: Connect primary container to network
         run: docker network connect example primary --alias primary.example.com
@@ -265,7 +265,7 @@ jobs:
           IMAGE=pki-runner \
           NAME=secondary \
           HOSTNAME=secondary.example.com \
-          ci/runner-init.sh
+          tests/bin/runner-init.sh
 
       - name: Connect secondary container to network
         run: docker network connect example secondary --alias secondary.example.com
@@ -303,16 +303,16 @@ jobs:
       - name: Gather artifacts from primary container
         if: always()
         run: |
-          ci/ds-artifacts-save.sh primary EXAMPLE-COM
-          ci/pki-artifacts-save.sh primary
-          ci/ipa-artifacts-save.sh primary
+          tests/bin/ds-artifacts-save.sh primary EXAMPLE-COM
+          tests/bin/pki-artifacts-save.sh primary
+          tests/bin/ipa-artifacts-save.sh primary
 
       - name: Gather artifacts from secondary container
         if: always()
         run: |
-          ci/ds-artifacts-save.sh secondary EXAMPLE-COM
-          ci/pki-artifacts-save.sh secondary
-          ci/ipa-artifacts-save.sh secondary
+          tests/bin/ds-artifacts-save.sh secondary EXAMPLE-COM
+          tests/bin/pki-artifacts-save.sh secondary
+          tests/bin/ipa-artifacts-save.sh secondary
 
       - name: Disconnect secondary container from network
         run: docker network disconnect example secondary

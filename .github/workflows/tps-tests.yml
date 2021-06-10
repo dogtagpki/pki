@@ -67,13 +67,13 @@ jobs:
           IMAGE=pki-runner \
           NAME=pki \
           HOSTNAME=pki.example.com \
-          ci/runner-init.sh
+          tests/bin/runner-init.sh
 
       - name: Install dependencies
         run: docker exec pki dnf install -y 389-ds-base
 
       - name: Install DS
-        run: docker exec pki ${PKIDIR}/ci/ds-create.sh
+        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
 
       - name: Install CA
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
@@ -154,8 +154,8 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          ci/ds-artifacts-save.sh pki
-          ci/pki-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh pki
+          tests/bin/pki-artifacts-save.sh pki
 
       - name: Remove TPS
         run: docker exec pki pkidestroy -i pki-tomcat -s TPS -v
@@ -170,7 +170,7 @@ jobs:
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS
-        run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
+        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -215,7 +215,7 @@ jobs:
           IMAGE=pki-runner \
           NAME=primary \
           HOSTNAME=primary.example.com \
-          ci/runner-init.sh
+          tests/bin/runner-init.sh
 
       - name: Connect primary container to network
         run: docker network connect example primary --alias primary.example.com
@@ -224,7 +224,7 @@ jobs:
         run: docker exec primary dnf install -y 389-ds-base
 
       - name: Install DS in primary container
-        run: docker exec primary ${PKIDIR}/ci/ds-create.sh
+        run: docker exec primary ${PKIDIR}/tests/bin/ds-create.sh
 
       - name: Install CA in primary container
         run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
@@ -243,7 +243,7 @@ jobs:
           IMAGE=pki-runner \
           NAME=secondary \
           HOSTNAME=secondary.example.com \
-          ci/runner-init.sh
+          tests/bin/runner-init.sh
 
       - name: Connect secondary container to network
         run: docker network connect example secondary --alias secondary.example.com
@@ -252,7 +252,7 @@ jobs:
         run: docker exec secondary dnf install -y 389-ds-base
 
       - name: Install DS in secondary container
-        run: docker exec secondary ${PKIDIR}/ci/ds-create.sh
+        run: docker exec secondary ${PKIDIR}/tests/bin/ds-create.sh
 
       - name: Install CA in secondary container
         run: |
@@ -293,14 +293,14 @@ jobs:
       - name: Gather artifacts from primary container
         if: always()
         run: |
-          ci/ds-artifacts-save.sh primary
-          ci/pki-artifacts-save.sh primary
+          tests/bin/ds-artifacts-save.sh primary
+          tests/bin/pki-artifacts-save.sh primary
 
       - name: Gather artifacts from secondary container
         if: always()
         run: |
-          ci/ds-artifacts-save.sh secondary
-          ci/pki-artifacts-save.sh secondary
+          tests/bin/ds-artifacts-save.sh secondary
+          tests/bin/pki-artifacts-save.sh secondary
 
       - name: Remove TPS from secondary container
         run: docker exec secondary pkidestroy -i pki-tomcat -s TPS -v
@@ -315,7 +315,7 @@ jobs:
         run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from secondary container
-        run: docker exec secondary ${PKIDIR}/ci/ds-remove.sh
+        run: docker exec secondary ${PKIDIR}/tests/bin/ds-remove.sh
 
       - name: Disconnect secondary container from network
         run: docker network disconnect example secondary
@@ -333,7 +333,7 @@ jobs:
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from primary container
-        run: docker exec primary ${PKIDIR}/ci/ds-remove.sh
+        run: docker exec primary ${PKIDIR}/tests/bin/ds-remove.sh
 
       - name: Disconnect primary container from network
         run: docker network disconnect example primary
