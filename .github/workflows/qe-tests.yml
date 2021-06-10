@@ -76,14 +76,14 @@ jobs:
           IMAGE=pki-runner \
           NAME=pki1 \
           HOSTNAME=pki1.example.com \
-          ci/runner-init.sh
+          tests/bin/runner-init.sh
 
       - name: Install dependencies in master container
         run: docker exec pki1 dnf install -y 389-ds-base python3-pip
 
       - name: Set up inventory
         run: |
-          sed -e "s/TOPOLOGY/topology-02/g" ci/inventory > inventory
+          sed -e "s/TOPOLOGY/topology-02/g" tests/inventory > inventory
           ansible -i inventory -m setup master
 
       - name: Set up topology-02
@@ -110,7 +110,7 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          ci/ds-artifacts-save.sh pki1 topology-02-testingmaster
+          tests/bin/ds-artifacts-save.sh pki1 topology-02-testingmaster
           mkdir -p /tmp/artifacts/pki1/etc/pki
           mkdir -p /tmp/artifacts/pki1/var/log
           docker exec pki1 ls -la /etc/pki
