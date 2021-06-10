@@ -64,13 +64,6 @@ find_file(COMMONS_COLLECTIONS_JAR
         /usr/share/java
 )
 
-find_file(COMMONS_HTTPCLIENT_JAR
-    NAMES
-        commons-httpclient.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(COMMONS_IO_JAR
     NAMES
         commons-io.jar
