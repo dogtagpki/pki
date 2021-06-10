@@ -3,12 +3,15 @@ SCRIPT_PATH=`readlink -f "$0"`
 SCRIPT_NAME=`basename "$SCRIPT_PATH"`
 SRC_DIR=`dirname "$SCRIPT_PATH"`
 
+RC_FILE="/usr/share/pki/tests/pylintrc"
+FLAKE8_CONFIG="/usr/share/pki/tests/tox.ini"
+
 usage() {
     echo "Usage: $SCRIPT_NAME [OPTIONS]"
     echo
     echo "Options:"
-    echo "    --rcfile=<path>        Path to RC file to be passed to pylint (default: pylintrc)."
-    echo "    --config=<path>        Path to tox.ini to be used by flake8 (default: ../tox.ini)."
+    echo "    --rcfile=<path>        pylint configuration (default: $RC_FILE)"
+    echo "    --config=<path>        flake8 configuration (default: $FLAKE8_CONFIG)"
     echo " -v,--verbose              Run in verbose mode."
     echo "    --debug                Run in debug mode."
     echo "    --help                 Show help message."
@@ -19,9 +22,6 @@ rpm -q python3-pylint python3-flake8 python3-pyflakes
 # Python files are present in python3-pki and pki-server packages. Get the list of the files
 PYTHON_PKI_FILES=`rpm -ql python3-pki | grep .py$`
 PYTHON_PKI_FILES="$PYTHON_PKI_FILES `rpm -ql pki-server | grep .py$`"
-
-RC_FILE='/usr/share/pki/tests/pylintrc'
-FLAKE8_CONFIG='/usr/share/pki/tests/tox.ini'
 
 while getopts v-: arg ; do
     case $arg in
