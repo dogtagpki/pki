@@ -7,7 +7,7 @@ javac(pki-certsrv-classes
     CLASSPATH
         ${SLF4J_API_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${XALAN_JAR} ${XERCES_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR} ${COMMONS_IO_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
         ${COMMONS_LANG3_JAR} ${COMMONS_CLI_JAR}
         ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
         ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
@@ -56,7 +56,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E make_directory lib
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_CLI_JAR} lib/commons-cli.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_CODEC_JAR} lib/commons-codec.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_HTTPCLIENT_JAR} lib/commons-httpclient.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_IO_JAR} lib/commons-io.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LANG3_JAR} lib/commons-lang3.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LOGGING_JAR} lib/commons-logging.jar
