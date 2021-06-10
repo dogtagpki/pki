@@ -173,6 +173,7 @@ BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
 BuildRequires:    apache-commons-lang3 >= 3.2
+BuildRequires:    apache-commons-logging
 BuildRequires:    apache-commons-net
 BuildRequires:    glassfish-jaxb-api
 BuildRequires:    slf4j
