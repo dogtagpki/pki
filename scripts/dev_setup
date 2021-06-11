@@ -34,20 +34,20 @@ if [ "${MY_UID}"  != "${ROOTUID}" ] &&
 fi
 
 
-if [ -f "/usr/lib64/java/jss4.jar" ] ; then
-	JSS_TARGET=/usr/lib64/java/jss4.jar
+if [ -f "/usr/lib64/java/jss.jar" ] ; then
+	JSS_TARGET=/usr/lib64/java/jss.jar
 	ARCH=64
 
-elif [ -f "/usr/lib/java/jss4.jar" ] ; then
-	JSS_TARGET=/usr/lib/java/jss4.jar
+elif [ -f "/usr/lib/java/jss.jar" ] ; then
+	JSS_TARGET=/usr/lib/java/jss.jar
 	ARCH=32
 
 else
-	printf "ERROR: jss4.jar not found\n"
+	printf "ERROR: jss.jar not found\n"
 	exit 255
 fi
 
-JSS_LINK=/usr/share/java/jss/jss4.jar
+JSS_LINK=/usr/share/java/jss/jss.jar
 
 mkdir -p `dirname $JSS_LINK`
 ln -sf $JSS_TARGET $JSS_LINK

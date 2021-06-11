@@ -328,7 +328,7 @@ class PKIInstance(pki.server.PKIServer):
 
         # install PKI libraries in common/lib
         for filename in [
-                'jss4.jar',
+                'jss.jar',
                 'ldapjdk.jar',
                 'pki-cmsutil.jar',
                 'pki-tomcat.jar',

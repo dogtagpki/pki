@@ -191,7 +191,7 @@ find_file(JAKARTA_ACTIVATION_JAR
 
 find_file(JSS_JAR
     NAMES
-        jss4.jar
+        jss.jar
     PATHS
         ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
