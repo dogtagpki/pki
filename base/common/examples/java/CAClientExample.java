@@ -36,7 +36,7 @@ import com.netscape.certsrv.client.PKIClient;
  * $ pki -c Secret.123 pkcs12-import --pkcs12 &lt;file&gt; --password &lt;password&gt;
  *
  * To compile the program:
- * $ javac -cp "/usr/lib/java/jss4.jar:../../lib/*" CAClientExample.java
+ * $ javac -cp "/usr/lib/java/jss.jar:../../lib/*" CAClientExample.java
  *
  * To run the program:
  * $ java -cp "../../lib/*:." CAClientExample
