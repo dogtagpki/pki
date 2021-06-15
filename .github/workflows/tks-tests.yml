@@ -3,15 +3,31 @@ name: TKS Tests
 on: [push, pull_request]
 
 jobs:
+  init:
+    name: Initializing Workflow
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set up test matrix
+        id: set-matrix
+        run: |
+          if [ "${{ secrets.MATRIX }}" == "" ]
+          then
+              echo "::set-output name=matrix::{\"os\":[\"33\", \"34\"]}"
+          else
+              echo "::set-output name=matrix::${{ secrets.MATRIX }}"
+          fi
+
   # docs/development/Building_PKI.md
   build:
     name: Building PKI
+    needs: init
     runs-on: ubuntu-latest
     env:
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -40,15 +56,14 @@ jobs:
   # docs/installation/tks/Installing_TKS.md
   tks-test:
     name: Installing TKS
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -121,15 +136,14 @@ jobs:
   # then installs DS clone, CA clone, and TKS clone in the secondary container.
   tks-clone-test:
     name: Installing TKS Clone
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2

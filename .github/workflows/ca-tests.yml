@@ -3,15 +3,31 @@ name: CA Tests
 on: [push, pull_request]
 
 jobs:
+  init:
+    name: Initializing Workflow
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set up test matrix
+        id: set-matrix
+        run: |
+          if [ "${{ secrets.MATRIX }}" == "" ]
+          then
+              echo "::set-output name=matrix::{\"os\":[\"33\", \"34\"]}"
+          else
+              echo "::set-output name=matrix::${{ secrets.MATRIX }}"
+          fi
+
   # docs/development/Building_PKI.md
   build:
     name: Building PKI
+    needs: init
     runs-on: ubuntu-latest
     env:
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -40,15 +56,14 @@ jobs:
   # docs/installation/ca/Installing_CA.md
   ca-test:
     name: Installing CA
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -151,15 +166,14 @@ jobs:
   # docs/installation/ca/Installing_CA_with_ECC.md
   ca-ecc-test:
     name: Installing CA with ECC
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -240,15 +254,14 @@ jobs:
   # docs/installation/ca/Installing_Subordinate_CA.md
   subca-test:
     name: Installing Subordinate CA
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -369,15 +382,14 @@ jobs:
   # docs/installation/ca/Installing_CA_with_External_CA_Signing_Certificate.md
   ca-external-cert-test:
     name: Installing CA with External Signing Certificate
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -463,15 +475,14 @@ jobs:
   # docs/installation/ca/Installing_CA_with_Existing_Keys_in_Internal_Token.md
   ca-existing-certs-test:
     name: Installing CA with Existing Certificates
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -610,15 +621,14 @@ jobs:
   # docs/installation/ca/Installing_CA_Clone.md
   ca-clone-test:
     name: Installing CA Clone
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -795,15 +805,14 @@ jobs:
   # docs/installation/ca/Installing_CA_with_Secure_Database_Connection.md
   ca-secure-ds-test:
     name: Installing CA with Secure DS
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -940,15 +949,14 @@ jobs:
   # docs/installation/ca/Installing_CA_with_Secure_Database_Connection.md
   ca-clone-secure-ds-test:
     name: Installing CA Clone with Secure DS
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
