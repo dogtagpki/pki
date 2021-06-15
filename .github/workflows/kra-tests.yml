@@ -3,15 +3,31 @@ name: KRA Tests
 on: [push, pull_request]
 
 jobs:
+  init:
+    name: Initializing Workflow
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set up test matrix
+        id: set-matrix
+        run: |
+          if [ "${{ secrets.MATRIX }}" == "" ]
+          then
+              echo "::set-output name=matrix::{\"os\":[\"33\", \"34\"]}"
+          else
+              echo "::set-output name=matrix::${{ secrets.MATRIX }}"
+          fi
+
   # docs/development/Building_PKI.md
   build:
     name: Building PKI
+    needs: init
     runs-on: ubuntu-latest
     env:
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -40,15 +56,14 @@ jobs:
   # docs/installation/kra/Installing_KRA.md
   kra-test:
     name: Installing KRA
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -125,15 +140,14 @@ jobs:
   # docs/installation/kra/Installing_KRA_on_Separate_Instance.md
   kra-separate-test:
     name: Installing KRA on Separate Instance
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -269,15 +283,14 @@ jobs:
   # docs/installation/kra/Installing_KRA_with_External_Certificates.md
   kra-external-certs-test:
     name: Installing KRA with External Certificates
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -464,15 +477,14 @@ jobs:
   # docs/installation/kra/Installing_KRA_Clone.md
   kra-clone-test:
     name: Installing KRA Clone
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -672,15 +684,14 @@ jobs:
 
   kra-standalone-test:
     name: Installing Standalone KRA
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
