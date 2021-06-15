@@ -460,6 +460,7 @@ class NSSDatabase(object):
             # Add cert in two steps due to bug #1393668.
 
             # If HSM is used, import cert into HSM without trust attributes.
+            # unless trust attributes are specified
             if token:
                 cmd = [
                     'certutil',
@@ -472,11 +473,14 @@ class NSSDatabase(object):
                 if password_file:
                     cmd.extend(['-f', password_file])
 
+                if not trust_attributes:
+                    trust_attributes = ''
+
                 cmd.extend([
                     '-n', nickname,
                     '-a',
                     '-i', cert_file,
-                    '-t', ''
+                    '-t', trust_attributes
                 ])
 
                 logger.debug('Command: %s', ' '.join(map(str, cmd)))
