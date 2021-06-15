@@ -3,16 +3,32 @@ name: Tools Tests
 on: [push, pull_request]
 
 jobs:
+  init:
+    name: Initializing Workflow
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set up test matrix
+        id: set-matrix
+        run: |
+          if [ "${{ secrets.MATRIX }}" == "" ]
+          then
+              echo "::set-output name=matrix::{\"os\":[\"33\", \"34\"]}"
+          else
+              echo "::set-output name=matrix::${{ secrets.MATRIX }}"
+          fi
+
   # docs/development/Building_PKI.md
   build:
     name: Building PKI
+    needs: init
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Install git
         run: dnf install -y git
@@ -37,14 +53,13 @@ jobs:
 
   PKICertImport-test:
     name: PKICertImport test
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -67,14 +82,13 @@ jobs:
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-rsa-test:
     name: Testing PKI NSS CLI with RSA
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Download PKI packages
         uses: actions/download-artifact@v2
@@ -216,14 +230,13 @@ jobs:
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-ecc-test:
     name: Testing PKI NSS CLI with ECC
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Download PKI packages
         uses: actions/download-artifact@v2
@@ -367,7 +380,7 @@ jobs:
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-hsm-test:
     name: PKI NSS CLI with HSM
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
@@ -444,14 +457,13 @@ jobs:
   # docs/user/tools/Using-PKI-PKCS7-CLI.adoc
   pki-pkcs7-test:
     name: PKI PKCS7 CLI
-    needs: build
+    needs: [init, build]
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
       COPR_REPO: "@pki/master"
     strategy:
-      matrix:
-        os: ['33', '34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Download PKI packages
         uses: actions/download-artifact@v2
