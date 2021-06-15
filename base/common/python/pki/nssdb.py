@@ -491,11 +491,20 @@ class NSSDatabase(object):
             # If HSM is not used, or cert has trust attributes,
             # import cert into internal token.
             if not token or trust_attributes != ',,':
-                cmd = [
-                    'certutil',
-                    '-A',
-                    '-d', self.directory
-                ]
+                if token and trust_attributes != ',,':
+                  cmd = [
+                      'certutil',
+                      '-M',
+                      '-d', self.directory
+                  ]
+
+                  nickname = token + ":" + nickname
+                else:
+                  cmd = [
+                      'certutil',
+                      '-A',
+                      '-d', self.directory
+                  ]
 
                 if self.internal_password_file:
                     cmd.extend(['-f', self.internal_password_file])
