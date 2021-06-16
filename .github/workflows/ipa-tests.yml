@@ -77,7 +77,7 @@ jobs:
       - name: Install IPA packages in IPA container
         run: |
           docker exec ipa dnf copr enable -y @freeipa/freeipa-master-nightly
-          docker exec ipa dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad \
+          docker exec ipa dnf install -y freeipa-server freeipa-server-dns \
               python3-ipatests freeipa-healthcheck
 
       - name: Install IPA server in IPA container
@@ -244,7 +244,7 @@ jobs:
       - name: Install IPA packages in primary container
         run: |
           docker exec primary dnf copr enable -y @freeipa/freeipa-master-nightly
-          docker exec primary dnf install -y freeipa-server
+          docker exec primary dnf install -y freeipa-server freeipa-server-dns
 
       - name: Install IPA server in primary container
         run: |
@@ -256,6 +256,7 @@ jobs:
               -p Secret.123 \
               -a Secret.123 \
               --setup-kra \
+              --no-host-dns \
               --no-ntp
           docker exec primary bash -c "echo Secret.123 | kinit admin"
           docker exec primary klist
@@ -273,7 +274,7 @@ jobs:
       - name: Install IPA packages in secondary container
         run: |
           docker exec secondary dnf copr enable -y @freeipa/freeipa-master-nightly
-          docker exec secondary dnf install -y freeipa-server
+          docker exec secondary dnf install -y freeipa-server freeipa-server-dns
 
       - name: Install IPA client in secondary container
         run: |
@@ -290,7 +291,11 @@ jobs:
           docker exec secondary klist
 
       - name: Promote IPA client into IPA replica in secondary container
-        run: docker exec secondary ipa-replica-install --setup-ca --setup-kra
+        run: |
+          docker exec secondary ipa-replica-install \
+              --no-host-dns \
+              --setup-ca \
+              --setup-kra
 
       - name: Verify CA admin
         run: |
