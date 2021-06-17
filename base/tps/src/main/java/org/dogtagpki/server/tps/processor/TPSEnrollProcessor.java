@@ -2251,7 +2251,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             logger.debug(method + ": publicKeyAttrId: " + publicKeyAttrId);
 
             configName = keyTypePrefix + ".keySize";
-            int keySize = configStore.getInteger(configName, 1024);
+            int keySize = configStore.getInteger(configName, 2048);
             logger.debug(method + ": keySize: " + keySize);
 
             //Default RSA_CRT=2

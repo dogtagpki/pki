@@ -466,13 +466,13 @@ function validate()
             var signKeyType = "rsa-sign";
             var dualKeyType = "rsa-dual-use";
             var encKeyParams = null;
-            var encKeySize = 1024; 
+            var encKeySize = 2048;
             var signKeyParams = null;
-            var signKeySize = 1024; 
+            var signKeySize = 2048;
             var keyParams = null;
             // Give this default because the ECC crytpo codes requires and integer
             // for this value even if presenting ECC curve name parameter.
-            var keySize = 1024;
+            var keySize = 2048;
 
             try {
                 if (dual == 'true') {

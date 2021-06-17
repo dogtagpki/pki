@@ -105,7 +105,7 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest {
     public static void main(String[] args) {
         AsymKeyGenerationRequest request = new AsymKeyGenerationRequest();
         request.setKeyAlgorithm(KeyRequestResource.RSA_ALGORITHM);
-        request.setKeySize(1024);
+        request.setKeySize(2048);
         request.setClientKeyId("vek12345");
         List<String> usages = new ArrayList<>();
         usages.add(AsymKeyGenerationRequest.ENCRYPT);
