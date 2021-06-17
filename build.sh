@@ -20,6 +20,7 @@ WITH_COMMIT_ID=
 DIST=
 
 WITHOUT_TEST=
+WITH_CONSOLE=
 
 WITH_PKGS=
 WITHOUT_PKGS=
@@ -39,6 +40,7 @@ usage() {
     echo "    --with-commit-id       Append commit ID to release number."
     echo "    --dist=<name>          Distribution name (e.g. fc28)."
     echo "    --without-test         Do not run unit tests."
+    echo "    --with-console         Build console package."
     echo "    --with-pkgs=<list>     Build packages specified in comma-separated list only."
     echo "    --without-pkgs=<list>  Build everything except packages specified in comma-separated list."
     echo " -v,--verbose              Run in verbose mode."
@@ -46,7 +48,7 @@ usage() {
     echo "    --help                 Show help message."
     echo
     echo "Packages:"
-    echo "    base, server, acme, ca, kra, ocsp, tks, tps, javadoc, console, theme, meta, tests, debug"
+    echo "    base, server, acme, ca, kra, ocsp, tks, tps, javadoc, theme, meta, tests, debug"
     echo
     echo "Target:"
     echo "    src    Generate RPM sources."
@@ -151,10 +153,14 @@ generate_rpm_spec() {
         commands="${commands}; s/# Patch: pki-VERSION-RELEASE.patch/Patch: $PATCH/g"
     fi
 
-    # hard-code test option
     if [ "$WITHOUT_TEST" = true ] ; then
-        # convert bcond_without into bcond_with such that unit tests do not run by default
-        commands="${commands}; s/%\(bcond_without *test\)\$/# \1\n%bcond_with test/g"
+        # convert bcond_without into bcond_with to skip unit tests by default
+        commands="${commands}; s/%bcond_without *test\$/%bcond_with test/g"
+    fi
+
+    if [ "$WITH_CONSOLE" = true ] ; then
+        # convert bcond_with into bcond_without to build console by default
+        commands="${commands}; s/%bcond_with *console\$/%bcond_without console/g"
     fi
 
     # hard-code packages to build
@@ -239,6 +245,9 @@ while getopts v-: arg ; do
             ;;
         without-test)
             WITHOUT_TEST=true
+            ;;
+        with-console)
+            WITH_CONSOLE=true
             ;;
         with-pkgs=?*)
             if [ "$WITHOUT_PKGS" != "" ]; then
@@ -441,6 +450,10 @@ fi
 
 if [ "$WITHOUT_TEST" = true ] ; then
     OPTIONS+=(--without test)
+fi
+
+if [ "$WITH_CONSOLE" = true ] ; then
+    OPTIONS+=(--with console)
 fi
 
 if [ "$WITH_PKGS" != "" ] ; then

@@ -74,10 +74,11 @@ ExcludeArch: i686
 # PKI
 ################################################################################
 
-# By default the build will execute unit tests unless --without test
-# option is specified.
-
+# Execute unit tests unless --without test is specified.
 %bcond_without test
+
+# Don't build console unless --with console is specified.
+%bcond_with console
 
 # By default all packages will be built except the ones specified with
 # --without <package> option (exclusion method).
@@ -108,9 +109,6 @@ ExcludeArch: i686
 %package_option tks
 %package_option tps
 %package_option javadoc
-%if 0%{?fedora} && 0%{?fedora} <= 34 || 0%{?rhel} && 0%{?rhel} <= 8
-%package_option console
-%endif
 %package_option theme
 %package_option meta
 %package_option tests
