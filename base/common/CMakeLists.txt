@@ -46,6 +46,48 @@ jar(pki-certsrv-jar
 
 set(PKI_CERTSRV_JAR ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar CACHE INTERNAL "pki-certsrv jar file")
 
+if(WITH_TEST)
+    javac(pki-certsrv-test-classes
+        SOURCES
+            src/test/java/*.java
+        CLASSPATH
+            ${JAKARTA_ACTIVATION_JAR}
+            ${JAXB_API_JAR} ${JAXB_IMPL_JAR}
+            ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
+            ${JSS_JAR}
+            ${COMMONS_CLI_JAR} ${COMMONS_LANG3_JAR}
+            ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+            ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
+            ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
+            ${HAMCREST_JAR} ${JUNIT_JAR}
+        OUTPUT_DIR
+            ${CMAKE_BINARY_DIR}/test/classes
+        DEPENDS
+            pki-certsrv-jar
+    )
+
+    # TODO: create CMake function to find all JUnit test classes
+    add_junit_test(test-pki-certsrv
+        CLASSPATH
+            ${JAKARTA_ACTIVATION_JAR}
+            ${JAXB_API_JAR} ${JAXB_IMPL_JAR}
+            ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
+            ${JSS_JAR}
+            ${COMMONS_CLI_JAR} ${COMMONS_LANG3_JAR}
+            ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+            ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
+            ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
+            ${HAMCREST_JAR} ${JUNIT_JAR}
+            ${CMAKE_BINARY_DIR}/test/classes
+        TESTS
+            com.netscape.certsrv.user.UserCertDataTest
+        REPORTS_DIR
+            reports
+        DEPENDS
+            pki-certsrv-test-classes
+    )
+endif(WITH_TEST)
+
 # Create /usr/share/pki/lib. This can be customized for different platforms in RPM spec.
 
 add_custom_target(pki-lib ALL
