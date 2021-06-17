@@ -19,6 +19,8 @@ package com.netscape.certsrv.dbs.certdb;
 
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * The CertId class represents the identifier for a particular
  * cert record. This identifier may be used to retrieve the cert record
@@ -104,6 +106,7 @@ public class CertId {
      * @return
      *         a string containing the hex (hex 16) value for the identifier.
      */
+    @JsonValue
     public String toHexString() {
         return "0x" + value.toString(16);
     }
