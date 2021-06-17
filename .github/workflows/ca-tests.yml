@@ -117,30 +117,11 @@ jobs:
         run: |
           docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-create.sh
 
-      - name: Verify creating and revoking CA agent cert
+      - name: Verify creating, revoking, and unrevoking CA agent cert
         run: |
-          # submit a cert request and capture the request ID
-          docker exec pki pki client-cert-request uid=caagent | sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" > request_id
-          # approve the cert request and capture the cert ID
-          docker exec pki pki -n caadmin ca-cert-request-approve `cat request_id` --force | sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" > cert_id
-          # assign the cert to the user
-          docker exec pki pki -n caadmin ca-user-cert-add caagent --serial `cat cert_id`
-          # import the cert into client
-          docker exec pki pki client-cert-import caagent --serial `cat cert_id`
-          # test the client certificate
-          docker exec pki pki -n caagent ca-cert-request-find
-
-          # revoke the cert
-          docker exec pki pki -n caadmin ca-cert-hold `cat cert_id` --force
-          # revoked cert should not work
-          docker exec pki pki -n caagent ca-cert-request-find || echo $? > actual
-          echo 255 > expected
-          diff actual expected
-
-          # unrevoke the cert
-          docker exec pki pki -n caadmin ca-cert-release-hold `cat cert_id` --force
-          # unrevoked cert should work again
-          docker exec pki pki -n caagent ca-cert-request-find
+          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-create.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-revoke.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-unrevoke.sh
 
       - name: Gather artifacts
         if: always()
