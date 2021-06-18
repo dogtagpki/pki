@@ -59,7 +59,7 @@ if(WITH_TEST)
             ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
             ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
             ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
-            ${HAMCREST_JAR} ${JUNIT_JAR}
+            ${HAMCREST_JAR} ${JUNIT_JAR} ${JAXRS_API_JAR}
         OUTPUT_DIR
             ${CMAKE_BINARY_DIR}/test/classes
         DEPENDS
@@ -81,6 +81,10 @@ if(WITH_TEST)
             ${CMAKE_BINARY_DIR}/test/classes
         TESTS
             com.netscape.certsrv.account.AccountTest
+            com.netscape.certsrv.authority.AuthorityDataTest
+            com.netscape.certsrv.base.DataTest
+            com.netscape.certsrv.base.LinkTest
+            com.netscape.certsrv.base.ResourceMessageTest
             com.netscape.certsrv.user.UserCertDataTest
         REPORTS_DIR
             reports
