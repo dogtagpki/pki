@@ -21,7 +21,10 @@
  */
 package com.netscape.certsrv.authority;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.math.BigInteger;
+import java.util.Objects;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -31,89 +34,104 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
 
 @XmlRootElement(name = "authority")
 @XmlAccessorType(XmlAccessType.FIELD)
+
 public class AuthorityData {
 
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(AuthorityData.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(AuthorityData.class).createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @XmlAttribute
-    protected Boolean isHostAuthority;
+    private Boolean isHostAuthority;
 
     public Boolean getIsHostAuthority() {
         return isHostAuthority;
     }
 
+    public void setIsHostAuthority(Boolean isHostAuthority) {
+        this.isHostAuthority = isHostAuthority;
+    }
 
     @XmlAttribute
-    protected String id;
+    private String id;
 
     public String getID() {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
 
     @XmlAttribute
-    protected String parentID;
+    private String parentID;
 
     public String getParentID() {
         return parentID;
     }
 
+    public void setParentID(String parentID) {
+        this.parentID = parentID;
+    }
+
     /* Read-only for existing CAs */
     @XmlAttribute
-    protected String issuerDN;
+    private String issuerDN;
 
     public String getIssuerDN() {
         return issuerDN;
     }
 
+    public void setIssuerDN(String issuerDN) {
+        this.issuerDN = issuerDN;
+    }
 
     /* Read-only attribute */
     @XmlAttribute
-    protected BigInteger serial;
+    private BigInteger serial;
 
     public BigInteger getSerial() {
         return serial;
     }
 
 
+    public void setSerial(BigInteger serial) {
+        this.serial = serial;
+    }
+
     @XmlAttribute
-    protected String dn;
+    private String dn;
 
     public String getDN() {
         return dn;
     }
 
+    public void setDn(String dn) {
+        this.dn = dn;
+    }
 
     @XmlAttribute
-    protected Boolean enabled;
+    private Boolean enabled;
 
     public Boolean getEnabled() {
         return enabled;
     }
 
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
 
     @XmlAttribute
-    protected String description;
+    private String description;
 
     public String getDescription() {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     /**
      * Whether the CA is ready to perform signing operations.
@@ -121,21 +139,20 @@ public class AuthorityData {
      * This is a read-only attribute; it cannot be set by the user.
      */
     @XmlAttribute
-    protected Boolean ready;
+    private Boolean ready;
 
     public Boolean getReady() {
         return ready;
     }
 
+    public void setReady(Boolean ready) {
+        this.ready = ready;
+    }
 
-    protected Link link;
+    private Link link;
 
     public Link getLink() {
         return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
     }
 
     protected AuthorityData() {
@@ -147,15 +164,69 @@ public class AuthorityData {
             String issuerDN, BigInteger serial,
             Boolean enabled, String description,
             Boolean ready) {
-        this.isHostAuthority = isHostAuthority;
-        this.dn = dn;
-        this.id = id;
-        this.parentID = parentID;
-        this.issuerDN = issuerDN;
-        this.serial = serial;
-        this.enabled = enabled;
-        this.description = description;
-        this.ready = ready;
+        this.setIsHostAuthority(isHostAuthority);
+        this.setDn(dn);
+        this.setId(id);
+        this.setParentID(parentID);
+        this.setIssuerDN(issuerDN);
+        this.setSerial(serial);
+        this.setEnabled(enabled);
+        this.setDescription(description);
+        this.setReady(ready);
+    }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(AuthorityData.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static AuthorityData fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(AuthorityData.class).createUnmarshaller();
+        return (AuthorityData) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static AuthorityData fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, AuthorityData.class);
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(description, dn, enabled, id, isHostAuthority, issuerDN, link, parentID, ready, serial);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AuthorityData other = (AuthorityData) obj;
+        return Objects.equals(description, other.description) && Objects.equals(dn, other.dn)
+                && Objects.equals(enabled, other.enabled) && Objects.equals(id, other.id)
+                && Objects.equals(isHostAuthority, other.isHostAuthority) && Objects.equals(issuerDN, other.issuerDN)
+                && Objects.equals(link, other.link) && Objects.equals(parentID, other.parentID)
+                && Objects.equals(ready, other.ready) && Objects.equals(serial, other.serial);
     }
 
 }
