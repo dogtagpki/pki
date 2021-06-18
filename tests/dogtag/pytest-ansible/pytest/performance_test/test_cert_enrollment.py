@@ -51,19 +51,7 @@ parser.add_argument("--debug",
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(levelname)s: %(message)s')
-
 args = parser.parse_args()
-
-# Create a PKIConnection object that stores the details of the CA.
-connection = PKIConnection('https', args.hostname, args.port, cert_paths=args.ca_cert_path)
-
-# The pem file used for authentication. Created from a p12 file using the
-# command -
-# openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes
-connection.set_authentication_cert(args.client_cert)
-
-# Instantiate the CertClient
-cert_client = CertClient(connection)
 
 
 class cert_enroll(object):
@@ -71,7 +59,7 @@ class cert_enroll(object):
     #This class will enroll the certificate.
     """
 
-    def __init__(self, id, sn_uid):
+    def __init__(self, id, sn_uid, cert_client):
         """
         Constructor
         """
@@ -110,20 +98,32 @@ class cert_enroll(object):
                 logger.debug("Client %s: Certificate: %s", id, cert_data)
 
 
-def run_test(id, number_of_tests_per_thread):
-    sn_uid = "testuser{}".format(id)
-    # execute the specified number of tests sequentially
-    for i in range(1, number_of_tests_per_thread + 1):
-        try:
-            logger.info("Client %s: Enrolling cert %s of %s", id, i, number_of_tests_per_thread)
-            start = timer()
-            serial_num = cert_enroll(id, sn_uid)
-            end = timer()
-            issuance_times.append(end - start)
-            cert_list.append(serial_num.cert_serial_number)
-        except Exception as error:
-            logger.error(error)
-    # call cert_enroll(sn_uid)
+class TestClient(threading.Thread):
+
+    def __init__(self, id, connection, number_of_tests_per_client):
+        super().__init__()
+        self.id= id
+        self.connection = connection
+        self.number_of_tests_per_client = number_of_tests_per_client
+        self.cert_client = CertClient(self.connection)
+        return
+
+    def run(self):
+        #logging.debug('running with %s and %s', self.args, self.kwargs)
+        sn_uid = "testuser{}".format(id)
+        # execute the specified number of tests sequentially
+        for i in range(1, self.number_of_tests_per_client + 1):
+            try:
+                logger.info("Client %s: Enrolling cert %s of %s", self.id, i,
+                            self.number_of_tests_per_client)
+                start = timer()
+                serial_num = cert_enroll(id, sn_uid, self.cert_client)
+                end = timer()
+                issuance_times.append(end - start)
+                cert_list.append(serial_num.cert_serial_number)
+            except Exception as error:
+                logger.error(error)
+        return
 
 
 if __name__ == "__main__":
@@ -137,27 +137,38 @@ if __name__ == "__main__":
     print("Test parameters:")
     print("- target: https://%s:%s" % (args.hostname, args.port))
 
-    number_of_threads = args.number_of_clients
-    print("- number of clients: %s" % number_of_threads)
+    number_of_clients = args.number_of_clients
+    print("- number of clients: %s" % number_of_clients)
 
-    number_of_tests_per_thread = args.number_of_tests_per_client
-    print("- number of tests per client: %s" % number_of_tests_per_thread)
+    number_of_tests_per_client = args.number_of_tests_per_client
+    print("- number of tests per client: %s" % number_of_tests_per_client)
 
-    # create the specified number of threads
-    threads = []
+    # Create the specified number of threads
     cert_list = []
     issuance_times = []
+
+    clients = []
+    for i in range(number_of_clients):
+        id = i + 1
+        # Create a PKIConnection object that stores the details of the CA.
+        connection = PKIConnection('https', args.hostname, args.port, cert_paths=args.ca_cert_path)
+
+        # The pem file used for authentication. Created from a p12 file using the
+        # command -
+        # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes
+        connection.set_authentication_cert(args.client_cert)
+        client = TestClient( id, connection, number_of_tests_per_client)
+        clients.append(client)
+
     start = timer()
 
-    for t in range(1, number_of_threads + 1):
-        logger.info("Starting client %s" % t)
-        t1 = threading.Thread(target=run_test, args=(t, number_of_tests_per_thread))
-        t1.start()
-        threads.append(t1)
+    for client in clients:
+        client.start()
 
     # wait for all threads to complete
-    for t in threads:
-        t.join()
+    for client in clients:
+        client.join()
+
     end = timer()
 
     with open("cert_file.txt", "w+") as cf:
@@ -168,7 +179,7 @@ if __name__ == "__main__":
 
     # Below part is for reporting purpose to calculate Throughput
     T = end - start
-    N = number_of_threads * number_of_tests_per_thread
+    N = number_of_clients * number_of_tests_per_client
 
     print("Number of certs enrolled (N): {}".format(N))
     print("Minimum execution time (T): {}".format(min(issuance_times)))
