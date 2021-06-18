@@ -38,7 +38,7 @@ public interface ILogger {
 
     /**
      * log class: system event.
-     * System event with log level >= LL_FAILURE will also be logged in error log
+     * System event with log level &gt;= LL_FAILURE will also be logged in error log
      */
     public static final String PROP_SYSTEM = "system";
 

@@ -255,7 +255,7 @@ public class User {
     /**
      * Sets user password.
      *
-     * @param p the given password
+     * @param password the given password
      */
     public void setPassword(String password) {
         mPassword = password;
@@ -300,7 +300,7 @@ public class User {
     /**
      * Sets user phonenumber
      *
-     * @param p user phonenumber
+     * @param phone user phonenumber
      */
     public void setPhone(String phone) {
         mPhone = phone;
@@ -309,7 +309,7 @@ public class User {
     /**
      * Sets user state
      *
-     * @param p the given user state
+     * @param state the given user state
      */
     public void setState(String state) {
         mState = state;
@@ -345,7 +345,7 @@ public class User {
     /**
      * Set certificate DN
      *
-     * @param userdn the given DN
+     * @param dn the given DN
      */
     public void setCertDN(String dn) {
         mCertDN = dn;

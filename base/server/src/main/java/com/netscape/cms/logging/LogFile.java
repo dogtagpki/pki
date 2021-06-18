@@ -1271,7 +1271,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     }
 
     /**
-     * Read all entries whose logLevel>=lowLevel && log source = source
+     * Read all entries whose logLevel &gt;= lowLevel and log source = source
      * to at most maxLine entries(from end)
      * If the parameter is -1, it's ignored and return all entries
      *
@@ -1443,7 +1443,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     }
 
     /**
-     * Retrieve last "maxLine" number of system log with log lever >"level"
+     * Retrieve last "maxLine" number of system log with log lever &gt; "level"
      * and from source "source". If the parameter is omitted. All entries
      * are sent back.
      */

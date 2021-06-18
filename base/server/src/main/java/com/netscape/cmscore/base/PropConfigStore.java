@@ -51,12 +51,12 @@ import com.netscape.cmscore.apps.CMS;
  * mStoreName and the mSource usually points back to another
  * occurance of the same PropConfigStore, with longer mStoreName. IE
  *
- * <PRE>
+ * <PRE>{@Code
  * 	cms.ca0.http.service0 -> mSource=PropConfigStore ->
  * 		cms.ca0.http -> mSource=PropConfigStore ->
  * 			cms.ca0 -> mSource=PropConfigStore ->
  * 					cms -> mSource=SourceConfigStore -> Properties
- * </PRE>
+ * }</PRE>
  *
  * The chain ends when the store name is reduced down to it's original
  * value.
@@ -112,8 +112,8 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * store a substore name, and a reference to the source.
      * <P>
      *
-     * @param storeName store name
-     * @param prop list of properties
+     * @param name store name
+     * @param source list of properties
      * @exception EBaseException failed to create configuration
      */
     protected PropConfigStore(String name, SimpleProperties source) {

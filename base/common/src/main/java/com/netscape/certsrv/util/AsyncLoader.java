@@ -45,7 +45,7 @@ public class AsyncLoader {
 
     /** Create an AsyncLoader with the specified timeout.
      *
-     * If timeoutSeconds > 0, startLoading() will start a timer
+     * If timeoutSeconds &gt; 0, startLoading() will start a timer
      * that will forcibly unlock the loader after the specified
      * timeout.
      */

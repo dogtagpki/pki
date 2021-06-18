@@ -30,7 +30,7 @@ import com.netscape.cmscore.apps.CMS;
  * Limitations:
  *
  * 1. Currently parentheses are not suported.
- * 2. Only ==, != <, >, <= and >= operators are supported.
+ * 2. Only {@Code ==}, {@Code !=}, {@Code <}, {@Code >}, {@Code <=} and {@Code >=} operators are supported.
  * 3. The only boolean operators supported are AND and OR. AND takes precedence
  * over OR. Example: a AND b OR e OR c AND d
  * is treated as (a AND b) OR e OR (c AND d)

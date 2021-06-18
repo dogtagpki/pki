@@ -26,11 +26,6 @@ public class EDBNotAvailException extends EDBException {
 
     private static final long serialVersionUID = 8516095366048215233L;
 
-    /**
-     * Constructs a ldap server down exception with host & port info.
-     *
-     * @param errorString Detailed error message.
-     */
     public EDBNotAvailException(String errorString) {
         super(errorString);
     }

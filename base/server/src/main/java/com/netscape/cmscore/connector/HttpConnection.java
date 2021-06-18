@@ -231,12 +231,13 @@ public class HttpConnection implements IHttpConnection {
 
     /**
      * sends a request to a remote authority, returning the result.
-     * @author cfu (multi-uri support)
+     *
      * @throws EBaseException for any failure
      */
     @Override
     public HttpResponse send(String content)
             throws EBaseException {
+        // cfu: multi-uri support
         HttpResponse resp = null;
         if ((content == null) || content.equals("")) {
             logger.error("HttpConnection.send: with String content: null or empty");

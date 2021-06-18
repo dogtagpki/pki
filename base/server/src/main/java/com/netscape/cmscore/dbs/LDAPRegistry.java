@@ -189,7 +189,7 @@ public class LDAPRegistry extends DBRegistry {
      * registered mappers.
      * Parses filter from filter string specified in RFC1558.
      *
-     * <pre>
+     * <pre>{@Code
      * <filter> ::= '(' <filtercomp> ')'
      * <filtercomp> ::= <and> | <or> | <not> | <item>
      * <and> ::= '&' <filterlist>
@@ -209,7 +209,7 @@ public class LDAPRegistry extends DBRegistry {
      * <any> ::= '*' <starval>
      * <starval> ::= NULL | <value> '*' <starval>
      * <final> ::= NULL | <value>
-     * </pre>
+     * }</pre>
      */
     @Override
     public String getFilter(String filter) throws EBaseException {

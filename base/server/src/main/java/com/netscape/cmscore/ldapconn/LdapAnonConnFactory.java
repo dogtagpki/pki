@@ -83,7 +83,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * @param minConns minimum number of connections to have available
      * @param maxConns max number of connections to have available. This is
      *            the maximum number of clones of this connection one wants to allow.
-     * @param serverInfo server connection info - host, port, etc.
+     * @param connInfo server connection info - host, port, etc.
      */
     public LdapAnonConnFactory(
             String id,
@@ -108,7 +108,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * @param maxConns max number of connections to have available. This is
      *            the maximum number of clones of this connection one wants to allow.
      * @param maxResults max number of results to return per query
-     * @param serverInfo server connection info - host, port, etc.
+     * @param connInfo server connection info - host, port, etc.
      */
     public LdapAnonConnFactory(
             String id,
@@ -448,7 +448,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * resets this factory - if no connections outstanding,
      * disconnections all connections and resets everything to 0 as if
      * no connections were ever made. intended to be called just before
-     * shutdown or exit to disconnection & cleanup connections.
+     * shutdown or exit to disconnection and cleanup connections.
      */
     // ok only if no connections outstanding.
     @Override

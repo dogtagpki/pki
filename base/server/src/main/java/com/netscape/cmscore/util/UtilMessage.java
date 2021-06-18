@@ -105,7 +105,7 @@ public class UtilMessage {
      * </PRE>
      * <P>
      *
-     * @param exception CMS exception
+     * @param e CMS exception
      */
     public UtilMessage(Exception e) {
         this(e.getMessage());

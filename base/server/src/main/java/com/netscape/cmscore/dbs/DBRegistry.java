@@ -2,8 +2,8 @@ package com.netscape.cmscore.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
+import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IFilterConverter;
 import com.netscape.cmscore.request.DBDynAttrMapper;
@@ -80,7 +80,7 @@ public class DBRegistry {
      * registered mappers.
      * Parses filter from filter string specified in RFC1558.
      *
-     * <pre>
+     * <pre>{@Code
      * <filter> ::= '(' <filtercomp> ')'
      * <filtercomp> ::= <and> | <or> | <not> | <item>
      * <and> ::= '&' <filterlist>
@@ -100,7 +100,7 @@ public class DBRegistry {
      * <any> ::= '*' <starval>
      * <starval> ::= NULL | <value> '*' <starval>
      * <final> ::= NULL | <value>
-     * </pre>
+     * }</pre>
      *
      * @param filter CMS-based filter
      * @return LDAP-based filter string

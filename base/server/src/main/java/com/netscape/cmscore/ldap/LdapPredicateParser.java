@@ -28,7 +28,7 @@ import com.netscape.cmscore.apps.CMS;
  * Limitations:
  *
  * 1. Currently parentheses are not suported.
- * 2. Only ==, != <, >, <= and >= operators are supported.
+ * 2. Only {@Code ==}, {@Code !=}, {@Code <}, {@Code >}, {@Code <=} and {@Code >=} operators are supported.
  * 3. The only boolean operators supported are AND and OR. AND takes precedence
  * over OR. Example: a AND b OR e OR c AND d
  * is treated as (a AND b) OR e OR (c AND d)
@@ -53,7 +53,7 @@ public class LdapPredicateParser {
     /**
      * Parse the predicate expression and return a vector of expressions.
      *
-     * @param predicateExp The predicate expression as read from the config file.
+     * @param predicateExpression The predicate expression as read from the config file.
      * @return expVector The vector of expressions.
      */
     public static ILdapExpression parse(String predicateExpression)

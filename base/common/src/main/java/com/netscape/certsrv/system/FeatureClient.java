@@ -26,7 +26,7 @@ import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
 /**
-* @author Ade Lee <alee@redhat.com>
+* @author Ade Lee &lt;alee@redhat.com&gt;
 */
 public class FeatureClient extends Client {
 

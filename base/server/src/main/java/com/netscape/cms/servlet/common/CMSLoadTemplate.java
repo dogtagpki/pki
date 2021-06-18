@@ -18,7 +18,7 @@
 package com.netscape.cms.servlet.common;
 
 /**
- * handy class containing cms templates to load & fill.
+ * handy class containing cms templates to load and fill.
  *
  * @version $Revision$, $Date$
  */

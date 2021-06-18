@@ -59,7 +59,6 @@ public class HttpConnFactory {
      *
      * @param minConns minimum number of connections to have available
      * @param maxConns max number of connections to have available. This is
-     * @param serverInfo server connection info - host, port, etc.
      */
     public HttpConnFactory(int minConns, int maxConns, IAuthority source, IRemoteAuthority dest, String nickname, String clientCiphers,
             int timeout) throws EBaseException {

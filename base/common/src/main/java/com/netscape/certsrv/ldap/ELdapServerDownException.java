@@ -29,11 +29,6 @@ public class ELdapServerDownException extends ELdapException {
      */
     private static final long serialVersionUID = -21440748379854829L;
 
-    /**
-     * Constructs a ldap server down exception with host & port info.
-     *
-     * @param errorString Detailed error message.
-     */
     public ELdapServerDownException(String errorString) {
         super(errorString);
     }

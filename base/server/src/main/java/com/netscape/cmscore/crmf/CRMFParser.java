@@ -26,12 +26,11 @@ import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.pkix.primitive.AVA;
-
-import org.mozilla.jss.netscape.security.util.Utils;
 
 public class CRMFParser {
 
@@ -42,7 +41,7 @@ public class CRMFParser {
     /**
      * Retrieves PKIArchiveOptions from CRMF request.
      *
-     * @param request CRMF request
+     * @param crmfBlob CRMF request
      * @return PKIArchiveOptions
      * @exception failed to extrace option
      */

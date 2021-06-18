@@ -74,9 +74,6 @@ public class FileConfigStore extends ConfigStorage {
      * The original config file is copied to
      * <filename>.<current_time_in_milliseconds>.
      * Commits the current properties to the configuration file.
-     * <P>
-     *
-     * @param backup
      */
     @Override
     public void commit(IConfigStore config, boolean createBackup) throws EBaseException {

@@ -191,7 +191,7 @@ public class AuthzSubsystem implements ISubsystem {
      * own authorization information before full operation. It is supposed
      * to be called during the init() method of a servlet.
      *
-     * @param authzMgrName The authorization manager name
+     * @param authzMgrInstName The authorization manager name
      * @param accessInfo the access information to be initialized. currently it's acl string in the format specified in
      *            the authorization manager
      */
@@ -217,7 +217,7 @@ public class AuthzSubsystem implements ISubsystem {
     /**
      * Authorization to the named authorization manager instance
      *
-     * @param authzMgrName The authorization manager name
+     * @param authzMgrInstName The authorization manager name
      * @param authToken the authentication token associated with a user
      * @param resource the resource protected by the authorization system
      * @param operation the operation for resource protected by the authoriz
@@ -310,7 +310,7 @@ public class AuthzSubsystem implements ISubsystem {
      * Add an authorization manager instance.
      *
      * @param name name of the authorization manager instance
-     * @param authzMgr the authorization manager instance to be added
+     * @param authzMgrInst the authorization manager instance to be added
      */
     public void add(String name, IAuthzManager authzMgrInst) {
         mAuthzMgrInsts.put(name, new AuthzManagerProxy(true, authzMgrInst));

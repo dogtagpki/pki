@@ -305,7 +305,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
     /**
      * set the sort key
      *
-     * @param sortKey the attributes to sort by
+     * @param sortKeys the attributes to sort by
      */
     @Override
     public void setSortKey(String[] sortKeys) throws EBaseException {

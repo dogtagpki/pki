@@ -25,7 +25,7 @@ import java.io.PrintStream;
 import org.dogtagpki.tps.msg.TPSMessage;
 
 /**
- * @author Endi S. Dewata <edewata@redhat.com>
+ * @author Endi S. Dewata &lt;edewata@redhat.com&gt;
  */
 public class TPSConnection {
 
@@ -153,9 +153,9 @@ public class TPSConnection {
     /**
      * Setter for static variable maxMessageSize. This variable places a limit on the value
      * (and thus, length) of the first parameter of an incoming stream of data. For example,
-     * incoming data conforms to the following format: "s=(message length here)&".
-     * TPSConnection will read one character (typically 's', but can be any char), and will
-     * expect the second character to be an '='. The following characters until the '&' are
+     * incoming data conforms to the following format: {@Code s=(message length here)&}.
+     * TPSConnection will read one character (typically {@Code s}, but can be any char), and will
+     * expect the second character to be an {@Code =}. The following characters until the {@Code &} are
      * interpreted as the messageSize. This number cannot be larger than maxMessageSize.
      * @param maxSize
      */

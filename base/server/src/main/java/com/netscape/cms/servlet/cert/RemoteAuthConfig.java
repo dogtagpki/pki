@@ -139,6 +139,7 @@ public class RemoteAuthConfig extends CMSServlet {
 
     /**
      * Serves HTTPS request. The format of this request is as follows:
+     * <pre>{@Code
      * https://host:ee-port/remoteAuthConfig?
      * op="add"|"delete"&
      * instance=<instanceName>&
@@ -149,6 +150,7 @@ public class RemoteAuthConfig extends CMSServlet {
      * [adminDN=<adminDN>]&
      * [uid=<uid>]&
      * [baseDN=<baseDN>]
+     * }</pre>
      */
     @Override
     public void process(CMSRequest cmsReq) throws EBaseException {

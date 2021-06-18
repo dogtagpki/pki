@@ -119,7 +119,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      * @param minConns minimum number of connections to have available
      * @param maxConns max number of connections to have available. This is
      *            the maximum number of clones of this connection or separate connections one wants to allow.
-     * @param serverInfo server connection info - host, port, etc.
+     * @param connInfo server connection info - host, port, etc.
      */
     public LdapBoundConnFactory(
             String id,
@@ -147,7 +147,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      * @param maxConns max number of connections to have available. This is
      *            the maximum number of clones of this connection or separate connections one wants to allow.
      * @param maxResults max number of results to return per query
-     * @param serverInfo server connection info - host, port, etc.
+     * @param connInfo server connection info - host, port, etc.
      */
     public LdapBoundConnFactory(
             String id,

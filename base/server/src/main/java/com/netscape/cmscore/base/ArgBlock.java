@@ -339,7 +339,7 @@ public class ArgBlock implements IArgBlock {
      * Gets KeyGenInfo
      *
      * @param name name of the input type
-     * @param verify true if signature validation is required
+     * @param def default value
      * @exception EBaseException
      * @return KeyGenInfo object
      */

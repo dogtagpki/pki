@@ -47,8 +47,6 @@ public class RequestQueue extends ARequestQueue {
     /**
      * Create a request queue.
      *
-     * @param name
-     *            the name of the request queue. (Ex: "ca" "ra")
      * @param policy
      *            A policy enforcement module. This object is called to make
      *            adjustments to the request, and decide whether it needs agent
@@ -56,7 +54,7 @@ public class RequestQueue extends ARequestQueue {
      * @param service
      *            The service object. This object actually performs the request
      *            after it is finalized and approved.
-     * @param notiifer
+     * @param notifier
      *            A notifier object (optional). The notify() method of this object
      *            is invoked when the request is completed (COMPLETE, REJECTED or
      *            CANCELED states).

@@ -174,7 +174,7 @@ public abstract class ARequestQueue {
      * is valid only on requests with status BEGIN
      * An error is generated for other cases.
      *
-     * @param req request to be processed
+     * @param r request to be processed
      * @exception EBaseException failed to process request
      */
     public final void processRequest(IRequest r)
@@ -321,7 +321,7 @@ public abstract class ARequestQueue {
      * Should be overridden by the specialized class if a more efficient method is available for implementing this
      * operation.
      *
-     * @param status request status
+     * @param s request status
      * @return request list
      */
     public abstract IRequestList listRequestsByStatus(RequestStatus s);
@@ -364,7 +364,7 @@ public abstract class ARequestQueue {
      * newRequest()
      * <p>
      *
-     * @param r request
+     * @param request request
      */
     public final void releaseRequest(IRequest request) {
         // mTable.unlock(request.getRequestId());
@@ -377,8 +377,7 @@ public abstract class ARequestQueue {
      * <p>
      * The request must be locked to make this call.
      *
-     * @param request
-     *            the request that is being updated
+     * @param r the request that is being updated
      * @exception EBaseException failed to update request
      */
     public abstract void updateRequest(IRequest r) throws EBaseException;
