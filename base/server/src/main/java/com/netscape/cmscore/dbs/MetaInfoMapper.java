@@ -129,7 +129,7 @@ public class MetaInfoMapper extends DBAttrMapper {
     /**
      * Map search filters into LDAP search filter.
      * Possible search filter:
-     * (&(metaInfo=reserver0:value0)(metaInfo=reserved1:value1))
+     * {@Code (&(metaInfo=reserver0:value0)(metaInfo=reserved1:value1))}
      */
     @Override
     public String mapSearchFilter(String name, String op,

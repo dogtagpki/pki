@@ -24,7 +24,7 @@ import java.util.Map;
 import org.dogtagpki.tps.main.Util;
 
 /**
- * @author Endi S. Dewata <edewata@redhat.com>
+ * @author Endi S. Dewata &lt;edewata@redhat.com&gt;
  */
 public class TPSMessage {
 

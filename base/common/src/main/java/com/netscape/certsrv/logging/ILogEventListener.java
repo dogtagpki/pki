@@ -84,14 +84,14 @@ public interface ILogEventListener extends EventListener {
             throws EBaseException;
 
     /**
-     * Retrieve last "maxLine" number of system logs with log level >"level"
+     * Retrieve last "maxLine" number of system logs with log level &gt; "level"
      * and from source "source". If the parameter is omitted. All entries
      * are sent back.
      *
      * @param req a Hashtable containing the required information such as
      *            log entry, log level, log source, and log name.
      * @return NameValue pair list of log messages.
-     * @exception ServletException For Servelet errros.
+     * @exception ServletException For servlet errors.
      * @exception IOException For input/output problems.
      * @exception EBaseException For other problems.
      */

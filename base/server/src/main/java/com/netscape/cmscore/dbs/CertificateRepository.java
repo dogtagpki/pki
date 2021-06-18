@@ -640,7 +640,7 @@ public class CertificateRepository extends Repository {
      * record contains four parts: certificate, meta-attributes,
      * issue information and revocation information.
      *
-     * @param cert X.509 certificate
+     * @param record X.509 certificate
      * @exception EBaseException failed to add new certificate to
      *                the repository
      */
@@ -865,7 +865,7 @@ public class CertificateRepository extends Repository {
      *
      * @param id serial number
      * @param info revocation information
-     * @param isAlreadyOnHold boolean to indicate if the cert was revoked onHold
+     * @param isAlreadyRevoked boolean to indicate if the cert was revoked onHold
      * @exception EBaseException failed to mark
      */
     public void markAsRevoked(BigInteger id, IRevocationInfo info, boolean isAlreadyRevoked)
@@ -991,9 +991,7 @@ public class CertificateRepository extends Repository {
      * The filter should follow RFC1558 LDAP filter syntax.
      * For example,
      *
-     * <pre>
-     *   (&(certRecordId=5)(x509Cert.notBefore=934398398))
-     * </pre>
+     * {@Code (&(certRecordId=5)(x509Cert.notBefore=934398398))}
      *
      * @param filter search filter
      * @param maxSize max size to return
@@ -1159,9 +1157,7 @@ public class CertificateRepository extends Repository {
      * The filter should follow RFC1558 LDAP filter syntax.
      * For example,
      *
-     * <pre>
-     *   (&(certRecordId=5)(x509Cert.notBefore=934398398))
-     * </pre>
+     * {@Code (&(certRecordId=5)(x509Cert.notBefore=934398398))}
      *
      * @param filter search filter
      * @param attrs selected attribute

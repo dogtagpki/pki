@@ -31,18 +31,18 @@ import javax.servlet.http.HttpServletResponse;
  * which contains a list of HTTP parameters which should be
  * translated to new names.
  *
- * parameterMap: name1->newname1,name2->newname2
+ * parameterMap: {@Code name1->newname1,name2->newname2}
  *
  * Optionally, names can be set to static values:
  *
- * parameterMap: name1->name2=value
+ * parameterMap: {@Code name1->name2=value}
  *
  * Examples:
  * Consider the following HTTP input parameters:
  * vehicle:car make:ford model:explorer
  *
  * The following config strings will have this effect:
- * parameterMap: make->manufacturer,model->name=expedition,->suv=true
+ * parameterMap: {@Code make->manufacturer,model->name=expedition,->suv=true}
  * output: vehicle:car manufactuer:ford model:expedition suv:true
  *
  * @version $Revision$, $Date$

@@ -94,7 +94,7 @@ public class CertUserDBAuthentication implements AuthManager {
      * <p>
      * called by AuthSubsystem init() method, when initializing all available authentication managers.
      *
-     * @param owner - The authentication subsystem that hosts this
+     * @param implName - The authentication subsystem that hosts this
      *            auth manager
      * @param config - The configuration store used by the
      *            authentication subsystem

@@ -71,7 +71,7 @@ public abstract class DBAttrMapper {
      * Maps search filters into LDAP search filter.
      *
      * @param name name of db attribute
-     * @param op filte operation (i.e. "=", ">=")
+     * @param op filte operation (i.e. "=", "&gt;=")
      * @param value attribute value
      * @exception EBaseException failed to map filter
      */

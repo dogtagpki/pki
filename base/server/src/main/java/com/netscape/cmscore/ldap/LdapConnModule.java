@@ -119,7 +119,7 @@ public class LdapConnModule implements ILdapConnModule {
      * publishing directory.
      * Use ILdapConnFactory.returnConn() to return the connection.
      *
-     * @see com.netscape.certsrv.ldap.LdapBoundConnFactory
+     * @see com.netscape.cmscore.ldapconn.LdapBoundConnFactory
      * @see com.netscape.certsrv.ldap.ILdapConnFactory
      */
     @Override

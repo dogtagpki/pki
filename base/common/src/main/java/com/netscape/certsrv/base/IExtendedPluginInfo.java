@@ -36,7 +36,7 @@ public interface IExtendedPluginInfo {
      * meta-info (such as help-token)
      *
      * there is an entry indexed on that parameter name
-     * <param-name>;<type_info>[,required];<description>;...
+     * {@Code <param-name>;<type_info>[,required];<description>;...}
      *
      * Where:
      *

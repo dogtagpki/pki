@@ -505,7 +505,7 @@ public class CertUtils {
      * Assumptions: The certs are issued by the same CA
      *
      * @param certArray The array of certs.
-     * @param givenCert The certificate we are lokking for in the array.
+     * @param currentCert The certificate we are looking for in the array.
      * @return null if there is no recent cert or the most recent cert.
      */
     public static X509CertImpl getRecentSigningCert(X509CertImpl[] certArray,
@@ -810,7 +810,7 @@ public class CertUtils {
      * A certificate's fingerprint is a hash digest of the DER encoded
      * certificate.
      *
-     * @param cert Certificate to get the fingerprints of.
+     * @param certDer Certificate to get the fingerprints of.
      * @return a String with fingerprints using the MD5, MD2 and SHA1 hashes.
      *         For example,
      *

@@ -52,9 +52,9 @@ public class RevocationInfo implements IRevocationInfo, Serializable {
      * Constructs revocation info used by revocation
      * request implementation.
      *
-     * @param reason if not null contains CRL entry extension
+     * @param exts if not null contains CRL entry extension
      *            that specifies revocation reason
-     * @see CRLReasonExtension
+     * @see org.mozilla.jss.netscape.security.x509.CRLReasonExtension
      */
     public RevocationInfo(Date revocationDate, CRLExtensions exts) {
         mRevocationDate = revocationDate;

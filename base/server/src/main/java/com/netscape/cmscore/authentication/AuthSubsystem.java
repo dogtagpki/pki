@@ -325,7 +325,7 @@ public class AuthSubsystem implements ISubsystem {
      *
      * @param authCred authentication credentials subject to the
      *            requirements of each authentication manager
-     * @param authMgrName name of the authentication manager instance
+     * @param authMgrInstName name of the authentication manager instance
      * @return authentication token with individualized authenticated
      *         information.
      * @exception EMissingCredential If a required credential for the
@@ -358,7 +358,7 @@ public class AuthSubsystem implements ISubsystem {
      * Gets a list of required authentication credential names
      * of the specified authentication manager.
      *
-     * @param authMgrName The authentication manager name
+     * @param authMgrInstName The authentication manager name
      * @return a Vector of required credential attribute names.
      */
     public String[] getRequiredCreds(String authMgrInstName)
@@ -406,7 +406,7 @@ public class AuthSubsystem implements ISubsystem {
      * Add an authentication manager instance.
      *
      * @param name name of the authentication manager instance
-     * @param authMgr the authentication manager instance to be added
+     * @param authMgrInst the authentication manager instance to be added
      */
     public void add(String name, AuthManager authMgrInst) {
         mAuthMgrInsts.put(name, new AuthManagerProxy(true, authMgrInst));

@@ -56,7 +56,7 @@ public class EmailTemplate implements IEmailTemplate {
     /**
      * Default Constructor
      *
-     * @param templateFile File name of the template including the full path and
+     * @param templatePath File name of the template including the full path and
      *            file extension
      */
 

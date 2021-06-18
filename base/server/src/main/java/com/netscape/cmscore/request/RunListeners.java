@@ -49,8 +49,7 @@ public class RunListeners implements Runnable {
     /**
      * RunListeners class constructor.
      *
-     * @param r request
-     * @param listeners list of listeners
+     * @param requestNotifier request
      */
     public RunListeners(IRequestNotifier requestNotifier) {
         mRequestNotifier = requestNotifier;

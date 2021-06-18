@@ -34,19 +34,19 @@ import netscape.ldap.LDAPAttributeSet;
  * in RequestRecord.
  *
  * The data in RequestRecord is stored in a Hashtable. It comes in two forms:
- * 1. String key1 => String value1
- * String key2 => String value2
+ * 1. String key1 {@Code =>} String value1
+ * String key2 {@Code =>} String value2
  * This is stored in LDAP as:
- * extData-key1 => value1
- * extData-key2 => value2
+ * extData-key1 {@Code =>} value1
+ * extData-key2 {@Code =>} value2
  *
- * 2. String key => Hashtable value
+ * 2. String key {@Code =>} Hashtable value
  * where value stores:
- * String key2 => String value2
- * String key3 => String value3
+ * String key2 {@Code =>} String value2
+ * String key3 {@Code =>} String value3
  * This is stored in LDAP as:
- * extData-key;key2 => value2
- * extData-key;key3 => value3
+ * extData-key;key2 {@Code =>} value2
+ * extData-key;key3 {@Code =>} value3
  *
  * These can be mixed, but each top-level key can only be associated with
  * a String value or a Hashtable value.

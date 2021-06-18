@@ -158,7 +158,7 @@ public class SimpleProperties extends Hashtable<String, String> {
      * specifies that the key is <code>"cheeses"</code> and the associated element is the empty string.
      * <p>
      *
-     * @param in the input stream.
+     * @param inStream the input stream.
      * @exception IOException if an error occurred when reading from the
      *                input stream.
      */

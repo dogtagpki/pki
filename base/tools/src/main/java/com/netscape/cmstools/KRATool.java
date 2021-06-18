@@ -441,7 +441,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  *            [-source_pki_security_database_pwdfile
  *             &lt;path to PKI password file&gt;]
  *
- *            AND OPTIONALLY, rename source KRA naming context --> target
+ *            AND OPTIONALLY, rename source KRA naming context --&gt; target
  *            KRA naming context:
  *
  *            [-source_kra_naming_context '&lt;source KRA naming context&gt;']
@@ -456,7 +456,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  *
  *            [-append_id_offset &lt;numeric offset&gt;]
  *
- *            AND OPTIONALLY, rename source KRA naming context --> target
+ *            AND OPTIONALLY, rename source KRA naming context --&gt; target
  *            KRA naming context:
  *
  *            [-source_kra_naming_context '&lt;source KRA naming context&gt;']
@@ -469,7 +469,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  *        (c) option for removing the specified numeric ID offset
  *            from existing numerical data:
  *
- *            AND OPTIONALLY, rename source KRA naming context --> target
+ *            AND OPTIONALLY, rename source KRA naming context --&gt; target
  *            KRA naming context:
  *
  *            [-source_kra_naming_context '&lt;source KRA naming context&gt;']
@@ -482,12 +482,12 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  *            [-process_requests_and_key_records_only]
  *
  *        (d) (a) rewrap AND (b) append ID offset
- *            [AND OPTIONALLY, rename source KRA naming context --> target
+ *            [AND OPTIONALLY, rename source KRA naming context --&gt; target
  *            KRA naming context]
  *            [AND OPTIONALLY process requests and key records ONLY]
  *
  *        (e) (a) rewrap AND (c) remove ID offset
- *            [AND OPTIONALLY, rename source KRA naming context --> target
+ *            [AND OPTIONALLY, rename source KRA naming context --&gt; target
  *            KRA naming context]
  *            [AND OPTIONALLY process requests and key records ONLY]
  *

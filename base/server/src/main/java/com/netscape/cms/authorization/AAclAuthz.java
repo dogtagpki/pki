@@ -182,8 +182,8 @@ public abstract class AAclAuthz implements IAuthzManager {
      * and the caller is expected to call this method to add resource
      * and acl info into acls memory store. The resACLs format should conform
      * to the following:
-     * <resource ID>:right-1[,right-n]:[allow,deny](right(s))<evaluatorType>=<value>:<comment for this resource acl
-     * <P>
+     * {@Code <resource ID>:right-1[,right-n]:[allow,deny](right(s))<evaluatorType>=<value>:<comment for this resource acl>}
+     *
      * Example: resTurnKnob:left,right:allow(left) group="lefties":door knobs for lefties
      *
      * @param resACLs same format as the resourceACLs attribute

@@ -57,7 +57,7 @@ public class LdapConnInfo {
     /**
      * initializes an instance from a config store.
      * required parms: host, port
-     * optional parms: secure connection, authentication method & info.
+     * optional parms: secure connection, authentication method and info.
      */
     public void init(LDAPConnectionConfig config) throws EBaseException, ELdapException {
         mSecure = config.isSecure();

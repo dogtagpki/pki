@@ -103,7 +103,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 import netscape.ldap.util.DN;
 
 /**
- * Subsystem for initializing JSS>
+ * Subsystem for initializing JSS
  * <P>
  *
  * @version $Revision$ $Date$

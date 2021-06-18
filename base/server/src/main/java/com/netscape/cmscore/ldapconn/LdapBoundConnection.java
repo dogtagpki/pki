@@ -48,7 +48,7 @@ public class LdapBoundConnection extends LDAPConnection {
 
     /**
      * Instantiates a connection to a ldap server, secure or non-secure
-     * connection with Ldap basic bind dn & pw authentication.
+     * connection with LDAP basic bind DN and password authentication.
      */
     public LdapBoundConnection(
             LDAPSocketFactory socketFactory,
@@ -121,7 +121,7 @@ public class LdapBoundConnection extends LDAPConnection {
 
     /**
      * Instantiates a connection to a ldap server, secure or non-secure
-     * connection with Ldap basic bind dn & pw authentication.
+     * connection with LDAP basic bind DN and password authentication.
      */
     public LdapBoundConnection(
             String hostname,

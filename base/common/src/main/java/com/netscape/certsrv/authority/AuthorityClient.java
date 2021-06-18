@@ -27,7 +27,7 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 
 /**
- * @author Fraser Tweedale <ftweedal@redhat.com>
+ * @author Fraser Tweedale &lt;ftweedal@redhat.com&gt;
  */
 public class AuthorityClient extends Client {
 
