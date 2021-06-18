@@ -38,24 +38,18 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Client")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ClientConfig {
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(ClientConfig.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(ClientConfig.class).createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     URL serverURL;
 
@@ -341,45 +335,27 @@ public class ClientConfig {
         return true;
     }
 
-    @Override
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
-
-        } catch (Exception e) {
-            return super.toString();
-        }
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(ClientConfig.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static ClientConfig valueOf(String string) throws Exception {
-        try {
-            return (ClientConfig)unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
+    public static ClientConfig fromXML(String string) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(ClientConfig.class).createUnmarshaller();
+        return (ClientConfig) unmarshaller.unmarshal(new StringReader(string));
     }
 
-    public static void main(String args[]) throws Exception {
-
-        ClientConfig before = new ClientConfig();
-        before.setServerURL("http://localhost:8080");
-
-        before.setNSSDatabase("certs");
-        before.setNSSPassword("12345");
-        before.setNSSPassword("internal", "12345");
-        before.setNSSPassword("hsm", "12345");
-
-        before.setCertNickname("caadmin");
-
-        before.setUsername("caadmin");
-        before.setPassword("12345");
-
-        String string = before.toString();
-        System.out.println(string);
-
-        ClientConfig after = ClientConfig.valueOf(string);
-        System.out.println(before.equals(after));
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
+
+    public static ClientConfig fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, ClientConfig.class);
+    }
+
 }
