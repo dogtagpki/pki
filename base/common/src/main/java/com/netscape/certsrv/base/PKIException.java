@@ -27,6 +27,9 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PKIException extends RuntimeException {
@@ -89,6 +92,8 @@ public class PKIException extends RuntimeException {
     }
 
     @XmlRootElement(name="PKIException")
+    @JsonInclude(Include.NON_NULL)
+    @JsonIgnoreProperties(ignoreUnknown=true)
     public static class Data extends ResourceMessage {
 
         @XmlElement(name="Code")
@@ -123,17 +128,4 @@ public class PKIException extends RuntimeException {
         }
     }
 
-    public static void main(String args[]) throws Exception {
-        Data data = new Data();
-        data.className = PKIException.class.getName();
-        data.code = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
-        data.message = "An error has occured";
-        data.setAttribute("attr1", "value1");
-        data.setAttribute("attr2", "value2");
-
-        JAXBContext context = JAXBContext.newInstance(Data.class);
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(data, System.out);
-    }
 }
