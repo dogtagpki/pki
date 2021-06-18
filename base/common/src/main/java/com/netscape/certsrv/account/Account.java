@@ -33,6 +33,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ResourceMessage;
 
@@ -40,6 +43,8 @@ import com.netscape.certsrv.base.ResourceMessage;
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Account")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Account extends ResourceMessage {
 
     String id;
@@ -152,14 +157,10 @@ public class Account extends ResourceMessage {
         return mapper.readValue(json, Account.class);
     }
 
-    public static Account valueOf(String xml) throws Exception {
-        return fromXML(xml);
-    }
-
     @Override
     public String toString() {
         try {
-            return toXML();
+            return toJSON();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -190,28 +191,4 @@ public class Account extends ResourceMessage {
         public String[] roles;
     }
 
-    public static void main(String args[]) throws Exception {
-
-        Account before = new Account();
-        before.setID("testuser");
-        before.setFullName("Test User");
-        before.setEmail("testuser@example.com");
-        before.setRoles(Arrays.asList("admin", "agent"));
-
-        String xml = before.toXML();
-        System.out.println("XML (before): " + xml);
-
-        Account afterXML = Account.fromXML(xml);
-        System.out.println("XML (after): " + afterXML.toXML());
-
-        System.out.println(before.equals(afterXML));
-
-        String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
-
-        Account afterJSON = Account.fromJSON(json);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
-
-        System.out.println(before.equals(afterJSON));
-    }
 }
