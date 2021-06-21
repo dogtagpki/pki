@@ -100,7 +100,7 @@ public class AuditModifyCLI extends CommandCLI {
                     out.println(line);
                 }
 
-                auditConfig = AuditConfig.valueOf(sw.toString());
+                auditConfig = AuditConfig.fromXML(sw.toString());
             }
 
             auditConfig = auditClient.updateAuditConfig(auditConfig);

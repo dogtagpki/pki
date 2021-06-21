@@ -29,26 +29,19 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
 
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Activity")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ActivityData {
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(ActivityData.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(ActivityData.class).createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     String id;
     String tokenID;
@@ -215,42 +208,28 @@ public class ActivityData {
         return true;
     }
 
-    @Override
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(ActivityData.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        } catch (Exception e) {
-            return super.toString();
-        }
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static ActivityData valueOf(String string) throws Exception {
-        try {
-            return (ActivityData)unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
+    public static ActivityData fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(ActivityData.class).createUnmarshaller();
+        return (ActivityData) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static void main(String args[]) throws Exception {
-
-        ActivityData before = new ActivityData();
-        before.setID("activity1");
-        before.setTokenID("TOKEN1234");
-        before.setUserID("user1");
-        before.setIP("192.168.1.1");
-        before.setOperation("enroll");
-        before.setResult("success");
-        before.setMessage("test");
-        before.setDate(new Date());
-
-        String string = before.toString();
-        System.out.println(string);
-
-        ActivityData after = ActivityData.valueOf(string);
-        System.out.println(before.equals(after));
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
+
+    public static ActivityData fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, ActivityData.class);
+    }
+
 }

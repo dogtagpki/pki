@@ -30,11 +30,18 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="AuditFile")
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class AuditFile {
 
     String name;
@@ -89,36 +96,28 @@ public class AuditFile {
         return true;
     }
 
-    @Override
-    public String toString() {
-        try {
-            Marshaller marshaller = JAXBContext.newInstance(AuditFile.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(AuditFile.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static AuditFile valueOf(String string) throws Exception {
+    public static AuditFile fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(AuditFile.class).createUnmarshaller();
-        return (AuditFile)unmarshaller.unmarshal(new StringReader(string));
+        return (AuditFile) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static void main(String args[]) throws Exception {
-
-        AuditFile before = new AuditFile();
-        before.setName("audit.log");
-        before.setSize(1024l);
-
-        String string = before.toString();
-        System.out.println(string);
-
-        AuditFile after = AuditFile.valueOf(string);
-        System.out.println(before.equals(after));
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
+
+    public static AuditFile fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, AuditFile.class);
+    }
+
 }
