@@ -17,12 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.property;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Locale;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /**
@@ -33,19 +43,21 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Descriptor implements IDescriptor {
 
     @XmlElement(name = "Syntax")
-    protected String mSyntax = null;
+    public String mSyntax = null;
 
     @XmlElement(name = "Constraint")
-    protected String mConstraint = null;
+    public String mConstraint = null;
 
     @XmlElement(name = "Description")
-    protected String mDescription = null;
+    public String mDescription = null;
 
     @XmlElement(name = "DefaultValue")
-    protected String mDef = null;
+    public String mDef = null;
 
     public Descriptor() {
         // required for JAX-B
@@ -115,12 +127,6 @@ public class Descriptor implements IDescriptor {
     }
 
     @Override
-    public String toString() {
-        return "Descriptor [mSyntax=" + mSyntax + ", mConstraint=" + mConstraint + ", mDescription=" + mDescription
-                + ", mDef=" + mDef + "]";
-    }
-
-    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -162,4 +168,29 @@ public class Descriptor implements IDescriptor {
             return false;
         return true;
     }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(Descriptor.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static Descriptor fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(Descriptor.class).createUnmarshaller();
+        return (Descriptor) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static Descriptor fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, Descriptor.class);
+    }
+
 }
