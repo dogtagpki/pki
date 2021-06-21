@@ -112,27 +112,4 @@ public class GroupMemberData {
         return mapper.readValue(json, GroupMemberData.class);
     }
 
-    @Override
-    public String toString() {
-        try {
-            return toJSON();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void main(String args[]) throws Exception {
-
-        GroupMemberData before = new GroupMemberData();
-        before.setID("testuser");
-        before.setGroupID("Test Group");
-
-        String json = before.toJSON();
-        System.out.println("Before: " + json);
-
-        GroupMemberData afterJSON = GroupMemberData.fromJSON(json);
-        System.out.println("After: " + afterJSON.toJSON());
-
-        System.out.println(before.equals(afterJSON));
-    }
 }
