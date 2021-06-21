@@ -1,3 +1,4 @@
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,7 +25,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -52,19 +52,6 @@ import com.netscape.certsrv.base.Link;
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ConfigData {
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(ConfigData.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(ConfigData.class).createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     String status;
     Map<String, String> properties;
@@ -175,13 +162,16 @@ public class ConfigData {
     }
 
     public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(ConfigData.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         StringWriter sw = new StringWriter();
         marshaller.marshal(this, sw);
         return sw.toString();
     }
 
-    public static ConfigData fromXML(String xml) throws Exception {
-        return (ConfigData) unmarshaller.unmarshal(new StringReader(xml));
+    public static ConfigData fromXML(String string) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(ConfigData.class).createUnmarshaller();
+        return (ConfigData)unmarshaller.unmarshal(new StringReader(string));
     }
 
     public String toJSON() throws Exception {
@@ -194,35 +184,4 @@ public class ConfigData {
         return mapper.readValue(json, ConfigData.class);
     }
 
-    @Override
-    public String toString() {
-        try {
-            return toJSON();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void main(String args[]) throws Exception {
-
-        ConfigData before = new ConfigData();
-        before.setStatus("ENABLED");
-
-        Map<String, String> properties = new TreeMap<>();
-        properties.put("param1", "value1");
-        properties.put("param2", "value2");
-        before.setProperties(properties);
-
-        String xml = before.toXML();
-        System.out.println(xml);
-
-        ConfigData afterXML = ConfigData.fromXML(xml);
-        System.out.println(before.equals(afterXML));
-
-        String json = before.toJSON();
-        System.out.println(json);
-
-        ConfigData afterJSON = ConfigData.fromJSON(json);
-        System.out.println(before.equals(afterJSON));
-    }
 }

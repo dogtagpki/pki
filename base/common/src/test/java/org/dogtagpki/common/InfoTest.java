@@ -1,0 +1,47 @@
+package org.dogtagpki.common;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+public class InfoTest {
+
+    private static Info before = new Info();
+
+    @Before
+    public void setUpBefore() {
+        before.setName("PKI");
+        before.setVersion("10.8.0");
+        before.setBanner(
+                "WARNING!\n" +
+                "Access to this service is restricted to those individuals with " +
+                "specific permissions.");
+    }
+
+    @Test
+    public void testXML() throws Exception {
+        // Act
+        String xml = before.toXML();
+        System.out.println("XML (before): " + xml);
+
+        Info afterXML = Info.fromXML(xml);
+        System.out.println("XML (after): " + afterXML.toXML());
+
+        // Assert
+        Assert.assertEquals(before, afterXML);
+    }
+
+    @Test
+    public void testJSON() throws Exception {
+        // Act
+        String json = before.toJSON();
+        System.out.println("JSON (before): " + json);
+
+        Info afterJSON = Info.fromJSON(json);
+        System.out.println("JSON (after): " + afterJSON.toJSON());
+
+        // Assert
+        Assert.assertEquals(before, afterJSON);
+    }
+
+}

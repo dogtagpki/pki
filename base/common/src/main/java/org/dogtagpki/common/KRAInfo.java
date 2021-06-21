@@ -27,31 +27,19 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ResourceMessage;
 
 /**
  * @author Ade Lee
  */
 @XmlRootElement(name="KRAInfo")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KRAInfo extends ResourceMessage {
-
-    private static Logger logger = LoggerFactory.getLogger(KRAInfo.class);
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(KRAInfo.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(KRAInfo.class).createUnmarshaller();
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
 
     String archivalMechanism;
     String recoveryMechanism;
@@ -137,35 +125,28 @@ public class KRAInfo extends ResourceMessage {
         return true;
     }
 
-    @Override
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
 
-    public static KRAInfo valueOf(String string) throws Exception {
+    public static KRAInfo fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, KRAInfo.class);
+    }
+
+    public String toXML() throws Exception {
+        StringWriter sw = new StringWriter();
+        Marshaller marshaller = JAXBContext.newInstance(KRAInfo.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static KRAInfo fromXML(String string) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(KRAInfo.class).createUnmarshaller();
         return (KRAInfo)unmarshaller.unmarshal(new StringReader(string));
     }
 
-    public static void main(String args[]) throws Exception {
-
-        KRAInfo before = new KRAInfo();
-        before.setArchivalMechanism("encrypt");
-        before.setRecoveryMechanism("keywrap");
-        before.setEncryptAlgorithm("AES/CBC/Pad");
-        before.setWrapAlgorithm("AES KeyWrap/Padding");
-
-        String string = before.toString();
-        System.out.println(string);
-
-        KRAInfo after = KRAInfo.valueOf(string);
-        System.out.println(before.equals(after));
-    }
 }
 
