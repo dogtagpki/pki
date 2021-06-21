@@ -37,6 +37,10 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
 
 /**
@@ -44,20 +48,9 @@ import com.netscape.certsrv.base.Link;
  */
 @XmlRootElement(name="Audit")
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class AuditConfig {
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(AuditConfig.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(AuditConfig.class).createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     String status;
     Boolean signed;
@@ -216,45 +209,28 @@ public class AuditConfig {
         return true;
     }
 
-    @Override
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(AuditConfig.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return super.toString();
-        }
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static AuditConfig valueOf(String string) throws Exception {
-        try {
-            return (AuditConfig)unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
+    public static AuditConfig fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(AuditConfig.class).createUnmarshaller();
+        return (AuditConfig) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static void main(String args[]) throws Exception {
-
-        AuditConfig before = new AuditConfig();
-        before.setStatus("Enabled");
-        before.setSigned(false);
-        before.setInterval(10);
-        before.setBufferSize(512);
-
-        Map<String, String> eventConfigs = new TreeMap<>();
-        eventConfigs.put("event1", "mandatory");
-        eventConfigs.put("event2", "enabled");
-        eventConfigs.put("event3", "disabled");
-        before.setEventConfigs(eventConfigs);
-
-        String string = before.toString();
-        System.out.println(string);
-
-        AuditConfig after = AuditConfig.valueOf(string);
-        System.out.println(before.equals(after));
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
+
+    public static AuditConfig fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, AuditConfig.class);
+    }
+
 }

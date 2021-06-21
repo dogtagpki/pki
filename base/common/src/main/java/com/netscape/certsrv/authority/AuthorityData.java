@@ -204,15 +204,6 @@ public class AuthorityData {
     }
 
     @Override
-    public String toString() {
-        try {
-            return toJSON();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public int hashCode() {
         return Objects.hash(description, dn, enabled, id, isHostAuthority, issuerDN, link, parentID, ready, serial);
     }
