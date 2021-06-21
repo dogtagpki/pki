@@ -53,28 +53,4 @@ public class GroupMemberCollection extends DataCollection<GroupMemberData> {
         return mapper.readValue(json, GroupMemberCollection.class);
     }
 
-    public static void main(String args[]) throws Exception {
-
-        GroupMemberCollection before = new GroupMemberCollection();
-
-        GroupMemberData member1 = new GroupMemberData();
-        member1.setID("User 1");
-        member1.setGroupID("Group 1");
-        before.addEntry(member1);
-
-        GroupMemberData member2 = new GroupMemberData();
-        member2.setID("User 2");
-        member2.setGroupID("Group 1");
-        before.addEntry(member2);
-
-        before.setTotal(2);
-
-        String json = before.toJSON();
-        System.out.println("Before: " + json);
-
-        GroupMemberCollection afterJSON = GroupMemberCollection.fromJSON(json);
-        System.out.println("After: " + afterJSON.toJSON());
-
-        System.out.println(before.equals(afterJSON));
-    }
 }

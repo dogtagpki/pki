@@ -18,11 +18,21 @@
 
 package com.netscape.certsrv.group;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import javax.ws.rs.FormParam;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.common.Constants;
 
@@ -30,6 +40,8 @@ import com.netscape.certsrv.common.Constants;
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Group")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class GroupData {
 
     String id;
@@ -118,4 +130,29 @@ public class GroupData {
             return false;
         return true;
     }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(GroupData.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static GroupData fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(GroupData.class).createUnmarshaller();
+        return (GroupData) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static GroupData fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, GroupData.class);
+    }
+
 }
