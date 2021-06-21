@@ -435,7 +435,6 @@ Requires:         resteasy-jackson2-provider >= 3.0.17-1
 
 %if 0%{?fedora} >= 33 || 0%{?rhel} > 8
 Requires:         jaxb-impl >= 2.3.3
-Requires:         jakarta-activation >= 1.2.2
 %endif
 
 Requires:         xalan-j2
