@@ -12,10 +12,12 @@ javac(pki-tps-classes
     SOURCES
         src/main/java/*.java
     CLASSPATH
+        ${JAXB_API_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CLI_JAR}
         ${COMMONS_CODEC_JAR}
         ${COMMONS_LANG3_JAR}
+        ${JACKSON2_ANNOTATIONS_JAR}
         ${LDAPJDK_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}

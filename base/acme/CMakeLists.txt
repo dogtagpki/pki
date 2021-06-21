@@ -5,6 +5,7 @@ javac(pki-acme-classes
         src/main/java/*.java
     CLASSPATH
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
+        ${JAXB_API_JAR}
         ${JAXRS_API_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG3_JAR}

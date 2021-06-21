@@ -11,6 +11,7 @@ javac(pki-ca-classes
     SOURCES
         src/main/java/*.java
     CLASSPATH
+        ${JAXB_API_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CLI_JAR}
         ${COMMONS_CODEC_JAR}

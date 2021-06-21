@@ -4,6 +4,8 @@ javac(pki-examples-classes
     SOURCES
         java/*.java
     CLASSPATH
+        ${JAXB_API_JAR}
+        ${JACKSON2_ANNOTATIONS_JAR}
         ${JSS_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
     OUTPUT_DIR

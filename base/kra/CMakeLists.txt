@@ -11,10 +11,12 @@ javac(pki-kra-classes
     SOURCES
         src/main/java/*.java
     CLASSPATH
+        ${JAXB_API_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CLI_JAR}
         ${COMMONS_CODEC_JAR}
         ${COMMONS_LANG3_JAR}
+        ${JACKSON2_ANNOTATIONS_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${LDAPJDK_JAR}
         ${SERVLET_JAR}
