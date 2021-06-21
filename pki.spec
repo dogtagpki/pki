@@ -184,17 +184,7 @@ BuildRequires:    python3-sphinx
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 
-%if 0%{?rhel} && ! 0%{?eln}
 BuildRequires:    resteasy >= 3.0.26
-%else
-BuildRequires:    jboss-annotations-1.2-api
-BuildRequires:    jboss-jaxrs-2.0-api
-BuildRequires:    jboss-logging
-BuildRequires:    resteasy-client >= 3.0.17-1
-BuildRequires:    resteasy-jaxb-provider >= 3.0.17-1
-BuildRequires:    resteasy-core >= 3.0.17-1
-BuildRequires:    resteasy-jackson2-provider >= 3.0.17-1
-%endif
 
 BuildRequires:    python3 >= 3.5
 BuildRequires:    python3-devel
@@ -932,14 +922,22 @@ EOF
 
 # Customize client library links in /usr/share/pki/lib
 ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/lib/jboss-logging.jar
+%if 0%{?fedora} && 0%{?fedora} <= 34
 ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/lib/jboss-annotations-api_1.2_spec.jar
+%else
+ln -sf /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar %{buildroot}%{_datadir}/pki/lib/jakarta.annotation-api.jar
+%endif
 
 %if %{with server}
 
 # Customize server common library links in /usr/share/pki/server/common/lib
 ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/server/common/lib/jboss-jaxrs-2.0-api.jar
 ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-logging.jar
+%if 0%{?fedora} && 0%{?fedora} <= 34
 ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-annotations-api_1.2_spec.jar
+%else
+ln -sf /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar %{buildroot}%{_datadir}/pki/server/common/lib/jakarta.annotation-api.jar
+%endif
 
 # with server
 %endif
