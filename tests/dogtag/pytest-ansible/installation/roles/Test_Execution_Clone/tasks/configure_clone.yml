@@ -6,26 +6,6 @@
   command: hostnamectl set-hostname pki2.example.com
   when: inventory_hostname in groups['clone']
 
-- name: install 389-ds-base module rhel8
-  shell: dnf module enable 389-ds:1.4 -y
-  when: ansible_distribution == "RedHat" and ansible_distribution_version >= '8.0'
-
-- name: install 389-ds-base
-  shell: dnf -y install 389-ds-base 389-ds-base-snmp 389-ds-base-legacy-tools
-  when: ansible_distribution == "RedHat" and ansible_distribution_version >= '8.0'
-
-- name: enable pki-core module for RHEL8
-  shell: dnf module enable pki-core:10.6 -y
-  when: ansible_distribution == "RedHat" and ansible_distribution_version >= '8.0'
-
-- name: install pki-ca and pki-kra module RHEL8
-  shell: dnf install pki-ca pki-kra python3 -y
-  when: ansible_distribution == "RedHat" and ansible_distribution_version >= '8.0'
-
-- name: install pki-ocsp, pki-tks and pki-tps module RHEL8
-  shell: dnf install pki-ocsp pki-tks pki-tps -y
-  when: ansible_distribution == "RedHat" and ansible_distribution_version >= '8.0'
-
 - name: Install pexpect on the RHEL 8
   command: pip-3 install {{item}}
   with_items:
@@ -62,7 +42,7 @@
   when: ansible_distribution == "RedHat" and ansible_distribution_version <= '7.6'
   tags: platform-ci
 
-- name: Install list of packages for CS Master for Fedora
+- name: Install list of packages for CS Clone for Fedora
   dnf: pkg={{item}} state=latest
   with_items:
     - 389-ds-base

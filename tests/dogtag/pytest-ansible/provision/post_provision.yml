@@ -1,4 +1,5 @@
-- hosts: master
+- hosts: all
+  become: yes
   gather_facts: true
 
   tasks:

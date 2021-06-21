@@ -41,7 +41,7 @@ def spawn_server(conn, image_name, server_type='master'):
     if server_type == 'master':
         server_name = 'OSP_API_Master_{}'.format(random.randint(999, 99999))
     else:
-        server_name = 'OSP_API_Client_{}'.format(random.randint(999, 99999))
+        server_name = 'OSP_API_Clone_{}'.format(random.randint(999, 99999))
     image = conn.compute.find_image(image_name)
     flavor = conn.compute.find_flavor(CI_FLAVOR_NAME)
     server = conn.compute.create_server(name=server_name, image_id=image.id,
@@ -106,8 +106,8 @@ def cli():
 @click.option('--inventory', default='/root/host', help='Generate inventory file.')
 @click.option('--image-type', type=click.Choice(['nightly', 'production']), default='nightly',
               help="Image type (nightly, production)")
-@click.option('--server-type', type=click.Choice(['master', 'client']), default='server',
-              help="Machine type (master, client)")
+@click.option('--server-type', type=click.Choice(['master', 'clone']), default='server',
+              help="Machine type (master, clone)")
 @click.option('-v', '--verbose', is_flag=True, help="Verbose")
 def up(inventory, image, image_type, server_type, verbose):
 

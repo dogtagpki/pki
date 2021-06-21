@@ -20,9 +20,16 @@
   tags: platform-ci
   when: ansible_connection != "docker"
 
+- name: Modify hostname for clone in /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{groups['clone'][0]}} pki2.example.com"
+    insertafter: EOF
+  when: (clone == "True") or (clone == "true" and groups.clone is defined)
+
 - name: Add 127.0.0.1 mapping to master hostname in /etc/hosts for 389ds
   lineinfile: dest=/etc/hosts create=yes insertafter=ROF line="127.0.0.1 {{ansible_fqdn}}" state=present
-  when: ansible_connection != "docker"
+  when: (ansible_connection != "docker") and (clone != "true")
 
 - name: check the hostname/ip for the remote instance
   set_fact: inventory_ip={{ inventory_hostname }}

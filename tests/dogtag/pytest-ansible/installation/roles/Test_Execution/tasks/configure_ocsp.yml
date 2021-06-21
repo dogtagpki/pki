@@ -53,3 +53,12 @@
   service:
     name: pki-tomcatd@{{ topology }}-OCSP.service
     state: started
+
+- name: OCSP Clone Preparation
+  block:
+    - name: Export OCSP subsystem certificates
+      shell: pki-server ocsp-clone-prepare -i {{topology}}-OCSP --pkcs12-file /tmp/ocsp_certs.p12 --pkcs12-password {{variable.CLIENT_PKCS12_PASSWORD}}
+
+    - name: Get the OCSP subsystem certificates to the local
+      fetch: src=/tmp/ocsp_certs.p12 dest=/tmp/test_dir/clonecerts/ flat=yes
+  when: clone == "true" or clone == "True"
