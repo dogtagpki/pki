@@ -137,35 +137,4 @@ public class Info extends ResourceMessage {
         return (Info)unmarshaller.unmarshal(new StringReader(string));
     }
 
-    @Override
-    public String toString() {
-        try {
-            return toXML();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void main(String args[]) throws Exception {
-
-        Info info = new Info();
-        info.setName("PKI");
-        info.setVersion("10.8.0");
-        info.setBanner(
-                "WARNING!\n" +
-                "Access to this service is restricted to those individuals with " +
-                "specific permissions.");
-
-        String json = info.toJSON();
-        System.out.println(json);
-
-        Info afterJSON = Info.fromJSON(json);
-        System.out.println(info.equals(afterJSON));
-
-        String xml = info.toXML();
-        System.out.println(xml);
-
-        Info afterXML = Info.fromXML(xml);
-        System.out.println(info.equals(afterXML));
-    }
 }

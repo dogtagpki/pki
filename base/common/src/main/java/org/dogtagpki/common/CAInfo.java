@@ -27,31 +27,22 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ResourceMessage;
 
 /**
  * @author Ade Lee
  */
 @XmlRootElement(name="CAInfo")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class CAInfo extends ResourceMessage {
 
-    private static Logger logger = LoggerFactory.getLogger(CAInfo.class);
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(CAInfo.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(CAInfo.class).createUnmarshaller();
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
+    public static final String ENCRYPT_MECHANISM = "encrypt";
+    public static final String KEYWRAP_MECHANISM = "keywrap";
 
     String archivalMechanism;
     String encryptAlgorithm;
@@ -121,32 +112,28 @@ public class CAInfo extends ResourceMessage {
         return true;
     }
 
-    @Override
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(CAInfo.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static CAInfo valueOf(String string) throws Exception {
+    public static CAInfo fromXML(String string) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(CAInfo.class).createUnmarshaller();
         return (CAInfo)unmarshaller.unmarshal(new StringReader(string));
     }
 
-    public static void main(String args[]) throws Exception {
-
-        CAInfo before = new CAInfo();
-        before.setArchivalMechanism("encrypt");
-
-        String string = before.toString();
-        System.out.println(string);
-
-        CAInfo after = CAInfo.valueOf(string);
-        System.out.println(before.equals(after));
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
+
+    public static CAInfo fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, CAInfo.class);
+    }
+
 }
 
