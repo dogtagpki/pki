@@ -22,12 +22,16 @@ import java.util.Collection;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.base.DataCollection;
 
 @XmlRootElement(name = "KeyInfoCollection")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyInfoCollection extends DataCollection<KeyInfo> {
 
     @Override
@@ -49,30 +53,4 @@ public class KeyInfoCollection extends DataCollection<KeyInfo> {
         return mapper.readValue(json, KeyInfoCollection.class);
     }
 
-    @Override
-    public String toString() {
-        try {
-            return toJSON();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        KeyInfoCollection collection = new KeyInfoCollection();
-
-        KeyInfo key1 = new KeyInfo();
-        key1.setClientKeyID("key1");
-        key1.setStatus("active");
-        collection.addEntry(key1);
-
-        KeyInfo key2 = new KeyInfo();
-        key2.setClientKeyID("key2");
-        key2.setStatus("active");
-        collection.addEntry(key2);
-
-        String json = collection.toJSON();
-        System.out.println(json);
-    }
 }

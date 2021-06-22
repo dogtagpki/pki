@@ -17,21 +17,32 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.key;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ResourceMessage;
 
 @XmlRootElement(name = "AsymKeyGenerationRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class AsymKeyGenerationRequest extends KeyGenerationRequest {
 
     // Asymmetric Key Usages
@@ -102,17 +113,29 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest {
         return list;
     }
 
-    public static void main(String[] args) {
-        AsymKeyGenerationRequest request = new AsymKeyGenerationRequest();
-        request.setKeyAlgorithm(KeyRequestResource.RSA_ALGORITHM);
-        request.setKeySize(1024);
-        request.setClientKeyId("vek12345");
-        List<String> usages = new ArrayList<>();
-        usages.add(AsymKeyGenerationRequest.ENCRYPT);
-        usages.add(AsymKeyGenerationRequest.DECRYPT);
-        request.setUsages(usages);
-        request.setRealm("ipa-vault");
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(AsymKeyGenerationRequest.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        System.out.println(request.toString());
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
+
+    public static AsymKeyGenerationRequest fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(AsymKeyGenerationRequest.class).createUnmarshaller();
+        return (AsymKeyGenerationRequest) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    @Override
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static AsymKeyGenerationRequest fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, AsymKeyGenerationRequest.class);
+    }
+
 }

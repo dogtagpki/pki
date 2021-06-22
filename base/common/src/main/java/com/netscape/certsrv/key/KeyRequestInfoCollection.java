@@ -28,11 +28,16 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.DataCollection;
 import com.netscape.certsrv.base.Link;
-import com.netscape.certsrv.request.RequestStatus;
 
 @XmlRootElement(name = "KeyRequestInfos")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyRequestInfoCollection extends DataCollection<KeyRequestInfo> {
 
     @Override
@@ -60,44 +65,28 @@ public class KeyRequestInfoCollection extends DataCollection<KeyRequestInfo> {
         return null;
     }
 
-    @Override
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            Marshaller marshaller = JAXBContext.newInstance(KeyRequestInfoCollection.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(this, sw);
-            return sw.toString();
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(KeyRequestInfoCollection.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        } catch (Exception e) {
-            return super.toString();
-        }
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static KeyRequestInfoCollection valueOf(String string) throws Exception {
-        try {
-            Unmarshaller unmarshaller = JAXBContext.newInstance(KeyRequestInfoCollection.class).createUnmarshaller();
-            return (KeyRequestInfoCollection)unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
+    public static KeyRequestInfoCollection fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(KeyRequestInfoCollection.class).createUnmarshaller();
+        return (KeyRequestInfoCollection) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static void main(String args[]) throws Exception {
-
-        KeyRequestInfoCollection before = new KeyRequestInfoCollection();
-
-        KeyRequestInfo request = new KeyRequestInfo();
-        request.setRequestType("securityDataEnrollment");
-        request.setRequestStatus(RequestStatus.COMPLETE);
-        before.addEntry(request);
-
-        String string = before.toString();
-        System.out.println(string);
-
-        KeyRequestInfoCollection after = KeyRequestInfoCollection.valueOf(string);
-        System.out.println(after);
-
-        System.out.println(before.equals(after));
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
+
+    public static KeyRequestInfoCollection fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, KeyRequestInfoCollection.class);
+    }
+
 }
