@@ -33,6 +33,10 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.RevocationReasonAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.util.DateAdapter;
 
@@ -40,21 +44,9 @@ import com.netscape.certsrv.util.DateAdapter;
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="CertRevokeRequest")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class CertRevokeRequest {
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            JAXBContext context = JAXBContext.newInstance(CertRevokeRequest.class);
-            marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = context.createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     RevocationReason reason;
     Date invalidityDate;
@@ -164,40 +156,28 @@ public class CertRevokeRequest {
         return true;
     }
 
-    @Override
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(CertRevokeRequest.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        } catch (Exception e) {
-            return super.toString();
-        }
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static CertRevokeRequest valueOf(String string) throws Exception {
-        try {
-            return (CertRevokeRequest)unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
+    public static CertRevokeRequest fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(CertRevokeRequest.class).createUnmarshaller();
+        return (CertRevokeRequest) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static void main(String args[]) throws Exception {
-
-        CertRevokeRequest before = new CertRevokeRequest();
-        before.setReason(RevocationReason.CERTIFICATE_HOLD);
-        before.setInvalidityDate(new Date());
-        before.setComments("test");
-        before.setEncoded("test");
-        before.setNonce(12345l);
-
-        String string = before.toString();
-        System.out.println(string);
-
-        CertRevokeRequest after = CertRevokeRequest.valueOf(string);
-
-        System.out.println(before.equals(after));
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
+
+    public static CertRevokeRequest fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, CertRevokeRequest.class);
+    }
+
 }

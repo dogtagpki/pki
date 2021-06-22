@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * The RequestStatus class represents the current state of a request
  * in a request queue. The state of the request changes as actions
@@ -147,6 +149,7 @@ public final class RequestStatus implements Serializable {
      * @return request status
      */
     @Override
+    @JsonValue
     public String toString() {
         return label;
     }

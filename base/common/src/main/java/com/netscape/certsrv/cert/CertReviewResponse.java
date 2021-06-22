@@ -22,6 +22,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -32,6 +33,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.profile.PolicyDefault;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfilePolicy;
@@ -41,6 +46,8 @@ import com.netscape.certsrv.request.RequestIdAdapter;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class CertReviewResponse extends CertEnrollmentRequest {
 
     @XmlElement(name="ProfilePolicySet")
@@ -237,17 +244,62 @@ public class CertReviewResponse extends CertEnrollmentRequest {
 
     @Override
     public String toXML() throws Exception {
-        JAXBContext context = JAXBContext.newInstance(CertReviewResponse.class);
-        Marshaller marshaller = context.createMarshaller();
+        Marshaller marshaller = JAXBContext.newInstance(CertReviewResponse.class).createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
         StringWriter sw = new StringWriter();
         marshaller.marshal(this, sw);
         return sw.toString();
     }
 
     public static CertReviewResponse fromXML(String xml) throws Exception {
-        JAXBContext context = JAXBContext.newInstance(CertReviewResponse.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
+        Unmarshaller unmarshaller = JAXBContext.newInstance(CertReviewResponse.class).createUnmarshaller();
         return (CertReviewResponse) unmarshaller.unmarshal(new StringReader(xml));
     }
+
+    @Override
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static CertReviewResponse fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, CertReviewResponse.class);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(nonce, policySets, profileApprovedBy, profileDescription,
+                profileIsVisible, profileName, profileRemoteAddr, profileRemoteHost, profileSetId, requestCreationTime,
+                requestId, requestModificationTime, requestNotes, requestOwner, requestStatus, requestType);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CertReviewResponse other = (CertReviewResponse) obj;
+        return Objects.equals(nonce, other.nonce) && Objects.equals(policySets, other.policySets)
+                && Objects.equals(profileApprovedBy, other.profileApprovedBy)
+                && Objects.equals(profileDescription, other.profileDescription)
+                && Objects.equals(profileIsVisible, other.profileIsVisible)
+                && Objects.equals(profileName, other.profileName)
+                && Objects.equals(profileRemoteAddr, other.profileRemoteAddr)
+                && Objects.equals(profileRemoteHost, other.profileRemoteHost)
+                && Objects.equals(profileSetId, other.profileSetId)
+                && Objects.equals(requestCreationTime, other.requestCreationTime)
+                && Objects.equals(requestId, other.requestId)
+                && Objects.equals(requestModificationTime, other.requestModificationTime)
+                && Objects.equals(requestNotes, other.requestNotes) && Objects.equals(requestOwner, other.requestOwner)
+                && Objects.equals(requestStatus, other.requestStatus) && Objects.equals(requestType, other.requestType);
+    }
+
 }

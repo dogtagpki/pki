@@ -21,12 +21,23 @@
  */
 package com.netscape.certsrv.cert;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Objects;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.request.RequestId;
@@ -38,6 +49,8 @@ import com.netscape.certsrv.request.RequestIdAdapter;
  */
 @XmlRootElement(name = "CertRetrievalRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class CertRetrievalRequest {
 
     @XmlElement
@@ -46,7 +59,7 @@ public class CertRetrievalRequest {
 
     @XmlElement
     @XmlJavaTypeAdapter(RequestIdAdapter.class)
-    protected RequestId requestId;
+    public RequestId requestId;
 
     public CertRetrievalRequest() {
         // required for JAXB (defaults)
@@ -61,6 +74,55 @@ public class CertRetrievalRequest {
      */
     public CertId getCertId() {
         return certId;
+    }
+
+    protected void setCertId(CertId certId) {
+        this.certId = certId;
+    }
+
+    protected void setRequestId(RequestId requestId) {
+        this.requestId = requestId;
+    }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(CertRetrievalRequest.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static CertRetrievalRequest fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(CertRetrievalRequest.class).createUnmarshaller();
+        return (CertRetrievalRequest) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static CertRetrievalRequest fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, CertRetrievalRequest.class);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(certId, requestId);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CertRetrievalRequest other = (CertRetrievalRequest) obj;
+        return Objects.equals(certId, other.certId) && Objects.equals(requestId, other.requestId);
     }
 
 }
