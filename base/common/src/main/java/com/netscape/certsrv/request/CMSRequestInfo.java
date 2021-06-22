@@ -187,35 +187,4 @@ public  class CMSRequestInfo {
         return mapper.readValue(json, CMSRequestInfo.class);
     }
 
-    @Override
-    public String toString() {
-        try {
-            return toXML();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void main(String args[]) throws Exception {
-
-        CMSRequestInfo before = new CMSRequestInfo();
-        before.setRequestType("securityDataEnrollment");
-        before.setRequestStatus(RequestStatus.COMPLETE);
-
-        String xml = before.toString();
-        System.out.println("XML (before): " + xml);
-
-        CMSRequestInfo afterXML = CMSRequestInfo.fromXML(xml);
-        System.out.println("XML (after): " + afterXML.toXML());
-
-        System.out.println(before.equals(afterXML));
-
-        String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
-
-        CMSRequestInfo afterJSON = CMSRequestInfo.fromJSON(json);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
-
-        System.out.println(before.equals(afterJSON));
-    }
 }
