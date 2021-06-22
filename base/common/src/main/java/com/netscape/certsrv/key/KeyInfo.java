@@ -29,6 +29,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
@@ -40,6 +42,8 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
  */
 @XmlRootElement(name="KeyInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyInfo {
 
     @XmlElement
@@ -254,26 +258,4 @@ public class KeyInfo {
         return mapper.readValue(json, KeyInfo.class);
     }
 
-    @Override
-    public String toString() {
-        try {
-            return toJSON();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        KeyInfo before = new KeyInfo();
-        before.setClientKeyID("key");
-        before.setStatus("active");
-
-        String json = before.toJSON();
-        System.out.println(json);
-
-        KeyInfo after = KeyInfo.fromJSON(json);
-        System.out.println(after.toJSON());
-        System.out.println(before.equals(after));
-    }
 }

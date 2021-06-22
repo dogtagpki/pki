@@ -29,15 +29,18 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.CMSRequestInfo;
-import com.netscape.certsrv.request.RequestStatus;
 
 @XmlRootElement(name = "KeyRequestInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyRequestInfo extends CMSRequestInfo {
 
     @XmlElement
@@ -123,36 +126,5 @@ public class KeyRequestInfo extends CMSRequestInfo {
         return mapper.readValue(json, KeyRequestInfo.class);
     }
 
-    @Override
-    public String toString() {
-        try {
-            return toXML();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    public static void main(String args[]) throws Exception {
-
-        KeyRequestInfo before = new KeyRequestInfo();
-        before.setRequestType("securityDataEnrollment");
-        before.setRequestStatus(RequestStatus.COMPLETE);
-        before.setKeyURL("https://localhost:8443/kra/rest/agent/keys/123");
-
-        String xml = before.toString();
-        System.out.println("XML (before): " + xml);
-
-        KeyRequestInfo afterXML = KeyRequestInfo.fromXML(xml);
-        System.out.println("XML (before): " + afterXML.toXML());
-
-        System.out.println(before.equals(afterXML));
-
-        String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
-
-        KeyRequestInfo afterJSON = KeyRequestInfo.fromJSON(json);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
-
-        System.out.println(before.equals(afterJSON));
-    }
 }

@@ -33,6 +33,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
@@ -44,6 +46,8 @@ import com.netscape.certsrv.base.ResourceMessage;
  */
 @XmlRootElement(name="KeyArchivalRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyArchivalRequest extends ResourceMessage {
 
     private static final String CLIENT_KEY_ID = "clientKeyID";
@@ -255,6 +259,7 @@ public class KeyArchivalRequest extends ResourceMessage {
         return (KeyArchivalRequest) unmarshaller.unmarshal(new StringReader(xml));
     }
 
+    @Override
     public String toJSON() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
@@ -266,42 +271,6 @@ public class KeyArchivalRequest extends ResourceMessage {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
         return mapper.readValue(json, KeyArchivalRequest.class);
-    }
-
-    @Override
-    public String toString() {
-        try {
-            return toXML();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void main(String args[]) throws Exception {
-
-        KeyArchivalRequest before = new KeyArchivalRequest();
-        before.setClientKeyId("vek 12345");
-        before.setDataType(KeyRequestResource.SYMMETRIC_KEY_TYPE);
-        before.setWrappedPrivateData("XXXXABCDEFXXX");
-        before.setKeyAlgorithm(KeyRequestResource.AES_ALGORITHM);
-        before.setRealm("ipa-vault");
-        before.setKeySize(128);
-
-        String xml = before.toString();
-        System.out.println("XML (before): " + xml);
-
-        KeyArchivalRequest afterXML = KeyArchivalRequest.fromXML(xml);
-        System.out.println("XML (after): " + afterXML.toXML());
-
-        System.out.println(before.equals(afterXML));
-
-        String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
-
-        KeyArchivalRequest afterJSON = KeyArchivalRequest.fromJSON(json);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
-
-        System.out.println(before.equals(afterJSON));
     }
 
 }

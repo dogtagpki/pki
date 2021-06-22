@@ -29,6 +29,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
@@ -37,6 +39,8 @@ import com.netscape.certsrv.request.RequestId;
 
 @XmlRootElement(name = "KeyRequestResponse")
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyRequestResponse {
 
     KeyRequestInfo requestInfo;
@@ -124,41 +128,4 @@ public class KeyRequestResponse {
         return mapper.readValue(json, KeyRequestResponse.class);
     }
 
-    @Override
-    public String toString() {
-        try {
-            return toXML();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void main(String args[]) throws Exception {
-
-        KeyRequestResponse before = new KeyRequestResponse();
-
-        KeyRequestInfo requestInfo = new KeyRequestInfo();
-        requestInfo.setRequestType("test");
-        before.setRequestInfo(requestInfo);
-
-        KeyData keyData = new KeyData();
-        keyData.setAlgorithm("AES");
-        before.setKeyData(keyData);
-
-        String xml = before.toString();
-        System.out.println("XML (before): " + xml);
-
-        KeyRequestResponse afterXML = KeyRequestResponse.fromXML(xml);
-        System.out.println("XML (after): " + afterXML);
-
-        System.out.println(before.equals(afterXML));
-
-        String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
-
-        KeyRequestResponse afterJSON = KeyRequestResponse.fromJSON(json);
-        System.out.println("JSON (after): " + json);
-
-        System.out.println(before.equals(afterJSON));
-    }
 }

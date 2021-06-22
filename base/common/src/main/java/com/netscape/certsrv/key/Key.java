@@ -2,6 +2,8 @@ package com.netscape.certsrv.key;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Objects;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -13,6 +15,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
@@ -29,6 +33,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 @XmlRootElement(name="Key")
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Key {
 
     @XmlElement
@@ -202,11 +208,32 @@ public class Key {
     }
 
     @Override
-    public String toString() {
-        try {
-            return toXML();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(data);
+        result = prime * result + Arrays.hashCode(encryptedData);
+        result = prime * result + Arrays.hashCode(nonceData);
+        result = prime * result + Objects.hash(algorithm, encryptAlgorithmOID, p12Data, publicKey, requestId, size,
+                type, wrapAlgorithm);
+        return result;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Key other = (Key) obj;
+        return Objects.equals(algorithm, other.algorithm) && Arrays.equals(data, other.data)
+                && Objects.equals(encryptAlgorithmOID, other.encryptAlgorithmOID)
+                && Arrays.equals(encryptedData, other.encryptedData) && Arrays.equals(nonceData, other.nonceData)
+                && Objects.equals(p12Data, other.p12Data) && Objects.equals(publicKey, other.publicKey)
+                && Objects.equals(requestId, other.requestId) && Objects.equals(size, other.size)
+                && Objects.equals(type, other.type) && Objects.equals(wrapAlgorithm, other.wrapAlgorithm);
+    }
+
 }

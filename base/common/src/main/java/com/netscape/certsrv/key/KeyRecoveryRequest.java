@@ -34,6 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
@@ -47,6 +48,7 @@ import com.netscape.certsrv.request.RequestId;
  */
 @XmlRootElement(name="KeyRecoveryRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyRecoveryRequest extends ResourceMessage {
 
@@ -240,6 +242,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
         return (KeyRecoveryRequest) unmarshaller.unmarshal(new StringReader(xml));
     }
 
+    @Override
     public String toJSON() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
@@ -253,36 +256,4 @@ public class KeyRecoveryRequest extends ResourceMessage {
         return mapper.readValue(json, KeyRecoveryRequest.class);
     }
 
-    @Override
-    public String toString() {
-        try {
-            return toXML();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void main(String args[]) throws Exception {
-
-        KeyRecoveryRequest before = new KeyRecoveryRequest();
-        before.setKeyId(new KeyId("0x123456"));
-        before.setNonceData("nonce-XXX12345");
-        before.setPassphrase("password");
-        before.setRequestId(new RequestId("0x123F"));
-        before.setCertificate("123ABCAAAA");
-        before.setSessionWrappedPassphrase("XXXXXXXX1234");
-        before.setTransWrappedSessionKey("124355AAA");
-
-        String xml = before.toString();
-        System.out.println(xml);
-
-        KeyRecoveryRequest afterXML = KeyRecoveryRequest.fromXML(xml);
-        System.out.println(before.equals(afterXML));
-
-        String json = before.toJSON();
-        System.out.println(json);
-
-        KeyRecoveryRequest afterJSON = KeyRecoveryRequest.fromJSON(json);
-        System.out.println(before.equals(afterJSON));
-    }
 }
