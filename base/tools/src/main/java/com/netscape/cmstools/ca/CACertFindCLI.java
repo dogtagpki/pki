@@ -216,7 +216,7 @@ public class CACertFindCLI extends CommandCLI {
             FileReader reader = null;
             try {
                 reader = new FileReader(fileName);
-                searchData = CertSearchRequest.valueOf(reader);
+                searchData = CertSearchRequest.fromXML(reader);
 
             } finally {
                 if (reader != null)

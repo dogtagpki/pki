@@ -30,13 +30,18 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.request.CMSRequestInfo;
-import com.netscape.certsrv.request.RequestStatus;
 
 @XmlRootElement(name = "CertRequestInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class CertRequestInfo extends CMSRequestInfo {
 
     public static final String REQ_COMPLETE = "complete";
@@ -158,42 +163,29 @@ public class CertRequestInfo extends CMSRequestInfo {
     }
 
     @Override
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            Marshaller marshaller = JAXBContext.newInstance(CertRequestInfo.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(this, sw);
-            return sw.toString();
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(CertRequestInfo.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        } catch (Exception e) {
-            return super.toString();
-        }
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static CertRequestInfo valueOf(String string) throws Exception {
-        try {
-            Unmarshaller unmarshaller = JAXBContext.newInstance(CertRequestInfo.class).createUnmarshaller();
-            return (CertRequestInfo)unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
+    public static CertRequestInfo fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(CertRequestInfo.class).createUnmarshaller();
+        return (CertRequestInfo) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static void main(String args[]) throws Exception {
-
-        CertRequestInfo before = new CertRequestInfo();
-        before.setRequestType("enrollment");
-        before.setRequestStatus(RequestStatus.COMPLETE);
-        before.setCertRequestType("pkcs10");
-        before.setCertId(new CertId("5"));
-
-        String string = before.toString();
-        System.out.println(string);
-
-        CertRequestInfo after = CertRequestInfo.valueOf(string);
-        System.out.println(after);
-
-        System.out.println(before.equals(after));
+    @Override
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
+
+    public static CertRequestInfo fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, CertRequestInfo.class);
+    }
+
 }

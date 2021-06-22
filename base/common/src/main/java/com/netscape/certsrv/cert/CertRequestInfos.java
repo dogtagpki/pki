@@ -36,7 +36,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.DataCollection;
 import com.netscape.certsrv.base.Link;
-import com.netscape.certsrv.request.RequestStatus;
 
 @XmlRootElement(name = "CertRequestInfos")
 @JsonInclude(Include.NON_NULL)
@@ -96,40 +95,4 @@ public class CertRequestInfos extends DataCollection<CertRequestInfo> {
         return (CertRequestInfos)unmarshaller.unmarshal(new StringReader(string));
     }
 
-    @Override
-    public String toString() {
-        try {
-            return toXML();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void main(String args[]) throws Exception {
-
-        CertRequestInfo request = new CertRequestInfo();
-        request.setRequestType("enrollment");
-        request.setRequestStatus(RequestStatus.COMPLETE);
-        request.setCertRequestType("pkcs10");
-
-        CertRequestInfos before = new CertRequestInfos();
-        before.addEntry(request);
-        before.setTotal(1);
-
-        String xml = before.toXML();
-        System.out.println("Before (XML): " + xml);
-
-        CertRequestInfos afterXML = CertRequestInfos.fromXML(xml);
-        System.out.println("After (XML): " + afterXML.toXML());
-
-        System.out.println(before.equals(afterXML));
-
-        String json = before.toJSON();
-        System.out.println("Before (JSON): " + json);
-
-        CertRequestInfos afterJSON = CertRequestInfos.fromJSON(json);
-        System.out.println("After (JSON): " + afterJSON.toJSON());
-
-        System.out.println(before.equals(afterJSON));
-    }
 }

@@ -21,15 +21,24 @@
 package com.netscape.certsrv.cert;
 
 import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Objects;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author jmagne
@@ -37,6 +46,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "CertSearchRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class CertSearchRequest {
 
     @XmlElement
@@ -567,9 +578,84 @@ public class CertSearchRequest {
     public CertSearchRequest(MultivaluedMap<String, String> form) {
     }
 
-    public static CertSearchRequest valueOf(Reader reader) throws JAXBException {
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(CertSearchRequest.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static CertSearchRequest fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(CertSearchRequest.class).createUnmarshaller();
+        return (CertSearchRequest) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static CertSearchRequest fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, CertSearchRequest.class);
+    }
+
+    public static CertSearchRequest fromXML(Reader reader) throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(CertSearchRequest.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         return (CertSearchRequest) unmarshaller.unmarshal(reader);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(certTypeInUse, certTypeSSLClient, certTypeSSLServer, certTypeSecureEmail,
+                certTypeSubEmailCA, certTypeSubSSLCA, commonName, country, eMail, issuedBy, issuedByInUse, issuedOnFrom,
+                issuedOnInUse, issuedOnTo, issuerDN, locality, matchExactly, org, orgUnit, revocationReason,
+                revocationReasonInUse, revokedBy, revokedByInUse, revokedOnFrom, revokedOnInUse, revokedOnTo,
+                serialFrom, serialNumberRangeInUse, serialTo, state, status, subjectInUse, userID, validNotAfterFrom,
+                validNotAfterInUse, validNotAfterTo, validNotBeforeFrom, validNotBeforeInUse, validNotBeforeTo,
+                validityCount, validityLengthInUse, validityOperation, validityUnit);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CertSearchRequest other = (CertSearchRequest) obj;
+        return certTypeInUse == other.certTypeInUse && Objects.equals(certTypeSSLClient, other.certTypeSSLClient)
+                && Objects.equals(certTypeSSLServer, other.certTypeSSLServer)
+                && Objects.equals(certTypeSecureEmail, other.certTypeSecureEmail)
+                && Objects.equals(certTypeSubEmailCA, other.certTypeSubEmailCA)
+                && Objects.equals(certTypeSubSSLCA, other.certTypeSubSSLCA)
+                && Objects.equals(commonName, other.commonName) && Objects.equals(country, other.country)
+                && Objects.equals(eMail, other.eMail) && Objects.equals(issuedBy, other.issuedBy)
+                && issuedByInUse == other.issuedByInUse && Objects.equals(issuedOnFrom, other.issuedOnFrom)
+                && issuedOnInUse == other.issuedOnInUse && Objects.equals(issuedOnTo, other.issuedOnTo)
+                && Objects.equals(issuerDN, other.issuerDN) && Objects.equals(locality, other.locality)
+                && matchExactly == other.matchExactly && Objects.equals(org, other.org)
+                && Objects.equals(orgUnit, other.orgUnit) && Objects.equals(revocationReason, other.revocationReason)
+                && revocationReasonInUse == other.revocationReasonInUse && Objects.equals(revokedBy, other.revokedBy)
+                && revokedByInUse == other.revokedByInUse && Objects.equals(revokedOnFrom, other.revokedOnFrom)
+                && revokedOnInUse == other.revokedOnInUse && Objects.equals(revokedOnTo, other.revokedOnTo)
+                && Objects.equals(serialFrom, other.serialFrom)
+                && serialNumberRangeInUse == other.serialNumberRangeInUse && Objects.equals(serialTo, other.serialTo)
+                && Objects.equals(state, other.state) && Objects.equals(status, other.status)
+                && subjectInUse == other.subjectInUse && Objects.equals(userID, other.userID)
+                && Objects.equals(validNotAfterFrom, other.validNotAfterFrom)
+                && validNotAfterInUse == other.validNotAfterInUse
+                && Objects.equals(validNotAfterTo, other.validNotAfterTo)
+                && Objects.equals(validNotBeforeFrom, other.validNotBeforeFrom)
+                && validNotBeforeInUse == other.validNotBeforeInUse
+                && Objects.equals(validNotBeforeTo, other.validNotBeforeTo)
+                && Objects.equals(validityCount, other.validityCount)
+                && validityLengthInUse == other.validityLengthInUse
+                && Objects.equals(validityOperation, other.validityOperation)
+                && Objects.equals(validityUnit, other.validityUnit);
     }
 }

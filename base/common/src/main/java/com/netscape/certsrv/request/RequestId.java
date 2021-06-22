@@ -20,6 +20,8 @@ package com.netscape.certsrv.request;
 import java.io.Serializable;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * The RequestId class represents the identifier for a particular
  * request within a request queue. This identifier may be used to
@@ -112,6 +114,7 @@ public class RequestId implements Serializable {
      * @return
      *         a string containing the hex (base 16) value for the identifier.
      */
+    @JsonValue
     public String toHexString() {
         return "0x"+value.toString(16);
     }

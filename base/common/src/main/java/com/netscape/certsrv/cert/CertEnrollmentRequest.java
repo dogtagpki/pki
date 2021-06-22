@@ -37,6 +37,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
@@ -51,6 +55,8 @@ import com.netscape.certsrv.profile.ProfileOutput;
 
 @XmlRootElement(name = "CertEnrollmentRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class CertEnrollmentRequest extends ResourceMessage {
 
     private static final String PROFILE_ID = "profileId";
@@ -345,66 +351,28 @@ public class CertEnrollmentRequest extends ResourceMessage {
     }
 
     public String toXML() throws Exception {
-        JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
-        Marshaller marshaller = context.createMarshaller();
+        Marshaller marshaller = JAXBContext.newInstance(CertEnrollmentRequest.class).createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
         StringWriter sw = new StringWriter();
         marshaller.marshal(this, sw);
         return sw.toString();
     }
 
-    public static CertEnrollmentRequest fromXML(String string) throws Exception {
-        JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        return (CertEnrollmentRequest) unmarshaller.unmarshal(new StringReader(string));
+    public static CertEnrollmentRequest fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(CertEnrollmentRequest.class).createUnmarshaller();
+        return (CertEnrollmentRequest) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     @Override
-    public String toString() {
-        try {
-            return toXML();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
 
-    public static void main(String args[]) throws Exception {
-        CertEnrollmentRequest before = new CertEnrollmentRequest();
-        before.setProfileId("caUserCert");
-        before.setRenewal(false);
-
-        ProfileInput certReq = before.createInput("KeyGenInput");
-        certReq.addAttribute(new ProfileAttribute("cert_request_type", "crmf", null));
-        certReq.addAttribute(new ProfileAttribute(
-                "cert_request",
-                "MIIBozCCAZ8wggEFAgQBMQp8MIHHgAECpQ4wDDEKMAgGA1UEAxMBeKaBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA2NgaPHp0jiohcP4M+ufrJOZEqH8GV+liu5JLbT8nWpkfhC+8EUBqT6g+n3qroSxIcNVGNdcsBEqs1utvpItzyslAbpdyat3WwQep1dWMzo6RHrPDuIoxNA0Yka1n3qEX4U//08cLQtUv2bYglYgN/hOCNQemLV6vZWAv0n7zelkCAwEAAakQMA4GA1UdDwEB/wQEAwIF4DAzMBUGCSsGAQUFBwUBAQwIcmVnVG9rZW4wGgYJKwYBBQUHBQECDA1hdXRoZW50aWNhdG9yoYGTMA0GCSqGSIb3DQEBBQUAA4GBAJ1VOQcaSEhdHa94s8kifVbSZ2WZeYE5//qxL6wVlEst20vq4ybj13CetnbN3+WT49Zkwp7Fg+6lALKgSk47suTg3EbbQDm+8yOrC0nc/q4PTRoHl0alMmUxIhirYc1t3xoCMqJewmjX1bNP8lpVIZAYFZo4eZCpZaiSkM5BeHhz",
-                null));
-
-        ProfileInput subjectName = before.createInput("SubjectNameInput");
-        subjectName.addAttribute(new ProfileAttribute("sn_uid", "jmagne", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_e", "jmagne@redhat.com", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_c", "US", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_ou", "Development", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_ou1", "IPA", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_ou2", "Dogtag", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_ou3", "CA", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_cn", "Common", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_o", "RedHat", null));
-
-        ProfileInput submitter = before.createInput("SubmitterInfoInput");
-        submitter.addAttribute(new ProfileAttribute("requestor_name", "admin", null));
-        submitter.addAttribute(new ProfileAttribute("requestor_email", "admin@redhat.com", null));
-        submitter.addAttribute(new ProfileAttribute("requestor_phone", "650-555-5555", null));
-
-        before.setAttribute("uid", "testuser");
-        before.setAttribute("pwd", "password");
-
-        String xml = before.toXML();
-        System.out.println(xml);
-
-        CertEnrollmentRequest after = CertEnrollmentRequest.fromXML(xml);
-        System.out.println(after.toXML());
-
-        System.out.println(before.equals(after));
+    public static CertEnrollmentRequest fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, CertEnrollmentRequest.class);
     }
+
 }
