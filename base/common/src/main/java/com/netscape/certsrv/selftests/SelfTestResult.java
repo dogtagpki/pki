@@ -28,24 +28,18 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="SelfTestResult")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class SelfTestResult {
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(SelfTestResult.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(SelfTestResult.class).createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     String id;
     String status;
@@ -115,37 +109,28 @@ public class SelfTestResult {
         return true;
     }
 
-    @Override
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(SelfTestResult.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        } catch (Exception e) {
-            return super.toString();
-        }
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static SelfTestResult valueOf(String string) throws Exception {
-        try {
-            return (SelfTestResult)unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
+    public static SelfTestResult fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(SelfTestResult.class).createUnmarshaller();
+        return (SelfTestResult) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static void main(String args[]) throws Exception {
-
-        SelfTestResult before = new SelfTestResult();
-        before.setID("selftest1");
-        before.setStatus("PASSED");
-        before.setOutput(null);
-
-        String string = before.toString();
-        System.out.println(string);
-
-        SelfTestResult after = SelfTestResult.valueOf(string);
-        System.out.println(before.equals(after));
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
+
+    public static SelfTestResult fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, SelfTestResult.class);
+    }
+
 }
