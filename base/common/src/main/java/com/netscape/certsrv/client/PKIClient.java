@@ -97,7 +97,7 @@ public class PKIClient implements AutoCloseable {
 
     public <T> T createProxy(String path, Class<T> clazz) throws Exception {
 
-        WebTarget target = connection.target(path);
+        WebTarget target = connection.target().path(path);
 
         ProxyBuilder<T> builder = ProxyBuilder.builder(clazz, target);
         builder.defaultConsumes(messageFormat);

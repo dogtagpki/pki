@@ -73,7 +73,7 @@ public class Client {
 
     public <T> T createProxy(Class<T> clazz) throws Exception {
 
-        String path = "/" + subsystem;
+        String path = subsystem;
 
         if (prefix != null) {
             path += "/" + prefix;
