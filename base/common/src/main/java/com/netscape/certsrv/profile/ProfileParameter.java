@@ -17,14 +17,28 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Objects;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileParameter {
 
     @XmlAttribute
@@ -61,6 +75,47 @@ public class ProfileParameter {
     @Override
     public String toString() {
         return "ProfileParameter [name=" + name + ", value=" + value + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, value);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ProfileParameter other = (ProfileParameter) obj;
+        return Objects.equals(name, other.name) && Objects.equals(value, other.value);
+    }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(ProfileParameter.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static ProfileParameter fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileParameter.class).createUnmarshaller();
+        return (ProfileParameter) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static ProfileParameter fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, ProfileParameter.class);
     }
 
 }

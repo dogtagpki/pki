@@ -17,18 +17,27 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
-import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfilePolicy {
     @XmlAttribute
     private String id = null;
@@ -61,23 +70,6 @@ public class ProfilePolicy {
 
     public void setConstraint(PolicyConstraint constraint) {
         this.constraint = constraint;
-    }
-
-    @Override
-    public String toString() {
-        try {
-            JAXBContext context = JAXBContext.newInstance(ProfilePolicy.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-            marshaller.marshal(this, stream);
-            return stream.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     @Override
@@ -115,6 +107,30 @@ public class ProfilePolicy {
         } else if (!id.equals(other.id))
             return false;
         return true;
+    }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(ProfilePolicy.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static ProfilePolicy fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfilePolicy.class).createUnmarshaller();
+        return (ProfilePolicy) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static ProfilePolicy fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, ProfilePolicy.class);
     }
 
 }

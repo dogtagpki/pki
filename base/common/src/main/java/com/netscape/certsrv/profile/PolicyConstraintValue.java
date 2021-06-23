@@ -17,16 +17,28 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.property.Descriptor;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class PolicyConstraintValue {
     @XmlAttribute(name="id")
     private String name;
@@ -107,4 +119,29 @@ public class PolicyConstraintValue {
             return false;
         return true;
     }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(PolicyConstraintValue.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static PolicyConstraintValue fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(PolicyConstraintValue.class).createUnmarshaller();
+        return (PolicyConstraintValue) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static PolicyConstraintValue fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, PolicyConstraintValue.class);
+    }
+
 }

@@ -27,6 +27,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * @author alee
  *
@@ -38,6 +40,7 @@ public class ProfileRetrievalRequest {
     private static final String PROFILE_ID = "profileId";
 
     @XmlElement
+    @JsonValue
     protected String profileId;
 
     public ProfileRetrievalRequest() {

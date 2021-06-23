@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -33,8 +32,15 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @XmlRootElement(name="Input")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileInput {
 
     @XmlAttribute(name="id")
@@ -200,40 +206,28 @@ public class ProfileInput {
         return true;
     }
 
-    public static ProfileInput fromXML(String string) throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(ProfileInput.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        return (ProfileInput) unmarshaller.unmarshal(new StringReader(string));
-    }
-
-    public String toXML() throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(ProfileInput.class);
-        Marshaller marshaller = context.createMarshaller();
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(ProfileInput.class).createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
         StringWriter sw = new StringWriter();
         marshaller.marshal(this, sw);
         return sw.toString();
     }
 
-    public static void main(String args[]) throws Exception {
-
-        ProfileInput before = new ProfileInput("i1", "SubjectNameInput", null);
-        before.addAttribute(new ProfileAttribute("sn_uid", "jmagne", null));
-        before.addAttribute(new ProfileAttribute("sn_e", "jmagne@redhat.com", null));
-        before.addAttribute(new ProfileAttribute("sn_c", "US", null));
-        before.addAttribute(new ProfileAttribute("sn_ou", "Development", null));
-        before.addAttribute(new ProfileAttribute("sn_ou1", "IPA", null));
-        before.addAttribute(new ProfileAttribute("sn_ou2", "Dogtag", null));
-        before.addAttribute(new ProfileAttribute("sn_ou3", "CA", null));
-        before.addAttribute(new ProfileAttribute("sn_cn", "Common", null));
-        before.addAttribute(new ProfileAttribute("sn_o", "RedHat", null));
-
-        String xml = before.toXML();
-        System.out.println(xml);
-
-        ProfileInput after = ProfileInput.fromXML(xml);
-        System.out.println(after.toXML());
-
-        System.out.println(before.equals(after));
+    public static ProfileInput fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileInput.class).createUnmarshaller();
+        return (ProfileInput) unmarshaller.unmarshal(new StringReader(xml));
     }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static ProfileInput fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, ProfileInput.class);
+    }
+
 }
