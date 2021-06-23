@@ -20,7 +20,6 @@ package com.netscape.certsrv.client;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -61,15 +60,15 @@ public class PKIClient implements AutoCloseable {
     // List to prevent displaying the same warnings/errors again.
     Collection<Integer> statuses = new HashSet<>();
 
-    public PKIClient(ClientConfig config) throws URISyntaxException {
+    public PKIClient(ClientConfig config) throws Exception {
         this(config, null, null);
     }
 
-    public PKIClient(ClientConfig config, CryptoProvider crypto) throws URISyntaxException {
+    public PKIClient(ClientConfig config, CryptoProvider crypto) throws Exception {
         this(config, crypto, null);
     }
 
-    public PKIClient(ClientConfig config, CryptoProvider crypto, SSLCertificateApprovalCallback callback) throws URISyntaxException {
+    public PKIClient(ClientConfig config, CryptoProvider crypto, SSLCertificateApprovalCallback callback) throws Exception {
         this.config = config;
         this.crypto = crypto;
 

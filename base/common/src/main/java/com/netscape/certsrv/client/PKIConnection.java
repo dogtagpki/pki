@@ -83,13 +83,14 @@ public class PKIConnection implements AutoCloseable {
 
     ApacheHttpClient4Engine engine;
     javax.ws.rs.client.Client client;
+    WebTarget target;
 
     int requestCounter;
     int responseCounter;
 
     File output;
 
-    public PKIConnection(ClientConfig config) {
+    public PKIConnection(ClientConfig config) throws Exception {
 
         this.config = config;
 
@@ -197,6 +198,9 @@ public class PKIConnection implements AutoCloseable {
 
         client = new ResteasyClientBuilder().httpEngine(engine).build();
         client.register(PKIRESTProvider.class);
+
+        URI uri = config.getServerURL().toURI();
+        target = client.target(uri);
     }
 
     public void setCallback(SSLCertificateApprovalCallback callback) {
@@ -382,6 +386,10 @@ public class PKIConnection implements AutoCloseable {
             return null;
         }
 
+    }
+
+    public WebTarget target() {
+        return target;
     }
 
     public WebTarget target(String path) throws Exception {
