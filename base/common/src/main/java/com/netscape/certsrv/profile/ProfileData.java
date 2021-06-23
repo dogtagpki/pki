@@ -21,10 +21,13 @@
  */
 package com.netscape.certsrv.profile;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
 
 import javax.xml.bind.JAXBContext;
@@ -38,6 +41,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
 
 /**
@@ -47,20 +54,9 @@ import com.netscape.certsrv.base.Link;
 
 @XmlRootElement(name = "Profile")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileData {
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(ProfileData.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(ProfileData.class).createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @XmlAttribute
     protected String id;
@@ -253,6 +249,54 @@ public class ProfileData {
         return null;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(authenticatorId, authzAcl, classId, description, enabled, enabledBy, id, inputs, link, name,
+                outputs, policySets, renewal, visible, xmlOutput);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ProfileData other = (ProfileData) obj;
+        return Objects.equals(authenticatorId, other.authenticatorId) && Objects.equals(authzAcl, other.authzAcl)
+                && Objects.equals(classId, other.classId) && Objects.equals(description, other.description)
+                && enabled == other.enabled && Objects.equals(enabledBy, other.enabledBy)
+                && Objects.equals(id, other.id) && Objects.equals(inputs, other.inputs)
+                && Objects.equals(link, other.link) && Objects.equals(name, other.name)
+                && Objects.equals(outputs, other.outputs) && Objects.equals(policySets, other.policySets)
+                && renewal == other.renewal && visible == other.visible && xmlOutput == other.xmlOutput;
+    }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(ProfileData.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static ProfileData fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileData.class).createUnmarshaller();
+        return (ProfileData) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static ProfileData fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, ProfileData.class);
+    }
+
     public static class PolicySetAdapter extends XmlAdapter<PolicySetList, Map<String, Vector<ProfilePolicy>>> {
 
         @Override
@@ -289,30 +333,6 @@ public class ProfileData {
 
         @XmlElement
         public Vector<ProfilePolicy> value;
-    }
-
-    public static void main(String args[]) throws Exception {
-        List<ProfileInput> inputs = new ArrayList<>();
-        //ProfileInput input = new ProfileInput();
-        //input.setClassId(classId);
-        //input.setInputId(inputId);
-        //input.setName(name);
-        //input.setText(text);
-
-
-        ProfileData data = new ProfileData();
-        data.setClassId("com.netscape.cms.profile.common.CAEnrollProfile");
-        data.setDescription("This certificate profile is for enrolling user certificates.");
-        data.setEnabled(true);
-        data.setEnabledBy("admin");
-        data.setId("caUserCertEnrollImpl");
-        data.setInputs(inputs);
-        data.setName("Manual User Dual-Use Certificate Enrollment");
-        //data.setOutputs(outputs);
-        //data.setPolicySets(policySets);
-        data.setRenewal(false);
-        data.setVisible(true);
-        data.setXMLOutput(false);
     }
 
 }
