@@ -115,6 +115,8 @@ public interface ICertificateAuthority extends ISubsystem {
      */
     public IPolicyProcessor getPolicyProcessor();
 
+    public boolean allowExtCASignedAgentCerts();
+
     public boolean noncesEnabled();
 
     public Map<Object, Long> getNonces(HttpServletRequest request, String name);

@@ -123,6 +123,7 @@ public class CAEngine extends CMSEngine {
 
     protected int fastSigning = CertificateAuthority.FASTSIGNING_DISABLED;
 
+    protected boolean allowExtCASignedAgentCerts = false;
     protected boolean enableNonces = true;
     protected int maxNonces = 100;
 
@@ -277,6 +278,10 @@ public class CAEngine extends CMSEngine {
 
     public int getFastSigning() {
         return fastSigning;
+    }
+
+    public boolean getAllowExtCASignedAgentCerts() {
+        return allowExtCASignedAgentCerts;
     }
 
     public boolean getEnableNonces() {
@@ -765,6 +770,9 @@ public class CAEngine extends CMSEngine {
         } else {
             this.fastSigning = CertificateAuthority.FASTSIGNING_DISABLED;
         }
+
+        allowExtCASignedAgentCerts = caConfig.getBoolean("allowExtCASignedAgentCerts", false);
+        logger.info("CAEngine: - allowExtCASignedAgentCerts: " + allowExtCASignedAgentCerts);
 
         enableNonces = caConfig.getBoolean("enableNonces", true);
         logger.info("CAEngine: - enable nonces: " + enableNonces);

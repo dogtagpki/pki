@@ -344,6 +344,12 @@ public class CertificateAuthority
     }
 
     @Override
+    public boolean allowExtCASignedAgentCerts() {
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getAllowExtCASignedAgentCerts();
+    }
+
+    @Override
     public boolean noncesEnabled() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getEnableNonces();
