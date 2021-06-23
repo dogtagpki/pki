@@ -50,6 +50,7 @@ public class PKIClient implements AutoCloseable {
 
     public ClientConfig config;
     public PKIConnection connection;
+    public MediaType messageFormat;
     public CryptoProvider crypto;
     public InfoClient infoClient;
     public Info info;
@@ -79,11 +80,6 @@ public class PKIClient implements AutoCloseable {
         }
 
         connection.setCallback(callback);
-    }
-
-    public <T> T createProxy(String path, Class<T> clazz) throws Exception {
-        WebTarget target = connection.target(path);
-        ProxyBuilder<T> builder = ProxyBuilder.builder(clazz, target);
 
         String messageFormat = config.getMessageFormat();
         if (messageFormat == null) messageFormat = MESSAGE_FORMATS[0];
@@ -92,9 +88,20 @@ public class PKIClient implements AutoCloseable {
             throw new Error("Unsupported message format: " + messageFormat);
         }
 
-        MediaType contentType = MediaType.valueOf("application/" + messageFormat);
-        builder.defaultConsumes(contentType);
-        builder.defaultProduces(contentType);
+        this.messageFormat = MediaType.valueOf("application/" + messageFormat);
+    }
+
+    public MediaType getMessageFormat() {
+        return messageFormat;
+    }
+
+    public <T> T createProxy(String path, Class<T> clazz) throws Exception {
+
+        WebTarget target = connection.target(path);
+
+        ProxyBuilder<T> builder = ProxyBuilder.builder(clazz, target);
+        builder.defaultConsumes(messageFormat);
+        builder.defaultProduces(messageFormat);
 
         return builder.build();
     }
