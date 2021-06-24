@@ -35,26 +35,19 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
 
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="ProfileMapping")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileMappingData {
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(ProfileMappingData.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(ProfileMappingData.class).createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     String id;
     String status;
@@ -180,41 +173,28 @@ public class ProfileMappingData {
         return true;
     }
 
-    @Override
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(ProfileMappingData.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        } catch (Exception e) {
-            return super.toString();
-        }
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static ProfileMappingData valueOf(String string) throws Exception {
-        try {
-            return (ProfileMappingData)unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
+    public static ProfileMappingData fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileMappingData.class).createUnmarshaller();
+        return (ProfileMappingData) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static void main(String args[]) throws Exception {
-
-        ProfileMappingData before = new ProfileMappingData();
-        before.setID("profileMapping1");
-        before.setStatus("ENABLED");
-
-        Map<String, String> properties = new LinkedHashMap<>();
-        properties.put("param1", "value1");
-        properties.put("param2", "value2");
-        before.setProperties(properties);
-
-        String string = before.toString();
-        System.out.println(string);
-
-        ProfileMappingData after = ProfileMappingData.valueOf(string);
-        System.out.println(before.equals(after));
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
+
+    public static ProfileMappingData fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, ProfileMappingData.class);
+    }
+
 }

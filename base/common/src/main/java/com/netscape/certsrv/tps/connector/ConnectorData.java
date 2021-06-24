@@ -37,6 +37,10 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
 
 /**
@@ -44,20 +48,9 @@ import com.netscape.certsrv.base.Link;
  */
 @XmlRootElement(name="Connector")
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ConnectorData {
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(ConnectorData.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(ConnectorData.class).createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     String id;
     String status;
@@ -183,41 +176,28 @@ public class ConnectorData {
         return true;
     }
 
-    @Override
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(ConnectorData.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        } catch (Exception e) {
-            return super.toString();
-        }
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static ConnectorData valueOf(String string) throws Exception {
-        try {
-            return (ConnectorData)unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
+    public static ConnectorData fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(ConnectorData.class).createUnmarshaller();
+        return (ConnectorData) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static void main(String args[]) throws Exception {
-
-        ConnectorData before = new ConnectorData();
-        before.setID("connector1");
-        before.setStatus("ENABLED");
-
-        Map<String, String> properties = new LinkedHashMap<>();
-        properties.put("param1", "value1");
-        properties.put("param2", "value2");
-        before.setProperties(properties);
-
-        String string = before.toString();
-        System.out.println(string);
-
-        ConnectorData after = ConnectorData.valueOf(string);
-        System.out.println(before.equals(after));
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
+
+    public static ConnectorData fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, ConnectorData.class);
+    }
+
 }

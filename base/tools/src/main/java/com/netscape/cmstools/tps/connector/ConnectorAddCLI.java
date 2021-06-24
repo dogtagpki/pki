@@ -83,7 +83,7 @@ public class ConnectorAddCLI extends CommandCLI {
                 out.println(line);
             }
 
-            connectorData = ConnectorData.valueOf(sw.toString());
+            connectorData = ConnectorData.fromXML(sw.toString());
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
