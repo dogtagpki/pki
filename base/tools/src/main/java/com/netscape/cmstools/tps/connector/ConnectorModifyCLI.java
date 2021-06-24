@@ -95,7 +95,7 @@ public class ConnectorModifyCLI extends CommandCLI {
                     out.println(line);
                 }
 
-                connectorData = ConnectorData.valueOf(sw.toString());
+                connectorData = ConnectorData.fromXML(sw.toString());
             }
 
             connectorData = connectorClient.updateConnector(connectorID, connectorData);
