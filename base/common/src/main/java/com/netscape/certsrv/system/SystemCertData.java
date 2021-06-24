@@ -18,12 +18,23 @@
 
 package com.netscape.certsrv.system;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Objects;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author alee
@@ -31,6 +42,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name="SystemCertData")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class SystemCertData {
 
     @XmlElement
@@ -225,10 +238,7 @@ public class SystemCertData {
      * @return the req_ext_critical
      */
     public boolean getReqExtCritical() {
-        if (req_ext_critical.equals("true"))
-            return true;
-        else
-            return false;
+        return "true".equals(req_ext_critical);
     }
 
     public String[] getDNSNames() {
@@ -257,6 +267,59 @@ public class SystemCertData {
             + ", req_ext_data=" + req_ext_data
             + ", dnsNames=" + (dnsNames == null ? null : Arrays.asList(dnsNames))
             + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(dnsNames);
+        result = prime * result + Objects.hash(cert, keyCurveName, keySize, nickname, profile, req_ext_critical,
+                req_ext_data, req_ext_oid, request, subjectDN, tag, token, type);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SystemCertData other = (SystemCertData) obj;
+        return Objects.equals(cert, other.cert) && Arrays.equals(dnsNames, other.dnsNames)
+                && Objects.equals(keyCurveName, other.keyCurveName) && Objects.equals(keySize, other.keySize)
+                && Objects.equals(nickname, other.nickname) && Objects.equals(profile, other.profile)
+                && Objects.equals(req_ext_critical, other.req_ext_critical)
+                && Objects.equals(req_ext_data, other.req_ext_data) && Objects.equals(req_ext_oid, other.req_ext_oid)
+                && Objects.equals(request, other.request) && Objects.equals(subjectDN, other.subjectDN)
+                && Objects.equals(tag, other.tag) && Objects.equals(token, other.token)
+                && Objects.equals(type, other.type);
+    }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(SystemCertData.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static SystemCertData fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(SystemCertData.class).createUnmarshaller();
+        return (SystemCertData) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static SystemCertData fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, SystemCertData.class);
     }
 
 }

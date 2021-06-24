@@ -17,10 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Objects;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author alee
@@ -28,6 +40,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name="AdminSetupResponse")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class AdminSetupResponse {
 
     @XmlElement
@@ -40,4 +54,46 @@ public class AdminSetupResponse {
     public void setAdminCert(SystemCertData adminCert) {
         this.adminCert = adminCert;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(adminCert);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AdminSetupResponse other = (AdminSetupResponse) obj;
+        return Objects.equals(adminCert, other.adminCert);
+    }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(AdminSetupResponse.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static AdminSetupResponse fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(AdminSetupResponse.class).createUnmarshaller();
+        return (AdminSetupResponse) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static AdminSetupResponse fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, AdminSetupResponse.class);
+    }
+
 }

@@ -28,8 +28,15 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @XmlRootElement(name="Feature")
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Feature {
 
     String id;
@@ -74,29 +81,6 @@ public class Feature {
     }
 
     @Override
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            Marshaller marshaller = JAXBContext.newInstance(Feature.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(this, sw);
-            return sw.toString();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static Feature valueOf(String string) throws Exception {
-        try {
-            Unmarshaller unmarshaller = JAXBContext.newInstance(Feature.class).createUnmarshaller();
-            return (Feature)unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -136,17 +120,28 @@ public class Feature {
         return true;
     }
 
-    public static void main(String args[]) throws Exception {
-        Feature before = new Feature();
-        before.setId("authority");
-        before.setEnabled(true);
-        before.setDescription("Subordinate CA Feature");
-        before.setVersion("1.0");
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(Feature.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        String string = before.toString();
-        System.out.println(string);
-
-        Feature after = Feature.valueOf(string);
-        System.out.println(before.equals(after));
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
+
+    public static Feature fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(Feature.class).createUnmarshaller();
+        return (Feature) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static Feature fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, Feature.class);
+    }
+
 }

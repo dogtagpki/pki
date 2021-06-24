@@ -10,12 +10,16 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.base.Link;
 
 @XmlRootElement(name="TPSConnectorData")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class TPSConnectorData {
 
     String id;
@@ -143,35 +147,4 @@ public class TPSConnectorData {
         return mapper.readValue(json, TPSConnectorData.class);
     }
 
-    @Override
-    public String toString() {
-        try {
-            return toJSON();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void main(String args[]) throws Exception {
-
-        TPSConnectorData before = new TPSConnectorData();
-        before.setID("tps0");
-        before.setUserID("user1");
-
-        String xml = before.toXML();
-        System.out.println("XML (before): " + xml);
-
-        TPSConnectorData afterXML = TPSConnectorData.fromXML(xml);
-        System.out.println("XML (after): " + afterXML);
-
-        System.out.println(before.equals(afterXML));
-
-        String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
-
-        TPSConnectorData afterJSON = TPSConnectorData.fromJSON(json);
-        System.out.println("JSON (after): " + json);
-
-        System.out.println(before.equals(afterJSON));
-    }
 }

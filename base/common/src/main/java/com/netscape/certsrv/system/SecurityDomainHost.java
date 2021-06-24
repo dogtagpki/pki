@@ -30,6 +30,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -39,6 +42,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 @XmlRootElement(name="SecurityDomainHost")
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class SecurityDomainHost {
 
     protected String id;
@@ -184,15 +189,6 @@ public class SecurityDomainHost {
     }
 
     @Override
-    public String toString() {
-        try {
-            return toXML();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -271,24 +267,4 @@ public class SecurityDomainHost {
         return true;
     }
 
-    public static void main(String[] args) throws Exception {
-
-        SecurityDomainHost host = new SecurityDomainHost();
-        host.setId("CA localhost 8443");
-        host.setHostname("localhost");
-        host.setPort("8080");
-        host.setSecurePort("8443");
-
-        String json = host.toJSON();
-        System.out.println(json);
-
-        SecurityDomainHost afterJSON = SecurityDomainHost.fromJSON(json);
-        System.out.println(host.equals(afterJSON));
-
-        String xml = host.toXML();
-        System.out.println(xml);
-
-        SecurityDomainHost afterXML = SecurityDomainHost.fromXML(xml);
-        System.out.println(host.equals(afterXML));
-    }
 }
