@@ -50,24 +50,24 @@ public class TokenStatus {
     static Map<String, TokenStatus> instancesByName = new HashMap<>();
     static Map<Integer, TokenStatus> instancesByValue = new HashMap<>();
 
-    public final static int TOKEN_UNKNOWN             = -1;
-    public final static int TOKEN_FORMATTED           = 0;
-    public final static int TOKEN_DAMAGED             = 1;
-    public final static int TOKEN_PERM_LOST           = 2;
-    public final static int TOKEN_SUSPENDED           = 3;
-    public final static int TOKEN_ACTIVE              = 4;
-    public final static int TOKEN_TEMP_LOST_PERM_LOST = 5;
-    public final static int TOKEN_TERMINATED          = 6;
-    public final static int TOKEN_UNFORMATTED         = 7;
+    public static final int TOKEN_UNKNOWN             = -1;
+    public static final int TOKEN_FORMATTED           = 0;
+    public static final int TOKEN_DAMAGED             = 1;
+    public static final int TOKEN_PERM_LOST           = 2;
+    public static final int TOKEN_SUSPENDED           = 3;
+    public static final int TOKEN_ACTIVE              = 4;
+    public static final int TOKEN_TEMP_LOST_PERM_LOST = 5;
+    public static final int TOKEN_TERMINATED          = 6;
+    public static final int TOKEN_UNFORMATTED         = 7;
 
-    public final static TokenStatus FORMATTED           = new TokenStatus("FORMATTED", TOKEN_FORMATTED);
-    public final static TokenStatus DAMAGED             = new TokenStatus("DAMAGED", TOKEN_DAMAGED);
-    public final static TokenStatus PERM_LOST           = new TokenStatus("PERM_LOST", TOKEN_PERM_LOST);
-    public final static TokenStatus SUSPENDED           = new TokenStatus("SUSPENDED", TOKEN_SUSPENDED);
-    public final static TokenStatus ACTIVE              = new TokenStatus("ACTIVE", TOKEN_ACTIVE);
-    public final static TokenStatus TEMP_LOST_PERM_LOST = new TokenStatus("TEMP_LOST_PERM_LOST", TOKEN_TEMP_LOST_PERM_LOST);
-    public final static TokenStatus TERMINATED          = new TokenStatus("TERMINATED", TOKEN_TERMINATED);
-    public final static TokenStatus UNFORMATTED         = new TokenStatus("UNFORMATTED", TOKEN_UNFORMATTED);
+    public static final TokenStatus FORMATTED           = new TokenStatus("FORMATTED", TOKEN_FORMATTED);
+    public static final TokenStatus DAMAGED             = new TokenStatus("DAMAGED", TOKEN_DAMAGED);
+    public static final TokenStatus PERM_LOST           = new TokenStatus("PERM_LOST", TOKEN_PERM_LOST);
+    public static final TokenStatus SUSPENDED           = new TokenStatus("SUSPENDED", TOKEN_SUSPENDED);
+    public static final TokenStatus ACTIVE              = new TokenStatus("ACTIVE", TOKEN_ACTIVE);
+    public static final TokenStatus TEMP_LOST_PERM_LOST = new TokenStatus("TEMP_LOST_PERM_LOST", TOKEN_TEMP_LOST_PERM_LOST);
+    public static final TokenStatus TERMINATED          = new TokenStatus("TERMINATED", TOKEN_TERMINATED);
+    public static final TokenStatus UNFORMATTED         = new TokenStatus("UNFORMATTED", TOKEN_UNFORMATTED);
 
     String name;
     Integer value;
@@ -80,7 +80,7 @@ public class TokenStatus {
         this.name = name;
         this.value = value;
 
-        if(value > TOKEN_UNKNOWN) {
+        if (value > TOKEN_UNKNOWN) {
             instancesByName.put(name, this);
             instancesByValue.put(value, this);
         }
@@ -154,7 +154,7 @@ public class TokenStatus {
             return SUSPENDED;
         }
 
-        if(name == null)
+        if (name == null)
             return new TokenStatus("UNKNOWN", TOKEN_UNKNOWN);
 
         TokenStatus status = instancesByName.get(name);
@@ -176,9 +176,6 @@ public class TokenStatus {
     }
 
     public boolean isValid() {
-        if(value >= 0)
-            return true;
-        else
-            return false;
+        return value >= 0;
     }
 }
