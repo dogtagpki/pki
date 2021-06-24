@@ -17,6 +17,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -26,6 +29,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 @XmlRootElement(name="SecurityDomainSubsystem")
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
  public class SecurityDomainSubsystem {
 
     String name;
@@ -101,15 +106,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
     }
 
     @Override
-    public String toString() {
-        try {
-            return toXML();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -140,29 +136,4 @@ import com.fasterxml.jackson.databind.SerializationFeature;
         return true;
     }
 
-    public static void main(String args[]) throws Exception {
-
-        SecurityDomainSubsystem subsystem = new SecurityDomainSubsystem();
-        subsystem.setName("CA");
-
-        SecurityDomainHost host = new SecurityDomainHost();
-        host.setId("CA localhost 8443");
-        host.setHostname("localhost");
-        host.setPort("8080");
-        host.setSecurePort("8443");
-
-        subsystem.addHost(host);
-
-        String json = subsystem.toJSON();
-        System.out.println(json);
-
-        SecurityDomainSubsystem afterJSON = SecurityDomainSubsystem.fromJSON(json);
-        System.out.println(subsystem.equals(afterJSON));
-
-        String xml = subsystem.toXML();
-        System.out.println(xml);
-
-        SecurityDomainSubsystem afterXML = SecurityDomainSubsystem.fromXML(xml);
-        System.out.println(subsystem.equals(afterXML));
-    }
 }

@@ -17,12 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
+import java.util.Objects;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author alee
@@ -30,6 +41,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name="CertificateSetupRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class CertificateSetupRequest {
 
     @XmlElement
@@ -111,4 +124,48 @@ public class CertificateSetupRequest {
                ", masterURL=" + masterURL +
                "]";
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(clone, installToken, masterURL, pin, systemCert, tag);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CertificateSetupRequest other = (CertificateSetupRequest) obj;
+        return Objects.equals(clone, other.clone) && Objects.equals(installToken, other.installToken)
+                && Objects.equals(masterURL, other.masterURL) && Objects.equals(pin, other.pin)
+                && Objects.equals(systemCert, other.systemCert) && Objects.equals(tag, other.tag);
+    }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(CertificateSetupRequest.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static CertificateSetupRequest fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(CertificateSetupRequest.class).createUnmarshaller();
+        return (CertificateSetupRequest) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static CertificateSetupRequest fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, CertificateSetupRequest.class);
+    }
+
 }
