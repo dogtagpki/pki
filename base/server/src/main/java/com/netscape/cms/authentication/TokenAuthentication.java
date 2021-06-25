@@ -147,9 +147,9 @@ public class TokenAuthentication implements ProfileAuthenticator {
         String givenHost = (String) authCred.get("clientHost");
         String authHost = sconfig.getString("securitydomain.host");
         int authAdminPort = sconfig.getInteger("securitydomain.httpsadminport");
-        String authPath = "/ca/admin/ca/tokenAuthenticate";
+        String authPath = "ca/admin/ca/tokenAuthenticate";
 
-        String authURL = "https://" + authHost + ":" + authAdminPort + authPath;
+        String authURL = "https://" + authHost + ":" + authAdminPort + "/" + authPath;
         logger.info("TokenAuthentication: Authenticating session ID against security domain at " + authURL);
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<>();

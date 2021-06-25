@@ -201,7 +201,7 @@ public class Configurator {
         String serverURL = "https://" + sdhost + ":" + sdport;
 
         PKIClient client = Configurator.createClient(serverURL, null, null);
-        String response = client.post("/ca/admin/ca/getCookie", content, String.class);
+        String response = client.post("ca/admin/ca/getCookie", content, String.class);
         logger.debug("Configurator: Response: " + response);
 
         return getContentValue(response, "header.session_id");

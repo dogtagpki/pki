@@ -101,7 +101,7 @@ public class CAClient extends SubsystemClient {
         content.putSingle("sessionID", sessionID);
         logger.debug("CAClient: content: " + content);
 
-        String response = client.post("/ca/admin/ca/updateConnector", content, String.class);
+        String response = client.post("ca/admin/ca/updateConnector", content, String.class);
         logger.debug("CAClient: Response: " + response);
 
         if (response == null || response.equals("")) {
@@ -138,7 +138,7 @@ public class CAClient extends SubsystemClient {
         content.putSingle("sessionID", sessionID);
         logger.debug("CAClient: content: " + content);
 
-        String response = client.post("/ca/ee/ca/updateOCSPConfig", content, String.class);
+        String response = client.post("ca/ee/ca/updateOCSPConfig", content, String.class);
         logger.debug("CAClient: Response: " + response);
 
         if (response == null || response.equals("")) {

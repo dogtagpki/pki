@@ -109,7 +109,7 @@ public class SubsystemClient extends Client {
         content.putSingle("sessionID", sessionID);
 
         String response = client.post(
-                "/" + name + "/admin/" + name + "/updateNumberRange",
+                name + "/admin/" + name + "/updateNumberRange",
                 content,
                 String.class);
         logger.debug("Response: " + response);
@@ -164,7 +164,7 @@ public class SubsystemClient extends Client {
         content.putSingle("certificate", subsystemCert);
         content.putSingle("name", subsystemName);
 
-        String path = "/" + name + "/admin/" + name + "/registerUser";
+        String path = name + "/admin/" + name + "/registerUser";
         String response = client.post(path, content, String.class);
         logger.debug("SubsystemClient: Response: " + response);
 

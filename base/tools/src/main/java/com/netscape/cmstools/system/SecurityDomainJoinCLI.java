@@ -126,7 +126,7 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        String response = client.post("/ca/admin/ca/updateDomainXML", content, String.class);
+        String response = client.post("ca/admin/ca/updateDomainXML", content, String.class);
 
         if (StringUtils.isEmpty(response)) {
             logger.error("Missing response");

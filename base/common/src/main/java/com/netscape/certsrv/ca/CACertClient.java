@@ -233,7 +233,7 @@ public class CACertClient extends Client {
             content.putSingle("requestor_name", requestor);
         }
 
-        String response = client.post("/ca/ee/ca/profileSubmit", content, String.class);
+        String response = client.post("ca/ee/ca/profileSubmit", content, String.class);
         logger.info("CACertClient: Response: " + response);
 
         if (response == null) {

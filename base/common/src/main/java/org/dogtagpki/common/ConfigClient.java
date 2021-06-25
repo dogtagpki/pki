@@ -76,7 +76,7 @@ public class ConfigClient extends Client {
         content.putSingle("sessionID", sessionID);
 
         String response = client.post(
-                "/" + subsystem + "/admin/" + subsystem + "/getConfigEntries",
+                subsystem + "/admin/" + subsystem + "/getConfigEntries",
                 content,
                 String.class);
         logger.debug("Response: " + response);

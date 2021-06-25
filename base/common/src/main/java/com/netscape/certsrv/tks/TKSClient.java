@@ -61,7 +61,7 @@ public class TKSClient extends SubsystemClient {
         content.putSingle("auth_port", secdomainURI.getPort() + "");
         content.putSingle("certificate", transportCert);
 
-        String path = "/tks/admin/tks/importTransportCert";
+        String path = "tks/admin/tks/importTransportCert";
         String response = client.post(path, content, String.class);
         logger.debug("TKSClient: Response: " + response);
 

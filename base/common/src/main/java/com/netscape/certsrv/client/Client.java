@@ -135,7 +135,7 @@ public class Client {
     }
 
     public Response post(String suffix) throws Exception {
-        String path = "/" + subsystem;
+        String path = subsystem;
 
         if (prefix != null) {
             path += "/" + prefix;
@@ -153,7 +153,7 @@ public class Client {
     }
 
     public <T> T post(String suffix, Class<T> responseType) throws Exception {
-        String path = "/" + subsystem;
+        String path = subsystem;
 
         if (prefix != null) {
             path += "/" + prefix;
