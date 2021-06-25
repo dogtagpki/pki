@@ -198,11 +198,11 @@ public class PKIClient implements AutoCloseable {
     }
 
     public Response get(String path) throws Exception {
-        return connection.target(path).request().get();
+        return connection.target().path(path).request().get();
     }
 
     public <T> T get(String path, Class<T> responseType) throws Exception {
-        return connection.target(path).request().get(responseType);
+        return connection.target().path(path).request().get(responseType);
     }
 
     public Response post(String path) throws Exception {

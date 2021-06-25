@@ -91,7 +91,7 @@ public class Client {
     }
 
     public Response get(String suffix) throws Exception {
-        String path = "/" + subsystem;
+        String path = subsystem;
 
         if (prefix != null) {
             path += "/" + prefix;
@@ -109,7 +109,7 @@ public class Client {
     }
 
     public <T> T get(String suffix, Class<T> responseType) throws Exception {
-        String path = "/" + subsystem;
+        String path = subsystem;
 
         if (prefix != null) {
             path += "/" + prefix;

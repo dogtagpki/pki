@@ -67,7 +67,7 @@ public class CAClient extends SubsystemClient {
         URL serverURL = config.getServerURL();
         logger.info("Getting certificate chain from " + serverURL);
 
-        String c = client.get("/ca/admin/ca/getCertChain", String.class);
+        String c = client.get("ca/admin/ca/getCertChain", String.class);
         logger.debug("Response: " + c);
 
         if (c == null) {

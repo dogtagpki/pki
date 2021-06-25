@@ -84,7 +84,7 @@ public class CASystemCertClient extends Client {
 
     public CertData getSubsystemCert() throws Exception {
 
-        String c = client.get("/ca/admin/ca/getSubsystemCert", String.class);
+        String c = client.get("ca/admin/ca/getSubsystemCert", String.class);
 
         if (c == null) {
             throw new Exception("Unable to get subsystem certificate: No response");
