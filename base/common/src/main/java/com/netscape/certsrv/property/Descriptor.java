@@ -17,17 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.property;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Locale;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -41,22 +31,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  * @version $Revision$, $Date$
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Descriptor implements IDescriptor {
 
-    @XmlElement(name = "Syntax")
     public String mSyntax = null;
 
-    @XmlElement(name = "Constraint")
     public String mConstraint = null;
 
-    @XmlElement(name = "Description")
     public String mDescription = null;
 
-    @XmlElement(name = "DefaultValue")
     public String mDef = null;
 
     public Descriptor() {
@@ -167,20 +151,6 @@ public class Descriptor implements IDescriptor {
         } else if (!mSyntax.equals(other.mSyntax))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(Descriptor.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static Descriptor fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(Descriptor.class).createUnmarshaller();
-        return (Descriptor) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     public String toJSON() throws Exception {
