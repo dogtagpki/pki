@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class PolicyConstraintTest {
 
     private static PolicyConstraint before = new PolicyConstraint();
@@ -37,7 +39,7 @@ public class PolicyConstraintTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        PolicyConstraint afterJSON = PolicyConstraint.fromJSON(json);
+        PolicyConstraint afterJSON = JSONSerializer.fromJSON(json, PolicyConstraint.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

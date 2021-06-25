@@ -8,6 +8,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class ProfileDataTest {
 
     private static ProfileData before = new ProfileData();
@@ -50,25 +52,12 @@ public class ProfileDataTest {
     }
 
     @Test
-    public void testJ4SON() throws Exception {
-        // Act
-        String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
-
-        ProfileData afterJSON = ProfileData.fromJSON(json);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
-
-        // Assert
-        Assert.assertEquals(before, afterJSON);
-    }
-
-    @Test
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        ProfileData afterJSON = ProfileData.fromJSON(json);
+        ProfileData afterJSON = JSONSerializer.fromJSON(json, ProfileData.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

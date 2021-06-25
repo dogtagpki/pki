@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.util.JSONSerializer;
 
 public class ProfileAttributeTest {
 
@@ -36,7 +37,7 @@ public class ProfileAttributeTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        ProfileAttribute afterJSON = ProfileAttribute.fromJSON(json);
+        ProfileAttribute afterJSON = JSONSerializer.fromJSON(json, ProfileAttribute.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

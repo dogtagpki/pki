@@ -7,6 +7,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class AuditConfigTest {
 
     private static AuditConfig before = new AuditConfig();
@@ -45,7 +47,7 @@ public class AuditConfigTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        AuditConfig afterJSON = AuditConfig.fromJSON(json);
+        AuditConfig afterJSON = JSONSerializer.fromJSON(json, AuditConfig.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class ProfileOutputTest {
 
     private static ProfileOutput before = new ProfileOutput();
@@ -38,7 +40,7 @@ public class ProfileOutputTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        ProfileOutput afterJSON = ProfileOutput.fromJSON(json);
+        ProfileOutput afterJSON = JSONSerializer.fromJSON(json, ProfileOutput.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

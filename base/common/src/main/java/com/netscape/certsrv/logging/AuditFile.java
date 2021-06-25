@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
@@ -42,7 +42,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class AuditFile {
+public class AuditFile implements JSONSerializer {
 
     String name;
     Long size;
@@ -108,16 +108,6 @@ public class AuditFile {
     public static AuditFile fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(AuditFile.class).createUnmarshaller();
         return (AuditFile) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static AuditFile fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, AuditFile.class);
     }
 
 }

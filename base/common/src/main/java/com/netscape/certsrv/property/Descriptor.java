@@ -22,7 +22,7 @@ import java.util.Locale;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 
 /**
@@ -33,7 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Descriptor implements IDescriptor {
+public class Descriptor implements IDescriptor, JSONSerializer {
 
     public String mSyntax = null;
 
@@ -151,16 +151,6 @@ public class Descriptor implements IDescriptor {
         } else if (!mSyntax.equals(other.mSyntax))
             return false;
         return true;
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static Descriptor fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, Descriptor.class);
     }
 
 }
