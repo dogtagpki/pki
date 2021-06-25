@@ -6,17 +6,18 @@
 
 package org.dogtagpki.ct;
 
+import org.dogtagpki.server.rest.JSONSerializer;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Dinesh Prasanth M K
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CTResponse {
+public class CTResponse implements JSONSerializer {
 
     private int sct_version;
     private String id;
@@ -65,16 +66,6 @@ public class CTResponse {
 
     public void setSignature(String signature) {
         this.signature = signature;
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static CTResponse fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, CTResponse.class);
     }
 
     @Override

@@ -9,19 +9,20 @@ package org.dogtagpki.ct;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dogtagpki.server.rest.JSONSerializer;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Dinesh Prasanth M K
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CTRequest {
+public class CTRequest implements JSONSerializer {
 
     private List<String> certs = new ArrayList<>();
 
@@ -36,16 +37,6 @@ public class CTRequest {
     @JsonSetter("chain")
     public void setCerts(List<String> certs) {
         this.certs = certs;
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static CTRequest fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, CTRequest.class);
     }
 
     @Override
