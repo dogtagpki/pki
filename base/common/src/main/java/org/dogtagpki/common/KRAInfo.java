@@ -30,7 +30,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ResourceMessage;
 
 /**
@@ -123,16 +122,6 @@ public class KRAInfo extends ResourceMessage {
         } else if (!wrapAlgorithm.equals(other.wrapAlgorithm))
             return false;
         return true;
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static KRAInfo fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, KRAInfo.class);
     }
 
     public String toXML() throws Exception {

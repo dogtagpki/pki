@@ -30,7 +30,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ResourceMessage;
 
 /**
@@ -123,16 +122,6 @@ public class CAInfo extends ResourceMessage {
     public static CAInfo fromXML(String string) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(CAInfo.class).createUnmarshaller();
         return (CAInfo)unmarshaller.unmarshal(new StringReader(string));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static CAInfo fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, CAInfo.class);
     }
 
 }

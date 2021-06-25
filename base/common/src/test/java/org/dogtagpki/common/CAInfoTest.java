@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 
 public class CAInfoTest {
 
@@ -35,7 +37,7 @@ public class CAInfoTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        CAInfo afterJSON = CAInfo.fromJSON(json);
+        CAInfo afterJSON = JSONSerializer.fromJSON(json, CAInfo.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
