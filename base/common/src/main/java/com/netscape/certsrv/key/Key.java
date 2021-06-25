@@ -18,9 +18,8 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -35,7 +34,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 @XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Key {
+public class Key implements JSONSerializer {
 
     @XmlElement
     private byte[] encryptedData;
@@ -192,19 +191,6 @@ public class Key {
     public static Key fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(Key.class).createUnmarshaller();
         return (Key) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        return mapper.writeValueAsString(this);
-    }
-
-    public static Key fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        return mapper.readValue(json, Key.class);
     }
 
     @Override

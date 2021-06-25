@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class GroupMemberCollectionTest {
 
 
@@ -30,7 +32,7 @@ public class GroupMemberCollectionTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        GroupMemberCollection afterJSON = GroupMemberCollection.fromJSON(json);
+        GroupMemberCollection afterJSON = JSONSerializer.fromJSON(json, GroupMemberCollection.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

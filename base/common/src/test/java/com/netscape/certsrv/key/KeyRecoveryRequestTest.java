@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.util.JSONSerializer;
 
 public class KeyRecoveryRequestTest {
 
@@ -41,7 +42,7 @@ public class KeyRecoveryRequestTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        KeyRecoveryRequest afterJSON = KeyRecoveryRequest.fromJSON(json);
+        KeyRecoveryRequest afterJSON = JSONSerializer.fromJSON(json, KeyRecoveryRequest.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

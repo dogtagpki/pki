@@ -36,10 +36,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestIdAdapter;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
@@ -49,7 +48,7 @@ import com.netscape.certsrv.request.RequestIdAdapter;
 @XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class KeyData {
+public class KeyData implements JSONSerializer {
 
     @XmlElement
     String wrappedPrivateData;
@@ -329,19 +328,6 @@ public class KeyData {
     public static KeyData fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(KeyData.class).createUnmarshaller();
         return (KeyData) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        return mapper.writeValueAsString(this);
-    }
-
-    public static KeyData fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        return mapper.readValue(json, KeyData.class);
     }
 
 }

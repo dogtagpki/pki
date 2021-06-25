@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class KeyTest {
 
     private static Key before = new Key();
@@ -32,7 +34,7 @@ public class KeyTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        Key afterJSON = Key.fromJSON(json);
+        Key afterJSON = JSONSerializer.fromJSON(json, Key.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

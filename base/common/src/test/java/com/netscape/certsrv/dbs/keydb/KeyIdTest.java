@@ -1,21 +1,13 @@
-package com.netscape.certsrv.key;
+package com.netscape.certsrv.dbs.keydb;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
+public class KeyIdTest {
 
-public class KeyInfoTest {
-
-    private static KeyInfo before = new KeyInfo();
-
-    @Before
-    public void setUpBefore() {
-        before.setClientKeyID("key");
-        before.setStatus("active");
-    }
+    private static KeyId before = new KeyId("0x6");
 
     @Test
     public void testJSON() throws Exception {
@@ -23,7 +15,7 @@ public class KeyInfoTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        KeyInfo afterJSON = JSONSerializer.fromJSON(json, KeyInfo.class);
+        KeyId afterJSON = JSONSerializer.fromJSON(json, KeyId.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

@@ -15,6 +15,7 @@ import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.key.KeyData;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -74,7 +75,7 @@ public class NSSKeyImportCLI extends CommandCLI {
             bytes = Files.readAllBytes(Paths.get(inputFile));
         }
 
-        KeyData keyData = KeyData.fromJSON(new String(bytes));
+        KeyData keyData = JSONSerializer.fromJSON(new String(bytes), KeyData.class);
 
         logger.info("Wrapped session key: " + keyData.getWrappedPrivateData());
         logger.info("Wrapped secret key: " + keyData.getAdditionalWrappedPrivateData());

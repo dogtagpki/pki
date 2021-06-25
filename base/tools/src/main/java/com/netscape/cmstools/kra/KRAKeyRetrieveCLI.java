@@ -18,6 +18,7 @@ import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyRetrieveCLI extends CommandCLI {
@@ -118,7 +119,7 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
                     logger.info("Request: " + req.toXML());
 
                 } else if ("json".equalsIgnoreCase(inputFormat)) {
-                    req = KeyRecoveryRequest.fromJSON(input);
+                    req = JSONSerializer.fromJSON(input, KeyRecoveryRequest.class);
                     logger.info("Request: " + req.toJSON());
 
                 } else {

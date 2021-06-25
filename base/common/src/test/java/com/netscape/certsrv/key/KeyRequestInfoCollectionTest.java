@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class KeyRequestInfoCollectionTest {
 
     private static KeyRequestInfoCollection before = new KeyRequestInfoCollection();
@@ -34,7 +36,8 @@ public class KeyRequestInfoCollectionTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        KeyRequestInfoCollection afterJSON = KeyRequestInfoCollection.fromJSON(json);
+        KeyRequestInfoCollection afterJSON =
+                JSONSerializer.fromJSON(json, KeyRequestInfoCollection.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
