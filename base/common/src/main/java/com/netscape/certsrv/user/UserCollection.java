@@ -23,8 +23,8 @@ import java.util.Collection;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.DataCollection;
+import com.netscape.certsrv.util.JSONSerializer;
 
 
 /**
@@ -32,21 +32,11 @@ import com.netscape.certsrv.base.DataCollection;
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class UserCollection extends DataCollection<UserData> {
+public class UserCollection extends DataCollection<UserData> implements JSONSerializer {
 
     @Override
     public Collection<UserData> getEntries() {
         return super.getEntries();
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static UserCollection fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, UserCollection.class);
     }
 
 }

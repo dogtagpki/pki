@@ -27,6 +27,8 @@ import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWS;
 import org.dogtagpki.acme.ValidationResult;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 /**
  * @author Endi S. Dewata
  */
@@ -48,7 +50,7 @@ public class ACMENewOrderService extends ACMEService {
 
         String protectedHeader = new String(jws.getProtectedHeaderAsBytes(), "UTF-8");
         logger.info("Header: " + protectedHeader);
-        ACMEHeader header = ACMEHeader.fromJSON(protectedHeader);
+        ACMEHeader header = JSONSerializer.fromJSON(protectedHeader, ACMEHeader.class);
 
         ACMEEngine engine = ACMEEngine.getInstance();
         engine.validateNonce(header.getNonce());
@@ -64,7 +66,7 @@ public class ACMENewOrderService extends ACMEService {
         String payload = new String(jws.getPayloadAsBytes(), "UTF-8");
         logger.info("Payload: " + payload);
 
-        ACMEOrder request = ACMEOrder.fromJSON(payload);
+        ACMEOrder request = JSONSerializer.fromJSON(payload, ACMEOrder.class);
         ArrayList<String> authzIDs = new ArrayList<>();
 
         logger.info("Generating authorization for each identifiers");

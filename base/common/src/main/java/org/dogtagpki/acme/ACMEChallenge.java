@@ -12,14 +12,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ACMEChallenge {
+public class ACMEChallenge implements JSONSerializer {
 
     @JsonIgnore
     private String id;
@@ -117,16 +117,6 @@ public class ACMEChallenge {
     public void setValidationTime(Date validationTime) {
         this.validationTime = validationTime;
         validated = validationTime == null ? null : ACME.DATE_FORMAT.format(validationTime);
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ACMEChallenge fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ACMEChallenge.class);
     }
 
     @Override

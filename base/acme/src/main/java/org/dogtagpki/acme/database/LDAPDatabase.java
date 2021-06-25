@@ -26,6 +26,7 @@ import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWK;
 
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -366,7 +367,7 @@ public class LDAPDatabase extends ACMEDatabase {
         account.setStatus(attr.getStringValues().nextElement());
 
         attr = entry.getAttribute(ATTR_ACCOUNT_KEY);
-        account.setJWK(JWK.fromJSON(attr.getStringValues().nextElement()));
+        account.setJWK(JSONSerializer.fromJSON(attr.getStringValues().nextElement(), JWK.class));
 
         attr = entry.getAttribute(ATTR_ACCOUNT_CONTACT);
         if (attr != null) {

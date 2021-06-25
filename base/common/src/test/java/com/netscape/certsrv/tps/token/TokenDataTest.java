@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
+import com.netscape.certsrv.util.JSONSerializer;
 
 public class TokenDataTest {
 
@@ -35,7 +36,7 @@ public class TokenDataTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        TokenData afterJSON = TokenData.fromJSON(json);
+        TokenData afterJSON = JSONSerializer.fromJSON(json, TokenData.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

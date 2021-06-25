@@ -29,9 +29,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.user.UserResource;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -42,7 +42,7 @@ import com.netscape.cmscore.apps.CMS;
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class User {
+public class User implements JSONSerializer {
 
     /**
      * Constant for userScope
@@ -405,16 +405,6 @@ public class User {
         return mNames.elements();
     }
 
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static User fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, User.class);
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -507,7 +497,7 @@ public class User {
         String json = before.toJSON();
         System.out.println("Before: " + json);
 
-        User after = User.fromJSON(json);
+        User after = JSONSerializer.fromJSON(json, User.class);
         System.out.println("After: " + after.toJSON());
 
         System.out.println(before.equals(after));

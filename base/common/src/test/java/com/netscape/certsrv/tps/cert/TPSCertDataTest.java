@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class TPSCertDataTest {
 
     private static TPSCertData before = new TPSCertData();
@@ -29,7 +31,7 @@ public class TPSCertDataTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        TPSCertData afterJSON = TPSCertData.fromJSON(json);
+        TPSCertData afterJSON = JSONSerializer.fromJSON(json, TPSCertData.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

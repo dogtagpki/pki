@@ -26,15 +26,15 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class TokenData {
+public class TokenData implements JSONSerializer {
 
     public static class TokenStatusData {
 
@@ -193,16 +193,6 @@ public class TokenData {
                 && Objects.equals(nextStates, other.nextStates) && Objects.equals(policy, other.policy)
                 && Objects.equals(status, other.status) && Objects.equals(tokenID, other.tokenID)
                 && Objects.equals(type, other.type) && Objects.equals(userID, other.userID);
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static TokenData fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, TokenData.class);
     }
 
 }

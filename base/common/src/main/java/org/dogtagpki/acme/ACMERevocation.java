@@ -8,14 +8,14 @@ package org.dogtagpki.acme;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ACMERevocation {
+public class ACMERevocation implements JSONSerializer {
 
     private String resource;
     private String certificate;
@@ -43,16 +43,6 @@ public class ACMERevocation {
 
     public void setReason(Integer reason) {
         this.reason = reason;
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ACMERevocation fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ACMERevocation.class);
     }
 
     @Override

@@ -33,6 +33,8 @@ import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWK;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 /**
  * @author Endi S. Dewata
  */
@@ -432,7 +434,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 account.setStatus(rs.getString("status"));
 
                 String jwk = rs.getString("jwk");
-                account.setJWK(JWK.fromJSON(jwk));
+                account.setJWK(JSONSerializer.fromJSON(jwk, JWK.class));
             }
         }
 

@@ -23,6 +23,8 @@ import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.JWK;
 import org.dogtagpki.acme.JWS;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 /**
  * @author Endi S. Dewata
  */
@@ -44,7 +46,7 @@ public class ACMENewAccountService {
 
         String protectedHeader = new String(jws.getProtectedHeaderAsBytes(), "UTF-8");
         logger.info("Header: " + protectedHeader);
-        ACMEHeader header = ACMEHeader.fromJSON(protectedHeader);
+        ACMEHeader header = JSONSerializer.fromJSON(protectedHeader, ACMEHeader.class);
 
         ACMEEngine engine = ACMEEngine.getInstance();
         engine.validateNonce(header.getNonce());
@@ -68,7 +70,7 @@ public class ACMENewAccountService {
 
         if (account == null) {
 
-            account = ACMEAccount.fromJSON(payload);
+            account = JSONSerializer.fromJSON(payload, ACMEAccount.class);
 
             Boolean onlyReturnExisting = account.getOnlyReturnExisting();
             if (onlyReturnExisting != null && onlyReturnExisting) {

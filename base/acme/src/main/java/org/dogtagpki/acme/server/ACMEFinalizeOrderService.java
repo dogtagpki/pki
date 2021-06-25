@@ -27,6 +27,8 @@ import org.dogtagpki.acme.issuer.ACMEIssuer;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 /**
  * @author Endi S. Dewata
  */
@@ -47,7 +49,7 @@ public class ACMEFinalizeOrderService {
 
         String protectedHeader = new String(jws.getProtectedHeaderAsBytes(), "UTF-8");
         logger.info("Header: " + protectedHeader);
-        ACMEHeader header = ACMEHeader.fromJSON(protectedHeader);
+        ACMEHeader header = JSONSerializer.fromJSON(protectedHeader, ACMEHeader.class);
 
         ACMEEngine engine = ACMEEngine.getInstance();
         engine.validateNonce(header.getNonce());
@@ -77,7 +79,7 @@ public class ACMEFinalizeOrderService {
 
         engine.updateOrder(account, order);
 
-        ACMEOrder request = ACMEOrder.fromJSON(payload);
+        ACMEOrder request = JSONSerializer.fromJSON(payload, ACMEOrder.class);
 
         String csr = request.getCSR();
         logger.info("CSR: " + csr);

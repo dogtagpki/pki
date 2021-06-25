@@ -22,6 +22,8 @@ import org.dogtagpki.acme.ACMEHeader;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.JWS;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 /**
  * @author Endi S. Dewata
  */
@@ -42,7 +44,7 @@ public class ACMEAccountService {
 
         String protectedHeader = new String(jws.getProtectedHeaderAsBytes(), "UTF-8");
         logger.info("Header: " + protectedHeader);
-        ACMEHeader header = ACMEHeader.fromJSON(protectedHeader);
+        ACMEHeader header = JSONSerializer.fromJSON(protectedHeader, ACMEHeader.class);
 
         ACMEEngine engine = ACMEEngine.getInstance();
         engine.validateNonce(header.getNonce());
@@ -74,7 +76,7 @@ public class ACMEAccountService {
         String payload = new String(jws.getPayloadAsBytes(), "UTF-8");
         logger.info("Payload: " + payload);
 
-        ACMEAccount update = ACMEAccount.fromJSON(payload);
+        ACMEAccount update = JSONSerializer.fromJSON(payload, ACMEAccount.class);
 
         String newStatus = update.getStatus();
         if (newStatus != null) {

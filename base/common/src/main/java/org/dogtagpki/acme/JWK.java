@@ -8,14 +8,14 @@ package org.dogtagpki.acme;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class JWK {
+public class JWK implements JSONSerializer {
 
     private String e;
     private String kty;
@@ -56,16 +56,6 @@ public class JWK {
      * [UNICODE] code points of the member names. (This JSON object is
      * itself a legal JWK representation of the key.)
      */
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static JWK fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, JWK.class);
-    }
-
     @Override
     public String toString() {
         try {

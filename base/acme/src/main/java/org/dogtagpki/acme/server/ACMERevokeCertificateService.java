@@ -24,6 +24,8 @@ import org.dogtagpki.acme.JWK;
 import org.dogtagpki.acme.JWS;
 import org.dogtagpki.acme.issuer.ACMEIssuer;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 /**
  * @author Endi S. Dewata
  */
@@ -44,7 +46,7 @@ public class ACMERevokeCertificateService {
 
         String protectedHeader = new String(jws.getProtectedHeaderAsBytes(), "UTF-8");
         logger.info("Header: " + protectedHeader);
-        ACMEHeader header = ACMEHeader.fromJSON(protectedHeader);
+        ACMEHeader header = JSONSerializer.fromJSON(protectedHeader, ACMEHeader.class);
 
         ACMEEngine engine = ACMEEngine.getInstance();
         engine.validateNonce(header.getNonce());
@@ -52,7 +54,7 @@ public class ACMERevokeCertificateService {
         String payload = new String(jws.getPayloadAsBytes(), "UTF-8");
         logger.info("Payload: " + payload);
 
-        ACMERevocation revocation = ACMERevocation.fromJSON(payload);
+        ACMERevocation revocation = JSONSerializer.fromJSON(payload, ACMERevocation.class);
         URI kid = header.getKid();
         JWK jwk = header.getJwk();
 

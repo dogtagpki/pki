@@ -11,14 +11,14 @@ import java.util.Collection;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ACMEAccountOrders {
+public class ACMEAccountOrders implements JSONSerializer {
 
     private URI[] orders;
 
@@ -32,16 +32,6 @@ public class ACMEAccountOrders {
 
     public void setOrders(Collection<URI> orders) {
         this.orders = orders.toArray(new URI[orders.size()]);
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ACMEAccountOrders fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ACMEAccountOrders.class);
     }
 
     @Override

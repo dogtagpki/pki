@@ -29,6 +29,7 @@ import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.certsrv.tps.connector.ConnectorData;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -83,7 +84,7 @@ public class ConnectorAddCLI extends CommandCLI {
                 out.println(line);
             }
 
-            connectorData = ConnectorData.fromJSON(sw.toString());
+            connectorData = JSONSerializer.fromJSON(sw.toString(), ConnectorData.class);
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
