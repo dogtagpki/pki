@@ -59,8 +59,8 @@ public class PKIService {
     public static final int DEFAULT_LONG_CACHE_LIFETIME = 1000;
 
     public static List<MediaType> MESSAGE_FORMATS = Arrays.asList(
-            MediaType.APPLICATION_XML_TYPE,
             MediaType.APPLICATION_JSON_TYPE,
+            MediaType.APPLICATION_XML_TYPE,
             MediaType.APPLICATION_FORM_URLENCODED_TYPE,
             MediaType.APPLICATION_OCTET_STREAM_TYPE,
             MediaType.valueOf("application/pkix-cert"),
