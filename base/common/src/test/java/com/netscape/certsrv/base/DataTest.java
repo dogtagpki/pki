@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.netscape.certsrv.base.PKIException.Data;
+import com.netscape.certsrv.util.JSONSerializer;
 
 public class DataTest {
 
@@ -40,7 +41,7 @@ public class DataTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        Data afterJSON = Data.fromJSON(json);
+        Data afterJSON = JSONSerializer.fromJSON(json, Data.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

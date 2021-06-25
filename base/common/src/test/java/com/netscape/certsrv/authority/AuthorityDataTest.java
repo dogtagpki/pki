@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class AuthorityDataTest {
 
     private static AuthorityData before = new AuthorityData();
@@ -29,7 +31,7 @@ public class AuthorityDataTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        AuthorityData afterJSON = AuthorityData.fromJSON(json);
+        AuthorityData afterJSON = JSONSerializer.fromJSON(json, AuthorityData.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

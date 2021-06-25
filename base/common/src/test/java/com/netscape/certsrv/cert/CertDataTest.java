@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.util.JSONSerializer;
 
 public class CertDataTest {
 
@@ -58,7 +59,7 @@ public class CertDataTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        CertData afterJSON = CertData.fromJSON(json);
+        CertData afterJSON = JSONSerializer.fromJSON(json, CertData.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

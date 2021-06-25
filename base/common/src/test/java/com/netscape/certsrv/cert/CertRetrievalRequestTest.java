@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.util.JSONSerializer;
 
 public class CertRetrievalRequestTest {
 
@@ -39,7 +40,7 @@ public class CertRetrievalRequestTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        CertRetrievalRequest afterJSON = CertRetrievalRequest.fromJSON(json);
+        CertRetrievalRequest afterJSON = JSONSerializer.fromJSON(json, CertRetrievalRequest.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

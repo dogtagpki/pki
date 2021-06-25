@@ -30,12 +30,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Ade Lee
@@ -52,7 +52,7 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
 @XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ResourceMessage {
+public class ResourceMessage implements JSONSerializer {
 
     protected Map<String, String> attributes = new LinkedHashMap<>();
     String className;
@@ -197,16 +197,6 @@ public class ResourceMessage {
         Unmarshaller unmarshaller = context.createUnmarshaller();
         FileInputStream fis = new FileInputStream(filePath);
         return (T) unmarshaller.unmarshal(fis);
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ResourceMessage fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ResourceMessage.class);
     }
 
 }

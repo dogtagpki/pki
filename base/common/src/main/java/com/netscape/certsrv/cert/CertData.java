@@ -38,11 +38,11 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.util.DateAdapter;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
@@ -51,7 +51,7 @@ import com.netscape.certsrv.util.DateAdapter;
 @XmlRootElement(name = "CertData")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class CertData {
+public class CertData implements JSONSerializer {
 
     CertId serialNumber;
     String issuerDN;
@@ -301,16 +301,6 @@ public class CertData {
     public static CertData fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(CertData.class).createUnmarshaller();
         return (CertData) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static CertData fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, CertData.class);
     }
 
     public static CertData fromCertChain(PKCS7 pkcs7) throws Exception {

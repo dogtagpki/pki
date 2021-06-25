@@ -3,6 +3,8 @@ package com.netscape.certsrv.cert;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class CertReviewResponseTest {
 
     private CertReviewResponse before = new CertReviewResponse();
@@ -27,7 +29,7 @@ public class CertReviewResponseTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        CertReviewResponse afterJSON = CertReviewResponse.fromJSON(json);
+        CertReviewResponse afterJSON = JSONSerializer.fromJSON(json, CertReviewResponse.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

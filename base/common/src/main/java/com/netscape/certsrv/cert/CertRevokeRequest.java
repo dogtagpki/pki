@@ -36,9 +36,9 @@ import org.mozilla.jss.netscape.security.x509.RevocationReasonAdapter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.util.DateAdapter;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
@@ -46,7 +46,7 @@ import com.netscape.certsrv.util.DateAdapter;
 @XmlRootElement(name="CertRevokeRequest")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class CertRevokeRequest {
+public class CertRevokeRequest implements JSONSerializer {
 
     RevocationReason reason;
     Date invalidityDate;
@@ -168,16 +168,6 @@ public class CertRevokeRequest {
     public static CertRevokeRequest fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(CertRevokeRequest.class).createUnmarshaller();
         return (CertRevokeRequest) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static CertRevokeRequest fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, CertRevokeRequest.class);
     }
 
 }

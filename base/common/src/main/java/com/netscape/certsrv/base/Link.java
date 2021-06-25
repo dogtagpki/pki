@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
@@ -40,7 +40,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @XmlRootElement(name = "Link")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Link {
+public class Link implements JSONSerializer {
     private String relationship;
     private String href;
     private String type;
@@ -117,16 +117,6 @@ public class Link {
     public static Link fromXML(String string) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(Link.class).createUnmarshaller();
         return (Link) unmarshaller.unmarshal(new StringReader(string));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static Link fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, Link.class);
     }
 
     @Override

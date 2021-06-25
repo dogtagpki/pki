@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class CertRevokeRequestTest {
 
     private static CertRevokeRequest before = new CertRevokeRequest();
@@ -39,7 +41,7 @@ public class CertRevokeRequestTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        CertRevokeRequest afterJSON = CertRevokeRequest.fromJSON(json);
+        CertRevokeRequest afterJSON = JSONSerializer.fromJSON(json, CertRevokeRequest.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
