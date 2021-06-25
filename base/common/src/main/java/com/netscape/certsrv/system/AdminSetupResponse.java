@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
@@ -42,7 +42,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class AdminSetupResponse {
+public class AdminSetupResponse implements JSONSerializer {
 
     @XmlElement
     protected SystemCertData adminCert = new SystemCertData();
@@ -84,16 +84,6 @@ public class AdminSetupResponse {
     public static AdminSetupResponse fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(AdminSetupResponse.class).createUnmarshaller();
         return (AdminSetupResponse) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static AdminSetupResponse fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, AdminSetupResponse.class);
     }
 
 }

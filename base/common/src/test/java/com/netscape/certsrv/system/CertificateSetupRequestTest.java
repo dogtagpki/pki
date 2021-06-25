@@ -7,6 +7,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class CertificateSetupRequestTest {
 
     private static CertificateSetupRequest before = new CertificateSetupRequest();
@@ -40,7 +42,8 @@ public class CertificateSetupRequestTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        CertificateSetupRequest afterJSON = CertificateSetupRequest.fromJSON(json);
+        CertificateSetupRequest afterJSON =
+                JSONSerializer.fromJSON(json, CertificateSetupRequest.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

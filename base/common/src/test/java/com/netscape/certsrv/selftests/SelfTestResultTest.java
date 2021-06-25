@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class SelfTestResultTest {
 
     private static SelfTestResult before = new SelfTestResult();
@@ -21,7 +23,7 @@ public class SelfTestResultTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        SelfTestResult afterJSON = SelfTestResult.fromJSON(json);
+        SelfTestResult afterJSON = JSONSerializer.fromJSON(json, SelfTestResult.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

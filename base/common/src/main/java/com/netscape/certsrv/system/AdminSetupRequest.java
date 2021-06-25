@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
@@ -42,7 +42,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class AdminSetupRequest {
+public class AdminSetupRequest implements JSONSerializer {
 
     @XmlElement
     protected String pin;
@@ -173,16 +173,6 @@ public class AdminSetupRequest {
     public static AdminSetupRequest fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(AdminSetupRequest.class).createUnmarshaller();
         return (AdminSetupRequest) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static AdminSetupRequest fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, AdminSetupRequest.class);
     }
 
 }

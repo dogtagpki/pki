@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class SecurityDomainHostTest {
 
     private static SecurityDomainHost before = new SecurityDomainHost();
@@ -35,7 +37,7 @@ public class SecurityDomainHostTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        SecurityDomainHost afterJSON = SecurityDomainHost.fromJSON(json);
+        SecurityDomainHost afterJSON = JSONSerializer.fromJSON(json, SecurityDomainHost.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

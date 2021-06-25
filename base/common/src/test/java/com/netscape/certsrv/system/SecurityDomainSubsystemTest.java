@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class SecurityDomainSubsystemTest {
 
     private static SecurityDomainSubsystem before = new SecurityDomainSubsystem();
@@ -40,7 +42,8 @@ public class SecurityDomainSubsystemTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        SecurityDomainSubsystem afterJSON = SecurityDomainSubsystem.fromJSON(json);
+        SecurityDomainSubsystem afterJSON =
+                JSONSerializer.fromJSON(json, SecurityDomainSubsystem.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

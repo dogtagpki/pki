@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class FeatureTest {
 
     private static Feature before = new Feature();
@@ -35,7 +37,7 @@ public class FeatureTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        Feature afterJSON = Feature.fromJSON(json);
+        Feature afterJSON = JSONSerializer.fromJSON(json, Feature.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

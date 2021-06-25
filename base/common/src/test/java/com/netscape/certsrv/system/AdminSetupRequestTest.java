@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class AdminSetupRequestTest {
 
     private static AdminSetupRequest before = new AdminSetupRequest();
@@ -38,7 +40,7 @@ public class AdminSetupRequestTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        AdminSetupRequest afterJSON = AdminSetupRequest.fromJSON(json);
+        AdminSetupRequest afterJSON = JSONSerializer.fromJSON(json, AdminSetupRequest.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

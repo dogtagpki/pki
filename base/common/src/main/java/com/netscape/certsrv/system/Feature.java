@@ -31,13 +31,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement(name="Feature")
 @XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Feature {
+public class Feature implements JSONSerializer {
 
     String id;
     String description;
@@ -132,16 +132,6 @@ public class Feature {
     public static Feature fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(Feature.class).createUnmarshaller();
         return (Feature) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static Feature fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, Feature.class);
     }
 
 }

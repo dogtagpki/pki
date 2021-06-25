@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class TPSConnectorDataTest {
 
     private static TPSConnectorData before = new TPSConnectorData();
@@ -33,7 +35,7 @@ public class TPSConnectorDataTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        TPSConnectorData afterJSON = TPSConnectorData.fromJSON(json);
+        TPSConnectorData afterJSON = JSONSerializer.fromJSON(json, TPSConnectorData.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

@@ -13,14 +13,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.base.Link;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement(name="TPSConnectorData")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class TPSConnectorData {
+public class TPSConnectorData implements JSONSerializer {
 
     String id;
     String host;
@@ -132,19 +131,6 @@ public class TPSConnectorData {
     public static TPSConnectorData fromXML(String string) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(TPSConnectorData.class).createUnmarshaller();
         return (TPSConnectorData)unmarshaller.unmarshal(new StringReader(string));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        return mapper.writeValueAsString(this);
-    }
-
-    public static TPSConnectorData fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        return mapper.readValue(json, TPSConnectorData.class);
     }
 
 }
