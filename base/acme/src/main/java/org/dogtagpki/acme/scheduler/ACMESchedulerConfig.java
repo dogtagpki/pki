@@ -12,18 +12,19 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.dogtagpki.server.rest.JSONSerializer;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ACMESchedulerConfig {
+public class ACMESchedulerConfig implements JSONSerializer {
 
     private Integer threads;
     private Map<String, ACMETaskConfig> tasks = new HashMap<>();
@@ -51,16 +52,6 @@ public class ACMESchedulerConfig {
 
     public Map<String, ACMETaskConfig> getTasks() {
         return tasks;
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ACMESchedulerConfig fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ACMESchedulerConfig.class);
     }
 
     public static ACMESchedulerConfig fromProperties(Properties props) throws Exception {

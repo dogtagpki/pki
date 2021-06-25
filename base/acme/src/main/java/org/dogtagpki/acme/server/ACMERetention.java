@@ -10,18 +10,18 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.rest.JSONSerializer;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ACMERetention {
+public class ACMERetention implements JSONSerializer {
 
     private Long length;
     private ChronoUnit unit;
@@ -79,16 +79,6 @@ public class ACMERetention {
                 unit = ChronoUnit.valueOf(value);
             }
         }
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ACMERetention fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ACMERetention.class);
     }
 
     @Override

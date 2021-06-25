@@ -11,19 +11,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.dogtagpki.server.rest.JSONSerializer;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ACMEDatabaseConfig {
+public class ACMEDatabaseConfig implements JSONSerializer {
 
     @JsonProperty("class")
     private String className;
@@ -62,16 +63,6 @@ public class ACMEDatabaseConfig {
 
     public String removeParameter(String name) {
         return parameters.remove(name);
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ACMEDatabaseConfig fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ACMEDatabaseConfig.class);
     }
 
     public static ACMEDatabaseConfig fromProperties(Properties props) throws Exception {

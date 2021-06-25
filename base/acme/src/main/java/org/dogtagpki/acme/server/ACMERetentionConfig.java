@@ -10,14 +10,15 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.dogtagpki.server.rest.JSONSerializer;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ACMERetentionConfig {
+public class ACMERetentionConfig implements JSONSerializer {
 
     private ACMERetention nonces = new ACMERetention(30, ChronoUnit.MINUTES);
     private ACMERetention pendingAuthorizations = new ACMERetention(30, ChronoUnit.MINUTES);
@@ -129,16 +130,6 @@ public class ACMERetentionConfig {
         }
 
         retention.setProperty(param, value);
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ACMERetentionConfig fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ACMERetentionConfig.class);
     }
 
     public static ACMERetentionConfig fromProperties(Properties props) throws Exception {
