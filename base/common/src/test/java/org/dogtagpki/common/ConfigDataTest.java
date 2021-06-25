@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.netscape.certsrv.base.Link;
+import com.netscape.certsrv.util.JSONSerializer;
 
 public class ConfigDataTest {
 
@@ -45,7 +46,7 @@ public class ConfigDataTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        ConfigData afterJSON = ConfigData.fromJSON(json);
+        ConfigData afterJSON = JSONSerializer.fromJSON(json, ConfigData.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

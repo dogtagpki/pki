@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ResourceMessage;
 
 /**
@@ -112,16 +111,6 @@ public class Info extends ResourceMessage {
         } else if (!version.equals(other.version))
             return false;
         return true;
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static Info fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, Info.class);
     }
 
     public String toXML() throws Exception {

@@ -41,8 +41,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
@@ -51,7 +51,7 @@ import com.netscape.certsrv.base.Link;
 @XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ConfigData {
+public class ConfigData implements JSONSerializer {
 
     String status;
     Map<String, String> properties;
@@ -172,16 +172,6 @@ public class ConfigData {
     public static ConfigData fromXML(String string) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(ConfigData.class).createUnmarshaller();
         return (ConfigData)unmarshaller.unmarshal(new StringReader(string));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ConfigData fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ConfigData.class);
     }
 
 }

@@ -8,14 +8,14 @@ package org.dogtagpki.common;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class AppInfo {
+public class AppInfo implements JSONSerializer {
 
     private String id;
     private String name;
@@ -82,16 +82,6 @@ public class AppInfo {
         return true;
     }
 
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static AppInfo fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, AppInfo.class);
-    }
-
     @Override
     public String toString() {
         try {
@@ -112,7 +102,7 @@ public class AppInfo {
         String json = before.toJSON();
         System.out.println("JSON: " + json);
 
-        AppInfo after = AppInfo.fromJSON(json);
+        AppInfo after = JSONSerializer.fromJSON(json, AppInfo.class);
         System.out.println("After: " + after);
 
         System.out.println("Equals: " + before.equals(after));
