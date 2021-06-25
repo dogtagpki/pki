@@ -22,6 +22,7 @@ import org.apache.commons.net.ntp.TimeStamp;
 import org.dogtagpki.ct.sct.SCTProcessor;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.rest.JSONSerializer;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -197,8 +198,8 @@ public class CTEngine {
 
                 /* TODO this should be a configurable; hardcoded for now */
                 boolean allowFailedSCTVerification = true;
-
-                boolean verified = verifySCT(CTResponse.fromJSON(respS), tbsCert, ls.getPublicKey(), ctCA);
+                final CTResponse response = JSONSerializer.fromJSON(respS, CTResponse.class);
+                boolean verified = verifySCT(response, tbsCert, ls.getPublicKey(), ctCA);
                 if (verified) {
                     logger.info(method + "verifySCT returned true; SCT is valid");
                 } else {
@@ -331,7 +332,8 @@ public class CTEngine {
             ByteArrayOutputStream sct_ostream = new ByteArrayOutputStream();
             for (int i = 0; i < ctResponses.size(); i++) {
                 // loop through each ctResponse
-                CTResponse response = CTResponse.fromJSON(ctResponses.get(i));
+                CTResponse response = JSONSerializer.fromJSON(ctResponses.get(i), CTResponse.class);
+
                 byte ct_version[] = new byte[] {0}; // sct_version
                 byte ct_id[] = CryptoUtil.base64Decode(response.getId()); // id
                 logger.debug(method + " ct_id: " + CertUtils.bytesToHex(ct_id));
