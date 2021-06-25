@@ -32,14 +32,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement(name="Attribute")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ProfileAttribute {
+public class ProfileAttribute implements JSONSerializer {
 
     @XmlAttribute
     private String name;
@@ -138,16 +138,6 @@ public class ProfileAttribute {
     public static ProfileAttribute fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileAttribute.class).createUnmarshaller();
         return (ProfileAttribute) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ProfileAttribute fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ProfileAttribute.class);
     }
 
 }

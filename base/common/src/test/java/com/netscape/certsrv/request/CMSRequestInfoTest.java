@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class CMSRequestInfoTest {
 
     private static CMSRequestInfo before = new CMSRequestInfo();
@@ -33,7 +35,7 @@ public class CMSRequestInfoTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        CMSRequestInfo afterJSON = CMSRequestInfo.fromJSON(json);
+        CMSRequestInfo afterJSON = JSONSerializer.fromJSON(json, CMSRequestInfo.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

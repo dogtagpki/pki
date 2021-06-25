@@ -3,6 +3,8 @@ package com.netscape.certsrv.property;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class DescriptorTest {
 
     private static Descriptor before = new Descriptor(
@@ -17,7 +19,7 @@ public class DescriptorTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        Descriptor afterJSON = Descriptor.fromJSON(json);
+        Descriptor afterJSON = JSONSerializer.fromJSON(json, Descriptor.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

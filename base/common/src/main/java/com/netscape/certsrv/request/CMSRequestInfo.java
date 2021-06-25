@@ -32,15 +32,14 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.key.KeyRequestInfo;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement(name="CMSRequestInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public  class CMSRequestInfo {
+public class CMSRequestInfo implements JSONSerializer {
 
     @XmlElement
     protected String requestType;
@@ -172,19 +171,6 @@ public  class CMSRequestInfo {
     public static CMSRequestInfo fromXML(String string) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(CMSRequestInfo.class).createUnmarshaller();
         return (CMSRequestInfo)unmarshaller.unmarshal(new StringReader(string));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        return mapper.writeValueAsString(this);
-    }
-
-    public static CMSRequestInfo fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        return mapper.readValue(json, CMSRequestInfo.class);
     }
 
 }

@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class AuditFileTest {
 
     private static AuditFile before = new AuditFile();
@@ -33,7 +35,7 @@ public class AuditFileTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        AuditFile afterJSON = AuditFile.fromJSON(json);
+        AuditFile afterJSON = JSONSerializer.fromJSON(json, AuditFile.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

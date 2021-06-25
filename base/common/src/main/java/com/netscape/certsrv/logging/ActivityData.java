@@ -32,8 +32,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
@@ -41,7 +41,7 @@ import com.netscape.certsrv.base.Link;
 @XmlRootElement(name="Activity")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ActivityData {
+public class ActivityData implements JSONSerializer {
 
     String id;
     String tokenID;
@@ -220,16 +220,6 @@ public class ActivityData {
     public static ActivityData fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(ActivityData.class).createUnmarshaller();
         return (ActivityData) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ActivityData fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ActivityData.class);
     }
 
 }

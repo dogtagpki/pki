@@ -34,13 +34,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class PolicyConstraint {
+public class PolicyConstraint implements JSONSerializer {
     @XmlAttribute(name="id")
     private String name;
 
@@ -148,16 +148,6 @@ public class PolicyConstraint {
     public static PolicyConstraint fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(PolicyConstraint.class).createUnmarshaller();
         return (PolicyConstraint) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static PolicyConstraint fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, PolicyConstraint.class);
     }
 
 }

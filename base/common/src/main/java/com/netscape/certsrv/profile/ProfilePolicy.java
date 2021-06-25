@@ -32,13 +32,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ProfilePolicy {
+public class ProfilePolicy implements JSONSerializer {
     @XmlAttribute
     private String id = null;
 
@@ -121,16 +121,6 @@ public class ProfilePolicy {
     public static ProfilePolicy fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(ProfilePolicy.class).createUnmarshaller();
         return (ProfilePolicy) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ProfilePolicy fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ProfilePolicy.class);
     }
 
 }

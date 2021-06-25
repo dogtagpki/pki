@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.util.JSONSerializer;
 
 public class PolicyConstraintValueTest {
 
@@ -36,7 +37,8 @@ public class PolicyConstraintValueTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        PolicyConstraintValue afterJSON = PolicyConstraintValue.fromJSON(json);
+        PolicyConstraintValue afterJSON =
+                JSONSerializer.fromJSON(json, PolicyConstraintValue.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

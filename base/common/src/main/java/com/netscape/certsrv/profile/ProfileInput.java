@@ -35,13 +35,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement(name="Input")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ProfileInput {
+public class ProfileInput implements JSONSerializer {
 
     @XmlAttribute(name="id")
     private String id;
@@ -218,16 +218,6 @@ public class ProfileInput {
     public static ProfileInput fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileInput.class).createUnmarshaller();
         return (ProfileInput) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ProfileInput fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ProfileInput.class);
     }
 
 }
