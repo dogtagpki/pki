@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.certsrv.util.JSONSerializer;
 
 public class CertEnrollmentRequestTest {
 
@@ -65,7 +66,7 @@ public class CertEnrollmentRequestTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        CertEnrollmentRequest afterJSON = CertEnrollmentRequest.fromJSON(json);
+        CertEnrollmentRequest afterJSON = JSONSerializer.fromJSON(json, CertEnrollmentRequest.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

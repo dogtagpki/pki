@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author jmagne
@@ -48,7 +48,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class CertSearchRequest {
+public class CertSearchRequest implements JSONSerializer {
 
     @XmlElement
     protected String issuerDN;
@@ -590,16 +590,6 @@ public class CertSearchRequest {
     public static CertSearchRequest fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(CertSearchRequest.class).createUnmarshaller();
         return (CertSearchRequest) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static CertSearchRequest fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, CertSearchRequest.class);
     }
 
     public static CertSearchRequest fromXML(Reader reader) throws JAXBException {

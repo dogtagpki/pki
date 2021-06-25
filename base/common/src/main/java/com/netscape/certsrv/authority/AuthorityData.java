@@ -27,12 +27,12 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class AuthorityData {
+public class AuthorityData implements JSONSerializer {
 
     private Boolean isHostAuthority;
 
@@ -156,16 +156,6 @@ public class AuthorityData {
         this.setEnabled(enabled);
         this.setDescription(description);
         this.setReady(ready);
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static AuthorityData fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, AuthorityData.class);
     }
 
     @Override

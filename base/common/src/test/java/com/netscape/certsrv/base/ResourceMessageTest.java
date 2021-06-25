@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class ResourceMessageTest {
 
     private static ResourceMessage before = new ResourceMessage();
@@ -34,7 +36,7 @@ public class ResourceMessageTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        ResourceMessage afterJSON = ResourceMessage.fromJSON(json);
+        ResourceMessage afterJSON = JSONSerializer.fromJSON(json, ResourceMessage.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

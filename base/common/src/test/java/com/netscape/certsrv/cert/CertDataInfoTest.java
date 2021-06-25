@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.util.JSONSerializer;
 
 public class CertDataInfoTest {
 
@@ -36,7 +37,7 @@ public class CertDataInfoTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        CertDataInfo afterJSON = CertDataInfo.fromJSON(json);
+        CertDataInfo afterJSON = JSONSerializer.fromJSON(json, CertDataInfo.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

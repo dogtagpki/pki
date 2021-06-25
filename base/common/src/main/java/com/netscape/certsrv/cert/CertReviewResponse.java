@@ -36,7 +36,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.profile.PolicyDefault;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfilePolicy;
@@ -255,17 +254,6 @@ public class CertReviewResponse extends CertEnrollmentRequest {
     public static CertReviewResponse fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(CertReviewResponse.class).createUnmarshaller();
         return (CertReviewResponse) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    @Override
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static CertReviewResponse fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, CertReviewResponse.class);
     }
 
     @Override

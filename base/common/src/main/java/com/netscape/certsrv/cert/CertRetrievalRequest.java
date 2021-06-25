@@ -37,11 +37,11 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestIdAdapter;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
@@ -51,7 +51,7 @@ import com.netscape.certsrv.request.RequestIdAdapter;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class CertRetrievalRequest {
+public class CertRetrievalRequest implements JSONSerializer {
 
     @XmlElement
     @XmlJavaTypeAdapter(CertIdAdapter.class)
@@ -96,16 +96,6 @@ public class CertRetrievalRequest {
     public static CertRetrievalRequest fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(CertRetrievalRequest.class).createUnmarshaller();
         return (CertRetrievalRequest) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static CertRetrievalRequest fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, CertRetrievalRequest.class);
     }
 
     @Override

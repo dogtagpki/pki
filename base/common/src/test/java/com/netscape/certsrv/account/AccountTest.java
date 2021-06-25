@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class AccountTest {
 
     private static Account before = new Account();
@@ -38,7 +40,7 @@ public class AccountTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        Account afterJSON = Account.fromJSON(json);
+        Account afterJSON = JSONSerializer.fromJSON(json, Account.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

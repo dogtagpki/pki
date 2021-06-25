@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class LinkTest {
 
     private static Link before = new Link();
@@ -34,7 +36,7 @@ public class LinkTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        Link afterJSON = Link.fromJSON(json);
+        Link afterJSON = JSONSerializer.fromJSON(json, Link.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

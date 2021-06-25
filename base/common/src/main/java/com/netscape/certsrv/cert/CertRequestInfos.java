@@ -28,19 +28,17 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.DataCollection;
 import com.netscape.certsrv.base.Link;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement(name = "CertRequestInfos")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class CertRequestInfos extends DataCollection<CertRequestInfo> {
+public class CertRequestInfos extends DataCollection<CertRequestInfo> implements JSONSerializer {
 
     @Override
     @XmlElementRef
@@ -66,20 +64,6 @@ public class CertRequestInfos extends DataCollection<CertRequestInfo> {
             }
         }
         return null;
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        // required to access private RequestStatus.label
-        mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-        return mapper.writeValueAsString(this);
-    }
-
-    public static CertRequestInfos fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        // required to access private RequestStatus.label
-        mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-        return mapper.readValue(json, CertRequestInfos.class);
     }
 
     public String toXML() throws Exception {

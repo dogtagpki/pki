@@ -30,7 +30,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PKIException extends RuntimeException {
 
@@ -117,15 +116,6 @@ public class PKIException extends RuntimeException {
             return (Data) unmarshaller.unmarshal(new StringReader(string));
         }
 
-        public String toJSON() throws Exception {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.writeValueAsString(this);
-        }
-
-        public static Data fromJSON(String json) throws Exception {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(json, Data.class);
-        }
     }
 
 }
