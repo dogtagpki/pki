@@ -36,8 +36,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.base.ResourceMessage;
 
 /**
@@ -257,20 +255,6 @@ public class KeyArchivalRequest extends ResourceMessage {
     public static KeyArchivalRequest fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(KeyArchivalRequest.class).createUnmarshaller();
         return (KeyArchivalRequest) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    @Override
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        return mapper.writeValueAsString(this);
-    }
-
-    public static KeyArchivalRequest fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        return mapper.readValue(json, KeyArchivalRequest.class);
     }
 
 }

@@ -19,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ResourceMessage;
 
 /**
@@ -114,17 +113,6 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
     public static SymKeyGenerationRequest fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(SymKeyGenerationRequest.class).createUnmarshaller();
         return (SymKeyGenerationRequest) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    @Override
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static SymKeyGenerationRequest fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, SymKeyGenerationRequest.class);
     }
 
 }

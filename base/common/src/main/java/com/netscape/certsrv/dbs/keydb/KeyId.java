@@ -19,6 +19,12 @@ package com.netscape.certsrv.dbs.keydb;
 
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.netscape.certsrv.util.JSONSerializer;
+
 /**
  * The KeyId class represents the identifier for a particular
  * key record. This identifier may be used to retrieve the key record
@@ -28,8 +34,11 @@ import java.math.BigInteger;
  * @author Endi S. Dewata
  * @version $Revision$ $Date$
  */
-public class KeyId {
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
+public class KeyId implements JSONSerializer {
 
+    @JsonValue
     protected BigInteger value;
 
     /**

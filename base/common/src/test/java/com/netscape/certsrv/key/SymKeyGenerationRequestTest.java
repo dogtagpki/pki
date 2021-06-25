@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class SymKeyGenerationRequestTest {
 
     private static SymKeyGenerationRequest before = new SymKeyGenerationRequest();
@@ -38,7 +40,8 @@ public class SymKeyGenerationRequestTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        SymKeyGenerationRequest afterJSON = SymKeyGenerationRequest.fromJSON(json);
+        SymKeyGenerationRequest afterJSON =
+                JSONSerializer.fromJSON(json, SymKeyGenerationRequest.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

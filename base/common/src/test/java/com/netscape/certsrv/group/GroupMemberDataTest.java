@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class GroupMemberDataTest {
 
     private static GroupMemberData before = new GroupMemberData();
@@ -20,7 +22,7 @@ public class GroupMemberDataTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        GroupMemberData afterJSON = GroupMemberData.fromJSON(json);
+        GroupMemberData afterJSON = JSONSerializer.fromJSON(json, GroupMemberData.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

@@ -25,32 +25,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.base.DataCollection;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement(name = "KeyInfoCollection")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class KeyInfoCollection extends DataCollection<KeyInfo> {
+public class KeyInfoCollection extends DataCollection<KeyInfo> implements JSONSerializer {
 
     @Override
     @XmlElementRef
     public Collection<KeyInfo> getEntries() {
         return super.getEntries();
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        return mapper.writeValueAsString(this);
-    }
-
-    public static KeyInfoCollection fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        return mapper.readValue(json, KeyInfoCollection.class);
     }
 
 }

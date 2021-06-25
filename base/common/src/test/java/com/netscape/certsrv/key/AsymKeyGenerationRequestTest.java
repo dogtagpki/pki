@@ -7,6 +7,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class AsymKeyGenerationRequestTest {
 
     private static AsymKeyGenerationRequest before = new AsymKeyGenerationRequest();
@@ -42,7 +44,7 @@ public class AsymKeyGenerationRequestTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        AsymKeyGenerationRequest afterJSON = AsymKeyGenerationRequest.fromJSON(json);
+        AsymKeyGenerationRequest afterJSON = JSONSerializer.fromJSON(json, AsymKeyGenerationRequest.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

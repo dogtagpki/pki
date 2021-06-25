@@ -31,14 +31,14 @@ import javax.xml.bind.annotation.XmlTransient;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.DataCollection;
 import com.netscape.certsrv.base.Link;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement(name = "KeyRequestInfos")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class KeyRequestInfoCollection extends DataCollection<KeyRequestInfo> {
+public class KeyRequestInfoCollection extends DataCollection<KeyRequestInfo> implements JSONSerializer {
 
     @Override
     @XmlElementRef
@@ -77,16 +77,6 @@ public class KeyRequestInfoCollection extends DataCollection<KeyRequestInfo> {
     public static KeyRequestInfoCollection fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(KeyRequestInfoCollection.class).createUnmarshaller();
         return (KeyRequestInfoCollection) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static KeyRequestInfoCollection fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, KeyRequestInfoCollection.class);
     }
 
 }

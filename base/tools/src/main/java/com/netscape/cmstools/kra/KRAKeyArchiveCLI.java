@@ -13,6 +13,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestResponse;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyArchiveCLI extends CommandCLI {
@@ -124,7 +125,7 @@ public class KRAKeyArchiveCLI extends CommandCLI {
                 logger.info("Request: " + req.toXML());
 
             } else if ("json".equalsIgnoreCase(inputFormat)) {
-                req = KeyArchivalRequest.fromJSON(input);
+                req = JSONSerializer.fromJSON(input, KeyArchivalRequest.class);
                 logger.info("Request: " + req.toJSON());
 
             } else {

@@ -36,8 +36,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
@@ -240,20 +238,6 @@ public class KeyRecoveryRequest extends ResourceMessage {
     public static KeyRecoveryRequest fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(KeyRecoveryRequest.class).createUnmarshaller();
         return (KeyRecoveryRequest) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    @Override
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        return mapper.writeValueAsString(this);
-    }
-
-    public static KeyRecoveryRequest fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
-        return mapper.readValue(json, KeyRecoveryRequest.class);
     }
 
 }

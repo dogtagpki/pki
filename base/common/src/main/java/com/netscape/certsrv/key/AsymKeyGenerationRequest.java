@@ -36,14 +36,13 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ResourceMessage;
 
 @XmlRootElement(name = "AsymKeyGenerationRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class AsymKeyGenerationRequest extends KeyGenerationRequest {
+public class AsymKeyGenerationRequest extends KeyGenerationRequest  {
 
     // Asymmetric Key Usages
     public static final String ENCRYPT = "encrypt";
@@ -125,17 +124,6 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest {
     public static AsymKeyGenerationRequest fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(AsymKeyGenerationRequest.class).createUnmarshaller();
         return (AsymKeyGenerationRequest) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    @Override
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static AsymKeyGenerationRequest fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, AsymKeyGenerationRequest.class);
     }
 
 }
