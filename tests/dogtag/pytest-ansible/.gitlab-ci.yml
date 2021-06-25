@@ -235,6 +235,7 @@ ca-topo-00-bugzilla-cp:
   script:
     - ansible-playbook -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-00" -vv | sed 's/\\n/\n/g'
     - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/bugzilla/test_bug_1656772_man_pkispawn_having_reference_to_setup-ds.py -q -s --junitxml ${CI_JOB_NAME}_junit.xml |  sed 's/\\n/\n/g'
+    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE --ansible-playbook-directory $PYTEST_DIR/pytest/ca/bugzilla/ $PYTEST_DIR/pytest/ca/bugzilla/test_bug_1426572_1930586_cert_fix_tool.py -qsvv --junitxml ${CI_JOB_NAME}_junit.xml |  sed 's/\\n/\n/g'
 
 topo-02-ca-bugzillas-gs:
   <<: *job_definition
