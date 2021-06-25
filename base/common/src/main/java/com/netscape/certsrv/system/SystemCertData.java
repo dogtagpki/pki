@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
@@ -44,7 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class SystemCertData {
+public class SystemCertData implements JSONSerializer {
 
     @XmlElement
     protected String tag;
@@ -310,16 +310,6 @@ public class SystemCertData {
     public static SystemCertData fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(SystemCertData.class).createUnmarshaller();
         return (SystemCertData) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static SystemCertData fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, SystemCertData.class);
     }
 
 }

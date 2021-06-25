@@ -29,14 +29,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Ade Lee
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class KRAConnectorInfo {
+public class KRAConnectorInfo implements JSONSerializer {
 
     private static final String HOST = "host";
     private static final String PORT = "port";
@@ -229,16 +229,6 @@ public class KRAConnectorInfo {
     public static KRAConnectorInfo fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(KRAConnectorInfo.class).createUnmarshaller();
         return (KRAConnectorInfo) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static KRAConnectorInfo fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, KRAConnectorInfo.class);
     }
 
 }

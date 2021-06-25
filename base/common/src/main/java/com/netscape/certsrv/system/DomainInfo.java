@@ -35,8 +35,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
@@ -45,7 +44,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 @XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class DomainInfo {
+public class DomainInfo implements JSONSerializer {
 
     String name;
     Map<String, SecurityDomainSubsystem> subsystems = new LinkedHashMap<>();
@@ -108,16 +107,6 @@ public class DomainInfo {
         SecurityDomainSubsystem subsystem = getSubsystem(type);
         if (subsystem == null) return;
         subsystem.removeHost(hostId);
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-        return mapper.writeValueAsString(this);
-    }
-
-    public static DomainInfo fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, DomainInfo.class);
     }
 
     public String toXML() throws Exception {

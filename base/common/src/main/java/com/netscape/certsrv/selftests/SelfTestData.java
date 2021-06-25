@@ -21,15 +21,15 @@ package com.netscape.certsrv.selftests;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class SelfTestData {
+public class SelfTestData implements JSONSerializer {
 
     String id;
     Boolean enabledAtStartup;
@@ -128,16 +128,6 @@ public class SelfTestData {
         } else if (!link.equals(other.link))
             return false;
         return true;
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static SelfTestData fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, SelfTestData.class);
     }
 
 }

@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class InstallTokenTest {
 
     private static InstallToken before = new InstallToken();
@@ -32,7 +34,7 @@ public class InstallTokenTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        InstallToken afterJSON = InstallToken.fromJSON(json);
+        InstallToken afterJSON = JSONSerializer.fromJSON(json, InstallToken.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

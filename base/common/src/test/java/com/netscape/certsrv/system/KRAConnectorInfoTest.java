@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class KRAConnectorInfoTest {
 
     private static KRAConnectorInfo before = new KRAConnectorInfo();
@@ -59,7 +61,7 @@ public class KRAConnectorInfoTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        KRAConnectorInfo afterJSON = KRAConnectorInfo.fromJSON(json);
+        KRAConnectorInfo afterJSON = JSONSerializer.fromJSON(json, KRAConnectorInfo.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
