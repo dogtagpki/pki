@@ -8,12 +8,13 @@ package org.dogtagpki.acme.server;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.dogtagpki.server.rest.JSONSerializer;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * This class includes mechanisms to enforce various policy and security
@@ -21,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ACMEPolicyConfig {
+public class ACMEPolicyConfig implements JSONSerializer {
 
     @JsonProperty("wildcard")
     private Boolean enableWildcardIssuance = true;
@@ -59,16 +60,6 @@ public class ACMEPolicyConfig {
             String retentionKey = key.substring(10);
             retention.setProperty(retentionKey, value);
         }
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ACMEPolicyConfig fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ACMEPolicyConfig.class);
     }
 
     public static ACMEPolicyConfig fromProperties(Properties props) throws Exception {

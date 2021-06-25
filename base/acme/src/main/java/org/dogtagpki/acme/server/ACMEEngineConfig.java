@@ -9,18 +9,19 @@ import java.net.URL;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.dogtagpki.server.rest.JSONSerializer;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ACMEEngineConfig {
+public class ACMEEngineConfig implements JSONSerializer {
 
     private Boolean enabled = true;
     private URL baseURL;
@@ -59,16 +60,6 @@ public class ACMEEngineConfig {
 
     public void setPolicyConfig(ACMEPolicyConfig wildcard) {
         this.policyConfig = wildcard;
-    }
-
-    public String toJSON() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    public static ACMEEngineConfig fromJSON(String json) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ACMEEngineConfig.class);
     }
 
     public static ACMEEngineConfig fromProperties(Properties props) throws Exception {
