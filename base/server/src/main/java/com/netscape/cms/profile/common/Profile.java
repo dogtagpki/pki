@@ -1369,6 +1369,8 @@ public abstract class Profile {
      */
     public abstract void submit(IAuthToken token, IRequest request)
             throws EDeferException, EProfileException;
+    public abstract void submit(IAuthToken token, IRequest request, boolean explicitApprovalRequired)
+            throws EDeferException, EProfileException;
 
     /**
      * Signed Audit Log Subject ID
