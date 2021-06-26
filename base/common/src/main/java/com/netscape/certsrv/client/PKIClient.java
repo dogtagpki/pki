@@ -97,7 +97,7 @@ public class PKIClient implements AutoCloseable {
 
     public <T> T createProxy(String path, Class<T> clazz) throws Exception {
 
-        WebTarget target = connection.target().path(path);
+        WebTarget target = connection.target(path);
 
         ProxyBuilder<T> builder = ProxyBuilder.builder(clazz, target);
         builder.defaultConsumes(messageFormat);
@@ -198,27 +198,27 @@ public class PKIClient implements AutoCloseable {
     }
 
     public Response get(String path) throws Exception {
-        return connection.target().path(path).request().get();
+        return connection.target(path).request().get();
     }
 
     public <T> T get(String path, Class<T> responseType) throws Exception {
-        return connection.target().path(path).request().get(responseType);
+        return connection.target(path).request().get(responseType);
     }
 
     public Response post(String path) throws Exception {
-        return connection.target().path(path).request().post(null);
+        return connection.target(path).request().post(null);
     }
 
     public <T> T post(String path, Class<T> responseType) throws Exception {
-        return connection.target().path(path).request().post(null, responseType);
+        return connection.target(path).request().post(null, responseType);
     }
 
     public Response post(String path, MultivaluedMap<String, String> content) throws Exception {
-        return connection.target().path(path).request().post(Entity.form(content));
+        return connection.target(path).request().post(Entity.form(content));
     }
 
     public <T> T post(String path, MultivaluedMap<String, String> content, Class<T> responseType) throws Exception {
-        return connection.target().path(path).request().post(Entity.form(content), responseType);
+        return connection.target(path).request().post(Entity.form(content), responseType);
     }
 
     public Info getInfo() throws Exception {

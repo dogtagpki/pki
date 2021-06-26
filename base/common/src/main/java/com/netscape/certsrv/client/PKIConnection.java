@@ -388,16 +388,8 @@ public class PKIConnection implements AutoCloseable {
 
     }
 
-    public WebTarget target() {
-        return target;
-    }
-
-    public WebTarget target(String path) throws Exception {
-        String uri = config.getServerURL().toString();
-        if (path != null) {
-            uri += path;
-        }
-        return client.target(uri);
+    public WebTarget target(String path) {
+        return target.path(path);
     }
 
     public File getOutput() {
