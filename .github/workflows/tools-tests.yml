@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
-      COPR_REPO: "@pki/master"
+      COPR_REPO: "@pki/10.11"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
-      COPR_REPO: "@pki/master"
+      COPR_REPO: "@pki/10.11"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -86,7 +86,7 @@ jobs:
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
-      COPR_REPO: "@pki/master"
+      COPR_REPO: "@pki/10.11"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -234,7 +234,7 @@ jobs:
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
-      COPR_REPO: "@pki/master"
+      COPR_REPO: "@pki/10.11"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -384,7 +384,7 @@ jobs:
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
-      COPR_REPO: "@pki/master"
+      COPR_REPO: "@pki/10.11"
     strategy:
       matrix:
         # NSS cannot find the SoftHSM token on F33
@@ -461,7 +461,7 @@ jobs:
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
-      COPR_REPO: "@pki/master"
+      COPR_REPO: "@pki/10.11"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:

@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     env:
-      COPR_REPO: "@pki/master"
+      COPR_REPO: "@pki/10.11"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -56,7 +56,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      COPR_REPO: "@pki/master"
+      COPR_REPO: "@pki/10.11"
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
