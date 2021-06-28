@@ -1997,6 +1997,11 @@ class PK12util:
                 logger.error(log.PKIHELPER_PK12UTIL_MISSING_DBPWFILE)
                 raise Exception(log.PKIHELPER_PK12UTIL_MISSING_DBPWFILE)
 
+            # encrypt private keys with PKCS#5 PBES2
+            command.extend(["-c", "AES-128-CBC"])
+            # don't encrypt public certs
+            command.extend(["-C", "NONE"])
+
             logger.debug('Command: %s', ' '.join(command))
             with open(os.devnull, "w") as fnull:
                 subprocess.check_call(command, stdout=fnull, stderr=fnull)
