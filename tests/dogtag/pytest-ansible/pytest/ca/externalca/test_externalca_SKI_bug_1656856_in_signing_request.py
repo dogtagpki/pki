@@ -157,3 +157,7 @@ def test_bug_1656856_include_SKI_in_ca_signing_certificate_request(ansible_modul
     log.info("User's request id is :%s" %(instance_creation.find(output,"Request ID:")))
     output = instance_creation.approve_usercsr(ansible_module,instance_creation.find(output,"Request ID:"))
     log.info(" Approve csr : %s", output)
+
+    log.info("teardown before exit")
+    ansible_module.shell("yes|cp -f /usr/share/pki/ca/profiles/ca/caCACert.cfg {}".format(profile_path))
+    instance_status(ansible_module, status='restart')

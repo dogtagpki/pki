@@ -89,7 +89,7 @@ def config_setup(request,ansible_module):
         yield("resource")
         log.info("teardown before exit")
         for x in ['rm -rf %s %s' %(instance_creation.nssdb, instance_creation.pass_file),
-                  'pkidestroy -s %s -i %s' % (instance_creation.subsystem, instance_creation.instance_name)]:
+                  'pkidestroy -s %s -i %s --force' % (instance_creation.subsystem, instance_creation.instance_name)]:
             ansible_module.shell(x)
             log.info("Teardown: Remove %s",x)
 
@@ -104,7 +104,9 @@ def config_setup(request,ansible_module):
         ansible_module.copy(src=instance_creation.config_step2, dest=instance_creation.config_step2)
         yield("resource")
         log.info("teardown before exit")
+        for file in "config_step1.cfg", "config_step2.cfg":
+            os.remove("/tmp/" + file)
         for x in ['rm -rf %s %s' %(instance_creation.nssdb, instance_creation.pass_file),
-                  'pkidestroy -s %s -i %s' % (instance_creation.subsystem, instance_creation.instance_name)]:
+                  'pkidestroy -s %s -i %s --force' % (instance_creation.subsystem, instance_creation.instance_name)]:
             ansible_module.shell(x)
             log.info("Teardown: Remove %s",x)

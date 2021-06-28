@@ -179,7 +179,7 @@ class pki_externalca_common(object):
         for values in out.values():
             for items in [x.strip(' ') for x in values[key].splitlines()]:
                 if items.startswith('{}'.format(search)):
-                    req = items.strip('{}'.format(search))
+                    req = items.lstrip('{}'.format(search))
                     return str(req)
 
 class pki_externalca(pki_externalca_common):
