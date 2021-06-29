@@ -21,18 +21,8 @@
  */
 package com.netscape.certsrv.authority;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.Objects;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -40,13 +30,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
 
-@XmlRootElement(name = "authority")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class AuthorityData {
 
-    @XmlAttribute
     private Boolean isHostAuthority;
 
     public Boolean getIsHostAuthority() {
@@ -57,7 +44,6 @@ public class AuthorityData {
         this.isHostAuthority = isHostAuthority;
     }
 
-    @XmlAttribute
     private String id;
 
     public String getID() {
@@ -68,7 +54,6 @@ public class AuthorityData {
         this.id = id;
     }
 
-    @XmlAttribute
     private String parentID;
 
     public String getParentID() {
@@ -80,7 +65,6 @@ public class AuthorityData {
     }
 
     /* Read-only for existing CAs */
-    @XmlAttribute
     private String issuerDN;
 
     public String getIssuerDN() {
@@ -92,7 +76,6 @@ public class AuthorityData {
     }
 
     /* Read-only attribute */
-    @XmlAttribute
     private BigInteger serial;
 
     public BigInteger getSerial() {
@@ -104,7 +87,6 @@ public class AuthorityData {
         this.serial = serial;
     }
 
-    @XmlAttribute
     private String dn;
 
     public String getDN() {
@@ -115,7 +97,6 @@ public class AuthorityData {
         this.dn = dn;
     }
 
-    @XmlAttribute
     private Boolean enabled;
 
     public Boolean getEnabled() {
@@ -126,7 +107,6 @@ public class AuthorityData {
         this.enabled = enabled;
     }
 
-    @XmlAttribute
     private String description;
 
     public String getDescription() {
@@ -142,7 +122,6 @@ public class AuthorityData {
      *
      * This is a read-only attribute; it cannot be set by the user.
      */
-    @XmlAttribute
     private Boolean ready;
 
     public Boolean getReady() {
@@ -177,20 +156,6 @@ public class AuthorityData {
         this.setEnabled(enabled);
         this.setDescription(description);
         this.setReady(ready);
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(AuthorityData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static AuthorityData fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(AuthorityData.class).createUnmarshaller();
-        return (AuthorityData) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     public String toJSON() throws Exception {
