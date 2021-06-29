@@ -79,7 +79,7 @@ public class ConfigShowCLI extends CommandCLI {
 
         } else {
             try (PrintWriter out = new PrintWriter(new FileWriter(output))) {
-                out.println(configData.toXML());
+                out.println(configData.toJSON());
             }
             MainCLI.printMessage("Stored configuration into " + output);
         }

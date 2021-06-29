@@ -18,15 +18,6 @@
 
 package org.dogtagpki.common;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -35,7 +26,6 @@ import com.netscape.certsrv.base.ResourceMessage;
 /**
  * @author Ade Lee
  */
-@XmlRootElement(name="KRAInfo")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class KRAInfo extends ResourceMessage {
@@ -45,7 +35,6 @@ public class KRAInfo extends ResourceMessage {
     String encryptAlgorithm;
     String wrapAlgorithm;
 
-    @XmlElement(name="ArchivalMechanism")
     public String getArchivalMechanism() {
         return archivalMechanism;
     }
@@ -54,7 +43,6 @@ public class KRAInfo extends ResourceMessage {
         this.archivalMechanism = archivalMechanism;
     }
 
-    @XmlElement(name="RecoveryMechanism")
     public String getRecoveryMechanism() {
         return recoveryMechanism;
     }
@@ -63,7 +51,6 @@ public class KRAInfo extends ResourceMessage {
         this.recoveryMechanism = recoveryMechanism;
     }
 
-    @XmlElement(name="EncryptAlgorithm")
     public String getEncryptAlgorithm() {
         return encryptAlgorithm;
     }
@@ -72,7 +59,6 @@ public class KRAInfo extends ResourceMessage {
         this.encryptAlgorithm = encryptAlgorithm;
     }
 
-    @XmlElement(name="WrapAlgorithm")
     public String getWrapAlgorithm() {
         return wrapAlgorithm;
     }
@@ -122,19 +108,6 @@ public class KRAInfo extends ResourceMessage {
         } else if (!wrapAlgorithm.equals(other.wrapAlgorithm))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        StringWriter sw = new StringWriter();
-        Marshaller marshaller = JAXBContext.newInstance(KRAInfo.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static KRAInfo fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(KRAInfo.class).createUnmarshaller();
-        return (KRAInfo)unmarshaller.unmarshal(new StringReader(string));
     }
 
 }
