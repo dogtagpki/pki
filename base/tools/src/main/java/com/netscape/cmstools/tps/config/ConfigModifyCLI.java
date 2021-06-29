@@ -30,6 +30,7 @@ import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.common.ConfigClient;
 import org.dogtagpki.common.ConfigData;
 
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.config.ConfigCLI;
 
@@ -90,7 +91,7 @@ public class ConfigModifyCLI extends CommandCLI {
                 out.println(line);
             }
 
-            configData = ConfigData.fromXML(sw.toString());
+            configData = JSONSerializer.fromJSON(sw.toString(), ConfigData.class);
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
@@ -106,7 +107,7 @@ public class ConfigModifyCLI extends CommandCLI {
 
         } else {
             try (PrintWriter out = new PrintWriter(new FileWriter(output))) {
-                out.println(configData.toXML());
+                out.println(configData.toJSON());
             }
         }
     }

@@ -18,15 +18,6 @@
 
 package org.dogtagpki.common;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +29,6 @@ import com.netscape.certsrv.base.ResourceMessage;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Info")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Info extends ResourceMessage {
@@ -49,7 +39,6 @@ public class Info extends ResourceMessage {
     String version;
     String banner;
 
-    @XmlElement(name="Name")
     public String getName() {
         return name;
     }
@@ -58,7 +47,6 @@ public class Info extends ResourceMessage {
         this.name = name;
     }
 
-    @XmlElement(name="Version")
     public String getVersion() {
         return version;
     }
@@ -67,7 +55,6 @@ public class Info extends ResourceMessage {
         this.version = version;
     }
 
-    @XmlElement(name="Banner")
     public String getBanner() {
         return banner;
     }
@@ -111,19 +98,6 @@ public class Info extends ResourceMessage {
         } else if (!version.equals(other.version))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        StringWriter sw = new StringWriter();
-        Marshaller marshaller = JAXBContext.newInstance(Info.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static Info fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(Info.class).createUnmarshaller();
-        return (Info)unmarshaller.unmarshal(new StringReader(string));
     }
 
 }

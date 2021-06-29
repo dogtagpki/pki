@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXParseException;
 
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
 
@@ -58,11 +59,11 @@ public class InfoService extends PKIService implements InfoResource {
 
             // validate banner
             try {
-                // converting Info object into XML
-                String xmlInfo = info.toXML();
+                // converting Info object into JSON
+                String jsonInfo = info.toJSON();
 
                 // and parse it back into Info object
-                info = Info.fromXML(xmlInfo);
+                info = JSONSerializer.fromJSON(jsonInfo, Info.class);
 
             } catch (UnmarshalException e) {
                 Throwable cause = e.getCause();

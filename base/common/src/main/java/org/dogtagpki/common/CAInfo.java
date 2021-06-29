@@ -18,15 +18,6 @@
 
 package org.dogtagpki.common;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -35,7 +26,6 @@ import com.netscape.certsrv.base.ResourceMessage;
 /**
  * @author Ade Lee
  */
-@XmlRootElement(name="CAInfo")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CAInfo extends ResourceMessage {
@@ -47,7 +37,6 @@ public class CAInfo extends ResourceMessage {
     String encryptAlgorithm;
     String keyWrapAlgorithm;
 
-    @XmlElement(name="ArchivalMechanism")
     public String getArchivalMechanism() {
         return archivalMechanism;
     }
@@ -56,7 +45,6 @@ public class CAInfo extends ResourceMessage {
         this.archivalMechanism = archivalMechanism;
     }
 
-    @XmlElement(name="EncryptAlgorithm")
     public String getEncryptAlgorithm() {
         return encryptAlgorithm;
     }
@@ -65,7 +53,6 @@ public class CAInfo extends ResourceMessage {
         this.encryptAlgorithm = encryptAlgorithm;
     }
 
-    @XmlElement(name="WrapAlgorithm")
     public String getKeyWrapAlgorithm() {
         return keyWrapAlgorithm;
     }
@@ -109,19 +96,6 @@ public class CAInfo extends ResourceMessage {
         } else if (!keyWrapAlgorithm.equals(other.keyWrapAlgorithm))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CAInfo.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static CAInfo fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CAInfo.class).createUnmarshaller();
-        return (CAInfo)unmarshaller.unmarshal(new StringReader(string));
     }
 
 }

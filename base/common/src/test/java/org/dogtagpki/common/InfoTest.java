@@ -21,19 +21,6 @@ public class InfoTest {
     }
 
     @Test
-    public void testXML() throws Exception {
-        // Act
-        String xml = before.toXML();
-        System.out.println("XML (before): " + xml);
-
-        Info afterXML = Info.fromXML(xml);
-        System.out.println("XML (after): " + afterXML.toXML());
-
-        // Assert
-        Assert.assertEquals(before, afterXML);
-    }
-
-    @Test
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
