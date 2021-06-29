@@ -18,16 +18,6 @@
 
 package com.netscape.certsrv.selftests;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -36,7 +26,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="SelfTestResult")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class SelfTestResult {
@@ -45,7 +34,6 @@ public class SelfTestResult {
     String status;
     String output;
 
-    @XmlAttribute(name="id")
     public String getID() {
         return id;
     }
@@ -54,7 +42,6 @@ public class SelfTestResult {
         this.id = id;
     }
 
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -63,7 +50,6 @@ public class SelfTestResult {
         this.status = status;
     }
 
-    @XmlElement(name="Output")
     public String getOutput() {
         return output;
     }
@@ -107,20 +93,6 @@ public class SelfTestResult {
         } else if (!status.equals(other.status))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(SelfTestResult.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static SelfTestResult fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(SelfTestResult.class).createUnmarshaller();
-        return (SelfTestResult) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     public String toJSON() throws Exception {

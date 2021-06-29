@@ -18,16 +18,6 @@
 
 package com.netscape.certsrv.selftests;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -37,7 +27,6 @@ import com.netscape.certsrv.base.Link;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="SelfTest")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class SelfTestData {
@@ -50,7 +39,6 @@ public class SelfTestData {
 
     Link link;
 
-    @XmlAttribute(name="id")
     public String getID() {
         return id;
     }
@@ -59,7 +47,6 @@ public class SelfTestData {
         this.id = id;
     }
 
-    @XmlElement(name="EnabledAtStartup")
     public Boolean isEnabledAtStartup() {
         return enabledAtStartup;
     }
@@ -68,7 +55,6 @@ public class SelfTestData {
         this.enabledAtStartup = enabledAtStartup;
     }
 
-    @XmlElement(name="CriticalAtStartup")
     public Boolean isCriticalAtStartup() {
         return criticalAtStartup;
     }
@@ -77,7 +63,6 @@ public class SelfTestData {
         this.criticalAtStartup = criticalAtStartup;
     }
 
-    @XmlElement(name="EnabledOnDemand")
     public Boolean isEnabledOnDemand() {
         return enabledOnDemand;
     }
@@ -86,7 +71,6 @@ public class SelfTestData {
         this.enabledOnDemand = enabledOnDemand;
     }
 
-    @XmlElement(name="CriticalOnDemand")
     public Boolean isCriticalOnDemand() {
         return criticalOnDemand;
     }
@@ -95,7 +79,6 @@ public class SelfTestData {
         this.criticalOnDemand = criticalOnDemand;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
@@ -145,20 +128,6 @@ public class SelfTestData {
         } else if (!link.equals(other.link))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(SelfTestData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static SelfTestData fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(SelfTestData.class).createUnmarshaller();
-        return (SelfTestData) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     public String toJSON() throws Exception {
