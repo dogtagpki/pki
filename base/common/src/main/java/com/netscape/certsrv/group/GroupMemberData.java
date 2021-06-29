@@ -19,9 +19,6 @@
 package com.netscape.certsrv.group;
 
 import javax.ws.rs.FormParam;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -33,7 +30,6 @@ import com.netscape.certsrv.common.Constants;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="GroupMember")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class GroupMemberData {
@@ -44,7 +40,6 @@ public class GroupMemberData {
     Link link;
 
     @FormParam(Constants.PR_GROUP_USER)
-    @XmlAttribute(name="id")
     public String getID() {
         return id;
     }
@@ -53,7 +48,6 @@ public class GroupMemberData {
         this.id = id;
     }
 
-    @XmlAttribute(name="GroupID")
     public String getGroupID() {
         return groupID;
     }
@@ -62,7 +56,6 @@ public class GroupMemberData {
         this.groupID = groupID;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }

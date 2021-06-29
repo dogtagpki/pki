@@ -18,16 +18,7 @@
 
 package com.netscape.certsrv.group;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
 import javax.ws.rs.FormParam;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -39,7 +30,6 @@ import com.netscape.certsrv.common.Constants;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Group")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class GroupData {
@@ -51,7 +41,6 @@ public class GroupData {
 
     Link link;
 
-    @XmlAttribute(name="id")
     public String getID() {
         return id;
     }
@@ -60,7 +49,6 @@ public class GroupData {
         this.id = id;
     }
 
-    @XmlElement(name="GroupID")
     public String getGroupID() {
         return groupID;
     }
@@ -70,7 +58,6 @@ public class GroupData {
     }
 
     @FormParam(Constants.PR_GROUP_DESC)
-    @XmlElement(name="Description")
     public String getDescription() {
         return description;
     }
@@ -79,7 +66,6 @@ public class GroupData {
         this.description = description;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
@@ -129,20 +115,6 @@ public class GroupData {
         } else if (!link.equals(other.link))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(GroupData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static GroupData fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(GroupData.class).createUnmarshaller();
-        return (GroupData) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     public String toJSON() throws Exception {
