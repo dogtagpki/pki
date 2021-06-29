@@ -110,6 +110,12 @@ jobs:
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec pki pki info
 
+      - name: Test CA certs
+        run: |
+          docker exec pki /usr/share/pki/tests/ca/bin/test-ca-signing-cert.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/test-subsystem-cert.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/test-ca-certs.sh
+
       - name: Test CA admin
         run: |
           docker exec pki pki client-cert-import \
