@@ -18,18 +18,6 @@
 
 package com.netscape.certsrv.logging;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -38,8 +26,6 @@ import com.netscape.certsrv.util.JSONSerializer;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="AuditFile")
-@XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class AuditFile implements JSONSerializer {
@@ -47,7 +33,6 @@ public class AuditFile implements JSONSerializer {
     String name;
     Long size;
 
-    @XmlAttribute(name="name")
     public String getName() {
         return name;
     }
@@ -56,7 +41,6 @@ public class AuditFile implements JSONSerializer {
         this.name = name;
     }
 
-    @XmlElement(name="Size")
     public Long getSize() {
         return size;
     }
@@ -94,20 +78,6 @@ public class AuditFile implements JSONSerializer {
         } else if (!size.equals(other.size))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(AuditFile.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static AuditFile fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(AuditFile.class).createUnmarshaller();
-        return (AuditFile) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

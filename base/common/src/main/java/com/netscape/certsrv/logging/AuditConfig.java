@@ -18,24 +18,9 @@
 
 package com.netscape.certsrv.logging;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -46,8 +31,6 @@ import com.netscape.certsrv.util.JSONSerializer;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Audit")
-@XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class AuditConfig implements JSONSerializer {
@@ -61,7 +44,6 @@ public class AuditConfig implements JSONSerializer {
 
     Link link;
 
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -70,7 +52,6 @@ public class AuditConfig implements JSONSerializer {
         this.status = status;
     }
 
-    @XmlElement(name="Signed")
     public Boolean getSigned() {
         return signed;
     }
@@ -79,7 +60,6 @@ public class AuditConfig implements JSONSerializer {
         this.signed = signed;
     }
 
-    @XmlElement(name="Interval")
     public Integer getInterval() {
         return interval;
     }
@@ -88,7 +68,6 @@ public class AuditConfig implements JSONSerializer {
         this.interval = interval;
     }
 
-    @XmlElement(name="BufferSize")
     public Integer getBufferSize() {
         return bufferSize;
     }
@@ -97,8 +76,6 @@ public class AuditConfig implements JSONSerializer {
         this.bufferSize = bufferSize;
     }
 
-    @XmlElement(name="Events")
-    @XmlJavaTypeAdapter(EventConfigsAdapter.class)
     public Map<String, String> getEventConfigs() {
         return eventConfigs;
     }
@@ -107,45 +84,17 @@ public class AuditConfig implements JSONSerializer {
         this.eventConfigs = eventConfigs;
     }
 
-    public static class EventConfigsAdapter extends XmlAdapter<EventConfigList, Map<String, String>> {
-
-        @Override
-        public EventConfigList marshal(Map<String, String> map) {
-            EventConfigList list = new EventConfigList();
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                EventConfig eventConfig = new EventConfig();
-                eventConfig.name = entry.getKey();
-                eventConfig.value = entry.getValue();
-                list.entries.add(eventConfig);
-            }
-            return list;
-        }
-
-        @Override
-        public Map<String, String> unmarshal(EventConfigList list) {
-            Map<String, String> map = new TreeMap<>();
-            for (EventConfig eventConfig : list.entries) {
-                map.put(eventConfig.name, eventConfig.value);
-            }
-            return map;
-        }
-    }
-
     public static class EventConfigList {
-        @XmlElement(name="Event")
         public List<EventConfig> entries = new ArrayList<>();
     }
 
     public static class EventConfig {
 
-        @XmlAttribute
         public String name;
 
-        @XmlValue
         public String value;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
@@ -207,20 +156,6 @@ public class AuditConfig implements JSONSerializer {
         } else if (!signed.equals(other.signed))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(AuditConfig.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static AuditConfig fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(AuditConfig.class).createUnmarshaller();
-        return (AuditConfig) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

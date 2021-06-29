@@ -30,6 +30,7 @@ import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.logging.AuditConfig;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -100,7 +101,7 @@ public class AuditModifyCLI extends CommandCLI {
                     out.println(line);
                 }
 
-                auditConfig = AuditConfig.fromXML(sw.toString());
+                auditConfig = JSONSerializer.fromJSON(sw.toString(), AuditConfig.class);
             }
 
             auditConfig = auditClient.updateAuditConfig(auditConfig);

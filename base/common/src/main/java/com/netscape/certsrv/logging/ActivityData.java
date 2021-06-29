@@ -18,16 +18,7 @@
 
 package com.netscape.certsrv.logging;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Date;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -38,7 +29,6 @@ import com.netscape.certsrv.util.JSONSerializer;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Activity")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ActivityData implements JSONSerializer {
@@ -54,7 +44,6 @@ public class ActivityData implements JSONSerializer {
 
     Link link;
 
-    @XmlAttribute(name="id")
     public String getID() {
         return id;
     }
@@ -63,7 +52,6 @@ public class ActivityData implements JSONSerializer {
         this.id = id;
     }
 
-    @XmlElement(name="TokenID")
     public String getTokenID() {
         return tokenID;
     }
@@ -72,7 +60,6 @@ public class ActivityData implements JSONSerializer {
         this.tokenID = tokenID;
     }
 
-    @XmlElement(name="UserID")
     public String getUserID() {
         return userID;
     }
@@ -81,7 +68,6 @@ public class ActivityData implements JSONSerializer {
         this.userID = userID;
     }
 
-    @XmlElement(name="IP")
     public String getIP() {
         return ip;
     }
@@ -90,7 +76,6 @@ public class ActivityData implements JSONSerializer {
         this.ip = ip;
     }
 
-    @XmlElement(name="Operation")
     public String getOperation() {
         return operation;
     }
@@ -99,7 +84,6 @@ public class ActivityData implements JSONSerializer {
         this.operation = operation;
     }
 
-    @XmlElement(name="Result")
     public String getResult() {
         return result;
     }
@@ -108,7 +92,6 @@ public class ActivityData implements JSONSerializer {
         this.result = result;
     }
 
-    @XmlElement(name="Message")
     public String getMessage() {
         return message;
     }
@@ -117,7 +100,6 @@ public class ActivityData implements JSONSerializer {
         this.message = message;
     }
 
-    @XmlElement(name="Date")
     public Date getDate() {
         return date;
     }
@@ -126,7 +108,6 @@ public class ActivityData implements JSONSerializer {
         this.date = date;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
@@ -206,20 +187,6 @@ public class ActivityData implements JSONSerializer {
         } else if (!userID.equals(other.userID))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(ActivityData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static ActivityData fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(ActivityData.class).createUnmarshaller();
-        return (ActivityData) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }
