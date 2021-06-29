@@ -11,13 +11,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.dogtagpki.server.rest.JSONSerializer;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata

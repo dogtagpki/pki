@@ -9,13 +9,12 @@ package org.dogtagpki.ct;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dogtagpki.server.rest.JSONSerializer;
-
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Dinesh Prasanth M K

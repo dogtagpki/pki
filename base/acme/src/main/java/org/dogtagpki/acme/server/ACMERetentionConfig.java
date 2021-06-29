@@ -10,11 +10,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.dogtagpki.server.rest.JSONSerializer;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
