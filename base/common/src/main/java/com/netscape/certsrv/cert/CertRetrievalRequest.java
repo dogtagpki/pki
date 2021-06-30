@@ -21,44 +21,25 @@
  */
 package com.netscape.certsrv.cert;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Objects;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestIdAdapter;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
  *
  */
-@XmlRootElement(name = "CertRetrievalRequest")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertRetrievalRequest implements JSONSerializer {
 
-    @XmlElement
-    @XmlJavaTypeAdapter(CertIdAdapter.class)
     protected CertId certId;
 
-    @XmlElement
-    @XmlJavaTypeAdapter(RequestIdAdapter.class)
     public RequestId requestId;
 
     public CertRetrievalRequest() {
@@ -82,20 +63,6 @@ public class CertRetrievalRequest implements JSONSerializer {
 
     protected void setRequestId(RequestId requestId) {
         this.requestId = requestId;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CertRetrievalRequest.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static CertRetrievalRequest fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertRetrievalRequest.class).createUnmarshaller();
-        return (CertRetrievalRequest) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     @Override

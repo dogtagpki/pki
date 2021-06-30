@@ -18,32 +18,21 @@
 
 package com.netscape.certsrv.cert;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Date;
 
 import javax.ws.rs.FormParam;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.RevocationReasonAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.util.DateAdapter;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="CertRevokeRequest")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertRevokeRequest implements JSONSerializer {
@@ -55,9 +44,7 @@ public class CertRevokeRequest implements JSONSerializer {
     Long nonce;
 
 
-    @XmlElement(name="Reason")
     @FormParam("revocationReason")
-    @XmlJavaTypeAdapter(RevocationReasonAdapter.class)
     public RevocationReason getReason() {
         return reason;
     }
@@ -66,9 +53,7 @@ public class CertRevokeRequest implements JSONSerializer {
         this.reason = reason;
     }
 
-    @XmlElement(name="InvalidityDate")
     @FormParam("invalidityDate")
-    @XmlJavaTypeAdapter(DateAdapter.class)
     public Date getInvalidityDate() {
         return invalidityDate;
     }
@@ -77,7 +62,6 @@ public class CertRevokeRequest implements JSONSerializer {
         this.invalidityDate = invalidityDate;
     }
 
-    @XmlElement(name="Comments")
     @FormParam(IRequest.REQUESTOR_COMMENTS)
     public String getComments() {
         return comments;
@@ -87,7 +71,6 @@ public class CertRevokeRequest implements JSONSerializer {
         this.comments = comments;
     }
 
-    @XmlElement(name="Encoded")
     @FormParam("b64eCertificate")
     public String getEncoded() {
         return encoded;
@@ -97,7 +80,6 @@ public class CertRevokeRequest implements JSONSerializer {
         this.encoded = encoded;
     }
 
-    @XmlElement(name="Nonce")
     @FormParam("nonce")
     public Long getNonce() {
         return nonce;
@@ -154,20 +136,6 @@ public class CertRevokeRequest implements JSONSerializer {
         } else if (!reason.equals(other.reason))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CertRevokeRequest.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static CertRevokeRequest fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertRevokeRequest.class).createUnmarshaller();
-        return (CertRevokeRequest) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

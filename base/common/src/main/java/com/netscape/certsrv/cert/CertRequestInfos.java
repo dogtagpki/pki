@@ -17,16 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.cert;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Collection;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -35,18 +26,15 @@ import com.netscape.certsrv.base.DataCollection;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement(name = "CertRequestInfos")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertRequestInfos extends DataCollection<CertRequestInfo> implements JSONSerializer {
 
     @Override
-    @XmlElementRef
     public Collection<CertRequestInfo> getEntries() {
         return super.getEntries();
     }
 
-    @XmlTransient
     public String getNext() {
         for (Link link : getLinks()) {
             if ("next".equals(link.getRelationship())) {
@@ -56,7 +44,6 @@ public class CertRequestInfos extends DataCollection<CertRequestInfo> implements
         return null;
     }
 
-    @XmlTransient
     public String getPrevious() {
         for (Link link : getLinks()) {
             if ("previous".equals(link.getRelationship())) {
@@ -64,19 +51,6 @@ public class CertRequestInfos extends DataCollection<CertRequestInfo> implements
             }
         }
         return null;
-    }
-
-    public String toXML() throws Exception {
-        StringWriter sw = new StringWriter();
-        Marshaller marshaller = JAXBContext.newInstance(CertRequestInfos.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static CertRequestInfos fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertRequestInfos.class).createUnmarshaller();
-        return (CertRequestInfos)unmarshaller.unmarshal(new StringReader(string));
     }
 
 }

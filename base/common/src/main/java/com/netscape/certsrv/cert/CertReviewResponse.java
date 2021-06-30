@@ -17,21 +17,10 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.cert;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -41,21 +30,15 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfilePolicy;
 import com.netscape.certsrv.profile.ProfilePolicySet;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestIdAdapter;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertReviewResponse extends CertEnrollmentRequest {
 
-    @XmlElement(name="ProfilePolicySet")
     protected List<ProfilePolicySet> policySets = new ArrayList<>();
 
     protected String nonce;
 
-    @XmlElement
-    @XmlJavaTypeAdapter(RequestIdAdapter.class)
     protected RequestId requestId;
 
     protected String requestType;
@@ -239,21 +222,6 @@ public class CertReviewResponse extends CertEnrollmentRequest {
             }
         }
         return ret;
-    }
-
-    @Override
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CertReviewResponse.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static CertReviewResponse fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertReviewResponse.class).createUnmarshaller();
-        return (CertReviewResponse) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     @Override

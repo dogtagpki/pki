@@ -19,7 +19,6 @@
 package com.netscape.cmstools.ca;
 
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 
@@ -32,6 +31,7 @@ import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertSearchRequest;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -212,23 +212,13 @@ public class CACertFindCLI extends CommandCLI {
             }
         }
 
-        if (fileName != null) {
-            FileReader reader = null;
-            try {
-                reader = new FileReader(fileName);
-                searchData = CertSearchRequest.fromXML(reader);
-
-            } finally {
-                if (reader != null)
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-            }
-
-        } else {
+        if (fileName == null) {
             searchData = new CertSearchRequest();
+        } else {
+            try (FileReader reader = new FileReader(fileName)) {
+                searchData = JSONSerializer.fromJSON(reader.toString(), CertSearchRequest.class);
+
+            }
         }
 
         String s = cmd.getOptionValue("start");

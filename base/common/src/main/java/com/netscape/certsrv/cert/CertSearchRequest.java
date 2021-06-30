@@ -20,20 +20,9 @@
 // smaller classes
 package com.netscape.certsrv.cert;
 
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Objects;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -44,162 +33,108 @@ import com.netscape.certsrv.util.JSONSerializer;
  * @author jmagne
  *
  */
-@XmlRootElement(name = "CertSearchRequest")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertSearchRequest implements JSONSerializer {
 
-    @XmlElement
     protected String issuerDN;
 
     //Serial Number
-    @XmlElement
     protected boolean serialNumberRangeInUse;
 
-    @XmlElement
     protected String serialTo;
 
-    @XmlElement
     protected String serialFrom;
 
     //Subject Name
-    @XmlElement
     protected boolean subjectInUse;
 
-    @XmlElement
     protected String eMail;
 
-    @XmlElement
     protected String commonName;
 
-    @XmlElement
     protected String userID;
 
-    @XmlElement
     protected String orgUnit;
 
-    @XmlElement
     protected String org;
 
-    @XmlElement
     protected String locality;
 
-    @XmlElement
     protected String state;
 
-    @XmlElement
     protected String country;
 
-    @XmlElement
     protected boolean matchExactly;
 
     //Status
-    @XmlElement
     protected String status;
 
     //Revoked By
-
-    @XmlElement
     protected String revokedBy;
 
     //Revoked On
-
-    @XmlElement
     protected String revokedOnFrom;
 
-    @XmlElement
     protected String revokedOnTo;
 
     //Revocation Reason
-
-    @XmlElement
     protected String revocationReason;
 
     //Issued By
-
-    @XmlElement
     protected String issuedBy;
 
     //Issued On
-
-    @XmlElement
     protected String issuedOnFrom;
 
-    @XmlElement
     protected String issuedOnTo;
 
     //Valid Not Before
-
-    @XmlElement
     protected String validNotBeforeFrom;
 
-    @XmlElement
     protected String validNotBeforeTo;
 
     //Valid Not After
-
-    @XmlElement
     protected String validNotAfterFrom;
 
-    @XmlElement
     protected String validNotAfterTo;
 
     //Validity Length
-
-    @XmlElement
     protected String validityOperation;
 
-    @XmlElement
     protected Integer validityCount;
 
-    @XmlElement
     protected Long validityUnit;
 
     // Cert Type
-
-    @XmlElement
     protected String certTypeSubEmailCA;
 
-    @XmlElement
     protected String certTypeSubSSLCA;
 
-    @XmlElement
     protected String certTypeSecureEmail;
 
-    @XmlElement
     protected String certTypeSSLClient;
 
-    @XmlElement
     protected String certTypeSSLServer;
 
     //Revoked By
-    @XmlElement
     protected boolean revokedByInUse;
 
     //Revoked On
-    @XmlElement
     protected boolean revokedOnInUse;
 
-    @XmlElement
     protected boolean revocationReasonInUse;
 
-    @XmlElement
     protected boolean issuedByInUse;
 
-    @XmlElement
     protected boolean issuedOnInUse;
 
-    @XmlElement
     protected boolean validNotBeforeInUse;
 
-    @XmlElement
     protected boolean validNotAfterInUse;
 
-    @XmlElement
     protected boolean validityLengthInUse;
 
-    @XmlElement
     protected boolean certTypeInUse;
 
     public String getIssuerDN() {
@@ -576,26 +511,6 @@ public class CertSearchRequest implements JSONSerializer {
     }
 
     public CertSearchRequest(MultivaluedMap<String, String> form) {
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CertSearchRequest.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static CertSearchRequest fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertSearchRequest.class).createUnmarshaller();
-        return (CertSearchRequest) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public static CertSearchRequest fromXML(Reader reader) throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(CertSearchRequest.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        return (CertSearchRequest) unmarshaller.unmarshal(reader);
     }
 
     @Override
