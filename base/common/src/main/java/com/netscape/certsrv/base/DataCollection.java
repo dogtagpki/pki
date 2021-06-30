@@ -21,8 +21,6 @@ package com.netscape.certsrv.base;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.xml.bind.annotation.XmlElement;
-
 /**
  * @author Endi S. Dewata
  */
@@ -58,7 +56,6 @@ public class DataCollection<E> {
         entries.remove(entry);
     }
 
-    @XmlElement(name="Link")
     public Collection<Link> getLinks() {
         return links;
     }

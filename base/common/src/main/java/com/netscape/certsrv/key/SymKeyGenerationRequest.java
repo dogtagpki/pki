@@ -65,17 +65,9 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
     @Override
     public String toString() {
         try {
-            return ResourceMessage.marshal(this, SymKeyGenerationRequest.class);
+            return toJSON();
         } catch (Exception e) {
             return super.toString();
-        }
-    }
-
-    public static SymKeyGenerationRequest valueOf(String string) throws Exception {
-        try {
-            return ResourceMessage.unmarshal(string, SymKeyGenerationRequest.class);
-        } catch (Exception e) {
-            return null;
         }
     }
 

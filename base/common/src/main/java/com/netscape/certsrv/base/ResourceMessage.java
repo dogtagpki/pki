@@ -1,10 +1,5 @@
 package com.netscape.certsrv.base;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -12,44 +7,16 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlValue;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.account.Account;
-import com.netscape.certsrv.key.AsymKeyGenerationRequest;
-import com.netscape.certsrv.key.KeyArchivalRequest;
-import com.netscape.certsrv.key.KeyRecoveryRequest;
-import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Ade Lee
  */
-@XmlRootElement(name = "ResourceMessage")
-@XmlSeeAlso({
-    Account.class,
-    KeyArchivalRequest.class,
-    KeyRecoveryRequest.class,
-    SymKeyGenerationRequest.class,
-    PKIException.Data.class,
-    AsymKeyGenerationRequest.class
-})
-@XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ResourceMessage implements JSONSerializer {
@@ -67,7 +34,6 @@ public class ResourceMessage implements JSONSerializer {
         }
     }
 
-    @XmlElement(name = "ClassName")
     public String getClassName() {
         return className;
     }
@@ -76,8 +42,6 @@ public class ResourceMessage implements JSONSerializer {
         this.className = className;
     }
 
-    @XmlElement(name = "Attributes")
-    @XmlJavaTypeAdapter(MapAdapter.class)
     public Map<String, String> getAttributes() {
         return attributes;
     }
@@ -104,41 +68,14 @@ public class ResourceMessage implements JSONSerializer {
         return attributes.remove(name);
     }
 
-    public static class MapAdapter extends XmlAdapter<AttributeList, Map<String, String>> {
-
-        @Override
-        public AttributeList marshal(Map<String, String> map) {
-            AttributeList list = new AttributeList();
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                Attribute attribute = new Attribute();
-                attribute.name = entry.getKey();
-                attribute.value = entry.getValue();
-                list.attrs.add(attribute);
-            }
-            return list;
-        }
-
-        @Override
-        public Map<String, String> unmarshal(AttributeList list) {
-            Map<String, String> map = new LinkedHashMap<>();
-            for (Attribute attribute : list.attrs) {
-                map.put(attribute.name, attribute.value);
-            }
-            return map;
-        }
-    }
-
     public static class AttributeList {
-        @XmlElement(name = "Attribute")
         public List<Attribute> attrs = new ArrayList<>();
     }
 
     public static class Attribute {
 
-        @XmlAttribute
         public String name;
 
-        @XmlValue
         public String value;
     }
 
@@ -171,32 +108,6 @@ public class ResourceMessage implements JSONSerializer {
         } else if (!className.equals(other.className))
             return false;
         return true;
-    }
-
-    public static <T> String marshal(T object, Class<T> clazz) throws JAXBException {
-        Marshaller marshaller = JAXBContext.newInstance(clazz).createMarshaller();
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(object, sw);
-        return sw.toString();
-    }
-
-    public void marshall(OutputStream os) throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(this.getClass());
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(this, os);
-    }
-
-    public static <T> T unmarshal(String string, Class<T> clazz) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(clazz).createUnmarshaller();
-        return (T) unmarshaller.unmarshal(new StringReader(string));
-    }
-
-    public static <T> T unmarshall(Class<T> t, String filePath) throws JAXBException, FileNotFoundException {
-        JAXBContext context = JAXBContext.newInstance(t);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        FileInputStream fis = new FileInputStream(filePath);
-        return (T) unmarshaller.unmarshal(fis);
     }
 
 }

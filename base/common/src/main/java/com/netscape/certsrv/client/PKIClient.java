@@ -118,12 +118,7 @@ public class PKIClient implements AutoCloseable {
         PKIException.Data data;
         String className;
 
-        if (MediaType.APPLICATION_XML_TYPE.isCompatible(contentType)) {
-            data = response.readEntity(PKIException.Data.class);
-            className = data.getClassName();
-            logger.info(className + ":\n" + data.toXML());
-
-        } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(contentType)) {
+        if (MediaType.APPLICATION_JSON_TYPE.isCompatible(contentType)) {
             data = response.readEntity(PKIException.Data.class);
             className = data.getClassName();
             logger.info(className + ":\n" + data.toJSON());

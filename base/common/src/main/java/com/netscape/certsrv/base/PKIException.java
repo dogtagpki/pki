@@ -17,15 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
 import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -90,31 +82,13 @@ public class PKIException extends RuntimeException {
         return data;
     }
 
-    @XmlRootElement(name="PKIException")
     @JsonInclude(Include.NON_NULL)
     @JsonIgnoreProperties(ignoreUnknown=true)
     public static class Data extends ResourceMessage {
 
-        @XmlElement(name="Code")
         public int code;
 
-        @XmlElement(name="Message")
         public String message;
-
-        public String toXML() throws Exception {
-            JAXBContext context = JAXBContext.newInstance(Data.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            StringWriter out = new StringWriter();
-            marshaller.marshal(this, out);
-            return out.toString();
-        }
-
-        public static Data fromXML(String string) throws Exception {
-            JAXBContext context = JAXBContext.newInstance(Data.class);
-            Unmarshaller unmarshaller = context.createUnmarshaller();
-            return (Data) unmarshaller.unmarshal(new StringReader(string));
-        }
 
     }
 
