@@ -54,13 +54,11 @@ public class CertSearchRequest implements JSONSerializer {
     protected String issuerDN;
 
     //Serial Number
-
     protected boolean serialNumberRangeInUse;
     protected String serialTo;
     protected String serialFrom;
 
     //Subject Name
-
     protected boolean subjectInUse;
     protected String eMail;
     protected String commonName;
@@ -73,49 +71,39 @@ public class CertSearchRequest implements JSONSerializer {
     protected boolean matchExactly;
 
     //Status
-
     protected String status;
 
     //Revoked By
-
     protected String revokedBy;
 
     //Revoked On
-
     protected String revokedOnFrom;
     protected String revokedOnTo;
 
     //Revocation Reason
-
     protected String revocationReason;
 
     //Issued By
-
     protected String issuedBy;
 
     //Issued On
-
     protected String issuedOnFrom;
     protected String issuedOnTo;
 
     //Valid Not Before
-
     protected String validNotBeforeFrom;
     protected String validNotBeforeTo;
 
     //Valid Not After
-
     protected String validNotAfterFrom;
     protected String validNotAfterTo;
 
     //Validity Length
-
     protected String validityOperation;
     protected Integer validityCount;
     protected Long validityUnit;
 
     // Cert Type
-
     protected String certTypeSubEmailCA;
     protected String certTypeSubSSLCA;
     protected String certTypeSecureEmail;
@@ -123,11 +111,9 @@ public class CertSearchRequest implements JSONSerializer {
     protected String certTypeSSLServer;
 
     //Revoked By
-
     protected boolean revokedByInUse;
 
     //Revoked On
-
     protected boolean revokedOnInUse;
     protected boolean revocationReasonInUse;
     protected boolean issuedByInUse;
