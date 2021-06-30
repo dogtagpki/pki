@@ -138,6 +138,7 @@ public class PKCS10Client {
                     enable_encoding = true;
                 else
                     enable_encoding = false;
+                System.out.println("PKCS10Client: enable_encoding =" + enable_encoding);
             } else if (name.equals("-s")) {
                 String ec_sensitive_s = args[i+1];
                 ec_sensitive = Integer.parseInt(ec_sensitive_s);
@@ -299,6 +300,7 @@ public class PKCS10Client {
 
             PKCS10 certReq = CryptoUtil.createCertificationRequest(
                     subjectName,
+                    enable_encoding,
                     pair,
                     extns);
 
@@ -337,145 +339,4 @@ public class PKCS10Client {
         }
     }
 
-    static boolean isEncoded (String elementValue) {
-        boolean encoded = false;
-
-        if (elementValue != null && ((elementValue.startsWith("UTF8String:")) ||
-                                     (elementValue.startsWith("PrintableString:")) ||
-                                     (elementValue.startsWith("BMPString:")) ||
-                                     (elementValue.startsWith("TeletexString:")) ||
-                                     (elementValue.startsWith("UniversalString:")))) {
-            encoded = true;
-        }
-        return encoded;
-    }
-
-    static Name addNameElement (Name name, OBJECT_IDENTIFIER oid, int n, String elementValue) {
-        try {
-            String encodingType = (n > 0)? elementValue.substring(0, n): null;
-            String nameValue = (n > 0)? elementValue.substring(n+1): null;
-            if (encodingType != null && encodingType.length() > 0 &&
-                nameValue != null && nameValue.length() > 0) {
-                if (encodingType.equals("UTF8String")) {
-                    name.addElement( new AVA(oid, new UTF8String(nameValue)));
-                } else if (encodingType.equals("PrintableString")) {
-                    name.addElement( new AVA(oid, new PrintableString(nameValue)));
-                } else if (encodingType.equals("BMPString")) {
-                    name.addElement( new AVA(oid, new BMPString(nameValue)));
-                } else if (encodingType.equals("TeletexString")) {
-                    name.addElement( new AVA(oid, new TeletexString(nameValue)));
-                } else if (encodingType.equals("UniversalString")) {
-                    name.addElement( new AVA(oid, new UniversalString(nameValue)));
-                }
-            }
-        }  catch (Exception e)  {
-            System.out.println("PKCS10Client: Error adding name element: " + elementValue + " Error: "  + e.toString());
-        }
-        return name;
-    }
-
-    static Name getJssName(boolean enable_encoding, String dn) {
-
-        X500Name x5Name = null;
-
-        try {
-            x5Name = new X500Name(dn);
-        } catch (IOException e) {
-
-            System.out.println("PKCS10Client: Illegal Subject Name:  " + dn + " Error: " + e.toString());
-            System.out.println("PKCS10Client: Filling in default Subject Name......");
-            return null;
-        }
-
-        Name ret = new Name();
-        org.mozilla.jss.netscape.security.x509.RDN[] names = null;
-        names = x5Name.getNames();
-        int nameLen = x5Name.getNamesLength();
-
-        org.mozilla.jss.netscape.security.x509.RDN cur = null;
-
-        for (int i = 0; i < nameLen; i++) {
-            cur = names[i];
-            String rdnStr = cur.toString();
-            String[] split = rdnStr.split("=");
-
-            if (split.length != 2)
-                continue;
-            int n = split[1].indexOf(':');
-
-            try {
-                if (split[0].equals("UID")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement(ret, new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),
-                                             n, split[1]);
-                    } else {
-                        ret.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),
-                                               new PrintableString(split[1])));
-                    }
-                    //                 System.out.println("UID found : " + split[1]);
-                }
-
-                if (split[0].equals("C")) {
-                    ret.addCountryName(split[1]);
-                    //                   System.out.println("C found : " + split[1]);
-                    continue;
-                }
-
-                if (split[0].equals("CN")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement (ret, Name.commonName, n, split[1]);
-                    } else {
-                        ret.addCommonName(split[1]);
-                    }
-                    //                  System.out.println("CN found : " + split[1]);
-                    continue;
-                }
-
-                if (split[0].equals("L")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement (ret, Name.localityName, n, split[1]);
-                    } else {
-                        ret.addLocalityName(split[1]);
-                    }
-                    //                 System.out.println("L found : " + split[1]);
-                    continue;
-                }
-
-                if (split[0].equals("O")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement (ret, Name.organizationName, n, split[1]);
-                    } else {
-                        ret.addOrganizationName(split[1]);
-                    }
-                    //                System.out.println("O found : " + split[1]);
-                    continue;
-                }
-
-                if (split[0].equals("ST")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement (ret, Name.stateOrProvinceName, n, split[1]);
-                    } else {
-                        ret.addStateOrProvinceName(split[1]);
-                    }
-                    //               System.out.println("ST found : " + split[1]);
-                    continue;
-                }
-
-                if (split[0].equals("OU")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement (ret, Name.organizationalUnitName, n, split[1]);
-                    } else {
-                        ret.addOrganizationalUnitName(split[1]);
-                    }
-                    //              System.out.println("OU found : " + split[1]);
-                    continue;
-                }
-            } catch (Exception e) {
-                System.out.println("PKCS10Client: Error constructing RDN: " + rdnStr + " Error: " + e.toString());
-                continue;
-            }
-        }
-
-        return ret;
-    }
 }
