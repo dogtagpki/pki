@@ -423,10 +423,6 @@ Requires:         resteasy-core >= 3.0.17-1
 Requires:         resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
-%if 0%{?fedora} >= 33 || 0%{?rhel} > 8
-Requires:         jaxb-impl >= 2.3.3
-%endif
-
 Requires:         xalan-j2
 Requires:         xerces-j2
 Requires:         xml-commons-resolver

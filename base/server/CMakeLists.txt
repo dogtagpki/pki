@@ -151,7 +151,6 @@ if(JAVA_VERSION GREATER 10)
     add_custom_command(
         TARGET pki-server-java11plus-lib
         COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} common/lib/jaxb-api.jar
-        COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_IMPL_JAR} common/lib/jaxb-impl.jar
         COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAKARTA_ACTIVATION_JAR} common/lib/jakarta.activation.jar
     )
 endif(JAVA_VERSION GREATER 10)
