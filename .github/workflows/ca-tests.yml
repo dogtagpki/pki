@@ -99,6 +99,9 @@ jobs:
           docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
           # set buffer size to 0 so that revocation takes effect immediately
           docker exec pki pki-server ca-config-set auths.revocationChecking.bufferSize 0
+          # enable signed audit log
+          docker exec pki pki-server ca-config-set log.instance.SignedAudit.logSigning true
+          # restart PKI server
           docker exec pki pki-server restart --wait
 
       - name: Run PKI healthcheck
@@ -129,6 +132,12 @@ jobs:
           docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-create.sh
           docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-revoke.sh
           docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-unrevoke.sh
+
+      - name: Test CA auditor
+        run: |
+          docker exec pki /usr/share/pki/tests/ca/bin/test-ca-auditor-create.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/test-ca-auditor-cert.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/test-ca-auditor-logs.sh
 
       - name: Gather artifacts
         if: always()
