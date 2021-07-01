@@ -689,9 +689,11 @@ public class MainCLI extends CLI {
             t = t.getCause();
             System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
 
-        } else {
-            // display the actual Exception
+        } else if (t instanceof PKIException) {
             System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+
+        } else {
+            t.printStackTrace(System.err);
         }
     }
 
