@@ -65,6 +65,11 @@ import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.BMPString;
+import org.mozilla.jss.asn1.PrintableString;
+import org.mozilla.jss.asn1.TeletexString;
+import org.mozilla.jss.asn1.UTF8String;
+import org.mozilla.jss.asn1.UniversalString;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.NULL;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -114,6 +119,7 @@ import org.mozilla.jss.pkix.crmf.EncryptedKey;
 import org.mozilla.jss.pkix.crmf.EncryptedValue;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
+import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.ssl.SSLSocket;
@@ -1691,6 +1697,14 @@ public class CryptoUtil {
             throws NoSuchAlgorithmException, NoSuchProviderException,
             InvalidKeyException, IOException, CertificateException,
             SignatureException {
+        return createCertificationRequest(subjectName, false, keyPair, exts);
+    }
+    // encodeSubj works with PKCS10Client "-k" option
+    public static PKCS10 createCertificationRequest(String subjectName,
+            boolean encodeSubj, KeyPair keyPair, Extensions exts)
+            throws NoSuchAlgorithmException, NoSuchProviderException,
+            InvalidKeyException, IOException, CertificateException,
+            SignatureException {
         String method = "CryptoUtil: createCertificationRequest: ";
 
         String alg = "SHA256withRSA";
@@ -1705,11 +1719,19 @@ public class CryptoUtil {
         }
 
         return createCertificationRequest(
-                subjectName, key, (org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate(),
+                subjectName, encodeSubj, key, (org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate(),
                 alg, exts);
     }
 
     public static PKCS10 createCertificationRequest(String subjectName,
+            X509Key pubk, PrivateKey prik, String alg, Extensions exts)
+            throws NoSuchAlgorithmException, NoSuchProviderException,
+            InvalidKeyException, IOException, CertificateException,
+            SignatureException {
+        return createCertificationRequest(subjectName, false, pubk, prik, alg, null);
+    }
+    public static PKCS10 createCertificationRequest(String subjectName,
+            boolean encodeSubj,
             X509Key pubk, PrivateKey prik, String alg, Extensions exts)
             throws NoSuchAlgorithmException, NoSuchProviderException,
             InvalidKeyException, IOException, CertificateException,
@@ -1734,13 +1756,182 @@ public class CryptoUtil {
         } else {
             pkcs10 = new PKCS10(key);
         }
-        X500Name name = new X500Name(subjectName);
+
+        Name n = getJssName(encodeSubj, subjectName);
+        ByteArrayOutputStream subjectEncStream = new ByteArrayOutputStream();
+        n.encode(subjectEncStream);
+        byte[] b = subjectEncStream.toByteArray();
+        X500Name name = new X500Name(b);
         X500Signer signer = new X500Signer(sig, name);
 
         pkcs10.encodeAndSign(signer);
         return pkcs10;
     }
 
+    static boolean isEncoded (String elementValue) {
+        boolean encoded = false;
+
+        //System.out.println("CryptoUtil: isEncoded: elementValue =" +
+        //    elementValue);
+        if (elementValue != null && ((elementValue.startsWith("UTF8String:")) ||
+                                     (elementValue.startsWith("PrintableString:")) ||
+                                     (elementValue.startsWith("BMPString:")) ||
+                                     (elementValue.startsWith("TeletexString:")) ||
+                                     (elementValue.startsWith("UniversalString:")))) {
+            encoded = true;
+        }
+        return encoded;
+    }
+
+    static Name addNameElement (Name name, OBJECT_IDENTIFIER oid, int n, String elementValue) {
+        // System.out.println("CryptoUtil: addNameElement: elementValue =" +
+        //     elementValue);
+        try {
+            String encodingType = (n > 0)? elementValue.substring(0, n): null;
+            // System.out.println("CryptoUtil: addNameElement: encodingType =" +
+            //     encodingType);
+            String nameValue = (n > 0)? elementValue.substring(n+1): null;
+            // System.out.println("CryptoUtil: addNameElement: nameValue =" +
+            //     nameValue);
+            if (encodingType != null && encodingType.length() > 0 &&
+                nameValue != null && nameValue.length() > 0) {
+                if (encodingType.equals("UTF8String")) {
+                // System.out.println("CryptoUtil: addNameElement: UTF8String");
+                    name.addElement( new AVA(oid, new UTF8String(nameValue)));
+                } else if (encodingType.equals("PrintableString")) {
+                // System.out.println("CryptoUtil: addNameElement: PrintableString");
+                    name.addElement( new AVA(oid, new PrintableString(nameValue)));
+                } else if (encodingType.equals("BMPString")) {
+                // System.out.println("CryptoUtil: addNameElement: BMPString");
+                    name.addElement( new AVA(oid, new BMPString(nameValue)));
+                } else if (encodingType.equals("TeletexString")) {
+                // System.out.println("CryptoUtil: addNameElement: TeletexString");
+                    name.addElement( new AVA(oid, new TeletexString(nameValue)));
+                } else if (encodingType.equals("UniversalString")) {
+                // System.out.println("CryptoUtil: addNameElement: UniversalString");
+                    name.addElement( new AVA(oid, new UniversalString(nameValue)));
+                }
+            }
+        }  catch (Exception e)  {
+            System.out.println("CryptoUtil: Error adding name element: " + elementValue + " Error: "  + e.toString());
+        }
+        return name;
+    }
+
+    static Name getJssName(boolean enable_encoding, String dn) {
+
+        X500Name x5Name = null;
+
+        //System.out.println("CryptoUtil: getJssName: dn= " + dn);
+        try {
+            x5Name = new X500Name(dn);
+        } catch (IOException e) {
+
+            System.out.println("CryptoUtil: Illegal Subject Name:  " + dn + " Error: " + e.toString());
+            System.out.println("CryptoUtil: Filling in default Subject Name......");
+            return null;
+        }
+
+        Name ret = new Name();
+        netscape.security.x509.RDN[] names = x5Name.getNames();
+        int nameLen = x5Name.getNamesLength();
+
+        netscape.security.x509.RDN cur = null;
+
+        for (int i = 0; i < nameLen; i++) {
+            cur = names[i];
+            String rdnStr = cur.toString();
+            String[] split = rdnStr.split("=");
+
+            if (split.length != 2)
+                continue;
+            // System.out.println("  getJssName: split[0] =" + split[0]);
+            // System.out.println("  getJssName: split[1] =" + split[1]);
+            int n = split[1].indexOf(':');
+
+            try {
+                if (split[0].equals("UID")) {
+                    if (enable_encoding && isEncoded(split[1])) {
+                        // System.out.println("    getJssName: encoded UID");
+                        ret = addNameElement(ret, new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),
+                                             n, split[1]);
+                    } else {
+                        // System.out.println("    getJssName: not encoded UID");
+                        ret.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),
+                                               new PrintableString(split[1])));
+                    }
+                    //                 System.out.println("UID found : " + split[1]);
+                }
+
+                if (split[0].equals("C")) {
+                    ret.addCountryName(split[1]);
+                    //                   System.out.println("C found : " + split[1]);
+                    continue;
+                }
+
+                if (split[0].equals("CN")) {
+                    if (enable_encoding && isEncoded(split[1])) {
+                        // System.out.println("    getJssName: encoded CN");
+                        ret = addNameElement (ret, Name.commonName, n, split[1]);
+                    } else {
+                        // System.out.println("    getJssName: not encoded CN");
+                        ret.addCommonName(split[1]);
+                    }
+                    //                  System.out.println("CN found : " + split[1]);
+                    continue;
+                }
+
+                if (split[0].equals("L")) {
+                    if (enable_encoding && isEncoded(split[1])) {
+                        ret = addNameElement (ret, Name.localityName, n, split[1]);
+                    } else {
+                        ret.addLocalityName(split[1]);
+                    }
+                    //                 System.out.println("L found : " + split[1]);
+                    continue;
+                }
+
+                if (split[0].equals("O")) {
+                    if (enable_encoding && isEncoded(split[1])) {
+                        // System.out.println("    getJssName: encoded O");
+                        ret = addNameElement (ret, Name.organizationName, n, split[1]);
+                    } else {
+                        // System.out.println("    getJssName: not encoded O");
+                        ret.addOrganizationName(split[1]);
+                    }
+                    //                System.out.println("O found : " + split[1]);
+                    continue;
+                }
+
+                if (split[0].equals("ST")) {
+                    if (enable_encoding && isEncoded(split[1])) {
+                        ret = addNameElement (ret, Name.stateOrProvinceName, n, split[1]);
+                    } else {
+                        ret.addStateOrProvinceName(split[1]);
+                    }
+                    //               System.out.println("ST found : " + split[1]);
+                    continue;
+                }
+
+                if (split[0].equals("OU")) {
+                    if (enable_encoding && isEncoded(split[1])) {
+                        // System.out.println("    getJssName: encoded OU");
+                        ret = addNameElement (ret, Name.organizationalUnitName, n, split[1]);
+                    } else {
+                        // System.out.println("    getJssName: not encoded OU");
+                        ret.addOrganizationalUnitName(split[1]);
+                    }
+                    //              System.out.println("OU found : " + split[1]);
+                    continue;
+                }
+            } catch (Exception e) {
+                System.out.println("CryptoUtil: Error constructing RDN: " + rdnStr + " Error: " + e.toString());
+                continue;
+            }
+        }
+
+        return ret;
+    }
     public static KeyIdentifier createKeyIdentifier(KeyPair keypair)
             throws NoSuchAlgorithmException, InvalidKeyException {
         String method = "CryptoUtil: createKeyIdentifier: ";
@@ -1848,6 +2039,7 @@ public class CryptoUtil {
         PKCS10 pkcs10 = new PKCS10(key);
 
         X500Name name = new X500Name(subjectName);
+
         X500Signer signer = new X500Signer(sig, name);
 
         pkcs10.encodeAndSign(signer);
