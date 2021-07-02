@@ -95,7 +95,7 @@ public class AuthenticatorModifyCLI extends CommandCLI {
                     out.println(line);
                 }
 
-                authenticatorData = AuthenticatorData.fromXML(sw.toString());
+                authenticatorData = AuthenticatorData.fromJSON(sw.toString());
             }
 
             authenticatorData = authenticatorClient.updateAuthenticator(authenticatorID, authenticatorData);

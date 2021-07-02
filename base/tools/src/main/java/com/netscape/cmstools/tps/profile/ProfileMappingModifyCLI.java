@@ -92,7 +92,7 @@ public class ProfileMappingModifyCLI extends CommandCLI {
                     out.println(line);
                 }
 
-                profileMappingData = ProfileMappingData.fromXML(sw.toString());
+                profileMappingData = ProfileMappingData.fromJSON(sw.toString());
             }
 
             profileMappingData = profileMappingClient.updateProfileMapping(profileMappingID, profileMappingData);

@@ -29,6 +29,7 @@ import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileData;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -83,7 +84,7 @@ public class ProfileAddCLI extends CommandCLI {
                 out.println(line);
             }
 
-            profileData = ProfileData.valueOf(sw.toString());
+            profileData = JSONSerializer.fromJSON(sw.toString(), ProfileData.class);
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();

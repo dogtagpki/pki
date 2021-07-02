@@ -83,7 +83,7 @@ public class AuthenticatorAddCLI extends CommandCLI {
                 out.println(line);
             }
 
-            authenticatorData = AuthenticatorData.fromXML(sw.toString());
+            authenticatorData = AuthenticatorData.fromJSON(sw.toString());
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
