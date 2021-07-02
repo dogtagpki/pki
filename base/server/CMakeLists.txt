@@ -116,7 +116,6 @@ add_custom_command(
     TARGET pki-server-common-lib
     COMMAND ${CMAKE_COMMAND} -E make_directory common/lib
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_CODEC_JAR} common/lib/commons-codec.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_COLLECTIONS_JAR} common/lib/commons-collections.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_IO_JAR} common/lib/commons-io.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LANG3_JAR} common/lib/commons-lang3.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LOGGING_JAR} common/lib/commons-logging.jar

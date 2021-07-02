@@ -56,14 +56,6 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
-find_file(COMMONS_COLLECTIONS_JAR
-    NAMES
-        commons-collections.jar
-        commons-collections3.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(COMMONS_IO_JAR
     NAMES
         commons-io.jar
