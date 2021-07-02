@@ -20,42 +20,22 @@ package com.netscape.certsrv.user;
 
 import java.util.Collection;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.DataCollection;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="UserMemberships")
-public class UserMembershipCollection extends DataCollection<UserMembershipData> {
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
+public class UserMembershipCollection extends DataCollection<UserMembershipData> implements JSONSerializer {
 
     @Override
-    @XmlElement(name="Membership")
     public Collection<UserMembershipData> getEntries() {
         return super.getEntries();
     }
 
-    public static void main(String args[]) throws Exception {
-
-        UserMembershipCollection response = new UserMembershipCollection();
-
-        UserMembershipData membership1 = new UserMembershipData();
-        membership1.setID("Group 1");
-        membership1.setUserID("User 1");
-        response.addEntry(membership1);
-
-        UserMembershipData membership2 = new UserMembershipData();
-        membership2.setID("Group 2");
-        membership2.setUserID("User 1");
-        response.addEntry(membership2);
-
-        JAXBContext context = JAXBContext.newInstance(UserMembershipCollection.class);
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(response, System.out);
-    }
 }
