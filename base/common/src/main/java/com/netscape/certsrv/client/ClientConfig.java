@@ -18,8 +18,6 @@
 
 package com.netscape.certsrv.client;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -27,16 +25,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -46,7 +34,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Client")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ClientConfig {
@@ -95,7 +82,6 @@ public class ClientConfig {
         }
     }
 
-    @XmlElement(name="ServerURL")
     public URL getServerURL() {
         return serverURL;
     }
@@ -121,7 +107,6 @@ public class ClientConfig {
         return path.substring(1);
     }
 
-    @XmlElement(name="NSSDatabase")
     public String getNSSDatabase() {
         return nssDatabase;
     }
@@ -130,7 +115,6 @@ public class ClientConfig {
         this.nssDatabase = nssDatabase;
     }
 
-    @XmlElement(name="NSSPassword")
     public String getNSSPassword() {
         return nssPassword;
     }
@@ -139,8 +123,6 @@ public class ClientConfig {
         this.nssPassword = nssPassword;
     }
 
-    @XmlElement(name = "NSSPasswords")
-    @XmlJavaTypeAdapter(NSSPasswordsAdapter.class)
     public Map<String, String> getNSSPasswords() {
         return nssPasswords;
     }
@@ -162,45 +144,17 @@ public class ClientConfig {
         return nssPasswords.remove(name);
     }
 
-    public static class NSSPasswordsAdapter extends XmlAdapter<NSSPasswordList, Map<String, String>> {
-
-        @Override
-        public NSSPasswordList marshal(Map<String, String> map) {
-            NSSPasswordList list = new NSSPasswordList();
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                NSSPassword password = new NSSPassword();
-                password.name = entry.getKey();
-                password.value = entry.getValue();
-                list.passwords.add(password);
-            }
-            return list;
-        }
-
-        @Override
-        public Map<String, String> unmarshal(NSSPasswordList list) {
-            Map<String, String> map = new LinkedHashMap<>();
-            for (NSSPassword password : list.passwords) {
-                map.put(password.name, password.value);
-            }
-            return map;
-        }
-    }
-
     public static class NSSPasswordList {
-        @XmlElement(name = "NSSPassword")
         public List<NSSPassword> passwords = new ArrayList<>();
     }
 
     public static class NSSPassword {
 
-        @XmlAttribute
         public String name;
 
-        @XmlValue
         public String value;
     }
 
-    @XmlElement(name="Token")
     public String getTokenName() {
         return tokenName;
     }
@@ -209,7 +163,6 @@ public class ClientConfig {
         this.tokenName = tokenName;
     }
 
-    @XmlElement(name="CertNickname")
     public String getCertNickname() {
         return certNickname;
     }
@@ -221,7 +174,6 @@ public class ClientConfig {
     /**
      * @deprecated Use getNSSPassword() instead.
      */
-    @XmlElement(name="CertPassword")
     @Deprecated
     public String getCertPassword() {
         return nssPassword;
@@ -235,7 +187,6 @@ public class ClientConfig {
         this.nssPassword = certPassword;
     }
 
-    @XmlElement(name="Username")
     public String getUsername() {
         return username;
     }
@@ -244,7 +195,6 @@ public class ClientConfig {
         this.username = username;
     }
 
-    @XmlElement(name="Password")
     public String getPassword() {
         return password;
     }
@@ -253,7 +203,6 @@ public class ClientConfig {
         this.password = password;
     }
 
-    @XmlElement(name="MessageFormat")
     public String getMessageFormat() {
         return messageFormat;
     }
@@ -333,19 +282,6 @@ public class ClientConfig {
         } else if (!username.equals(other.username))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(ClientConfig.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static ClientConfig fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(ClientConfig.class).createUnmarshaller();
-        return (ClientConfig) unmarshaller.unmarshal(new StringReader(string));
     }
 
     public String toJSON() throws Exception {
