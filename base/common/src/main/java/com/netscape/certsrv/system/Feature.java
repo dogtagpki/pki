@@ -17,24 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement(name="Feature")
-@XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Feature implements JSONSerializer {
@@ -44,7 +31,6 @@ public class Feature implements JSONSerializer {
     String version;
     boolean enabled;
 
-    @XmlAttribute(name="id")
     public String getId() {
         return id;
     }
@@ -53,7 +39,6 @@ public class Feature implements JSONSerializer {
         this.id = id;
     }
 
-    @XmlAttribute(name="description")
     public String getDescription() {
         return description;
     }
@@ -62,7 +47,6 @@ public class Feature implements JSONSerializer {
         this.description = description;
     }
 
-    @XmlAttribute(name="enabled")
     public boolean isEnabled() {
         return enabled;
     }
@@ -71,7 +55,6 @@ public class Feature implements JSONSerializer {
         this.enabled = enabled;
     }
 
-    @XmlAttribute(name="version")
     public String getVersion() {
         return version;
     }
@@ -118,20 +101,6 @@ public class Feature implements JSONSerializer {
         } else if (!version.equals(other.version))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(Feature.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static Feature fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(Feature.class).createUnmarshaller();
-        return (Feature) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

@@ -30,6 +30,7 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -134,7 +135,7 @@ public class KRAConnectorAddCLI extends CommandCLI {
             }
 
             String xml = new String(Files.readAllBytes(Paths.get(inputFile)));
-            KRAConnectorInfo info = KRAConnectorInfo.fromXML(xml);
+            KRAConnectorInfo info = JSONSerializer.fromJSON(xml, KRAConnectorInfo.class);
 
             kraConnectorClient.addConnector(info);
             MainCLI.printMessage("Added KRA connector");

@@ -18,18 +18,8 @@
 
 package com.netscape.certsrv.system;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Objects;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -40,52 +30,36 @@ import com.netscape.certsrv.util.JSONSerializer;
  * @author alee
  *
  */
-@XmlRootElement(name="SystemCertData")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class SystemCertData implements JSONSerializer {
 
-    @XmlElement
     protected String tag;
 
-    @XmlElement
     protected String nickname;
 
-    @XmlElement
     protected String token;
 
-    @XmlElement
     protected String profile;
 
-    @XmlElement
     protected String type;
 
-    @XmlElement
     protected String keySize;
 
-    @XmlElement
     protected String keyCurveName;
 
-    @XmlElement
     protected String request;
 
-    @XmlElement
     protected String subjectDN;
 
-    @XmlElement
     protected String cert;
 
-    @XmlElement
     protected String req_ext_oid;
 
-    @XmlElement
     protected String req_ext_critical;
 
-    @XmlElement
     protected String req_ext_data;
 
-    @XmlElement
     protected String[] dnsNames;
 
     public SystemCertData() {
@@ -296,20 +270,6 @@ public class SystemCertData implements JSONSerializer {
                 && Objects.equals(request, other.request) && Objects.equals(subjectDN, other.subjectDN)
                 && Objects.equals(tag, other.tag) && Objects.equals(token, other.token)
                 && Objects.equals(type, other.type);
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(SystemCertData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static SystemCertData fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(SystemCertData.class).createUnmarshaller();
-        return (SystemCertData) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }
