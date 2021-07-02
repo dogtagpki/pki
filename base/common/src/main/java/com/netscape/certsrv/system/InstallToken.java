@@ -17,17 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Objects;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -38,13 +28,10 @@ import com.netscape.certsrv.util.JSONSerializer;
  * @author alee
  *
  */
-@XmlRootElement(name="InstallToken")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class InstallToken implements JSONSerializer {
 
-    @XmlElement
     private String token;
 
     public InstallToken(String token) {
@@ -78,20 +65,6 @@ public class InstallToken implements JSONSerializer {
             return false;
         InstallToken other = (InstallToken) obj;
         return Objects.equals(token, other.token);
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(InstallToken.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static InstallToken fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(InstallToken.class).createUnmarshaller();
-        return (InstallToken) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

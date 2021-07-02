@@ -17,46 +17,49 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.lang.reflect.Method;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
  *
  */
-@XmlRootElement(name="SecurityDomainHost")
-@XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class SecurityDomainHost implements JSONSerializer {
 
     protected String id;
+
+    @JsonProperty("Hostname")
     protected String hostname;
+
+    @JsonProperty("Port")
     protected String port;
+
+    @JsonProperty("SecurePort")
     protected String securePort;
+
+    @JsonProperty("SecureEEClientAuthPort")
     protected String secureEEClientAuthPort;
+
+    @JsonProperty("SecureAgentPort")
     protected String secureAgentPort;
+
+    @JsonProperty("SecureAdminPort")
     protected String secureAdminPort;
+
+    @JsonProperty("Clone")
     protected String clone;
+
+    @JsonProperty("SubsystemName")
     protected String subsystemName;
+
+    @JsonProperty("DomainManager")
     protected String domainManager;
 
-    @XmlAttribute(name="id")
     public String getId() {
         return id;
     }
@@ -65,7 +68,6 @@ public class SecurityDomainHost implements JSONSerializer {
         this.id = id;
     }
 
-    @XmlElement(name="Hostname")
     public String getHostname() {
         return hostname;
     }
@@ -74,7 +76,6 @@ public class SecurityDomainHost implements JSONSerializer {
         this.hostname = hostname;
     }
 
-    @XmlElement(name="Port")
     public String getPort() {
         return port;
     }
@@ -83,7 +84,6 @@ public class SecurityDomainHost implements JSONSerializer {
         this.port = port;
     }
 
-    @XmlElement(name="SecurePort")
     public String getSecurePort() {
         return securePort;
     }
@@ -92,7 +92,6 @@ public class SecurityDomainHost implements JSONSerializer {
         this.securePort = securePort;
     }
 
-    @XmlElement(name="SecureAgentPort")
     public String getSecureAgentPort() {
         return secureAgentPort;
     }
@@ -101,7 +100,6 @@ public class SecurityDomainHost implements JSONSerializer {
         this.secureAgentPort = secureAgentPort;
     }
 
-    @XmlElement(name="SecureAdminPort")
     public String getSecureAdminPort() {
         return secureAdminPort;
     }
@@ -110,7 +108,6 @@ public class SecurityDomainHost implements JSONSerializer {
         this.secureAdminPort = secureAdminPort;
     }
 
-    @XmlElement(name="SecureEEClientAuthPort")
     public String getSecureEEClientAuthPort() {
         return secureEEClientAuthPort;
     }
@@ -119,7 +116,6 @@ public class SecurityDomainHost implements JSONSerializer {
         this.secureEEClientAuthPort = secureEEClientAuthPort;
     }
 
-    @XmlElement(name="Clone")
     public String getClone() {
         return clone;
     }
@@ -128,7 +124,6 @@ public class SecurityDomainHost implements JSONSerializer {
         this.clone = clone;
     }
 
-    @XmlElement(name="SubsystemName")
     public String getSubsystemName() {
         return subsystemName;
     }
@@ -137,44 +132,12 @@ public class SecurityDomainHost implements JSONSerializer {
         this.subsystemName = subsystemName;
     }
 
-    @XmlElement(name="DomainManager")
     public String getDomainManager() {
         return domainManager;
     }
 
     public void setDomainManager(String domainManager) {
         this.domainManager = domainManager;
-    }
-
-    public Object get(String name) throws Exception {
-
-        for (Method m : SecurityDomainHost.class.getMethods()) {
-
-            XmlAttribute attribute = m.getAnnotation(XmlAttribute.class);
-            if (attribute != null && attribute.name().equals(name)) {
-                return m.invoke(this);
-            }
-
-            XmlElement element = m.getAnnotation(XmlElement.class);
-            if (element != null && element.name().equals(name)) {
-                return m.invoke(this);
-            }
-        }
-
-        return null;
-    }
-
-    public String toXML() throws Exception {
-        StringWriter sw = new StringWriter();
-        Marshaller marshaller = JAXBContext.newInstance(SecurityDomainHost.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static SecurityDomainHost fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(SecurityDomainHost.class).createUnmarshaller();
-        return (SecurityDomainHost)unmarshaller.unmarshal(new StringReader(string));
     }
 
     @Override
@@ -256,4 +219,12 @@ public class SecurityDomainHost implements JSONSerializer {
         return true;
     }
 
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
