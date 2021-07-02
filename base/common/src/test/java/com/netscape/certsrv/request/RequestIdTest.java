@@ -1,20 +1,13 @@
 package com.netscape.certsrv.request;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
-public class CMSRequestInfoTest {
+public class RequestIdTest {
 
-    private static CMSRequestInfo before = new CMSRequestInfo();
-
-    @Before
-    public void setUpBefore() {
-        before.setRequestType("securityDataEnrollment");
-        before.setRequestStatus(RequestStatus.COMPLETE);
-    }
+    private static RequestId before = new RequestId("1");
 
     @Test
     public void testJSON() throws Exception {
@@ -22,7 +15,7 @@ public class CMSRequestInfoTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        CMSRequestInfo afterJSON = JSONSerializer.fromJSON(json, CMSRequestInfo.class);
+        RequestId afterJSON = JSONSerializer.fromJSON(json, RequestId.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

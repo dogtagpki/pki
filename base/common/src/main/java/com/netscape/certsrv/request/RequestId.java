@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * The RequestId class represents the identifier for a particular
@@ -30,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  *
  * @version $Revision$ $Date$
  */
-public class RequestId implements Serializable {
+public class RequestId implements Serializable, JSONSerializer {
 
     private static final long serialVersionUID = -5184710368124269481L;
     protected BigInteger value;
