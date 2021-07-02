@@ -46,18 +46,6 @@ public class UserCertDataTest {
     }
 
     @Test
-    public void testXML() throws Exception {
-
-        String xml = userCertData.toXML();
-        System.out.println("Before: " + xml);
-
-        UserCertData after = UserCertData.fromXML(xml);
-        System.out.println("After: " + after.toXML());
-
-        Assert.assertEquals(userCertData, after);
-    }
-
-    @Test
     public void testJSON() throws Exception {
 
         String json = userCertData.toJSON();

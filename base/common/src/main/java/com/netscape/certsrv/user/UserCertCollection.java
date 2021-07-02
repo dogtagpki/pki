@@ -20,19 +20,19 @@ package com.netscape.certsrv.user;
 
 import java.util.Collection;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.DataCollection;
 
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="UserCerts")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class UserCertCollection extends DataCollection<UserCertData> {
 
     @Override
-    @XmlElement(name="Cert")
     public Collection<UserCertData> getEntries() {
         return super.getEntries();
     }

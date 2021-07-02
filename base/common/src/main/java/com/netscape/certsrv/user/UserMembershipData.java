@@ -19,18 +19,20 @@
 package com.netscape.certsrv.user;
 
 import javax.ws.rs.FormParam;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="UserMembership")
-public class UserMembershipData {
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
+public class UserMembershipData implements JSONSerializer {
 
     String id;
     String userID;
@@ -38,7 +40,6 @@ public class UserMembershipData {
     Link link;
 
     @FormParam(Constants.PR_GROUP_GROUP)
-    @XmlAttribute(name="id")
     public String getID() {
         return id;
     }
@@ -47,7 +48,6 @@ public class UserMembershipData {
         this.id = id;
     }
 
-    @XmlElement(name="UserID")
     public String getUserID() {
         return userID;
     }
@@ -56,7 +56,6 @@ public class UserMembershipData {
         this.userID = userID;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
