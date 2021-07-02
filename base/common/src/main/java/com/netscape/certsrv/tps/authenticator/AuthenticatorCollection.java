@@ -20,9 +20,6 @@ package com.netscape.certsrv.tps.authenticator;
 
 import java.util.Collection;
 
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -31,13 +28,11 @@ import com.netscape.certsrv.base.DataCollection;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Authenticators")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class AuthenticatorCollection extends DataCollection<AuthenticatorData> {
 
     @Override
-    @XmlElementRef
     public Collection<AuthenticatorData> getEntries() {
         return super.getEntries();
     }

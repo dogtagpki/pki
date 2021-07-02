@@ -17,41 +17,21 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement(name="CMSRequestInfo")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CMSRequestInfo implements JSONSerializer {
 
-    @XmlElement
     protected String requestType;
 
-    @XmlElement
-    @XmlJavaTypeAdapter(RequestStatusAdapter.class)
     protected RequestStatus requestStatus;
 
-    @XmlElement
     protected String requestURL;
 
-    @XmlElement
     protected String realm;
 
     /**
@@ -158,19 +138,6 @@ public class CMSRequestInfo implements JSONSerializer {
         } else if (!requestURL.equals(other.requestURL))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(KeyRequestInfo.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static CMSRequestInfo fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CMSRequestInfo.class).createUnmarshaller();
-        return (CMSRequestInfo)unmarshaller.unmarshal(new StringReader(string));
     }
 
 }

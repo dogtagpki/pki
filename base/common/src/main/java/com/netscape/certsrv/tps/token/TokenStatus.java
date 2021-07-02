@@ -22,35 +22,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.tps.token.TokenStatus.TokenStatusAdapter;
+import com.netscape.certsrv.util.JSONSerializer;
 
 
 /**
  * @author Endi S. Dewata
  */
-@XmlJavaTypeAdapter(TokenStatusAdapter.class)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class TokenStatus {
-
-    public static class TokenStatusAdapter extends XmlAdapter<String, TokenStatus> {
-
-        @Override
-        public String marshal(TokenStatus status) {
-            return status.name;
-        }
-
-        @Override
-        public TokenStatus unmarshal(String status) {
-            return TokenStatus.valueOf(status);
-        }
-    }
+public class TokenStatus implements JSONSerializer {
 
     static Map<String, TokenStatus> instancesByName = new HashMap<>();
     static Map<Integer, TokenStatus> instancesByValue = new HashMap<>();

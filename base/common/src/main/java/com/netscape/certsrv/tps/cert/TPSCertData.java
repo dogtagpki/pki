@@ -18,16 +18,7 @@
 
 package com.netscape.certsrv.tps.cert;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Date;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -38,7 +29,6 @@ import com.netscape.certsrv.base.Link;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Certificate")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class TPSCertData {
@@ -57,7 +47,6 @@ public class TPSCertData {
 
     Link link;
 
-    @XmlAttribute(name="id")
     public String getID() {
         return id;
     }
@@ -66,7 +55,6 @@ public class TPSCertData {
         this.id = id;
     }
 
-    @XmlElement(name="SerialNumber")
     public String getSerialNumber() {
         return serialNumber;
     }
@@ -75,7 +63,6 @@ public class TPSCertData {
         this.serialNumber = serialNumber;
     }
 
-    @XmlElement(name="Subject")
     public String getSubject() {
         return subject;
     }
@@ -84,7 +71,6 @@ public class TPSCertData {
         this.subject = subject;
     }
 
-    @XmlElement(name="UserID")
     public String getUserID() {
         return userID;
     }
@@ -93,7 +79,6 @@ public class TPSCertData {
         this.userID = userID;
     }
 
-    @XmlElement(name="TokenID")
     public String getTokenID() {
         return tokenID;
     }
@@ -102,7 +87,6 @@ public class TPSCertData {
         this.tokenID = tokenID;
     }
 
-    @XmlElement(name="Origin")
     public String getOrigin() {
         return origin;
     }
@@ -111,7 +95,6 @@ public class TPSCertData {
         this.origin = origin;
     }
 
-    @XmlElement(name="Type")
     public String getType() {
         return type;
     }
@@ -120,7 +103,6 @@ public class TPSCertData {
         this.type = type;
     }
 
-    @XmlElement(name="KeyType")
     public String getKeyType() {
         return keyType;
     }
@@ -129,7 +111,6 @@ public class TPSCertData {
         this.keyType = keyType;
     }
 
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -138,7 +119,6 @@ public class TPSCertData {
         this.status = status;
     }
 
-    @XmlElement(name="CreateTime")
     public Date getCreateTime() {
         return createTime;
     }
@@ -147,7 +127,6 @@ public class TPSCertData {
         this.createTime = createTime;
     }
 
-    @XmlElement(name="ModifyTime")
     public Date getModifyTime() {
         return modifyTime;
     }
@@ -156,7 +135,6 @@ public class TPSCertData {
         this.modifyTime = modifyTime;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
@@ -254,20 +232,6 @@ public class TPSCertData {
         } else if (!userID.equals(other.userID))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(TPSCertData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static TPSCertData fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(TPSCertData.class).createUnmarshaller();
-        return (TPSCertData) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     public String toJSON() throws Exception {

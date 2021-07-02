@@ -18,50 +18,28 @@
 
 package com.netscape.certsrv.cert;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.request.CMSRequestInfo;
-import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement(name = "CertRequestInfo")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class CertRequestInfo extends CMSRequestInfo implements JSONSerializer {
+public class CertRequestInfo extends CMSRequestInfo {
 
     public static final String REQ_COMPLETE = "complete";
     public static final String RES_SUCCESS = "success";
     public static final String RES_ERROR = "error";
 
-    @XmlElement
-    @XmlJavaTypeAdapter(CertIdAdapter.class)
     protected CertId certId;
 
-    @XmlElement
     protected String certURL;
 
-    @XmlElement
     protected String certRequestType;
 
-    @XmlElement
     protected String operationResult;
 
-    @XmlElement
     protected String errorMessage;
 
     public CertRequestInfo() {
@@ -160,21 +138,6 @@ public class CertRequestInfo extends CMSRequestInfo implements JSONSerializer {
         } else if (!certURL.equals(other.certURL))
             return false;
         return true;
-    }
-
-    @Override
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CertRequestInfo.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static CertRequestInfo fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertRequestInfo.class).createUnmarshaller();
-        return (CertRequestInfo) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

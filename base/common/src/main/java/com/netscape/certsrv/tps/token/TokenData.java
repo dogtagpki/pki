@@ -19,18 +19,9 @@
 
 package com.netscape.certsrv.tps.token;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -41,7 +32,6 @@ import com.netscape.certsrv.base.Link;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Token")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class TokenData {
@@ -84,7 +74,6 @@ public class TokenData {
 
     Link link;
 
-    @XmlAttribute(name="id")
     public String getID() {
         return id;
     }
@@ -93,7 +82,6 @@ public class TokenData {
         this.id = id;
     }
 
-    @XmlElement(name="TokenID")
     public String getTokenID() {
         return tokenID;
     }
@@ -102,7 +90,6 @@ public class TokenData {
         this.tokenID = tokenID;
     }
 
-    @XmlElement(name="UserID")
     public String getUserID() {
         return userID;
     }
@@ -111,7 +98,6 @@ public class TokenData {
         this.userID = userID;
     }
 
-    @XmlElement(name="Type")
     public String getType() {
         return type;
     }
@@ -120,7 +106,6 @@ public class TokenData {
         this.type = type;
     }
 
-    @XmlElement(name="Status")
     public TokenStatusData getStatus() {
         return status;
     }
@@ -129,7 +114,6 @@ public class TokenData {
         this.status = status;
     }
 
-    @XmlElement(name="NextStates")
     public Collection<TokenStatusData> getNextStates() {
         return nextStates;
     }
@@ -138,7 +122,6 @@ public class TokenData {
         this.nextStates = nextStates;
     }
 
-    @XmlElement(name="AppletID")
     public String getAppletID() {
         return appletID;
     }
@@ -147,7 +130,6 @@ public class TokenData {
         this.appletID = appletID;
     }
 
-    @XmlElement(name="KeyInfo")
     public String getKeyInfo() {
         return keyInfo;
     }
@@ -156,7 +138,6 @@ public class TokenData {
         this.keyInfo = keyInfo;
     }
 
-    @XmlElement(name="Policy")
     public String getPolicy() {
         return policy;
     }
@@ -165,7 +146,6 @@ public class TokenData {
         this.policy = policy;
     }
 
-    @XmlElement(name="CreateTimestamp")
     public Date getCreateTimestamp() {
         return createTimestamp;
     }
@@ -174,7 +154,6 @@ public class TokenData {
         this.createTimestamp = createTimestamp;
     }
 
-    @XmlElement(name="ModifyTimestamp")
     public Date getModifyTimestamp() {
         return modifyTimestamp;
     }
@@ -183,7 +162,6 @@ public class TokenData {
         this.modifyTimestamp = modifyTimestamp;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
@@ -215,20 +193,6 @@ public class TokenData {
                 && Objects.equals(nextStates, other.nextStates) && Objects.equals(policy, other.policy)
                 && Objects.equals(status, other.status) && Objects.equals(tokenID, other.tokenID)
                 && Objects.equals(type, other.type) && Objects.equals(userID, other.userID);
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(TokenData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static TokenData fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(TokenData.class).createUnmarshaller();
-        return (TokenData) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     public String toJSON() throws Exception {
