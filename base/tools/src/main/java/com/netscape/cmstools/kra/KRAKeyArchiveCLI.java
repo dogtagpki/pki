@@ -120,11 +120,7 @@ public class KRAKeyArchiveCLI extends CommandCLI {
             Path path = Paths.get(requestFile);
             String input = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
 
-            if ("xml".equalsIgnoreCase(inputFormat)) {
-                req = KeyArchivalRequest.fromXML(input);
-                logger.info("Request: " + req.toXML());
-
-            } else if ("json".equalsIgnoreCase(inputFormat)) {
+            if ("json".equalsIgnoreCase(inputFormat)) {
                 req = JSONSerializer.fromJSON(input, KeyArchivalRequest.class);
                 logger.info("Request: " + req.toJSON());
 

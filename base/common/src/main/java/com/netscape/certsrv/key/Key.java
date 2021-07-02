@@ -1,17 +1,7 @@
 package com.netscape.certsrv.key;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Objects;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 
@@ -30,43 +20,30 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @author akoneru
  *
  */
-@XmlRootElement(name="Key")
-@XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Key implements JSONSerializer {
 
-    @XmlElement
     private byte[] encryptedData;
 
-    @XmlElement
     private byte[] nonceData;
 
-    @XmlElement
     private String p12Data;
 
-    @XmlElement
     private String algorithm;
 
-    @XmlElement
     private Integer size;
 
-    @XmlElement
     private byte[] data;
 
-    @XmlElement
     private RequestId requestId;
 
-    @XmlElement
     private String wrapAlgorithm;
 
-    @XmlElement
     private String encryptAlgorithmOID;
 
-    @XmlElement
     private String type;
 
-    @XmlElement
     private String publicKey;
 
     public Key() {
@@ -179,18 +156,6 @@ public class Key implements JSONSerializer {
     public void clearSensitiveData() {
         CryptoUtil.obscureBytes(data, "random");
         data = null;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(Key.class).createMarshaller();
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static Key fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(Key.class).createUnmarshaller();
-        return (Key) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     @Override

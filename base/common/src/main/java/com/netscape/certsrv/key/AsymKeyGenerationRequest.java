@@ -17,19 +17,11 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.key;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,8 +30,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.ResourceMessage;
 
-@XmlRootElement(name = "AsymKeyGenerationRequest")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class AsymKeyGenerationRequest extends KeyGenerationRequest  {
@@ -110,20 +100,6 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest  {
         list.add(VERIFY_RECOVER);
 
         return list;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(AsymKeyGenerationRequest.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static AsymKeyGenerationRequest fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(AsymKeyGenerationRequest.class).createUnmarshaller();
-        return (AsymKeyGenerationRequest) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

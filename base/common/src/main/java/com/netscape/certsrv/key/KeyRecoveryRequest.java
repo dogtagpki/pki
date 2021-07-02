@@ -21,16 +21,7 @@
  */
 package com.netscape.certsrv.key;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -44,8 +35,6 @@ import com.netscape.certsrv.request.RequestId;
  * @author alee
  *
  */
-@XmlRootElement(name="KeyRecoveryRequest")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyRecoveryRequest extends ResourceMessage {
@@ -226,18 +215,6 @@ public class KeyRecoveryRequest extends ResourceMessage {
      */
     public void setPayloadWrappingName(String payloadWrappingName) {
         attributes.put(PAYLOAD_WRAPPING_NAME, payloadWrappingName);
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(KeyRecoveryRequest.class).createMarshaller();
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static KeyRecoveryRequest fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(KeyRecoveryRequest.class).createUnmarshaller();
-        return (KeyRecoveryRequest) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

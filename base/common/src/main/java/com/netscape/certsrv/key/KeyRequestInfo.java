@@ -18,30 +18,16 @@
 
 package com.netscape.certsrv.key;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.CMSRequestInfo;
 
-@XmlRootElement(name = "KeyRequestInfo")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyRequestInfo extends CMSRequestInfo {
 
-    @XmlElement
     protected String keyURL;
 
     public KeyRequestInfo() {
@@ -94,20 +80,6 @@ public class KeyRequestInfo extends CMSRequestInfo {
         } else if (!keyURL.equals(other.keyURL))
             return false;
         return true;
-    }
-
-    @Override
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(KeyRequestInfo.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static KeyRequestInfo fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(KeyRequestInfo.class).createUnmarshaller();
-        return (KeyRequestInfo)unmarshaller.unmarshal(new StringReader(string));
     }
 
 }
