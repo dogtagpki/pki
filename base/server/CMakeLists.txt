@@ -60,6 +60,7 @@ if(WITH_TEST)
             ${LDAPJDK_JAR} ${SERVLET_JAR} ${XALAN_JAR} ${XERCES_JAR}
             ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
+            ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
         OUTPUT_DIR
             ${CMAKE_BINARY_DIR}/test/classes
@@ -77,6 +78,7 @@ if(WITH_TEST)
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${JSS_JAR} ${SYMKEY_JAR}
+            ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
         TESTS

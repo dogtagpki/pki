@@ -162,6 +162,7 @@ public class CertRequestInfo extends CMSRequestInfo {
         }
     }
 
+    @Override
     public Element toDOM(Document document) {
 
         Element infoElement = document.createElement("CertDataInfo");
@@ -235,6 +236,7 @@ public class CertRequestInfo extends CMSRequestInfo {
         return info;
     }
 
+    @Override
     public String toXML() throws Exception {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

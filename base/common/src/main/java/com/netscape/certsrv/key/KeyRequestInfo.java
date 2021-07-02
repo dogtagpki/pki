@@ -98,6 +98,7 @@ public class KeyRequestInfo extends CMSRequestInfo {
         return true;
     }
 
+    @Override
     public Element toDOM(Document document) {
 
         Element infoElement = document.createElement("CertDataInfo");
@@ -128,6 +129,7 @@ public class KeyRequestInfo extends CMSRequestInfo {
         return info;
     }
 
+    @Override
     public String toXML() throws Exception {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
