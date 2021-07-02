@@ -1,18 +1,10 @@
 package com.netscape.certsrv.key;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,8 +17,6 @@ import com.netscape.certsrv.base.ResourceMessage;
  * @author alee
  *
  */
-@XmlRootElement(name = "SymKeyGenerationRequest")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class SymKeyGenerationRequest extends KeyGenerationRequest {
@@ -99,20 +89,6 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
         list.add(SIGN_USAGE);
 
         return list;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(SymKeyGenerationRequest.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static SymKeyGenerationRequest fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(SymKeyGenerationRequest.class).createUnmarshaller();
-        return (SymKeyGenerationRequest) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

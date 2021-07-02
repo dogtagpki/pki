@@ -20,12 +20,6 @@
  */
 package com.netscape.certsrv.key;
 
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,34 +33,24 @@ import com.netscape.certsrv.util.JSONSerializer;
  * @author alee
  *
  */
-@XmlRootElement(name="KeyInfo")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyInfo implements JSONSerializer {
 
-    @XmlElement
     protected String keyURL;
 
-    @XmlElement
     protected String clientKeyID;
 
-    @XmlElement
     protected String status;
 
-    @XmlElement
     protected String algorithm;
 
-    @XmlElement
     protected Integer size;
 
-    @XmlElement
     protected String ownerName;
 
-    @XmlElement
     private String publicKey;
 
-    @XmlElement
     private String realm;
 
     public KeyInfo() {
