@@ -17,17 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Objects;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -38,31 +28,22 @@ import com.netscape.certsrv.util.JSONSerializer;
  * @author alee
  *
  */
-@XmlRootElement(name="AdminSetupRequest")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class AdminSetupRequest implements JSONSerializer {
 
-    @XmlElement
     protected String pin;
 
-    @XmlElement
     protected InstallToken installToken;
 
-    @XmlElement
     protected String adminCertRequest;
 
-    @XmlElement
     protected String adminCertRequestType;
 
-    @XmlElement
     protected String adminSubjectDN;
 
-    @XmlElement
     protected String adminKeyType;
 
-    @XmlElement
     protected String adminProfileID;
 
     public String getPin() {
@@ -159,20 +140,6 @@ public class AdminSetupRequest implements JSONSerializer {
                 && Objects.equals(adminSubjectDN, other.adminSubjectDN)
                 && Objects.equals(installToken, other.installToken)
                 && Objects.equals(pin, other.pin);
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(AdminSetupRequest.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static AdminSetupRequest fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(AdminSetupRequest.class).createUnmarshaller();
-        return (AdminSetupRequest) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

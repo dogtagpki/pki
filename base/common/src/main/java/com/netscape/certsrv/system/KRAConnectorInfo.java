@@ -17,25 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Ade Lee
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KRAConnectorInfo implements JSONSerializer {
 
     private static final String HOST = "host";
@@ -47,28 +40,20 @@ public class KRAConnectorInfo implements JSONSerializer {
     private static final String LOCAL = "local";
     private static final String ENABLE = "enable";
 
-    @XmlElement
     String host;
 
-    @XmlElement
     String port;
 
-    @XmlElement
     String transportCert;
 
-    @XmlElement
     String transportCertNickname;
 
-    @XmlElement
     String uri;
 
-    @XmlElement
     String timeout;
 
-    @XmlElement
     String local;
 
-    @XmlElement
     String enable;
 
     public KRAConnectorInfo() {
@@ -215,20 +200,6 @@ public class KRAConnectorInfo implements JSONSerializer {
         } else if (!uri.equals(other.uri))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(KRAConnectorInfo.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static KRAConnectorInfo fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(KRAConnectorInfo.class).createUnmarshaller();
-        return (KRAConnectorInfo) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

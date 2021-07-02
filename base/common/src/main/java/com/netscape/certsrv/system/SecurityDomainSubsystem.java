@@ -3,19 +3,8 @@
  */
 package com.netscape.certsrv.system;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -26,8 +15,6 @@ import com.netscape.certsrv.util.JSONSerializer;
 /**
  * @author alee
  */
-@XmlRootElement(name="SecurityDomainSubsystem")
-@XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
  public class SecurityDomainSubsystem implements JSONSerializer {
@@ -35,7 +22,6 @@ import com.netscape.certsrv.util.JSONSerializer;
     String name;
     Map<String, SecurityDomainHost> hosts = new LinkedHashMap<>();
 
-    @XmlAttribute(name="id")
     public String getName() {
         return name;
     }
@@ -48,7 +34,6 @@ import com.netscape.certsrv.util.JSONSerializer;
         return hosts;
     }
 
-    @XmlElement(name="hosts")
     public void setHosts(Map<String, SecurityDomainHost> hosts) {
         this.hosts.clear();
         this.hosts.putAll(hosts);
@@ -57,7 +42,6 @@ import com.netscape.certsrv.util.JSONSerializer;
     /**
      * @return the hosts
      */
-    @XmlElement(name="Host")
     @JsonProperty("Host")
     public SecurityDomainHost[] getHostArray() {
         return hosts.values().toArray(new SecurityDomainHost[hosts.size()]);
@@ -79,19 +63,6 @@ import com.netscape.certsrv.util.JSONSerializer;
 
     public void removeHost(String hostId) {
         hosts.remove(hostId);
-    }
-
-    public String toXML() throws Exception {
-        StringWriter sw = new StringWriter();
-        Marshaller marshaller = JAXBContext.newInstance(SecurityDomainSubsystem.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static SecurityDomainSubsystem fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(SecurityDomainSubsystem.class).createUnmarshaller();
-        return (SecurityDomainSubsystem)unmarshaller.unmarshal(new StringReader(string));
     }
 
     @Override

@@ -1,22 +1,11 @@
 package com.netscape.certsrv.system;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement(name="TPSConnectorData")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class TPSConnectorData implements JSONSerializer {
@@ -29,7 +18,6 @@ public class TPSConnectorData implements JSONSerializer {
 
     Link link;
 
-    @XmlAttribute(name="id")
     public String getID() {
         return id;
     }
@@ -38,7 +26,6 @@ public class TPSConnectorData implements JSONSerializer {
         this.id = id;
     }
 
-    @XmlElement(name="Host")
     public String getHost() {
         return host;
     }
@@ -47,7 +34,6 @@ public class TPSConnectorData implements JSONSerializer {
         this.host = host;
     }
 
-    @XmlElement(name="Port")
     public String getPort() {
         return port;
     }
@@ -56,7 +42,6 @@ public class TPSConnectorData implements JSONSerializer {
         this.port = port;
     }
 
-    @XmlElement(name="UserID")
     public String getUserID() {
         return userID;
     }
@@ -65,7 +50,6 @@ public class TPSConnectorData implements JSONSerializer {
         this.userID = userID;
     }
 
-    @XmlElement(name="Nickname")
     public String getNickname() {
         return nickname;
     }
@@ -74,7 +58,6 @@ public class TPSConnectorData implements JSONSerializer {
         this.nickname = nickname;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
@@ -118,19 +101,6 @@ public class TPSConnectorData implements JSONSerializer {
         } else if (!userID.equals(other.userID))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(TPSConnectorData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static TPSConnectorData fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(TPSConnectorData.class).createUnmarshaller();
-        return (TPSConnectorData)unmarshaller.unmarshal(new StringReader(string));
     }
 
 }

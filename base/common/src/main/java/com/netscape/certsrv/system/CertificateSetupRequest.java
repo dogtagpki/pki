@@ -17,18 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URL;
 import java.util.Objects;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -39,28 +29,20 @@ import com.netscape.certsrv.util.JSONSerializer;
  * @author alee
  *
  */
-@XmlRootElement(name="CertificateSetupRequest")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertificateSetupRequest implements JSONSerializer {
 
-    @XmlElement
     protected String pin;
 
-    @XmlElement
     protected InstallToken installToken;
 
-    @XmlElement
     protected String tag;
 
-    @XmlElement
     protected SystemCertData systemCert;
 
-    @XmlElement(defaultValue="false")
     protected Boolean clone;
 
-    @XmlElement
     protected URL masterURL;
 
     public CertificateSetupRequest() {
@@ -142,20 +124,6 @@ public class CertificateSetupRequest implements JSONSerializer {
         return Objects.equals(clone, other.clone) && Objects.equals(installToken, other.installToken)
                 && Objects.equals(masterURL, other.masterURL) && Objects.equals(pin, other.pin)
                 && Objects.equals(systemCert, other.systemCert) && Objects.equals(tag, other.tag);
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CertificateSetupRequest.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static CertificateSetupRequest fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertificateSetupRequest.class).createUnmarshaller();
-        return (CertificateSetupRequest) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

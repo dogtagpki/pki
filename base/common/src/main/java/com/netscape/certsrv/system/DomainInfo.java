@@ -17,19 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -40,8 +29,6 @@ import com.netscape.certsrv.util.JSONSerializer;
 /**
  * @author alee
  */
-@XmlRootElement(name="DomainInfo")
-@XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class DomainInfo implements JSONSerializer {
@@ -49,7 +36,6 @@ public class DomainInfo implements JSONSerializer {
     String name;
     Map<String, SecurityDomainSubsystem> subsystems = new LinkedHashMap<>();
 
-    @XmlAttribute(name="id")
     public String getName() {
         return name;
     }
@@ -58,7 +44,6 @@ public class DomainInfo implements JSONSerializer {
         this.name = name;
     }
 
-    @XmlElement(name="subsystems")
     public Map<String, SecurityDomainSubsystem> getSubsystems() {
         return subsystems;
     }
@@ -68,7 +53,6 @@ public class DomainInfo implements JSONSerializer {
         this.subsystems.putAll(subsystems);
     }
 
-    @XmlElement(name="Subsystem")
     @JsonProperty("Subsystem")
     public SecurityDomainSubsystem[] getSubsystemArray() {
         return subsystems.values().toArray(new SecurityDomainSubsystem[subsystems.size()]);
@@ -107,19 +91,6 @@ public class DomainInfo implements JSONSerializer {
         SecurityDomainSubsystem subsystem = getSubsystem(type);
         if (subsystem == null) return;
         subsystem.removeHost(hostId);
-    }
-
-    public String toXML() throws Exception {
-        StringWriter sw = new StringWriter();
-        Marshaller marshaller = JAXBContext.newInstance(DomainInfo.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static DomainInfo fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(DomainInfo.class).createUnmarshaller();
-        return (DomainInfo)unmarshaller.unmarshal(new StringReader(string));
     }
 
     @Override
