@@ -490,7 +490,6 @@ Requires:         pki-servlet-engine
 Requires:         tomcat >= 1:9.0.7
 %endif
 
-Requires:         sudo
 Requires:         systemd
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
