@@ -20,9 +20,6 @@ package com.netscape.certsrv.user;
 
 import java.util.Collection;
 
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -33,13 +30,11 @@ import com.netscape.certsrv.base.DataCollection;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Users")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class UserCollection extends DataCollection<UserData> {
 
     @Override
-    @XmlElementRef
     public Collection<UserData> getEntries() {
         return super.getEntries();
     }
@@ -54,23 +49,4 @@ public class UserCollection extends DataCollection<UserData> {
         return mapper.readValue(json, UserCollection.class);
     }
 
-    public static void main(String args[]) throws Exception {
-
-        UserData user = new UserData();
-        user.setUserID("testuser");
-        user.setFullName("Test User");
-        user.setEmail("testuser@example.com");
-
-        UserCollection before = new UserCollection();
-        before.addEntry(user);
-        before.setTotal(1);
-
-        String json = before.toJSON();
-        System.out.println("Before: " + json);
-
-        UserCollection afterJSON = UserCollection.fromJSON(json);
-        System.out.println("After: " + afterJSON.toJSON());
-
-        System.out.println(before.equals(afterJSON));
-    }
 }

@@ -18,18 +18,9 @@
 
 package com.netscape.certsrv.user;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.FormParam;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -38,12 +29,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="UserCert")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class UserCertData {
@@ -57,7 +46,6 @@ public class UserCertData {
 
     Link link;
 
-    @XmlAttribute(name="id")
     public String getID() {
         if (version == null && serialNumber == null && issuerDN == null && subjectDN == null) {
             return null;
@@ -74,7 +62,6 @@ public class UserCertData {
         subjectDN = st.nextToken();
     }
 
-    @XmlElement(name="Version")
     public Integer getVersion() {
         return version;
     }
@@ -83,8 +70,6 @@ public class UserCertData {
         this.version = version;
     }
 
-    @XmlElement(name="SerialNumber")
-    @XmlJavaTypeAdapter(CertIdAdapter.class)
     public CertId getSerialNumber() {
         return serialNumber;
     }
@@ -93,7 +78,6 @@ public class UserCertData {
         this.serialNumber = serialNumber;
     }
 
-    @XmlElement(name="IssuerDN")
     public String getIssuerDN() {
         return issuerDN;
     }
@@ -102,7 +86,6 @@ public class UserCertData {
         this.issuerDN = issuerDN;
     }
 
-    @XmlElement(name="SubjectDN")
     public String getSubjectDN() {
         return subjectDN;
     }
@@ -111,7 +94,6 @@ public class UserCertData {
         this.subjectDN = subjectDN;
     }
 
-    @XmlElement(name="PrettyPrint")
     public String getPrettyPrint() {
         return prettyPrint;
     }
@@ -121,7 +103,6 @@ public class UserCertData {
     }
 
     @FormParam(Constants.PR_USER_CERT)
-    @XmlElement(name="Encoded")
     public String getEncoded() {
         return encoded;
     }
@@ -130,7 +111,6 @@ public class UserCertData {
         this.encoded = encoded;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
@@ -192,19 +172,6 @@ public class UserCertData {
         } else if (!version.equals(other.version))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(UserCertData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static UserCertData fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(UserCertData.class).createUnmarshaller();
-        return (UserCertData)unmarshaller.unmarshal(new StringReader(string));
     }
 
     public String toJSON() throws Exception {

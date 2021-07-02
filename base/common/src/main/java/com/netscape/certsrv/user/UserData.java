@@ -18,23 +18,12 @@
 
 package com.netscape.certsrv.user;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.FormParam;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -46,7 +35,6 @@ import com.netscape.certsrv.common.Constants;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="User")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class UserData {
@@ -62,8 +50,6 @@ public class UserData {
 
     Link link;
 
-    @XmlElement(name="Attributes")
-    @XmlJavaTypeAdapter(MapAdapter.class)
     Map<String, String> attributes = new LinkedHashMap<>();
 
     public String getAttribute(String name) {
@@ -74,7 +60,6 @@ public class UserData {
         attributes.put(name, value);
     }
 
-    @XmlAttribute(name="id")
     public String getID() {
         return id;
     }
@@ -83,7 +68,6 @@ public class UserData {
         this.id = id;
     }
 
-    @XmlElement(name="UserID")
     public String getUserID() {
         return userID;
     }
@@ -93,7 +77,6 @@ public class UserData {
     }
 
     @FormParam(Constants.PR_USER_FULLNAME)
-    @XmlElement(name="FullName")
     public String getFullName() {
         return fullName;
     }
@@ -103,7 +86,6 @@ public class UserData {
     }
 
     @FormParam(Constants.PR_USER_EMAIL)
-    @XmlElement(name="Email")
     public String getEmail() {
         return email;
     }
@@ -113,7 +95,6 @@ public class UserData {
     }
 
     @FormParam(Constants.PR_USER_PASSWORD)
-    @XmlElement(name="Password")
     public String getPassword() {
         return password;
     }
@@ -123,7 +104,6 @@ public class UserData {
     }
 
     @FormParam(Constants.PR_USER_PHONE)
-    @XmlElement(name="Phone")
     public String getPhone() {
         return phone;
     }
@@ -133,7 +113,6 @@ public class UserData {
     }
 
     @FormParam(Constants.PR_USER_TYPE)
-    @XmlElement(name="Type")
     public String getType() {
         return type;
     }
@@ -143,7 +122,6 @@ public class UserData {
     }
 
     @FormParam(Constants.PR_USER_STATE)
-    @XmlElement(name="State")
     public String getState() {
         return state;
     }
@@ -152,7 +130,6 @@ public class UserData {
         this.state = state;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
@@ -240,23 +217,6 @@ public class UserData {
         return true;
     }
 
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(UserData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static UserData fromXML(String string) throws Exception {
-        try {
-            Unmarshaller unmarshaller = JAXBContext.newInstance(UserData.class).createUnmarshaller();
-            return (UserData)unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     public String toJSON() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(this);
@@ -270,74 +230,21 @@ public class UserData {
     @Override
     public String toString() {
         try {
-            return toXML();
+            return toJSON();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static class MapAdapter extends XmlAdapter<AttributeList, Map<String, String>> {
-
-        @Override
-        public AttributeList marshal(Map<String, String> map) {
-            AttributeList list = new AttributeList();
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                Attribute attribute = new Attribute();
-                attribute.name = entry.getKey();
-                attribute.value = entry.getValue();
-                list.attributes.add(attribute);
-            }
-            return list;
-        }
-
-        @Override
-        public Map<String, String> unmarshal(AttributeList list) {
-            Map<String, String> map = new LinkedHashMap<>();
-            for (Attribute attribute : list.attributes) {
-                map.put(attribute.name, attribute.value);
-            }
-            return map;
-        }
-    }
-
     public static class AttributeList {
-        @XmlElement(name="Attribute")
         public List<Attribute> attributes = new ArrayList<>();
     }
 
     public static class Attribute {
 
-        @XmlAttribute
         public String name;
 
-        @XmlValue
         public String value;
     }
 
-    public static void main(String args[]) throws Exception {
-
-        UserData before = new UserData();
-        before.setID("testuser");
-        before.setFullName("Test User");
-        before.setEmail("testuser@example.com");
-        before.setPassword("12345");
-        before.setPhone("1234567890");
-        before.setState("1");
-
-        String xml = before.toXML();
-        System.out.println("Before (XML): " + xml);
-
-        UserData afterXML = UserData.fromXML(xml);
-        System.out.println("After (XML): " + afterXML);
-
-        System.out.println(before.equals(afterXML));
-
-        String json = before.toJSON();
-        System.out.println("Before (JSON): " + json);
-
-        UserData afterJSON = UserData.fromJSON(json);
-        System.out.println("After (JSON): " + afterJSON.toJSON());
-
-        System.out.println(before.equals(afterJSON));
-    }
 }
