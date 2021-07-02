@@ -17,48 +17,29 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement(name="Input")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileInput implements JSONSerializer {
 
-    @XmlAttribute(name="id")
     private String id;
 
-    @XmlElement(name="ClassID")
     private String classId;
 
-    @XmlElement(name="Name")
     private String name;
 
-    @XmlElement(name="Text")
     private String text;
 
-    @XmlElement(name = "Attribute")
     private List<ProfileAttribute> attrs = new ArrayList<>();
 
-    @XmlElement(name = "ConfigAttribute")
     private List<ProfileAttribute> configAttrs = new ArrayList<>();
 
     public ProfileInput() {
@@ -204,20 +185,6 @@ public class ProfileInput implements JSONSerializer {
         } else if (!text.equals(other.text))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(ProfileInput.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static ProfileInput fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileInput.class).createUnmarshaller();
-        return (ProfileInput) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

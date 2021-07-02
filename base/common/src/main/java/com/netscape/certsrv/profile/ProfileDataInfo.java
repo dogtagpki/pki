@@ -17,17 +17,7 @@
 //--- END COPYRIGHT BLOCK ---
 
 package com.netscape.certsrv.profile;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Objects;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -38,22 +28,16 @@ import com.netscape.certsrv.util.JSONSerializer;
  * @author alee
  *
  */
-@XmlRootElement(name = "ProfileDataInfo")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileDataInfo implements JSONSerializer {
 
-    @XmlElement
     protected String profileURL;
 
-    @XmlElement
     protected String profileId;
 
-    @XmlElement
     protected String profileName;
 
-    @XmlElement
     protected String profileDescription;
 
     public ProfileDataInfo() {
@@ -118,20 +102,6 @@ public class ProfileDataInfo implements JSONSerializer {
         return Objects.equals(profileDescription, other.profileDescription)
                 && Objects.equals(profileId, other.profileId) && Objects.equals(profileName, other.profileName)
                 && Objects.equals(profileURL, other.profileURL);
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(ProfileDataInfo.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static ProfileDataInfo fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileDataInfo.class).createUnmarshaller();
-        return (ProfileDataInfo) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

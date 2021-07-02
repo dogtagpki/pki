@@ -19,28 +19,21 @@ package com.netscape.certsrv.profile;
 
 import java.util.Collection;
 
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.DataCollection;
 import com.netscape.certsrv.base.Link;
 
-@XmlRootElement(name = "ProfileDataInfos")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileDataInfos extends DataCollection<ProfileDataInfo> {
 
     @Override
-    @XmlElementRef
     public Collection<ProfileDataInfo> getEntries() {
         return super.getEntries();
     }
 
-    @XmlTransient
     public String getNext() {
         for (Link link : getLinks()) {
             if ("next".equals(link. getRelationship())) {
@@ -50,7 +43,6 @@ public class ProfileDataInfos extends DataCollection<ProfileDataInfo> {
         return null;
     }
 
-    @XmlTransient
     public String getPrevious() {
         for (Link link : getLinks()) {
             if ("previous".equals(link.getRelationship())) {

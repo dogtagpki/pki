@@ -22,10 +22,6 @@
 package com.netscape.certsrv.profile;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -33,13 +29,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * @author alee
  *
  */
-@XmlRootElement(name = "ProfileRetrievalRequest")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class ProfileRetrievalRequest {
 
     private static final String PROFILE_ID = "profileId";
 
-    @XmlElement
     @JsonValue
     protected String profileId;
 

@@ -21,25 +21,12 @@
  */
 package com.netscape.certsrv.profile;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -52,53 +39,36 @@ import com.netscape.certsrv.util.JSONSerializer;
  *
  */
 
-@XmlRootElement(name = "Profile")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileData implements JSONSerializer {
 
-    @XmlAttribute
     protected String id;
 
-    @XmlElement
     protected String classId;
 
-    @XmlElement
     protected String name;
 
-    @XmlElement
     protected String description;
 
-    @XmlElement
     protected boolean enabled;
 
-    @XmlElement
     protected boolean visible;
 
-    @XmlElement
     protected String enabledBy;
 
-    @XmlElement
     protected String authenticatorId;
 
-    @XmlElement
     protected String authzAcl;
 
-    @XmlElement
     protected boolean renewal;
 
-    @XmlElement
     protected boolean xmlOutput;
 
-    @XmlElement(name = "Input")
     protected List<ProfileInput> inputs = new ArrayList<>();
 
-    @XmlElement(name = "Output")
     protected List<ProfileOutput> outputs = new ArrayList<>();
 
-    @XmlElement(name = "PolicySets")
-    @XmlJavaTypeAdapter(PolicySetAdapter.class)
     protected Map<String, List<ProfilePolicy>> policySets = new LinkedHashMap<>();
 
     protected Link link;
@@ -273,55 +243,14 @@ public class ProfileData implements JSONSerializer {
                 && renewal == other.renewal && visible == other.visible && xmlOutput == other.xmlOutput;
     }
 
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(ProfileData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static ProfileData fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileData.class).createUnmarshaller();
-        return (ProfileData) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public static class PolicySetAdapter extends XmlAdapter<PolicySetList, Map<String, Vector<ProfilePolicy>>> {
-
-        @Override
-        public PolicySetList marshal(Map<String,Vector<ProfilePolicy>> map) {
-            PolicySetList list = new PolicySetList();
-            for (Map.Entry<String, Vector<ProfilePolicy>> entry : map.entrySet()) {
-                PolicySet pset = new PolicySet();
-                pset.name = entry.getKey();
-                pset.value = entry.getValue();
-                list.psets.add(pset);
-            }
-            return list;
-        }
-
-        @Override
-        public Map<String, Vector<ProfilePolicy>> unmarshal(PolicySetList list) {
-            Map<String, Vector<ProfilePolicy>> map = new LinkedHashMap<>();
-            for (PolicySet pset : list.psets) {
-                map.put(pset.name, pset.value);
-            }
-            return map;
-        }
-    }
-
     public static class PolicySetList {
-        @XmlElement(name="PolicySet")
         public List<PolicySet> psets = new ArrayList<>();
     }
 
     public static class PolicySet {
 
-        @XmlElement(name="id")
         public String name;
 
-        @XmlElement
         public Vector<ProfilePolicy> value;
     }
 

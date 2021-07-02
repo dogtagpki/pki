@@ -17,40 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class PolicyConstraint implements JSONSerializer {
-    @XmlAttribute(name="id")
     private String name;
 
-    @XmlElement(name="description")
     private String text;
 
-    @XmlElement
     private String classId;
 
-    @XmlElement(name = "constraint")
     private List<PolicyConstraintValue> constraints = new ArrayList<>();
 
     public PolicyConstraint() {
@@ -134,20 +117,6 @@ public class PolicyConstraint implements JSONSerializer {
         } else if (!text.equals(other.text))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(PolicyConstraint.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static PolicyConstraint fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(PolicyConstraint.class).createUnmarshaller();
-        return (PolicyConstraint) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }
