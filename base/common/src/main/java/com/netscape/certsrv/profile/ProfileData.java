@@ -32,13 +32,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Vector;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -65,53 +59,36 @@ import com.netscape.certsrv.util.JSONSerializer;
  *
  */
 
-@XmlRootElement(name = "Profile")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileData implements JSONSerializer {
 
-    @XmlAttribute
     protected String id;
 
-    @XmlElement
     protected String classId;
 
-    @XmlElement
     protected String name;
 
-    @XmlElement
     protected String description;
 
-    @XmlElement
     protected boolean enabled;
 
-    @XmlElement
     protected boolean visible;
 
-    @XmlElement
     protected String enabledBy;
 
-    @XmlElement
     protected String authenticatorId;
 
-    @XmlElement
     protected String authzAcl;
 
-    @XmlElement
     protected boolean renewal;
 
-    @XmlElement
     protected boolean xmlOutput;
 
-    @XmlElement(name = "Input")
     protected List<ProfileInput> inputs = new ArrayList<>();
 
-    @XmlElement(name = "Output")
     protected List<ProfileOutput> outputs = new ArrayList<>();
 
-    @XmlElement(name = "PolicySets")
-    @XmlJavaTypeAdapter(PolicySetAdapter.class)
     protected Map<String, List<ProfilePolicy>> policySets = new LinkedHashMap<>();
 
     protected Link link;
@@ -648,16 +625,13 @@ public class ProfileData implements JSONSerializer {
     }
 
     public static class PolicySetList {
-        @XmlElement(name="PolicySet")
         public List<PolicySet> psets = new ArrayList<>();
     }
 
     public static class PolicySet {
 
-        @XmlElement(name="id")
         public String name;
 
-        @XmlElement
         public Vector<ProfilePolicy> value;
     }
 

@@ -22,11 +22,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -45,19 +40,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileOutput implements JSONSerializer {
 
-    @XmlAttribute
     private String  id;
 
-    @XmlElement
     private String name;
 
-    @XmlElement
     private String text;
 
     public String getId() {
@@ -68,10 +58,8 @@ public class ProfileOutput implements JSONSerializer {
         this.id = id;
     }
 
-    @XmlElement
     private String classId;
 
-    @XmlElement(name = "attributes")
     private List<ProfileAttribute> attrs = new ArrayList<>();
 
 

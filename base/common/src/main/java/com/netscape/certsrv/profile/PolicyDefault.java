@@ -23,11 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -47,24 +42,18 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class PolicyDefault implements JSONSerializer {
-    @XmlAttribute(name="id")
+
     private String name;
 
-    @XmlAttribute
     private String classId;
 
-    @XmlElement(name="description")
     private String text;
 
-    @XmlElement(name="policyAttribute")
     private List<ProfileAttribute> attributes = new ArrayList<>();
 
-    @XmlElement(name = "params")
     private List<ProfileParameter> params = new ArrayList<>();
 
     public PolicyDefault() {
