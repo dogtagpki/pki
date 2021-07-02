@@ -114,11 +114,7 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
                 String input = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
 
                 KeyRecoveryRequest req;
-                if ("xml".equalsIgnoreCase(inputFormat)) {
-                    req = KeyRecoveryRequest.fromXML(input);
-                    logger.info("Request: " + req.toXML());
-
-                } else if ("json".equalsIgnoreCase(inputFormat)) {
+                if ("json".equalsIgnoreCase(inputFormat)) {
                     req = JSONSerializer.fromJSON(input, KeyRecoveryRequest.class);
                     logger.info("Request: " + req.toJSON());
 
@@ -211,15 +207,10 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
             } else if (outputFilePath != null) {
 
                 try (FileWriter out = new FileWriter(outputFilePath)) {
-                    if ("xml".equalsIgnoreCase(outputFormat)) {
-                        out.write(key.toXML());
-                    } else if ("json".equalsIgnoreCase(outputFormat)) {
+                    if ("json".equalsIgnoreCase(outputFormat)) {
                         out.write(keyData.toJSON());
                     }
                 }
-
-            } else if ("xml".equalsIgnoreCase(outputFormat)) {
-                System.out.println(key.toXML());
 
             } else if ("json".equalsIgnoreCase(outputFormat)) {
                 System.out.println(keyData.toJSON());

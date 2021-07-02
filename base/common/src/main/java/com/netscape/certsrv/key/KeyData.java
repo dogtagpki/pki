@@ -21,70 +21,43 @@
  */
 package com.netscape.certsrv.key;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestIdAdapter;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
  *
  */
-@XmlRootElement(name="KeyData")
-@XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyData implements JSONSerializer {
 
-    @XmlElement
     String wrappedPrivateData;
 
-    @XmlElement
     String nonceData;
 
-    @XmlElement
     String p12Data;
 
-    @XmlElement
     String algorithm;
 
-    @XmlElement
     Integer size;
 
-    @XmlElement
     String additionalWrappedPrivateData;
     // Optionally used for importing a shared secret from TKS to TPS
     // Will contain wrapped shared secret data.
     // Can be used for anything in other scenarios
 
-    @XmlElement
-    @XmlJavaTypeAdapter(RequestIdAdapter.class)
     RequestId requestID;
 
-    @XmlElement
     String encryptAlgorithmOID;
 
-    @XmlElement
     String wrapAlgorithm;
 
-    @XmlElement
     String type;
 
-    @XmlElement
     String publicKey;
 
     public KeyData() {
@@ -316,18 +289,6 @@ public class KeyData implements JSONSerializer {
         } else if (!wrappedPrivateData.equals(other.wrappedPrivateData))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(KeyData.class).createMarshaller();
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static KeyData fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(KeyData.class).createUnmarshaller();
-        return (KeyData) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }

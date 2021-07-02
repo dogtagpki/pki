@@ -21,16 +21,7 @@
  */
 package com.netscape.certsrv.key;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -42,8 +33,6 @@ import com.netscape.certsrv.base.ResourceMessage;
  * @author alee
  *
  */
-@XmlRootElement(name="KeyArchivalRequest")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyArchivalRequest extends ResourceMessage {
@@ -243,18 +232,6 @@ public class KeyArchivalRequest extends ResourceMessage {
         } else {
             attributes.remove(REALM);
         }
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(KeyArchivalRequest.class).createMarshaller();
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static KeyArchivalRequest fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(KeyArchivalRequest.class).createUnmarshaller();
-        return (KeyArchivalRequest) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }
