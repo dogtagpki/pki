@@ -20,9 +20,6 @@ package com.netscape.certsrv.tps.cert;
 
 import java.util.Collection;
 
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -31,13 +28,11 @@ import com.netscape.certsrv.base.DataCollection;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Certificates")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class TPSCertCollection extends DataCollection<TPSCertData> {
 
     @Override
-    @XmlElementRef
     public Collection<TPSCertData> getEntries() {
         return super.getEntries();
     }

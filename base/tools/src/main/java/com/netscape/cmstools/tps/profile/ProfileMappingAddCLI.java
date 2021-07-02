@@ -83,7 +83,7 @@ public class ProfileMappingAddCLI extends CommandCLI {
                 out.println(line);
             }
 
-            profileMappingData = ProfileMappingData.fromXML(sw.toString());
+            profileMappingData = ProfileMappingData.fromJSON(sw.toString());
         }
 
         ProfileMappingClient profileMappingClient = profileMappingCLI.getProfileMappingClient();
