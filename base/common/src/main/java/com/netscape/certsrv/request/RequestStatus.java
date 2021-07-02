@@ -111,7 +111,7 @@ public final class RequestStatus implements Serializable {
      */
     public static RequestStatus COMPLETE = new RequestStatus("complete");
 
-    private String label;
+    public String label;
 
     private RequestStatus() {
     }
