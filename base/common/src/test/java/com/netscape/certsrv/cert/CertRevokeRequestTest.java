@@ -5,7 +5,6 @@ import java.util.Date;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -15,7 +14,7 @@ public class CertRevokeRequestTest {
 
     @Before
     public void setUpBefore() {
-        before.setReason(RevocationReason.CERTIFICATE_HOLD);
+    //  before.setReason(RevocationReason.CERTIFICATE_HOLD);
         before.setInvalidityDate(new Date());
         before.setComments("test");
         before.setEncoded("test");
