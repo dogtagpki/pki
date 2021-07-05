@@ -66,7 +66,17 @@ if(WITH_TEST)
             pki-certsrv-jar
     )
 
-    # TODO: create CMake function to find all JUnit test classes
+    execute_process(
+        COMMAND bash "-c"
+        "grep -ilR @Test ${PROJECT_SOURCE_DIR} \
+        | cut -d':' -f1 \
+        | awk -F '/src/test/java/' '{ print $2 }' \
+        | sed 's/.java/;/g' \
+        | sed 's!/!.!g' \
+        | tr -d '\n'"
+        OUTPUT_VARIABLE DISCOVERED_TESTS
+    )
+    
     add_junit_test(test-pki-certsrv
         CLASSPATH
             ${JAKARTA_ACTIVATION_JAR}
@@ -80,12 +90,7 @@ if(WITH_TEST)
             ${HAMCREST_JAR} ${JUNIT_JAR} ${JAXRS_API_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
         TESTS
-            com.netscape.certsrv.account.AccountTest
-            com.netscape.certsrv.authority.AuthorityDataTest
-            com.netscape.certsrv.base.DataTest
-            com.netscape.certsrv.base.LinkTest
-            com.netscape.certsrv.base.ResourceMessageTest
-            com.netscape.certsrv.user.UserCertDataTest
+            ${DISCOVERED_TESTS}
         REPORTS_DIR
             reports
         DEPENDS
