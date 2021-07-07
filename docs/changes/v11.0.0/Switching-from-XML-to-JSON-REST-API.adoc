@@ -1,0 +1,24 @@
+= Overview =
+
+Prior to version 11 PKI mostly supported REST API in XML format,
+although there were endpoints that supported JSON as well.
+Starting from version 11 PKI will only support REST API in JSON format.
+
+In most cases users using the REST API indirectly via CLI or Web UI should not be affected.
+However, PKI tools that used to take or produce an XML file will now take or produce a JSON file instead.
+
+= PKI TPS Configuration CLI Changes =
+
+The `--output` parameter for `pki tps-config-show` command will now produce a JSON file:
+
+----
+$ pki -n caadmin tps-config-show --output tps.json
+----
+
+The `--input` parameter for `pki tps-config-mod` will now take a JSON file:
+
+----
+$ pki -n caadmin tps-config-mod --input tps.json
+----
+
+See link:../../user/tools/Using-PKI-TPS-Configuration-CLI.adoc[Using PKI TPS Configuration CLI].
