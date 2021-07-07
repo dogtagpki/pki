@@ -58,7 +58,6 @@ public class Link implements JSONSerializer {
     public Link(String relationship, URI uri) {
         this.relationship = relationship;
         this.href = uri.toString();
-        this.type = "application/xml";
     }
 
     /**
