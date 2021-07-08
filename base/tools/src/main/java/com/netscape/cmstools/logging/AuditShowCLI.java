@@ -78,7 +78,7 @@ public class AuditShowCLI extends CommandCLI {
 
         } else {
             try (PrintWriter out = new PrintWriter(new FileWriter(output))) {
-                out.println(auditConfig);
+                out.println(auditConfig.toJSON());
             }
             MainCLI.printMessage("Stored audit configuration into " + output);
         }

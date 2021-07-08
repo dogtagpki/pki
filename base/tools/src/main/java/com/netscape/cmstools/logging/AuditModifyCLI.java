@@ -121,7 +121,7 @@ public class AuditModifyCLI extends CommandCLI {
 
         } else {
             try (PrintWriter out = new PrintWriter(new FileWriter(output))) {
-                out.println(auditConfig);
+                out.println(auditConfig.toJSON());
             }
         }
     }
