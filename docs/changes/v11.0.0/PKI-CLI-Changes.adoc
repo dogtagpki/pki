@@ -1,0 +1,10 @@
+= PKI CLI Changes =
+
+== Removing Deprecated Commands ==
+
+The following commands were deprecated in PKI 10. They are no longer supported in PKI 11.
+
+* `pki cert`: Use `pki ca-cert` instead.
+* `pki key`: Use `pki kra-key` instead.
+* `pki user`: Use `pki <subsystem>-user` instead.
+* `pki group`: Use `pki <subsystem>-group` instead.
