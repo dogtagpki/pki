@@ -1,0 +1,188 @@
+= Using PKI Audit CLI =
+
+== Displaying Audit Configuration ==
+
+To display audit configuration:
+
+----
+$ pki -n caadmin tps-audit-show
+-------------------
+Audit configuration
+-------------------
+  Status: Enabled
+  Signed: false
+  Interval (seconds): 5
+  Buffer size (bytes): 512
+  Events:
+    AUDIT_LOG_SHUTDOWN: mandatory
+    AUDIT_LOG_STARTUP: mandatory
+    AUTHZ_FAIL: enabled
+    AUTHZ_SUCCESS: enabled
+    AUTH_FAIL: enabled
+    AUTH_SUCCESS: enabled
+    CIMC_CERT_VERIFICATION: enabled
+    CONFIG_AUTH: enabled
+    CONFIG_ROLE: enabled
+    CONFIG_SIGNED_AUDIT: enabled
+    CONFIG_TOKEN_AUTHENTICATOR: enabled
+    CONFIG_TOKEN_CONNECTOR: enabled
+    CONFIG_TOKEN_GENERAL: enabled
+    CONFIG_TOKEN_MAPPING_RESOLVER: enabled
+    CONFIG_TOKEN_PROFILE: enabled
+    CONFIG_TOKEN_RECORD: enabled
+    LOGGING_SIGNED_AUDIT_SIGNING: mandatory
+    ROLE_ASSUME: enabled
+    SELFTESTS_EXECUTION: enabled
+    TOKEN_APPLET_UPGRADE_FAILURE: enabled
+    TOKEN_APPLET_UPGRADE_SUCCESS: enabled
+    TOKEN_AUTH_FAILURE: enabled
+    TOKEN_AUTH_SUCCESS: enabled
+    TOKEN_CERT_ENROLLMENT: enabled
+    TOKEN_CERT_RENEWAL: enabled
+    TOKEN_CERT_RETRIEVAL: enabled
+    TOKEN_FORMAT_FAILURE: enabled
+    TOKEN_FORMAT_SUCCESS: enabled
+    TOKEN_KEY_CHANGEOVER_FAILURE: enabled
+    TOKEN_KEY_CHANGEOVER_REQUIRED: enabled
+    TOKEN_KEY_CHANGEOVER_SUCCESS: enabled
+    TOKEN_KEY_RECOVERY: enabled
+    TOKEN_OP_REQUEST: enabled
+    TOKEN_PIN_RESET_FAILURE: enabled
+    TOKEN_PIN_RESET_SUCCESS: enabled
+    TOKEN_STATE_CHANGE: enabled
+----
+
+To download audit configuration into a file:
+
+----
+$ pki -n caadmin tps-audit-show --output audit.xml
+-----------------------------------------
+Stored audit configuration into audit.xml
+-----------------------------------------
+----
+
+The audit configuration is stored in XML format:
+
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Audit xmlns:ns2="http://www.w3.org/2005/Atom">
+    <BufferSize>512</BufferSize>
+    <Events>
+        <Event name="AUDIT_LOG_SHUTDOWN">mandatory</Event>
+        <Event name="AUDIT_LOG_STARTUP">mandatory</Event>
+        <Event name="AUTHZ_FAIL">enabled</Event>
+        <Event name="AUTHZ_SUCCESS">enabled</Event>
+        <Event name="AUTH_FAIL">enabled</Event>
+        <Event name="AUTH_SUCCESS">enabled</Event>
+        <Event name="CIMC_CERT_VERIFICATION">enabled</Event>
+        <Event name="CONFIG_AUTH">enabled</Event>
+        <Event name="CONFIG_ROLE">enabled</Event>
+        <Event name="CONFIG_SIGNED_AUDIT">enabled</Event>
+        <Event name="CONFIG_TOKEN_AUTHENTICATOR">enabled</Event>
+        <Event name="CONFIG_TOKEN_CONNECTOR">enabled</Event>
+        <Event name="CONFIG_TOKEN_GENERAL">enabled</Event>
+        <Event name="CONFIG_TOKEN_MAPPING_RESOLVER">enabled</Event>
+        <Event name="CONFIG_TOKEN_PROFILE">enabled</Event>
+        <Event name="CONFIG_TOKEN_RECORD">enabled</Event>
+        <Event name="LOGGING_SIGNED_AUDIT_SIGNING">mandatory</Event>
+        <Event name="ROLE_ASSUME">enabled</Event>
+        <Event name="SELFTESTS_EXECUTION">enabled</Event>
+        <Event name="TOKEN_APPLET_UPGRADE_FAILURE">enabled</Event>
+        <Event name="TOKEN_APPLET_UPGRADE_SUCCESS">enabled</Event>
+        <Event name="TOKEN_AUTH_FAILURE">enabled</Event>
+        <Event name="TOKEN_AUTH_SUCCESS">enabled</Event>
+        <Event name="TOKEN_CERT_ENROLLMENT">enabled</Event>
+        <Event name="TOKEN_CERT_RENEWAL">enabled</Event>
+        <Event name="TOKEN_CERT_RETRIEVAL">enabled</Event>
+        <Event name="TOKEN_FORMAT_FAILURE">enabled</Event>
+        <Event name="TOKEN_FORMAT_SUCCESS">enabled</Event>
+        <Event name="TOKEN_KEY_CHANGEOVER_FAILURE">enabled</Event>
+        <Event name="TOKEN_KEY_CHANGEOVER_REQUIRED">enabled</Event>
+        <Event name="TOKEN_KEY_CHANGEOVER_SUCCESS">enabled</Event>
+        <Event name="TOKEN_KEY_RECOVERY">enabled</Event>
+        <Event name="TOKEN_OP_REQUEST">enabled</Event>
+        <Event name="TOKEN_PIN_RESET_FAILURE">enabled</Event>
+        <Event name="TOKEN_PIN_RESET_SUCCESS">enabled</Event>
+        <Event name="TOKEN_STATE_CHANGE">enabled</Event>
+    </Events>
+    <Interval>5</Interval>
+    <Link href="https://server.example.com:8443/tps/rest/audit" rel="self"/>
+    <Signed>false</Signed>
+    <Status>Enabled</Status>
+</Audit>
+----
+
+== Modifying Audit Configuration ==
+
+To modify the audit configuration, download the current audit configuration into a file using the `tps-audit-show` command above.
+Edit the file as needed:
+
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Audit xmlns:ns2="http://www.w3.org/2005/Atom">
+    <BufferSize>1024</BufferSize>
+    <Events>
+        ...
+        <Event name="AUTHZ_SUCCESS">disabled</Event>
+        ...
+        <Event name="AUTH_SUCCESS">disabled</Event>
+        ...
+    </Events>
+    <Interval>10</Interval>
+    ...
+    <Signed>true</Signed>
+    ...
+</Audit>
+----
+
+Then upload the new configuration with the following command:
+
+----
+$ pki -n caadmin tps-audit-mod --input audit.xml
+----------------------------
+Modified audit configuration
+----------------------------
+  Status: Enabled
+  Signed: false
+  Interval (seconds): 10
+  Buffer size (bytes): 512
+  Events:
+    AUDIT_LOG_SHUTDOWN: mandatory
+    AUDIT_LOG_STARTUP: mandatory
+    AUTHZ_FAIL: enabled
+    AUTHZ_SUCCESS: disabled
+    AUTH_FAIL: enabled
+    AUTH_SUCCESS: disabled
+    CIMC_CERT_VERIFICATION: enabled
+    CONFIG_AUTH: enabled
+    CONFIG_ROLE: enabled
+    CONFIG_SIGNED_AUDIT: enabled
+    CONFIG_TOKEN_AUTHENTICATOR: enabled
+    CONFIG_TOKEN_CONNECTOR: enabled
+    CONFIG_TOKEN_GENERAL: enabled
+    CONFIG_TOKEN_MAPPING_RESOLVER: enabled
+    CONFIG_TOKEN_PROFILE: enabled
+    CONFIG_TOKEN_RECORD: enabled
+    LOGGING_SIGNED_AUDIT_SIGNING: mandatory
+    ROLE_ASSUME: enabled
+    SELFTESTS_EXECUTION: enabled
+    TOKEN_APPLET_UPGRADE_FAILURE: enabled
+    TOKEN_APPLET_UPGRADE_SUCCESS: enabled
+    TOKEN_AUTH_FAILURE: enabled
+    TOKEN_AUTH_SUCCESS: enabled
+    TOKEN_CERT_ENROLLMENT: enabled
+    TOKEN_CERT_RENEWAL: enabled
+    TOKEN_CERT_RETRIEVAL: enabled
+    TOKEN_FORMAT_FAILURE: enabled
+    TOKEN_FORMAT_SUCCESS: enabled
+    TOKEN_KEY_CHANGEOVER_FAILURE: enabled
+    TOKEN_KEY_CHANGEOVER_REQUIRED: enabled
+    TOKEN_KEY_CHANGEOVER_SUCCESS: enabled
+    TOKEN_KEY_RECOVERY: enabled
+    TOKEN_OP_REQUEST: enabled
+    TOKEN_PIN_RESET_FAILURE: enabled
+    TOKEN_PIN_RESET_SUCCESS: enabled
+    TOKEN_STATE_CHANGE: enabled
+----
+
+Optionally, the updated configuration can be stored into a file using the `--output` parameter.
