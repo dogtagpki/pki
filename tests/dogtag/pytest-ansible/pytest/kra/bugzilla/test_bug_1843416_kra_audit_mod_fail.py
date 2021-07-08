@@ -30,8 +30,7 @@ except Exception:
 
 log = logging.getLogger()
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-audit_file = '/tmp/kra_audit.xml'
-
+audit_file = '/tmp/kra_audit.json'
 
 def test_bug_1843416_kra_audit_mod_fail(ansible_module):
     """
