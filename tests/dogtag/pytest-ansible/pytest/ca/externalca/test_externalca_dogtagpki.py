@@ -42,6 +42,21 @@ if os.path.isfile('/tmp/test_dir/constants.py'):
     sys.path.append('/tmp/test_dir')
     import constants
 
+import re
+import logging
+from pki.testlib.common.utils import UserOperations
+import datetime,time
+
+log = logging.getLogger()
+date = str(datetime.date.today())
+
+# Variable used by external CA
+nssdb = '/opt/pkitest/certdb'
+port = '8443'
+user = "testUser"
+pem_cert = "/tmp/extCA-agent.pem"
+
+
 @pytest.mark.usefixtures("config_setup")
 def test_externalca_dogtagpki(ansible_module):
     '''
@@ -150,3 +165,154 @@ def test_ExternalCA_extensions_skid(ansible_module):
     log.info("Verified: ExternalCA AKID == RootCA SKID")
     assert extca_skid not in extca_akid,'Failed to match SKID and AKID for ExternalCA'
     log.info("Verified: ExternalCA AKID and SKID are different")
+    ansible_module.command("rm -ivf /tmp/ca_signing.csr /tmp/external.crt /tmp/ca_signing.crt")
+
+
+@pytest.mark.usefixtures("config_setup")
+def test_bug_1911472_revoke_with_allowExtCASignedAgentCerts(ansible_module):
+    """
+    :id: 93c030f5-0cb8-4f61-b8c9-f879feb11652
+    :Title: Bug 1911472 - Revoke cert using external ca agent cert with default value.
+    :Description: Revoke cert using external ca agent cert with parameter of allowExtCASignedAgentCerts.
+    :Requirement: RHCS-REQ  CA Installation with existing certs-OCSP
+    :CaseComponent: \-
+    :Setup:
+       1. Install CA and SubCA.
+       2. Create certificate on external CA for agent with name extCA-agent.
+       3. Create agent on main CA and import extCA-agent certificate.
+    :Steps:
+       1. Test with default value of ca.allowExtCASignedAgentCerts=false without any changes.
+       2. Test with parameter ca.allowExtCASignedAgentCerts=true in CS.cfg parameter
+    :ExpectedResults:
+       1. It Should failed with error message UnauthorizedException: Request was unauthorized.
+       2. Debug logs should show message "client cert not issued by this CA" and "allowExtCASignedAgentCerts false"
+       3. With parameter ca.allowExtCASignedAgentCerts=true Debug logs should show message "client cert not issued by this CA" and "allowExtCASignedAgentCerts true"
+    :Automated: Yes
+    :customerscenario: yes
+    """
+    # setup external CA by re-using existing function.
+    test_externalca_dogtagpki(ansible_module)
+
+    # export agent user cert from external CA
+    subcausercert = ansible_module.pki(cli='ca-cert-find',
+                                       nssdb=nssdb,
+                                       dbpassword=constants.CLIENT_DATABASE_PASSWORD,
+                                       port=port,
+                                       protocol='https',
+                                       certnick="'{}'".format('caadmin'),
+                                       extra_args="--uid=testusercert")
+    for result in subcausercert.values():
+        if result['rc'] == 0:
+            serial_no = re.findall('Serial Number:.*', result['stdout'])
+            serial_no = serial_no[0].split(":")[1].strip()
+            log.info("Successfully ran : '{}'".format(result['cmd']))
+        else:
+            log.info("Failed to ran : '{}'".format(result['cmd']))
+            pytest.fail()
+
+    ansible_module.pki(cli='ca-cert-show', nssdb=nssdb,
+                       dbpassword=constants.CLIENT_DATABASE_PASSWORD,
+                       port=port,
+                       protocol='https',
+                       certnick="'{}'".format('caadmin'),
+                       extra_args="{} --output {}".format(serial_no, pem_cert))
+
+    # Create agent on main CA
+    userop = UserOperations(nssdb=nssdb)
+    userop.add_user(ansible_module, 'add', userid=user, user_name=user, nssdb=nssdb)
+
+    ansible_module.pki(cli='ca-group-member-add', nssdb=nssdb,
+                       dbpassword=constants.CLIENT_DATABASE_PASSWORD,
+                       port=constants.CA_HTTPS_PORT,
+                       protocol='https',
+                       certnick="'{}'".format(constants.CA_ADMIN_NICK),
+                       extra_args='"Certificate Manager Agents" {}'.format(user))
+
+    cert_add = ansible_module.pki(cli='ca-user-cert-add', nssdb=nssdb,
+                                  dbpassword=constants.CLIENT_DATABASE_PASSWORD,
+                                  port=constants.CA_HTTPS_PORT,
+                                  protocol='https',
+                                  certnick="'{}'".format(constants.CA_ADMIN_NICK),
+                                  extra_args='{} --input {}'.format(user, pem_cert))
+    for result in cert_add.values():
+        if result['rc'] == 0:
+            assert 'Serial Number: {}'.format(serial_no) in result['stdout']
+            log.info("Successfully ran : '{}'".format(result['cmd']))
+        else:
+            log.info("Failed to ran : '{}'".format(result['cmd']))
+            pytest.fail()
+
+    # Import subCA agent certificate to Root CA agent user.
+    import_cert = ansible_module.pki(cli='client-cert-import', nssdb=nssdb,
+                                     dbpassword=constants.CLIENT_DATABASE_PASSWORD,
+                                     port=constants.CA_HTTPS_PORT,
+                                     protocol='https',
+                                     certnick="'{}'".format("extAgent"),
+                                     extra_args='--cert {}'.format(pem_cert))
+    for result in import_cert.values():
+        if result['rc'] == 0:
+            log.info("Successfully ran : '{}'".format(result['cmd']))
+        else:
+            log.info("Failed to ran : '{}'".format(result['cmd']))
+            pytest.fail()
+
+    # Create a certificate on main CA which we need to revoke in test scenario
+    cert_id = userop.process_certificate_request(ansible_module, subject="uid=testrevokecert", nssdb=nssdb)
+
+    # Test Scenario 1: Test with default value of ca.allowExtCASignedAgentCerts=false without any changes
+    revoke_cert = ansible_module.pki(cli='ca-cert-revoke', nssdb=nssdb,
+                                     dbpassword=constants.CLIENT_DATABASE_PASSWORD,
+                                     port=constants.CA_HTTPS_PORT,
+                                     protocol='https',
+                                     certnick="'{}'".format("extAgent"),
+                                     extra_args='{} --force'.format(cert_id))
+    for result in revoke_cert.values():
+        if result['rc'] >= 1:
+            assert "UnauthorizedException" in result['stderr']
+            log.info("Successfully ran : '{}'".format(result['cmd']))
+        else:
+            log.info("Failed to ran : '{}'".format(result['cmd']))
+            pytest.fail()
+
+    debug_log = ansible_module.command("tail -n 500 /var/log/pki/{}/ca/debug.{}.log".format(constants.CA_INSTANCE_NAME, date))
+    for result in debug_log.values():
+        if result['rc'] == 0:
+            assert "client cert not issued by this CA" in result['stdout']
+            assert "allowExtCASignedAgentCerts false" in result['stdout']
+            log.info("Successfully ran : '{}'".format(result['cmd']))
+        else:
+            log.info("Failed to ran : '{}'".format(result['cmd']))
+            pytest.fail()
+
+    # Test Scenario 2: Test with parameter ca.allowExtCASignedAgentCerts=true in CS.cfg parameter
+    ansible_module.lineinfile(dest="/var/lib/pki/{}/ca/conf/CS.cfg".format(constants.CA_INSTANCE_NAME),
+                              line="ca.allowExtCASignedAgentCerts=true", state="present")
+
+    ansible_module.shell('systemctl restart pki-tomcatd@{}'.format(constants.CA_INSTANCE_NAME))
+    time.sleep(10)
+
+    revoke_cert = ansible_module.pki(cli='ca-cert-revoke', nssdb=nssdb,
+                                     dbpassword=constants.CLIENT_DATABASE_PASSWORD,
+                                     port=constants.CA_HTTPS_PORT,
+                                     protocol='https',
+                                     certnick="'{}'".format("extAgent"),
+                                     extra_args='{} --force'.format(cert_id))
+    for result in revoke_cert.values():
+        if result['rc'] == 0:
+            log.info("Successfully ran : '{}'".format(result['cmd']))
+        else:
+            log.info("Failed to ran : '{}'".format(result['cmd']))
+            pytest.fail()
+
+    debug_log = ansible_module.command("tail -n 500 /var/log/pki/{}/ca/debug.{}.log".format(constants.CA_INSTANCE_NAME, date))
+    for result in debug_log.values():
+        if result['rc'] == 0:
+            assert "client cert not issued by this CA" in result['stdout']
+            assert "allowExtCASignedAgentCerts true" in result['stdout']
+            log.info("Successfully ran : '{}'".format(result['cmd']))
+        else:
+            log.info("Failed to ran : '{}'".format(result['cmd']))
+            pytest.fail()
+
+    # Cleaning existing data
+    ansible_module.command("rm -ivf /tmp/ca_signing.csr /tmp/external.crt /tmp/ca_signing.crt")
