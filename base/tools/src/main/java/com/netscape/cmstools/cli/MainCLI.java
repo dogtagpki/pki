@@ -63,10 +63,7 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.acme.ACMECLI;
 import com.netscape.cmstools.ca.CACLI;
-import com.netscape.cmstools.cert.ProxyCertCLI;
 import com.netscape.cmstools.client.ClientCLI;
-import com.netscape.cmstools.group.ProxyGroupCLI;
-import com.netscape.cmstools.key.ProxyKeyCLI;
 import com.netscape.cmstools.kra.KRACLI;
 import com.netscape.cmstools.nss.NSSCLI;
 import com.netscape.cmstools.ocsp.OCSPCLI;
@@ -76,7 +73,6 @@ import com.netscape.cmstools.pkcs7.PKCS7CLI;
 import com.netscape.cmstools.system.SecurityDomainCLI;
 import com.netscape.cmstools.tks.TKSCLI;
 import com.netscape.cmstools.tps.TPSCLI;
-import com.netscape.cmstools.user.ProxyUserCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.PlainPasswordFile;
 
@@ -108,12 +104,7 @@ public class MainCLI extends CLI {
         addModule(new NSSCLI(this));
 
         addModule(new InfoCLI(this));
-
-        addModule(new ProxyCertCLI(this));
-        addModule(new ProxyGroupCLI(this));
-        addModule(new ProxyKeyCLI(this));
         addModule(new ProxyCLI(new SecurityDomainCLI(this), "ca"));
-        addModule(new ProxyUserCLI(this));
 
         addModule(new ACMECLI(this));
         addModule(new CACLI(this));
