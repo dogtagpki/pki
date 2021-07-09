@@ -7,6 +7,13 @@
 
     - meta: flush_handlers
 
+    - name: Setup SELinux for policy to deploy podman container
+      command: "{{ item }}"
+      with_items:
+        - setenforce 0
+        - chcon system_u:object_r:device_t:s0 /dev/dma_heap/
+        - setenforce 1
+
     - name: Create a pod to encapsulate PKI ACME containers
       command: podman pod create --name {{topology}} -p {{variable.CA_HTTP_PORT}}:{{variable.CA_HTTP_PORT}} -p {{variable.CA_HTTPS_PORT}}:{{variable.CA_HTTPS_PORT}}
 
