@@ -28,8 +28,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.w3c.dom.Node;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -40,7 +41,6 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * This servlet retrieves the transport certificate from DRM.
@@ -133,16 +133,18 @@ public class GetTransportCert extends CMSServlet {
         // send success status back to the requestor
         try {
             logger.debug("GetTransportCert: Sending response " + mime64);
-            XMLObject xmlObj = new XMLObject();
-            Node root = xmlObj.createRoot("XMLResponse");
 
-            xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            xmlObj.addItemToContainer(root, "TransportCert", mime64);
-            byte[] cb = xmlObj.toByteArray();
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode rootNode = mapper.createObjectNode();
+            ObjectNode responseNode = mapper.createObjectNode();
 
-            outputResult(httpResp, "application/xml", cb);
+            responseNode.put("Status", SUCCESS);
+            responseNode.put("TransportCert", mime64);
+            rootNode.set("Response", responseNode);
+
+            outputResult(httpResp, "application/json", rootNode.binaryValue());
         } catch (Exception e) {
-            logger.warn("GetTransportCert: Failed to send the XML output " + e.getMessage(), e);
+            logger.warn("GetTransportCert: Failed to send the JSON output " + e.getMessage(), e);
         }
     }
 
