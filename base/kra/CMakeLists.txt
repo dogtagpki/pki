@@ -16,7 +16,7 @@ javac(pki-kra-classes
         ${COMMONS_CLI_JAR}
         ${COMMONS_CODEC_JAR}
         ${COMMONS_LANG3_JAR}
-        ${JACKSON2_ANNOTATIONS_JAR}
+        ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${LDAPJDK_JAR}
         ${SERVLET_JAR}
