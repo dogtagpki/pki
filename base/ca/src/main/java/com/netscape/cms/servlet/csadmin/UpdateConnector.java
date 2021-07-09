@@ -27,8 +27,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.jboss.resteasy.spi.BadRequestException;
-import org.w3c.dom.Node;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -40,7 +41,6 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmsutil.xml.XMLObject;
 
 public class UpdateConnector extends CMSServlet {
 
@@ -142,20 +142,22 @@ public class UpdateConnector extends CMSServlet {
         // send success status back to the requestor
         try {
             logger.debug("UpdateConnector: Sending response");
-            XMLObject xmlObj = new XMLObject();
-            Node root = xmlObj.createRoot("XMLResponse");
+
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode rootNode = mapper.createObjectNode();
+            ObjectNode responseNode = mapper.createObjectNode();
+
             if (status.equals(SUCCESS)) {
-                xmlObj.addItemToContainer(root, "Status", SUCCESS);
+                responseNode.put("Status", SUCCESS);
             } else {
-                xmlObj.addItemToContainer(root, "Status", FAILED);
-                xmlObj.addItemToContainer(root, "Error", error);
+                responseNode.put("Status", FAILED);
+                responseNode.put("Error", error);
             }
+            rootNode.set("Response", responseNode);
 
-            byte[] cb = xmlObj.toByteArray();
-
-            outputResult(httpResp, "application/xml", cb);
+            outputResult(httpResp, "application/json", rootNode.binaryValue());
         } catch (Exception e) {
-            logger.warn("UpdateConnector: Failed to send the XML output: " + e.getMessage(), e);
+            logger.warn("UpdateConnector: Failed to send the JSON output: " + e.getMessage(), e);
         }
     }
 

@@ -33,8 +33,9 @@ import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.w3c.dom.Node;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
@@ -60,7 +61,6 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
-import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * This servlet submits end-user request into the profile framework.
@@ -116,7 +116,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();
-        boolean xmlOutput = getXMLOutput(request);
+        boolean jsonOutput = getJSONOutput(request);
 
         Locale locale = getLocale(request);
 
@@ -133,19 +133,19 @@ public class ProfileSubmitServlet extends ProfileServlet {
             }
         } catch (BadRequestDataException e) {
             logger.error("ProfileSubmitServlet: bad data provided in processing request: " + e.getMessage(), e);
-            errorExit(response, xmlOutput, e.getMessage(), null);
+            errorExit(response, jsonOutput, e.getMessage(), null);
             return;
         } catch (EAuthzException e) {
             logger.error("ProfileSubmitServlet: authorization error in processing request: " + e.getMessage(), e);
-            errorExit(response, xmlOutput, e.getMessage(), null);
+            errorExit(response, jsonOutput, e.getMessage(), null);
             return;
         } catch (EAuthException e) {
             logger.error("ProfileSubmitServlet: authentication error in processing request: " + e.getMessage(), e);
-            errorExit(response, xmlOutput, e.getMessage(), null);
+            errorExit(response, jsonOutput, e.getMessage(), null);
             return;
         } catch (Exception e) {
             logger.error("ProfileSubmitServlet: error in processing request: " + e.getMessage(), e);
-            errorExit(response, xmlOutput, e.getMessage(), null);
+            errorExit(response, jsonOutput, e.getMessage(), null);
             return;
         }
 
@@ -156,7 +156,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         ArgSet args = new ArgSet();
 
         if (errorCode != null) {
-            if (xmlOutput) {
+            if (jsonOutput) {
                 String requestIds = "";
                 for (IRequest req : reqs) {
                     requestIds += "  " + req.getRequestId().toString();
@@ -179,8 +179,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
             return;
         }
 
-        if (xmlOutput) {
-            xmlOutput(response, profile, locale, reqs);
+        if (jsonOutput) {
+            output(response, profile, locale, reqs);
         } else {
             ArgList outputlist = new ArgList();
             for (int k = 0; k < reqs.length; k++) {
@@ -352,15 +352,15 @@ public class ProfileSubmitServlet extends ProfileServlet {
         }
     }
 
-    private void errorExit(HttpServletResponse response, boolean xmlOutput, String message, String requestId)
+    private void errorExit(HttpServletResponse response, boolean jsonOutput, String message, String requestId)
             throws EBaseException {
-        if (xmlOutput) {
+        if (jsonOutput) {
             outputError(response, FAILED, message, requestId);
         } else {
             ArgSet args = new ArgSet();
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, message);
-            outputTemplate(xmlOutput, response, args);
+            outputTemplate(jsonOutput, response, args);
         }
 
         for (String event : statEvents) {
@@ -368,46 +368,46 @@ public class ProfileSubmitServlet extends ProfileServlet {
         }
     }
 
-    private boolean getXMLOutput(HttpServletRequest request) {
-        boolean xmlOutput = false;
+    private boolean getJSONOutput(HttpServletRequest request) {
+        boolean jsonOutput = false;
 
-        String v = request.getParameter("xml");
+        String v = request.getParameter("json");
         if ((v != null) && (v.equalsIgnoreCase("true"))) {
-            xmlOutput = true;
+            jsonOutput = true;
         }
-        v = request.getParameter("xmlOutput");
+        v = request.getParameter("jsonOutput");
         if ((v != null) && (v.equalsIgnoreCase("true"))) {
-            xmlOutput = true;
+            jsonOutput = true;
         }
-        if (xmlOutput) {
-            logger.debug("xmlOutput true");
+        if (jsonOutput) {
+            logger.debug("jsonOutput true");
         } else {
-            logger.debug("xmlOutput false");
+            logger.debug("jsonOutput false");
         }
-        return xmlOutput;
+        return jsonOutput;
     }
 
-    private void xmlOutput(HttpServletResponse httpResp, Profile profile, Locale locale, IRequest[] reqs) {
+    private void output(HttpServletResponse httpResp, Profile profile, Locale locale, IRequest[] reqs) {
         try {
-            XMLObject xmlObj = null;
-            xmlObj = new XMLObject();
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode rootNode = mapper.createObjectNode();
+            ObjectNode responseNode = mapper.createObjectNode();
+            ObjectNode requestsNode = mapper.createObjectNode();
 
-            Node root = xmlObj.createRoot("XMLResponse");
-            xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            Node n = xmlObj.createContainer(root, "Requests");
-            logger.debug("ProfileSubmitServlet xmlOutput: req len = " + reqs.length);
+            responseNode.put("Status", SUCCESS);
+            logger.debug("ProfileSubmitServlet jsonOutput: req len = " + reqs.length);
 
             for (int i = 0; i < reqs.length; i++) {
-                Node subnode = xmlObj.createContainer(n, "Request");
-                xmlObj.addItemToContainer(subnode, "Id", reqs[i].getRequestId().toString());
+                ObjectNode requestNode = mapper.createObjectNode();
+                requestNode.put("Id", reqs[i].getRequestId().toString());
                 X509CertInfo certInfo =
                         reqs[i].getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
                 if (certInfo != null) {
                     String subject = "";
                     subject = certInfo.get(X509CertInfo.SUBJECT).toString();
-                    xmlObj.addItemToContainer(subnode, "SubjectDN", subject);
+                    requestNode.put("SubjectDN", subject);
                 } else {
-                    logger.warn("ProfileSubmitServlet xmlOutput: no certInfo found in request");
+                    logger.warn("ProfileSubmitServlet jsonOutput: no certInfo found in request");
                 }
                 Enumeration<String> outputIds = profile.getProfileOutputIds();
                 if (outputIds != null) {
@@ -430,13 +430,12 @@ public class ProfileSubmitServlet extends ProfileServlet {
                                         outputValue = Cert.stripBrackets(ss);
                                         byte[] bcode = Utils.base64decode(outputValue);
                                         X509CertImpl impl = new X509CertImpl(bcode);
-                                        xmlObj.addItemToContainer(subnode,
-                                                "serialno", impl.getSerialNumber().toString(16));
-                                        xmlObj.addItemToContainer(subnode, "b64", outputValue);
+                                        requestNode.put("serialno", impl.getSerialNumber().toString(16));
+                                        requestNode.put("b64", outputValue);
                                     }// if b64_cert
                                     else if (outputName.equals("pkcs7")) {
                                         String ss = Cert.normalizeCertStrAndReq(outputValue);
-                                        xmlObj.addItemToContainer(subnode, "pkcs7", ss);
+                                        requestNode.put("pkcs7", ss);
                                     }
 
                                 } catch (EProfileException e) {
@@ -448,12 +447,14 @@ public class ProfileSubmitServlet extends ProfileServlet {
                         }
                     }
                 }
+                requestsNode.set("Request", requestNode);
             }
 
-            byte[] cb = xmlObj.toByteArray();
-            outputResult(httpResp, "application/xml", cb);
+            rootNode.set("Response", responseNode);
+            rootNode.set("Requests", requestsNode);
+            outputResult(httpResp, "application/json", rootNode.binaryValue());
         } catch (Exception e) {
-            logger.warn("Failed to send the XML output");
+            logger.warn("Failed to send the JSON output");
         }
     }
 

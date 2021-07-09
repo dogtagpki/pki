@@ -28,8 +28,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.w3c.dom.Node;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -39,7 +40,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.xml.XMLObject;
 
 public class UpdateOCSPConfig extends CMSServlet {
 
@@ -139,13 +139,14 @@ public class UpdateOCSPConfig extends CMSServlet {
             logger.debug("UpdateOCSPConfig: Sending response");
 
             // send success status back to the requestor
-            XMLObject xmlObj = new XMLObject();
-            Node root = xmlObj.createRoot("XMLResponse");
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode rootNode = mapper.createObjectNode();
+            ObjectNode responseNode = mapper.createObjectNode();
 
-            xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            byte[] cb = xmlObj.toByteArray();
+            responseNode.put("Status", SUCCESS);
+            rootNode.set("Response", responseNode);
 
-            outputResult(httpResp, "application/xml", cb);
+            outputResult(httpResp, "application/json", rootNode.binaryValue());
         } catch (Exception e) {
             logger.warn("UpdateOCSPConfig: Failed to update OCSP configuration: " + e.getMessage(), e);
             outputError(httpResp, "Error: Failed to update OCSP configuration.");
