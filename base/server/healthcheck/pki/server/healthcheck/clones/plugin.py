@@ -168,7 +168,7 @@ class ClonesPlugin(Plugin):
             # Set some vars we will be using later
             self.db_dir = self.security_domain.config.get('jss.configDir')
             self.subsystem_token = self.security_domain.config.get('ca.subsystem.tokenname')
-            self.passwd = self.instance.get_password(self.subsystem_token)
+            self.passwd = self.instance.get_token_password(self.subsystem_token)
 
         return sec_domain, sechost, secport
 
