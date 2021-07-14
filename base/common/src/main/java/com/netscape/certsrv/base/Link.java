@@ -17,16 +17,8 @@
 // --- END COPYRIGHT BLOCK ---/**
 package com.netscape.certsrv.base;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URI;
 import java.util.Objects;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -37,7 +29,6 @@ import com.netscape.certsrv.util.JSONSerializer;
  * @author alee
  *
  */
-@XmlRootElement(name = "Link")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Link implements JSONSerializer {
@@ -63,7 +54,6 @@ public class Link implements JSONSerializer {
     /**
      * @return the relationship
      */
-    @XmlAttribute(name = "rel")
     public String getRelationship() {
         return relationship;
     }
@@ -78,7 +68,6 @@ public class Link implements JSONSerializer {
     /**
      * @return the href
      */
-    @XmlAttribute
     public String getHref() {
         return href;
     }
@@ -93,7 +82,6 @@ public class Link implements JSONSerializer {
     /**
      * @return the type
      */
-    @XmlAttribute
     public String getType() {
         return type;
     }
@@ -103,19 +91,6 @@ public class Link implements JSONSerializer {
      */
     public void setType(String type) {
         this.type = type;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(Link.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static Link fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(Link.class).createUnmarshaller();
-        return (Link) unmarshaller.unmarshal(new StringReader(string));
     }
 
     @Override
