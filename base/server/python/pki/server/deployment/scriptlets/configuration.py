@@ -821,6 +821,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             "validating %s certificate", tag,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
+        print "validate_system_cert on: " +tag + "; cert_data= " + cert_data
+
         subsystem.validate_system_cert(tag)
 
     def validate_system_certs(self, deployer, nssdb, subsystem):
@@ -1091,6 +1093,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 self.configure_system_certs(deployer, subsystem)
                 self.update_system_certs(deployer, nssdb, subsystem)
                 subsystem.save()
+                print "cfu: sleep for 30 seconds before validate_system_certs() call"
+                time.sleep(30);
 
                 self.validate_system_certs(deployer, nssdb, subsystem)
 
@@ -1105,6 +1109,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pass
 
         finally:
+            nssdb.close()
+            print "cfu: self.validate_system_certs() again after nssdb.close()"
+            nssdb = instance.open_nssdb(token)
+            self.validate_system_certs(deployer, nssdb, subsystem)
             nssdb.close()
 
         create_temp_sslserver_cert = self.create_temp_sslserver_cert(deployer, instance)
