@@ -373,7 +373,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         cert_id = self.get_cert_id(subsystem, tag)
         nickname = deployer.mdict['pki_%s_nickname' % cert_id]
         cert_data = nssdb.get_cert(
-            nickname=nickname)
+            nickname=nickname, output_text=True)
 
         if not cert_data:
             return
@@ -539,7 +539,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             '--pkcs7'
         ]
 
-        logger.debug('Command: %s', ' '.join(cmd))
+        logger.info('Command: %s', ' '.join(cmd))
         output = subprocess.check_output(cmd)
 
         return output.decode()
@@ -663,6 +663,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 self.update_system_certs(deployer, nssdb, subsystem)
                 subsystem.save()
 
+                nssdb.show_certs()
                 self.validate_system_certs(deployer, nssdb, subsystem)
 
             elif len(subsystems) > 1:
