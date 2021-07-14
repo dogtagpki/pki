@@ -18,6 +18,7 @@ import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class CACertRequestReviewCLI extends CommandCLI {
@@ -113,7 +114,7 @@ public class CACertRequestReviewCLI extends CommandCLI {
 
             logger.info("Storing certificate request into " + filename);
             try (Writer writer = new FileWriter(filename)) {
-                writer.write(reviewInfo.toXML());
+                writer.write(reviewInfo.toJSON());
             }
 
             System.out.println("Please review the certificate request in " + filename + ".");
@@ -131,7 +132,7 @@ public class CACertRequestReviewCLI extends CommandCLI {
 
             logger.info("Storing certificate request into " + filename);
             try (Writer writer = new FileWriter(filename)) {
-                writer.write(reviewInfo.toXML());
+                writer.write(reviewInfo.toJSON());
             }
 
             System.out.println("Please review the certificate request in " + filename + ".");
@@ -168,8 +169,8 @@ public class CACertRequestReviewCLI extends CommandCLI {
             // load updated request from file
 
             logger.info("Loading certificate request from " + filename);
-            String xml = new String(Files.readAllBytes(Paths.get(filename)));
-            reviewInfo = CertReviewResponse.fromXML(xml);
+            String json = new String(Files.readAllBytes(Paths.get(filename)));
+            reviewInfo = JSONSerializer.fromJSON(json, CertReviewResponse.class);
         }
 
         // execute action

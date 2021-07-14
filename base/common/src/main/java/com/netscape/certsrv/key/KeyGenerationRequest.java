@@ -23,6 +23,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.ResourceMessage;
 
 /**
@@ -31,7 +34,9 @@ import com.netscape.certsrv.base.ResourceMessage;
  * @author akoneru
  *
  */
-public class KeyGenerationRequest extends ResourceMessage{
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
+public class KeyGenerationRequest extends ResourceMessage {
 
     protected static final String CLIENT_KEY_ID = "clientKeyID";
     protected static final String KEY_SIZE = "keySize";
@@ -140,4 +145,14 @@ public class KeyGenerationRequest extends ResourceMessage{
             attributes.remove(REALM);
         }
     }
+
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

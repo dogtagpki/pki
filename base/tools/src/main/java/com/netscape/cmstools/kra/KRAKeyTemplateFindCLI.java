@@ -9,6 +9,7 @@ import org.dogtagpki.cli.CommandCLI;
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.key.KeyTemplate;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyTemplateFindCLI extends CommandCLI {
@@ -58,11 +59,11 @@ public class KRAKeyTemplateFindCLI extends CommandCLI {
         ResourceMessage data = null;
         String[] templateFiles = file.list();
         for (String templateName : templateFiles) {
-            if (templateName.indexOf(".xml") == -1) {
+            if (templateName.indexOf(".json") == -1) {
                 continue;
             }
-            String id = templateName.substring(0, templateName.indexOf(".xml"));
-            data = ResourceMessage.unmarshall(SymKeyGenerationRequest.class, templateDir + templateName);
+            String id = templateName.substring(0, templateName.indexOf(".json"));
+            data = JSONSerializer.fromJSON(templateDir + templateName, SymKeyGenerationRequest.class);
             template = new KeyTemplate(id, data.getAttribute("description"));
             templates.add(template);
         }

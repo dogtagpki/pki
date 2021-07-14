@@ -110,5 +110,14 @@ public class KRAInfo extends ResourceMessage {
         return true;
     }
 
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
 

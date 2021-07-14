@@ -170,6 +170,15 @@ public class PKIException extends RuntimeException {
             return sw.toString();
         }
 
+        @Override
+        public String toString() {
+            try {
+                return toJSON();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         public static Data fromXML(String xml) throws Exception {
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

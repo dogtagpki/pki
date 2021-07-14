@@ -1,0 +1,29 @@
+{
+  "SymKeyGenerationRequest": {
+    "Attributes": {
+      "Attribute": [
+        {
+          "name": "description",
+          "text": "Template for submitting a request for generating a symmetric key."
+        },
+        {
+          "name": "clientKeyID"
+        },
+        {
+          "name": "keyAlgorithm",
+          "text": "[AES/DES/DES3/DESede/RC2/RC4]"
+        },
+        {
+          "name": "keySize",
+          "text": "128"
+        },
+        {
+          "name": "keyUsage",
+          "text": "wrap,unwrap,sign,verify,encrypt,decrypt"
+        }
+      ]
+    },
+    "ClassName": "com.netscape.certsrv.key.SymKeyGenerationRequest"
+  },
+  "omit-xml-declaration": "yes"
+}

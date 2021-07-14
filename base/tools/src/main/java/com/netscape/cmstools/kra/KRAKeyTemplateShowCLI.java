@@ -6,8 +6,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
-import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.key.KeyArchivalRequest;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyTemplateShowCLI extends CommandCLI {
@@ -46,15 +46,16 @@ public class KRAKeyTemplateShowCLI extends CommandCLI {
         String writeToFile = cmd.getOptionValue("output");
         String templateDir = "/usr/share/pki/key/templates/";
         String templatePath = templateDir + templateId + ".xml";
-        ResourceMessage data = ResourceMessage.unmarshall(KeyArchivalRequest.class, templatePath);
+        KeyArchivalRequest data = JSONSerializer.fromJSON(templatePath, KeyArchivalRequest.class);
 
         if (writeToFile != null) {
             try (FileOutputStream fOS = new FileOutputStream(writeToFile)) {
-                data.marshall(fOS);
+                byte[] bytesArray = data.toJSON().getBytes();
+                fOS.write(bytesArray);
             }
         } else {
             MainCLI.printMessage(data.getAttribute("description"));
-            data.marshall(System.out);
+            System.out.print(data.toJSON());
         }
     }
 }

@@ -530,4 +530,13 @@ public class CertData implements JSONSerializer {
         return data;
     }
 
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

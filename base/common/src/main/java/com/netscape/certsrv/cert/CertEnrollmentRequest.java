@@ -29,11 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -52,7 +47,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.profile.ProfileOutput;
@@ -63,8 +57,6 @@ import com.netscape.certsrv.property.Descriptor;
  *
  */
 
-@XmlRootElement(name = "CertEnrollmentRequest")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertEnrollmentRequest extends ResourceMessage {
@@ -74,29 +66,20 @@ public class CertEnrollmentRequest extends ResourceMessage {
     private static final String SERIAL_NUM = "serial_num";
     private static final String SERVERSIDE_KEYGEN_P12_PASSWD = "serverSideKeygenP12Passwd";
 
-    @XmlElement(name="ProfileID")
     protected String profileId;
 
-    @XmlElement(name="ServerSideKeygenP12Passwd")
     protected String serverSideKeygenP12Passwd;
 
-    @XmlElement(name="Renewal")
     protected boolean renewal;
 
-    @XmlElement(name="SerialNumber")
-    @XmlJavaTypeAdapter(CertIdAdapter.class)
     protected CertId serialNum;   // used for one type of renewal
 
-    @XmlElement(name="RemoteHost")
     protected String remoteHost;
 
-    @XmlElement(name="RemoteAddress")
     protected String remoteAddr;
 
-    @XmlElement(name = "Input")
     protected Collection<ProfileInput> inputs = new ArrayList<>();
 
-    @XmlElement(name = "Output")
     protected Collection<ProfileOutput> outputs = new ArrayList<>();
 
     public CertEnrollmentRequest() {
@@ -573,6 +556,16 @@ public class CertEnrollmentRequest extends ResourceMessage {
 
         Element profileElement = document.getDocumentElement();
         return fromDOM(profileElement);
+
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

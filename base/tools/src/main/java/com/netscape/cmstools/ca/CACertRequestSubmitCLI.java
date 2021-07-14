@@ -29,6 +29,7 @@ import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 import netscape.ldap.util.DN;
@@ -165,8 +166,8 @@ public class CACertRequestSubmitCLI extends CommandCLI {
 
             logger.info("Loading request from " + requestFilename);
 
-            String xml = loadFile(requestFilename);
-            request = CertEnrollmentRequest.fromXML(xml);
+            String json = loadFile(requestFilename);
+            request = JSONSerializer.fromJSON(json, CertEnrollmentRequest.class);
         }
 
         if (requestType != null) {

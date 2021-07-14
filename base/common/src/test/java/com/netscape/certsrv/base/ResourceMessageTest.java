@@ -18,19 +18,6 @@ public class ResourceMessageTest {
     }
 
     @Test
-    public void testXML() throws Exception {
-        // Act
-        String xml = ResourceMessage.marshal(before, ResourceMessage.class);
-        System.out.println("XML (before): " + xml);
-
-        ResourceMessage afterXML = ResourceMessage.unmarshal(xml, ResourceMessage.class);
-        System.out.println("XML (after): " + ResourceMessage.marshal(afterXML, ResourceMessage.class));
-
-        // Assert
-        Assert.assertEquals(before, afterXML);
-    }
-
-    @Test
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();

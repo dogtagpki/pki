@@ -203,5 +203,15 @@ public class Info extends ResourceMessage {
 
         Element element = document.getDocumentElement();
         return fromDOM(element);
+
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

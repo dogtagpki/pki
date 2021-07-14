@@ -217,4 +217,13 @@ public class KeyRecoveryRequest extends ResourceMessage {
         attributes.put(PAYLOAD_WRAPPING_NAME, payloadWrappingName);
     }
 
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

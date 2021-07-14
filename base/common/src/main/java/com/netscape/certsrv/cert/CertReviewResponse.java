@@ -258,6 +258,7 @@ public class CertReviewResponse extends CertEnrollmentRequest {
                 && Objects.equals(requestStatus, other.requestStatus) && Objects.equals(requestType, other.requestType);
     }
 
+    @Override
     public Element toDOM(Document document) {
 
         Element element = document.createElement("certReviewResponse");
@@ -469,6 +470,7 @@ public class CertReviewResponse extends CertEnrollmentRequest {
         return response;
     }
 
+    @Override
     public String toXML() throws Exception {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -500,4 +502,14 @@ public class CertReviewResponse extends CertEnrollmentRequest {
         Element element = document.getDocumentElement();
         return fromDOM(element);
     }
+
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

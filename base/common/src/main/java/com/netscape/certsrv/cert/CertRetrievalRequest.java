@@ -146,6 +146,16 @@ public class CertRetrievalRequest implements JSONSerializer {
 
         Element requestElement = document.getDocumentElement();
         return fromDOM(requestElement);
+
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

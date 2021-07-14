@@ -13,6 +13,7 @@ import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class CACertRequestActionCLI extends CommandCLI {
@@ -99,8 +100,8 @@ public class CACertRequestActionCLI extends CommandCLI {
             // if input file provided, load updated request from file
 
             logger.info("Loading certificate request from " + filename);
-            String xml = new String(Files.readAllBytes(Paths.get(filename)));
-            reviewInfo = CertReviewResponse.fromXML(xml);
+            String json = new String(Files.readAllBytes(Paths.get(filename)));
+            reviewInfo = JSONSerializer.fromJSON(json, CertReviewResponse.class);
 
             if (!requestId.equals(reviewInfo.getRequestId())) {
                 throw new Exception("Incorrect certificate request in " + filename);

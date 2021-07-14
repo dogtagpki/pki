@@ -1,0 +1,42 @@
+{
+  "KeyRecoveryRequest": {
+    "Attributes": {
+      "Attribute": [
+        {
+          "name": "description",
+          "text": "Template for submitting a key retrieval or key recovery request."
+        },
+        {
+          "name": "keyId",
+          "text": "1"
+        },
+        {
+          "name": "requestId",
+          "text": "1"
+        },
+        {
+          "name": "nonceData",
+          "text": "Base64 encoded NonceData"
+        },
+        {
+          "name": "passphrase",
+          "text": "Passphrase to encrypt the secret with/Passphrase for the PKCS12 file returned"
+        },
+        {
+          "name": "sessionWrappedPassphrase",
+          "text": "Base64 encoded session key wrapped passphrase"
+        },
+        {
+          "name": "transWrappedSessionKey",
+          "text": "Base64 encoded transport key wrapped session key"
+        },
+        {
+          "name": "certificate",
+          "text": "Base64 certificate used for recovering the key."
+        }
+      ]
+    },
+    "ClassName": "com.netscape.certsrv.key.KeyRecoveryRequest"
+  },
+  "omit-xml-declaration": "yes"
+}

@@ -291,4 +291,13 @@ public class KeyData implements JSONSerializer {
         return true;
     }
 
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
