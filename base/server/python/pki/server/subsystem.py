@@ -217,9 +217,12 @@ class PKISubsystem(object):
 
         logger.debug('Command: %s', ' '.join(cmd))
 
-        subprocess.check_output(
-            cmd,
-            stderr=subprocess.STDOUT)
+        try:
+            print(subprocess.check_output(
+                cmd,
+                stderr=subprocess.STDOUT))
+        except subprocess.CalledProcessError as e:
+            print("pki-server subsystem-cert-validate stdout output:\n", e.output)
 
     def export_system_cert(
             self,
