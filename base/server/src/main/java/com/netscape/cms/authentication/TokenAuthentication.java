@@ -46,7 +46,7 @@ import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.cmsutil.json.JSONObject;
 
 /**
  * Token authentication.
@@ -164,7 +164,7 @@ public class TokenAuthentication implements ProfileAuthenticator {
             // formatted response which will throw an exception during parsing
             if (c != null) {
                 @SuppressWarnings("unused")
-                XMLObject parser = new XMLObject(new ByteArrayInputStream(c.getBytes()));
+                JSONObject parser = new JSONObject(new ByteArrayInputStream(c.getBytes()));
             }
 
         } catch (Exception e) {
@@ -176,26 +176,26 @@ public class TokenAuthentication implements ProfileAuthenticator {
         if (c != null) {
             try {
                 ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-                XMLObject parser = null;
+                JSONObject parser = null;
 
                 try {
-                    parser = new XMLObject(bis);
+                    parser = new JSONObject(bis);
                 } catch (Exception e) {
                     logger.error("TokenAuthentication::authenticate() - "
                              + "Exception=" + e.getMessage(), e);
                     throw new EBaseException(e.toString());
                 }
-                String status = parser.getValue("Status");
+                String status = parser.getValueFromRootNode("Status");
 
                 logger.debug("TokenAuthentication: status=" + status);
                 if (!status.equals("0")) {
-                    String error = parser.getValue("Error");
+                    String error = parser.getValueFromRootNode("Error");
                     logger.error("TokenAuthentication: error: " + error);
                     throw new EBaseException(error);
                 }
 
-                String uid = parser.getValue("uid");
-                String gid = parser.getValue("gid");
+                String uid = parser.getValueFromRootNode("uid");
+                String gid = parser.getValueFromRootNode("gid");
                 String[] groups = {gid};
 
                 authToken.set(IAuthToken.UID, uid);
