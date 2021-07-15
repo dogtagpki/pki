@@ -21,15 +21,20 @@ package org.dogtagpki.server.tps.rest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.ActivityRecord;
+import org.dogtagpki.server.tps.dbs.TokenDatabase;
+import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
@@ -38,6 +43,9 @@ import com.netscape.certsrv.logging.ActivityCollection;
 import com.netscape.certsrv.logging.ActivityData;
 import com.netscape.certsrv.logging.ActivityResource;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.certsrv.user.UserResource;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.certsrv.usrgrp.IUser;
 
 /**
  * @author Endi S. Dewata
@@ -74,6 +82,21 @@ public class ActivityService extends PKIService implements ActivityResource {
         return activityData;
     }
 
+    public ActivityData createRestrictedActivityData() {
+
+        ActivityData activityData = new ActivityData();
+        activityData.setID("<restricted>");
+        activityData.setTokenID("<restricted>");
+        activityData.setUserID("<restricted>");
+        activityData.setIP("<restricted>");
+        activityData.setOperation("<restricted>");
+        activityData.setResult("<restricted>");
+        activityData.setMessage("<restricted>");
+        activityData.setDate(new Date(0L));
+
+        return activityData;
+    }
+
     public ActivityRecord createActivityRecord(ActivityData activityData) {
 
         ActivityRecord activityRecord = new ActivityRecord();
@@ -91,8 +114,8 @@ public class ActivityService extends PKIService implements ActivityResource {
 
     @Override
     public Response findActivities(String filter, Integer start, Integer size) {
-
-        CMS.debug("ActivityService.findActivities()");
+        String method = "ActivityService.findActivities: ";
+        CMS.debug(method);
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -136,24 +159,65 @@ public class ActivityService extends PKIService implements ActivityResource {
             Integer size,
             ActivityCollection response) throws Exception {
 
+        String method = "ActivityService.retrieveActivitiesWithVLV: ";
+        CMS.debug(method);
         // search with VLV sorted by date in reverse order
         IDBVirtualList<ActivityRecord> list = database.findRecords(
                 null, null, new String[] { "-date" }, size);
 
+        List<String> authorizedProfiles = getAuthorizedProfiles();
+
         int total = list.getSize();
+        CMS.debug(method + "total: " + total);
+        int retTotal = 0; // debugging only
 
         // return entries in the requested page
-        for (int i = start; i < start + size && i < total; i++) {
-            ActivityRecord record = list.getElementAt(i);
+        if (authorizedProfiles != null) {
+            if (authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+                for (int i = start; i < start + size && i < total; i++) {
+                    ActivityRecord record = list.getElementAt(i);
 
-            if (record == null) {
-                CMS.debug("ActivityService: Activity record not found");
-                throw new PKIException("Activity record not found");
+                    response.addEntry(createActivityData(record));
+                    retTotal++;
+                }
+            } else { // not authorized for all profiles
+                for (int i = start; i < start + size && i < total; i++) {
+                    ActivityRecord record = list.getElementAt(i);
+
+                    //CMS.debug(method + "record.Id="+ record.getId());
+                    // On some rare occasions, some activities don't have
+                    // their token type filled in. It is therefore necessary
+                    // to get it from the token record directly.
+                    String type = record.getType();
+                    //CMS.debug(method + "record.tokenType="+ type);
+                    if ((type == null) || type.isEmpty()) {
+                        CMS.debug(method + "record.tokenType null...getting from token record");
+                        String tokenID = record.getTokenID();
+                        if ((tokenID != null) && !tokenID.isEmpty()) {
+                            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                            TokenDatabase t_database = subsystem.getTokenDatabase();
+                            TokenRecord t_record = t_database.getRecord(tokenID);
+                            if (t_record != null)
+                                type = t_record.getType();
+                        }
+                    }
+
+                    //CMS.debug(method + "type="+ type);
+                    if ((type == null) || type.isEmpty() || authorizedProfiles.contains(type)) {
+                        //CMS.debug(method + "token type allowed");
+                        retTotal++;
+                        response.addEntry(createActivityData(record));
+                    } else {
+                        CMS.debug(method + "token type restricted; adding 'restricted' record");
+                        response.addEntry(createRestrictedActivityData());
+                    }
+                } //for
             }
-
-            response.addEntry(createActivityData(record));
+        } else { //authorizedProfiles null; no permission
+            CMS.debug(method + "authorized profiles is null");
         }
 
+        CMS.debug(method + "retTotal = " + retTotal);
         response.setTotal(total);
     }
 
@@ -164,44 +228,120 @@ public class ActivityService extends PKIService implements ActivityResource {
             Integer size,
             ActivityCollection response) throws Exception {
 
+        String method = "ActivityService.retrieveActivitiesWithoutVLV: ";
         // search without VLV
-        Iterator<ActivityRecord> activities = database.findRecords(filter).iterator();
+	List<ActivityRecord> activities = (List<ActivityRecord>) database.findRecords(filter);
+	int total = activities.size();
+        CMS.debug(method + "total: " + total);
 
-        // TODO: sort results by date in reverse order
+        List<String> authorizedProfiles = getAuthorizedProfiles();
 
+        int retTotal = 0; // debugging only
         int i = 0;
 
-        // skip to the start of the page
-        for (; i < start && activities.hasNext(); i++)
-            activities.next();
-
         // return entries in the requested page
-        for (; i < start + size && activities.hasNext(); i++) {
-            ActivityRecord record = activities.next();
-            response.addEntry(createActivityData(record));
+        if (authorizedProfiles != null) {
+            if (authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+                for (i= start; i < start + size && i < total; i++) {
+                    ActivityRecord record = activities.get(i);
+
+                    //CMS.debug(method + "record.tokenType="+ record.getType());
+                    response.addEntry(createActivityData(record));
+                    retTotal++;
+                }
+            } else { // not authorized for all profiles
+                for (i= start; i < start + size && i < total; i++) {
+                    ActivityRecord record = activities.get(i);
+                    //CMS.debug(method + "record.ID="+ record.getId());
+                    // On some rare occasions, some activities don't have
+                    // their token type filled in. It is therefore necessary
+                    // to get it from the token record directly.
+                    String type = record.getType();
+                    //CMS.debug(method + "record.tokenType="+ type);
+                    if ((type == null) || type.isEmpty()) {
+                        CMS.debug(method + "record.tokenType null...getting from token record");
+                        String tokenID = record.getTokenID();
+                        if ((tokenID != null) && !tokenID.isEmpty()) {
+                            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                            TokenDatabase t_database = subsystem.getTokenDatabase();
+                            TokenRecord t_record = t_database.getRecord(tokenID);
+                            if (t_record != null)
+                                type = t_record.getType();
+                        }
+                    }
+                    //CMS.debug(method + "type="+ type);
+
+                    if ((type == null) || type.isEmpty() || authorizedProfiles.contains(type)) {
+                        retTotal++;
+                        response.addEntry(createActivityData(record));
+                    } else {
+                        //CMS.debug(method + "token type not allowed: " + type +
+                        //        "; adding 'restricted' record");
+                        response.addEntry(createRestrictedActivityData());
+                    }
+                }
+            }
+        } else { //authorizedProfiles null; no permission
+            CMS.debug(method + "authorized profiles is null");
         }
 
-        // count the total entries
-        for (; activities.hasNext(); i++) activities.next();
-        response.setTotal(i);
+        CMS.debug(method + "retTotal = " + retTotal);
+        response.setTotal(total);
     }
 
     @Override
     public Response getActivity(String activityID) {
 
+        String method = "ActivityService.getActivity: ";
+        String msg = "";
         if (activityID == null) throw new BadRequestException("Activity ID is null.");
 
-        CMS.debug("ActivityService.getActivity(\"" + activityID + "\")");
+        CMS.debug(method + "(\"" + activityID + "\")");
 
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if (authorizedProfiles == null) {
+                msg = "authorizedProfiles null";
+                CMS.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
+            ActivityRecord record = database.getRecord(activityID);
+            if (record == null) {
+                CMS.debug(method + "record not found");
+                throw new PKIException(method + "record not found");
+            }
+            String type = record.getType();
 
-            return createOKResponse(createActivityData(database.getRecord(activityID)));
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type)) {
+                msg = "token type restricted: " + type;
+                CMS.debug(method + msg);
+                throw new PKIException(msg);
+            }
+            return createOKResponse(createActivityData(record));
 
         } catch (Exception e) {
             CMS.debug(e);
             throw new PKIException(e.getMessage());
         }
+    }
+
+    /*
+     * returns a list of TPS profiles allowed for the current user
+     */
+    List<String> getAuthorizedProfiles()
+           throws Exception {
+        String method = "ActivityService.getAuthorizedProfiles: ";
+        /*
+        String userID = servletRequest.getUserPrincipal().getName();
+        CMS.debug(method + "principal name: " + userID);
+        IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        IUser user = userGroupManager.getUser(userID);
+        */
+        PKIPrincipal pkiPrincipal = (PKIPrincipal) servletRequest.getUserPrincipal();
+        IUser user = pkiPrincipal.getUser();
+        return user.getTpsProfiles();
     }
 }

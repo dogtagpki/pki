@@ -22,8 +22,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -35,16 +38,21 @@ import org.dogtagpki.server.tps.config.ProfileDatabase;
 import org.dogtagpki.server.tps.config.ProfileRecord;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.UserNotFoundException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.profile.ProfileCollection;
 import com.netscape.certsrv.tps.profile.ProfileData;
 import com.netscape.certsrv.tps.profile.ProfileResource;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.certsrv.user.UserResource;
 import com.netscape.cms.servlet.base.SubsystemService;
 
 /**
@@ -94,30 +102,51 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             throw new BadRequestException("Filter is too short.");
         }
 
-        start = start == null ? 0 : start;
-        size = size == null ? DEFAULT_SIZE : size;
-
+        CMS.debug("ProfileService.j.findProfiles filter: " + filter);
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+
+            start = start == null ? 0 : start;
+            size = size == null ? DEFAULT_SIZE : size;
+
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
-            Iterator<ProfileRecord> profiles = database.findRecords(filter).iterator();
+            Collection<ProfileRecord> profiles = new ArrayList<>();
+            if (authorizedProfiles != null) {
+
+                Collection<ProfileRecord> filteredProfiles = database.findRecords(filter);
+
+                if (authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+                    CMS.debug("ProfileService: User allowed to access all profiles");
+                    profiles.addAll(filteredProfiles);
+
+                } else {
+                    for (ProfileRecord profile : filteredProfiles) {
+                        if (authorizedProfiles.contains(profile.getID())) {
+                            CMS.debug("ProfileService: User allowed to access profile " + profile.getID());
+                            profiles.add(profile);
+                        }
+                    }
+                }
+            }
+            Iterator<ProfileRecord> profileIterator = profiles.iterator();
 
             ProfileCollection response = new ProfileCollection();
             int i = 0;
 
             // skip to the start of the page
-            for (; i < start && profiles.hasNext(); i++)
-                profiles.next();
+            for (; i < start && profileIterator.hasNext(); i++)
+                profileIterator.next();
 
             // return entries up to the page size
-            for (; i < start + size && profiles.hasNext(); i++) {
-                response.addEntry(createProfileData(profiles.next()));
+            for (; i < start + size && profileIterator.hasNext(); i++) {
+                response.addEntry(createProfileData(profileIterator.next()));
             }
 
             // count the total entries
-            for (; profiles.hasNext(); i++)
-                profiles.next();
+            for (; profileIterator.hasNext(); i++)
+                profileIterator.next();
             response.setTotal(i);
 
             if (start > 0) {
@@ -145,23 +174,33 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     @Override
     public Response getProfile(String profileID) {
 
+        String method = "ProfileService.getProfile: ";
+        String msg = "";
         if (profileID == null)
             throw new BadRequestException("Profile ID is null.");
 
-        CMS.debug("ProfileService.getProfile(\"" + profileID + "\")");
+        CMS.debug(method + "(\"" + profileID + "\")");
 
+        ProfileRecord profileRecord = null;
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if ((authorizedProfiles== null) || ((authorizedProfiles != null) && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
+                msg = "profile record restricted for profileID:" + profileID;
+                CMS.debug(method + msg);
+
+                throw new PKIException(msg);
+            }
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
-
-            return createOKResponse(createProfileData(database.getRecord(profileID)));
+            profileRecord = database.getRecord(profileID);
+            return createOKResponse(createProfileData(profileRecord));
 
         } catch (PKIException e) {
-            CMS.debug("ProfileService: " + e);
+            CMS.debug(method + e);
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            CMS.debug(method + e);
             throw new PKIException(e);
         }
     }
@@ -231,6 +270,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     @Override
     public Response updateProfile(String profileID, ProfileData profileData) {
         String method = "ProfileService.updateProfile";
+        String msg = "";
 
         if (profileID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null,
@@ -244,7 +284,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             throw new BadRequestException("Profile data is null.");
         }
 
-        CMS.debug("ProfileService.updateProfile(\"" + profileID + "\")");
+        CMS.debug(method + "(\"" + profileID + "\")");
 
         Map<String, String> properties = profileData.getProperties();
         for (String name : properties.keySet()) {
@@ -254,6 +294,14 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
 
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if ((authorizedProfiles== null) || ((authorizedProfiles != null) && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
+                msg = "profile record restricted for profileID:" + profileID;
+                CMS.debug(method + msg);
+
+                throw new PKIException(msg);
+            }
+
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
@@ -306,12 +354,12 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return createOKResponse(profileData);
 
         } catch (PKIException e) {
-            CMS.debug("ProfileService: " + e);
+            CMS.debug(method + e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileID, profileData.getProperties(), e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            CMS.debug(method + e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileID, profileData.getProperties(), e.toString());
             throw new PKIException(e);
         }
@@ -319,7 +367,8 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     @Override
     public Response changeStatus(String profileID, String action) {
-        String method = "ProfileService.changeStatus";
+        String method = "ProfileService.changeStatus: ";
+        String msg = "";
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (profileID == null) {
@@ -336,9 +385,17 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
         auditModParams.put("Action", action);
 
-        CMS.debug("ProfileService.changeStatus(\"" + profileID + "\", \"" + action + "\")");
+        CMS.debug(method + "(\"" + profileID + "\", \"" + action + "\")");
 
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if ((authorizedProfiles== null) || ((authorizedProfiles!= null) && (!authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(profileID)))) {
+                msg = "profile record restricted for profileID:" + profileID;
+                CMS.debug(method + msg);
+
+                throw new PKIException(msg);
+            }
+
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
@@ -424,13 +481,13 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return createOKResponse(profileData);
 
         } catch (PKIException e) {
-            CMS.debug("ProfileService: " + e);
+            CMS.debug(method + e);
             auditConfigTokenGeneral(ILogger.FAILURE, method,
                     auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            CMS.debug(method + e);
             auditConfigTokenGeneral(ILogger.FAILURE, method,
                     auditModParams, e.toString());
             throw new PKIException(e);
@@ -439,7 +496,8 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     @Override
     public Response removeProfile(String profileID) {
-        String method = "ProfileService.removeProfile";
+        String method = "ProfileService.removeProfile: ";
+        String msg = "";
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (profileID == null) {
@@ -449,9 +507,10 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
         auditModParams.put("profileID", profileID);
 
-        CMS.debug("ProfileService.removeProfile(\"" + profileID + "\")");
+        CMS.debug(method + "(\"" + profileID + "\")");
 
         try {
+
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
@@ -471,17 +530,30 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return createNoContentResponse();
 
         } catch (PKIException e) {
-            CMS.debug("ProfileService: " + e);
+            CMS.debug(method + e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileID,
                     auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            CMS.debug(method + e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileID,
                     auditModParams, e.toString());
             throw new PKIException(e);
         }
+    }
+
+    /*
+     * returns a list of TPS profiles allowed for the current user
+     */
+    List<String> getAuthorizedProfiles()
+           throws Exception {
+        String method = "ProfileService.getAuthorizedProfiles: ";
+
+        PKIPrincipal pkiPrincipal = (PKIPrincipal) servletRequest.getUserPrincipal();
+        IUser user = pkiPrincipal.getUser();
+
+        return user.getTpsProfiles();
     }
 
     /*
@@ -498,6 +570,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                 profileID,
                 auditor.getParamString(params),
                 info);
+        // CMS.debug("auditTPSProfileChange: " + msg);
         signedAuditLogger.log(msg);
     }
 

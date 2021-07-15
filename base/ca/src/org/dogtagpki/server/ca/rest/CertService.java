@@ -193,7 +193,7 @@ public class CertService extends PKIService implements CertResource {
 
             processor.setAuthority(authority);
 
-            caX500DN = (X500Name) authority.getCACert().getIssuerDN();
+            caX500DN = (X500Name) authority.getCACert().getSubjectDN();
 
         } catch (EBaseException e) {
             throw new PKIException(e.getMessage());
