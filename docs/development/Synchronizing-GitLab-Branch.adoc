@@ -1,0 +1,48 @@
+= Synchronizing GitLab Branch =
+
+== Overview ==
+
+This page describes the procedure to synchronize a branch from an upstream repository
+to a GitLab repository.
+
+== Creating Access Token ==
+
+In the GitLab repository create a project access token with a **write_repository** permission.
+
+See link:https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#creating-a-project-access-token[Creating a project access token].
+
+== Configuring Synchronization ==
+
+In the GitLab repository create the following variables:
+
+* `UPSTREAM_URL`: The URL of the upstream repository.
+** Unselect **Protect variable** to synchronize unprotected branches.
+* `ACCESS_TOKEN`: The value of the access token.
+** Unselect **Protect variable** to synchronize unprotected branches.
+** Select **Mask variable** to keep the access token hidden.
+
+See link:https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project[Add a CI/CD variable to a project].
+
+== Running Synchronization Manually ==
+
+In the GitLab repository run a pipeline with the following parameters:
+
+* **Run for branch name or tag**: The branch to be synchronized.
+* **Variables**:
+** `SYNC`: `true`
+
+See link:https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually[Run a pipeline manually].
+
+== Scheduling Automatic Synchronization ==
+
+In the GitLab repository create a schedule with the following parameters:
+
+* **Interval Pattern**: The frequency of synchronization.
+** To synchronize every hour, enter: `0 * * * *`
+* **Target Branch**: The branch to be synchronized.
+* **Variables**:
+** `SYNC`: `true`
+
+Additional schedules can be created for synchronizing other branches.
+
+See link:https://docs.gitlab.com/ee/ci/pipelines/schedules.html#configuring-pipeline-schedules[Configuring pipeline schedules].

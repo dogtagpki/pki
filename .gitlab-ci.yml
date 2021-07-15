@@ -1,0 +1,22 @@
+image: fedora
+
+sync:
+
+  script:
+    - echo "Synchronizing $CI_COMMIT_BRANCH branch from $UPSTREAM_URL to $CI_PROJECT_URL"
+    - dnf install -y git
+    - git remote set-url origin https://sync:$ACCESS_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git
+    - git remote remove upstream || true
+    - git remote add upstream $UPSTREAM_URL
+    - git remote -v
+    - git fetch upstream $CI_COMMIT_BRANCH
+    - git checkout upstream/$CI_COMMIT_BRANCH
+    - git log origin/$CI_COMMIT_BRANCH..upstream/$CI_COMMIT_BRANCH --oneline
+    - GIT_SSL_NO_VERIFY=true git push origin HEAD:$CI_COMMIT_BRANCH
+
+  rules:
+    - if: $SYNC == "true"
+
+  tags:
+    # Use shared runners.
+    - shared
