@@ -255,7 +255,7 @@ class pki_externalca(pki_externalca_common):
             return output
 
     def approve_usercsr(self, ansible_module, request_id):
-        cmd = 'pki -p %s -P %s -d %s -c %s -n "%s" cert-request-review %s --action approve' \
+        cmd = 'pki -p %s -P %s -d %s -c %s -n "%s" ca-cert-request-approve %s --force' \
               %(self.externalca_port, self.ca_protocol, self.nssdb, self.passwd, constants.CA_ADMIN_USERNAME, request_id)
         try:
             approve_csr = ansible_module.command(cmd)

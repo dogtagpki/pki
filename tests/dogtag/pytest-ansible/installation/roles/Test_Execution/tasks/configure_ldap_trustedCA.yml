@@ -48,7 +48,7 @@
 
   - name: Get Ldap certificate to a file
     pki:
-      cli: "cert-show"
+      cli: "ca-cert-show"
       hostname : "{{ variable.MASTER_HOSTNAME }}"
       nssdb : "/tmp/nssdb"
       protocol: "http"
@@ -56,12 +56,12 @@
       extra_args: "{{ serialvar }} --output /etc/dirsrv/slapd-{{ topology }}-testingmaster/ds.crt"
 
   - name: Get CA signing certificate file
-    shell : echo -e "n"|pki -d /tmp/nssdb -P http -p {{ variable.CA_HTTP_PORT }} -h {{ variable.MASTER_HOSTNAME }} -c {{ variable.CLIENT_DIR_PASSWORD }} -n "{{ variable.CA_ADMIN_NICK }}" cert-find --name 'CA Signing Certificate' | grep -i serial | awk -F':' ' { print $2 } '
+    shell : echo -e "n"|pki -d /tmp/nssdb -P http -p {{ variable.CA_HTTP_PORT }} -h {{ variable.MASTER_HOSTNAME }} -c {{ variable.CLIENT_DIR_PASSWORD }} -n "{{ variable.CA_ADMIN_NICK }}" ca-cert-find --name 'CA Signing Certificate' | grep -i serial | awk -F':' ' { print $2 } '
     register: cert
 
   - name: Get Ldap certificate to a file
     pki:
-      cli: "cert-show"
+      cli: "ca-cert-show"
       hostname : "{{ variable.MASTER_HOSTNAME }}"
       protocol: "http"
       nssdb : "/tmp/nssdb"
