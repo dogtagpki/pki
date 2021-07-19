@@ -1,10 +1,13 @@
 #! /bin/bash -e
+
 SCRIPT_PATH=`readlink -f "$0"`
 SCRIPT_NAME=`basename "$SCRIPT_PATH"`
-SRC_DIR=`dirname "$SCRIPT_PATH"`
 
-RC_FILE="/usr/share/pki/tests/pylintrc"
-FLAKE8_CONFIG="/usr/share/pki/tests/tox.ini"
+BIN_DIR=`dirname "$SCRIPT_PATH"`
+TESTS_DIR=`dirname "$BIN_DIR"`
+
+RC_FILE="$TESTS_DIR/pylintrc"
+FLAKE8_CONFIG="$TESTS_DIR/tox.ini"
 
 usage() {
     echo "Usage: $SCRIPT_NAME [OPTIONS]"
@@ -16,12 +19,6 @@ usage() {
     echo "    --debug                Run in debug mode."
     echo "    --help                 Show help message."
 }
-# Check if python linters are installed
-rpm -q python3-pylint python3-flake8 python3-pyflakes
-
-# Python files are present in python3-pki and pki-server packages. Get the list of the files
-PYTHON_PKI_FILES=`rpm -ql python3-pki | grep .py$`
-PYTHON_PKI_FILES="$PYTHON_PKI_FILES `rpm -ql pki-server | grep .py$`"
 
 while getopts v-: arg ; do
     case $arg in
@@ -61,12 +58,18 @@ while getopts v-: arg ; do
     esac
 done
 
-# Run pylint
+PYTHONPATH=`python -Ic "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`
+
+SOURCES="`find $PYTHONPATH/pki -name "*.py"`"
+SOURCES="$SOURCES `find /usr/share/pki/upgrade -name "*.py"`"
+SOURCES="$SOURCES `find /usr/share/pki/server/upgrade -name "*.py"`"
+
+echo "Running pylint..."
 pylint-3 \
     --rcfile=${RC_FILE} \
-    ${PYTHON_PKI_FILES}
+    $SOURCES
 
-# Run flake8
+echo "Running flake8..."
 python3-flake8 \
     --config ${FLAKE8_CONFIG} \
-    ${PYTHON_PKI_FILES}
+    $SOURCES
