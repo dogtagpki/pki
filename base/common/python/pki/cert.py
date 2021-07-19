@@ -41,11 +41,17 @@ class CertData(object):
     """
 
     json_attribute_names = {
-        'id': 'serial_number', 'IssuerDN': 'issuer_dn',
-        'SubjectDN': 'subject_dn', 'PrettyPrint': 'pretty_repr',
-        'Encoded': 'encoded', 'NotBefore': 'not_before',
-        'NotAfter': 'not_after', 'Status': 'status', 'Nonce': 'nonce',
-        'Link': 'link', 'PKCS7CertChain': 'pkcs7_cert_chain'
+        'serialNumber': 'serial_number',
+        'issuerDN': 'issuer_dn',
+        'subjectDN': 'subject_dn',
+        'prettyPrint': 'pretty_repr',
+        'encoded': 'encoded',
+        'notBefore': 'not_before',
+        'notAfter': 'not_after',
+        'status': 'status',
+        'nonce': 'nonce',
+        'link': 'link',
+        'pkcs7CertChain': 'pkcs7_cert_chain'
     }
 
     def __init__(self):

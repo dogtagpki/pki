@@ -17,19 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.cert;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.Date;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
@@ -40,15 +30,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
-import com.netscape.certsrv.util.DateAdapter;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
  *
  */
-@XmlRootElement(name = "CertData")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertData implements JSONSerializer {
@@ -70,8 +57,6 @@ public class CertData implements JSONSerializer {
 
     Link link;
 
-    @XmlAttribute(name="id")
-    @XmlJavaTypeAdapter(CertIdAdapter.class)
     public CertId getSerialNumber() {
         return serialNumber;
     }
@@ -80,7 +65,6 @@ public class CertData implements JSONSerializer {
         this.serialNumber = serialNumber;
     }
 
-    @XmlElement(name="IssuerDN")
     public String getIssuerDN() {
         return issuerDN;
     }
@@ -89,7 +73,6 @@ public class CertData implements JSONSerializer {
         this.issuerDN = issuerDN;
     }
 
-    @XmlElement(name="SubjectDN")
     public String getSubjectDN() {
         return subjectDN;
     }
@@ -98,7 +81,6 @@ public class CertData implements JSONSerializer {
         this.subjectDN = subjectDN;
     }
 
-    @XmlElement(name="PrettyPrint")
     public String getPrettyPrint() {
         return prettyPrint;
     }
@@ -107,7 +89,6 @@ public class CertData implements JSONSerializer {
         this.prettyPrint = prettyPrint;
     }
 
-    @XmlElement(name="Encoded")
     public String getEncoded() {
         return encoded;
     }
@@ -116,7 +97,6 @@ public class CertData implements JSONSerializer {
         this.encoded = encoded;
     }
 
-    @XmlElement(name="PKCS7CertChain")
     public void setPkcs7CertChain(String chain) {
         this.pkcs7CertChain = chain;
     }
@@ -125,7 +105,6 @@ public class CertData implements JSONSerializer {
         return pkcs7CertChain;
     }
 
-    @XmlElement(name="NotBefore")
     public String getNotBefore() {
         return notBefore;
     }
@@ -134,7 +113,6 @@ public class CertData implements JSONSerializer {
         this.notBefore = notBefore;
     }
 
-    @XmlElement(name="NotAfter")
     public String getNotAfter() {
         return notAfter;
     }
@@ -143,7 +121,6 @@ public class CertData implements JSONSerializer {
         this.notAfter = notAfter;
     }
 
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -152,7 +129,6 @@ public class CertData implements JSONSerializer {
         this.status = status;
     }
 
-    @XmlElement(name="Nonce")
     public Long getNonce() {
         return nonce;
     }
@@ -161,8 +137,6 @@ public class CertData implements JSONSerializer {
         this.nonce = nonce;
     }
 
-    @XmlElement(name="RevokedOn")
-    @XmlJavaTypeAdapter(DateAdapter.class)
     public Date getRevokedOn() {
         return revokedOn;
     }
@@ -171,7 +145,6 @@ public class CertData implements JSONSerializer {
         this.revokedOn = revokedOn;
     }
 
-    @XmlElement(name="RevokedBy")
     public String getRevokedBy() {
         return revokedBy;
     }
@@ -180,7 +153,6 @@ public class CertData implements JSONSerializer {
         this.revokedBy = revokedBy;
     }
 
-    @XmlElement(name="RevocationReason")
     public Integer getRevocationReason() {
         return revocationReason;
     }
@@ -189,7 +161,6 @@ public class CertData implements JSONSerializer {
         this.revocationReason = revocationReason;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
@@ -289,18 +260,13 @@ public class CertData implements JSONSerializer {
         return true;
     }
 
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CertData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static CertData fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertData.class).createUnmarshaller();
-        return (CertData) unmarshaller.unmarshal(new StringReader(xml));
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static CertData fromCertChain(PKCS7 pkcs7) throws Exception {
