@@ -800,6 +800,9 @@ This PKI Console Theme Package contains
 Summary:          PKI Tests
 BuildArch:        noarch
 
+Requires:         python3-pylint
+Requires:         python3-flake8
+
 %description -n   pki-tests
 This package contains PKI test suite.
 
