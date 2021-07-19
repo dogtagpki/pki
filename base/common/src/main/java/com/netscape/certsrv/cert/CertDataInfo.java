@@ -20,32 +20,20 @@
  */
 package com.netscape.certsrv.cert;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Date;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
-import com.netscape.certsrv.util.DateAdapter;
 import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.certsrv.util.SerializableDate;
 
 /**
  * @author alee
  *
  */
-@XmlRootElement(name = "CertDataInfo")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertDataInfo implements JSONSerializer {
@@ -58,17 +46,15 @@ public class CertDataInfo implements JSONSerializer {
     Integer version;
     String keyAlgorithmOID;
     Integer keyLength;
-    Date notValidBefore;
-    Date notValidAfter;
-    Date issuedOn;
+    SerializableDate notValidBefore;
+    SerializableDate notValidAfter;
+    SerializableDate issuedOn;
     String issuedBy;
     Date revokedOn;
     String revokedBy;
 
     Link link;
 
-    @XmlAttribute(name="id")
-    @XmlJavaTypeAdapter(CertIdAdapter.class)
     public CertId getID() {
         return id;
     }
@@ -77,7 +63,6 @@ public class CertDataInfo implements JSONSerializer {
         this.id = id;
     }
 
-    @XmlElement(name="SubjectDN")
     public String getSubjectDN() {
         return subjectDN;
     }
@@ -86,7 +71,6 @@ public class CertDataInfo implements JSONSerializer {
         this.subjectDN = subjectDN;
     }
 
-    @XmlElement(name="IssuerDN")
     public String getIssuerDN() {
         return issuerDN;
     }
@@ -95,7 +79,6 @@ public class CertDataInfo implements JSONSerializer {
         this.issuerDN = issuerDN;
     }
 
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -104,7 +87,6 @@ public class CertDataInfo implements JSONSerializer {
         this.status = status;
     }
 
-    @XmlElement(name="Type")
     public String getType() {
         return type;
     }
@@ -113,7 +95,6 @@ public class CertDataInfo implements JSONSerializer {
         this.type = type;
     }
 
-    @XmlElement(name="Version")
     public Integer getVersion() {
         return version;
     }
@@ -122,7 +103,6 @@ public class CertDataInfo implements JSONSerializer {
         this.version = version;
     }
 
-    @XmlElement(name="KeyAlgorithmOID")
     public String getKeyAlgorithmOID() {
         return keyAlgorithmOID;
     }
@@ -131,7 +111,6 @@ public class CertDataInfo implements JSONSerializer {
         this.keyAlgorithmOID = keyAlgorithmOID;
     }
 
-    @XmlElement(name="KeyLength")
     public Integer getKeyLength() {
         return keyLength;
     }
@@ -140,37 +119,30 @@ public class CertDataInfo implements JSONSerializer {
         this.keyLength = keyLength;
     }
 
-    @XmlElement(name="NotValidBefore")
-    @XmlJavaTypeAdapter(DateAdapter.class)
-    public Date getNotValidBefore() {
+    public SerializableDate getNotValidBefore() {
         return notValidBefore;
     }
 
-    public void setNotValidBefore(Date notValidBefore) {
+    public void setNotValidBefore(SerializableDate notValidBefore) {
         this.notValidBefore = notValidBefore;
     }
 
-    @XmlElement(name="NotValidAfter")
-    @XmlJavaTypeAdapter(DateAdapter.class)
-    public Date getNotValidAfter() {
+    public SerializableDate getNotValidAfter() {
         return notValidAfter;
     }
 
-    public void setNotValidAfter(Date notValidAfter) {
+    public void setNotValidAfter(SerializableDate notValidAfter) {
         this.notValidAfter = notValidAfter;
     }
 
-    @XmlElement(name="IssuedOn")
-    @XmlJavaTypeAdapter(DateAdapter.class)
-    public Date getIssuedOn() {
+    public SerializableDate getIssuedOn() {
         return issuedOn;
     }
 
-    public void setIssuedOn(Date issuedOn) {
+    public void setIssuedOn(SerializableDate issuedOn) {
         this.issuedOn = issuedOn;
     }
 
-    @XmlElement(name="IssuedBy")
     public String getIssuedBy() {
         return issuedBy;
     }
@@ -179,8 +151,6 @@ public class CertDataInfo implements JSONSerializer {
         this.issuedBy = issuedBy;
     }
 
-    @XmlElement(name="RevokedOn")
-    @XmlJavaTypeAdapter(DateAdapter.class)
     public Date getRevokedOn() {
         return revokedOn;
     }
@@ -189,7 +159,6 @@ public class CertDataInfo implements JSONSerializer {
         this.revokedOn = revokedOn;
     }
 
-    @XmlElement(name="RevokedBy")
     public String getRevokedBy() {
         return revokedBy;
     }
@@ -198,7 +167,6 @@ public class CertDataInfo implements JSONSerializer {
         this.revokedBy = revokedBy;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
@@ -316,18 +284,13 @@ public class CertDataInfo implements JSONSerializer {
         return true;
     }
 
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CertDataInfo.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static CertDataInfo fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertDataInfo.class).createUnmarshaller();
-        return (CertDataInfo) unmarshaller.unmarshal(new StringReader(xml));
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

@@ -20,6 +20,7 @@ package com.netscape.certsrv.dbs.certdb;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * The CertId class represents the identifier for a particular
@@ -31,7 +32,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * @version $Revision$ $Date$
  */
 // TODO: Make a common base class for cert id's and key ids
-public class CertId {
+public class CertId implements JSONSerializer {
 
     protected BigInteger value;
 
