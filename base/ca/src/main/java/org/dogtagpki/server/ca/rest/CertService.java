@@ -73,7 +73,6 @@ import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.util.SerializableDate;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.FilterBuilder;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
@@ -636,10 +635,10 @@ public class CertService extends PKIService implements CertResource {
             }
         }
 
-        info.setNotValidBefore((SerializableDate) cert.getNotBefore());
-        info.setNotValidAfter((SerializableDate) cert.getNotAfter());
+        info.setNotValidBefore(cert.getNotBefore());
+        info.setNotValidAfter(cert.getNotAfter());
 
-        info.setIssuedOn((SerializableDate) record.getCreateTime());
+        info.setIssuedOn(record.getCreateTime());
         info.setIssuedBy(record.getIssuedBy());
 
         info.setRevokedOn(record.getRevokedOn());

@@ -46,9 +46,9 @@ public class CertDataInfo implements JSONSerializer {
     Integer version;
     String keyAlgorithmOID;
     Integer keyLength;
-    SerializableDate notValidBefore;
-    SerializableDate notValidAfter;
-    SerializableDate issuedOn;
+    Date notValidBefore;
+    Date notValidAfter;
+    Date issuedOn;
     String issuedBy;
     Date revokedOn;
     String revokedBy;
@@ -120,26 +120,26 @@ public class CertDataInfo implements JSONSerializer {
     }
 
     public SerializableDate getNotValidBefore() {
-        return notValidBefore;
+        return (SerializableDate) notValidBefore;
     }
 
-    public void setNotValidBefore(SerializableDate notValidBefore) {
+    public void setNotValidBefore(Date notValidBefore) {
         this.notValidBefore = notValidBefore;
     }
 
     public SerializableDate getNotValidAfter() {
-        return notValidAfter;
+        return (SerializableDate) notValidAfter;
     }
 
-    public void setNotValidAfter(SerializableDate notValidAfter) {
+    public void setNotValidAfter(Date notValidAfter) {
         this.notValidAfter = notValidAfter;
     }
 
     public SerializableDate getIssuedOn() {
-        return issuedOn;
+        return (SerializableDate) issuedOn;
     }
 
-    public void setIssuedOn(SerializableDate issuedOn) {
+    public void setIssuedOn(Date issuedOn) {
         this.issuedOn = issuedOn;
     }
 

@@ -45,7 +45,9 @@ class CertData(object):
         'SubjectDN': 'subject_dn', 'PrettyPrint': 'pretty_repr',
         'Encoded': 'encoded', 'NotBefore': 'not_before',
         'NotAfter': 'not_after', 'Status': 'status', 'Nonce': 'nonce',
-        'Link': 'link', 'PKCS7CertChain': 'pkcs7_cert_chain'
+        'Link': 'link', 'PKCS7CertChain': 'pkcs7_cert_chain',
+        'revokedOn': 'revoked_on', 'revokedBn': 'revoked_by',
+        'revocationReason': 'revocation_reason'
     }
 
     def __init__(self):
@@ -63,6 +65,9 @@ class CertData(object):
         self.status = None
         self.nonce = None
         self.link = None
+        self.revoked_on = None
+        self.revoked_by = None
+        self.revocation_reason = None
 
     def __repr__(self):
         attributes = {
