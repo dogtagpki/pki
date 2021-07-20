@@ -63,7 +63,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
@@ -165,7 +164,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
@@ -253,7 +251,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
@@ -381,7 +378,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
@@ -474,7 +470,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
@@ -620,7 +615,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
@@ -804,7 +798,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:
@@ -948,7 +941,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       COPR_REPO: "@pki/master"
     strategy:

@@ -22,7 +22,6 @@ docker run \
     -v ${GITHUB_WORKSPACE}:${PKIDIR} \
     -e BUILDUSER_UID=$(id -u) \
     -e BUILDUSER_GID=$(id -g) \
-    -e BUILDDIR="${BUILDDIR}" \
     -e PKIDIR="${PKIDIR}" \
     -e BUILDUSER="builduser" \
     -e GITHUB_ACTIONS=${GITHUB_ACTIONS} \
