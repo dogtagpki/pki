@@ -64,7 +64,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PKIDIR: /tmp/workdir/pki
-      COPR_REPO: "@pki/master"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -141,7 +140,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PKIDIR: /tmp/workdir/pki
-      COPR_REPO: "@pki/master"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -319,7 +317,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PKIDIR: /tmp/workdir/pki
-      COPR_REPO: "@pki/master"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -525,7 +522,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PKIDIR: /tmp/workdir/pki
-      COPR_REPO: "@pki/master"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
