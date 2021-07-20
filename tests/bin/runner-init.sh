@@ -26,7 +26,6 @@ docker run \
     -e BUILDUSER="builduser" \
     -e GITHUB_ACTIONS=${GITHUB_ACTIONS} \
     -e GITHUB_RUN_NUMBER=${GITHUB_RUN_NUMBER} \
-    -e COPR_REPO="${COPR_REPO}" \
     -e container=docker \
     --expose=389 \
     --expose=8080 \
