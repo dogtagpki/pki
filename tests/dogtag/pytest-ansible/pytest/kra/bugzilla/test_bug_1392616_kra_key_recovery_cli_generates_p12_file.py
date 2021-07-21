@@ -36,7 +36,7 @@ userop = utils.UserOperations(nssdb=constants.NSSDB, db_pass=constants.CLIENT_DA
 template_name = "retrieveKey.template"
 cert_file = "b64_cert"
 
-
+@pytest.mark.skip(reason='https://github.com/dogtagpki/pki/issues/3656')
 def test_bug_1392616_kra_key_recovery_cli_generates_p12_file(ansible_module):
     """
     :id: 2b115260-a99c-42fe-8e63-b1c58ef51194
