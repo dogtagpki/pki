@@ -32,12 +32,13 @@ before_script:
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
   - pip install -r $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/requirements.txt
   - pip install $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+  - if [[ "$CI_JOB_NAME" =~ .*"clone".* ]]; then provision_clone="true"; fi
   - >
-    if [ "$provision_beaker" != "true" ]; then
+    if [ "$provision_beaker" != "true" ] || [ "$provision_clone" == "true" ]; then
       python $PYTEST_DIR/provision/osp_provision.py up --image "$IMG_NAME" --server-type master --inventory $HOSTFILE || { echo 'Failed to get inventory for test runs.' ; provision_beaker=true; }
     fi
   - >
-    if [ "$provision_beaker" == "true" ]; then
+    if [ "$provision_beaker" == "true" ] && [ "$provision_clone" != "true" ]; then
       echo 1 > /etc/bkr_job
       echo "Creating beaker job."
       ansible-playbook $PYTEST_DIR/provision/bkr_provision.yml -e "image=$IMG_NAME" -vv | sed 's/\\n/\n/g'
