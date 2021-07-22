@@ -1098,6 +1098,11 @@ grant codeBase "file:%s" {
 
             subsystem_dir = os.path.join(self.base_dir, subsystem_name)
             if not os.path.exists(subsystem_dir):
+                # Directory does not exist
+                continue
+
+            if not os.listdir(subsystem_dir):
+                # Directory exists but it is empty
                 continue
 
             subsystem = pki.server.subsystem.PKISubsystemFactory.create(self, subsystem_name)
