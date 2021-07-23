@@ -914,7 +914,7 @@ EOF
 
 # Customize client library links in /usr/share/pki/lib
 ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/lib/jboss-logging.jar
-%if 0%{?fedora} && 0%{?fedora} <= 34
+%if 0%{?fedora} && 0%{?fedora} <= 34 || 0%{?rhel} && 0%{?rhel} <= 8
 ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/lib/jboss-annotations-api_1.2_spec.jar
 %else
 ln -sf /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar %{buildroot}%{_datadir}/pki/lib/jakarta.annotation-api.jar
@@ -925,7 +925,7 @@ ln -sf /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar %{buildroo
 # Customize server common library links in /usr/share/pki/server/common/lib
 ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/server/common/lib/jboss-jaxrs-2.0-api.jar
 ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-logging.jar
-%if 0%{?fedora} && 0%{?fedora} <= 34
+%if 0%{?fedora} && 0%{?fedora} <= 34 || 0%{?rhel} && 0%{?rhel} <= 8
 ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-annotations-api_1.2_spec.jar
 %else
 ln -sf /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar %{buildroot}%{_datadir}/pki/server/common/lib/jakarta.annotation-api.jar
