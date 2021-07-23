@@ -121,6 +121,7 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh pki
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
 
       - name: Remove KRA
         run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
@@ -236,12 +237,14 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh ca
           tests/bin/pki-artifacts-save.sh ca
+        continue-on-error: true
 
       - name: Gather artifacts from KRA container
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh kra
           tests/bin/pki-artifacts-save.sh kra
+        continue-on-error: true
 
       - name: Remove KRA from KRA container
         run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
@@ -428,12 +431,14 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh ca
           tests/bin/pki-artifacts-save.sh ca
+        continue-on-error: true
 
       - name: Gather artifacts from KRA container
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh kra
           tests/bin/pki-artifacts-save.sh kra
+        continue-on-error: true
 
       - name: Remove KRA from KRA container
         run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
@@ -602,18 +607,21 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh primary
           tests/bin/pki-artifacts-save.sh primary
+        continue-on-error: true
 
       - name: Gather artifacts from secondary container
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh secondary
           tests/bin/pki-artifacts-save.sh secondary
+        continue-on-error: true
 
       - name: Gather artifacts from tertiary container
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh tertiary
           tests/bin/pki-artifacts-save.sh tertiary
+        continue-on-error: true
 
       - name: Remove KRA from tertiary container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s KRA -v
@@ -807,6 +815,7 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh pki
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
 
       - name: Remove KRA
         run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v

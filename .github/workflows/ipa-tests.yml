@@ -209,6 +209,7 @@ jobs:
           tests/bin/ds-artifacts-save.sh ipa EXAMPLE-COM
           tests/bin/pki-artifacts-save.sh ipa
           tests/bin/ipa-artifacts-save.sh ipa
+        continue-on-error: true
 
       - name: Remove IPA server from IPA container
         run: docker exec ipa ipa-server-install --uninstall -U
@@ -325,6 +326,7 @@ jobs:
           tests/bin/ds-artifacts-save.sh primary EXAMPLE-COM
           tests/bin/pki-artifacts-save.sh primary
           tests/bin/ipa-artifacts-save.sh primary
+        continue-on-error: true
 
       - name: Gather artifacts from secondary container
         if: always()
@@ -332,6 +334,7 @@ jobs:
           tests/bin/ds-artifacts-save.sh secondary EXAMPLE-COM
           tests/bin/pki-artifacts-save.sh secondary
           tests/bin/ipa-artifacts-save.sh secondary
+        continue-on-error: true
 
       - name: Disconnect secondary container from network
         run: docker network disconnect example secondary

@@ -173,6 +173,7 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh pki
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
 
       - name: Remove TPS
         run: docker exec pki pkidestroy -i pki-tomcat -s TPS -v
@@ -309,12 +310,14 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh primary
           tests/bin/pki-artifacts-save.sh primary
+        continue-on-error: true
 
       - name: Gather artifacts from secondary container
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh secondary
           tests/bin/pki-artifacts-save.sh secondary
+        continue-on-error: true
 
       - name: Remove TPS from secondary container
         run: docker exec secondary pkidestroy -i pki-tomcat -s TPS -v

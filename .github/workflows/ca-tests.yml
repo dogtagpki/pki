@@ -142,6 +142,7 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh pki
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
@@ -228,6 +229,7 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh pki
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
@@ -325,12 +327,14 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh root
           tests/bin/pki-artifacts-save.sh root
+        continue-on-error: true
 
       - name: Gather artifacts from subordinate container
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh subordinate
           tests/bin/pki-artifacts-save.sh subordinate
+        continue-on-error: true
 
       - name: Remove subordinate CA from subordinate container
         run: docker exec subordinate pkidestroy -i pki-tomcat -s CA -v
@@ -445,6 +449,7 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh pki
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
 
       - name: Remove subordinate CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
@@ -589,6 +594,7 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh pki
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
@@ -719,18 +725,21 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh primary
           tests/bin/pki-artifacts-save.sh primary
+        continue-on-error: true
 
       - name: Gather artifacts from secondary container
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh secondary
           tests/bin/pki-artifacts-save.sh secondary
+        continue-on-error: true
 
       - name: Gather artifacts from tertiary container
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh tertiary
           tests/bin/pki-artifacts-save.sh tertiary
+        continue-on-error: true
 
       - name: Remove CA from tertiary container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
@@ -912,6 +921,7 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh pki
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
@@ -1162,12 +1172,14 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh primary
           tests/bin/pki-artifacts-save.sh primary
+        continue-on-error: true
 
       - name: Gather CA artifacts from secondary container
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh secondary
           tests/bin/pki-artifacts-save.sh secondary
+        continue-on-error: true
 
       - name: Remove CA from secondary container
         run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v

@@ -206,6 +206,7 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh pki
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
 
       - name: Remove ACME from PKI container
         run: |
@@ -371,6 +372,7 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh pki
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
 
       - name: Remove ACME from PKI container
         run: |

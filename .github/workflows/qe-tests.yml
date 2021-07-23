@@ -144,6 +144,7 @@ jobs:
           docker exec pki1 journalctl -u pki-tomcatd@topology-02-OCSP > /tmp/artifacts/pki1/var/log/pki/topology-02-OCSP/systemd.log
           docker exec pki1 journalctl -u pki-tomcatd@topology-02-TKS > /tmp/artifacts/pki1/var/log/pki/topology-02-TKS/systemd.log
           docker exec pki1 journalctl -u pki-tomcatd@topology-02-TPS > /tmp/artifacts/pki1/var/log/pki/topology-02-TPS/systemd.log
+        continue-on-error: true
 
       - name: Upload artifacts
         if: always()
