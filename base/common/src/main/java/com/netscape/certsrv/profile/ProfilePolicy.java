@@ -17,35 +17,19 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfilePolicy implements JSONSerializer {
-    @XmlAttribute
+
     private String id = null;
 
-    @XmlElement
     private PolicyDefault def = null;
 
-    @XmlElement
     private PolicyConstraint constraint = null;
 
     public String getId() {
@@ -107,20 +91,6 @@ public class ProfilePolicy implements JSONSerializer {
         } else if (!id.equals(other.id))
             return false;
         return true;
-    }
-
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(ProfilePolicy.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public static ProfilePolicy fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfilePolicy.class).createUnmarshaller();
-        return (ProfilePolicy) unmarshaller.unmarshal(new StringReader(xml));
     }
 
 }
