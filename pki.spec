@@ -272,18 +272,18 @@ Obsoletes:        idm-console-framework < 2.0
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI theme packages
-Requires:         %{vendor_id}-pki-server-theme = %{version}
+Requires:         %{vendor_id}-pki-server-theme = %{version}-%{release}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI core packages
-Requires:         pki-acme = %{version}
-Requires:         pki-ca = %{version}
-Requires:         pki-kra = %{version}
-Requires:         pki-ocsp = %{version}
-Requires:         pki-tks = %{version}
-Requires:         pki-tps = %{version}
+Requires:         pki-acme = %{version}-%{release}
+Requires:         pki-ca = %{version}-%{release}
+Requires:         pki-kra = %{version}-%{release}
+Requires:         pki-ocsp = %{version}-%{release}
+Requires:         pki-tks = %{version}-%{release}
+Requires:         pki-tps = %{version}-%{release}
 
-Requires:         pki-javadoc = %{version}
+Requires:         pki-javadoc = %{version}-%{release}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI clients -- except for s390/s390x where 'esc' is not built
@@ -363,7 +363,7 @@ Summary:          PKI Python 3 Package
 BuildArch:        noarch
 
 Obsoletes:        pki-base-python3 < %{version}
-Provides:         pki-base-python3 = %{version}
+Provides:         pki-base-python3 = %{version}-%{release}
 %if 0%{?fedora} || 0%{?rhel} > 8
 %{?python_provide:%python_provide python3-pki}
 %endif
@@ -596,7 +596,7 @@ since such archival would undermine non-repudiation properties of signing keys.
 Summary:          PKI OCSP Package
 BuildArch:        noarch
 
-Requires:         pki-server = %{version}
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -634,7 +634,7 @@ whenever they are issued or updated.
 Summary:          PKI TKS Package
 BuildArch:        noarch
 
-Requires:         pki-server = %{version}
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -665,7 +665,7 @@ behind the firewall with restricted access.
 
 Summary:          PKI TPS Package
 
-Requires:         pki-server = %{version}
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -729,8 +729,8 @@ BuildArch:        noarch
 BuildRequires:    idm-console-framework >= 2.0
 
 Requires:         idm-console-framework >= 2.0
-Requires:         pki-base-java = %{version}
-Requires:         pki-console-theme = %{version}
+Requires:         pki-base-java = %{version}-%{release}
+Requires:         pki-console-theme = %{version}-%{release}
 
 %description -n   pki-console
 The PKI Console is a Java application used to administer PKI server.
@@ -746,7 +746,7 @@ The PKI Console is a Java application used to administer PKI server.
 Summary:          %{brand} PKI Server Theme Package
 BuildArch:        noarch
 
-Provides:         pki-server-theme = %{version}
+Provides:         pki-server-theme = %{version}-%{release}
 
 # Ensure we end up with a useful installation
 Conflicts:        pki-base < %{version}
@@ -765,7 +765,7 @@ This PKI Server Theme Package contains
 Summary:          %{brand} PKI Console Theme Package
 BuildArch:        noarch
 
-Provides:         pki-console-theme = %{version}
+Provides:         pki-console-theme = %{version}-%{release}
 
 # Ensure we end up with a useful installation
 Conflicts:        pki-base < %{version}
