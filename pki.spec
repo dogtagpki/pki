@@ -266,12 +266,13 @@ PKI consists of the following components:
 Summary:          %{brand} PKI Package
 %endif
 
+Obsoletes:        pki-console < %{version}
+Obsoletes:        pki-console-theme < %{version}
+Obsoletes:        idm-console-framework < 2.0
+
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI theme packages
 Requires:         %{vendor_id}-pki-server-theme = %{version}
-%if %{with console}
-Requires:         %{vendor_id}-pki-console-theme = %{version}
-%endif
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI core packages
@@ -282,11 +283,6 @@ Requires:         pki-ocsp = %{version}
 Requires:         pki-tks = %{version}
 Requires:         pki-tps = %{version}
 
-# Make certain that this 'meta' package requires the latest version(s)
-# of PKI console
-%if %{with console}
-Requires:         pki-console = %{version}
-%endif
 Requires:         pki-javadoc = %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
@@ -333,9 +329,6 @@ Requires:         nss >= 3.38.0
 Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-javadoc < %{version}
 Conflicts:        pki-server-theme < %{version}
-%if %{with console}
-Conflicts:        pki-console-theme < %{version}
-%endif
 
 %description -n   pki-symkey
 The PKI Symmetric Key Java Package supplies various native
@@ -357,9 +350,6 @@ Requires(post):   python3-pki = %{version}-%{release}
 Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-javadoc < %{version}
 Conflicts:        pki-server-theme < %{version}
-%if %{with console}
-Conflicts:        pki-console-theme < %{version}
-%endif
 
 %description -n   pki-base
 The PKI Base Package contains the common and client libraries and utilities
@@ -721,9 +711,6 @@ BuildArch:        noarch
 Conflicts:        pki-base < %{version}
 Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-server-theme < %{version}
-%if %{with console}
-Conflicts:        pki-console-theme < %{version}
-%endif
 
 %description -n   pki-javadoc
 This package contains PKI API documentation.
@@ -739,9 +726,9 @@ This package contains PKI API documentation.
 Summary:          PKI Console Package
 BuildArch:        noarch
 
-BuildRequires:    idm-console-framework >= 1.2.0
+BuildRequires:    idm-console-framework >= 2.0
 
-Requires:         idm-console-framework >= 1.2.0
+Requires:         idm-console-framework >= 2.0
 Requires:         pki-base-java = %{version}
 Requires:         pki-console-theme = %{version}
 
@@ -764,9 +751,6 @@ Provides:         pki-server-theme = %{version}
 # Ensure we end up with a useful installation
 Conflicts:        pki-base < %{version}
 Conflicts:        pki-symkey < %{version}
-%if %{with console}
-Conflicts:        pki-console-theme < %{version}
-%endif
 Conflicts:        pki-javadoc < %{version}
 
 %description -n   %{vendor_id}-pki-server-theme
