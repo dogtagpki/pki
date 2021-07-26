@@ -94,10 +94,10 @@ def test_acme_domain_certificate_enrollment_with_automatic_http_validation(ansib
 
     for result in cmd_out.values():
         if result['rc'] == 0:
-            assert "Your certificate and chain have been saved" in result['stdout']
+            assert "Successfully received certificate" in result['stdout']
 
-            for f in re.findall(".+live.+pem", result['stdout']):
-                f_loc = f.strip("   ")
+            for f in re.findall(".+fullchain.+pem", result['stdout']):
+                f_loc = f.split(": ")[1]
                 file_stat = ansible_module.stat(path=f_loc)
                 for results in file_stat.values():
                     if results['stat']['exists'] == True:
@@ -138,8 +138,8 @@ def test_acme_domain_certificate_renew_with_automatic_http_validation(ansible_mo
             assert "Renewing an existing certificate" in result['stdout']
             #assertion message MaxRetryError to verify the bugzilla 1868233
             assert "ConnectionError: HTTPConnectionPool(host='ocsp.example.com', port=80)" not in result['stdout']
-            for f in re.findall(".+live.+pem", result['stdout']):
-                f_loc = f.strip("   ")
+            for f in re.findall(".+fullchain.+pem", result['stdout']):
+                f_loc = f.split(": ")[1]
                 file_stat = ansible_module.stat(path=f_loc)
                 for results in file_stat.values():
                     if results['stat']['exists'] == True:
