@@ -66,13 +66,13 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-runner
           target: pki-runner
-          outputs: type=docker,dest=/tmp/pki-runner.tar
+          outputs: type=docker,dest=pki-tps-runner.tar
 
-      - name: Upload runner image
-        uses: actions/upload-artifact@v2
+      - name: Store runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp/pki-runner.tar
+          key: pki-tps-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tps-runner.tar
 
   # docs/installation/tps/Installing_TPS.md
   tps-test:
@@ -87,14 +87,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp
+          key: pki-tps-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tps-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-tps-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -300,14 +300,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp
+          key: pki-tps-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tps-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-tps-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -567,14 +567,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp
+          key: pki-tps-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tps-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-tps-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -895,14 +895,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp
+          key: pki-tps-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tps-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-tps-runner.tar
 
       - name: Create network
         run: docker network create example

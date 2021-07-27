@@ -66,13 +66,13 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-runner
           target: pki-runner
-          outputs: type=docker,dest=/tmp/pki-runner.tar
+          outputs: type=docker,dest=pki-runner.tar
 
-      - name: Upload runner image
-        uses: actions/upload-artifact@v2
+      - name: Store runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-image-${{ matrix.os }}
-          path: /tmp/pki-runner.tar
+          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-runner.tar
 
       - name: Build server image
         uses: docker/build-push-action@v2
@@ -83,13 +83,13 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-server
           target: pki-server
-          outputs: type=docker,dest=/tmp/pki-server.tar
+          outputs: type=docker,dest=pki-server.tar
 
-      - name: Upload server image
-        uses: actions/upload-artifact@v2
+      - name: Store server image
+        uses: actions/cache@v3
         with:
-          name: pki-server-image-${{ matrix.os }}
-          path: /tmp/pki-server.tar
+          key: pki-server-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-server.tar
 
   # docs/installation/server/Installing_Basic_PKI_Server.md
   pki-server-test:
@@ -104,14 +104,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-image-${{ matrix.os }}
-          path: /tmp
+          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -181,14 +181,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-image-${{ matrix.os }}
-          path: /tmp
+          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -286,14 +286,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-image-${{ matrix.os }}
-          path: /tmp
+          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -389,14 +389,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-image-${{ matrix.os }}
-          path: /tmp
+          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -494,14 +494,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-image-${{ matrix.os }}
-          path: /tmp
+          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -607,23 +607,23 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-image-${{ matrix.os }}
-          path: /tmp
+          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-runner.tar
 
-      - name: Download server image
-        uses: actions/download-artifact@v2
+      - name: Retrieve server image
+        uses: actions/cache@v3
         with:
-          name: pki-server-image-${{ matrix.os }}
-          path: /tmp
+          key: pki-server-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-server.tar
 
       - name: Load server image
-        run: docker load --input /tmp/pki-server.tar
+        run: docker load --input pki-server.tar
 
       - name: Create network
         run: docker network create example
