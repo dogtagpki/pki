@@ -34,7 +34,6 @@ import socket
 import subprocess
 import tempfile
 import time
-import xml.etree.ElementTree as ET
 
 import ldap
 import ldap.filter
@@ -380,15 +379,14 @@ class PKISubsystem(object):
             protocol=protocol,
             hostname=socket.getfqdn(),
             port=port,
-            accept='application/xml',
+            accept='application/json',
             trust_env=False,
             verify=False)
 
         client = pki.system.SystemStatusClient(connection, subsystem=self.name)
         response = client.get_status(timeout=timeout)
-
-        root = ET.fromstring(response)
-        status = root.findtext('Status')
+        json_response = json.loads(response)
+        status = json_response['Response']['Status']
 
         logger.info('Subsystem status: %s', status)
         return status == 'running'
