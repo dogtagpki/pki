@@ -54,7 +54,7 @@ jobs:
       - name: Build PKI packages
         run: ./build.sh --with-pkgs=base,server,tests --with-timestamp --work-dir=build rpm
 
-      - name: Upload PKI packages
+      - name: Store PKI packages
         uses: actions/upload-artifact@v2
         with:
           name: pki-build-${{ matrix.os }}
@@ -71,7 +71,7 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download PKI packages
+      - name: Retrieve PKI packages
         uses: actions/download-artifact@v2
         with:
           name: pki-build-${{ matrix.os }}
@@ -95,7 +95,7 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - name: Download PKI packages
+      - name: Retrieve PKI packages
         uses: actions/download-artifact@v2
         with:
           name: pki-build-${{ matrix.os }}
@@ -279,7 +279,7 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - name: Download PKI packages
+      - name: Retrieve PKI packages
         uses: actions/download-artifact@v2
         with:
           name: pki-build-${{ matrix.os }}
@@ -464,7 +464,7 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - name: Download PKI packages
+      - name: Retrieve PKI packages
         uses: actions/download-artifact@v2
         with:
           name: pki-build-${{ matrix.os }}
@@ -626,7 +626,7 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - name: Download PKI packages
+      - name: Retrieve PKI packages
         uses: actions/download-artifact@v2
         with:
           name: pki-build-${{ matrix.os }}
@@ -711,7 +711,7 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - name: Download PKI packages
+      - name: Retrieve PKI packages
         uses: actions/download-artifact@v2
         with:
           name: pki-build-${{ matrix.os }}
@@ -842,7 +842,7 @@ jobs:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     steps:
-      - name: Download PKI packages
+      - name: Retrieve PKI packages
         uses: actions/download-artifact@v2
         with:
           name: pki-build-${{ matrix.os }}
@@ -989,7 +989,7 @@ jobs:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     steps:
-      - name: Download PKI packages
+      - name: Retrieve PKI packages
         uses: actions/download-artifact@v2
         with:
           name: pki-build-${{ matrix.os }}

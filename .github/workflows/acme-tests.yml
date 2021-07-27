@@ -66,15 +66,15 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-runner
           target: pki-runner
-          outputs: type=docker,dest=/tmp/pki-runner.tar
+          outputs: type=docker,dest=pki-acme-runner.tar
 
-      - name: Upload runner image
-        uses: actions/upload-artifact@v2
+      - name: Store runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp/pki-runner.tar
+          key: pki-acme-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-acme-runner.tar
 
-      - name: Build ACME image
+      - name: Build server image
         uses: docker/build-push-action@v2
         with:
           context: .
@@ -83,13 +83,13 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-acme
           target: pki-acme
-          outputs: type=docker,dest=/tmp/pki-acme.tar
+          outputs: type=docker,dest=pki-acme-server.tar
 
-      - name: Upload ACME image
-        uses: actions/upload-artifact@v2
+      - name: Store server image
+        uses: actions/cache@v3
         with:
-          name: pki-acme-${{ matrix.os }}
-          path: /tmp/pki-acme.tar
+          key: pki-acme-server-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-acme-server.tar
 
   # docs/installation/acme/Installing_PKI_ACME_Responder.md
   # docs/user/acme/Using_PKI_ACME_Responder_with_Certbot.md
@@ -105,14 +105,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp
+          key: pki-acme-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-acme-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-acme-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -292,14 +292,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp
+          key: pki-acme-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-acme-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-acme-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -493,23 +493,23 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp
+          key: pki-acme-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-acme-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-acme-runner.tar
 
-      - name: Download ACME image
-        uses: actions/download-artifact@v2
+      - name: Retrieve server image
+        uses: actions/cache@v3
         with:
-          name: pki-acme-${{ matrix.os }}
-          path: /tmp
+          key: pki-acme-server-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-acme-server.tar
 
       - name: Load ACME image
-        run: docker load --input /tmp/pki-acme.tar
+        run: docker load --input pki-acme-server.tar
 
       - name: Create network
         run: docker network create example

@@ -66,13 +66,13 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-runner
           target: pki-runner
-          outputs: type=docker,dest=/tmp/pki-runner.tar
+          outputs: type=docker,dest=pki-python-runner.tar
 
-      - name: Upload runner image
-        uses: actions/upload-artifact@v2
+      - name: Store runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp/pki-runner.tar
+          key: pki-python-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-python-runner.tar
 
   lint-test:
     name: Running Python lint
@@ -86,14 +86,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp
+          key: pki-python-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-python-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input pki-python-runner.tar
 
       - name: Run container
         run: |

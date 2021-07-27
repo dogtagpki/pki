@@ -67,13 +67,13 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: ipa-runner
           target: ipa-runner
-          outputs: type=docker,dest=/tmp/ipa-runner.tar
+          outputs: type=docker,dest=ipa-runner.tar
 
-      - name: Upload runner image
-        uses: actions/upload-artifact@v2
+      - name: Store runner image
+        uses: actions/cache@v3
         with:
-          name: ipa-runner-${{ matrix.os }}
-          path: /tmp/ipa-runner.tar
+          key: ipa-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: ipa-runner.tar
 
   ipa-test:
     name: Testing IPA
@@ -87,14 +87,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: ipa-runner-${{ matrix.os }}
-          path: /tmp
+          key: ipa-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: ipa-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/ipa-runner.tar
+        run: docker load --input ipa-runner.tar
 
       - name: Run IPA container
         run: |
@@ -192,14 +192,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: ipa-runner-${{ matrix.os }}
-          path: /tmp
+          key: ipa-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: ipa-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/ipa-runner.tar
+        run: docker load --input ipa-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -347,14 +347,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download runner image
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: ipa-runner-${{ matrix.os }}
-          path: /tmp
+          key: ipa-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: ipa-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/ipa-runner.tar
+        run: docker load --input ipa-runner.tar
 
       - name: Create network
         run: docker network create example
