@@ -23,11 +23,11 @@ from __future__ import absolute_import
 from __future__ import print_function
 import argparse
 import getpass
+import json
 import ldap
 import logging
 import os
 import string
-import xml.etree.ElementTree as ET
 
 from six.moves import input  # pylint: disable=W0622,F0401
 from six.moves import configparser  # pylint: disable=F0401
@@ -548,8 +548,8 @@ class PKIConfigParser:
             verify=False)
         client = pki.system.SystemStatusClient(conn, subsystem=system_type)
         response = client.get_status()
-        root = ET.fromstring(response)
-        return root.findtext("Status")
+        json_response = json.loads(response)
+        return json_response['Response']['Status']
 
     def normalize_cert_token(self, name):
 

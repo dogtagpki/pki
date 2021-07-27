@@ -28,8 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -37,7 +37,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.cmsutil.json.JSONObject;
 
 public class GetStatus extends CMSServlet {
 
@@ -79,29 +79,22 @@ public class GetStatus extends CMSServlet {
         String version = GetStatus.class.getPackage().getImplementationVersion();
 
         try {
-            XMLObject xmlObj = null;
-
-            xmlObj = new XMLObject();
-
-            Node root = xmlObj.createRoot("XMLResponse");
-
-            xmlObj.addItemToContainer(root, "State", state + "");
-            xmlObj.addItemToContainer(root, "Type", type);
-            xmlObj.addItemToContainer(root, "Status", status);
-            xmlObj.addItemToContainer(root, "Version", version);
+            JSONObject jsonObj = new JSONObject();
+            ObjectNode responseNode = jsonObj.getMapper().createObjectNode();
+            responseNode.put("State", state + "");
+            responseNode.put("Type", type);
+            responseNode.put("Status", status);
+            responseNode.put("Version", version);
 
             String productName = CMS.getProductName();
 
             if (!StringUtils.isEmpty(productName)) {
-                xmlObj.addItemToContainer(root, "ProductVersion", productName);
+                responseNode.put("ProductVersion", productName);
             }
-
-            byte[] cb = xmlObj.toByteArray();
-
-            outputResult(httpResp, "application/xml", cb);
-
+            jsonObj.getRootNode().set("Response", responseNode);
+            outputResult(httpResp, "application/json", jsonObj.toByteArray());
         } catch (Exception e) {
-            logger.warn("GetStatus: Failed to send the XML output: " + e, e);
+            logger.warn("GetStatus: Failed to send the output: " + e, e);
         }
     }
 
