@@ -19,24 +19,34 @@ package com.netscape.cmsutil.json;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JSONObject {
 
     private ObjectMapper mapper = null;
     private ObjectNode rootNode = null;
+    private JsonNode jsonNode = null;
 
     public JSONObject() {
         mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector());
         rootNode = mapper.createObjectNode();
+    }
+
+    public JSONObject(InputStream s) throws IOException {
+        this();
+        jsonNode = mapper.readTree(s);
     }
 
     public ObjectMapper getMapper() {
@@ -55,6 +65,18 @@ public class JSONObject {
         this.rootNode = rootNode;
     }
 
+    public JsonNode getJsonNode() {
+        return jsonNode;
+    }
+
+    protected void setJsonNode(JsonNode jsonNode) {
+        this.jsonNode = jsonNode;
+    }
+
+    public String getValueFromJsonNode(String fieldName) {
+        return jsonNode.get(fieldName).asText();
+    }
+
     public byte[] toByteArray() throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         JsonFactory jfactory = new JsonFactory();
@@ -67,7 +89,7 @@ public class JSONObject {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mapper, rootNode);
+        return Objects.hash(jsonNode, mapper, rootNode);
     }
 
     @Override
@@ -79,13 +101,13 @@ public class JSONObject {
         if (getClass() != obj.getClass())
             return false;
         JSONObject other = (JSONObject) obj;
-        return Objects.equals(mapper, other.mapper) && Objects.equals(rootNode, other.rootNode);
+        return Objects.equals(jsonNode, other.jsonNode) && Objects.equals(mapper, other.mapper)
+                && Objects.equals(rootNode, other.rootNode);
     }
 
     @Override
     public String toString() {
-        return "JSONObject [mapper=" + mapper + ", rootNode=" + rootNode + ", getMapper()=" + getMapper()
-                + ", getRootNode()=" + getRootNode() + ", hashCode()=" + hashCode() + "]";
+        return "JSONObject [mapper=" + mapper + ", rootNode=" + rootNode + ", jsonNode=" + jsonNode + "]";
     }
 
 }

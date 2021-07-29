@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.cmsutil.json.JSONObject;
 import com.netscape.cmsutil.xml.XMLObject;
 
 
@@ -121,9 +122,9 @@ public class SubsystemClient extends Client {
         }
 
         // when the admin servlet is unavailable, we return a badly formatted error page
-        XMLObject parser = new XMLObject(new ByteArrayInputStream(response.getBytes()));
-
-        String status = parser.getValue("Status");
+        JSONObject jsonResponse = new JSONObject(new ByteArrayInputStream(response.getBytes()));
+        logger.debug("jsonreponse: {}" + jsonResponse.toString());
+        String status = jsonResponse.getValueFromJsonNode("Status");
         logger.debug("Status: " + status);
 
         if (status.equals(AUTH_FAILURE)) {
@@ -131,14 +132,14 @@ public class SubsystemClient extends Client {
         }
 
         if (!status.equals(SUCCESS)) {
-            String error = parser.getValue("Error");
+            String error = jsonResponse.getValueFromJsonNode("Error");
             throw new IOException(error);
         }
 
-        String begin = parser.getValue("beginNumber");
+        String begin = jsonResponse.getValueFromJsonNode("beginNumber");
         logger.info("Begin: " + begin);
 
-        String end = parser.getValue("endNumber");
+        String end = jsonResponse.getValueFromJsonNode("endNumber");
         logger.info("End: " + end);
 
         Range range = new Range();
