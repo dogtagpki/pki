@@ -6,7 +6,6 @@ jobs:
   init:
     name: Initializing Workflow
     runs-on: ubuntu-latest
-    container: fedora:latest
     outputs:
       matrix: ${{ steps.init.outputs.matrix }}
       repo: ${{ steps.init.outputs.repo }}
@@ -379,9 +378,7 @@ jobs:
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     strategy:
-      matrix:
-        # NSS cannot find the SoftHSM token on F33
-        os: ['34']
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Download PKI packages
         uses: actions/download-artifact@v2
