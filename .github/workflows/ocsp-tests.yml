@@ -6,7 +6,6 @@ jobs:
   init:
     name: Initializing Workflow
     runs-on: ubuntu-latest
-    container: fedora:latest
     outputs:
       matrix: ${{ steps.init.outputs.matrix }}
       repo: ${{ steps.init.outputs.repo }}
