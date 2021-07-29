@@ -8,15 +8,17 @@ jobs:
     runs-on: ubuntu-latest
     container: fedora:latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix: ${{ steps.init.outputs.matrix }}
+      repo: ${{ steps.init.outputs.repo }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Set up test matrix
-        id: set-matrix
+      - name: Initialize workflow
+        id: init
         env:
           BASE64_MATRIX: ${{ secrets.BASE64_MATRIX }}
+          BASE64_REPO: ${{ secrets.BASE64_REPO }}
         run: |
           tests/bin/init-workflow.sh
 
@@ -25,8 +27,6 @@ jobs:
     name: Building PKI
     needs: init
     runs-on: ubuntu-latest
-    env:
-      COPR_REPO: "@pki/10.11"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -42,7 +42,7 @@ jobs:
           context: .
           build-args: |
             OS_VERSION=${{ matrix.os }}
-            COPR_REPO=${{ env.COPR_REPO }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
             BUILD_OPTS=--with-pkgs=base,server,tests --with-timestamp --with-commit-id
           tags: pki-runner
           target: pki-runner

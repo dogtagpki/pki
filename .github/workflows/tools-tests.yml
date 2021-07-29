@@ -8,15 +8,17 @@ jobs:
     runs-on: ubuntu-latest
     container: fedora:latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix: ${{ steps.init.outputs.matrix }}
+      repo: ${{ steps.init.outputs.repo }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Set up test matrix
-        id: set-matrix
+      - name: Initialize workflow
+        id: init
         env:
           BASE64_MATRIX: ${{ secrets.BASE64_MATRIX }}
+          BASE64_REPO: ${{ secrets.BASE64_REPO }}
         run: |
           tests/bin/init-workflow.sh
 
@@ -26,8 +28,6 @@ jobs:
     needs: init
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-    env:
-      COPR_REPO: "@pki/10.11"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: |
           dnf install -y dnf-plugins-core rpm-build
-          dnf copr enable -y $COPR_REPO
+          dnf copr enable -y ${{ needs.init.outputs.repo }}
           dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
 
       - name: Build PKI packages
@@ -57,8 +57,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-    env:
-      COPR_REPO: "@pki/10.11"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -74,7 +72,7 @@ jobs:
       - name: Install PKI packages
         run: |
           dnf install -y dnf-plugins-core
-          dnf copr enable -y $COPR_REPO
+          dnf copr enable -y ${{ needs.init.outputs.repo }}
           dnf -y localinstall build/RPMS/*
 
       - name: Run PKICertImport test
@@ -86,8 +84,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-    env:
-      COPR_REPO: "@pki/10.11"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -100,7 +96,7 @@ jobs:
       - name: Install PKI packages
         run: |
           dnf install -y dnf-plugins-core
-          dnf copr enable -y $COPR_REPO
+          dnf copr enable -y ${{ needs.init.outputs.repo }}
           dnf -y localinstall build/RPMS/*
 
       # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
@@ -234,8 +230,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-    env:
-      COPR_REPO: "@pki/10.11"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -248,7 +242,7 @@ jobs:
       - name: Install PKI packages
         run: |
           dnf install -y dnf-plugins-core
-          dnf copr enable -y $COPR_REPO
+          dnf copr enable -y ${{ needs.init.outputs.repo }}
           dnf -y localinstall build/RPMS/*
 
       # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
@@ -384,8 +378,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-    env:
-      COPR_REPO: "@pki/10.11"
     strategy:
       matrix:
         # NSS cannot find the SoftHSM token on F33
@@ -400,7 +392,7 @@ jobs:
       - name: Install PKI packages
         run: |
           dnf install -y dnf-plugins-core softhsm
-          dnf copr enable -y $COPR_REPO
+          dnf copr enable -y ${{ needs.init.outputs.repo }}
           dnf -y localinstall build/RPMS/*
 
       - name: Create HSM token
@@ -461,8 +453,6 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-    env:
-      COPR_REPO: "@pki/10.11"
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -475,7 +465,7 @@ jobs:
       - name: Install PKI packages
         run: |
           dnf install -y dnf-plugins-core
-          dnf copr enable -y $COPR_REPO
+          dnf copr enable -y ${{ needs.init.outputs.repo }}
           dnf -y localinstall build/RPMS/*
 
       - name: Generate CA signing cert request
