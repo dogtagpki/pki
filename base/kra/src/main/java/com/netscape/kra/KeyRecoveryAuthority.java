@@ -601,7 +601,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             int ret = -1;
             ret = mConfig.getInteger("noOfRequiredRecoveryAgents", 1);
             if (ret <= 0) {
-                throw new EBaseException("Invalid parameter noOfRequiredecoveryAgents");
+                throw new EBaseException("Invalid parameter noOfRequiredRecoveryAgents");
             }
             return ret;
         }
