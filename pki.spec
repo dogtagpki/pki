@@ -482,7 +482,6 @@ Requires:         tomcat >= 1:9.0.7
 
 Requires:         systemd
 Requires(post):   systemd-units
-Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
 Requires:         tomcatjss >= 8.0.0
@@ -542,7 +541,6 @@ BuildArch:        noarch
 
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
-Requires(preun):  systemd-units
 Requires(postun): systemd-units
 
 %description -n   pki-ca
@@ -567,7 +565,6 @@ BuildArch:        noarch
 
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
-Requires(preun):  systemd-units
 Requires(postun): systemd-units
 
 %description -n   pki-kra
@@ -598,7 +595,6 @@ BuildArch:        noarch
 
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
-Requires(preun):  systemd-units
 Requires(postun): systemd-units
 
 %description -n   pki-ocsp
@@ -636,7 +632,6 @@ BuildArch:        noarch
 
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
-Requires(preun):  systemd-units
 Requires(postun): systemd-units
 
 %description -n   pki-tks
@@ -667,7 +662,6 @@ Summary:          PKI TPS Package
 
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
-Requires(preun):  systemd-units
 Requires(postun): systemd-units
 
 # additional runtime requirements needed to run native 'tpsclient'
@@ -970,10 +964,6 @@ fi
 %if %{with server}
 
 %post -n pki-server
-## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
-##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
-##        PKI deployment process
-
 # CVE-2021-3551
 # Remove world access from existing installation logs
 find /var/log/pki -maxdepth 1 -type f -exec chmod o-rwx {} \;
@@ -983,17 +973,6 @@ if [ "$1" == "2" ]
 then
     systemctl daemon-reload
 fi
-
-## preun -n pki-server
-## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
-##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
-##        PKI deployment process
-
-
-## postun -n pki-server
-## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
-##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
-##        PKI deployment process
 
 # with server
 %endif
