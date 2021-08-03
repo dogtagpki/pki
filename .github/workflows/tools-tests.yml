@@ -574,3 +574,121 @@ jobs:
           certutil -L -d /root/.dogtag/nssdb | sed -n 's/^sslserver *\(\S\+\)/\1/p' > actual
           echo "u,u,u" > expected
           diff actual expected
+
+  # https://github.com/dogtagpki/pki/wiki/PKI-PKCS12-CLI
+  pki-pkcs12-test:
+    name: Testing PKI PKCS12 CLI
+    needs: [init, build]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    steps:
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Install PKI packages
+        run: |
+          dnf install -y dnf-plugins-core
+          dnf copr enable -y ${{ needs.init.outputs.repo }}
+          dnf -y localinstall build/RPMS/*
+
+      - name: Generate CA signing cert request in NSS database
+        run: |
+          pki nss-cert-request \
+              --subject "CN=Certificate Authority" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr ca_signing.csr
+
+      - name: Issue self-signed CA signing cert
+        run: |
+          pki nss-cert-issue \
+              --csr ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert ca_signing.crt
+
+      - name: Import CA signing cert into NSS database
+        run: |
+          pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+      - name: Generate SSL server cert request in NSS database
+        run: |
+          pki nss-cert-request \
+              --subject "CN=localhost.localdomain" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr sslserver.csr
+
+      - name: Issue SSL server cert signed by CA signing cert
+        run: |
+          pki nss-cert-issue \
+              --issuer ca_signing \
+              --csr sslserver.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert sslserver.crt
+
+      - name: Import SSL server cert into NSS database
+        run: pki nss-cert-import --cert sslserver.crt sslserver
+
+      - name: "Export all certs and keys from NSS database into PKCS #12 file"
+        run: pki pkcs12-export --pkcs12-file test.p12 --pkcs12-password Secret.123
+
+      - name: "Compare certs in PKCS #12 file and in NSS database"
+        run: |
+          pki pkcs12-cert-find --pkcs12-file test.p12 --pkcs12-password Secret.123 | tee output
+          sed -n 's/^\s*Friendly Name:\s*\(.\+\)\s*$/\1/p' output | sort > actual
+          certutil -L -d /root/.dogtag/nssdb | tee output
+          tail -n +5 output | awk '{print $1;}' | sort > expected
+          diff actual expected
+
+      - name: "Compare keys in PKCS #12 file and in NSS database"
+        run: |
+          pki pkcs12-key-find --pkcs12-file test.p12 --pkcs12-password Secret.123 | tee output
+          sed -n 's/^\s*Key ID:\s*\(.\+\)\s*$/\1/p' output | sort > actual
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output | sort > expected
+          diff actual expected
+
+      - name: "Export SSL server cert from PKCS #12 file"
+        run: |
+          pki pkcs12-cert-export --pkcs12-file test.p12 --pkcs12-password Secret.123 --cert-file sslserver2.crt sslserver
+          diff sslserver.crt sslserver2.crt
+
+      - name: "Remove SSL server cert from PKCS #12 file"
+        run: |
+          pki pkcs12-cert-del --pkcs12-file test.p12 --pkcs12-password Secret.123 sslserver
+          pki pkcs12-cert-find --pkcs12-file test.p12 --pkcs12-password Secret.123 | tee output
+          sed -n 's/^\s*Friendly Name:\s*\(.\+\)\s*$/\1/p' output | sort > actual
+          echo ca_signing > expected
+          diff actual expected
+
+      - name: "Re-import SSL server cert from NSS database into PKCS #12 file"
+        run: |
+          pki pkcs12-cert-import --pkcs12-file test.p12 --pkcs12-password Secret.123 --no-chain sslserver
+          # compare certs in PKCS #12 file and in NSS database
+          pki pkcs12-cert-find --pkcs12-file test.p12 --pkcs12-password Secret.123 | tee output
+          sed -n 's/^\s*Friendly Name:\s*\(.\+\)\s*$/\1/p' output | sort > actual
+          certutil -L -d /root/.dogtag/nssdb | tail -n +5 | awk '{print $1;}' | sort > expected
+          diff actual expected
+          # compare keys in PKCS #12 file and in NSS database
+          pki pkcs12-key-find --pkcs12-file test.p12 --pkcs12-password Secret.123 | tee output
+          sed -n 's/^\s*Key ID:\s*\(.\+\)\s*$/\1/p' output | sort > actual
+          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' | sort > expected
+          diff actual expected
+
+      - name: "Import all certs and keys from PKCS #12 file into a new NSS database"
+        run: |
+          pki -d nssdb pkcs12-import --pkcs12-file test.p12 --pkcs12-password Secret.123
+          # compare certs in old and new NSS databases
+          certutil -L -d nssdb | tail -n +5 | awk '{print $1;}' | sort > actual
+          certutil -L -d /root/.dogtag/nssdb | tail -n +5 | awk '{print $1;}' | sort > expected
+          diff actual expected
+          # compare keys in old and new NSS databases
+          certutil -K -d nssdb | sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' | sort > actual
+          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' | sort > expected
+          diff actual expected
