@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -41,6 +40,7 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmsutil.json.JSONObject;
 
 /**
  * This servlet retrieves the transport certificate from DRM.
@@ -134,17 +134,16 @@ public class GetTransportCert extends CMSServlet {
         try {
             logger.debug("GetTransportCert: Sending response " + mime64);
 
-            ObjectMapper mapper = new ObjectMapper();
-            ObjectNode rootNode = mapper.createObjectNode();
-            ObjectNode responseNode = mapper.createObjectNode();
+            JSONObject jsonObj = new JSONObject();
+            ObjectNode responseNode = jsonObj.getMapper().createObjectNode();
 
             responseNode.put("Status", SUCCESS);
             responseNode.put("TransportCert", mime64);
-            rootNode.set("Response", responseNode);
+            jsonObj.getRootNode().set("Response", responseNode);
 
-            outputResult(httpResp, "application/json", rootNode.binaryValue());
+            outputResult(httpResp, "application/json", jsonObj.toByteArray());
         } catch (Exception e) {
-            logger.warn("GetTransportCert: Failed to send the JSON output " + e.getMessage(), e);
+            logger.warn("GetTransportCert: Failed to send the output " + e.getMessage(), e);
         }
     }
 

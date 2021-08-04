@@ -29,15 +29,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.w3c.dom.Node;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.cmsutil.json.JSONObject;
 
 public class GetCertChain extends CMSServlet {
 
@@ -111,19 +111,17 @@ public class GetCertChain extends CMSServlet {
         chainBase64 = normalizeCertStr(chainBase64);
 
         try {
-            XMLObject xmlObj = null;
+            JSONObject jsonObj = new JSONObject();
 
-            xmlObj = new XMLObject();
+            ObjectNode responseNode = jsonObj.getMapper().createObjectNode();
+            responseNode.put("Status", SUCCESS);
+            responseNode.put("ChainBase64", chainBase64);
 
-            Node root = xmlObj.createRoot("XMLResponse");
+            jsonObj.getRootNode().set("Response", responseNode);
 
-            xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            xmlObj.addItemToContainer(root, "ChainBase64", chainBase64);
-            byte[] cb = xmlObj.toByteArray();
-
-            outputResult(httpResp, "application/xml", cb);
+            outputResult(httpResp, "application/json", jsonObj.toByteArray());
         } catch (Exception e) {
-            logger.warn("Failed to send the XML output: " + e.getMessage(), e);
+            logger.warn("Failed to send the output: " + e.getMessage(), e);
         }
     }
 

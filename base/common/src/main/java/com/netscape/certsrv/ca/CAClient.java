@@ -28,6 +28,7 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.client.ClientConfig;
@@ -40,7 +41,7 @@ import com.netscape.certsrv.system.FeatureClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.cmsutil.json.JSONObject;
 
 public class CAClient extends SubsystemClient {
 
@@ -75,8 +76,9 @@ public class CAClient extends SubsystemClient {
         }
 
         ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-        XMLObject parser = new XMLObject(bis);
-        String chain = parser.getValue("ChainBase64");
+        JSONObject jsonObj = new JSONObject(bis);
+        JsonNode responseNode = jsonObj.getJsonNode().get("Response");
+        String chain = responseNode.get("ChainBase64").asText();
 
         if (chain == null || chain.length() <= 0) {
             throw new IOException("Missing certificate chain");
@@ -110,9 +112,9 @@ public class CAClient extends SubsystemClient {
         }
 
         ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-        XMLObject parser = new XMLObject(bis);
-
-        String status = parser.getValue("Status");
+        JSONObject jsonObj = new JSONObject(bis);
+        JsonNode responseNode = jsonObj.getJsonNode().get("Response");
+        String status = responseNode.get("Status").asText();
         logger.debug("CAClient: status: " + status);
 
         if (status.equals("0")) {
@@ -123,7 +125,7 @@ public class CAClient extends SubsystemClient {
             throw new EAuthException("Unable to update connector: Authentication failure");
 
         } else {
-            String error = parser.getValue("Error");
+            String error = jsonObj.getJsonNode().get("Error").asText();
             logger.error("CAClient: Unable to update connector: " + error);
             throw new IOException("Unable to update connector: " + error);
         }
@@ -147,9 +149,9 @@ public class CAClient extends SubsystemClient {
         }
 
         ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-        XMLObject parser = new XMLObject(bis);
-
-        String status = parser.getValue("Status");
+        JSONObject jsonObj = new JSONObject(bis);
+        JsonNode responseNode = jsonObj.getJsonNode().get("Response");
+        String status = responseNode.get("Status").asText();
         logger.debug("CAClient: status: " + status);
 
         if (status.equals("0")) {
@@ -160,7 +162,7 @@ public class CAClient extends SubsystemClient {
             throw new EAuthException("Unable to update publisher: Authentication failure");
 
         } else {
-            String error = parser.getValue("Error");
+            String error = responseNode.get("Error").asText();
             logger.error("CAClient: Unable to update publisher: " + error);
             throw new IOException("Unable to update publisher: " + error);
         }
