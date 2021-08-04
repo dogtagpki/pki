@@ -29,12 +29,13 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.cmsutil.json.JSONObject;
 
 /**
  * @author Endi S. Dewata
@@ -89,11 +90,10 @@ public class CASystemCertClient extends Client {
         if (c == null) {
             throw new Exception("Unable to get subsystem certificate: No response");
         }
-
         ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-        XMLObject parser = new XMLObject(bis);
-        String status = parser.getValue("Status");
-
+        JSONObject jsonObj = new JSONObject(bis);
+        JsonNode responseNode = jsonObj.getJsonNode().get("Response");
+        String status = responseNode.get("Status").asText();
         if ("2".equals(status)) {
             throw new Exception("Unable to get subsystem certificate: Authentication error");
 
@@ -101,7 +101,7 @@ public class CASystemCertClient extends Client {
             throw new Exception("Unable to get subsystem certificate: Internal server error");
         }
 
-        String b64 = parser.getValue("Cert");
+        String b64 = responseNode.get("Cert").asText();
         X509CertImpl cert = new X509CertImpl(Utils.base64decode(b64));
 
         PKCS7 pkcs7 = new PKCS7(
