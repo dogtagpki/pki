@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   init:
-    name: Initializing Workflow
+    name: Initializing workflow
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.init.outputs.matrix }}
@@ -55,7 +55,7 @@ jobs:
 
   # docs/installation/tps/Installing_TPS.md
   tps-test:
-    name: Installing TPS
+    name: Testing TPS
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -198,7 +198,7 @@ jobs:
   # This test installs DS, CA, KRA, TKS, and TPS in the primary container,
   # then installs DS clone, CA clone, KRA clone, TKS clone, and TPS clone in the secondary container.
   tps-clone-test:
-    name: Installing TPS Clone
+    name: Testing TPS clone
     needs: [init, build]
     runs-on: ubuntu-latest
     env:

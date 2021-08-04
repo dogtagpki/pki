@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   init:
-    name: Initializing Workflow
+    name: Initializing workflow
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.init.outputs.matrix }}
@@ -219,7 +219,7 @@ jobs:
             /tmp/artifacts/ipa
 
   ipa-clone-test:
-    name: Installing IPA Clone
+    name: Testing IPA clone
     needs: [init, build]
     runs-on: ubuntu-latest
     env:

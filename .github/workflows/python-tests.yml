@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   init:
-    name: Initializing Workflow
+    name: Initializing workflow
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.init.outputs.matrix }}
@@ -54,7 +54,7 @@ jobs:
           path: /tmp/pki-runner.tar
 
   lint-test:
-    name: Run Python lint
+    name: Running Python lint
     needs: [init, build]
     runs-on: ubuntu-latest
     env:

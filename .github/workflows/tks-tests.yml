@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   init:
-    name: Initializing Workflow
+    name: Initializing workflow
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.init.outputs.matrix }}
@@ -55,7 +55,7 @@ jobs:
 
   # docs/installation/tks/Installing_TKS.md
   tks-test:
-    name: Installing TKS
+    name: Testing TKS
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -134,7 +134,7 @@ jobs:
   # This test installs DS, CA, and TKS in the primary container,
   # then installs DS clone, CA clone, and TKS clone in the secondary container.
   tks-clone-test:
-    name: Installing TKS Clone
+    name: Testing TKS clone
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
