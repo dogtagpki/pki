@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   init:
-    name: Initializing Workflow
+    name: Initializing workflow
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.init.outputs.matrix }}
@@ -55,7 +55,7 @@ jobs:
 
   # docs/installation/kra/Installing_KRA.md
   kra-test:
-    name: Installing KRA
+    name: Testing KRA
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -137,7 +137,7 @@ jobs:
 
   # docs/installation/kra/Installing_KRA_on_Separate_Instance.md
   kra-separate-test:
-    name: Installing KRA on Separate Instance
+    name: Testing KRA on separate instance
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -278,7 +278,7 @@ jobs:
 
   # docs/installation/kra/Installing_KRA_with_External_Certificates.md
   kra-external-certs-test:
-    name: Installing KRA with External Certificates
+    name: Testing KRA with external certificates
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -470,7 +470,7 @@ jobs:
 
   # docs/installation/kra/Installing_KRA_Clone.md
   kra-clone-test:
-    name: Installing KRA Clone
+    name: Testing KRA clone
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -675,7 +675,7 @@ jobs:
             /tmp/artifacts/tertiary
 
   kra-standalone-test:
-    name: Installing Standalone KRA
+    name: Testing standalone KRA
     needs: [init, build]
     runs-on: ubuntu-latest
     env:

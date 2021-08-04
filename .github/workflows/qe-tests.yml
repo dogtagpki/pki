@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   init:
-    name: Initializing Workflow
+    name: Initializing workflow
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.init.outputs.matrix }}
@@ -54,7 +54,7 @@ jobs:
           path: /tmp/pki-runner.tar
 
   # Tier 0
-  installation-sanity:
+  installation-sanity-test:
     # This job uses Ansible playbooks in the tests dir to setup a PKI deployment.
     # All 5 subsystems are deployed on "discrete" instances
     name: Testing installation sanity

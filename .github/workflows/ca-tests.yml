@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   init:
-    name: Initializing Workflow
+    name: Initializing workflow
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.init.outputs.matrix }}
@@ -55,7 +55,7 @@ jobs:
 
   # docs/installation/ca/Installing_CA.md
   ca-test:
-    name: Installing CA
+    name: Testing CA
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -139,7 +139,7 @@ jobs:
 
   # docs/installation/ca/Installing_CA_with_ECC.md
   ca-ecc-test:
-    name: Installing CA with ECC
+    name: Testing CA with ECC
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -225,7 +225,7 @@ jobs:
 
   # docs/installation/ca/Installing_Subordinate_CA.md
   subca-test:
-    name: Installing Subordinate CA
+    name: Testing subordinate CA
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -351,7 +351,7 @@ jobs:
 
   # docs/installation/ca/Installing_CA_with_External_CA_Signing_Certificate.md
   ca-external-cert-test:
-    name: Installing CA with External Signing Certificate
+    name: Testing CA with external signing certificate
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -442,7 +442,7 @@ jobs:
 
   # docs/installation/ca/Installing_CA_with_Existing_Keys_in_Internal_Token.md
   ca-existing-certs-test:
-    name: Installing CA with Existing Certificates
+    name: Testing CA with existing certificates
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -586,7 +586,7 @@ jobs:
 
   # docs/installation/ca/Installing_CA_Clone.md
   ca-clone-test:
-    name: Installing CA Clone
+    name: Testing CA clone
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -768,7 +768,7 @@ jobs:
 
   # docs/installation/ca/Installing_CA_with_Secure_Database_Connection.md
   ca-secure-ds-test:
-    name: Installing CA with Secure DS
+    name: Testing CA with secure DS
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -910,7 +910,7 @@ jobs:
   # docs/installation/ca/Installing_CA_Clone.md
   # docs/installation/ca/Installing_CA_with_Secure_Database_Connection.md
   ca-clone-secure-ds-test:
-    name: Installing CA Clone with Secure DS
+    name: Testing CA clone with secure DS
     needs: [init, build]
     runs-on: ubuntu-latest
     env:

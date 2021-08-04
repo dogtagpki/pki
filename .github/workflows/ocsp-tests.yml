@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   init:
-    name: Initializing Workflow
+    name: Initializing workflow
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.init.outputs.matrix }}
@@ -55,7 +55,7 @@ jobs:
 
   # docs/installation/ocsp/Installing_OCSP.md
   ocsp-test:
-    name: Installing OCSP
+    name: Testing OCSP
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -131,7 +131,7 @@ jobs:
 
   # docs/installation/ocsp/Installing_OCSP_with_External_Certificates.md
   ocsp-external-certs-test:
-    name: Installing OCSP with External Certificates
+    name: Testing OCSP with external certificates
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -308,7 +308,7 @@ jobs:
 
   # docs/installation/ocsp/Installing_OCSP_Clone.md
   ocsp-clone-test:
-    name: Installing OCSP Clone
+    name: Testing OCSP clone
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -513,7 +513,7 @@ jobs:
             /tmp/artifacts/tertiary
 
   ocsp-standalone-test:
-    name: Installing Standalone OCSP
+    name: Testing standalone OCSP
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
