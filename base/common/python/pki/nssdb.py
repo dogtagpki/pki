@@ -536,8 +536,8 @@ class NSSDatabase(object):
             cmd.extend(['-C', self.internal_password_file])
 
         cmd.extend([
-            'nss-cert-import',
-            '--cert', cert_file
+            'client-cert-import',
+            '--ca-cert', cert_file
         ])
 
         if trust_attributes:
@@ -1509,10 +1509,13 @@ class NSSDatabase(object):
 
         tmpdir = tempfile.mkdtemp()
 
+        logger.debug('import_cert_chain begins')
+
         try:
             file_type = get_file_type(cert_chain_file)
 
             if file_type == 'cert':  # import single PEM cert
+                logger.debug('type is cert')
                 self.add_cert(
                     nickname=nickname,
                     cert_file=cert_chain_file,
@@ -1527,6 +1530,7 @@ class NSSDatabase(object):
                 )
 
             elif file_type == 'pkcs7':  # import PKCS #7 cert chain
+                logger.debug('type is pkcs7')
                 self.import_pkcs7(
                     pkcs7_file=cert_chain_file,
                     nickname=nickname,
@@ -1541,6 +1545,7 @@ class NSSDatabase(object):
                 return base64_data, [nickname]
 
             else:  # import PKCS #7 data without header/footer
+                logger.debug('type is pkcs7 without header/footer')
                 with open(cert_chain_file, 'r') as f:
                     base64_data = f.read()
 
@@ -1566,6 +1571,7 @@ class NSSDatabase(object):
 
         finally:
             shutil.rmtree(tmpdir)
+            logger.info('import_cert_chain ends')
 
     def import_pkcs7(
             self,
@@ -1632,6 +1638,7 @@ class NSSDatabase(object):
                     break
                 n = n + 1
 
+            logger.debug('Number of certs in pkcs#7 to import: %s', n)
             # Import CA certs with default nicknames and trust attributes.
             for i in range(0, n - 1):
                 cert_file = prefix + str(i) + suffix

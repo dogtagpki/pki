@@ -494,7 +494,7 @@ class PKIDeployer:
         cert_id = self.get_cert_id(subsystem, tag)
         nickname = self.mdict['pki_%s_nickname' % cert_id]
 
-        cert_data = nssdb.get_cert(nickname=nickname)
+        cert_data = nssdb.get_cert(nickname=nickname, output_text=True)
         if not cert_data:
             return
 
