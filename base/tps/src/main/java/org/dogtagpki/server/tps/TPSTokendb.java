@@ -614,7 +614,7 @@ public class TPSTokendb {
     }
 
     private void revokeCert(TokenRecord tokenRecord, TPSCertRecord cert, String tokenReason,
-            String ipAddress, String remoteUser) {
+            String ipAddress, String remoteUser) throws Exception {
 
         String method = "TPSTokendb.revokeCert";
         String logMsg;
@@ -677,12 +677,15 @@ public class TPSTokendb {
             tdbActivity(ActivityDatabase.OP_CERT_REVOCATION, tokenRecord,
                     ipAddress, e.getMessage(), "failure", remoteUser);
 
-            // continue revoking the next certificate
+            // bail out if revocation failed; This will allow the token
+            // status info to be consistent with that of the certs on the
+            // CA
+            throw e;
         }
     }
 
     private void unrevokeCert(TokenRecord tokenRecord, TPSCertRecord cert, String tokenReason,
-            String ipAddress, String remoteUser) {
+            String ipAddress, String remoteUser) throws Exception {
 
         String method = "TPSTokendb.unrevokeCert";
         String logMsg;
@@ -733,7 +736,10 @@ public class TPSTokendb {
             tdbActivity(ActivityDatabase.OP_CERT_RESTORATION, tokenRecord,
                     ipAddress, e.getMessage(), "failure", remoteUser);
 
-            // continue unrevoking the next certificate
+            // bail out if unrevocation failed; This will allow the token
+            // status info to be consistent with that of the certs on the
+            // CA
+            throw e;
         }
     }
 
