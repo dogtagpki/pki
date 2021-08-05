@@ -168,7 +168,7 @@ BuildRequires:    zip
 BuildRequires:    %{java_devel}
 BuildRequires:    javapackages-tools
 BuildRequires:    redhat-rpm-config
-BuildRequires:    ldapjdk >= 4.23.0, ldapjdk < 5.0.0
+BuildRequires:    ldapjdk >= 4.23.0, ldapjdk <= 5.0.0
 BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
@@ -205,8 +205,8 @@ BuildRequires:    python3-six
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.9.0, jss < 5.0.0
-BuildRequires:    tomcatjss >= 7.7.0, tomcatjss < 8.0.0
+BuildRequires:    jss >= 4.9.0, jss <= 5.0.0
+BuildRequires:    tomcatjss >= 7.7.0, tomcatjss <= 8.0.0
 
 BuildRequires:    systemd-units
 
