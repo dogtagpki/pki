@@ -78,9 +78,6 @@ public class ListCerts extends CMSServlet {
     private CertificateRepository mCertDB;
     private X500Name mAuthName = null;
     private String mFormPath = null;
-    private boolean mReverse = false;
-    private boolean mHardJumpTo = false; //jump to the end
-    private String mDirection = null;
     private boolean mUseClientFilter = false;
     private Vector<String> mAllowedClientFilters = new Vector<>();
     private int mMaxReturns = 2000;
@@ -241,13 +238,15 @@ public class ListCerts extends CMSServlet {
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
-        mHardJumpTo = false;
+        String direction = null;
+        boolean reverse = false;
+        boolean hardJumpTo = false; //jump to the end
         try {
 
             if (req.getParameter("direction") != null) {
-                mDirection = req.getParameter("direction").trim();
-                mReverse = mDirection.equals("up");
-                logger.debug("ListCerts: reverse: " + mReverse);
+                direction = req.getParameter("direction").trim();
+                reverse = direction.equals("up");
+                logger.debug("ListCerts: reverse: " + reverse);
             }
 
             if (req.getParameter("maxCount") != null) {
@@ -259,14 +258,14 @@ public class ListCerts extends CMSServlet {
             }
 
             String sentinelStr = "";
-            if (mReverse) {
+            if (reverse) {
                 sentinelStr = req.getParameter("querySentinelUp");
-            } else if (mDirection.equals("end")) {
+            } else if (direction.equals("end")) {
                 // this servlet will figure out the end
                 sentinelStr = "0";
-                mReverse = true;
-                mHardJumpTo = true;
-            } else if (mDirection.equals("down")) {
+                reverse = true;
+                hardJumpTo = true;
+            } else if (direction.equals("down")) {
                 sentinelStr = req.getParameter("querySentinelDown");
             } else
                 sentinelStr = "0";
@@ -312,6 +311,8 @@ public class ListCerts extends CMSServlet {
                     totalRecordCount,
                     req.getParameter("serialTo"),
                     queryCertFilter,
+                    reverse,
+                    hardJumpTo,
                     req, resp, revokeAll, locale[0]);
 
         } catch (NumberFormatException e) {
@@ -353,6 +354,8 @@ public class ListCerts extends CMSServlet {
             int totalRecordCount,
             String serialTo,
             String filter,
+            boolean reverse,
+            boolean hardJumpTo,
             HttpServletRequest req,
             HttpServletResponse resp,
             String revokeAll,
@@ -383,13 +386,13 @@ public class ListCerts extends CMSServlet {
         }
 
         logger.debug("ListCerts: serialToVal: " + serialToVal);
-        logger.debug("ListCerts: mReverse: " + mReverse);
-        logger.debug("ListCerts: mHardJumpTo: " + mHardJumpTo);
+        logger.debug("ListCerts: reverse: " + reverse);
+        logger.debug("ListCerts: hardJumpTo: " + hardJumpTo);
 
         String jumpTo = sentinel.toString();
         int pSize = 0;
-        if (mReverse) {
-            if (!mHardJumpTo) //reverse gets one more
+        if (reverse) {
+            if (!hardJumpTo) //reverse gets one more
                 pSize = -1 * maxCount - 1;
             else
                 pSize = -1 * maxCount;
@@ -400,7 +403,7 @@ public class ListCerts extends CMSServlet {
 
         logger.debug("ListCerts: calling findCertRecordsInList() with jumpTo");
         CertRecordList list = mCertDB.findCertRecordsInList(
-                filter, (String[]) null, jumpTo, mHardJumpTo, "serialno",
+                filter, (String[]) null, jumpTo, hardJumpTo, "serialno",
                 pSize);
         // retrive maxCount + 1 entries
         logger.debug("ListCerts: list size: " + list.getSize());
@@ -457,7 +460,7 @@ public class ListCerts extends CMSServlet {
              */
             logger.debug("ListCerts: records:");
             int count = 0;
-            while ((count < ((mReverse && !mHardJumpTo) ? (maxCount + 1) : maxCount)) && e.hasMoreElements()) {
+            while ((count < ((reverse && !hardJumpTo) ? (maxCount + 1) : maxCount)) && e.hasMoreElements()) {
                 CertRecord rec = e.nextElement();
 
                 if (rec == null) {
@@ -469,7 +472,7 @@ public class ListCerts extends CMSServlet {
 
                 if (count == 0) {
                     firstSerial = curSerial;
-                    if (mReverse && !mHardJumpTo) {//reverse got one more, skip
+                    if (reverse && !hardJumpTo) {//reverse got one more, skip
                         logger.debug("ListCerts:   skipping record");
                         count++;
                         continue;
@@ -492,7 +495,7 @@ public class ListCerts extends CMSServlet {
                     }
                 }
 
-                if (mReverse) {
+                if (reverse) {
                     //logger.debug("ListCerts: returning with rcount: " + rcount);
                     recs[rcount++] = rec;
 
@@ -510,7 +513,7 @@ public class ListCerts extends CMSServlet {
             return;
         }
 
-        if (mReverse) {
+        if (reverse) {
             logger.debug("ListCerts: fill records into arg block and argSet");
             for (int ii = rcount - 1; ii >= 0; ii--) {
                 if (recs[ii] != null) {
@@ -576,13 +579,13 @@ public class ListCerts extends CMSServlet {
         header.addIntegerValue("currentRecordCount", currentRecordCount);
 
         String qs = "";
-        if (mReverse)
+        if (reverse)
             qs = "querySentinelUp";
         else
             qs = "querySentinelDown";
         logger.debug("ListCerts: qs: " + qs);
 
-        if (mHardJumpTo) {
+        if (hardJumpTo) {
             logger.debug("ListCerts: curSerial added to querySentinelUp: " + curSerial);
             header.addStringValue("querySentinelUp", curSerial.toString());
 
@@ -591,7 +594,7 @@ public class ListCerts extends CMSServlet {
                 header.addStringValue(qs, null);
                 logger.debug("ListCerts: nextRec is null");
 
-                if (mReverse) {
+                if (reverse) {
                     logger.debug("ListCerts: curSerial added to querySentinelUp: " + curSerial);
                     header.addStringValue("querySentinelUp", curSerial.toString());
                 }
@@ -614,9 +617,9 @@ public class ListCerts extends CMSServlet {
                 }
                 logger.debug("ListCerts: querySentinel " + qs + ": " + nextRecNo);
             }
-        } // !mHardJumpto
+        } // !hardJumpto
 
-        header.addStringValue(!mReverse ? "querySentinelUp" : "querySentinelDown",
+        header.addStringValue(!reverse ? "querySentinelUp" : "querySentinelDown",
                   firstSerial.toString());
 
     }
