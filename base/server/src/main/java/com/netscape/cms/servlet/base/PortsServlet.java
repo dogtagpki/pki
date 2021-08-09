@@ -24,14 +24,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.w3c.dom.Node;
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.cmsutil.json.JSONObject;
 
 /**
  * This servlet returns port information.
@@ -75,16 +74,14 @@ public class PortsServlet extends CMSServlet {
             port = engine.getEENonSSLPort();
 
         try {
-            XMLObject xmlObj = null;
-            xmlObj = new XMLObject();
-
-            Node root = xmlObj.createRoot("XMLResponse");
-            xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            xmlObj.addItemToContainer(root, "Port", port);
-            byte[] cb = xmlObj.toByteArray();
-            outputResult(resp, "application/xml", cb);
+            logger.debug("RegisterUser: Sending response");
+            JSONObject jsonObj = new JSONObject();
+            ObjectNode responseNode = jsonObj.getMapper().createObjectNode();
+            responseNode.put("Status", SUCCESS);
+            responseNode.put("Port", port);
+            jsonObj.getRootNode().set("Response", responseNode);
         } catch (Exception e) {
-            logger.warn("Failed to send the XML output: " + e.getMessage(), e);
+            logger.warn("Failed to send the output: " + e.getMessage(), e);
         }
     }
 
