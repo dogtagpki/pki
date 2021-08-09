@@ -100,7 +100,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
-        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
+        TPSTokenPolicy tokenPolicy = null;
         EngineConfig configStore = engine.getConfig();
         String configName;
 
@@ -133,12 +133,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
         tokenRecord = isTokenRecordPresent(appletInfo);
 
         if (tokenRecord != null) {
-            logger.debug(method + " found token...");
+            logger.debug("{} found token... policy: {}", method, tokenRecord.getPolicy());
             isTokenPresent = true;
         } else {
             logger.debug(method + " token does not exist in tokendb... create one in memory");
             tokenRecord = new TokenRecord();
             tokenRecord.setId(appletInfo.getCUIDhexStringPlain());
+            fillTokenRecordDefaultPolicy(tokenRecord);
         }
 
         fillTokenRecord(tokenRecord, appletInfo);
@@ -309,7 +310,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         checkProfileStateOK();
 
-        boolean do_force_format = false;
+        boolean doForceFormat = false;
         if (isTokenPresent) {
             logger.debug(method + " token exists in tokendb");
 
@@ -335,13 +336,14 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         tokenRecord.getTokenStatus() + " to " + newState);
             }
 
-            do_force_format = tokenPolicy.isForceTokenFormat(cuid);
-            if (do_force_format)
+            tokenPolicy = new TPSTokenPolicy(tps, cuid);
+            doForceFormat = tokenPolicy.isForceTokenFormat();
+            if (doForceFormat)
                 logger.debug(method + " Will force format first due to policy.");
 
             if (!isExternalReg &&
-                    !tokenPolicy.isAllowdTokenReenroll(cuid) &&
-                    !tokenPolicy.isAllowdTokenRenew(cuid)) {
+                    !tokenPolicy.isAllowdTokenReenroll() &&
+                    !tokenPolicy.isAllowdTokenRenew()) {
                 logger.error(method + " token renewal or reEnroll disallowed");
                 logMsg = "Operation renewal or reEnroll for CUID " + cuid +
                         " Disabled";
@@ -358,7 +360,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             logger.debug(method + " token does not exist");
             checkAllowUnknownToken(TPSEngine.ENROLL_OP);
             logger.debug(method + "force a format");
-            do_force_format = true;
+            doForceFormat = true;
         }
 
         // isExternalReg : user already authenticated earlier
@@ -383,7 +385,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         }
 
-        if (do_force_format) {
+        if (doForceFormat) {
             //We will skip the auth step inside of format
             format(true);
         } else {
@@ -527,7 +529,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         // at this point, enrollment, renewal, or recovery have been processed accordingly;
         if (!isExternalReg &&
                 status == TPSStatus.STATUS_RENEWAL_IS_PROCESSED &&
-                tokenPolicy.isAllowdTokenRenew(cuid)) {
+                tokenPolicy.isAllowdTokenRenew()) {
             renewed = true;
             logger.debug(method + " renewal happened.. ");
         }
@@ -1116,7 +1118,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         EngineConfig configStore = engine.getConfig();
         String configName;
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
-        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
+        TPSTokenPolicy tokenPolicy = null;
 
         ArrayList<TokenRecord> tokenRecords = null;
         try {
@@ -1150,20 +1152,20 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         logger.debug(method + ": need to do enrollment");
                         // need to do enrollment outside
                         break;
-                    } else {
-                        logger.debug(method + ": There are multiple token entries for user "
-                                + userid);
+                    }
+                    logger.debug(method + ": There are multiple token entries for user "
+                            + userid);
 
-                        //We already know the current token is not active
-                        if (checkUserAlreadyHasActiveToken(userid) == false) {
-                            isRecover = true;
-                            continue; // TODO: or break?
-                        }
+                    //We already know the current token is not active
+                    if (checkUserAlreadyHasActiveToken(userid) == false) {
+                        isRecover = true;
+                        continue; // TODO: or break?
                     }
 
                 } else if (tokenRecord.getTokenStatus() == TokenStatus.ACTIVE) {
                     // current token is already active; renew if allowed
-                    if (tokenPolicy.isAllowdTokenRenew(aInfo.getCUIDhexStringPlain())) {
+                    tokenPolicy = new TPSTokenPolicy(tps,aInfo.getCUIDhexStringPlain());
+                    if (tokenPolicy.isAllowdTokenRenew()) {
                         return processRenewal(certsInfo, channel, aInfo, tokenRecord);
                     } else {
                         logMsg = "token is already active; can't renew because renewal is not allowed; will re-enroll if allowed";
@@ -1665,9 +1667,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         //See if policy calls for this feature
 
-        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
+        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps, tokenRecord.getId());
 
-        boolean recoverOldEncCerts = tokenPolicy.isAllowdRenewSaveOldEncCerts(tokenRecord.getId());
+        boolean recoverOldEncCerts = tokenPolicy.isAllowdRenewSaveOldEncCerts();
         logger.debug(method + " Recover Old Encryption Certs for Renewed Certs: " + recoverOldEncCerts);
         if (oldEncCertsToRecover.size() > 0 && recoverOldEncCerts == true) {
             logger.debug("About to attempt to recover old encryption certs just renewed.");
