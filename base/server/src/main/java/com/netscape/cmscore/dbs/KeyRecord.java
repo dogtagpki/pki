@@ -526,6 +526,9 @@ public class KeyRecord implements IKeyRecord {
 
     @Override
     public Boolean isEncrypted() throws EBaseException {
+        if (mMetaInfo == null) {
+            return null;
+        }
         String encrypted = (String) mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTED);
         if (encrypted == null)
             return null;
