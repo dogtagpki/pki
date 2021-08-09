@@ -59,7 +59,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
         try {
             testPinResetNoBeginMsg = configStore.getBoolean(configName,false);
         } catch (EBaseException e) {
-            testPinResetNoBeginMsg = false;          
+            testPinResetNoBeginMsg = false;
         }
 
         if (beginMsg == null || testPinResetNoBeginMsg == true) {
@@ -123,13 +123,13 @@ public class TPSPinResetProcessor extends TPSProcessor {
                     TPSStatus.STATUS_ERROR_UNKNOWN_TOKEN);
         }
 
-        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
-
         fillTokenRecord(tokenRecord, appletInfo);
         session.setTokenRecord(tokenRecord);
 
         String cuid = appletInfo.getCUIDhexStringPlain();
         String tokenType = null;
+
+        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps, cuid);
 
         if(isExternalReg) {
             logger.debug(method + " isExternalReg: ON");
@@ -311,7 +311,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         }
 
-        boolean pinResetAllowed = tokenPolicy.isAllowedPinReset(tokenRecord.getId());
+        boolean pinResetAllowed = tokenPolicy.isAllowedPinReset();
 
         logger.debug(method + ": PinResetPolicy: Pin Reset Allowed:  " + pinResetAllowed);
         logMsg = method + " PinReset Policy forbids pin reset operation.";
@@ -340,7 +340,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
         logMsg = "update token during pin reset";
 
         EngineConfig configStore = engine.getConfig();
-      
+
         // Use this only for testing, not for normal operation.
         String configName = "op.pinReset.testUpdateDBFailure";
         boolean testUpdateDBFailure = false;
@@ -364,7 +364,14 @@ public class TPSPinResetProcessor extends TPSProcessor {
             throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
         }
 
-        logger.debug(method + ": Token Pin successfully reset!");
+        // If policy tells us to disallow pin reset after
+        // a successfull pin reset, do so.
+        if (tokenPolicy.isAllowedResetPinResetToNo()) {
+            tokenPolicy.setAllowedPinReset(false);
+            tokenPolicy.updatePolicySet();
+            logger.debug("{}: Updating pin reset policy to NO.", method);
+        }
+        logger.debug("{}: Token Pin successfully reset!", method);
 
     }
 
