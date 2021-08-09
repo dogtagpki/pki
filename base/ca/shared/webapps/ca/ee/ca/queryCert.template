@@ -403,7 +403,7 @@ function renderNextButtonElement(name, label, disabled)
     result.innerText = label;
     result.width = 72;
     result.disabled = disabled ? true : false;
-    result.onClick = () => doNext(result);
+    result.onclick = () => doNext(result);
     return result;
 }
 
