@@ -95,6 +95,7 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -1532,6 +1533,28 @@ public class TPSProcessor {
         }
 
         logger.debug(method + ": ends");
+
+    }
+
+    protected void fillTokenRecordDefaultPolicy(TokenRecord tokenRecord) throws TPSException {
+
+        String method = "TPSProcessor.fillTokenRecordDefaultPolicy: ";
+
+        try {
+            org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
+            IConfigStore configStore = subsystem.getConfigStore();
+
+            String config = "tokendb.defaultPolicy";
+            String defaultPolicy = configStore.getString(config);
+
+            logger.debug("{} default token policy: {}", method, defaultPolicy);
+
+            tokenRecord.setPolicy(defaultPolicy);
+        } catch (Exception e) {
+            logger.debug("{}Problem with adding the default policy to the token.", method);
+            throw new TPSException(e.toString(), TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
 
     }
 
