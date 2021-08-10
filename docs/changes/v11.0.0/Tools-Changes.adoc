@@ -1,0 +1,49 @@
+= Tools Changes =
+
+== PKI User CLI Changes ==
+
+The `pki user` commands have been deprecated in PKI 10 and dropped in PKI 11. Use `pki <subsystem>-user` commands instead.
+
+== PKI Group CLI Changes ==
+
+The `pki group` commands have been deprecated in PKI 10 and dropped in PKI 11. Use `pki <subsystem>-group` commands instead.
+
+== PKI Certificate CLI Changes ==
+
+The `pki cert` commands have been deprecated in PKI 10 and dropped in PKI 11. Use `pki ca-cert` commands instead.
+
+== PKI Key CLI Changes ==
+
+The `pki key` commands have been deprecated in PKI 10 and dropped in PKI 11. Use `pki kra-key` commands instead.
+
+== PKI Audit CLI Changes ==
+
+Due to REST API changes, the `--output` parameter for `pki <subsystem>-audit-show` command will now produce a JSON file:
+
+----
+$ pki -n caadmin <subsystem>-audit-show --output audit.json
+----
+
+The `--input` parameter for `pki <subsystem>-audit-mod` will now take a JSON file:
+
+----
+$ pki -n caadmin <subsystem>-audit-mod --input audit.json
+----
+
+See link:../../user/tools/Using-PKI-Audit-CLI.adoc[Using PKI Audit CLI].
+
+== PKI TPS Configuration CLI Changes ==
+
+Due to REST API changes, the `--output` parameter for `pki tps-config-show` command will now produce a JSON file:
+
+----
+$ pki -n caadmin tps-config-show --output tps.json
+----
+
+The `--input` parameter for `pki tps-config-mod` will now take a JSON file:
+
+----
+$ pki -n caadmin tps-config-mod --input tps.json
+----
+
+See link:../../user/tools/Using-PKI-TPS-Configuration-CLI.adoc[Using PKI TPS Configuration CLI].
