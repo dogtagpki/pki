@@ -1,0 +1,23 @@
+= Packaging Changes =
+
+== Package Name Changes ==
+
+In PKI 10.11.1 the following packages have been renamed:
+
+* `pki-base` -> `dogtag-pki-base`
+* `pki-base-java` -> `dogtag-pki-base-java`
+* `pki-javadoc` -> `dogtag-pki-javadoc`
+* `python3-pki` -> `python3-dogtag-pki`
+* `pki-tools` -> `dogtag-pki-tools`
+* `pki-symkey` -> `dogtag-pki-symkey`
+* `pki-server` -> `dogtag-pki-server`
+* `pki-ca` -> `dogtag-pki-ca`
+* `pki-kra` -> `dogtag-pki-kra`
+* `pki-ocsp` -> `dogtag-pki-ocsp`
+* `pki-tks` -> `dogtag-pki-tks`
+* `pki-tps` -> `dogtag-pki-tps`
+* `pki-acme` -> `dogtag-pki-acme`
+* `pki-console` -> `dogtag-pki-console`
+* `pki-console-theme` -> `dogtag-pki-console-theme`
+* `pki-server-theme` -> `dogtag-pki-server-theme`
+* `pki-tests` -> `dogtag-pki-tests`
