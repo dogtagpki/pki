@@ -250,7 +250,6 @@ public class CertProcessor extends CAProcessor {
 
                 logger.info("CertProcessor: Submitting certificate request to " + profile.getId() + " profile");
 
-                profile.submit(authToken, req);
                 profile.submit(authToken, req, explicitApprovalRequired);
 
                 req.setRequestStatus(RequestStatus.COMPLETE);
