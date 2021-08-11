@@ -22,8 +22,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -38,12 +41,16 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.UserNotFoundException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.profile.ProfileCollection;
 import com.netscape.certsrv.tps.profile.ProfileData;
 import com.netscape.certsrv.tps.profile.ProfileResource;
+import com.netscape.certsrv.user.UserResource;
+import com.netscape.cmscore.usrgrp.User;
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
 
@@ -87,37 +94,57 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
     @Override
     public Response findProfiles(String filter, Integer start, Integer size) {
 
-        logger.info("TPSProfileService: Searching for profiles with filter " + filter);
+        String method = "TPSProfileService.findProfiles: ";
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
-            throw new BadRequestException("Filter is too short.");
+            throw new BadRequestException(method + "Filter is too short.");
         }
+        logger.info(method + "Searching for profiles with filter " + filter);
 
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
-            Iterator<ProfileRecord> profiles = database.findRecords(filter).iterator();
+            Collection<ProfileRecord> profiles = new ArrayList<>();
+            if (authorizedProfiles != null) {
+
+                Collection<ProfileRecord> filteredProfiles = database.findRecords(filter);
+
+                if (authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+                    logger.debug(method + "User allowed to access all profiles");
+                    profiles.addAll(filteredProfiles);
+
+                } else {
+                    for (ProfileRecord profile : filteredProfiles) {
+                        if (authorizedProfiles.contains(profile.getID())) {
+                            logger.debug(method + "User allowed to access profile " + profile.getID());
+                            profiles.add(profile);
+                        }
+                    }
+                }
+            }
+            Iterator<ProfileRecord> profileIterator = profiles.iterator();
 
             ProfileCollection response = new ProfileCollection();
             int i = 0;
 
             // skip to the start of the page
-            for (; i < start && profiles.hasNext(); i++)
-                profiles.next();
+            for (; i < start && profileIterator.hasNext(); i++)
+                profileIterator.next();
 
             // return entries up to the page size
-            for (; i < start + size && profiles.hasNext(); i++) {
-                response.addEntry(createProfileData(profiles.next()));
+            for (; i < start + size && profileIterator.hasNext(); i++) {
+                response.addEntry(createProfileData(profileIterator.next()));
             }
 
             // count the total entries
-            for (; profiles.hasNext(); i++)
-                profiles.next();
+            for (; profileIterator.hasNext(); i++)
+                profileIterator.next();
             response.setTotal(i);
 
             if (start > 0) {
@@ -133,11 +160,11 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             return createOKResponse(response);
 
         } catch (PKIException e) {
-            logger.error("TPSProfileService: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             throw e;
 
         } catch (Exception e) {
-            logger.error("TPSProfileService: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -145,25 +172,35 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
     @Override
     public Response getProfile(String profileID) {
 
-        logger.info("TPSProfileService: Retrieving profile " + profileID);
+        String method = "ProfileService.getProfile: ";
+        String msg = "";
+        logger.info(method + "Retrieving profile " + profileID);
 
         if (profileID == null) {
-            throw new BadRequestException("Missing profile ID");
+            throw new BadRequestException(method + "Missing profile ID");
         }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+           if ((authorizedProfiles== null) || ((authorizedProfiles != null) && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
+                msg = "profile record restricted for profileID:" + profileID;
+                logger.debug(method + msg);
+
+                throw new PKIException(msg);
+            }
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
-            return createOKResponse(createProfileData(database.getRecord(profileID)));
+            ProfileRecord profileRecord = database.getRecord(profileID);
+            return createOKResponse(createProfileData(profileRecord));
 
         } catch (PKIException e) {
-            logger.error("TPSProfileService: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             throw e;
 
         } catch (Exception e) {
-            logger.error("TPSProfileService: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -171,11 +208,11 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
     @Override
     public Response addProfile(ProfileData profileData) {
 
-        String method = "TPSProfileService.addProfile";
+        String method = "TPSProfileService.addProfile: ";
 
         if (profileData == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing profile data");
-            throw new BadRequestException("Missing profile data");
+            throw new BadRequestException(method + "Missing profile data");
         }
 
         String id = profileData.getID();
@@ -183,7 +220,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             id = profileData.getProfileID();
         }
 
-        logger.info("TPSProfileService: Adding profile " + id);
+        logger.info(method + "Adding profile " + id);
 
         if (!PROFILE_ID_PATTERN.matcher(id).matches()) {
             throw new BadRequestException("Invalid profile ID: " + id);
@@ -192,7 +229,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
         Map<String, String> properties = profileData.getProperties();
         for (String name : properties.keySet()) {
             if (!PROPERTY_NAME_PATTERN.matcher(name).matches()) {
-                throw new BadRequestException("Invalid profile property: " + name);
+                throw new BadRequestException(method + "Invalid profile property: " + name);
             }
         }
 
@@ -231,12 +268,12 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             return createCreatedResponse(profileData, uri);
 
         } catch (PKIException e) {
-            logger.error("TPSProfileService: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             auditTPSProfileChange(ILogger.FAILURE, method, id, null, e.toString());
             throw e;
 
         } catch (Exception e) {
-            logger.error("TPSProfileService: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             auditTPSProfileChange(ILogger.FAILURE, method, id, null, e.toString());
             throw new PKIException(e);
         }
@@ -245,13 +282,14 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
     @Override
     public Response updateProfile(String profileID, ProfileData profileData) {
 
-        logger.info("TPSProfileService: Updating profile " + profileID);
-        String method = "TPSProfileService.updateProfile";
+        String method = "TPSProfileService.updateProfile: ";
+        String msg = "";
 
         if (profileID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing profile ID");
             throw new BadRequestException("Missing profile ID");
         }
+        logger.info(method + "Updating profile " + profileID);
 
         if (profileData == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing profile data");
@@ -267,6 +305,14 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if ((authorizedProfiles== null) || ((authorizedProfiles != null) && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
+                msg = "profile record restricted for profileID:" + profileID;
+                logger.debug(method + msg);
+
+                throw new PKIException(msg);
+            }
+
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
@@ -285,7 +331,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             boolean statusChanged = false;
             if (status != null && !Constants.CFG_DISABLED.equals(status)) {
                 if (!Constants.CFG_ENABLED.equals(status)) {
-                    Exception e = new ForbiddenException("Invalid profile status: " + status);
+                    Exception e = new ForbiddenException(method + "Invalid profile status: " + status);
                     auditTPSProfileChange(ILogger.FAILURE, method, profileID,
                             profileData.getProperties(), e.toString());
                     throw e;
@@ -319,12 +365,12 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             return createOKResponse(profileData);
 
         } catch (PKIException e) {
-            logger.error("TPSProfileService: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileID, profileData.getProperties(), e.toString());
             throw e;
 
         } catch (Exception e) {
-            logger.error("TPSProfileService: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileID, profileData.getProperties(), e.toString());
             throw new PKIException(e);
         }
@@ -333,8 +379,8 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
     @Override
     public Response changeStatus(String profileID, String action) {
 
-        logger.info("TPSProfileService: Changing profile " + profileID + " status: " + action);
-        String method = "TPSProfileService.changeStatus";
+        String method = "TPSProfileService.changeStatus: ";
+        String msg = "";
 
         Map<String, String> auditModParams = new HashMap<>();
 
@@ -349,9 +395,18 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             throw new BadRequestException("Missing action");
         }
         auditModParams.put("Action", action);
+        logger.info(method + "Changing profile " + profileID + " status: " + action);
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if ((authorizedProfiles== null) || ((authorizedProfiles != null) && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
+                msg = "profile record restricted for profileID:" + profileID;
+                logger.debug(method + msg);
+
+                throw new PKIException(msg);
+            }
+
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
@@ -372,7 +427,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
                         status = Constants.CFG_ENABLED;
 
                     } else {
-                        Exception e = new BadRequestException("Invalid action: " + action);
+                        Exception e = new BadRequestException(method + "Invalid action: " + action);
                         auditTPSProfileChange(ILogger.FAILURE, method, profileID,
                                 auditModParams, e.toString());
                         throw e;
@@ -383,7 +438,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
                         status = Constants.CFG_ENABLED;
 
                     } else {
-                        Exception e = new BadRequestException("Invalid action: " + action);
+                        Exception e = new BadRequestException(method + "Invalid action: " + action);
                         auditTPSProfileChange(ILogger.FAILURE, method, profileID,
                                 auditModParams, e.toString());
                         throw e;
@@ -396,7 +451,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
                     status = Constants.CFG_DISABLED;
 
                 } else {
-                    Exception e = new BadRequestException("Invalid action: " + action);
+                    Exception e = new BadRequestException(method + "Invalid action: " + action);
                     auditTPSProfileChange(ILogger.FAILURE, method, profileID,
                             auditModParams, e.toString());
                     throw e;
@@ -414,14 +469,14 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
                     status = Constants.CFG_DISABLED;
 
                 } else {
-                    Exception e = new BadRequestException("Invalid action: " + action);
+                    Exception e = new BadRequestException(method + "Invalid action: " + action);
                     auditTPSProfileChange(ILogger.FAILURE, method, profileID,
                             auditModParams, e.toString());
                     throw e;
                 }
 
             } else {
-                Exception e = new PKIException("Invalid profile status: " + status);
+                Exception e = new PKIException(method + "Invalid profile status: " + status);
                 auditTPSProfileChange(ILogger.FAILURE, method, profileID,
                         auditModParams, e.toString());
                 throw e;
@@ -437,13 +492,13 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             return createOKResponse(profileData);
 
         } catch (PKIException e) {
-            logger.error("TPSProfileService: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             auditConfigTokenGeneral(ILogger.FAILURE, method,
                     auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            logger.error("TPSProfileService: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             auditConfigTokenGeneral(ILogger.FAILURE, method,
                     auditModParams, e.toString());
             throw new PKIException(e);
@@ -453,8 +508,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
     @Override
     public Response removeProfile(String profileID) {
 
-        logger.info("TPSProfileService: Removing profile " + profileID);
-        String method = "TPSProfileService.removeProfile";
+        String method = "TPSProfileService.removeProfile: ";
 
         Map<String, String> auditModParams = new HashMap<>();
 
@@ -464,6 +518,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             throw new BadRequestException("Profile ID is null.");
         }
         auditModParams.put("profileID", profileID);
+        logger.info(method + "Removing profile " + profileID);
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         try {
@@ -486,17 +541,34 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             return createNoContentResponse();
 
         } catch (PKIException e) {
-            logger.error("TPSProfileService: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileID,
                     auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            logger.error("TPSProfileService: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileID,
                     auditModParams, e.toString());
             throw new PKIException(e);
         }
+    }
+
+    /*
+     * returns a list of TPS profiles allowed for the current user
+     */
+    List<String> getAuthorizedProfiles()
+           throws Exception {
+        String method = "ProfileService.getAuthorizedProfiles: ";
+
+        PKIPrincipal pkiPrincipal = (PKIPrincipal) servletRequest.getUserPrincipal();
+       if (pkiPrincipal == null) {
+            logger.debug(method + "servletRequest.getUserPrincipal() returned null");
+            return null;
+        }
+        User user = pkiPrincipal.getUser();
+
+        return user.getTpsProfiles();
     }
 
     /**

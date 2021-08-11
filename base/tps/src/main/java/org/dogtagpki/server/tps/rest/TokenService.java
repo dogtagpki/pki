@@ -23,8 +23,10 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -51,6 +53,9 @@ import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
 import com.netscape.certsrv.tps.token.TokenResource;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.certsrv.user.UserResource;
+import com.netscape.cmscore.usrgrp.User;
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -231,6 +236,33 @@ public class TokenService extends SubsystemService implements TokenResource {
         return tokenData;
     }
 
+    /*
+     * <restricted> records are records not permitted to be accessed
+     * by the user per profile restrictions;  They are shown
+     * on display when searched
+     */
+    public TokenData createRestrictedTokenData() throws Exception {
+
+        TokenData tokenData = new TokenData();
+        tokenData.setID("<restricted>");
+        tokenData.setTokenID("<restricted>");
+        tokenData.setUserID("<restricted>");
+        tokenData.setType("<restricted>");
+
+        TokenStatusData statusData = new TokenStatusData();
+        statusData.name = TokenStatus.valueOf(null);
+        statusData.label = "<restricted>";
+        tokenData.setStatus(statusData);
+
+        tokenData.setAppletID("<restricted>");
+        tokenData.setKeyInfo("<restricted>");
+        tokenData.setPolicy("<restricted>");
+        tokenData.setCreateTimestamp(new Date(0L));
+        tokenData.setModifyTimestamp(new Date(0L));
+
+        return tokenData;
+    }
+
     @Override
     public Response findTokens(
             String filter,
@@ -314,24 +346,48 @@ public class TokenService extends SubsystemService implements TokenResource {
             Integer size,
             TokenCollection response) throws Exception {
 
+        String method = "TokenService.retrieveTokensWithVLV: ";
         // search with VLV sorted by date in reverse order
         IDBVirtualList<TokenRecord> list = database.findRecords(
                 null, null, new String[] { "-modifyTimestamp", "-createTimestamp" }, size);
 
+        List<String> authorizedProfiles = getAuthorizedProfiles();
+
         int total = list.getSize();
+        int retTotal = 0; //debugging only
 
         // return entries in the requested page
-        for (int i = start; i < start + size && i < total; i++) {
-            TokenRecord record = list.getElementAt(i);
+        if (authorizedProfiles != null) {
+            if (authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+                for (int i = start; i < start + size && i < total; i++) {
+                    TokenRecord record = list.getElementAt(i);
 
-            if (record == null) {
-                logger.error("TokenService: Missing token record");
-                throw new PKIException("Missing token record");
+                    response.addEntry(createTokenData(record));
+                    retTotal++;
+                }
+            } else { // not authorized for all profiles
+                for (int i = start; i < start + size && i < total; i++) {
+                    TokenRecord record = list.getElementAt(i);
+                    //logger.debug(method + "record.ID="+ record.getId());
+
+                    String type = record.getType();
+                    //logger.debug(method + "record.tokenType="+ type;
+                    if ((type == null) || type.isEmpty() || authorizedProfiles.contains(type)) {
+                        //logger.debug(method + "token type allowed");
+                        retTotal++;
+                        response.addEntry(createTokenData(record));
+                    } else {
+                        //logger.debug(method + "token type restricted: " + type +
+                        //        "; adding 'restricted' record");
+                        response.addEntry(createRestrictedTokenData());
+                    }
+                } //for
             }
-
-            response.addEntry(createTokenData(record));
+        } else { //authorizedProfiles null; no permission
+            logger.debug(method + "authorized profiles is null");
         }
 
+        logger.debug(method + "retTotal = " + retTotal);
         response.setTotal(total);
     }
 
@@ -343,46 +399,89 @@ public class TokenService extends SubsystemService implements TokenResource {
             Integer size,
             TokenCollection response) throws Exception {
 
+        String method = "TokenService.retrieveTokensWithoutVLV: ";
+
         // search without VLV
-        Iterator<TokenRecord> tokens = database.findRecords(filter, attributes).iterator();
+        List<TokenRecord> tokens = (List<TokenRecord>) database.findRecords(filter);
+        int total = tokens.size();
+        logger.debug(method + "total: " + total);
 
-        // TODO: sort results by date in reverse order
+        List<String> authorizedProfiles = getAuthorizedProfiles();
 
+        int retTotal = 0; //debugging only
         int i = 0;
 
-        // skip to the start of the page
-        for (; i < start && tokens.hasNext(); i++)
-            tokens.next();
-
         // return entries in the requested page
-        for (; i < start + size && tokens.hasNext(); i++) {
-            TokenRecord record = tokens.next();
+        if (authorizedProfiles != null) {
+            if (authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+                for (i=start; i < start + size && i < total; i++) {
+                    TokenRecord record = tokens.get(i);
 
-            response.addEntry(createTokenData(record));
+                    //logger.debug(method + "record.tokenType="+ record.getType());
+                    response.addEntry(createTokenData(record));
+                    retTotal++;
+                }
+            } else { // not authorized for all profiles
+                for (i=start; i < start + size && i < total; i++) {
+                    TokenRecord record = tokens.get(i);
+                    //logger.debug(method + "record.ID="+ record.getId());
+                    String type = record.getType();
+                    //logger.debug(method + "record.tokenType="+ type;
+                    if ((type == null) || type.isEmpty() || authorizedProfiles.contains(type)) {
+                        //logger.debug(method + "token type allowed");
+                        retTotal++;
+                        response.addEntry(createTokenData(record));
+                    } else {
+                        //logger.debug(method + "token type not allowed: " + type +
+                        //        "; adding 'restricted' record");
+                        response.addEntry(createRestrictedTokenData());
+                    }
+                }
+            }
+        } else { //authorizedProfiles null; no permission
+            logger.debug(method + "authorized profiles is null");
         }
 
-        // count the total entries
-        for (; tokens.hasNext(); i++)
-            tokens.next();
+        logger.debug(method + "retTotal = " + retTotal);
 
-        response.setTotal(i);
+        response.setTotal(total);
     }
 
     @Override
     public Response getToken(String tokenID) {
 
-        logger.info("TokenService: Retrieving token " + tokenID);
+        String method = "TokenService.getToken: ";
+        String msg = "";
 
         if (tokenID == null) {
-            throw new BadRequestException("Missing token ID");
+            throw new BadRequestException(method + "Missing token ID");
         }
+        logger.info(method + "Retrieving token " + tokenID);
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if (authorizedProfiles == null) {
+                msg = "authorizedProfiles null";
+                logger.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            return createOKResponse(createTokenData(database.getRecord(tokenID)));
+            TokenRecord record = database.getRecord(tokenID);
+            if (record == null) {
+                msg = "Token record not found";
+                logger.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+            String type = record.getType();
+            if ((type == null) || type.isEmpty() || authorizedProfiles.contains(UserResource.ALL_PROFILES) || authorizedProfiles.contains(type))
+
+                return createOKResponse(createTokenData(record));
+            else
+                throw new PKIException(method + "Token record restricted");
 
         } catch (EDBException e) {
             Throwable t = e.getCause();
@@ -395,7 +494,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             throw e;
 
         } catch (Exception e) {
-            logger.error("TokenService: " + e.getMessage(), e);
+            logger.debug(method, e);
             throw new PKIException(e);
         }
     }
@@ -403,20 +502,20 @@ public class TokenService extends SubsystemService implements TokenResource {
     @Override
     public Response addToken(TokenData tokenData) {
 
-        logger.info("TokenService: Adding token");
-        String method = "TokenService.addToken";
+        String method = "TokenService.addToken: ";
+        logger.info(method);
 
         Map<String, String> auditModParams = new HashMap<>();
 
         if (tokenData == null) {
-            BadRequestException ex = new BadRequestException("Missing token data");
+            BadRequestException ex = new BadRequestException(method + "Missing token data");
             auditConfigTokenGeneral(ILogger.FAILURE, method, null,
                     ex.toString());
             throw ex;
         }
 
         String tokenID = tokenData.getTokenID();
-        logger.info("TokenService:   Token ID: " + tokenID);
+        logger.info(method + "Token ID: " + tokenID);
 
         auditModParams.put("tokenID", tokenID);
 
@@ -498,14 +597,14 @@ public class TokenService extends SubsystemService implements TokenResource {
     @Override
     public Response replaceToken(String tokenID, TokenData tokenData) {
 
-        logger.info("TokenService: Replacing token " + tokenID);
-        String method = "TokenService.replaceToken";
+        String method = "TokenService.replaceToken: ";
+        logger.info(method + "Replacing token " + tokenID);
 
         Map<String, String> auditModParams = new HashMap<>();
 
         if (tokenID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing token ID");
-            throw new BadRequestException("Missing token ID");
+            throw new BadRequestException(method + "Missing token ID");
         }
 
         if (tokenData == null) {
@@ -578,13 +677,13 @@ public class TokenService extends SubsystemService implements TokenResource {
     @Override
     public Response modifyToken(String tokenID, TokenData tokenData) {
 
-        logger.info("TokenService: Modifying token " + tokenID);
-        String method = "TokenService.modifyToken";
+        String method = "TokenService.modifyToken: ";
+        logger.info(method + "Modifying token " + tokenID);
 
         Map<String, String> auditModParams = new HashMap<>();
 
         if (tokenID == null) {
-            BadRequestException e = new BadRequestException("Missing token ID");
+            BadRequestException e = new BadRequestException(method + "Missing token ID");
             auditConfigTokenRecord(ILogger.FAILURE, "modify", tokenID,
                     auditModParams, e.toString());
             throw e;
@@ -605,10 +704,28 @@ public class TokenService extends SubsystemService implements TokenResource {
         TokenRecord tokenRecord = null;
         String msg = "modify token";
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if (authorizedProfiles == null) {
+                msg = "authorizedProfiles null";
+                logger.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
             TokenDatabase database = subsystem.getTokenDatabase();
 
             // get existing record
             tokenRecord = database.getRecord(tokenID);
+
+            if (tokenRecord == null) {
+                logger.debug(method + "Token record not found");
+                throw new PKIException(method + "Token record not found");
+            }
+            String type = tokenRecord.getType();
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type)) {
+                logger.debug(method + "token record restricted");
+
+                throw new PKIException("token record restricted");
+            }
 
             // update user ID if specified
             String userID = tokenData.getUserID();
@@ -676,13 +793,16 @@ public class TokenService extends SubsystemService implements TokenResource {
     @Override
     public Response changeTokenStatus(String tokenID, TokenStatus tokenStatus) {
 
-        logger.info("TokenService: Changing token " + tokenID + " status to " + tokenStatus);
-        String method = "TokenService.changeTokenStatus";
-
+        String method = "TokenService.changeTokenStatus: ";
+        logger.debug(method + "begins: with tokenStatus=" + tokenStatus.getName());
         if (tokenID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing token ID");
-            throw new BadRequestException("Missing token ID");
+            throw new BadRequestException(method + "Missing token ID");
         }
+
+
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         if (tokenStatus == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing token status");
@@ -696,8 +816,6 @@ public class TokenService extends SubsystemService implements TokenResource {
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         // for auditing
         TokenStatus oldStatus = null;
         String oldReason = null;
@@ -707,28 +825,46 @@ public class TokenService extends SubsystemService implements TokenResource {
         TokenRecord tokenRecord = null;
         String msg = "change token status";
         try {
-            TokenDatabase database = subsystem.getTokenDatabase();
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if (authorizedProfiles == null) {
+                msg = "authorizedProfiles null";
+                logger.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
 
+            TokenDatabase database = subsystem.getTokenDatabase();
+            database = subsystem.getTokenDatabase();
             tokenRecord = database.getRecord(tokenID);
+            if (tokenRecord == null) {
+                logger.debug(method + "Token record not found");
+                throw new PKIException(method + "Token record not found");
+            }
+            String type = tokenRecord.getType();
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type)) {
+                logger.debug(method + "token record restricted: " + type);
+
+                throw new PKIException("token record restricted");
+            }
             TokenStatus currentTokenStatus = tokenRecord.getTokenStatus();
-            logger.debug("TokenService.changeTokenStatus(): current status: " + currentTokenStatus);
+            logger.debug(method + "current status: " + currentTokenStatus);
 
             oldStatus = tokenRecord.getTokenStatus();
             oldReason = tokenRecord.getReason();
             newStatus = tokenStatus;
 
             if (currentTokenStatus == tokenStatus) {
-                logger.debug("TokenService.changeTokenStatus(): no status change, no activity log generated");
+                logger.debug(method + "no status change, no activity log generated");
 
                 TokenData tokenData = createTokenData(tokenRecord);
                 return createOKResponse(tokenData);
             }
 
             msg = msg + " from " + currentTokenStatus + " to " + tokenStatus;
+            logger.debug(method + msg);
 
             // Check for invalid current status
             if(!oldStatus.isValid()) {
-                logger.debug("TokenService.changeTokenStatus(): current status is invalid: " + oldStatus);
+                logger.debug(method + "current status is invalid: " + oldStatus);
                 Exception ex = new BadRequestException("Cannot change status of token with current status: " + oldStatus);
                 auditTokenStateChange(ILogger.FAILURE, oldStatus,
                         newStatus, oldReason, newReason,
@@ -738,7 +874,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
             // make sure transition is allowed
             if (!subsystem.isUITransitionAllowed(tokenRecord, tokenStatus)) {
-                logger.error("TokenService.changeTokenStatus(): next status not allowed: " + tokenStatus);
+                logger.error(method + "next status not allowed: " + tokenStatus);
                 Exception ex = new BadRequestException("Invalid token status transition");
                 auditTokenStateChange(ILogger.FAILURE, oldStatus,
                         newStatus, oldReason, newReason,
@@ -746,7 +882,7 @@ public class TokenService extends SubsystemService implements TokenResource {
                 throw ex;
             }
 
-            logger.debug("TokenService.changeTokenStatus(): next status allowed: " + tokenStatus);
+            logger.debug(method + "next status allowed: " + tokenStatus);
             // audit in setTokenStatus()
             setTokenStatus(tokenRecord, tokenStatus, ipAddress, remoteUser, auditModParams);
             database.updateRecord(tokenID, tokenRecord);
@@ -795,17 +931,17 @@ public class TokenService extends SubsystemService implements TokenResource {
     @Override
     public Response removeToken(String tokenID) {
 
-        logger.info("TokenService: Removing token " + tokenID);
-        String method = "TokenService.removeToken";
+        String method = "TokenService.removeToken: ";
 
         Map<String, String> auditModParams = new HashMap<>();
 
         if (tokenID == null) {
-            BadRequestException ex = new BadRequestException("Missing token ID");
+            BadRequestException ex = new BadRequestException(method + "Missing token ID");
             auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
                     auditModParams, ex.toString());
             throw ex;
         }
+        logger.info(method + "Removing token " + tokenID);
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
@@ -819,7 +955,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             tokenRecord = database.getRecord(tokenID);
 
             //delete all certs associated with this token
-            logger.debug("TokenService.removeToken: about to remove all certificates associated with the token first");
+            logger.debug(method + "about to remove all certificates associated with the token first");
             subsystem.tdb.tdbRemoveCertificatesByCUID(tokenRecord.getId());
 
             database.removeRecord(tokenID);
@@ -862,6 +998,23 @@ public class TokenService extends SubsystemService implements TokenResource {
     }
 
     /*
+     * returns a list of TPS profiles allowed for the current user
+     */
+    List<String> getAuthorizedProfiles()
+           throws Exception {
+        String method = "TokenService.getAuthorizedProfiles: ";
+
+        PKIPrincipal pkiPrincipal = (PKIPrincipal) servletRequest.getUserPrincipal();
+        if (pkiPrincipal == null) {
+            logger.debug(method + "servletRequest.getUserPrincipal() returned null");
+            return null;
+        }
+        User user = pkiPrincipal.getUser();
+
+        return user.getTpsProfiles();
+    }
+
+    /*
      * Service can be any of the methods offered
      */
     public void auditConfigTokenRecord(String status, String service, String tokenID, Map<String, String> params,
@@ -888,9 +1041,9 @@ public class TokenService extends SubsystemService implements TokenResource {
                 AuditEvent.TOKEN_STATE_CHANGE,
                 servletRequest.getUserPrincipal().getName(),
                 status,
-                oldState.toString(),
+                (oldState==null)? "":oldState.toString(),
                 oldReason,
-                newState.toString(),
+                (newState==null)? "":newState.toString(),
                 newReason,
                 auditor.getParamString(params),
                 info);
