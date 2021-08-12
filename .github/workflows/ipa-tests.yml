@@ -89,7 +89,7 @@ jobs:
 
       - name: Install IPA packages in IPA container
         run: |
-          docker exec ipa dnf copr enable -y @freeipa/freeipa-master-nightly
+          docker exec ipa dnf copr enable -y ckelley/freeipa-master-nightly
           docker exec ipa dnf install -y freeipa-server freeipa-server-dns \
               python3-ipatests freeipa-healthcheck
 
@@ -142,7 +142,7 @@ jobs:
 
       - name: Install dependencies in client container
         run: |
-          docker exec client dnf copr enable -y @freeipa/freeipa-master-nightly
+          docker exec client dnf copr enable -y ckelley/freeipa-master-nightly
           docker exec client dnf install -y freeipa-client certbot
 
       - name: Install IPA client in client container
@@ -254,7 +254,7 @@ jobs:
 
       - name: Install IPA packages in primary container
         run: |
-          docker exec primary dnf copr enable -y @freeipa/freeipa-master-nightly
+          docker exec primary dnf copr enable -y ckelley/freeipa-master-nightly
           docker exec primary dnf install -y freeipa-server freeipa-server-dns
 
       - name: Install IPA server in primary container
@@ -284,7 +284,7 @@ jobs:
 
       - name: Install IPA packages in secondary container
         run: |
-          docker exec secondary dnf copr enable -y @freeipa/freeipa-master-nightly
+          docker exec secondary dnf copr enable -y ckelley/freeipa-master-nightly
           docker exec secondary dnf install -y freeipa-server freeipa-server-dns
 
       - name: Install IPA client in secondary container
