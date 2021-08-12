@@ -63,7 +63,7 @@ javadoc(pki-javadoc
         ${CMAKE_SOURCE_DIR}/base/tools/src/main/java
         ${PKI_JAVADOC_SOURCEPATH}
     DEST
-        ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-${APPLICATION_VERSION}
+        ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki
     SUBPACKAGES
         com.netscape.cmsutil
         com.netscape.certsrv
@@ -99,7 +99,7 @@ javadoc(pki-javadoc
 
 install(
     DIRECTORY
-        ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-${APPLICATION_VERSION}
+        ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki
     DESTINATION
         ${CMAKE_INSTALL_PREFIX}/share/javadoc
 )

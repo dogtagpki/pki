@@ -1312,7 +1312,7 @@ fi
 %files -n %{product_id}-javadoc
 ################################################################################
 
-%{_javadocdir}/pki-%{version}/
+%{_javadocdir}/pki/
 
 # with javadoc
 %endif
