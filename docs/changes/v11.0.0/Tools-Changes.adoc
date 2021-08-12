@@ -1,5 +1,9 @@
 = Tools Changes =
 
+== pkispawn and pkidestroy Changes ==
+
+`pkispawn` and `pkidestroy` have been modified to provide a `--log-file` option to specify the installation log file path.
+
 == PKI User CLI Changes ==
 
 The `pki user` commands have been deprecated in PKI 10 and dropped in PKI 11. Use `pki <subsystem>-user` commands instead.

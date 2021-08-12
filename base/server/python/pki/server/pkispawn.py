@@ -135,6 +135,12 @@ def main(argv):
         action='store_true',
         help='Install Maven dependencies')
 
+    parser.optional.add_argument(
+        '--log-file',
+        dest='log_file',
+        action='store',
+        help='Log file')
+
     args = parser.process_command_line_arguments()
 
     config.default_deployment_cfg = \
@@ -534,12 +540,16 @@ def main(argv):
         user=deployer.mdict['pki_user'],
         group=deployer.mdict['pki_group'])
 
-    log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
-    log_name = "pki" + "-" + \
-               deployer.subsystem_name.lower() + \
-               "-" + "spawn" + "." + \
-               deployer.log_timestamp + "." + "log"
-    log_file = os.path.join(log_dir, log_name)
+    if args.log_file:
+        log_file = args.log_file
+    else:
+        log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
+        log_name = "pki" + "-" + \
+                   deployer.subsystem_name.lower() + \
+                   "-" + "spawn" + "." + \
+                   deployer.log_timestamp + "." + "log"
+        log_file = os.path.join(log_dir, log_name)
+
     print('Installation log: %s' % log_file)
 
     pkilogging.enable_pki_logger(log_file)
