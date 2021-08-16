@@ -2947,6 +2947,8 @@ public class CryptoUtil {
             return KeyWrapAlgorithm.DES_CBC_PAD_OID;
         if (name.equals(KeyWrapAlgorithm.DES_CBC_PAD.toString()))
             return KeyWrapAlgorithm.DES_CBC_PAD_OID;
+	if (name.equals(KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP.toString()))
+	    return KeyWrapAlgorithm.AES_KEY_WRAP_KWP_OID;
         throw new NoSuchAlgorithmException();
     }
 
