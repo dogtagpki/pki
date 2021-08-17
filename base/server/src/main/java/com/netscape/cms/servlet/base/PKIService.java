@@ -52,6 +52,8 @@ import com.netscape.certsrv.base.PKIException;
  */
 public class PKIService {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIService.class);
+
     // caching parameters
     public static final int DEFAULT_LONG_CACHE_LIFETIME = 1000;
 
@@ -156,7 +158,37 @@ public class PKIService {
                 .build();
     }
 
+    /**
+     * Convert entity to the requested format using custom mapping if available.
+     */
+    public Object convert(Object entity) {
+
+        MediaType responseFormat = getResponseFormat();
+
+        if (MediaType.APPLICATION_XML_TYPE.isCompatible(responseFormat)) {
+            Class<?> clazz = entity.getClass();
+            try {
+                Method method = clazz.getMethod("toXML");
+                entity = method.invoke(entity);
+                logger.info("PKIService: XML response:\n" + entity);
+
+            } catch (NoSuchMethodException e) {
+                logger.info("PKIService: " + clazz.getSimpleName() + " has no custom XML mapping");
+                // use JAXB mapping by default
+
+            } catch (Exception e) {
+                logger.error("PKIService: Unable to generate XML response: " + e.getMessage(), e);
+                throw new RuntimeException(e);
+            }
+        }
+
+        return entity;
+    }
+
     public Response createOKResponse(Object entity) {
+
+        entity = convert(entity);
+
         return Response
                 .ok(entity)
                 .type(getResponseFormat())
@@ -164,6 +196,9 @@ public class PKIService {
     }
 
     public Response createCreatedResponse(Object entity, URI link) {
+
+        entity = convert(entity);
+
         return Response
                 .created(link)
                 .entity(entity)
@@ -178,10 +213,13 @@ public class PKIService {
                 .build();
     }
 
-    public Response sendConditionalGetResponse(int ctime, Object object, Request request) {
+    public Response sendConditionalGetResponse(int ctime, Object entity, Request request) {
+
+        entity = convert(entity);
+
         CacheControl cc = new CacheControl();
         cc.setMaxAge(ctime);
-        EntityTag tag = new EntityTag(Integer.toString(object.hashCode()));
+        EntityTag tag = new EntityTag(Integer.toString(entity.hashCode()));
 
         ResponseBuilder builder = request.evaluatePreconditions(tag);
         if (builder != null) {
@@ -189,7 +227,7 @@ public class PKIService {
             return builder.build();
         }
 
-        builder = Response.ok(object);
+        builder = Response.ok(entity);
         builder.cacheControl(cc);
         builder.tag(tag);
         builder.type(getResponseFormat());
