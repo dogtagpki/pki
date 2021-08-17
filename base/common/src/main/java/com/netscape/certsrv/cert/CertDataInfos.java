@@ -17,14 +17,21 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.cert;
 
-import java.util.Collection;
+import java.io.StringReader;
+import java.io.StringWriter;
 
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -32,16 +39,9 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.DataCollection;
 import com.netscape.certsrv.base.Link;
 
-@XmlRootElement(name = "CertDataInfos")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertDataInfos extends DataCollection<CertDataInfo> {
-
-    @Override
-    @XmlElementRef
-    public Collection<CertDataInfo> getEntries() {
-        return super.getEntries();
-    }
 
     public Element toDOM(Document document) {
 
@@ -63,6 +63,27 @@ public class CertDataInfos extends DataCollection<CertDataInfo> {
         }
 
         return infosElement;
+    }
+
+    public String toXML() throws Exception {
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        toDOM(document);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
+        StringWriter sw = new StringWriter();
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
+
+        return sw.toString();
     }
 
     public static CertDataInfos fromDOM(Element infosElement) {
@@ -92,5 +113,15 @@ public class CertDataInfos extends DataCollection<CertDataInfo> {
         }
 
         return infos;
+    }
+
+    public static CertDataInfos fromXML(String xml) throws Exception {
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element infosElement = document.getDocumentElement();
+        return fromDOM(infosElement);
     }
 }
