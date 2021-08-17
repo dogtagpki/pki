@@ -24,13 +24,23 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Date;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -316,18 +326,224 @@ public class CertDataInfo implements JSONSerializer {
         return true;
     }
 
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CertDataInfo.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    public Element toDOM(Document document) {
 
+        Element infoElement = document.createElement("CertDataInfo");
+
+        if (id != null) {
+            infoElement.setAttribute("id", id.toHexString());
+        }
+
+        if (subjectDN != null) {
+            Element subjectDNElement = document.createElement("SubjectDN");
+            subjectDNElement.appendChild(document.createTextNode(subjectDN));
+            infoElement.appendChild(subjectDNElement);
+        }
+
+        if (issuerDN != null) {
+            Element issuerDNElement = document.createElement("IssuerDN");
+            issuerDNElement.appendChild(document.createTextNode(issuerDN));
+            infoElement.appendChild(issuerDNElement);
+        }
+
+        if (status != null) {
+            Element statusElement = document.createElement("Status");
+            statusElement.appendChild(document.createTextNode(status));
+            infoElement.appendChild(statusElement);
+        }
+
+        if (type != null) {
+            Element typeElement = document.createElement("Type");
+            typeElement.appendChild(document.createTextNode(type));
+            infoElement.appendChild(typeElement);
+        }
+
+        if (version != null) {
+            Element versionElement = document.createElement("Version");
+            versionElement.appendChild(document.createTextNode(Integer.toString(version)));
+            infoElement.appendChild(versionElement);
+        }
+
+        if (keyAlgorithmOID != null) {
+            Element keyAlgorithmOIDElement = document.createElement("KeyAlgorithmOID");
+            keyAlgorithmOIDElement.appendChild(document.createTextNode(keyAlgorithmOID));
+            infoElement.appendChild(keyAlgorithmOIDElement);
+        }
+
+        if (keyLength != null) {
+            Element keyLengthElement = document.createElement("KeyLength");
+            keyLengthElement.appendChild(document.createTextNode(Integer.toString(keyLength)));
+            infoElement.appendChild(keyLengthElement);
+        }
+
+        if (notValidBefore != null) {
+            Element notValidBeforeElement = document.createElement("NotValidBefore");
+            notValidBeforeElement.appendChild(document.createTextNode(Long.toString(notValidBefore.getTime())));
+            infoElement.appendChild(notValidBeforeElement);
+        }
+
+        if (notValidAfter != null) {
+            Element notValidAfterElement = document.createElement("NotValidAfter");
+            notValidAfterElement.appendChild(document.createTextNode(Long.toString(notValidAfter.getTime())));
+            infoElement.appendChild(notValidAfterElement);
+        }
+
+        if (issuedOn != null) {
+            Element issuedOnElement = document.createElement("IssuedOn");
+            issuedOnElement.appendChild(document.createTextNode(Long.toString(issuedOn.getTime())));
+            infoElement.appendChild(issuedOnElement);
+        }
+
+        if (issuedBy != null) {
+            Element issuedByElement = document.createElement("IssuedBy");
+            issuedByElement.appendChild(document.createTextNode(issuedBy));
+            infoElement.appendChild(issuedByElement);
+        }
+
+        if (revokedOn != null) {
+            Element revokedOnElement = document.createElement("RevokedOn");
+            revokedOnElement.appendChild(document.createTextNode(Long.toString(revokedOn.getTime())));
+            infoElement.appendChild(revokedOnElement);
+        }
+
+        if (revokedBy != null) {
+            Element revokedByElement = document.createElement("RevokedBy");
+            revokedByElement.appendChild(document.createTextNode(revokedBy));
+            infoElement.appendChild(revokedByElement);
+        }
+
+        if (link != null) {
+            Element linkElement = link.toDOM(document);
+            infoElement.appendChild(linkElement);
+        }
+
+        return infoElement;
+    }
+
+    public static CertDataInfo fromDOM(Element infoElement) {
+
+        CertDataInfo info = new CertDataInfo();
+
+        String id = infoElement.getAttribute("id");
+        info.setID(StringUtils.isEmpty(id) ? null : new CertId(id));
+
+        NodeList subjectDNList = infoElement.getElementsByTagName("SubjectDN");
+        if (subjectDNList.getLength() > 0) {
+            String value = subjectDNList.item(0).getTextContent();
+            info.setSubjectDN(value);
+        }
+
+        NodeList issuerDNList = infoElement.getElementsByTagName("IssuerDN");
+        if (issuerDNList.getLength() > 0) {
+            String value = issuerDNList.item(0).getTextContent();
+            info.setIssuerDN(value);
+        }
+
+        NodeList statusList = infoElement.getElementsByTagName("Status");
+        if (statusList.getLength() > 0) {
+            String value = statusList.item(0).getTextContent();
+            info.setStatus(value);
+        }
+
+        NodeList typeList = infoElement.getElementsByTagName("Type");
+        if (typeList.getLength() > 0) {
+            String value = typeList.item(0).getTextContent();
+            info.setType(value);
+        }
+
+        NodeList versionList = infoElement.getElementsByTagName("Version");
+        if (versionList.getLength() > 0) {
+            String value = versionList.item(0).getTextContent();
+            info.setVersion(Integer.parseInt(value));
+        }
+
+        NodeList keyAlgorithmOIDList = infoElement.getElementsByTagName("KeyAlgorithmOID");
+        if (keyAlgorithmOIDList.getLength() > 0) {
+            String value = keyAlgorithmOIDList.item(0).getTextContent();
+            info.setKeyAlgorithmOID(value);
+        }
+
+        NodeList keyLengthList = infoElement.getElementsByTagName("KeyLength");
+        if (keyLengthList.getLength() > 0) {
+            String value = keyLengthList.item(0).getTextContent();
+            info.setKeyLength(Integer.parseInt(value));
+        }
+
+        NodeList notValidBeforeList = infoElement.getElementsByTagName("NotValidBefore");
+        if (notValidBeforeList.getLength() > 0) {
+            String value = notValidBeforeList.item(0).getTextContent();
+            info.setNotValidBefore(new Date(Long.parseLong(value)));
+        }
+
+        NodeList notValidAfterList = infoElement.getElementsByTagName("NotValidAfter");
+        if (notValidAfterList.getLength() > 0) {
+            String value = notValidAfterList.item(0).getTextContent();
+            info.setNotValidAfter(new Date(Long.parseLong(value)));
+        }
+
+        NodeList issuedOnList = infoElement.getElementsByTagName("IssuedOn");
+        if (issuedOnList.getLength() > 0) {
+            String value = issuedOnList.item(0).getTextContent();
+            info.setIssuedOn(new Date(Long.parseLong(value)));
+        }
+
+        NodeList issuedByList = infoElement.getElementsByTagName("IssuedBy");
+        if (issuedByList.getLength() > 0) {
+            String value = issuedByList.item(0).getTextContent();
+            info.setIssuedBy(value);
+        }
+
+        NodeList revokedOnList = infoElement.getElementsByTagName("RevokedOn");
+        if (revokedOnList.getLength() > 0) {
+            String value = revokedOnList.item(0).getTextContent();
+            info.setRevokedOn(new Date(Long.parseLong(value)));
+        }
+
+        NodeList revokedByList = infoElement.getElementsByTagName("RevokedBy");
+        if (revokedByList.getLength() > 0) {
+            String value = revokedByList.item(0).getTextContent();
+            info.setRevokedBy(value);
+        }
+
+        NodeList linkList = infoElement.getElementsByTagName("Link");
+        if (linkList.getLength() > 0) {
+            Element linkElement = (Element) linkList.item(0);
+            Link link = Link.fromDOM(linkElement);
+            info.setLink(link);
+        }
+
+        return info;
+    }
+
+    public String toXML() throws Exception {
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element infoElement = toDOM(document);
+        document.appendChild(infoElement);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
+
         return sw.toString();
     }
 
     public static CertDataInfo fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertDataInfo.class).createUnmarshaller();
-        return (CertDataInfo) unmarshaller.unmarshal(new StringReader(xml));
-    }
 
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element infoElement = document.getDocumentElement();
+        return fromDOM(infoElement);
+    }
 }

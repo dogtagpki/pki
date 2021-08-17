@@ -1,5 +1,7 @@
 package com.netscape.certsrv.cert;
 
+import java.util.Date;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +17,18 @@ public class CertDataInfoTest {
     public void setUpBefore() {
         before.setID(new CertId("12512514865863765114"));
         before.setSubjectDN("CN=Test User,UID=testuser,O=EXAMPLE-COM");
+        before.setIssuerDN("CN=Certificate Authority,O=EXAMPLE-COM");
         before.setStatus("VALID");
+        before.setType("X.509");
+        before.setVersion(2);
+        before.setKeyAlgorithmOID("1.2.840.113549.1.1.1");
+        before.setKeyLength(2048);
+        before.setNotValidBefore(new Date());
+        before.setNotValidAfter(new Date());
+        before.setIssuedOn(new Date());
+        before.setIssuedBy("admin");
+        before.setRevokedOn(new Date());
+        before.setRevokedBy("admin");
     }
 
     @Test
