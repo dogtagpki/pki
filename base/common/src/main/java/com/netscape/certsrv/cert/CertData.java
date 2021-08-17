@@ -23,13 +23,13 @@ import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -38,44 +38,40 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
-import com.netscape.certsrv.util.DateAdapter;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
  *
  */
-@XmlRootElement(name = "CertData")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertData implements JSONSerializer {
 
-    CertId serialNumber;
-    String issuerDN;
-    String subjectDN;
-    String prettyPrint;
-    String encoded;
-    String pkcs7CertChain;
-    String notBefore;
-    String notAfter;
-    String status;
-    Date revokedOn;
-    String revokedBy;
-    Integer revocationReason;
+    protected CertId serialNumber;
+    protected String issuerDN;
+    protected String subjectDN;
+    protected String prettyPrint;
+    protected String encoded;
+    protected String pkcs7CertChain;
+    protected String notBefore;
+    protected String notAfter;
+    protected String status;
+    protected Long nonce;
+    protected Date revokedOn;
+    protected String revokedBy;
+    protected Integer revocationReason;
+    protected Link link;
 
-    Long nonce;
-
-    Link link;
-
-    @XmlAttribute(name="id")
-    @XmlJavaTypeAdapter(CertIdAdapter.class)
+    @JsonProperty("id")
     public CertId getSerialNumber() {
         return serialNumber;
     }
@@ -84,7 +80,7 @@ public class CertData implements JSONSerializer {
         this.serialNumber = serialNumber;
     }
 
-    @XmlElement(name="IssuerDN")
+    @JsonProperty("IssuerDN")
     public String getIssuerDN() {
         return issuerDN;
     }
@@ -93,7 +89,7 @@ public class CertData implements JSONSerializer {
         this.issuerDN = issuerDN;
     }
 
-    @XmlElement(name="SubjectDN")
+    @JsonProperty("SubjectDN")
     public String getSubjectDN() {
         return subjectDN;
     }
@@ -102,7 +98,7 @@ public class CertData implements JSONSerializer {
         this.subjectDN = subjectDN;
     }
 
-    @XmlElement(name="PrettyPrint")
+    @JsonProperty("PrettyPrint")
     public String getPrettyPrint() {
         return prettyPrint;
     }
@@ -111,7 +107,7 @@ public class CertData implements JSONSerializer {
         this.prettyPrint = prettyPrint;
     }
 
-    @XmlElement(name="Encoded")
+    @JsonProperty("Encoded")
     public String getEncoded() {
         return encoded;
     }
@@ -120,7 +116,7 @@ public class CertData implements JSONSerializer {
         this.encoded = encoded;
     }
 
-    @XmlElement(name="PKCS7CertChain")
+    @JsonProperty("PKCS7CertChain")
     public void setPkcs7CertChain(String chain) {
         this.pkcs7CertChain = chain;
     }
@@ -129,7 +125,7 @@ public class CertData implements JSONSerializer {
         return pkcs7CertChain;
     }
 
-    @XmlElement(name="NotBefore")
+    @JsonProperty("NotBefore")
     public String getNotBefore() {
         return notBefore;
     }
@@ -138,7 +134,7 @@ public class CertData implements JSONSerializer {
         this.notBefore = notBefore;
     }
 
-    @XmlElement(name="NotAfter")
+    @JsonProperty("NotAfter")
     public String getNotAfter() {
         return notAfter;
     }
@@ -147,7 +143,7 @@ public class CertData implements JSONSerializer {
         this.notAfter = notAfter;
     }
 
-    @XmlElement(name="Status")
+    @JsonProperty("Status")
     public String getStatus() {
         return status;
     }
@@ -156,7 +152,7 @@ public class CertData implements JSONSerializer {
         this.status = status;
     }
 
-    @XmlElement(name="Nonce")
+    @JsonProperty("Nonce")
     public Long getNonce() {
         return nonce;
     }
@@ -165,8 +161,7 @@ public class CertData implements JSONSerializer {
         this.nonce = nonce;
     }
 
-    @XmlElement(name="RevokedOn")
-    @XmlJavaTypeAdapter(DateAdapter.class)
+    @JsonProperty("RevokedOn")
     public Date getRevokedOn() {
         return revokedOn;
     }
@@ -175,7 +170,7 @@ public class CertData implements JSONSerializer {
         this.revokedOn = revokedOn;
     }
 
-    @XmlElement(name="RevokedBy")
+    @JsonProperty("RevokedBy")
     public String getRevokedBy() {
         return revokedBy;
     }
@@ -184,7 +179,7 @@ public class CertData implements JSONSerializer {
         this.revokedBy = revokedBy;
     }
 
-    @XmlElement(name="RevocationReason")
+    @JsonProperty("RevocationReason")
     public Integer getRevocationReason() {
         return revocationReason;
     }
@@ -193,7 +188,7 @@ public class CertData implements JSONSerializer {
         this.revocationReason = revocationReason;
     }
 
-    @XmlElement(name="Link")
+    @JsonProperty("Link")
     public Link getLink() {
         return link;
     }
@@ -471,17 +466,35 @@ public class CertData implements JSONSerializer {
     }
 
     public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CertData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element infoElement = toDOM(document);
+        document.appendChild(infoElement);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
+
         return sw.toString();
     }
 
     public static CertData fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertData.class).createUnmarshaller();
-        return (CertData) unmarshaller.unmarshal(new StringReader(xml));
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element infoElement = document.getDocumentElement();
+        return fromDOM(infoElement);
     }
 
     public static CertData fromCertChain(PKCS7 pkcs7) throws Exception {
