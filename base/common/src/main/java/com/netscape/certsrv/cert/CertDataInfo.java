@@ -24,10 +24,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Date;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -47,15 +43,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
-import com.netscape.certsrv.util.DateAdapter;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author alee
  *
  */
-@XmlRootElement(name = "CertDataInfo")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertDataInfo implements JSONSerializer {
@@ -77,8 +70,6 @@ public class CertDataInfo implements JSONSerializer {
 
     Link link;
 
-    @XmlAttribute(name="id")
-    @XmlJavaTypeAdapter(CertIdAdapter.class)
     public CertId getID() {
         return id;
     }
@@ -87,7 +78,6 @@ public class CertDataInfo implements JSONSerializer {
         this.id = id;
     }
 
-    @XmlElement(name="SubjectDN")
     public String getSubjectDN() {
         return subjectDN;
     }
@@ -96,7 +86,6 @@ public class CertDataInfo implements JSONSerializer {
         this.subjectDN = subjectDN;
     }
 
-    @XmlElement(name="IssuerDN")
     public String getIssuerDN() {
         return issuerDN;
     }
@@ -105,7 +94,6 @@ public class CertDataInfo implements JSONSerializer {
         this.issuerDN = issuerDN;
     }
 
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -114,7 +102,6 @@ public class CertDataInfo implements JSONSerializer {
         this.status = status;
     }
 
-    @XmlElement(name="Type")
     public String getType() {
         return type;
     }
@@ -123,7 +110,6 @@ public class CertDataInfo implements JSONSerializer {
         this.type = type;
     }
 
-    @XmlElement(name="Version")
     public Integer getVersion() {
         return version;
     }
@@ -132,7 +118,6 @@ public class CertDataInfo implements JSONSerializer {
         this.version = version;
     }
 
-    @XmlElement(name="KeyAlgorithmOID")
     public String getKeyAlgorithmOID() {
         return keyAlgorithmOID;
     }
@@ -141,7 +126,6 @@ public class CertDataInfo implements JSONSerializer {
         this.keyAlgorithmOID = keyAlgorithmOID;
     }
 
-    @XmlElement(name="KeyLength")
     public Integer getKeyLength() {
         return keyLength;
     }
@@ -150,8 +134,6 @@ public class CertDataInfo implements JSONSerializer {
         this.keyLength = keyLength;
     }
 
-    @XmlElement(name="NotValidBefore")
-    @XmlJavaTypeAdapter(DateAdapter.class)
     public Date getNotValidBefore() {
         return notValidBefore;
     }
@@ -160,8 +142,6 @@ public class CertDataInfo implements JSONSerializer {
         this.notValidBefore = notValidBefore;
     }
 
-    @XmlElement(name="NotValidAfter")
-    @XmlJavaTypeAdapter(DateAdapter.class)
     public Date getNotValidAfter() {
         return notValidAfter;
     }
@@ -170,8 +150,6 @@ public class CertDataInfo implements JSONSerializer {
         this.notValidAfter = notValidAfter;
     }
 
-    @XmlElement(name="IssuedOn")
-    @XmlJavaTypeAdapter(DateAdapter.class)
     public Date getIssuedOn() {
         return issuedOn;
     }
@@ -180,7 +158,6 @@ public class CertDataInfo implements JSONSerializer {
         this.issuedOn = issuedOn;
     }
 
-    @XmlElement(name="IssuedBy")
     public String getIssuedBy() {
         return issuedBy;
     }
@@ -189,8 +166,6 @@ public class CertDataInfo implements JSONSerializer {
         this.issuedBy = issuedBy;
     }
 
-    @XmlElement(name="RevokedOn")
-    @XmlJavaTypeAdapter(DateAdapter.class)
     public Date getRevokedOn() {
         return revokedOn;
     }
@@ -199,7 +174,6 @@ public class CertDataInfo implements JSONSerializer {
         this.revokedOn = revokedOn;
     }
 
-    @XmlElement(name="RevokedBy")
     public String getRevokedBy() {
         return revokedBy;
     }
@@ -208,7 +182,6 @@ public class CertDataInfo implements JSONSerializer {
         this.revokedBy = revokedBy;
     }
 
-    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }
