@@ -31,9 +31,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -287,6 +291,183 @@ public class CertData implements JSONSerializer {
         } else if (!revokedBy.equals(other.revokedBy))
             return false;
         return true;
+    }
+
+    public Element toDOM(Document document) {
+
+        Element dataElement = document.createElement("CertData");
+
+        if (serialNumber != null) {
+            dataElement.setAttribute("id", serialNumber.toHexString());
+        }
+
+        if (issuerDN != null) {
+            Element issuerDNElement = document.createElement("IssuerDN");
+            issuerDNElement.appendChild(document.createTextNode(issuerDN));
+            dataElement.appendChild(issuerDNElement);
+        }
+
+        if (subjectDN != null) {
+            Element subjectDNElement = document.createElement("SubjectDN");
+            subjectDNElement.appendChild(document.createTextNode(subjectDN));
+            dataElement.appendChild(subjectDNElement);
+        }
+
+        if (prettyPrint != null) {
+            Element prettyPrintElement = document.createElement("PrettyPrint");
+            prettyPrintElement.appendChild(document.createTextNode(prettyPrint));
+            dataElement.appendChild(prettyPrintElement);
+        }
+
+        if (encoded != null) {
+            Element encodedElement = document.createElement("Encoded");
+            encodedElement.appendChild(document.createTextNode(encoded));
+            dataElement.appendChild(encodedElement);
+        }
+
+        if (pkcs7CertChain != null) {
+            Element pkcs7CertChainElement = document.createElement("PKCS7CertChain");
+            pkcs7CertChainElement.appendChild(document.createTextNode(pkcs7CertChain));
+            dataElement.appendChild(pkcs7CertChainElement);
+        }
+
+        if (notBefore != null) {
+            Element notBeforeElement = document.createElement("NotBefore");
+            notBeforeElement.appendChild(document.createTextNode(notBefore));
+            dataElement.appendChild(notBeforeElement);
+        }
+
+        if (notAfter != null) {
+            Element notAfterElement = document.createElement("NotAfter");
+            notAfterElement.appendChild(document.createTextNode(notAfter));
+            dataElement.appendChild(notAfterElement);
+        }
+
+        if (status != null) {
+            Element statusElement = document.createElement("Status");
+            statusElement.appendChild(document.createTextNode(status));
+            dataElement.appendChild(statusElement);
+        }
+
+        if (nonce != null) {
+            Element nonceElement = document.createElement("Nonce");
+            nonceElement.appendChild(document.createTextNode(Long.toString(nonce)));
+            dataElement.appendChild(nonceElement);
+        }
+
+        if (revokedOn != null) {
+            Element revokedOnElement = document.createElement("RevokedOn");
+            revokedOnElement.appendChild(document.createTextNode(Long.toString(revokedOn.getTime())));
+            dataElement.appendChild(revokedOnElement);
+        }
+
+        if (revokedBy != null) {
+            Element revokedByElement = document.createElement("RevokedBy");
+            revokedByElement.appendChild(document.createTextNode(revokedBy));
+            dataElement.appendChild(revokedByElement);
+        }
+
+        if (revocationReason != null) {
+            Element revocationReasonElement = document.createElement("RevocationReason");
+            revocationReasonElement.appendChild(document.createTextNode(Integer.toString(revocationReason)));
+            dataElement.appendChild(revocationReasonElement);
+        }
+
+        if (link != null) {
+            Element linkElement = link.toDOM(document);
+            dataElement.appendChild(linkElement);
+        }
+
+        return dataElement;
+    }
+
+    public static CertData fromDOM(Element dataElement) {
+
+        CertData data = new CertData();
+
+        String id = dataElement.getAttribute("id");
+        data.setSerialNumber(StringUtils.isEmpty(id) ? null : new CertId(id));
+
+        NodeList issuerDNList = dataElement.getElementsByTagName("IssuerDN");
+        if (issuerDNList.getLength() > 0) {
+            String value = issuerDNList.item(0).getTextContent();
+            data.setIssuerDN(value);
+        }
+
+        NodeList subjectDNList = dataElement.getElementsByTagName("SubjectDN");
+        if (subjectDNList.getLength() > 0) {
+            String value = subjectDNList.item(0).getTextContent();
+            data.setSubjectDN(value);
+        }
+
+        NodeList prettyPrintList = dataElement.getElementsByTagName("PrettyPrint");
+        if (prettyPrintList.getLength() > 0) {
+            String value = prettyPrintList.item(0).getTextContent();
+            data.setPrettyPrint(value);
+        }
+
+        NodeList encodedList = dataElement.getElementsByTagName("Encoded");
+        if (encodedList.getLength() > 0) {
+            String value = encodedList.item(0).getTextContent();
+            data.setEncoded(value);
+        }
+
+        NodeList pkcs7CertChainList = dataElement.getElementsByTagName("PKCS7CertChain");
+        if (pkcs7CertChainList.getLength() > 0) {
+            String value = pkcs7CertChainList.item(0).getTextContent();
+            data.setPkcs7CertChain(value);
+        }
+
+        NodeList notBeforeList = dataElement.getElementsByTagName("NotBefore");
+        if (notBeforeList.getLength() > 0) {
+            String value = notBeforeList.item(0).getTextContent();
+            data.setNotBefore(value);
+        }
+
+        NodeList notAfterList = dataElement.getElementsByTagName("NotAfter");
+        if (notAfterList.getLength() > 0) {
+            String value = notAfterList.item(0).getTextContent();
+            data.setNotAfter(value);
+        }
+
+        NodeList statusList = dataElement.getElementsByTagName("Status");
+        if (statusList.getLength() > 0) {
+            String value = statusList.item(0).getTextContent();
+            data.setStatus(value);
+        }
+
+        NodeList nonceList = dataElement.getElementsByTagName("Nonce");
+        if (nonceList.getLength() > 0) {
+            String value = nonceList.item(0).getTextContent();
+            data.setNonce(Long.parseLong(value));
+        }
+
+        NodeList revokedOnList = dataElement.getElementsByTagName("RevokedOn");
+        if (revokedOnList.getLength() > 0) {
+            String value = revokedOnList.item(0).getTextContent();
+            data.setRevokedOn(new Date(Long.parseLong(value)));
+        }
+
+        NodeList revokedByList = dataElement.getElementsByTagName("RevokedBy");
+        if (revokedByList.getLength() > 0) {
+            String value = revokedByList.item(0).getTextContent();
+            data.setRevokedBy(value);
+        }
+
+        NodeList revocationReasonList = dataElement.getElementsByTagName("RevocationReason");
+        if (revocationReasonList.getLength() > 0) {
+            String value = revocationReasonList.item(0).getTextContent();
+            data.setRevocationReason(Integer.parseInt(value));
+        }
+
+        NodeList linkList = dataElement.getElementsByTagName("Link");
+        if (linkList.getLength() > 0) {
+           Element linkElement = (Element) linkList.item(0);
+           Link link = Link.fromDOM(linkElement);
+           data.setLink(link);
+        }
+
+        return data;
     }
 
     public String toXML() throws Exception {
