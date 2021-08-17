@@ -20,6 +20,7 @@ package com.netscape.certsrv.client;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -152,6 +153,22 @@ public class PKIClient implements AutoCloseable {
 
             if (!response.hasEntity()) {
                 return null;
+            }
+
+            MediaType responseFormat = response.getMediaType();
+
+            if (MediaType.APPLICATION_XML_TYPE.isCompatible(responseFormat)) {
+                try {
+                    Method method = clazz.getMethod("fromXML", String.class);
+                    String xml = response.readEntity(String.class);
+
+                    Object object = method.invoke(null, xml);
+                    return (T) object;
+
+                } catch (NoSuchMethodException e) {
+                    logger.info("PKIService: " + clazz.getSimpleName() + " has no custom XML mapping");
+                    // use JAXB mapping by default
+                }
             }
 
             return response.readEntity(clazz);
