@@ -20,6 +20,10 @@ package com.netscape.certsrv.base;
 import java.net.URI;
 import java.util.Objects;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -112,4 +116,53 @@ public class Link implements JSONSerializer {
                 Objects.equals(type, other.type);
     }
 
+    public Element toDOM(Document document) {
+
+        Element linkElement = document.createElement("Link");
+
+        if (relationship != null) {
+            Element relationshipElement = document.createElement("relationship");
+            relationshipElement.appendChild(document.createTextNode(relationship));
+            linkElement.appendChild(relationshipElement);
+        }
+
+        if (href != null) {
+            Element hrefElement = document.createElement("href");
+            hrefElement.appendChild(document.createTextNode(href));
+            linkElement.appendChild(hrefElement);
+        }
+
+        if (type != null) {
+            Element typeElement = document.createElement("type");
+            typeElement.appendChild(document.createTextNode(type));
+            linkElement.appendChild(typeElement);
+        }
+
+        return linkElement;
+    }
+
+    public static Link fromDOM(Element linkElement) {
+
+        Link link = new Link();
+
+        NodeList relationshipList = linkElement.getElementsByTagName("relationship");
+        if (relationshipList.getLength() > 0) {
+            String value = relationshipList.item(0).getTextContent();
+            link.setRelationship(value);
+        }
+
+        NodeList hrefList = linkElement.getElementsByTagName("href");
+        if (hrefList.getLength() > 0) {
+            String value = hrefList.item(0).getTextContent();
+            link.setHref(value);
+        }
+
+        NodeList typeList = linkElement.getElementsByTagName("type");
+        if (typeList.getLength() > 0) {
+            String value = typeList.item(0).getTextContent();
+            link.setType(value);
+        }
+
+        return link;
+    }
 }
