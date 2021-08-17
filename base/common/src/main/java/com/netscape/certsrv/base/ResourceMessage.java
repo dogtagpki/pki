@@ -55,7 +55,7 @@ import com.netscape.certsrv.util.JSONSerializer;
 public class ResourceMessage implements JSONSerializer {
 
     protected Map<String, String> attributes = new LinkedHashMap<>();
-    String className;
+    protected String className;
 
     public ResourceMessage() {
         // required for jax-b

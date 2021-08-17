@@ -22,6 +22,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 import java.util.TreeSet;
 
 import javax.xml.bind.JAXBContext;
@@ -32,6 +33,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -89,6 +94,10 @@ public class Account extends ResourceMessage {
         this.roles.addAll(roles);
     }
 
+    public void addRole(String role) {
+        roles.add(role);
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -130,6 +139,102 @@ public class Account extends ResourceMessage {
         } else if (!roles.equals(other.roles))
             return false;
         return true;
+    }
+
+    public Element toDOM(Document document) {
+
+        Element accountElement = document.createElement("Account");
+        accountElement.setAttribute("id", id);
+
+        // The original XML mapping always creates <Attributes/>.
+        Element attributesElement = document.createElement("Attributes");
+        accountElement.appendChild(attributesElement);
+
+        for (Map.Entry<String, String> attribute : attributes.entrySet()) {
+            Element attributeElement = document.createElement("Attribute");
+            attributeElement.setAttribute("name", attribute.getKey());
+            attributeElement.appendChild(document.createTextNode(attribute.getValue()));
+            attributesElement.appendChild(attributeElement);
+        }
+
+        if (className != null) {
+            Element classNameElement = document.createElement("ClassName");
+            classNameElement.appendChild(document.createTextNode(className));
+            accountElement.appendChild(classNameElement);
+        }
+
+        if (fullName != null) {
+            Element fullNameElement = document.createElement("FullName");
+            fullNameElement.appendChild(document.createTextNode(fullName));
+            accountElement.appendChild(fullNameElement);
+        }
+
+        if (email != null) {
+            Element emailElement = document.createElement("Email");
+            emailElement.appendChild(document.createTextNode(email));
+            accountElement.appendChild(emailElement);
+        }
+
+        if (!roles.isEmpty()) {
+            Element rolesElement = document.createElement("Roles");
+            accountElement.appendChild(rolesElement);
+
+            for (String role : roles) {
+                Element roleElement = document.createElement("Role");
+                roleElement.appendChild(document.createTextNode(role));
+                rolesElement.appendChild(roleElement);
+            }
+        }
+
+        return accountElement;
+    }
+
+    public static Account fromDOM(Element accountElement) {
+
+        Account account = new Account();
+
+        String id = accountElement.getAttribute("id");
+        account.setID(id);
+
+        NodeList classNameList = accountElement.getElementsByTagName("ClassName");
+        if (classNameList.getLength() > 0) {
+            String value = classNameList.item(0).getTextContent();
+            account.setClassName(value);
+        }
+
+        NodeList attributeList = accountElement.getElementsByTagName("Attribute");
+        int attributeCount = attributeList.getLength();
+        if (attributeCount > 0) {
+            for (int i=0; i<attributeCount; i++) {
+               Element attributeElement = (Element) attributeList.item(i);
+               String name = attributeElement.getAttribute("name");
+               String value = attributeElement.getTextContent();
+               account.setAttribute(name, value);
+            }
+        }
+
+        NodeList fullNameList = accountElement.getElementsByTagName("FullName");
+        if (fullNameList.getLength() > 0) {
+            String value = fullNameList.item(0).getTextContent();
+            account.setFullName(value);
+        }
+
+        NodeList emailList = accountElement.getElementsByTagName("Email");
+        if (emailList.getLength() > 0) {
+            String email = emailList.item(0).getTextContent();
+            account.setEmail(email);
+        }
+
+        NodeList roleList = accountElement.getElementsByTagName("Role");
+        int length = roleList.getLength();
+        if (length > 0) {
+            for (int i=0; i<length; i++) {
+               String role = roleList.item(i).getTextContent();
+               account.addRole(role);
+            }
+        }
+
+        return account;
     }
 
     public String toXML() throws Exception {
