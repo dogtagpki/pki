@@ -33,6 +33,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -639,5 +643,511 @@ public class CertSearchRequest implements JSONSerializer {
                 && validityLengthInUse == other.validityLengthInUse
                 && Objects.equals(validityOperation, other.validityOperation)
                 && Objects.equals(validityUnit, other.validityUnit);
+    }
+
+    public Element toDOM(Document document) {
+
+        Element requestElement = document.createElement("CertSearchRequest");
+
+        if (issuerDN != null) {
+            Element issuerDNElement = document.createElement("issuerDN");
+            issuerDNElement.appendChild(document.createTextNode(issuerDN));
+            requestElement.appendChild(issuerDNElement);
+        }
+
+        Element issuerDNElement = document.createElement("serialNumberRangeInUse");
+        issuerDNElement.appendChild(document.createTextNode(Boolean.toString(serialNumberRangeInUse)));
+        requestElement.appendChild(issuerDNElement);
+
+        if (serialTo != null) {
+            Element serialToElement = document.createElement("serialTo");
+            serialToElement.appendChild(document.createTextNode(serialTo));
+            requestElement.appendChild(serialToElement);
+        }
+
+        if (serialFrom != null) {
+            Element serialFromElement = document.createElement("serialFrom");
+            serialFromElement.appendChild(document.createTextNode(serialFrom));
+            requestElement.appendChild(serialFromElement);
+        }
+
+        Element subjectInUseElement = document.createElement("subjectInUse");
+        subjectInUseElement.appendChild(document.createTextNode(Boolean.toString(subjectInUse)));
+        requestElement.appendChild(subjectInUseElement);
+
+        if (eMail != null) {
+            Element eMailElement = document.createElement("eMail");
+            eMailElement.appendChild(document.createTextNode(eMail));
+            requestElement.appendChild(eMailElement);
+        }
+
+        if (commonName != null) {
+            Element commonNameElement = document.createElement("commonName");
+            commonNameElement.appendChild(document.createTextNode(commonName));
+            requestElement.appendChild(commonNameElement);
+        }
+
+        if (userID != null) {
+            Element userIDElement = document.createElement("userID");
+            userIDElement.appendChild(document.createTextNode(userID));
+            requestElement.appendChild(userIDElement);
+        }
+
+        if (orgUnit != null) {
+            Element orgUnitElement = document.createElement("orgUnit");
+            orgUnitElement.appendChild(document.createTextNode(orgUnit));
+            requestElement.appendChild(orgUnitElement);
+        }
+
+        if (org != null) {
+            Element orgElement = document.createElement("org");
+            orgElement.appendChild(document.createTextNode(org));
+            requestElement.appendChild(orgElement);
+        }
+
+        if (locality != null) {
+            Element localityElement = document.createElement("locality");
+            localityElement.appendChild(document.createTextNode(locality));
+            requestElement.appendChild(localityElement);
+        }
+
+        if (state != null) {
+            Element stateElement = document.createElement("state");
+            stateElement.appendChild(document.createTextNode(state));
+            requestElement.appendChild(stateElement);
+        }
+
+        if (country != null) {
+            Element countryElement = document.createElement("country");
+            countryElement.appendChild(document.createTextNode(country));
+            requestElement.appendChild(countryElement);
+        }
+
+        Element matchExactlyElement = document.createElement("matchExactly");
+        matchExactlyElement.appendChild(document.createTextNode(Boolean.toString(matchExactly)));
+        requestElement.appendChild(matchExactlyElement);
+
+        if (status != null) {
+            Element statusElement = document.createElement("status");
+            statusElement.appendChild(document.createTextNode(status));
+            requestElement.appendChild(statusElement);
+        }
+
+        if (revokedBy != null) {
+            Element revokedByElement = document.createElement("revokedBy");
+            revokedByElement.appendChild(document.createTextNode(revokedBy));
+            requestElement.appendChild(revokedByElement);
+        }
+
+        if (revokedOnFrom != null) {
+            Element revokedOnFromElement = document.createElement("revokedOnFrom");
+            revokedOnFromElement.appendChild(document.createTextNode(revokedOnFrom));
+            requestElement.appendChild(revokedOnFromElement);
+        }
+
+        if (revokedOnTo != null) {
+            Element revokedOnToElement = document.createElement("revokedOnTo");
+            revokedOnToElement.appendChild(document.createTextNode(revokedOnTo));
+            requestElement.appendChild(revokedOnToElement);
+        }
+
+        if (revocationReason != null) {
+            Element revocationReasonElement = document.createElement("revocationReason");
+            revocationReasonElement.appendChild(document.createTextNode(revocationReason));
+            requestElement.appendChild(revocationReasonElement);
+        }
+
+        if (issuedBy != null) {
+            Element issuedByElement = document.createElement("issuedBy");
+            issuedByElement.appendChild(document.createTextNode(issuedBy));
+            requestElement.appendChild(issuedByElement);
+        }
+
+        if (issuedOnFrom != null) {
+            Element issuedOnFromElement = document.createElement("issuedOnFrom");
+            issuedOnFromElement.appendChild(document.createTextNode(issuedOnFrom));
+            requestElement.appendChild(issuedOnFromElement);
+        }
+
+        if (issuedOnTo != null) {
+            Element issuedOnToElement = document.createElement("issuedOnTo");
+            issuedOnToElement.appendChild(document.createTextNode(issuedOnTo));
+            requestElement.appendChild(issuedOnToElement);
+        }
+
+        if (validNotBeforeFrom != null) {
+            Element validNotBeforeFromElement = document.createElement("validNotBeforeFrom");
+            validNotBeforeFromElement.appendChild(document.createTextNode(validNotBeforeFrom));
+            requestElement.appendChild(validNotBeforeFromElement);
+        }
+
+        if (validNotBeforeTo != null) {
+            Element validNotBeforeToElement = document.createElement("validNotBeforeTo");
+            validNotBeforeToElement.appendChild(document.createTextNode(validNotBeforeTo));
+            requestElement.appendChild(validNotBeforeToElement);
+        }
+
+        if (validNotAfterFrom != null) {
+            Element validNotAfterFromElement = document.createElement("validNotAfterFrom");
+            validNotAfterFromElement.appendChild(document.createTextNode(validNotAfterFrom));
+            requestElement.appendChild(validNotAfterFromElement);
+        }
+
+        if (validNotAfterTo != null) {
+            Element validNotAfterToElement = document.createElement("validNotAfterTo");
+            validNotAfterToElement.appendChild(document.createTextNode(validNotAfterTo));
+            requestElement.appendChild(validNotAfterToElement);
+        }
+
+        if (validityOperation != null) {
+            Element validityOperationElement = document.createElement("validityOperation");
+            validityOperationElement.appendChild(document.createTextNode(validityOperation));
+            requestElement.appendChild(validityOperationElement);
+        }
+
+        if (validityCount != null) {
+            Element validityCountElement = document.createElement("validityCount");
+            validityCountElement.appendChild(document.createTextNode(Integer.toString(validityCount)));
+            requestElement.appendChild(validityCountElement);
+        }
+
+        if (validityUnit != null) {
+            Element validityUnitElement = document.createElement("validityUnit");
+            validityUnitElement.appendChild(document.createTextNode(Long.toString(validityUnit)));
+            requestElement.appendChild(validityUnitElement);
+        }
+
+        if (certTypeSubEmailCA != null) {
+            Element certTypeSubEmailCAElement = document.createElement("certTypeSubEmailCA");
+            certTypeSubEmailCAElement.appendChild(document.createTextNode(certTypeSubEmailCA));
+            requestElement.appendChild(certTypeSubEmailCAElement);
+        }
+
+        if (certTypeSubSSLCA != null) {
+            Element certTypeSubSSLCAElement = document.createElement("certTypeSubSSLCA");
+            certTypeSubSSLCAElement.appendChild(document.createTextNode(certTypeSubSSLCA));
+            requestElement.appendChild(certTypeSubSSLCAElement);
+        }
+
+        if (certTypeSecureEmail != null) {
+            Element certTypeSecureEmailElement = document.createElement("certTypeSecureEmail");
+            certTypeSecureEmailElement.appendChild(document.createTextNode(certTypeSecureEmail));
+            requestElement.appendChild(certTypeSecureEmailElement);
+        }
+
+        if (certTypeSSLClient != null) {
+            Element certTypeSSLClientElement = document.createElement("certTypeSSLClient");
+            certTypeSSLClientElement.appendChild(document.createTextNode(certTypeSSLClient));
+            requestElement.appendChild(certTypeSSLClientElement);
+        }
+
+        if (certTypeSSLServer != null) {
+            Element certTypeSSLServerElement = document.createElement("certTypeSSLServer");
+            certTypeSSLServerElement.appendChild(document.createTextNode(certTypeSSLServer));
+            requestElement.appendChild(certTypeSSLServerElement);
+        }
+
+        Element revokedByInUseElement = document.createElement("revokedByInUse");
+        revokedByInUseElement.appendChild(document.createTextNode(Boolean.toString(revokedByInUse)));
+        requestElement.appendChild(revokedByInUseElement);
+
+        Element revokedOnInUseElement = document.createElement("revokedOnInUse");
+        revokedOnInUseElement.appendChild(document.createTextNode(Boolean.toString(revokedOnInUse)));
+        requestElement.appendChild(revokedOnInUseElement);
+
+        Element revocationReasonInUseElement = document.createElement("revocationReasonInUse");
+        revocationReasonInUseElement.appendChild(document.createTextNode(Boolean.toString(revocationReasonInUse)));
+        requestElement.appendChild(revocationReasonInUseElement);
+
+        Element issuedByInUseElement = document.createElement("issuedByInUse");
+        issuedByInUseElement.appendChild(document.createTextNode(Boolean.toString(issuedByInUse)));
+        requestElement.appendChild(issuedByInUseElement);
+
+        Element issuedOnInUseElement = document.createElement("issuedOnInUse");
+        issuedOnInUseElement.appendChild(document.createTextNode(Boolean.toString(issuedOnInUse)));
+        requestElement.appendChild(issuedOnInUseElement);
+
+        Element validNotBeforeInUseElement = document.createElement("validNotBeforeInUse");
+        validNotBeforeInUseElement.appendChild(document.createTextNode(Boolean.toString(validNotBeforeInUse)));
+        requestElement.appendChild(validNotBeforeInUseElement);
+
+        Element validNotAfterInUseElement = document.createElement("validNotAfterInUse");
+        validNotAfterInUseElement.appendChild(document.createTextNode(Boolean.toString(validNotAfterInUse)));
+        requestElement.appendChild(validNotAfterInUseElement);
+
+        Element validityLengthInUseElement = document.createElement("validityLengthInUse");
+        validityLengthInUseElement.appendChild(document.createTextNode(Boolean.toString(validityLengthInUse)));
+        requestElement.appendChild(validityLengthInUseElement);
+
+        Element certTypeInUseElement = document.createElement("certTypeInUse");
+        certTypeInUseElement.appendChild(document.createTextNode(Boolean.toString(certTypeInUse)));
+        requestElement.appendChild(certTypeInUseElement);
+
+        return requestElement;
+    }
+
+    public static CertSearchRequest fromDOM(Element requestElement) {
+
+        CertSearchRequest request = new CertSearchRequest();
+
+        NodeList issuerDNList = requestElement.getElementsByTagName("issuerDN");
+        if (issuerDNList.getLength() > 0) {
+            String value = issuerDNList.item(0).getTextContent();
+            request.setIssuerDN(value);
+        }
+
+        NodeList serialNumberRangeInUseList = requestElement.getElementsByTagName("serialNumberRangeInUse");
+        if (serialNumberRangeInUseList.getLength() > 0) {
+            String value = serialNumberRangeInUseList.item(0).getTextContent();
+            request.setSerialNumberRangeInUse(Boolean.parseBoolean(value));
+        }
+
+        NodeList serialToList = requestElement.getElementsByTagName("serialTo");
+        if (serialToList.getLength() > 0) {
+            String value = serialToList.item(0).getTextContent();
+            request.setSerialTo(value);
+        }
+
+        NodeList serialFromList = requestElement.getElementsByTagName("serialFrom");
+        if (serialFromList.getLength() > 0) {
+            String value = serialFromList.item(0).getTextContent();
+            request.setSerialFrom(value);
+        }
+
+        NodeList subjectInUseList = requestElement.getElementsByTagName("subjectInUse");
+        if (subjectInUseList.getLength() > 0) {
+            String value = subjectInUseList.item(0).getTextContent();
+            request.setSubjectInUse(Boolean.parseBoolean(value));
+        }
+
+        NodeList eMailList = requestElement.getElementsByTagName("eMail");
+        if (eMailList.getLength() > 0) {
+            String value = eMailList.item(0).getTextContent();
+            request.setEmail(value);
+        }
+
+        NodeList commonNameList = requestElement.getElementsByTagName("commonName");
+        if (commonNameList.getLength() > 0) {
+            String value = commonNameList.item(0).getTextContent();
+            request.setCommonName(value);
+        }
+
+        NodeList userIDList = requestElement.getElementsByTagName("userID");
+        if (userIDList.getLength() > 0) {
+            String value = userIDList.item(0).getTextContent();
+            request.setUserID(value);
+        }
+
+        NodeList orgUnitList = requestElement.getElementsByTagName("orgUnit");
+        if (orgUnitList.getLength() > 0) {
+            String value = orgUnitList.item(0).getTextContent();
+            request.setOrgUnit(value);
+        }
+
+        NodeList orgList = requestElement.getElementsByTagName("org");
+        if (orgList.getLength() > 0) {
+            String value = orgList.item(0).getTextContent();
+            request.setOrg(value);
+        }
+
+        NodeList localityList = requestElement.getElementsByTagName("locality");
+        if (localityList.getLength() > 0) {
+            String value = localityList.item(0).getTextContent();
+            request.setLocality(value);
+        }
+
+        NodeList stateList = requestElement.getElementsByTagName("state");
+        if (stateList.getLength() > 0) {
+            String value = stateList.item(0).getTextContent();
+            request.setState(value);
+        }
+
+        NodeList countryList = requestElement.getElementsByTagName("country");
+        if (countryList.getLength() > 0) {
+            String value = countryList.item(0).getTextContent();
+            request.setCountry(value);
+        }
+
+        NodeList matchExactlyList = requestElement.getElementsByTagName("matchExactly");
+        if (matchExactlyList.getLength() > 0) {
+            String value = matchExactlyList.item(0).getTextContent();
+            request.setMatchExactly(Boolean.parseBoolean(value));
+        }
+
+        NodeList statusList = requestElement.getElementsByTagName("status");
+        if (statusList.getLength() > 0) {
+            String value = statusList.item(0).getTextContent();
+            request.setStatus(value);
+        }
+
+        NodeList revokedByList = requestElement.getElementsByTagName("revokedBy");
+        if (revokedByList.getLength() > 0) {
+            String value = revokedByList.item(0).getTextContent();
+            request.setRevokedBy(value);
+        }
+
+        NodeList revokedOnFromList = requestElement.getElementsByTagName("revokedOnFrom");
+        if (revokedOnFromList.getLength() > 0) {
+            String value = revokedOnFromList.item(0).getTextContent();
+            request.setRevokedOnFrom(value);
+        }
+
+        NodeList revokedOnToList = requestElement.getElementsByTagName("revokedOnTo");
+        if (revokedOnToList.getLength() > 0) {
+            String value = revokedOnToList.item(0).getTextContent();
+            request.setRevokedOnTo(value);
+        }
+
+        NodeList revocationReasonList = requestElement.getElementsByTagName("revocationReason");
+        if (revocationReasonList.getLength() > 0) {
+            String value = revocationReasonList.item(0).getTextContent();
+            request.setRevocationReason(value);
+        }
+
+        NodeList issuedByList = requestElement.getElementsByTagName("issuedBy");
+        if (issuedByList.getLength() > 0) {
+            String value = issuedByList.item(0).getTextContent();
+            request.setIssuedBy(value);
+        }
+
+        NodeList issuedOnFromList = requestElement.getElementsByTagName("issuedOnFrom");
+        if (issuedOnFromList.getLength() > 0) {
+            String value = issuedOnFromList.item(0).getTextContent();
+            request.setIssuedOnFrom(value);
+        }
+
+        NodeList issuedOnToList = requestElement.getElementsByTagName("issuedOnTo");
+        if (issuedOnToList.getLength() > 0) {
+            String value = issuedOnToList.item(0).getTextContent();
+            request.setIssuedOnTo(value);
+        }
+
+        NodeList validNotBeforeFromList = requestElement.getElementsByTagName("validNotBeforeFrom");
+        if (validNotBeforeFromList.getLength() > 0) {
+            String value = validNotBeforeFromList.item(0).getTextContent();
+            request.setValidNotBeforeFrom(value);
+        }
+
+        NodeList validNotBeforeToList = requestElement.getElementsByTagName("validNotBeforeTo");
+        if (validNotBeforeToList.getLength() > 0) {
+            String value = validNotBeforeToList.item(0).getTextContent();
+            request.setValidNotBeforeTo(value);
+        }
+
+        NodeList validNotAfterFromList = requestElement.getElementsByTagName("validNotAfterFrom");
+        if (validNotAfterFromList.getLength() > 0) {
+            String value = validNotAfterFromList.item(0).getTextContent();
+            request.setValidNotBeforeFrom(value);
+        }
+
+        NodeList validNotAfterToList = requestElement.getElementsByTagName("validNotAfterTo");
+        if (validNotAfterToList.getLength() > 0) {
+            String value = validNotAfterToList.item(0).getTextContent();
+            request.setValidNotAfterTo(value);
+        }
+
+        NodeList validityOperationList = requestElement.getElementsByTagName("validityOperation");
+        if (validityOperationList.getLength() > 0) {
+            String value = validityOperationList.item(0).getTextContent();
+            request.setValidityOperation(value);
+        }
+
+        NodeList validityCountList = requestElement.getElementsByTagName("validityCount");
+        if (validityCountList.getLength() > 0) {
+            String value = validityCountList.item(0).getTextContent();
+            request.setValidityCount(Integer.valueOf(value));
+        }
+
+        NodeList validityUnitList = requestElement.getElementsByTagName("validityUnit");
+        if (validityUnitList.getLength() > 0) {
+            String value = validityUnitList.item(0).getTextContent();
+            request.setValidityUnit(Long.valueOf(value));
+        }
+
+        NodeList certTypeSubEmailCAList = requestElement.getElementsByTagName("certTypeSubEmailCA");
+        if (certTypeSubEmailCAList.getLength() > 0) {
+            String value = certTypeSubEmailCAList.item(0).getTextContent();
+            request.setCertTypeSubEmailCA(value);
+        }
+
+        NodeList certTypeSubSSLCAList = requestElement.getElementsByTagName("certTypeSubSSLCA");
+        if (certTypeSubSSLCAList.getLength() > 0) {
+            String value = certTypeSubSSLCAList.item(0).getTextContent();
+            request.setCertTypeSubSSLCA(value);
+        }
+
+        NodeList certTypeSecureEmailList = requestElement.getElementsByTagName("certTypeSecureEmail");
+        if (certTypeSecureEmailList.getLength() > 0) {
+            String value = certTypeSecureEmailList.item(0).getTextContent();
+            request.setCertTypeSecureEmail(value);
+        }
+
+        NodeList certTypeSSLClientList = requestElement.getElementsByTagName("certTypeSSLClient");
+        if (certTypeSSLClientList.getLength() > 0) {
+            String value = certTypeSSLClientList.item(0).getTextContent();
+            request.setCertTypeSSLClient(value);
+        }
+
+        NodeList certTypeSSLServerList = requestElement.getElementsByTagName("certTypeSSLServer");
+        if (certTypeSSLServerList.getLength() > 0) {
+            String value = certTypeSSLServerList.item(0).getTextContent();
+            request.setCertTypeSSLServer(value);
+        }
+
+        NodeList revokedByInUseList = requestElement.getElementsByTagName("revokedByInUse");
+        if (revokedByInUseList.getLength() > 0) {
+            String value = revokedByInUseList.item(0).getTextContent();
+            request.setRevokedByInUse(Boolean.parseBoolean(value));
+        }
+
+        NodeList revokedOnInUseList = requestElement.getElementsByTagName("revokedOnInUse");
+        if (revokedOnInUseList.getLength() > 0) {
+            String value = revokedOnInUseList.item(0).getTextContent();
+            request.setRevokedOnInUse(Boolean.parseBoolean(value));
+        }
+
+        NodeList revocationReasonInUseList = requestElement.getElementsByTagName("revocationReasonInUse");
+        if (revocationReasonInUseList.getLength() > 0) {
+            String value = revocationReasonInUseList.item(0).getTextContent();
+            request.setRevocationReasonInUse(Boolean.parseBoolean(value));
+        }
+
+        NodeList issuedByInUseList = requestElement.getElementsByTagName("issuedByInUse");
+        if (issuedByInUseList.getLength() > 0) {
+            String value = issuedByInUseList.item(0).getTextContent();
+            request.setIssuedByInUse(Boolean.parseBoolean(value));
+        }
+
+        NodeList issuedOnInUseList = requestElement.getElementsByTagName("issuedOnInUse");
+        if (issuedOnInUseList.getLength() > 0) {
+            String value = issuedOnInUseList.item(0).getTextContent();
+            request.setIssuedOnInUse(Boolean.parseBoolean(value));
+        }
+
+        NodeList validNotBeforeInUseList = requestElement.getElementsByTagName("validNotBeforeInUse");
+        if (validNotBeforeInUseList.getLength() > 0) {
+            String value = validNotBeforeInUseList.item(0).getTextContent();
+            request.setValidNotBeforeInUse(Boolean.parseBoolean(value));
+        }
+
+        NodeList validNotAfterInUseList = requestElement.getElementsByTagName("validNotAfterInUse");
+        if (validNotAfterInUseList.getLength() > 0) {
+            String value = validNotAfterInUseList.item(0).getTextContent();
+            request.setValidNotAfterInUse(Boolean.parseBoolean(value));
+        }
+
+        NodeList validityLengthInUseList = requestElement.getElementsByTagName("validityLengthInUse");
+        if (validityLengthInUseList.getLength() > 0) {
+            String value = validityLengthInUseList.item(0).getTextContent();
+            request.setValidityLengthInUse(Boolean.parseBoolean(value));
+        }
+
+        NodeList certTypeInUseList = requestElement.getElementsByTagName("certTypeInUse");
+        if (certTypeInUseList.getLength() > 0) {
+            String value = certTypeInUseList.item(0).getTextContent();
+            request.setCertTypeInUse(Boolean.parseBoolean(value));
+        }
+
+        return request;
     }
 }
