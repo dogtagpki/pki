@@ -22,29 +22,27 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Date;
 
-import javax.ws.rs.FormParam;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.util.DateAdapter;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="CertRevokeRequest")
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertRevokeRequest implements JSONSerializer {
@@ -55,9 +53,6 @@ public class CertRevokeRequest implements JSONSerializer {
     String encoded;
     Long nonce;
 
-
-    @XmlElement(name="Reason")
-    @FormParam("revocationReason")
     public String getReason() {
         return reason;
     }
@@ -66,9 +61,6 @@ public class CertRevokeRequest implements JSONSerializer {
         this.reason = reason;
     }
 
-    @XmlElement(name="InvalidityDate")
-    @FormParam("invalidityDate")
-    @XmlJavaTypeAdapter(DateAdapter.class)
     public Date getInvalidityDate() {
         return invalidityDate;
     }
@@ -77,8 +69,6 @@ public class CertRevokeRequest implements JSONSerializer {
         this.invalidityDate = invalidityDate;
     }
 
-    @XmlElement(name="Comments")
-    @FormParam(IRequest.REQUESTOR_COMMENTS)
     public String getComments() {
         return comments;
     }
@@ -87,8 +77,6 @@ public class CertRevokeRequest implements JSONSerializer {
         this.comments = comments;
     }
 
-    @XmlElement(name="Encoded")
-    @FormParam("b64eCertificate")
     public String getEncoded() {
         return encoded;
     }
@@ -97,8 +85,6 @@ public class CertRevokeRequest implements JSONSerializer {
         this.encoded = encoded;
     }
 
-    @XmlElement(name="Nonce")
-    @FormParam("nonce")
     public Long getNonce() {
         return nonce;
     }
@@ -231,17 +217,35 @@ public class CertRevokeRequest implements JSONSerializer {
     }
 
     public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CertRevokeRequest.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element requestElement = toDOM(document);
+        document.appendChild(requestElement);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
+
         return sw.toString();
     }
 
     public static CertRevokeRequest fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertRevokeRequest.class).createUnmarshaller();
-        return (CertRevokeRequest) unmarshaller.unmarshal(new StringReader(xml));
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element requestElement = document.getDocumentElement();
+        return fromDOM(requestElement);
     }
 
 }
