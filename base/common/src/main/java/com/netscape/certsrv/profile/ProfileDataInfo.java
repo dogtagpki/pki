@@ -21,13 +21,18 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Objects;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -38,22 +43,16 @@ import com.netscape.certsrv.util.JSONSerializer;
  * @author alee
  *
  */
-@XmlRootElement(name = "ProfileDataInfo")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileDataInfo implements JSONSerializer {
 
-    @XmlElement
     protected String profileURL;
 
-    @XmlElement
     protected String profileId;
 
-    @XmlElement
     protected String profileName;
 
-    @XmlElement
     protected String profileDescription;
 
     public ProfileDataInfo() {
@@ -120,18 +119,84 @@ public class ProfileDataInfo implements JSONSerializer {
                 && Objects.equals(profileURL, other.profileURL);
     }
 
+    public Element toDOM(Document document) {
+
+        Element profileDataInfoElement = document.createElement("ProfileDataInfo");
+
+        if (profileURL != null) {
+            Element profileURLElement = document.createElement("profileURL");
+            profileURLElement.appendChild(document.createTextNode(profileURL));
+            profileDataInfoElement.appendChild(profileURLElement);
+        }
+        if (profileId != null) {
+            Element profileIdElement = document.createElement("profileId");
+            profileIdElement.appendChild(document.createTextNode(profileId));
+            profileDataInfoElement.appendChild(profileIdElement);
+        }
+        if (profileName != null) {
+            Element profileNameElement = document.createElement("profileName");
+            profileNameElement.appendChild(document.createTextNode(profileName));
+            profileDataInfoElement.appendChild(profileNameElement);
+        }
+        if (profileDescription != null) {
+            Element profileDescriptionElement = document.createElement("profileDescription");
+            profileDescriptionElement.appendChild(document.createTextNode(profileDescription));
+            profileDataInfoElement.appendChild(profileDescriptionElement);
+        }
+        return profileDataInfoElement;
+    }
+
+    public static ProfileDataInfo fromDOM(Element profileDataInfoElement) {
+
+        ProfileDataInfo profileDataInfo = new ProfileDataInfo();
+
+        NodeList profileURLList = profileDataInfoElement.getElementsByTagName("profileURL");
+        if (profileURLList.getLength() > 0) {
+            profileDataInfo.setProfileURL(profileURLList.item(0).getTextContent());
+        }
+        NodeList profileIdList = profileDataInfoElement.getElementsByTagName("profileId");
+        if (profileIdList.getLength() > 0) {
+            profileDataInfo.setProfileId(profileIdList.item(0).getTextContent());
+        }
+        NodeList profileNameList = profileDataInfoElement.getElementsByTagName("profileName");
+        if (profileNameList.getLength() > 0) {
+            profileDataInfo.setProfileName(profileNameList.item(0).getTextContent());
+        }
+        NodeList profileDescriptionList = profileDataInfoElement.getElementsByTagName("profileDescription");
+        if (profileDescriptionList.getLength() > 0) {
+            profileDataInfo.setProfileDescription(profileDescriptionList.item(0).getTextContent());
+        }
+        return profileDataInfo;
+    }
+
     public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(ProfileDataInfo.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element profileParameterElement = toDOM(document);
+        document.appendChild(profileParameterElement);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
 
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
         return sw.toString();
     }
 
     public static ProfileDataInfo fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileDataInfo.class).createUnmarshaller();
-        return (ProfileDataInfo) unmarshaller.unmarshal(new StringReader(xml));
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element profileParameterElement = document.getDocumentElement();
+        return fromDOM(profileParameterElement);
     }
 
 }
