@@ -20,14 +20,12 @@
 // smaller classes
 package com.netscape.certsrv.cert;
 
-import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Objects;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -590,12 +588,6 @@ public class CertSearchRequest implements JSONSerializer {
     public static CertSearchRequest fromXML(String xml) throws Exception {
         Unmarshaller unmarshaller = JAXBContext.newInstance(CertSearchRequest.class).createUnmarshaller();
         return (CertSearchRequest) unmarshaller.unmarshal(new StringReader(xml));
-    }
-
-    public static CertSearchRequest fromXML(Reader reader) throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(CertSearchRequest.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        return (CertSearchRequest) unmarshaller.unmarshal(reader);
     }
 
     @Override

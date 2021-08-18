@@ -18,8 +18,8 @@
 
 package com.netscape.cmstools.ca;
 
-import java.io.FileReader;
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Date;
 
@@ -203,29 +203,11 @@ public class CACertFindCLI extends CommandCLI {
         }
 
         CertSearchRequest searchData = null;
-        String fileName = null;
-
-        if (cmd.hasOption("input")) {
-            fileName = cmd.getOptionValue("input");
-            if (fileName == null || fileName.length() < 1) {
-                throw new Exception("No file name specified.");
-            }
-        }
+        String fileName = cmd.getOptionValue("input");
 
         if (fileName != null) {
-            FileReader reader = null;
-            try {
-                reader = new FileReader(fileName);
-                searchData = CertSearchRequest.fromXML(reader);
-
-            } finally {
-                if (reader != null)
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-            }
+            String content = Files.readString(Path.of(fileName));
+            searchData = CertSearchRequest.fromXML(content);
 
         } else {
             searchData = new CertSearchRequest();
