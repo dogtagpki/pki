@@ -5,15 +5,21 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class ProfileAttributeTest {
 
     private static ProfileAttribute before = new ProfileAttribute();
+    private static Descriptor descriptor = new Descriptor(
+            IDescriptor.CHOICE,
+            "true,false,-",
+            "-",
+            "CMS_PROFILE_CRITICAL");
 
     @Before
     public void setUpBefore() {
-        before.setDescriptor(new Descriptor());
+        before.setDescriptor(descriptor);
         before.setName("foo");
         before.setValue("bar");
     }
