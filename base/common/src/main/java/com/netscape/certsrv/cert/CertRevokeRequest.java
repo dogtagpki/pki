@@ -30,6 +30,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -150,6 +154,80 @@ public class CertRevokeRequest implements JSONSerializer {
         } else if (!reason.equals(other.reason))
             return false;
         return true;
+    }
+
+    public Element toDOM(Document document) {
+
+        Element requestElement = document.createElement("CertRevokeRequest");
+
+        if (reason != null) {
+            Element reasonElement = document.createElement("Reason");
+            reasonElement.appendChild(document.createTextNode(reason));
+            requestElement.appendChild(reasonElement);
+        }
+
+        if (invalidityDate != null) {
+            Element invalidityDateElement = document.createElement("InvalidityDate");
+            invalidityDateElement.appendChild(document.createTextNode(Long.toString(invalidityDate.getTime())));
+            requestElement.appendChild(invalidityDateElement);
+        }
+
+        if (comments != null) {
+            Element commentsElement = document.createElement("Comments");
+            commentsElement.appendChild(document.createTextNode(comments));
+            requestElement.appendChild(commentsElement);
+        }
+
+        if (encoded != null) {
+            Element encodedElement = document.createElement("Encoded");
+            encodedElement.appendChild(document.createTextNode(encoded));
+            requestElement.appendChild(encodedElement);
+        }
+
+        if (nonce != null) {
+            Element nonceElement = document.createElement("Nonce");
+            nonceElement.appendChild(document.createTextNode(Long.toString(nonce)));
+            requestElement.appendChild(nonceElement);
+        }
+
+        return requestElement;
+    }
+
+    public static CertRevokeRequest fromDOM(Element dataElement) {
+
+        CertRevokeRequest request = new CertRevokeRequest();
+
+        NodeList reasonList = dataElement.getElementsByTagName("Reason");
+        if (reasonList.getLength() > 0) {
+            String value = reasonList.item(0).getTextContent();
+            request.setReason(value);
+        }
+
+        NodeList invalidityDateList = dataElement.getElementsByTagName("InvalidityDate");
+        if (invalidityDateList.getLength() > 0) {
+            String value = invalidityDateList.item(0).getTextContent();
+            request.setInvalidityDate(new Date(Long.parseLong(value)));
+        }
+
+        NodeList commentsList = dataElement.getElementsByTagName("Comments");
+        if (commentsList.getLength() > 0) {
+            String value = commentsList.item(0).getTextContent();
+            request.setComments(value);
+        }
+
+        NodeList encodedList = dataElement.getElementsByTagName("Encoded");
+        if (encodedList.getLength() > 0) {
+            String value = encodedList.item(0).getTextContent();
+            request.setEncoded(value);
+        }
+
+        NodeList nonceList = dataElement.getElementsByTagName("Nonce");
+        if (nonceList.getLength() > 0) {
+            String value = nonceList.item(0).getTextContent();
+            request.setNonce(Long.parseLong(value));
+        }
+
+        return request;
     }
 
     public String toXML() throws Exception {
