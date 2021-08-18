@@ -180,7 +180,7 @@ public class CertService extends PKIService implements CertResource {
         @SuppressWarnings("unused")
         CertData data = getCertData(id);
 
-        RevocationReason revReason = request.getReason();
+        RevocationReason revReason = RevocationReason.valueOf(request.getReason());
         if (revReason == RevocationReason.REMOVE_FROM_CRL) {
             return unrevokeCert(id);
         }

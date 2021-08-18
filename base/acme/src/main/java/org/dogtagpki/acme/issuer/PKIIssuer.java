@@ -287,7 +287,7 @@ public class PKIIssuer extends ACMEIssuer {
             }
 
             CertRevokeRequest request = new CertRevokeRequest();
-            request.setReason(RevocationReason.valueOf(reason));
+            request.setReason(RevocationReason.valueOf(reason).getLabel());
             request.setNonce(certData.getNonce());
 
             logger.info("Revoking certificate");

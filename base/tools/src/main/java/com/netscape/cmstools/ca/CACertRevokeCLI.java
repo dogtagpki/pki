@@ -127,7 +127,7 @@ public class CACertRevokeCLI extends CommandCLI {
         }
 
         CertRevokeRequest request = new CertRevokeRequest();
-        request.setReason(reason);
+        request.setReason(reason.getLabel());
         request.setComments(cmd.getOptionValue("comments"));
         request.setNonce(certData.getNonce());
 
