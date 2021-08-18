@@ -19,15 +19,25 @@ package com.netscape.certsrv.profile;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Locale;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -126,18 +136,118 @@ public class ProfileAttribute implements JSONSerializer {
         return true;
     }
 
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(ProfileAttribute.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    public Element toDOM(Document document) {
 
+        Element profileAttributeElement = document.createElement("Attribute");
+
+        if (name != null) {
+            profileAttributeElement.setAttribute("name", name);
+        }
+        if (value != null) {
+            Element valueElement = document.createElement("Value");
+            valueElement.appendChild(document.createTextNode(value));
+            profileAttributeElement.appendChild(valueElement);
+        }
+        if (descriptor != null) {
+            Element descriptorElement = document.createElement("Descriptor");
+
+            if (descriptor.getSyntax() != null) {
+                Element syntaxElement = document.createElement("mSyntax");
+                syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
+                descriptorElement.appendChild(syntaxElement);
+            }
+
+            if (descriptor.getConstraint() != null) {
+                Element constraintElement = document.createElement("mConstraint");
+                constraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
+                descriptorElement.appendChild(constraintElement);
+            }
+
+            if (descriptor.getDescription(Locale.getDefault()) != null) {
+                Element descriptionElement = document.createElement("mDescription");
+                descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
+                descriptorElement.appendChild(descriptionElement);
+            }
+
+            if (descriptor.getDefaultValue() != null) {
+                Element defaultValueElement = document.createElement("mDef");
+                defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
+                descriptorElement.appendChild(defaultValueElement);
+            }
+            profileAttributeElement.appendChild(descriptorElement);
+        }
+        return profileAttributeElement;
+    }
+
+    public static ProfileAttribute fromDOM(Element profileAttributeElement) {
+
+        ProfileAttribute profileAttribute = new ProfileAttribute();
+
+        String id = profileAttributeElement.getAttribute("name");
+        profileAttribute.setName(id);
+
+        NodeList valueList = profileAttributeElement.getElementsByTagName("Value");
+        if (valueList.getLength() > 0) {
+            String value = valueList.item(0).getTextContent();
+            profileAttribute.setValue(value);
+        }
+
+        NodeList descriptorList = profileAttributeElement.getElementsByTagName("Descriptor");
+        if (descriptorList.getLength() > 0) {
+            String syntax = null;
+            String constraint = null;
+            String description = null;
+            String def = null;
+            NodeList syntaxList = profileAttributeElement.getElementsByTagName("mSyntax");
+            NodeList constraintList = profileAttributeElement.getElementsByTagName("mConstraint");
+            NodeList descriptionList = profileAttributeElement.getElementsByTagName("mDescription");
+            NodeList defList = profileAttributeElement.getElementsByTagName("mDef");
+            if (syntaxList.getLength() > 0) {
+                syntax = syntaxList.item(0).getTextContent();
+            }
+            if (constraintList.getLength() > 0) {
+                constraint = constraintList.item(0).getTextContent();
+            }
+            if (descriptionList.getLength() > 0) {
+                description = descriptionList.item(0).getTextContent();
+            }
+            if (defList.getLength() > 0) {
+                def = defList.item(0).getTextContent();
+            }
+            Descriptor descriptor = new Descriptor(syntax, constraint, def, description);
+            profileAttribute.setDescriptor(descriptor);
+        }
+
+        return profileAttribute;
+    }
+
+    public String toXML() throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element accountElement = toDOM(document);
+        document.appendChild(accountElement);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
         return sw.toString();
     }
 
     public static ProfileAttribute fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileAttribute.class).createUnmarshaller();
-        return (ProfileAttribute) unmarshaller.unmarshal(new StringReader(xml));
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element accountElement = document.getDocumentElement();
+        return fromDOM(accountElement);
     }
 
 }
