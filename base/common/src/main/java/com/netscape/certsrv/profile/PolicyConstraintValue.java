@@ -19,15 +19,25 @@ package com.netscape.certsrv.profile;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Locale;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -120,18 +130,119 @@ public class PolicyConstraintValue implements JSONSerializer {
         return true;
     }
 
+    public Element toDOM(Document document) {
+
+        Element pcvElement = document.createElement("policyConstraintValue");
+        pcvElement.setAttribute("id", name);
+
+        if (descriptor != null) {
+            Element descriptorElement = document.createElement("descriptor");
+
+            if (descriptor.getSyntax() != null) {
+                Element syntaxElement = document.createElement("mSyntax");
+                syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
+                descriptorElement.appendChild(syntaxElement);
+            }
+
+            if (descriptor.getConstraint() != null) {
+                Element constraintElement = document.createElement("mConstraint");
+                constraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
+                descriptorElement.appendChild(constraintElement);
+            }
+
+            if (descriptor.getDescription(Locale.getDefault()) != null) {
+                Element descriptionElement = document.createElement("mDescription");
+                descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
+                descriptorElement.appendChild(descriptionElement);
+            }
+
+            if (descriptor.getDefaultValue() != null) {
+                Element defaultValueElement = document.createElement("mDef");
+                defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
+                descriptorElement.appendChild(defaultValueElement);
+            }
+            pcvElement.appendChild(descriptorElement);
+        }
+
+        if (value != null) {
+            Element valueElement = document.createElement("value");
+            valueElement.appendChild(document.createTextNode(value.toString()));
+            pcvElement.appendChild(valueElement);
+        }
+
+        return pcvElement;
+    }
+
+    public static PolicyConstraintValue fromDOM(Element pcvElement) {
+
+        PolicyConstraintValue pcv = new PolicyConstraintValue();
+
+        String id = pcvElement.getAttribute("id");
+        pcv.setName(id);
+
+        NodeList valueList = pcvElement.getElementsByTagName("value");
+        if (valueList.getLength() > 0) {
+            String value = valueList.item(0).getTextContent();
+            pcv.setValue(value);
+        }
+
+        NodeList descriptorList = pcvElement.getElementsByTagName("descriptor");
+        if (descriptorList.getLength() > 0) {
+            String syntax = null;
+            String constraint = null;
+            String description = null;
+            String def = null;
+            NodeList syntaxList = pcvElement.getElementsByTagName("mSyntax");
+            NodeList constraintList = pcvElement.getElementsByTagName("mConstraint");
+            NodeList descriptionList = pcvElement.getElementsByTagName("mDescription");
+            NodeList defList = pcvElement.getElementsByTagName("mDef");
+            if (syntaxList.getLength() > 0) {
+                syntax = syntaxList.item(0).getTextContent();
+            }
+            if (constraintList.getLength() > 0) {
+                constraint = constraintList.item(0).getTextContent();
+            }
+            if (descriptionList.getLength() > 0) {
+                description = descriptionList.item(0).getTextContent();
+            }
+            if (defList.getLength() > 0) {
+                def = defList.item(0).getTextContent();
+            }
+            Descriptor descriptor = new Descriptor(syntax, constraint, def, description);
+            pcv.setDescriptor(descriptor);
+        }
+
+        return pcv;
+    }
+
     public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(PolicyConstraintValue.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element pcvElement = toDOM(document);
+        document.appendChild(pcvElement);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
 
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
         return sw.toString();
     }
 
     public static PolicyConstraintValue fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(PolicyConstraintValue.class).createUnmarshaller();
-        return (PolicyConstraintValue) unmarshaller.unmarshal(new StringReader(xml));
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element pcvElement = document.getDocumentElement();
+        return fromDOM(pcvElement);
     }
 
 }
