@@ -18,6 +18,7 @@
 
 package com.netscape.certsrv.client;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -131,7 +132,17 @@ public class PKIConnection implements AutoCloseable {
 
                 if (output != null) {
                     File file = new File(output, "http-request-"+requestCounter);
-                    storeRequest(file, request);
+                    try (PrintStream out = new PrintStream(file)) {
+                        storeRequest(out, request);
+                    }
+                    logger.debug("Request: " + file.getAbsolutePath());
+
+                } else if (logger.isDebugEnabled()) {
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    try (PrintStream out = new PrintStream(os)) {
+                        storeRequest(out, request);
+                    }
+                    logger.debug("Request:\n" + os.toString("UTF-8"));
                 }
 
                 // Set the request parameter to follow redirections.
@@ -157,7 +168,17 @@ public class PKIConnection implements AutoCloseable {
 
                 if (output != null) {
                     File file = new File(output, "http-response-"+responseCounter);
-                    storeResponse(file, response);
+                    try (PrintStream out = new PrintStream(file)) {
+                        storeResponse(out, response);
+                    }
+                    logger.debug("Response: " + file.getAbsolutePath());
+
+                } else if (logger.isDebugEnabled()) {
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    try (PrintStream out = new PrintStream(os)) {
+                        storeResponse(out, response);
+                    }
+                    logger.debug("Response:\n" + os.toString("UTF-8"));
                 }
             }
         });
@@ -207,61 +228,39 @@ public class PKIConnection implements AutoCloseable {
         this.callback = callback;
     }
 
-    public void storeRequest(File file, HttpRequest request) throws IOException {
+    public void storeRequest(PrintStream out, HttpRequest request) throws IOException {
 
-        try (PrintStream out = new PrintStream(file)) {
+        if (request instanceof EntityEnclosingRequestWrapper) {
+            EntityEnclosingRequestWrapper wrapper = (EntityEnclosingRequestWrapper) request;
 
-            out.println(request.getRequestLine());
+            HttpEntity entity = wrapper.getEntity();
+            if (entity == null) return;
 
-            for (Header header : request.getAllHeaders()) {
-                out.println(header.getName()+": "+header.getValue());
+            if (!entity.isRepeatable()) {
+                BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);
+                wrapper.setEntity(bufferedEntity);
+                entity = bufferedEntity;
             }
 
-            out.println();
-
-            if (request instanceof EntityEnclosingRequestWrapper) {
-                EntityEnclosingRequestWrapper wrapper = (EntityEnclosingRequestWrapper) request;
-
-                HttpEntity entity = wrapper.getEntity();
-                if (entity == null) return;
-
-                if (!entity.isRepeatable()) {
-                    BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);
-                    wrapper.setEntity(bufferedEntity);
-                    entity = bufferedEntity;
-                }
-
-                storeEntity(out, entity);
-            }
+            storeEntity(out, entity);
         }
     }
 
-    public void storeResponse(File file, HttpResponse response) throws IOException {
+    public void storeResponse(PrintStream out, HttpResponse response) throws IOException {
 
-        try (PrintStream out = new PrintStream(file)) {
+        if (response instanceof BasicHttpResponse) {
+            BasicHttpResponse basicResponse = (BasicHttpResponse) response;
 
-            out.println(response.getStatusLine());
+            HttpEntity entity = basicResponse.getEntity();
+            if (entity == null) return;
 
-            for (Header header : response.getAllHeaders()) {
-                out.println(header.getName()+": "+header.getValue());
+            if (!entity.isRepeatable()) {
+                BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);
+                basicResponse.setEntity(bufferedEntity);
+                entity = bufferedEntity;
             }
 
-            out.println();
-
-            if (response instanceof BasicHttpResponse) {
-                BasicHttpResponse basicResponse = (BasicHttpResponse) response;
-
-                HttpEntity entity = basicResponse.getEntity();
-                if (entity == null) return;
-
-                if (!entity.isRepeatable()) {
-                    BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);
-                    basicResponse.setEntity(bufferedEntity);
-                    entity = bufferedEntity;
-                }
-
-                storeEntity(out, entity);
-            }
+            storeEntity(out, entity);
         }
     }
 
