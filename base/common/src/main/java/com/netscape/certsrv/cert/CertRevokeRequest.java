@@ -30,9 +30,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.RevocationReasonAdapter;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -48,7 +45,7 @@ import com.netscape.certsrv.util.JSONSerializer;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertRevokeRequest implements JSONSerializer {
 
-    RevocationReason reason;
+    String reason;
     Date invalidityDate;
     String comments;
     String encoded;
@@ -57,12 +54,11 @@ public class CertRevokeRequest implements JSONSerializer {
 
     @XmlElement(name="Reason")
     @FormParam("revocationReason")
-    @XmlJavaTypeAdapter(RevocationReasonAdapter.class)
-    public RevocationReason getReason() {
+    public String getReason() {
         return reason;
     }
 
-    public void setReason(RevocationReason reason) {
+    public void setReason(String reason) {
         this.reason = reason;
     }
 

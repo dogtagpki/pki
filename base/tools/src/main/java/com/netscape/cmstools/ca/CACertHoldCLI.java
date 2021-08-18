@@ -97,7 +97,7 @@ public class CACertHoldCLI extends CommandCLI {
         }
 
         CertRevokeRequest request = new CertRevokeRequest();
-        request.setReason(RevocationReason.CERTIFICATE_HOLD);
+        request.setReason(RevocationReason.CERTIFICATE_HOLD.getLabel());
         request.setComments(cmd.getOptionValue("comments"));
         request.setNonce(certData.getNonce());
 
