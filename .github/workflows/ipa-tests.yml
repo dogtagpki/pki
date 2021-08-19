@@ -74,6 +74,110 @@ jobs:
       - name: Load runner image
         run: docker load --input /tmp/pki-runner.tar
 
+      - name: Run IPA container
+        run: |
+          IMAGE=pki-runner \
+          NAME=ipa \
+          HOSTNAME=ipa.example.com \
+          tests/bin/runner-init.sh
+
+      - name: Install IPA packages
+        run: |
+          docker exec ipa dnf copr enable -y @freeipa/freeipa-master-nightly
+          docker exec ipa dnf install -y freeipa-server freeipa-server-dns \
+              python3-ipatests freeipa-healthcheck
+
+      - name: Install IPA server
+        run: |
+          docker exec ipa sysctl net.ipv6.conf.lo.disable_ipv6=0
+          docker exec ipa ipa-server-install \
+              -U \
+              --domain example.com \
+              -r EXAMPLE.COM \
+              -p Secret.123 \
+              -a Secret.123 \
+              --setup-kra \
+              --no-host-dns \
+              --no-ntp
+          docker exec ipa bash -c "echo Secret.123 | kinit admin"
+          docker exec ipa ipa ping
+
+      - name: Configure test environment
+        run: |
+          docker exec ipa bash -c "cp -r /etc/ipa/* ~/.ipa"
+          docker exec ipa bash -c "echo Secret.123 > ~/.ipa/.dmpw"
+          docker exec ipa bash -c "echo 'wait_for_dns=5' >> ~/.ipa/default.conf"
+
+      - name: Run test_caacl_plugin.py
+        run: |
+          docker exec ipa ipa-run-tests -x --verbose \
+              test_xmlrpc/test_caacl_plugin.py
+
+      - name: Run test_caacl_profile_enforcement.py
+        run: |
+          docker exec ipa ipa-run-tests -x --verbose \
+              test_xmlrpc/test_caacl_profile_enforcement.py
+
+      - name: Run test_cert_plugin.py
+        run: |
+          docker exec ipa ipa-run-tests -x --verbose \
+              test_xmlrpc/test_cert_plugin.py
+
+      - name: Run test_certprofile_plugin.py
+        run: |
+          docker exec ipa ipa-run-tests -x --verbose \
+              test_xmlrpc/test_certprofile_plugin.py
+
+      - name: Run test_ca_plugin.py
+        run: |
+          docker exec ipa ipa-run-tests -x --verbose \
+              test_xmlrpc/test_ca_plugin.py
+
+      - name: Run test_vault_plugin.py
+        run: |
+          docker exec ipa ipa-run-tests -x --verbose \
+              test_xmlrpc/test_vault_plugin.py
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ipa EXAMPLE-COM
+          tests/bin/pki-artifacts-save.sh ipa
+          tests/bin/ipa-artifacts-save.sh ipa
+        continue-on-error: true
+
+      - name: Remove IPA server
+        run: docker exec ipa ipa-server-install --uninstall -U
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipa-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/ipa
+
+  ipa-acme-test:
+    name: Testing IPA ACME
+    needs: [init, build]
+    runs-on: ubuntu-latest
+    env:
+      PKIDIR: /tmp/workdir/pki
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download runner image
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-runner-${{ matrix.os }}
+          path: /tmp
+
+      - name: Load runner image
+        run: docker load --input /tmp/pki-runner.tar
+
       - name: Create network
         run: docker network create example
 
@@ -90,8 +194,7 @@ jobs:
       - name: Install IPA packages in IPA container
         run: |
           docker exec ipa dnf copr enable -y @freeipa/freeipa-master-nightly
-          docker exec ipa dnf install -y freeipa-server freeipa-server-dns \
-              python3-ipatests freeipa-healthcheck
+          docker exec ipa dnf install -y freeipa-server freeipa-server-dns
 
       - name: Install IPA server in IPA container
         run: |
@@ -196,9 +299,6 @@ jobs:
           docker exec ipa bash -c "pki acme-info | sed -n 's/\s*Status:\s\+\(\S\+\).*/\1/p' > ${PKIDIR}/actual"
           diff expected actual
 
-      - name: Run IPA tests in IPA container
-        run: docker exec ipa ${PKIDIR}/tests/bin/ipa-test.sh
-
       - name: Gather artifacts from IPA container
         if: always()
         run: |
@@ -214,7 +314,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ipa-${{ matrix.os }}
+          name: ipa-acme-${{ matrix.os }}
           path: |
             /tmp/artifacts/ipa
 
