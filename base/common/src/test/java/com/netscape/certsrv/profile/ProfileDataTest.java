@@ -17,7 +17,6 @@ public class ProfileDataTest {
 
     private static ProfileData before = new ProfileData();
     private static List<ProfileInput> inputs = new ArrayList<>();
-    private static ProfileInput input = new ProfileInput();
     private static Link link = new Link();
     private static ProfileInput profileInput = new ProfileInput("i1", "SubjectNameInput", null);
     private static ProfileOutput profileOutput = new ProfileOutput();
@@ -42,12 +41,6 @@ public class ProfileDataTest {
 
     @BeforeClass
     public static void setUpBefore() {
-        input.setClassId("foo");
-        input.setName("bar");
-        input.setText("lorem");
-
-        inputs.add(input);
-
         before.setClassId("com.netscape.cms.profile.common.CAEnrollProfile");
         before.setDescription("This certificate profile is for enrolling user certificates.");
         before.setEnabled(true);

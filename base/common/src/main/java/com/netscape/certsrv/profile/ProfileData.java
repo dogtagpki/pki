@@ -26,13 +26,12 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Vector;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -40,11 +39,25 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.Link;
+import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -273,18 +286,341 @@ public class ProfileData implements JSONSerializer {
                 && renewal == other.renewal && visible == other.visible && xmlOutput == other.xmlOutput;
     }
 
+    public Element toDOM(Document document) {
+
+        Element pdElement = document.createElement("Profile");
+        pdElement.setAttribute("id", id);
+        if (classId != null) {
+            Element classIdElement = document.createElement("classId");
+            classIdElement.appendChild(document.createTextNode(classId));
+            pdElement.appendChild(classIdElement);
+        }
+        if (name != null) {
+            Element nameElement = document.createElement("name");
+            nameElement.appendChild(document.createTextNode(name));
+            pdElement.appendChild(nameElement);
+        }
+        if (description != null) {
+            Element descriptionElement = document.createElement("description");
+            descriptionElement.appendChild(document.createTextNode(description));
+            pdElement.appendChild(descriptionElement);
+        }
+        Element enabledElement = document.createElement("enabled");
+        enabledElement.appendChild(document.createTextNode(Boolean.toString(enabled)));
+        pdElement.appendChild(enabledElement);
+
+        Element visibleElement = document.createElement("visible");
+        visibleElement.appendChild(document.createTextNode(Boolean.toString(visible)));
+        pdElement.appendChild(visibleElement);
+        if (enabledBy != null) {
+            Element enabledByElement = document.createElement("enabledBy");
+            enabledByElement.appendChild(document.createTextNode(enabledBy));
+            pdElement.appendChild(enabledByElement);
+        }
+        if (authenticatorId != null) {
+            Element authenticatorIdElement = document.createElement("authenticatorId");
+            authenticatorIdElement.appendChild(document.createTextNode(authenticatorId));
+            pdElement.appendChild(authenticatorIdElement);
+        }
+        if (authzAcl != null) {
+            Element authzAclElement = document.createElement("authzAcl");
+            authzAclElement.appendChild(document.createTextNode(authzAcl));
+            pdElement.appendChild(authzAclElement);
+        }
+        Element renewalElement = document.createElement("renewal");
+        renewalElement.appendChild(document.createTextNode(Boolean.toString(renewal)));
+        pdElement.appendChild(renewalElement);
+
+        Element xmlOutputElement = document.createElement("xmlOutput");
+        xmlOutputElement.appendChild(document.createTextNode(Boolean.toString(xmlOutput)));
+        pdElement.appendChild(xmlOutputElement);
+        for (ProfileInput pi : inputs) {
+            Element piElement = pi.toDOM(document);
+            pdElement.appendChild(piElement);
+        }
+        for (ProfileOutput po : outputs) {
+            Element poElement = po.toDOM(document, "Output");
+            pdElement.appendChild(poElement);
+        }
+        if (!policySets.isEmpty()) {
+            Element policysetsElement = document.createElement("PolicySets");
+            for (Entry<String, List<ProfilePolicy>> policySet : getPolicySets().entrySet()) {
+                Element policysetElement = document.createElement("PolicySet");
+                Element idElement = document.createElement("id");
+                idElement.appendChild(document.createTextNode(policySet.getKey()));
+                policysetElement.appendChild(idElement);
+                for (ProfilePolicy pp : policySet.getValue()) {
+                    Element valueElement = document.createElement("value");
+                    valueElement.setAttribute("id", pp.getId());
+                    if (pp.getDef() != null) {
+                        Element defElement = document.createElement("def");
+                        defElement.setAttribute("id", pp.getDef().getName());
+                        defElement.setAttribute("classId", pp.getDef().getClassId());
+                        valueElement.appendChild(defElement);
+                        if (pp.getDef().getText() != null) {
+                            Element descriptionElement = document.createElement("description");
+                            descriptionElement.appendChild(document.createTextNode(pp.getDef().getText()));
+                            defElement.appendChild(descriptionElement);
+                        }
+                        for (ProfileAttribute attribute : pp.getDef().getAttributes()) {
+                            Element attributeElement = document.createElement("policyAttribute");
+                            if (attribute.getName() != null) {
+                                attributeElement.setAttribute("name", attribute.getName());
+                            }
+                            if (attribute.getValue() != null) {
+                                Element ppValueElement = document.createElement("Value");
+                                ppValueElement.appendChild(document.createTextNode(attribute.getValue()));
+                                attributeElement.appendChild(ppValueElement);
+                            }
+                            Descriptor descriptor = attribute.getDescriptor();
+                            if (descriptor != null) {
+                                Element descriptorElement = document.createElement("Descriptor");
+                                if (descriptor.getSyntax() != null) {
+                                    Element syntaxElement = document.createElement("mSyntax");
+                                    syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
+                                    descriptorElement.appendChild(syntaxElement);
+                                }
+                                if (descriptor.getConstraint() != null) {
+                                    Element constraintElement = document.createElement("mConstraint");
+                                    constraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
+                                    descriptorElement.appendChild(constraintElement);
+                                }
+                                if (descriptor.getDescription(Locale.getDefault()) != null) {
+                                    Element descriptionElement = document.createElement("mDescription");
+                                    descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
+                                    descriptorElement.appendChild(descriptionElement);
+                                }
+                                if (descriptor.getDefaultValue() != null) {
+                                    Element defaultValueElement = document.createElement("mDef");
+                                    defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
+                                    descriptorElement.appendChild(defaultValueElement);
+                                }
+                                attributeElement.appendChild(descriptorElement);
+                            }
+                            defElement.appendChild(attributeElement);
+                        }
+                        for (ProfileParameter param : pp.getDef().getParams()) {
+                            Element parameterElement = document.createElement("params");
+                            if (param.getName() != null) {
+                                parameterElement.setAttribute("name", param.getName());
+                            }
+                            if (param.getValue() != null) {
+                                Element paramValueElement = document.createElement("value");
+                                paramValueElement.appendChild(document.createTextNode(param.getValue()));
+                                parameterElement.appendChild(paramValueElement);
+                            }
+                            defElement.appendChild(parameterElement);
+                        }
+                    }
+                    if (pp.getConstraint() != null) {
+                        Element pcElement = document.createElement("constraint");
+                        pcElement.setAttribute("id", pp.getConstraint().getName());
+                        if (pp.getConstraint().getText() != null) {
+                            Element descriptionElement = document.createElement("description");
+                            descriptionElement.appendChild(document.createTextNode(pp.getConstraint().getText()));
+                            pcElement.appendChild(descriptionElement);
+                        }
+                        if (pp.getConstraint().getClassId() != null) {
+                            Element classIdElement = document.createElement("classId");
+                            classIdElement.appendChild(document.createTextNode(pp.getConstraint().getClassId()));
+                            pcElement.appendChild(classIdElement);
+                        }
+                        if (pp.getConstraint().getConstraints() != null) {
+                            for (PolicyConstraintValue pcv : pp.getConstraint().getConstraints()) {
+                                Element constraintElement = document.createElement("constraint");
+                                constraintElement.setAttribute("id", pcv.getName());
+                                Descriptor descriptor = pcv.getDescriptor();
+                                if (descriptor != null) {
+                                    Element descriptorElement = document.createElement("descriptor");
+                                    if (descriptor.getSyntax() != null) {
+                                        Element syntaxElement = document.createElement("mSyntax");
+                                        syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
+                                        descriptorElement.appendChild(syntaxElement);
+                                    }
+                                    if (descriptor.getConstraint() != null) {
+                                        Element mConstraintElement = document.createElement("mConstraint");
+                                        mConstraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
+                                        descriptorElement.appendChild(mConstraintElement);
+                                    }
+                                    if (descriptor.getDescription(Locale.getDefault()) != null) {
+                                        Element descriptionElement = document.createElement("mDescription");
+                                        descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
+                                        descriptorElement.appendChild(descriptionElement);
+                                    }
+                                    if (descriptor.getDefaultValue() != null) {
+                                        Element defaultValueElement = document.createElement("mDef");
+                                        defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
+                                        descriptorElement.appendChild(defaultValueElement);
+                                    }
+                                    constraintElement.appendChild(descriptorElement);
+                                }
+                                if (pcv.getValue() != null) {
+                                    Element pcvValueElement = document.createElement("value");
+                                    pcvValueElement.appendChild(document.createTextNode(pcv.getValue()));
+                                    constraintElement.appendChild(pcvValueElement);
+                                }
+                                pcElement.appendChild(constraintElement);
+                            }
+                        }
+                        valueElement.appendChild(pcElement);
+                    }
+                    policysetElement.appendChild(valueElement);
+                }
+                policysetsElement.appendChild(policysetElement);
+            }
+            pdElement.appendChild(policysetsElement);
+        }
+        if (link != null) {
+            Element linkElement = link.toDOM(document);
+            pdElement.appendChild(linkElement);
+        }
+        return pdElement;
+    }
+
+    public static ProfileData fromDOM(Element profileDataElement) throws DOMException, Exception {
+
+        ProfileData profileData = new ProfileData();
+        String id = profileDataElement.getAttribute("id");
+        profileData.setId(id);
+
+        NodeList classIdList = profileDataElement.getElementsByTagName("classId");
+        if (classIdList.getLength() > 0) {
+            String value = classIdList.item(0).getTextContent();
+            profileData.setClassId(value);
+        }
+        NodeList nameList = profileDataElement.getElementsByTagName("name");
+        if (nameList.getLength() > 0) {
+            String value = nameList.item(0).getTextContent();
+            profileData.setName(value);
+        }
+        NodeList descriptionList = profileDataElement.getElementsByTagName("description");
+        if (descriptionList.getLength() > 0) {
+            String value = descriptionList.item(0).getTextContent();
+            profileData.setDescription(value);
+        }
+        NodeList enabledList = profileDataElement.getElementsByTagName("enabled");
+        if (enabledList.getLength() > 0) {
+            String value = enabledList.item(0).getTextContent();
+            profileData.setEnabled(Boolean.valueOf(value));
+        }
+        NodeList visibleList = profileDataElement.getElementsByTagName("visible");
+        if (visibleList.getLength() > 0) {
+            String value = visibleList.item(0).getTextContent();
+            profileData.setVisible(Boolean.valueOf(value));
+        }
+        NodeList enabledByList = profileDataElement.getElementsByTagName("enabledBy");
+        if (enabledByList.getLength() > 0) {
+            String value = enabledByList.item(0).getTextContent();
+            profileData.setEnabledBy(value);
+        }
+        NodeList authenticatorIdList = profileDataElement.getElementsByTagName("authenticatorId");
+        if (authenticatorIdList.getLength() > 0) {
+            String value = authenticatorIdList.item(0).getTextContent();
+            profileData.setAuthenticatorId(value);
+        }
+        NodeList authzAclList = profileDataElement.getElementsByTagName("authzAcl");
+        if (authzAclList.getLength() > 0) {
+            String value = authzAclList.item(0).getTextContent();
+            profileData.setAuthzAcl(value);
+        }
+        NodeList renewalList = profileDataElement.getElementsByTagName("renewal");
+        if (renewalList.getLength() > 0) {
+            String value = renewalList.item(0).getTextContent();
+            profileData.setRenewal(Boolean.valueOf(value));
+        }
+        NodeList xmlOutputList = profileDataElement.getElementsByTagName("xmlOutput");
+        if (xmlOutputList.getLength() > 0) {
+            String value = xmlOutputList.item(0).getTextContent();
+            profileData.setXMLOutput(Boolean.valueOf(value));
+        }
+        NodeList profileInputList = profileDataElement.getElementsByTagName("Input");
+        int piCount = profileInputList.getLength();
+        for (int i = 0; i < piCount; i++) {
+            Element piElement = (Element) profileInputList.item(i);
+            ProfileInput profileInput = ProfileInput.fromDOM(piElement);
+            profileData.addProfileInput(profileInput);
+        }
+        NodeList profileOutputList = profileDataElement.getElementsByTagName("Output");
+        int poCount = profileOutputList.getLength();
+        for (int i = 0; i < poCount; i++) {
+            Element poElement = (Element) profileOutputList.item(i);
+            ProfileOutput profileOutput = ProfileOutput.fromDOM(poElement);
+            profileData.addProfileOutput(profileOutput);
+        }
+
+        NodeList policySetList = profileDataElement.getElementsByTagName("PolicySet");
+        int policySetCount = policySetList.getLength();
+        for (int i = 0; i < policySetCount; i++) {
+            Vector<ProfilePolicy> value = new Vector<>();
+            ProfilePolicy profilePolicy = new ProfilePolicy();
+            NodeList ppList = profileDataElement.getElementsByTagName("def");
+            if (ppList.getLength() > 0) {
+                Element ppElement = (Element) ppList.item(0);
+                PolicyDefault pd = PolicyDefault.fromDOM(ppElement);
+                profilePolicy.setDef(pd);
+            }
+            NodeList constraintList = profileDataElement.getElementsByTagName("constraint");
+            if (constraintList.getLength() > 0) {
+                Element constraintElement = (Element) constraintList.item(0);
+                PolicyConstraint pc = PolicyConstraint.fromDOM(constraintElement);
+                profilePolicy.setConstraint(pc);
+            }
+            NodeList valueIdList = profileDataElement.getElementsByTagName("value");
+            int valueIdCount = valueIdList.getLength();
+            for (int j = 0; j < valueIdCount; j++) {
+                Element valueIdElement = (Element) valueIdList.item(j);
+                String valueId = valueIdElement.getAttribute("id");
+                // Both PolicyDefault and PolicyConstraint have <value> elements, so we
+                // need to select only <value> elements that have a non-blank id attribute
+                if (!valueId.isBlank()) {
+                    profilePolicy.setId(valueId);
+                    value.add(profilePolicy);
+                }
+            }
+            Element policySetElement = (Element) policySetList.item(i);
+            NodeList idList = policySetElement.getElementsByTagName("id");
+            String policySetId = idList.item(0).getTextContent();
+            profileData.addProfilePolicySet(policySetId, value);
+        }
+
+        NodeList LinkList = profileDataElement.getElementsByTagName("Link");
+        int linkCount = LinkList.getLength();
+        for (int i = 0; i < linkCount; i++) {
+            Element linkElement = (Element) LinkList.item(i);
+            Link link = Link.fromDOM(linkElement);
+            profileData.setLink(link);
+        }
+        return profileData;
+    }
+
     public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(ProfileData.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element pdElement = toDOM(document);
+        document.appendChild(pdElement);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
 
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
         return sw.toString();
     }
 
     public static ProfileData fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileData.class).createUnmarshaller();
-        return (ProfileData) unmarshaller.unmarshal(new StringReader(xml));
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element profileDataElement = document.getDocumentElement();
+        return fromDOM(profileDataElement);
     }
 
     public static class PolicySetAdapter extends XmlAdapter<PolicySetList, Map<String, Vector<ProfilePolicy>>> {
