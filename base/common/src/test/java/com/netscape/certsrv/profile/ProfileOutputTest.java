@@ -1,7 +1,5 @@
 package com.netscape.certsrv.profile;
 
-import java.util.ArrayList;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +12,15 @@ public class ProfileOutputTest {
 
     @Before
     public void setUpBefore() {
-        before.setAttrs(new ArrayList<>());
+        before.addAttribute(new ProfileAttribute("sn_uid", "user", null));
+        before.addAttribute(new ProfileAttribute("sn_e", "user@example.com", null));
+        before.addAttribute(new ProfileAttribute("sn_c", "US", null));
+        before.addAttribute(new ProfileAttribute("sn_ou", "Development", null));
+        before.addAttribute(new ProfileAttribute("sn_ou1", "IPA", null));
+        before.addAttribute(new ProfileAttribute("sn_ou2", "Dogtag", null));
+        before.addAttribute(new ProfileAttribute("sn_ou3", "CA", null));
+        before.addAttribute(new ProfileAttribute("sn_cn", "Common", null));
+        before.addAttribute(new ProfileAttribute("sn_o", "RedHat", null));
         before.setName("foo");
         before.setClassId("bar");
         before.setId("lorem");
