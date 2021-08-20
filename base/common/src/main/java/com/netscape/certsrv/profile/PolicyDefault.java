@@ -21,19 +21,30 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement
@@ -62,6 +73,10 @@ public class PolicyDefault implements JSONSerializer {
 
     public void addAttribute(ProfileAttribute attr) {
         attributes.add(attr);
+    }
+
+    public void addParameter(ProfileParameter param) {
+        params.add(param);
     }
 
     public String getName() {
@@ -153,18 +168,125 @@ public class PolicyDefault implements JSONSerializer {
         return true;
     }
 
+    public Element toDOM(Document document) {
+
+        Element pdElement = document.createElement("policyDefault");
+        pdElement.setAttribute("id", name);
+        pdElement.setAttribute("classId", classId);
+
+        if (text != null) {
+            Element descriptionElement = document.createElement("description");
+            descriptionElement.appendChild(document.createTextNode(text));
+            pdElement.appendChild(descriptionElement);
+        }
+
+        for (ProfileAttribute attribute : attributes) {
+            Element attributeElement = document.createElement("policyAttribute");
+            if (attribute.getName() != null) {
+                attributeElement.setAttribute("name", attribute.getName());
+            }
+            if (attribute.getValue() != null) {
+                Element valueElement = document.createElement("Value");
+                valueElement.appendChild(document.createTextNode(attribute.getValue()));
+                attributeElement.appendChild(valueElement);
+            }
+            Descriptor descriptor = attribute.getDescriptor();
+            if (descriptor != null) {
+                Element descriptorElement = document.createElement("Descriptor");
+                if (descriptor.getSyntax() != null) {
+                    Element syntaxElement = document.createElement("mSyntax");
+                    syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
+                    descriptorElement.appendChild(syntaxElement);
+                }
+                if (descriptor.getConstraint() != null) {
+                    Element constraintElement = document.createElement("mConstraint");
+                    constraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
+                    descriptorElement.appendChild(constraintElement);
+                }
+                if (descriptor.getDescription(Locale.getDefault()) != null) {
+                    Element descriptionElement = document.createElement("mDescription");
+                    descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
+                    descriptorElement.appendChild(descriptionElement);
+                }
+                if (descriptor.getDefaultValue() != null) {
+                    Element defaultValueElement = document.createElement("mDef");
+                    defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
+                    descriptorElement.appendChild(defaultValueElement);
+                }
+                attributeElement.appendChild(descriptorElement);
+            }
+            pdElement.appendChild(attributeElement);
+        }
+        for (ProfileParameter param : params) {
+            Element parameterElement = document.createElement("params");
+            if (param.getName() != null) {
+                parameterElement.setAttribute("name", param.getName());
+            }
+            if (param.getValue() != null) {
+                Element valueElement = document.createElement("value");
+                valueElement.appendChild(document.createTextNode(param.getValue()));
+                parameterElement.appendChild(valueElement);
+                }
+            pdElement.appendChild(parameterElement);
+        }
+        return pdElement;
+    }
+
+    public static PolicyDefault fromDOM(Element policyDefaultElement) {
+
+        PolicyDefault policyDefault = new PolicyDefault();
+        policyDefault.setName(policyDefaultElement.getAttribute("id"));
+        policyDefault.setClassId(policyDefaultElement.getAttribute("classId"));
+
+        NodeList descriptionList = policyDefaultElement.getElementsByTagName("description");
+        if (descriptionList.getLength() > 0) {
+             policyDefault.setText(descriptionList.item(0).getTextContent());
+        }
+        NodeList paList = policyDefaultElement.getElementsByTagName("policyAttribute");
+        int paCount = paList.getLength();
+        for (int i = 0; i < paCount; i++) {
+           Element paElement = (Element) paList.item(i);
+           ProfileAttribute pa = ProfileAttribute.fromDOM(paElement);
+           policyDefault.addAttribute(pa);
+        }
+        NodeList ppList = policyDefaultElement.getElementsByTagName("params");
+        int ppCount = ppList.getLength();
+        for (int i = 0; i < ppCount; i++) {
+           Element ppElement = (Element) ppList.item(i);
+           ProfileParameter pp = ProfileParameter.fromDOM(ppElement);
+           policyDefault.addParameter(pp);
+        }
+        return policyDefault;
+    }
+
     public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(PolicyDefault.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element pdElement = toDOM(document);
+        document.appendChild(pdElement);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
 
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
         return sw.toString();
     }
 
     public static PolicyDefault fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(PolicyDefault.class).createUnmarshaller();
-        return (PolicyDefault) unmarshaller.unmarshal(new StringReader(xml));
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element profileParameterElement = document.getDocumentElement();
+        return fromDOM(profileParameterElement);
     }
 
 }
