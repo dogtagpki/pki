@@ -39,6 +39,8 @@ import org.xml.sax.InputSource;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public class PKIException extends RuntimeException {
 
@@ -102,6 +104,8 @@ public class PKIException extends RuntimeException {
     @XmlRootElement(name="PKIException")
     @JsonInclude(Include.NON_NULL)
     @JsonIgnoreProperties(ignoreUnknown=true)
+    @JsonSerialize(using=PKIExceptionSerializer.class)
+    @JsonDeserialize(using=PKIExceptionDeserializer.class)
     public static class Data extends ResourceMessage {
 
         @XmlElement(name="Code")
