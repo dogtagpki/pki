@@ -22,19 +22,30 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement(name="Input")
@@ -206,18 +217,241 @@ public class ProfileInput implements JSONSerializer {
         return true;
     }
 
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(ProfileInput.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    public Element toDOM(Document document) {
 
+        Element profileInputElement = document.createElement("Input");
+
+        if (id != null) {
+            profileInputElement.setAttribute("id", id);
+        }
+
+        if (name != null) {
+            Element nameElement = document.createElement("Name");
+            nameElement.appendChild(document.createTextNode(name));
+            profileInputElement.appendChild(nameElement);
+        }
+
+        for (ProfileAttribute attribute : attrs) {
+            Element attributeElement = document.createElement("Attribute");
+            String name = attribute.getName();
+            if (name != null) {
+                attributeElement.setAttribute("name", name);
+            }
+
+            String value = attribute.getValue();
+            if (value != null) {
+                Element valueElement = document.createElement("Value");
+                valueElement.appendChild(document.createTextNode(value));
+                attributeElement.appendChild(valueElement);
+            }
+
+            Descriptor descriptor = attribute.getDescriptor();
+
+            if (descriptor != null) {
+                Element descriptorElement = document.createElement("Descriptor");
+                if (descriptor.getSyntax() != null) {
+                    Element syntaxElement = document.createElement("mSyntax");
+                    syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
+                    descriptorElement.appendChild(syntaxElement);
+                }
+                if (descriptor.getConstraint() != null) {
+                    Element mConstraintElement = document.createElement("mConstraint");
+                    mConstraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
+                    descriptorElement.appendChild(mConstraintElement);
+                }
+                if (descriptor.getDescription(Locale.getDefault()) != null) {
+                    Element descriptionElement = document.createElement("mDescription");
+                    descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
+                    descriptorElement.appendChild(descriptionElement);
+                }
+                if (descriptor.getDefaultValue() != null) {
+                    Element defaultValueElement = document.createElement("mDef");
+                    defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
+                    descriptorElement.appendChild(defaultValueElement);
+                }
+                attributeElement.appendChild(descriptorElement);
+
+            }
+            profileInputElement.appendChild(attributeElement);
+        }
+
+        for (ProfileAttribute configAttribute : configAttrs) {
+            Element attributeElement = document.createElement("ConfigAttribute");
+            String name = configAttribute.getName();
+            if (name != null) {
+                attributeElement.setAttribute("name", name);
+            }
+
+            String value = configAttribute.getValue();
+            if (value != null) {
+                Element valueElement = document.createElement("Value");
+                valueElement.appendChild(document.createTextNode(value));
+                attributeElement.appendChild(valueElement);
+            }
+
+            Descriptor descriptor = configAttribute.getDescriptor();
+
+            if (descriptor != null) {
+                Element descriptorElement = document.createElement("Descriptor");
+                if (descriptor.getSyntax() != null) {
+                    Element syntaxElement = document.createElement("mSyntax");
+                    syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
+                    descriptorElement.appendChild(syntaxElement);
+                }
+                if (descriptor.getConstraint() != null) {
+                    Element mConstraintElement = document.createElement("mConstraint");
+                    mConstraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
+                    descriptorElement.appendChild(mConstraintElement);
+                }
+                if (descriptor.getDescription(Locale.getDefault()) != null) {
+                    Element descriptionElement = document.createElement("mDescription");
+                    descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
+                    descriptorElement.appendChild(descriptionElement);
+                }
+                if (descriptor.getDefaultValue() != null) {
+                    Element defaultValueElement = document.createElement("mDef");
+                    defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
+                    descriptorElement.appendChild(defaultValueElement);
+                }
+                attributeElement.appendChild(descriptorElement);
+            }
+            profileInputElement.appendChild(attributeElement);
+        }
+
+        return profileInputElement;
+    }
+
+    public static ProfileInput fromDOM(Element profileInputElement) {
+
+        ProfileInput profileInput = new ProfileInput();
+
+        String id = profileInputElement.getAttribute("id");
+        profileInput.setId(id);
+
+        NodeList nameList = profileInputElement.getElementsByTagName("Name");
+        if (nameList.getLength() > 0) {
+            String value = nameList.item(0).getTextContent();
+            profileInput.setName(value);
+        }
+
+        NodeList attributeList = profileInputElement.getElementsByTagName("Attribute");
+        for (int i = 0; i < attributeList.getLength(); i++) {
+            Element attributeElement = (Element) attributeList.item(i);
+            ProfileAttribute profileAttribute = new ProfileAttribute();
+
+            String attributeId = attributeElement.getAttribute("name");
+            profileAttribute.setName(attributeId);
+
+            NodeList valueList = attributeElement.getElementsByTagName("Value");
+            if (valueList.getLength() > 0) {
+                String value = valueList.item(0).getTextContent();
+                profileAttribute.setValue(value);
+            }
+
+            NodeList descriptorList = attributeElement.getElementsByTagName("Descriptor");
+            if (descriptorList.getLength() > 0) {
+                String syntax = null;
+                String constraint = null;
+                String description = null;
+                String def = null;
+                NodeList syntaxList = attributeElement.getElementsByTagName("mSyntax");
+                NodeList mConstraintList = attributeElement.getElementsByTagName("mConstraint");
+                NodeList mDescriptionList = attributeElement.getElementsByTagName("mDescription");
+                NodeList defList = attributeElement.getElementsByTagName("mDef");
+                if (syntaxList.getLength() > 0) {
+                    syntax = syntaxList.item(0).getTextContent();
+                }
+                if (mConstraintList.getLength() > 0) {
+                    constraint = mConstraintList.item(0).getTextContent();
+                }
+                if (mDescriptionList.getLength() > 0) {
+                    description = mDescriptionList.item(0).getTextContent();
+                }
+                if (defList.getLength() > 0) {
+                    def = defList.item(0).getTextContent();
+                }
+                Descriptor descriptor = new Descriptor(syntax, constraint, def, description);
+                profileAttribute.setDescriptor(descriptor);
+            }
+            profileInput.addAttribute(profileAttribute);
+        }
+
+        NodeList configAttributeList = profileInputElement.getElementsByTagName("ConfigAttribute");
+        for (int i = 0; i < configAttributeList.getLength(); i++) {
+            Element configAttributeElement = (Element) configAttributeList.item(i);
+            ProfileAttribute profileAttribute = new ProfileAttribute();
+            String configAttributeId = configAttributeElement.getAttribute("name");
+            profileAttribute.setName(configAttributeId);
+
+            NodeList configAttributeNameList = configAttributeElement.getElementsByTagName("Name");
+            if (configAttributeNameList.getLength() > 0) {
+                String name = configAttributeNameList.item(0).getTextContent();
+                profileAttribute.setName(name);
+            }
+
+            NodeList valueList = configAttributeElement.getElementsByTagName("Value");
+            if (valueList.getLength() > 0) {
+                String value = valueList.item(0).getTextContent();
+                profileAttribute.setValue(value);
+            }
+
+            NodeList descriptorList = configAttributeElement.getElementsByTagName("Descriptor");
+            if (descriptorList.getLength() > 0) {
+                String syntax = null;
+                String constraint = null;
+                String description = null;
+                String def = null;
+                NodeList syntaxList = configAttributeElement.getElementsByTagName("mSyntax");
+                NodeList mConstraintList = configAttributeElement.getElementsByTagName("mConstraint");
+                NodeList mDescriptionList = configAttributeElement.getElementsByTagName("mDescription");
+                NodeList defList = configAttributeElement.getElementsByTagName("mDef");
+                if (syntaxList.getLength() > 0) {
+                    syntax = syntaxList.item(0).getTextContent();
+                }
+                if (mConstraintList.getLength() > 0) {
+                    constraint = mConstraintList.item(0).getTextContent();
+                }
+                if (mDescriptionList.getLength() > 0) {
+                    description = mDescriptionList.item(0).getTextContent();
+                }
+                if (defList.getLength() > 0) {
+                    def = defList.item(0).getTextContent();
+                }
+                Descriptor descriptor = new Descriptor(syntax, constraint, def, description);
+                profileAttribute.setDescriptor(descriptor);
+            }
+            profileInput.addConfigAttribute(profileAttribute);
+         }
+        return profileInput;
+    }
+
+    public String toXML() throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element element = toDOM(document);
+        document.appendChild(element);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
         return sw.toString();
     }
 
     public static ProfileInput fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileInput.class).createUnmarshaller();
-        return (ProfileInput) unmarshaller.unmarshal(new StringReader(xml));
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element profileElement = document.getDocumentElement();
+        return fromDOM(profileElement);
     }
 
 }
