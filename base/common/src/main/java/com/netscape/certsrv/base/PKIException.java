@@ -21,8 +21,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import javax.ws.rs.core.Response;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -101,17 +99,13 @@ public class PKIException extends RuntimeException {
         return data;
     }
 
-    @XmlRootElement(name="PKIException")
     @JsonInclude(Include.NON_NULL)
     @JsonIgnoreProperties(ignoreUnknown=true)
     @JsonSerialize(using=PKIExceptionSerializer.class)
     @JsonDeserialize(using=PKIExceptionDeserializer.class)
     public static class Data extends ResourceMessage {
 
-        @XmlElement(name="Code")
         public int code;
-
-        @XmlElement(name="Message")
         public String message;
 
         public Element toDOM(Document document) {
