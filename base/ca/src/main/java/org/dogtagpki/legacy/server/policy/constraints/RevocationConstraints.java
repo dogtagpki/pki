@@ -134,9 +134,9 @@ public class RevocationConstraints extends APolicyRule
                 req.getExtDataInInteger(IRequest.REVOKED_REASON).intValue());
 
         if (!mAllowOnHold && (rr != null)) {
-            int reason = rr.toInt();
+            int reason = rr.getCode();
 
-            if (reason == RevocationReason.CERTIFICATE_HOLD.toInt()) {
+            if (reason == RevocationReason.CERTIFICATE_HOLD.getCode()) {
                 String params[] = { getInstanceName() };
 
                 setError(req, CMS.getUserMessage("CMS_POLICY_NO_ON_HOLD_ALLOWED", params), "");

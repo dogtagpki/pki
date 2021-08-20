@@ -353,7 +353,7 @@ public class DisplayBySerial extends CMSServlet {
                         Extension ext = enumx.nextElement();
 
                         if (ext instanceof CRLReasonExtension) {
-                            reason = ((CRLReasonExtension) ext).getReason().toInt();
+                            reason = ((CRLReasonExtension) ext).getReason().getCode();
                         }
                     }
                     header.addIntegerValue("revocationReason", reason);

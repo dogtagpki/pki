@@ -308,7 +308,7 @@ public class RevocationProcessor extends CertProcessor {
             request.setExtData(IRequest.REQUESTOR_COMMENTS, comments);
         }
 
-        request.setExtData(IRequest.REVOKED_REASON, revocationReason.toInt());
+        request.setExtData(IRequest.REVOKED_REASON, revocationReason.getCode());
     }
 
     public void processRevocationRequest() throws EBaseException {
@@ -459,7 +459,7 @@ public class RevocationProcessor extends CertProcessor {
                 request,
                 serialNumber == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : serialNumber.toHexString(),
                 requestType,
-                String.valueOf(revocationReason.toInt()),
+                String.valueOf(revocationReason.getCode()),
                 requestStatus));
     }
 }

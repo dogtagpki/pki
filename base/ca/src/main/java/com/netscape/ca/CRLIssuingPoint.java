@@ -2337,8 +2337,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                         if (extName.equals(name)) {
                             if (!(ext instanceof CRLReasonExtension) ||
-                                    (((CRLReasonExtension) ext).getReason().toInt() >
-                                    RevocationReason.UNSPECIFIED.toInt())) {
+                                    (((CRLReasonExtension) ext).getReason().getCode() >
+                                    RevocationReason.UNSPECIFIED.getCode())) {
                                 mCMSCRLExtensions.addToCRLExtensions(entryExt, extName, ext);
                             }
                             break;

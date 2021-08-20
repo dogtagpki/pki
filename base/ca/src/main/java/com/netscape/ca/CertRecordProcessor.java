@@ -166,7 +166,7 @@ public class CertRecordProcessor implements IElementProcessor {
             try {
                 CRLReasonExtension theReason = (CRLReasonExtension) crlReasonExt;
                 reason = (RevocationReason) theReason.get("value");
-                reasonIndex = reason.toInt();
+                reasonIndex = reason.getCode();
                 logger.debug("revoked reason " + reason);
             } catch (Exception e) {
                 return includeCert;

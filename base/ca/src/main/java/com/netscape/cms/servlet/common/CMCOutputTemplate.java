@@ -1350,7 +1350,7 @@ public class CMCOutputTemplate {
                     auditReqID = revReq.getRequestId().toString();
                     revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
                     revReq.setExtData(IRequest.REVOKED_REASON,
-                            Integer.valueOf(reason.toInt()));
+                            Integer.valueOf(reason.getCode()));
                     UTF8String utfstr = revRequest.getComment();
                     if (utfstr != null)
                         revReq.setExtData(IRequest.REQUESTOR_COMMENTS, utfstr.toString());

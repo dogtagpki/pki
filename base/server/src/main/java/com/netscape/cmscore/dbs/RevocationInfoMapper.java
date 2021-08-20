@@ -94,7 +94,7 @@ public class RevocationInfoMapper extends DBAttrMapper {
                             ((CRLReasonExtension) ext).getReason();
 
                     value.append(";CRLReasonExtension=" +
-                            Integer.toString(reason.toInt()));
+                            Integer.toString(reason.getCode()));
                 } else if (ext instanceof InvalidityDateExtension) {
                     Date invalidityDate =
                             ((InvalidityDateExtension) ext).getInvalidityDate();

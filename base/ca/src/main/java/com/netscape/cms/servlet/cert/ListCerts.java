@@ -706,7 +706,7 @@ public class ListCerts extends CMSServlet {
                         Extension ext = enum1.nextElement();
 
                         if (ext instanceof CRLReasonExtension) {
-                            reason = ((CRLReasonExtension) ext).getReason().toInt();
+                            reason = ((CRLReasonExtension) ext).getReason().getCode();
                             break;
                         }
                     }
