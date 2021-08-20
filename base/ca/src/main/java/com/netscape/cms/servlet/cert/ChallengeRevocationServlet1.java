@@ -315,7 +315,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             Vector<RevokedCertImpl> revCertImplsV = new Vector<>();
 
             // Construct a CRL reason code extension.
-            RevocationReason revReason = RevocationReason.fromInt(reason);
+            RevocationReason revReason = RevocationReason.valueOf(reason);
             CRLReasonExtension crlReasonExtn = new CRLReasonExtension(revReason);
 
             // Construct a CRL invalidity date extension.
@@ -496,7 +496,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                                                 "completed with error: " + err,
                                                 oldCerts[j].getSubjectDN(),
                                                 oldCerts[j].getSerialNumber().toString(16),
-                                                RevocationReason.fromInt(reason)
+                                                RevocationReason.valueOf(reason)
                                         );
                                     }
                                 }
@@ -516,7 +516,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                                 "completed",
                                 oldCerts[j].getSubjectDN(),
                                 oldCerts[j].getSerialNumber().toString(16),
-                                RevocationReason.fromInt(reason)
+                                RevocationReason.valueOf(reason)
                         );
                     }
                 }
@@ -655,7 +655,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                                 "pending",
                                 oldCerts[j].getSubjectDN(),
                                 oldCerts[j].getSerialNumber().toString(16),
-                                RevocationReason.fromInt(reason)
+                                RevocationReason.valueOf(reason)
                         );
                     }
                 }
@@ -681,7 +681,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                                 stat,
                                 oldCerts[j].getSubjectDN(),
                                 oldCerts[j].getSerialNumber().toString(16),
-                                RevocationReason.fromInt(reason)
+                                RevocationReason.valueOf(reason)
                         );
                     }
                 }

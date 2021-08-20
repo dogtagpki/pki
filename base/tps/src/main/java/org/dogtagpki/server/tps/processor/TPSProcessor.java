@@ -1666,7 +1666,7 @@ public class TPSProcessor {
         RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
         try {
             int revokeReasonInt = configStore.getInteger(configName);
-            revokeReason = RevocationReason.fromInt(revokeReasonInt);
+            revokeReason = RevocationReason.valueOf(revokeReasonInt);
         } catch (EBaseException e) {
             logMsg = method + ": config not found: " + configName +
                     "; default to unspecified: " + e.getMessage();

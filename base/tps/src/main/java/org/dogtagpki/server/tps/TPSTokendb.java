@@ -646,7 +646,7 @@ public class TPSTokendb {
                     ".recovery." + tokenReason + ".revokeCert.reason";
             logger.debug(method + ": " + " getting config: " + config);
             int reasonInt = configStore.getInteger(config, 0);
-            revokeReason = RevocationReason.fromInt(reasonInt);
+            revokeReason = RevocationReason.valueOf(reasonInt);
 
             CARemoteRequestHandler caRH = new CARemoteRequestHandler(connID);
             BigInteger bInt = cert.getSerialNumberInBigInteger();

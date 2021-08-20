@@ -130,7 +130,7 @@ public class RevocationConstraints extends APolicyRule
             logger.debug("RevocationConstraints: apply: no revocationReason found in request");
             return PolicyResult.REJECTED;
         }
-        RevocationReason rr = RevocationReason.fromInt(
+        RevocationReason rr = RevocationReason.valueOf(
                 req.getExtDataInInteger(IRequest.REVOKED_REASON).intValue());
 
         if (!mAllowOnHold && (rr != null)) {

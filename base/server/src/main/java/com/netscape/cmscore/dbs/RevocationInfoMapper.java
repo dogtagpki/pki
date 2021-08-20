@@ -150,7 +150,7 @@ public class RevocationInfoMapper extends DBAttrMapper {
                     }
                     if (str.startsWith("CRLReasonExtension=")) {
                         String reasonStr = str.substring(19);
-                        RevocationReason reason = RevocationReason.fromInt(
+                        RevocationReason reason = RevocationReason.valueOf(
                                 Integer.parseInt(reasonStr));
                         CRLReasonExtension ext = new CRLReasonExtension(reason);
 

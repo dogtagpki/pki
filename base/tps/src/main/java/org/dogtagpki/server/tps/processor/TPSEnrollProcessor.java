@@ -3035,7 +3035,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         if (certResponse.isCertRevoked()) {
             String revReason = certResponse.getRevocationReason();
             logger.debug(method + ": cert revoked; reason=" + revReason);
-            if (RevocationReason.fromInt(Integer.parseInt(revReason)) == RevocationReason.CERTIFICATE_HOLD)
+            if (RevocationReason.valueOf(Integer.parseInt(revReason)) == RevocationReason.CERTIFICATE_HOLD)
                 ret = TokenCertStatus.ONHOLD;
             else
                 ret = TokenCertStatus.REVOKED;

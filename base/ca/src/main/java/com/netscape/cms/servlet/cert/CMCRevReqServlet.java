@@ -388,7 +388,7 @@ public class CMCRevReqServlet extends CMSServlet {
             Vector<RevokedCertImpl> revCertImplsV = new Vector<>();
 
             // Construct a CRL reason code extension.
-            RevocationReason revReason = RevocationReason.fromInt(reason);
+            RevocationReason revReason = RevocationReason.valueOf(reason);
             header.addIntegerValue("reasonCode", reason);
             if (revReason != null) {
                 header.addStringValue("reason", revReason.toString());
@@ -604,7 +604,7 @@ public class CMCRevReqServlet extends CMSServlet {
                                                 "completed with error: " + err,
                                                 oldCerts[j].getSubjectDN(),
                                                 oldCerts[j].getSerialNumber().toString(16),
-                                                RevocationReason.fromInt(reason)
+                                                RevocationReason.valueOf(reason)
                                         );
                                     }
                                 }
@@ -624,7 +624,7 @@ public class CMCRevReqServlet extends CMSServlet {
                                 "completed",
                                 oldCerts[j].getSubjectDN(),
                                 oldCerts[j].getSerialNumber().toString(16),
-                                RevocationReason.fromInt(reason)
+                                RevocationReason.valueOf(reason)
                         );
                     }
                 }
@@ -761,7 +761,7 @@ public class CMCRevReqServlet extends CMSServlet {
                                 "pending",
                                 oldCerts[j].getSubjectDN(),
                                 oldCerts[j].getSerialNumber().toString(16),
-                                RevocationReason.fromInt(reason)
+                                RevocationReason.valueOf(reason)
                         );
                     }
                 }
@@ -788,7 +788,7 @@ public class CMCRevReqServlet extends CMSServlet {
                                 stat.toString(),
                                 oldCerts[j].getSubjectDN(),
                                 oldCerts[j].getSerialNumber().toString(16),
-                                RevocationReason.fromInt(reason)
+                                RevocationReason.valueOf(reason)
                         );
                     }
                 }

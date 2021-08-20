@@ -362,7 +362,7 @@ public class DoRevokeTPS extends CMSServlet {
             // Construct a CRL reason code extension.
 
             logger.debug(method + "reason code = " + reason);
-            RevocationReason revReason = RevocationReason.fromInt(reason);
+            RevocationReason revReason = RevocationReason.valueOf(reason);
             CRLReasonExtension crlReasonExtn = new CRLReasonExtension(revReason);
 
             // Construct a CRL invalidity date extension.
@@ -584,7 +584,7 @@ public class DoRevokeTPS extends CMSServlet {
                                                 "completed with error: " + err,
                                                 cert.getSubjectDN(),
                                                 cert.getSerialNumber().toString(16),
-                                                RevocationReason.fromInt(reason)
+                                                RevocationReason.valueOf(reason)
                                         );
                                     }
                                 }
@@ -626,7 +626,7 @@ public class DoRevokeTPS extends CMSServlet {
                                 "completed",
                                 cert.getSubjectDN(),
                                 cert.getSerialNumber().toString(16),
-                                RevocationReason.fromInt(reason)
+                                RevocationReason.valueOf(reason)
                                         + " time: " + (endTime - startTime)
                         );
                     }
@@ -763,7 +763,7 @@ public class DoRevokeTPS extends CMSServlet {
                                 stat,
                                 cert.getSubjectDN(),
                                 cert.getSerialNumber().toString(16),
-                                RevocationReason.fromInt(reason)
+                                RevocationReason.valueOf(reason)
                         );
                     }
                 }

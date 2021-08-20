@@ -837,7 +837,7 @@ public class ConnectorServlet extends CMSServlet {
                                                             "completed with error: " + err,
                                                             cert.getSubjectDN(),
                                                             cert.getSerialNumber().toString(16),
-                                                            RevocationReason.fromInt(reason)
+                                                            RevocationReason.valueOf(reason)
                                                     );
                                                 }
                                             }
@@ -859,7 +859,7 @@ public class ConnectorServlet extends CMSServlet {
                                                 "completed",
                                                 cert.getSubjectDN(),
                                                 cert.getSerialNumber().toString(16),
-                                                RevocationReason.fromInt(reason)
+                                                RevocationReason.valueOf(reason)
                                         );
                                     }
                                 }

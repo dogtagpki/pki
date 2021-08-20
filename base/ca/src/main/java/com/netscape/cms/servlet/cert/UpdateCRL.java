@@ -207,7 +207,7 @@ public class UpdateCRL extends CMSServlet {
         CRLReasonExtension crlReasonExtn = null;
         if (reason != null && reason.length() > 0) {
             try {
-                RevocationReason revReason = RevocationReason.fromInt(Integer.parseInt(reason));
+                RevocationReason revReason = RevocationReason.valueOf(Integer.parseInt(reason));
                 if (revReason == null)
                     revReason = RevocationReason.UNSPECIFIED;
                 crlReasonExtn = new CRLReasonExtension(revReason);

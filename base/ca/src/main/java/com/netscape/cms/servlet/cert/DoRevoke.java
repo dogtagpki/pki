@@ -385,7 +385,7 @@ public class DoRevoke extends CMSServlet {
         processor.setInitiative(initiative);
         processor.setSerialNumber(eeSerialNumber == null ? null : new CertId(eeSerialNumber));
 
-        RevocationReason revReason = RevocationReason.fromInt(reason);
+        RevocationReason revReason = RevocationReason.valueOf(reason);
         processor.setRevocationReason(revReason);
         processor.setRequestType(
                 processor.getRevocationReason() == RevocationReason.CERTIFICATE_HOLD
