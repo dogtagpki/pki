@@ -178,8 +178,8 @@ public class ProfileOutput implements JSONSerializer {
         return true;
     }
 
-    public Element toDOM(Document document) {
-       Element poElement = document.createElement("profileOutput");
+    public Element toDOM(Document document, String poElementName) {
+       Element poElement = document.createElement(poElementName);
        toDOM(document, poElement);
        return poElement;
     }
@@ -250,7 +250,7 @@ public class ProfileOutput implements JSONSerializer {
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.newDocument();
 
-        Element pdElement = toDOM(document);
+        Element pdElement = toDOM(document, "profileOutput");
         document.appendChild(pdElement);
 
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
