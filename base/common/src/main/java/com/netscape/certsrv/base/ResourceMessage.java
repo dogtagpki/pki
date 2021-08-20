@@ -26,6 +26,10 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -199,4 +203,43 @@ public class ResourceMessage implements JSONSerializer {
         return (T) unmarshaller.unmarshal(fis);
     }
 
+    public void toDOM(Document document, Element element) {
+
+        if (className != null) {
+            Element classNameElement = document.createElement("ClassName");
+            classNameElement.appendChild(document.createTextNode(className));
+            element.appendChild(classNameElement);
+        }
+
+        // The original XML mapping always creates <Attributes/>.
+        Element attributesElement = document.createElement("Attributes");
+        element.appendChild(attributesElement);
+
+        for (Map.Entry<String, String> attribute : attributes.entrySet()) {
+            Element attributeElement = document.createElement("Attribute");
+            attributeElement.setAttribute("name", attribute.getKey());
+            attributeElement.appendChild(document.createTextNode(attribute.getValue()));
+            attributesElement.appendChild(attributeElement);
+        }
+    }
+
+    public static void fromDOM(Element accountElement, ResourceMessage resourceMessage) {
+
+        NodeList classNameList = accountElement.getElementsByTagName("ClassName");
+        if (classNameList.getLength() > 0) {
+            String value = classNameList.item(0).getTextContent();
+            resourceMessage.setClassName(value);
+        }
+
+        NodeList attributeList = accountElement.getElementsByTagName("Attribute");
+        int attributeCount = attributeList.getLength();
+        if (attributeCount > 0) {
+            for (int i=0; i<attributeCount; i++) {
+               Element attributeElement = (Element) attributeList.item(i);
+               String name = attributeElement.getAttribute("name");
+               String value = attributeElement.getTextContent();
+               resourceMessage.setAttribute(name, value);
+            }
+        }
+    }
 }

@@ -21,7 +21,6 @@ package com.netscape.certsrv.account;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
-import java.util.Map;
 import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -139,22 +138,7 @@ public class Account extends ResourceMessage {
         Element accountElement = document.createElement("Account");
         accountElement.setAttribute("id", id);
 
-        // The original XML mapping always creates <Attributes/>.
-        Element attributesElement = document.createElement("Attributes");
-        accountElement.appendChild(attributesElement);
-
-        for (Map.Entry<String, String> attribute : attributes.entrySet()) {
-            Element attributeElement = document.createElement("Attribute");
-            attributeElement.setAttribute("name", attribute.getKey());
-            attributeElement.appendChild(document.createTextNode(attribute.getValue()));
-            attributesElement.appendChild(attributeElement);
-        }
-
-        if (className != null) {
-            Element classNameElement = document.createElement("ClassName");
-            classNameElement.appendChild(document.createTextNode(className));
-            accountElement.appendChild(classNameElement);
-        }
+        toDOM(document, accountElement);
 
         if (fullName != null) {
             Element fullNameElement = document.createElement("FullName");
@@ -189,22 +173,7 @@ public class Account extends ResourceMessage {
         String id = accountElement.getAttribute("id");
         account.setID(id);
 
-        NodeList classNameList = accountElement.getElementsByTagName("ClassName");
-        if (classNameList.getLength() > 0) {
-            String value = classNameList.item(0).getTextContent();
-            account.setClassName(value);
-        }
-
-        NodeList attributeList = accountElement.getElementsByTagName("Attribute");
-        int attributeCount = attributeList.getLength();
-        if (attributeCount > 0) {
-            for (int i=0; i<attributeCount; i++) {
-               Element attributeElement = (Element) attributeList.item(i);
-               String name = attributeElement.getAttribute("name");
-               String value = attributeElement.getTextContent();
-               account.setAttribute(name, value);
-            }
-        }
+        fromDOM(accountElement, account);
 
         NodeList fullNameList = accountElement.getElementsByTagName("FullName");
         if (fullNameList.getLength() > 0) {
