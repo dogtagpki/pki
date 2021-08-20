@@ -111,6 +111,34 @@ public class PKIClient implements AutoCloseable {
         return config.getSubsystem();
     }
 
+    /**
+     * Unmarshall response object using custom mapping if available.
+     */
+    public <T> T unmarshall(Response response, Class<T> clazz) throws Exception {
+
+        MediaType contentType = response.getMediaType();
+
+        try {
+            if (MediaType.APPLICATION_XML_TYPE.isCompatible(contentType)) {
+                Method method = clazz.getMethod("fromXML", String.class);
+                String xml = response.readEntity(String.class);
+                return (T) method.invoke(null, xml);
+
+            } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(contentType)) {
+                // TODO: support custom JSON mapping
+                // Method method = clazz.getMethod("fromJSON", String.class);
+                // String json = response.readEntity(String.class);
+                // return (T) method.invoke(null, json);
+            }
+
+        } catch (NoSuchMethodException e) {
+            logger.info("PKIClient: " + clazz.getSimpleName() + " has no custom mapping");
+        }
+
+        // use JAXB mapping by default
+        return response.readEntity(clazz);
+    }
+
     public void handleErrorResponse(Response response) throws Exception {
 
         MediaType contentType = response.getMediaType();
@@ -122,7 +150,7 @@ public class PKIClient implements AutoCloseable {
             throw new PKIException(status.getStatusCode(), status.getReasonPhrase());
         }
 
-        PKIException.Data data = response.readEntity(PKIException.Data.class);
+        PKIException.Data data = unmarshall(response, PKIException.Data.class);
         String className = data.getClassName();
 
         Class<? extends PKIException> exceptionClass =
@@ -147,23 +175,7 @@ public class PKIClient implements AutoCloseable {
                 return null;
             }
 
-            MediaType responseFormat = response.getMediaType();
-
-            if (MediaType.APPLICATION_XML_TYPE.isCompatible(responseFormat)) {
-                try {
-                    Method method = clazz.getMethod("fromXML", String.class);
-                    String xml = response.readEntity(String.class);
-
-                    Object object = method.invoke(null, xml);
-                    return (T) object;
-
-                } catch (NoSuchMethodException e) {
-                    logger.info("PKIService: " + clazz.getSimpleName() + " has no custom XML mapping");
-                    // use JAXB mapping by default
-                }
-            }
-
-            return response.readEntity(clazz);
+            return unmarshall(response, clazz);
 
         } finally {
             response.close();
