@@ -22,14 +22,23 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -169,18 +178,98 @@ public class ProfileOutput implements JSONSerializer {
         return true;
     }
 
+    public Element toDOM(Document document) {
+
+        Element poElement = document.createElement("profileOutput");
+        poElement.setAttribute("id", id);
+
+        if (name != null) {
+            Element nameElement = document.createElement("name");
+            nameElement.appendChild(document.createTextNode(name));
+            poElement.appendChild(nameElement);
+        }
+        if (text != null) {
+            Element textElement = document.createElement("text");
+            textElement.appendChild(document.createTextNode(text));
+            poElement.appendChild(textElement);
+        }
+        if (classId != null) {
+            Element classIdElement = document.createElement("classId");
+            classIdElement.appendChild(document.createTextNode(classId));
+            poElement.appendChild(classIdElement);
+        }
+        if (!attrs.isEmpty()) {
+            for (ProfileAttribute attr : attrs) {
+                Element attrElement = document.createElement("attributes");
+                if (attr.getName() != null) {
+                    attrElement.setAttribute("name", attr.getName());
+                }
+                if (attr.getValue() != null) {
+                    Element valueElement = document.createElement("Value");
+                    valueElement.appendChild(document.createTextNode(attr.getValue()));
+                    attrElement.appendChild(valueElement);
+                    }
+                poElement.appendChild(attrElement);
+            }
+        }
+        return poElement;
+    }
+
+    public static ProfileOutput fromDOM(Element profileOutputElement) {
+
+        ProfileOutput profileOutput = new ProfileOutput();
+        profileOutput.setId(profileOutputElement.getAttribute("id"));
+
+        NodeList nameList = profileOutputElement.getElementsByTagName("name");
+        if (nameList.getLength() > 0) {
+            profileOutput.setName(nameList.item(0).getTextContent());
+        }
+        NodeList textList = profileOutputElement.getElementsByTagName("text");
+        if (textList.getLength() > 0) {
+            profileOutput.setText(textList.item(0).getTextContent());
+        }
+        NodeList classIdList = profileOutputElement.getElementsByTagName("classId");
+        if (classIdList.getLength() > 0) {
+            profileOutput.setClassId(classIdList.item(0).getTextContent());
+        }
+        NodeList paList = profileOutputElement.getElementsByTagName("attributes");
+        int paCount = paList.getLength();
+        for (int i = 0; i < paCount; i++) {
+           Element paElement = (Element) paList.item(i);
+           ProfileAttribute pa = ProfileAttribute.fromDOM(paElement);
+           profileOutput.addAttribute(pa);
+        }
+        return profileOutput;
+    }
+
     public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(ProfileOutput.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element pdElement = toDOM(document);
+        document.appendChild(pdElement);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
 
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
         return sw.toString();
     }
 
     public static ProfileOutput fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfileOutput.class).createUnmarshaller();
-        return (ProfileOutput) unmarshaller.unmarshal(new StringReader(xml));
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element profileParameterElement = document.getDocumentElement();
+        return fromDOM(profileParameterElement);
     }
 
 }
