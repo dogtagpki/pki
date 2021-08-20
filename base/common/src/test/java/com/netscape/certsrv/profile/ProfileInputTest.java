@@ -4,15 +4,19 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class ProfileInputTest {
 
     private static ProfileInput before = new ProfileInput("i1", "SubjectNameInput", null);
+    private static Descriptor descriptor = new Descriptor(IDescriptor.CHOICE, "true,false,-", "-", "CMS_PROFILE_CRITICAL");
 
     @Before
     public void setUpBefore() {
-        before.addAttribute(new ProfileAttribute("sn_uid", "user", null));
+        before.addAttribute(new ProfileAttribute("sn_uid", "user", descriptor));
+        before.addConfigAttribute(new ProfileAttribute("sn_abc", "configattr", descriptor));
         before.addAttribute(new ProfileAttribute("sn_e", "user@example.com", null));
         before.addAttribute(new ProfileAttribute("sn_c", "US", null));
         before.addAttribute(new ProfileAttribute("sn_ou", "Development", null));
