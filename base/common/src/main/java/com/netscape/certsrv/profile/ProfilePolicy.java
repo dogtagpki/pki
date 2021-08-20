@@ -19,19 +19,31 @@ package com.netscape.certsrv.profile;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Locale;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement
@@ -108,19 +120,239 @@ public class ProfilePolicy implements JSONSerializer {
             return false;
         return true;
     }
+    public Element toDOM(Document document) {
+
+        Element ppElement = document.createElement("profilePolicy");
+        ppElement.setAttribute("id", id);
+
+        if (def != null) {
+            Element defElement = document.createElement("def");
+            defElement.setAttribute("id", def.getName());
+            defElement.setAttribute("classId", def.getClassId());
+            ppElement.appendChild(defElement);
+
+            if (def.getText() != null) {
+                Element descriptionElement = document.createElement("description");
+                descriptionElement.appendChild(document.createTextNode(def.getText()));
+                defElement.appendChild(descriptionElement);
+            }
+
+            if (!def.getAttributes().isEmpty()) {
+                for (ProfileAttribute attribute : def.getAttributes()) {
+                    Element attributeElement = document.createElement("policyAttribute");
+                    if (attribute.getName() != null) {
+                        attributeElement.setAttribute("name", attribute.getName());
+                    }
+                    if (attribute.getValue() != null) {
+                        Element valueElement = document.createElement("Value");
+                        valueElement.appendChild(document.createTextNode(attribute.getValue()));
+                        attributeElement.appendChild(valueElement);
+                    }
+                    Descriptor descriptor = attribute.getDescriptor();
+                    if (descriptor != null) {
+                        Element descriptorElement = document.createElement("Descriptor");
+                        if (descriptor.getSyntax() != null) {
+                            Element syntaxElement = document.createElement("mSyntax");
+                            syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
+                            descriptorElement.appendChild(syntaxElement);
+                        }
+                        if (descriptor.getConstraint() != null) {
+                            Element constraintElement = document.createElement("mConstraint");
+                            constraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
+                            descriptorElement.appendChild(constraintElement);
+                        }
+                        if (descriptor.getDescription(Locale.getDefault()) != null) {
+                            Element descriptionElement = document.createElement("mDescription");
+                            descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
+                            descriptorElement.appendChild(descriptionElement);
+                        }
+                        if (descriptor.getDefaultValue() != null) {
+                            Element defaultValueElement = document.createElement("mDef");
+                            defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
+                            descriptorElement.appendChild(defaultValueElement);
+                        }
+                        attributeElement.appendChild(descriptorElement);
+                    }
+                    defElement.appendChild(attributeElement);
+                }
+            }
+            if (!def.getParams().isEmpty()) {
+                for (ProfileParameter param : def.getParams()) {
+                    Element parameterElement = document.createElement("params");
+                    if (param.getName() != null) {
+                        parameterElement.setAttribute("name", param.getName());
+                    }
+                    if (param.getValue() != null) {
+                        Element valueElement = document.createElement("value");
+                        valueElement.appendChild(document.createTextNode(param.getValue()));
+                        parameterElement.appendChild(valueElement);
+                        }
+                    defElement.appendChild(parameterElement);
+                }
+            }
+        }
+        if (constraint != null) {
+            Element pcElement = document.createElement("constraint");
+            pcElement.setAttribute("id", constraint.getName());
+
+            if (constraint.getText() != null) {
+                Element descriptionElement = document.createElement("description");
+                descriptionElement.appendChild(document.createTextNode(constraint.getText()));
+                pcElement.appendChild(descriptionElement);
+            }
+            if (constraint.getClassId() != null) {
+                Element classIdElement = document.createElement("classId");
+                classIdElement.appendChild(document.createTextNode(constraint.getClassId()));
+                pcElement.appendChild(classIdElement);
+            }
+            if (constraint.getConstraints() != null) {
+                for (PolicyConstraintValue pcv : constraint.getConstraints()) {
+                    Element constraintElement = document.createElement("constraint");
+                    constraintElement.setAttribute("id", pcv.getName());
+                    Descriptor descriptor = pcv.getDescriptor();
+                    if (descriptor != null) {
+                        Element descriptorElement = document.createElement("descriptor");
+                        if (descriptor.getSyntax() != null) {
+                            Element syntaxElement = document.createElement("mSyntax");
+                            syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
+                            descriptorElement.appendChild(syntaxElement);
+                        }
+                        if (descriptor.getConstraint() != null) {
+                            Element mConstraintElement = document.createElement("mConstraint");
+                            mConstraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
+                            descriptorElement.appendChild(mConstraintElement);
+                        }
+                        if (descriptor.getDescription(Locale.getDefault()) != null) {
+                            Element descriptionElement = document.createElement("mDescription");
+                            descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
+                            descriptorElement.appendChild(descriptionElement);
+                        }
+                        if (descriptor.getDefaultValue() != null) {
+                            Element defaultValueElement = document.createElement("mDef");
+                            defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
+                            descriptorElement.appendChild(defaultValueElement);
+                        }
+                        constraintElement.appendChild(descriptorElement);
+                    }
+                    if (pcv.getValue() != null) {
+                        Element valueElement = document.createElement("value");
+                        valueElement.appendChild(document.createTextNode(pcv.getValue()));
+                        constraintElement.appendChild(valueElement);
+                    }
+                    pcElement.appendChild(constraintElement);
+                }
+            }
+            ppElement.appendChild(pcElement);
+        }
+        return ppElement;
+    }
+
+    public static ProfilePolicy fromDOM(Element profilePolicyElement) throws DOMException, Exception {
+
+        ProfilePolicy profilePolicy = new ProfilePolicy();
+        profilePolicy.setId(profilePolicyElement.getAttribute("id"));
+        NodeList ppList = profilePolicyElement.getElementsByTagName("def");
+        if (ppList.getLength() > 0) {
+            Element ppElement = (Element) ppList.item(0);
+            PolicyDefault pd = PolicyDefault.fromDOM(ppElement);
+            profilePolicy.setDef(pd);
+        }
+        NodeList constraintsList = profilePolicyElement.getElementsByTagName("constraint");
+        if (constraintsList.getLength() > 0) {
+            PolicyConstraint pc = new PolicyConstraint();
+            Element constraintsElement = (Element) constraintsList.item(0);
+            String id = constraintsElement.getAttribute("id");
+            pc.setName(id);
+            NodeList descriptionList = constraintsElement.getElementsByTagName("description");
+            if (descriptionList.getLength() > 0) {
+                String text = descriptionList.item(0).getTextContent();
+                pc.setText(text);
+            }
+            NodeList classIdList = constraintsElement.getElementsByTagName("classId");
+            if (classIdList.getLength() > 0) {
+                String classId = classIdList.item(0).getTextContent();
+                pc.setClassId(classId);
+            }
+
+            NodeList constraintList = constraintsElement.getElementsByTagName("constraint");
+            int constraintCount = constraintList.getLength();
+            for (int i = 0; i < constraintCount; i++) {
+               Element constraintElement = (Element) constraintList.item(i);
+               PolicyConstraintValue pcv = new PolicyConstraintValue();
+               pcv.setName(constraintElement.getAttribute("id"));
+
+               NodeList nameList = constraintElement.getElementsByTagName("name");
+               if (nameList.getLength() > 0) {
+                   String name = nameList.item(0).getTextContent();
+                   pcv.setName(name);
+               }
+
+               NodeList valueList = constraintElement.getElementsByTagName("value");
+               if (valueList.getLength() > 0) {
+                   String value = valueList.item(0).getTextContent();
+                   pcv.setValue(value);
+               }
+
+               NodeList descriptorList = constraintElement.getElementsByTagName("descriptor");
+               if (descriptorList.getLength() > 0) {
+                   String syntax = null;
+                   String constraint = null;
+                   String description = null;
+                   String def = null;
+                   NodeList syntaxList = constraintElement.getElementsByTagName("mSyntax");
+                   NodeList mConstraintList = constraintElement.getElementsByTagName("mConstraint");
+                   NodeList mDescriptionList = constraintElement.getElementsByTagName("mDescription");
+                   NodeList defList = constraintElement.getElementsByTagName("mDef");
+                   if (syntaxList.getLength() > 0) {
+                       syntax = syntaxList.item(0).getTextContent();
+                   }
+                   if (mConstraintList.getLength() > 0) {
+                       constraint = mConstraintList.item(0).getTextContent();
+                   }
+                   if (mDescriptionList.getLength() > 0) {
+                       description = mDescriptionList.item(0).getTextContent();
+                   }
+                   if (defList.getLength() > 0) {
+                       def = defList.item(0).getTextContent();
+                   }
+                   Descriptor descriptor = new Descriptor(syntax, constraint, def, description);
+                   pcv.setDescriptor(descriptor);
+                   pc.addConstraint(pcv);
+               }
+            }
+            profilePolicy.setConstraint(pc);
+        }
+        return profilePolicy;
+    }
 
     public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(ProfilePolicy.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element pdElement = toDOM(document);
+        document.appendChild(pdElement);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
 
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
         return sw.toString();
     }
 
     public static ProfilePolicy fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(ProfilePolicy.class).createUnmarshaller();
-        return (ProfilePolicy) unmarshaller.unmarshal(new StringReader(xml));
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element profileParameterElement = document.getDocumentElement();
+        return fromDOM(profileParameterElement);
     }
 
 }
