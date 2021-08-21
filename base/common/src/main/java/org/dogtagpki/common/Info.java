@@ -39,6 +39,7 @@ import org.xml.sax.InputSource;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.base.ResourceMessage;
 
 /**
@@ -54,6 +55,7 @@ public class Info extends ResourceMessage {
     String version;
     String banner;
 
+    @JsonProperty("Name")
     public String getName() {
         return name;
     }
@@ -62,6 +64,7 @@ public class Info extends ResourceMessage {
         this.name = name;
     }
 
+    @JsonProperty("Version")
     public String getVersion() {
         return version;
     }
@@ -70,6 +73,7 @@ public class Info extends ResourceMessage {
         this.version = version;
     }
 
+    @JsonProperty("Banner")
     public String getBanner() {
         return banner;
     }
