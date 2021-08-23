@@ -24,11 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -50,47 +45,26 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfilePolicy;
 import com.netscape.certsrv.profile.ProfilePolicySet;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestIdAdapter;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertReviewResponse extends CertEnrollmentRequest {
 
-    @XmlElement(name="ProfilePolicySet")
     protected List<ProfilePolicySet> policySets = new ArrayList<>();
-
     protected String nonce;
-
-    @XmlElement
-    @XmlJavaTypeAdapter(RequestIdAdapter.class)
     protected RequestId requestId;
-
     protected String requestType;
-
     protected String requestStatus;
-
     protected String requestOwner;
-
     protected String requestCreationTime;
-
     protected String requestModificationTime;
-
     protected String requestNotes;
-
     protected String profileApprovedBy;
-
     protected String profileSetId;
-
     protected String profileIsVisible;
-
     protected String profileName;
-
     protected String profileDescription;
-
     protected String profileRemoteHost;
-
     protected String profileRemoteAddr;
 
     public String getNonce() {
