@@ -43,6 +43,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * Base class for CMS RESTful resources
@@ -186,15 +187,48 @@ public class PKIService {
             }
 
         } catch (NoSuchMethodException e) {
-            logger.info("PKIService: " + clazz.getSimpleName() + " has no custom response mapping");
-            // use JAXB mapping by default
+            logger.info("PKIService: " + clazz.getSimpleName() + " has no custom mapping for " + responseFormat);
 
         } catch (Exception e) {
             logger.error("PKIService: Unable to marshall response: " + e.getMessage(), e);
             throw new RuntimeException(e);
         }
 
+        // use JAXB mapping by default
         return response;
+    }
+
+    /**
+     * Unmarshall request object with custom mapping if available.
+     */
+    public <T> T unmarshall(Object request, Class<T> clazz) {
+
+        logger.info("PKIService: Request class: " + clazz.getSimpleName());
+
+        MediaType requestFormat = headers.getMediaType();
+        logger.info("PKIService: Request format: " + requestFormat);
+
+        try {
+            if (MediaType.APPLICATION_XML_TYPE.isCompatible(requestFormat)) {
+                logger.info("PKIService: XML request:\n" + request);
+                Method method = clazz.getMethod("fromXML", String.class);
+                return (T) method.invoke(null, request);
+
+            } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(requestFormat)) {
+                logger.info("PKIService: JSON request:\n" + request);
+                return JSONSerializer.fromJSON((String) request, clazz);
+            }
+
+        } catch (NoSuchMethodException e) {
+            logger.info("PKIService: " + clazz.getSimpleName() + " has no custom mapping for " + requestFormat);
+
+        } catch (Exception e) {
+            logger.error("PKIService: Unable to unmarshall request: " + e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+
+        // use JAXB mapping by default
+        return (T) request;
     }
 
     public Response createOKResponse(Object entity) {
