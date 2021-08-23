@@ -20,11 +20,6 @@ package com.netscape.certsrv.request;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -43,23 +38,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement(name="CMSRequestInfo")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CMSRequestInfo implements JSONSerializer {
 
-    @XmlElement
     protected String requestType;
-
-    @XmlElement
-    @XmlJavaTypeAdapter(RequestStatusAdapter.class)
     protected RequestStatus requestStatus;
-
-    @XmlElement
     protected String requestURL;
-
-    @XmlElement
     protected String realm;
 
     /**
