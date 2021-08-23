@@ -48,7 +48,6 @@ import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X500Name;
-
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 import org.mozilla.jss.netscape.security.x509.X509Key;
@@ -478,9 +477,11 @@ public class CertService extends PKIService implements CertResource {
     }
 
     @Override
-    public Response searchCerts(CertSearchRequest data, Integer start, Integer size) {
+    public Response searchCerts(String searchRequest, Integer start, Integer size) {
 
         logger.info("Searching for certificates");
+
+        CertSearchRequest data = unmarshall(searchRequest, CertSearchRequest.class);
 
         if (data == null) {
             throw new BadRequestException("Search request is null");
