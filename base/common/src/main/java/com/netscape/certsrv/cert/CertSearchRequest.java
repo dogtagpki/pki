@@ -1028,7 +1028,7 @@ public class CertSearchRequest implements JSONSerializer {
         NodeList validNotAfterFromList = requestElement.getElementsByTagName("validNotAfterFrom");
         if (validNotAfterFromList.getLength() > 0) {
             String value = validNotAfterFromList.item(0).getTextContent();
-            request.setValidNotBeforeFrom(value);
+            request.setValidNotAfterFrom(value);
         }
 
         NodeList validNotAfterToList = requestElement.getElementsByTagName("validNotAfterTo");
