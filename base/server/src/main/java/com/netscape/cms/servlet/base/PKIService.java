@@ -167,22 +167,31 @@ public class PKIService {
     public Object marshall(Object response) {
 
         MediaType responseFormat = getResponseFormat();
+        logger.info("PKIService: Response format: " + responseFormat);
 
-        if (MediaType.APPLICATION_XML_TYPE.isCompatible(responseFormat)) {
-            Class<?> clazz = response.getClass();
-            try {
+        Class<?> clazz = response.getClass();
+        logger.info("PKIService: Response class: " + clazz.getSimpleName());
+
+        try {
+            if (MediaType.APPLICATION_XML_TYPE.isCompatible(responseFormat)) {
                 Method method = clazz.getMethod("toXML");
                 response = method.invoke(response);
                 logger.info("PKIService: XML response:\n" + response);
 
-            } catch (NoSuchMethodException e) {
-                logger.info("PKIService: " + clazz.getSimpleName() + " has no custom XML mapping");
-                // use JAXB mapping by default
-
-            } catch (Exception e) {
-                logger.error("PKIService: Unable to generate XML response: " + e.getMessage(), e);
-                throw new RuntimeException(e);
+            } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(responseFormat)) {
+                // TODO: enable support for JSON
+                // Method method = clazz.getMethod("toJSON");
+                // response = method.invoke(response);
+                // logger.info("PKIService: JSON response:\n" + response);
             }
+
+        } catch (NoSuchMethodException e) {
+            logger.info("PKIService: " + clazz.getSimpleName() + " has no custom response mapping");
+            // use JAXB mapping by default
+
+        } catch (Exception e) {
+            logger.error("PKIService: Unable to marshall response: " + e.getMessage(), e);
+            throw new RuntimeException(e);
         }
 
         return response;
