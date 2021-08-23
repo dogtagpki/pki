@@ -22,11 +22,11 @@ import java.util.Objects;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -58,6 +58,7 @@ public class Link implements JSONSerializer {
     /**
      * @return the relationship
      */
+    @JsonProperty("rel")
     public String getRelationship() {
         return relationship;
     }
@@ -121,21 +122,15 @@ public class Link implements JSONSerializer {
         Element linkElement = document.createElement("Link");
 
         if (relationship != null) {
-            Element relationshipElement = document.createElement("relationship");
-            relationshipElement.appendChild(document.createTextNode(relationship));
-            linkElement.appendChild(relationshipElement);
+            linkElement.setAttribute("rel", relationship);
         }
 
         if (href != null) {
-            Element hrefElement = document.createElement("href");
-            hrefElement.appendChild(document.createTextNode(href));
-            linkElement.appendChild(hrefElement);
+            linkElement.setAttribute("href", href);
         }
 
         if (type != null) {
-            Element typeElement = document.createElement("type");
-            typeElement.appendChild(document.createTextNode(type));
-            linkElement.appendChild(typeElement);
+            linkElement.setAttribute("type", type);
         }
 
         return linkElement;
@@ -145,23 +140,9 @@ public class Link implements JSONSerializer {
 
         Link link = new Link();
 
-        NodeList relationshipList = linkElement.getElementsByTagName("relationship");
-        if (relationshipList.getLength() > 0) {
-            String value = relationshipList.item(0).getTextContent();
-            link.setRelationship(value);
-        }
-
-        NodeList hrefList = linkElement.getElementsByTagName("href");
-        if (hrefList.getLength() > 0) {
-            String value = hrefList.item(0).getTextContent();
-            link.setHref(value);
-        }
-
-        NodeList typeList = linkElement.getElementsByTagName("type");
-        if (typeList.getLength() > 0) {
-            String value = typeList.item(0).getTextContent();
-            link.setType(value);
-        }
+        link.relationship = linkElement.getAttribute("rel");
+        link.href = linkElement.getAttribute("href");
+        link.type = linkElement.getAttribute("type");
 
         return link;
     }
