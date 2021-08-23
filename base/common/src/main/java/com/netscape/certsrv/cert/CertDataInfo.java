@@ -41,6 +41,7 @@ import org.xml.sax.InputSource;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -78,6 +79,7 @@ public class CertDataInfo implements JSONSerializer {
         this.id = id;
     }
 
+    @JsonProperty("SubjectDN")
     public String getSubjectDN() {
         return subjectDN;
     }
@@ -86,6 +88,7 @@ public class CertDataInfo implements JSONSerializer {
         this.subjectDN = subjectDN;
     }
 
+    @JsonProperty("IssuerDN")
     public String getIssuerDN() {
         return issuerDN;
     }
@@ -94,6 +97,7 @@ public class CertDataInfo implements JSONSerializer {
         this.issuerDN = issuerDN;
     }
 
+    @JsonProperty("Status")
     public String getStatus() {
         return status;
     }
@@ -102,6 +106,7 @@ public class CertDataInfo implements JSONSerializer {
         this.status = status;
     }
 
+    @JsonProperty("Type")
     public String getType() {
         return type;
     }
@@ -110,6 +115,7 @@ public class CertDataInfo implements JSONSerializer {
         this.type = type;
     }
 
+    @JsonProperty("Version")
     public Integer getVersion() {
         return version;
     }
@@ -118,6 +124,7 @@ public class CertDataInfo implements JSONSerializer {
         this.version = version;
     }
 
+    @JsonProperty("KeyAlgorithmOID")
     public String getKeyAlgorithmOID() {
         return keyAlgorithmOID;
     }
@@ -126,6 +133,7 @@ public class CertDataInfo implements JSONSerializer {
         this.keyAlgorithmOID = keyAlgorithmOID;
     }
 
+    @JsonProperty("KeyLength")
     public Integer getKeyLength() {
         return keyLength;
     }
@@ -134,6 +142,7 @@ public class CertDataInfo implements JSONSerializer {
         this.keyLength = keyLength;
     }
 
+    @JsonProperty("NotValidBefore")
     public Date getNotValidBefore() {
         return notValidBefore;
     }
@@ -142,6 +151,7 @@ public class CertDataInfo implements JSONSerializer {
         this.notValidBefore = notValidBefore;
     }
 
+    @JsonProperty("NotValidAfter")
     public Date getNotValidAfter() {
         return notValidAfter;
     }
@@ -150,6 +160,7 @@ public class CertDataInfo implements JSONSerializer {
         this.notValidAfter = notValidAfter;
     }
 
+    @JsonProperty("IssuedOn")
     public Date getIssuedOn() {
         return issuedOn;
     }
@@ -158,6 +169,7 @@ public class CertDataInfo implements JSONSerializer {
         this.issuedOn = issuedOn;
     }
 
+    @JsonProperty("IssuedBy")
     public String getIssuedBy() {
         return issuedBy;
     }
@@ -166,6 +178,7 @@ public class CertDataInfo implements JSONSerializer {
         this.issuedBy = issuedBy;
     }
 
+    @JsonProperty("RevokedOn")
     public Date getRevokedOn() {
         return revokedOn;
     }
@@ -174,6 +187,7 @@ public class CertDataInfo implements JSONSerializer {
         this.revokedOn = revokedOn;
     }
 
+    @JsonProperty("RevokedBy")
     public String getRevokedBy() {
         return revokedBy;
     }
@@ -182,6 +196,7 @@ public class CertDataInfo implements JSONSerializer {
         this.revokedBy = revokedBy;
     }
 
+    @JsonProperty("Link")
     public Link getLink() {
         return link;
     }
