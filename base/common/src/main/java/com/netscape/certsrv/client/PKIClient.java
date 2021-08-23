@@ -112,19 +112,51 @@ public class PKIClient implements AutoCloseable {
     }
 
     /**
+    * Marshall request object with custom mapping if available.
+    */
+   public Object marshall(Object request) throws Exception {
+
+       Class<?> clazz = request.getClass();
+
+       try {
+           if (MediaType.APPLICATION_XML_TYPE.isCompatible(messageFormat)) {
+               Method method = clazz.getMethod("toXML");
+               request = method.invoke(request);
+
+           } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(messageFormat)) {
+               Method method = clazz.getMethod("toJSON");
+               request = method.invoke(request);
+
+           } else {
+               throw new Exception("Unsupported request format: " + messageFormat);
+           }
+
+       } catch (NoSuchMethodException e) {
+           logger.info("PKIClient: " + clazz.getSimpleName() + " has no custom mapping for " + messageFormat);
+
+       } catch (Exception e) {
+           logger.error("PKIClient: Unable to marshall request: " + e.getMessage(), e);
+           throw e;
+       }
+
+       // use JAXB mapping by default
+       return request;
+   }
+
+    /**
      * Unmarshall response object using custom mapping if available.
      */
     public <T> T unmarshall(Response response, Class<T> clazz) throws Exception {
 
-        MediaType contentType = response.getMediaType();
+        MediaType responseFormat = response.getMediaType();
 
         try {
-            if (MediaType.APPLICATION_XML_TYPE.isCompatible(contentType)) {
+            if (MediaType.APPLICATION_XML_TYPE.isCompatible(responseFormat)) {
                 Method method = clazz.getMethod("fromXML", String.class);
                 String xml = response.readEntity(String.class);
                 return (T) method.invoke(null, xml);
 
-            } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(contentType)) {
+            } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(responseFormat)) {
                 // TODO: support custom JSON mapping
                 // Method method = clazz.getMethod("fromJSON", String.class);
                 // String json = response.readEntity(String.class);
@@ -132,7 +164,11 @@ public class PKIClient implements AutoCloseable {
             }
 
         } catch (NoSuchMethodException e) {
-            logger.info("PKIClient: " + clazz.getSimpleName() + " has no custom mapping");
+            logger.info("PKIClient: " + clazz.getSimpleName() + " has no custom mapping for " + responseFormat);
+
+        } catch (Exception e) {
+            logger.error("PKIClient: Unable to unmarshall response: " + e.getMessage(), e);
+            throw e;
         }
 
         // use JAXB mapping by default
