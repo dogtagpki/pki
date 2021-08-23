@@ -89,7 +89,8 @@ public class CACertClient extends Client {
     }
 
     public CertDataInfos findCerts(CertSearchRequest data, Integer start, Integer size) throws Exception {
-        Response response = certClient.searchCerts(data, start, size);
+        String searchRequest = (String) client.marshall(data);
+        Response response = certClient.searchCerts(searchRequest, start, size);
         return client.getEntity(response, CertDataInfos.class);
     }
 

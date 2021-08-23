@@ -26,7 +26,7 @@ public interface CertResource {
     @POST
     @Path("certs/search")
     public Response searchCerts(
-            CertSearchRequest data,
+            String searchRequest,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
