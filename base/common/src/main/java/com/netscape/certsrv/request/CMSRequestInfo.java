@@ -20,19 +20,27 @@ package com.netscape.certsrv.request;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.util.JSONSerializer;
 
 @XmlRootElement(name="CMSRequestInfo")
@@ -160,17 +168,101 @@ public class CMSRequestInfo implements JSONSerializer {
         return true;
     }
 
+    public void toDOM(Document document, Element infoElement) {
+
+        if (requestType != null) {
+            Element requestTypeElement = document.createElement("requestType");
+            requestTypeElement.appendChild(document.createTextNode(requestType));
+            infoElement.appendChild(requestTypeElement);
+        }
+
+        if (requestStatus != null) {
+            Element requestStatusElement = document.createElement("requestStatus");
+            requestStatusElement.appendChild(document.createTextNode(requestStatus.toString()));
+            infoElement.appendChild(requestStatusElement);
+        }
+
+        if (requestURL != null) {
+            Element requestURLElement = document.createElement("requestURL");
+            requestURLElement.appendChild(document.createTextNode(requestURL));
+            infoElement.appendChild(requestURLElement);
+        }
+
+        if (realm != null) {
+            Element realmElement = document.createElement("realm");
+            realmElement.appendChild(document.createTextNode(realm));
+            infoElement.appendChild(realmElement);
+        }
+    }
+
+    public Element toDOM(Document document) {
+        Element infoElement = document.createElement("CMSRequestInfo");
+        toDOM(document, infoElement);
+        return infoElement;
+    }
+
+    public static void fromDOM(Element infoElement, CMSRequestInfo info) {
+
+        NodeList requestTypeList = infoElement.getElementsByTagName("requestType");
+        if (requestTypeList.getLength() > 0) {
+            String value = requestTypeList.item(0).getTextContent();
+            info.setRequestType(value);
+        }
+
+        NodeList requestStatusList = infoElement.getElementsByTagName("requestStatus");
+        if (requestStatusList.getLength() > 0) {
+            String value = requestStatusList.item(0).getTextContent();
+            info.setRequestStatus(RequestStatus.valueOf(value));
+        }
+
+        NodeList requestURLList = infoElement.getElementsByTagName("requestURL");
+        if (requestURLList.getLength() > 0) {
+            String value = requestURLList.item(0).getTextContent();
+            info.setRequestURL(value);
+        }
+
+        NodeList realmList = infoElement.getElementsByTagName("realm");
+        if (realmList.getLength() > 0) {
+            String value = realmList.item(0).getTextContent();
+            info.setRealm(value);
+        }
+    }
+
+    public static CMSRequestInfo fromDOM(Element infoElement) {
+        CMSRequestInfo info = new CMSRequestInfo();
+        fromDOM(infoElement, info);
+        return info;
+    }
+
     public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(KeyRequestInfo.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element element = toDOM(document);
+        document.appendChild(element);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
+
         return sw.toString();
     }
 
-    public static CMSRequestInfo fromXML(String string) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CMSRequestInfo.class).createUnmarshaller();
-        return (CMSRequestInfo)unmarshaller.unmarshal(new StringReader(string));
-    }
+    public static CMSRequestInfo fromXML(String xml) throws Exception {
 
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element element = document.getDocumentElement();
+        return fromDOM(element);
+    }
 }
