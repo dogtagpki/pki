@@ -24,6 +24,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * The RequestStatus class represents the current state of a request
@@ -41,6 +43,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
  *
  * @version $Revision$ $Date$
  */
+@JsonSerialize(using=RequestStatusSerializer.class)
+@JsonDeserialize(using=RequestStatusDeserializer.class)
 public final class RequestStatus implements Serializable {
 
     private static final long serialVersionUID = -8176052970922133411L;
