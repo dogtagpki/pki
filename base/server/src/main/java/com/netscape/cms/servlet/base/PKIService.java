@@ -159,18 +159,21 @@ public class PKIService {
     }
 
     /**
-     * Convert entity to the requested format using custom mapping if available.
+     * Marshall response object with custom mapping if available.
+     *
+     * This method is called for by all services. It will use
+     * custom mapping if available, otherwise it will use JAXB.
      */
-    public Object convert(Object entity) {
+    public Object marshall(Object response) {
 
         MediaType responseFormat = getResponseFormat();
 
         if (MediaType.APPLICATION_XML_TYPE.isCompatible(responseFormat)) {
-            Class<?> clazz = entity.getClass();
+            Class<?> clazz = response.getClass();
             try {
                 Method method = clazz.getMethod("toXML");
-                entity = method.invoke(entity);
-                logger.info("PKIService: XML response:\n" + entity);
+                response = method.invoke(response);
+                logger.info("PKIService: XML response:\n" + response);
 
             } catch (NoSuchMethodException e) {
                 logger.info("PKIService: " + clazz.getSimpleName() + " has no custom XML mapping");
@@ -182,12 +185,12 @@ public class PKIService {
             }
         }
 
-        return entity;
+        return response;
     }
 
     public Response createOKResponse(Object entity) {
 
-        entity = convert(entity);
+        entity = marshall(entity);
 
         return Response
                 .ok(entity)
@@ -197,7 +200,7 @@ public class PKIService {
 
     public Response createCreatedResponse(Object entity, URI link) {
 
-        entity = convert(entity);
+        entity = marshall(entity);
 
         return Response
                 .created(link)
@@ -215,7 +218,7 @@ public class PKIService {
 
     public Response sendConditionalGetResponse(int ctime, Object entity, Request request) {
 
-        entity = convert(entity);
+        entity = marshall(entity);
 
         CacheControl cc = new CacheControl();
         cc.setMaxAge(ctime);
