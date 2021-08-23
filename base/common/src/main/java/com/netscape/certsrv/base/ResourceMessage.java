@@ -223,17 +223,20 @@ public class ResourceMessage implements JSONSerializer {
         }
     }
 
-    public static void fromDOM(Element accountElement, ResourceMessage resourceMessage) {
+    public static void fromDOM(Element element, ResourceMessage resourceMessage) {
 
-        NodeList classNameList = accountElement.getElementsByTagName("ClassName");
+        NodeList classNameList = element.getElementsByTagName("ClassName");
         if (classNameList.getLength() > 0) {
             String value = classNameList.item(0).getTextContent();
             resourceMessage.setClassName(value);
         }
 
-        NodeList attributeList = accountElement.getElementsByTagName("Attribute");
-        int attributeCount = attributeList.getLength();
-        if (attributeCount > 0) {
+        NodeList attributesList = element.getElementsByTagName("Attributes");
+        if (attributesList.getLength() > 0) {
+            Element attributesElement = (Element) attributesList.item(0);
+
+            NodeList attributeList = attributesElement.getElementsByTagName("Attribute");
+            int attributeCount = attributeList.getLength();
             for (int i=0; i<attributeCount; i++) {
                Element attributeElement = (Element) attributeList.item(i);
                String name = attributeElement.getAttribute("name");
