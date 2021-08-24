@@ -119,7 +119,8 @@ public class CACertClient extends Client {
             } catch (IOException e) {
             }
         }
-        Response response = certRequestClient.enrollCert(data, aidString, adnString);
+        String enrollmentRequest = (String) client.marshall(data);
+        Response response = certRequestClient.enrollCert(enrollmentRequest, aidString, adnString);
         return client.getEntity(response, CertRequestInfos.class);
     }
 

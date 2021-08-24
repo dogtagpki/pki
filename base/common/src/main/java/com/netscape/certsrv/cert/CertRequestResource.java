@@ -34,7 +34,7 @@ public interface CertRequestResource {
     @POST
     @Path("certrequests")
     public Response enrollCert(
-        CertEnrollmentRequest data,
+        String enrollmentRequest,
         @QueryParam("issuer-id") String caIDString,
         @QueryParam("issuer-dn") String caDNString);
 
