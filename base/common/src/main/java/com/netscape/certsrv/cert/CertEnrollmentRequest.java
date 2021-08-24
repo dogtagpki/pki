@@ -26,16 +26,26 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -46,6 +56,7 @@ import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.profile.ProfileOutput;
+import com.netscape.certsrv.property.Descriptor;
 
 /**
  * @author jmagne
@@ -349,18 +360,219 @@ public class CertEnrollmentRequest extends ResourceMessage {
         return true;
     }
 
-    public String toXML() throws Exception {
-        Marshaller marshaller = JAXBContext.newInstance(CertEnrollmentRequest.class).createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    public Element toDOM(Document document) throws Exception {
 
+        Element certEnrollmentRequestElement = document.createElement("CertEnrollmentRequest");
+
+        Element attributesElement = document.createElement("Attributes");
+
+        for (Map.Entry<String, String> attribute : getAttributes().entrySet()) {
+            Element attributeElement = document.createElement("Attribute");
+            attributeElement.appendChild(document.createTextNode(attribute.getValue()));
+            attributeElement.setAttribute("name", attribute.getKey());
+            attributesElement.appendChild(attributeElement);
+
+        }
+        certEnrollmentRequestElement.appendChild(attributesElement);
+
+        if (getProfileId() != null && !getProfileId().isEmpty()) {
+            Element profileIdElement = document.createElement("ProfileID");
+            profileIdElement.appendChild(document.createTextNode(getProfileId()));
+            certEnrollmentRequestElement.appendChild(profileIdElement);
+        }
+
+        if (getServerSideKeygenP12Passwd() != null && !getServerSideKeygenP12Passwd().isEmpty()) {
+            Element getServerSideKeygenP12PasswdElement = document.createElement("ServerSideKeygenP12Passwd");
+            getServerSideKeygenP12PasswdElement.appendChild(document.createTextNode(getServerSideKeygenP12Passwd()));
+            certEnrollmentRequestElement.appendChild(getServerSideKeygenP12PasswdElement);
+        }
+
+        Element renewalElement = document.createElement("Renewal");
+        renewalElement.appendChild(document.createTextNode(String.valueOf(isRenewal())));
+        certEnrollmentRequestElement.appendChild(renewalElement);
+
+        if (getSerialNum() != null) {
+            Element serialNumberElement = document.createElement("SerialNumber");
+            serialNumberElement.appendChild(document.createTextNode(getSerialNum().toHexString()));
+            certEnrollmentRequestElement.appendChild(serialNumberElement);
+        }
+
+        if (getRemoteHost() != null) {
+            Element remoteHostElement = document.createElement("RemoteHost");
+            remoteHostElement.appendChild(document.createTextNode(getRemoteHost()));
+            certEnrollmentRequestElement.appendChild(remoteHostElement);
+        }
+
+        if (getRemoteAddr() != null) {
+            Element remoteAddressElement = document.createElement("RemoteAddress");
+            remoteAddressElement.appendChild(document.createTextNode(getRemoteAddr()));
+            certEnrollmentRequestElement.appendChild(remoteAddressElement);
+        }
+
+        for (ProfileInput input: getInputs()) {
+            certEnrollmentRequestElement.appendChild(input.toDOM(document));
+        }
+
+        for (ProfileOutput output: getOutputs()) {
+            Element outputElement = document.createElement("Output");
+            output.toDOM(document, outputElement);
+            certEnrollmentRequestElement.appendChild(outputElement);
+        }
+
+        return certEnrollmentRequestElement;
+
+    }
+
+    public static CertEnrollmentRequest fromDOM(Element certEnrollmentRequestElement) {
+
+        CertEnrollmentRequest certEnrollmentRequest = new CertEnrollmentRequest();
+
+        NodeList attributesList = certEnrollmentRequestElement.getElementsByTagName("Attributes");
+
+        if (attributesList.getLength() > 0) {
+            Element attributesElement = (Element) attributesList.item(0);
+            NodeList attributeList = attributesElement.getElementsByTagName("Attribute");
+            for (int i = 0; i < attributeList.getLength(); i++) {
+                Element attributeElement = (Element) attributeList.item(i);
+                String attributeName = attributeElement.getAttribute("name");
+                certEnrollmentRequest.setAttribute(attributeName, attributeElement.getTextContent());
+            }
+        }
+
+        NodeList profileIdList = certEnrollmentRequestElement.getElementsByTagName("ProfileID");
+        if (profileIdList.getLength() > 0) {
+            String value = profileIdList.item(0).getTextContent();
+            certEnrollmentRequest.setProfileId(value);
+        }
+
+        NodeList serverSideKeygenP12PasswdList = certEnrollmentRequestElement.getElementsByTagName("ServerSideKeygenP12Passwd");
+        if (serverSideKeygenP12PasswdList.getLength() > 0) {
+            String value = serverSideKeygenP12PasswdList.item(0).getTextContent();
+            certEnrollmentRequest.setServerSideKeygenP12Passwd(value);
+        }
+
+        NodeList renewalList = certEnrollmentRequestElement.getElementsByTagName("Renewal");
+        if (renewalList.getLength() > 0) {
+            String value = renewalList.item(0).getTextContent();
+            certEnrollmentRequest.setRenewal(Boolean.valueOf(value));
+        }
+
+        NodeList serialNumberList = certEnrollmentRequestElement.getElementsByTagName("SerialNumber");
+        if (serialNumberList.getLength() > 0) {
+            String value = serialNumberList.item(0).getTextContent();
+            certEnrollmentRequest.setSerialNum(new CertId(value));
+        }
+
+        NodeList remoteHostList = certEnrollmentRequestElement.getElementsByTagName("RemoteHost");
+        if (remoteHostList.getLength() > 0) {
+            String value = remoteHostList.item(0).getTextContent();
+            certEnrollmentRequest.setRemoteHost(value);
+        }
+
+        NodeList remoteHostAddressList = certEnrollmentRequestElement.getElementsByTagName("RemoteAddress");
+        if (remoteHostAddressList.getLength() > 0) {
+            String value = remoteHostAddressList.item(0).getTextContent();
+            certEnrollmentRequest.setRemoteAddr(value);
+        }
+
+        NodeList inputList = certEnrollmentRequestElement.getElementsByTagName("Input");
+        for (int i = 0; i < inputList.getLength(); i++) {
+            Element inputElement = (Element) inputList.item(i);
+            ProfileInput profileInput = new ProfileInput();
+
+            NodeList nameList = inputElement.getElementsByTagName("Name");
+            if (nameList.getLength() > 0) {
+                String name = nameList.item(0).getTextContent();
+                profileInput.setName(name);
+            }
+
+            NodeList attributeList = inputElement.getElementsByTagName("Attribute");
+            for (int o = 0; o < attributeList.getLength(); o++) {
+                Element attributeElement = (Element) attributeList.item(o);
+                ProfileAttribute profileAttribute = new ProfileAttribute();
+
+                String attributeId = attributeElement.getAttribute("name");
+                profileAttribute.setName(attributeId);
+
+                NodeList attributeNameList = attributeElement.getElementsByTagName("Name");
+                if (attributeNameList.getLength() > 0) {
+                    String value = attributeNameList.item(0).getTextContent();
+                    profileAttribute.setValue(value);
+                }
+
+                NodeList valueList = attributeElement.getElementsByTagName("Value");
+                if (valueList.getLength() > 0) {
+                    String value = valueList.item(0).getTextContent();
+                    profileAttribute.setValue(value);
+                }
+
+                NodeList descriptorList = attributeElement.getElementsByTagName("Descriptor");
+                if (descriptorList.getLength() > 0) {
+                    String syntax = null;
+                    String constraint = null;
+                    String description = null;
+                    String def = null;
+                    NodeList syntaxList = attributeElement.getElementsByTagName("mSyntax");
+                    NodeList mConstraintList = attributeElement.getElementsByTagName("mConstraint");
+                    NodeList mDescriptionList = attributeElement.getElementsByTagName("mDescription");
+                    NodeList defList = attributeElement.getElementsByTagName("mDef");
+                    if (syntaxList.getLength() > 0) {
+                        syntax = syntaxList.item(0).getTextContent();
+                    }
+                    if (mConstraintList.getLength() > 0) {
+                        constraint = mConstraintList.item(0).getTextContent();
+                    }
+                    if (mDescriptionList.getLength() > 0) {
+                        description = mDescriptionList.item(0).getTextContent();
+                    }
+                    if (defList.getLength() > 0) {
+                        def = defList.item(0).getTextContent();
+                    }
+                    Descriptor descriptor = new Descriptor(syntax, constraint, def, description);
+                    profileAttribute.setDescriptor(descriptor);
+                }
+                profileInput.addAttribute(profileAttribute);
+            }
+            certEnrollmentRequest.addInput(profileInput);
+        }
+
+        NodeList outputList = certEnrollmentRequestElement.getElementsByTagName("Output");
+        for (int i = 0; i < outputList.getLength(); i++) {
+            Element outputElement = (Element) outputList.item(i);
+            ProfileOutput output = ProfileOutput.fromDOM(outputElement);
+            certEnrollmentRequest.addOutput(output);
+        }
+
+        return certEnrollmentRequest;
+    }
+
+    public String toXML() throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element element = toDOM(document);
+        document.appendChild(element);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
         StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
         return sw.toString();
     }
 
     public static CertEnrollmentRequest fromXML(String xml) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(CertEnrollmentRequest.class).createUnmarshaller();
-        return (CertEnrollmentRequest) unmarshaller.unmarshal(new StringReader(xml));
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element profileElement = document.getDocumentElement();
+        return fromDOM(profileElement);
     }
 
 }
