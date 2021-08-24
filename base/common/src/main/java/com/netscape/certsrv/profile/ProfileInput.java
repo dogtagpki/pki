@@ -45,6 +45,7 @@ import org.xml.sax.InputSource;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -82,14 +83,17 @@ public class ProfileInput implements JSONSerializer {
         this.classId = classId;
     }
 
+    @JsonProperty("ClassID")
     public String getClassId() {
         return classId;
     }
 
+    @JsonProperty("Name")
     public String getName() {
         return name;
     }
 
+    @JsonProperty("Text")
     public String getText() {
         return text;
     }
@@ -98,6 +102,7 @@ public class ProfileInput implements JSONSerializer {
         this.classId = classId;
     }
 
+    @JsonProperty("id")
     public String getId() {
         return id;
     }
@@ -114,6 +119,7 @@ public class ProfileInput implements JSONSerializer {
         this.text = text;
     }
 
+    @JsonProperty("Attribute")
     public Collection<ProfileAttribute> getAttributes() {
         return attrs;
     }
@@ -142,6 +148,7 @@ public class ProfileInput implements JSONSerializer {
         attrs.clear();
     }
 
+    @JsonProperty("ConfigAttribute")
     public List<ProfileAttribute> getConfigAttrs() {
         return configAttrs;
     }

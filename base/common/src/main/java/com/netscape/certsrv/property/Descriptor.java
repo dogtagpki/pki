@@ -19,9 +19,11 @@ package com.netscape.certsrv.property;
 
 import java.util.Locale;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.util.JSONSerializer;
 
 
@@ -35,12 +37,16 @@ import com.netscape.certsrv.util.JSONSerializer;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Descriptor implements IDescriptor, JSONSerializer {
 
+    @JsonProperty("Syntax")
     public String mSyntax = null;
 
+    @JsonProperty("Constraint")
     public String mConstraint = null;
 
+    @JsonProperty("Description")
     public String mDescription = null;
 
+    @JsonProperty("DefaultValue")
     public String mDef = null;
 
     public Descriptor() {
@@ -68,6 +74,7 @@ public class Descriptor implements IDescriptor, JSONSerializer {
      * @return syntax
      */
     @Override
+    @JsonIgnore
     public String getSyntax() {
         return mSyntax;
     }
@@ -78,6 +85,7 @@ public class Descriptor implements IDescriptor, JSONSerializer {
      * @return default value
      */
     @Override
+    @JsonIgnore
     public String getDefaultValue() {
         return mDef;
     }
@@ -95,6 +103,7 @@ public class Descriptor implements IDescriptor, JSONSerializer {
      * @return constraint
      */
     @Override
+    @JsonIgnore
     public String getConstraint() {
         return mConstraint;
     }
@@ -106,6 +115,7 @@ public class Descriptor implements IDescriptor, JSONSerializer {
      * @return description
      */
     @Override
+    @JsonIgnore
     public String getDescription(Locale locale) {
         return mDescription;
     }
