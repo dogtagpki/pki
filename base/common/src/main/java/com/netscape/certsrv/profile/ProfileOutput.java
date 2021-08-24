@@ -179,8 +179,12 @@ public class ProfileOutput implements JSONSerializer {
     }
 
     public Element toDOM(Document document) {
+       Element poElement = document.createElement("profileOutput");
+       toDOM(document, poElement);
+       return poElement;
+    }
 
-        Element poElement = document.createElement("profileOutput");
+    public void toDOM(Document document, Element poElement) {
         poElement.setAttribute("id", id);
 
         if (name != null) {
@@ -212,7 +216,6 @@ public class ProfileOutput implements JSONSerializer {
                 poElement.appendChild(attrElement);
             }
         }
-        return poElement;
     }
 
     public static ProfileOutput fromDOM(Element profileOutputElement) {

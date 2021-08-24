@@ -4,8 +4,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.certsrv.profile.ProfileOutput;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class CertEnrollmentRequestTest {
@@ -18,7 +20,7 @@ public class CertEnrollmentRequestTest {
     @Before
     public void setUpBefore() {
         before.setProfileId("caUserCert");
-        before.setRenewal(false);
+        before.setRenewal(true);
 
         certReq = before.createInput("KeyGenInput");
         certReq.addAttribute(new ProfileAttribute("cert_request_type", "crmf", null));
@@ -43,8 +45,16 @@ public class CertEnrollmentRequestTest {
         submitter.addAttribute(new ProfileAttribute("requestor_email", "admin@example.com", null));
         submitter.addAttribute(new ProfileAttribute("requestor_phone", "650-555-5555", null));
 
+        before.addOutput(new ProfileOutput("id_123", "test output", "cre_123"));
+
+        before.setRemoteHost("unit_test_host");
+        before.setRemoteAddr("unit_test_addr");
+
         before.setAttribute("uid", "testuser");
         before.setAttribute("pwd", "password");
+        before.setServerSideKeygenP12Passwd("secret");
+        before.setSerialNum(new CertId(123));
+
     }
 
     @Test
