@@ -20,13 +20,11 @@ package org.dogtagpki.server.rest;
 
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.UnmarshalException;
 
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXParseException;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -65,15 +63,9 @@ public class InfoService extends PKIService implements InfoResource {
                 // and parse it back into Info object
                 info = JSONSerializer.fromJSON(jsonInfo, Info.class);
 
-            } catch (UnmarshalException e) {
-                Throwable cause = e.getCause();
-                logger.error("InfoService: Invalid access banner: " + cause, e);
-
-                if (cause instanceof SAXParseException) {
-                    throw new PKIException("Banner contains invalid character(s)", e);
-                } else {
-                    throw new PKIException("Invalid access banner: " + cause, e);
-                }
+            } catch (Exception e) {
+                logger.error("InfoService: Invalid access banner: " + e.getMessage(), e);
+                throw new PKIException("Invalid access banner: " + e.getMessage(), e);
             }
         }
 
