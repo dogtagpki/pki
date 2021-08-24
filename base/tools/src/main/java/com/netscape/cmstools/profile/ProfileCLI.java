@@ -3,7 +3,6 @@ package com.netscape.cmstools.profile;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
@@ -15,7 +14,6 @@ import java.util.Properties;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.dogtagpki.cli.CLI;
@@ -129,13 +127,11 @@ public class ProfileCLI extends CLI {
     }
 
     public static void saveProfileToFile(String filename, ProfileData data)
-            throws JAXBException, FileNotFoundException {
-        JAXBContext context = JAXBContext.newInstance(ProfileData.class);
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            throws Exception {
 
-        FileOutputStream stream = new FileOutputStream(filename);
-        marshaller.marshal(data, stream);
+        try (FileWriter out = new FileWriter(filename)) {
+            out.write(data.toXML());
+        }
 
         MainCLI.printMessage("Saved profile " + data.getId() + " to " + filename);
     }
