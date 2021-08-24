@@ -2,6 +2,7 @@ package com.netscape.certsrv.base;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -34,6 +35,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
@@ -42,6 +54,37 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
+ * This is a base class for some REST request/response messages.
+ *
+ * JSON mapping:
+ *
+ * <pre>{@Code
+ * {
+ *     "Attributes": {
+ *         "Attribute": [
+ *             {
+ *                 "name": ...,
+ *                 "value": ...
+ *             },
+ *             ...
+ *         ]
+ *     },
+ *     "ClassName": ...
+ * }
+ * }</pre>
+ *
+ * XML mapping:
+ *
+ * <pre>{@Code
+ * <ResourceMessage>
+ *     <Attributes>
+ *         <Attribute name="...">...</Attribute>
+ *         ...
+ *     </Attributes>
+ *     <ClassName>...</ClassName>
+ * </ResourceMessage>
+ * }</pre>
+ *
  * @author Ade Lee
  */
 @XmlRootElement(name = "ResourceMessage")
@@ -72,6 +115,7 @@ public class ResourceMessage implements JSONSerializer {
     }
 
     @XmlElement(name = "ClassName")
+    @JsonProperty("ClassName")
     public String getClassName() {
         return className;
     }
@@ -82,6 +126,7 @@ public class ResourceMessage implements JSONSerializer {
 
     @XmlElement(name = "Attributes")
     @XmlJavaTypeAdapter(MapAdapter.class)
+    @JsonIgnore
     public Map<String, String> getAttributes() {
         return attributes;
     }
@@ -89,6 +134,25 @@ public class ResourceMessage implements JSONSerializer {
     public void setAttributes(Map<String, String> attributes) {
         this.attributes.clear();
         this.attributes.putAll(attributes);
+    }
+
+    @JsonProperty("Attributes")
+    public AttributeList getAttributeList() {
+        AttributeList list = new AttributeList();
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            Attribute attribute = new Attribute();
+            attribute.name = entry.getKey();
+            attribute.value = entry.getValue();
+            list.attrs.add(attribute);
+        }
+        return list;
+    }
+
+    public void setAttributeList(AttributeList list) {
+        attributes.clear();
+        for (Attribute attribute : list.attrs) {
+            attributes.put(attribute.name, attribute.value);
+        }
     }
 
     @JsonIgnore
@@ -132,8 +196,11 @@ public class ResourceMessage implements JSONSerializer {
         }
     }
 
+    @JsonSerialize(using=AttributeListSerializer.class)
+    @JsonDeserialize(using=AttributeListDeserializer.class)
     public static class AttributeList {
         @XmlElement(name = "Attribute")
+        @JsonProperty("Attribute")
         public List<Attribute> attrs = new ArrayList<>();
     }
 
@@ -144,6 +211,70 @@ public class ResourceMessage implements JSONSerializer {
 
         @XmlValue
         public String value;
+    }
+
+    public static class AttributeListSerializer extends StdSerializer<AttributeList> {
+
+        public AttributeListSerializer() {
+            this(null);
+        }
+
+        public AttributeListSerializer(Class<AttributeList> t) {
+            super(t);
+        }
+
+        @Override
+        public void serialize(
+                AttributeList attributes,
+                JsonGenerator generator,
+                SerializerProvider provider
+                ) throws IOException, JsonProcessingException {
+
+            generator.writeStartObject();
+
+            generator.writeArrayFieldStart("Attribute");
+            for (Attribute attribute : attributes.attrs) {
+                generator.writeStartObject();
+                generator.writeStringField("name", attribute.name);
+                generator.writeStringField("value", attribute.value);
+                generator.writeEndObject();
+            }
+            generator.writeEndArray();
+
+            generator.writeEndObject();
+        }
+    }
+
+    public static class AttributeListDeserializer extends StdDeserializer<AttributeList> {
+
+        public AttributeListDeserializer() {
+            this(null);
+        }
+
+        public AttributeListDeserializer(Class<?> vc) {
+            super(vc);
+        }
+
+        @Override
+        public AttributeList deserialize(
+                JsonParser parser,
+                DeserializationContext context
+                ) throws IOException, JsonProcessingException {
+
+            AttributeList list = new AttributeList();
+
+            JsonNode node = parser.getCodec().readTree(parser);
+            JsonNode attributeNode = node.get("Attribute");
+
+            for (JsonNode attr : attributeNode) {
+                Attribute attribute = new Attribute();
+                attribute.name = attr.get("name").asText();
+                attribute.value = attr.get("value").asText();
+                list.attrs.add(attribute);
+            }
+
+            return list;
+        }
     }
 
     @Override
