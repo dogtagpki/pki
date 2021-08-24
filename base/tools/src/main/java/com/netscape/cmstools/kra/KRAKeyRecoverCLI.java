@@ -1,11 +1,7 @@
 package com.netscape.cmstools.kra;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -64,20 +60,14 @@ public class KRAKeyRecoverCLI extends CommandCLI {
         KeyClient keyClient = keyCLI.getKeyClient();
 
         if (requestFile != null) {
-            try {
-                JAXBContext context = JAXBContext.newInstance(KeyRecoveryRequest.class);
-                Unmarshaller unmarshaller = context.createUnmarshaller();
-                FileInputStream fis = new FileInputStream(requestFile);
-                KeyRecoveryRequest req = (KeyRecoveryRequest) unmarshaller.unmarshal(fis);
-                response = keyClient.recoverKey(req.getKeyId(),
-                        Utils.base64decode(req.getSessionWrappedPassphrase()),
-                        Utils.base64decode(req.getTransWrappedSessionKey()), Utils.base64decode(req.getNonceData()),
-                        req.getCertificate());
-            } catch (JAXBException e) {
-                throw new Exception("Cannot parse the request file.", e);
-            } catch (FileNotFoundException e) {
-                throw new Exception("Cannot locate file at path: " + requestFile, e);
-            }
+            String xml = Files.readString(Path.of(requestFile));
+            KeyRecoveryRequest req = KeyRecoveryRequest.fromXML(xml);
+            response = keyClient.recoverKey(
+                    req.getKeyId(),
+                    Utils.base64decode(req.getSessionWrappedPassphrase()),
+                    Utils.base64decode(req.getTransWrappedSessionKey()),
+                    Utils.base64decode(req.getNonceData()),
+                    req.getCertificate());
 
         } else if (keyID != null) {
             String keyId = cmd.getOptionValue("keyID");

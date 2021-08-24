@@ -21,7 +21,11 @@
  */
 package com.netscape.certsrv.key;
 
+import java.io.StringReader;
+
 import javax.ws.rs.core.MultivaluedMap;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -217,4 +221,9 @@ public class KeyRecoveryRequest extends ResourceMessage {
         attributes.put(PAYLOAD_WRAPPING_NAME, payloadWrappingName);
     }
 
+    public static KeyRecoveryRequest fromXML(String xml) throws Exception {
+        JAXBContext context = JAXBContext.newInstance(KeyRecoveryRequest.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        return (KeyRecoveryRequest) unmarshaller.unmarshal(new StringReader(xml));
+    }
 }
