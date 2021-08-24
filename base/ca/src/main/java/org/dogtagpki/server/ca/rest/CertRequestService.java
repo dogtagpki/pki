@@ -114,9 +114,11 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     }
 
     @Override
-    public Response enrollCert(CertEnrollmentRequest data, String aidString, String adnString) {
+    public Response enrollCert(String enrollmentRequest, String aidString, String adnString) {
 
         logger.info("CertRequestService: Receiving certificate request");
+
+        CertEnrollmentRequest data = unmarshall(enrollmentRequest, CertEnrollmentRequest.class);
 
         if (data == null) {
             String message = "Unable to create enrollment request: Missing input data";
