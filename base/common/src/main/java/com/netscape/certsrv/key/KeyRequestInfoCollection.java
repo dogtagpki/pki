@@ -71,7 +71,6 @@ public class KeyRequestInfoCollection extends DataCollection<KeyRequestInfo> imp
     public Element toDOM(Document document) {
 
         Element infosElement = document.createElement("KeyRequestInfoCollection");
-        document.appendChild(infosElement);
 
         Element totalElement = document.createElement("total");
         totalElement.appendChild(document.createTextNode(Integer.toString(total)));
