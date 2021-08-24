@@ -40,6 +40,7 @@ import org.xml.sax.InputSource;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.profile.PolicyDefault;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfilePolicy;
@@ -50,21 +51,52 @@ import com.netscape.certsrv.request.RequestId;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CertReviewResponse extends CertEnrollmentRequest {
 
+    @JsonProperty("ProfilePolicySet")
     protected List<ProfilePolicySet> policySets = new ArrayList<>();
+
+    @JsonProperty
     protected String nonce;
+
+    @JsonProperty
     protected RequestId requestId;
+
+    @JsonProperty
     protected String requestType;
+
+    @JsonProperty
     protected String requestStatus;
+
+    @JsonProperty
     protected String requestOwner;
+
+    @JsonProperty
     protected String requestCreationTime;
+
+    @JsonProperty
     protected String requestModificationTime;
+
+    @JsonProperty
     protected String requestNotes;
+
+    @JsonProperty
     protected String profileApprovedBy;
+
+    @JsonProperty
     protected String profileSetId;
+
+    @JsonProperty
     protected String profileIsVisible;
+
+    @JsonProperty
     protected String profileName;
+
+    @JsonProperty
     protected String profileDescription;
+
+    @JsonProperty
     protected String profileRemoteHost;
+
+    @JsonProperty
     protected String profileRemoteAddr;
 
     public String getNonce() {
