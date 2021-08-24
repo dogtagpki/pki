@@ -26,7 +26,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -360,20 +359,9 @@ public class CertEnrollmentRequest extends ResourceMessage {
         return true;
     }
 
-    public Element toDOM(Document document) throws Exception {
+    public void toDOM(Document document, Element certEnrollmentRequestElement) {
 
-        Element certEnrollmentRequestElement = document.createElement("CertEnrollmentRequest");
-
-        Element attributesElement = document.createElement("Attributes");
-
-        for (Map.Entry<String, String> attribute : getAttributes().entrySet()) {
-            Element attributeElement = document.createElement("Attribute");
-            attributeElement.appendChild(document.createTextNode(attribute.getValue()));
-            attributeElement.setAttribute("name", attribute.getKey());
-            attributesElement.appendChild(attributeElement);
-
-        }
-        certEnrollmentRequestElement.appendChild(attributesElement);
+        super.toDOM(document, certEnrollmentRequestElement);
 
         if (getProfileId() != null && !getProfileId().isEmpty()) {
             Element profileIdElement = document.createElement("ProfileID");
@@ -418,26 +406,17 @@ public class CertEnrollmentRequest extends ResourceMessage {
             output.toDOM(document, outputElement);
             certEnrollmentRequestElement.appendChild(outputElement);
         }
-
-        return certEnrollmentRequestElement;
-
     }
 
-    public static CertEnrollmentRequest fromDOM(Element certEnrollmentRequestElement) {
+    public Element toDOM(Document document) {
+        Element certEnrollmentRequestElement = document.createElement("CertEnrollmentRequest");
+        toDOM(document, certEnrollmentRequestElement);
+        return certEnrollmentRequestElement;
+    }
 
-        CertEnrollmentRequest certEnrollmentRequest = new CertEnrollmentRequest();
+    public static void fromDOM(Element certEnrollmentRequestElement, CertEnrollmentRequest certEnrollmentRequest) {
 
-        NodeList attributesList = certEnrollmentRequestElement.getElementsByTagName("Attributes");
-
-        if (attributesList.getLength() > 0) {
-            Element attributesElement = (Element) attributesList.item(0);
-            NodeList attributeList = attributesElement.getElementsByTagName("Attribute");
-            for (int i = 0; i < attributeList.getLength(); i++) {
-                Element attributeElement = (Element) attributeList.item(i);
-                String attributeName = attributeElement.getAttribute("name");
-                certEnrollmentRequest.setAttribute(attributeName, attributeElement.getTextContent());
-            }
-        }
+        ResourceMessage.fromDOM(certEnrollmentRequestElement, certEnrollmentRequest);
 
         NodeList profileIdList = certEnrollmentRequestElement.getElementsByTagName("ProfileID");
         if (profileIdList.getLength() > 0) {
@@ -542,7 +521,11 @@ public class CertEnrollmentRequest extends ResourceMessage {
             ProfileOutput output = ProfileOutput.fromDOM(outputElement);
             certEnrollmentRequest.addOutput(output);
         }
+    }
 
+    public static CertEnrollmentRequest fromDOM(Element element) {
+        CertEnrollmentRequest certEnrollmentRequest = new CertEnrollmentRequest();
+        fromDOM(element, certEnrollmentRequest);
         return certEnrollmentRequest;
     }
 
