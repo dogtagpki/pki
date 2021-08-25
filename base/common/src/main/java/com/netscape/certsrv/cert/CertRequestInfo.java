@@ -165,7 +165,7 @@ public class CertRequestInfo extends CMSRequestInfo {
     @Override
     public Element toDOM(Document document) {
 
-        Element infoElement = document.createElement("CertDataInfo");
+        Element infoElement = document.createElement("CertRequestInfo");
 
         toDOM(document, infoElement);
 

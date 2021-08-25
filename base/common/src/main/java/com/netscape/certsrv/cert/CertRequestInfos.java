@@ -79,7 +79,7 @@ public class CertRequestInfos extends DataCollection<CertRequestInfo> implements
 
     public Element toDOM(Document document) {
 
-        Element infosElement = document.createElement("CertDataInfos");
+        Element infosElement = document.createElement("CertRequestInfos");
 
         Element totalElement = document.createElement("total");
         totalElement.appendChild(document.createTextNode(Integer.toString(total)));
