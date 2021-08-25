@@ -71,14 +71,6 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
         }
     }
 
-    public static SymKeyGenerationRequest valueOf(String string) throws Exception {
-        try {
-            return ResourceMessage.unmarshal(string, SymKeyGenerationRequest.class);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     public static List<String> getValidUsagesList() {
         List<String> list = new ArrayList<>();
         list.add(WRAP_USAGE);

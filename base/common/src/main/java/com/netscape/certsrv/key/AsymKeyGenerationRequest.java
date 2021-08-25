@@ -79,14 +79,6 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest  {
         }
     }
 
-    public static AsymKeyGenerationRequest valueOf(String string) throws Exception {
-        try {
-            return ResourceMessage.unmarshal(string, AsymKeyGenerationRequest.class);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     public static List<String> getValidUsagesList() {
         List<String> list = new ArrayList<>();
         list.add(DERIVE);
