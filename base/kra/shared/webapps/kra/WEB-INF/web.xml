@@ -479,7 +479,7 @@
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  parser      </param-name>
-                         <param-value> CertReqParser.NODETAIL_PARSER </param-value> </init-param>
+                         <param-value> KeyReqParser.PARSER </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
                          <param-value> BasicAclAuthz </param-value> </init-param>
              <init-param><param-name>  authority   </param-name>
