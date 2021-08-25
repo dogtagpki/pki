@@ -34,7 +34,7 @@ public interface ProfileResource {
 
     @POST
     @ACLMapping("profiles.create")
-    public Response createProfile(ProfileData data) throws Exception;
+    public Response createProfile(String profileData) throws Exception;
 
     @POST
     @Path("raw")
@@ -49,7 +49,7 @@ public interface ProfileResource {
     @PUT
     @Path("{id}")
     @ACLMapping("profiles.modify")
-    public Response modifyProfile(@PathParam("id") String id, ProfileData data) throws Exception;
+    public Response modifyProfile(@PathParam("id") String id, String modifyProfileRequest) throws Exception;
 
     @PUT
     @Path("{id}/raw")

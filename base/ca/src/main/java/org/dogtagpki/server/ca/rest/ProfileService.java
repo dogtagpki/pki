@@ -473,7 +473,12 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     @Override
-    public Response createProfile(ProfileData data) throws Exception {
+    public Response createProfile(String createProfileRequest) throws Exception {
+
+        logger.info("ProfileService: Creating certificate profile");
+
+        ProfileData data = unmarshall(createProfileRequest, ProfileData.class);
+
         if (data == null) {
             logger.error("createProfile: profile data is null");
             throw new BadRequestException("Unable to create profile: Invalid profile data.");
@@ -662,7 +667,12 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     @Override
-    public Response modifyProfile(String profileId, ProfileData data) throws Exception {
+    public Response modifyProfile(String profileId, String modifyProfileRequest) throws Exception {
+
+        logger.info("ProfileService: Modifying certificate profile");
+
+        ProfileData data = unmarshall(modifyProfileRequest, ProfileData.class);
+
         if (profileId == null) {
             logger.error("modifyProfile: invalid request. profileId is null");
             throw new BadRequestException("Unable to modify profile: Invalid Profile Id");
