@@ -24,8 +24,12 @@ package com.netscape.certsrv.key;
 import java.io.StringReader;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -54,7 +58,6 @@ public class KeyRecoveryRequest extends ResourceMessage {
     private static final String PAYLOAD_WRAPPING_NAME = "payloadWrappingName";
 
     public KeyRecoveryRequest() {
-        // required for JAXB (defaults)
         setClassName(getClass().getName());
     }
 
@@ -221,9 +224,19 @@ public class KeyRecoveryRequest extends ResourceMessage {
         attributes.put(PAYLOAD_WRAPPING_NAME, payloadWrappingName);
     }
 
+    public static KeyRecoveryRequest fromDOM(Element element) {
+        KeyRecoveryRequest request = new KeyRecoveryRequest();
+        fromDOM(element, request);
+        return request;
+    }
+
     public static KeyRecoveryRequest fromXML(String xml) throws Exception {
-        JAXBContext context = JAXBContext.newInstance(KeyRecoveryRequest.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        return (KeyRecoveryRequest) unmarshaller.unmarshal(new StringReader(xml));
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element element = document.getDocumentElement();
+        return fromDOM(element);
     }
 }
