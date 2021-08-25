@@ -257,8 +257,9 @@ public class ProfilePolicy implements JSONSerializer {
                    Element descriptorElement = (Element) descriptorList.item(0);
                    Descriptor descriptor = Descriptor.fromDOM(descriptorElement);
                    pcv.setDescriptor(descriptor);
-                   pc.addConstraint(pcv);
                }
+
+               pc.addConstraint(pcv);
             }
             profilePolicy.setConstraint(pc);
         }
