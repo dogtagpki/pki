@@ -1,13 +1,14 @@
 package com.netscape.cmstools.kra;
 
-import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.base.ResourceMessage;
-import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyTemplateShowCLI extends CommandCLI {
@@ -44,17 +45,20 @@ public class KRAKeyTemplateShowCLI extends CommandCLI {
 
         String templateId = cmdArgs[0];
         String writeToFile = cmd.getOptionValue("output");
+
+        // TODO: Get the template from the server
         String templateDir = "/usr/share/pki/key/templates/";
         String templatePath = templateDir + templateId + ".xml";
-        ResourceMessage data = ResourceMessage.unmarshall(KeyArchivalRequest.class, templatePath);
+        String xml = Files.readString(Path.of(templatePath));
+        ResourceMessage data = ResourceMessage.fromXML(xml);
 
         if (writeToFile != null) {
-            try (FileOutputStream fOS = new FileOutputStream(writeToFile)) {
-                data.marshall(fOS);
+            try (FileWriter out = new FileWriter(writeToFile)) {
+                out.write(data.toXML());
             }
         } else {
             MainCLI.printMessage(data.getAttribute("description"));
-            data.marshall(System.out);
+            System.out.println(data.toXML());
         }
     }
 }

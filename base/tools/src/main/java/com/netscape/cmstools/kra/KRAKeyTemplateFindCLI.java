@@ -1,6 +1,8 @@
 package com.netscape.cmstools.kra;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import org.apache.commons.cli.CommandLine;
@@ -8,7 +10,6 @@ import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.key.KeyTemplate;
-import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyTemplateFindCLI extends CommandCLI {
@@ -62,7 +63,8 @@ public class KRAKeyTemplateFindCLI extends CommandCLI {
                 continue;
             }
             String id = templateName.substring(0, templateName.indexOf(".xml"));
-            data = ResourceMessage.unmarshall(SymKeyGenerationRequest.class, templateDir + templateName);
+            String xml = Files.readString(Path.of(templateDir + templateName));
+            data = ResourceMessage.fromXML(xml);
             template = new KeyTemplate(id, data.getAttribute("description"));
             templates.add(template);
         }
