@@ -19,6 +19,10 @@ package com.netscape.certsrv.property;
 
 import java.util.Locale;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -50,7 +54,6 @@ public class Descriptor implements IDescriptor, JSONSerializer {
     public String mDef = null;
 
     public Descriptor() {
-        // required for JAX-B
     }
 
     /**
@@ -163,4 +166,63 @@ public class Descriptor implements IDescriptor, JSONSerializer {
         return true;
     }
 
+    public void toDOM(Document document, Element element) {
+
+        if (mSyntax != null) {
+            Element syntaxElement = document.createElement("Syntax");
+            syntaxElement.appendChild(document.createTextNode(mSyntax));
+            element.appendChild(syntaxElement);
+        }
+
+        if (mConstraint != null) {
+            Element constraintElement = document.createElement("Constraint");
+            constraintElement.appendChild(document.createTextNode(mConstraint));
+            element.appendChild(constraintElement);
+        }
+
+        if (mDescription != null) {
+            Element descriptionElement = document.createElement("Description");
+            descriptionElement.appendChild(document.createTextNode(mDescription));
+            element.appendChild(descriptionElement);
+        }
+
+        if (mDef != null) {
+            Element defaultValueElement = document.createElement("DefaultValue");
+            defaultValueElement.appendChild(document.createTextNode(mDef));
+            element.appendChild(defaultValueElement);
+        }
+    }
+
+    public Element toDOM(Document document) {
+        Element element = document.createElement("Descriptor");
+        toDOM(document, element);
+        return element;
+    }
+
+    public static Descriptor fromDOM(Element element) {
+
+        Descriptor descriptor = new Descriptor();
+
+        NodeList syntaxList = element.getElementsByTagName("Syntax");
+        if (syntaxList.getLength() > 0) {
+            descriptor.mSyntax = syntaxList.item(0).getTextContent();
+        }
+
+        NodeList constraintList = element.getElementsByTagName("Constraint");
+        if (constraintList.getLength() > 0) {
+            descriptor.mConstraint = constraintList.item(0).getTextContent();
+        }
+
+        NodeList descriptionList = element.getElementsByTagName("Description");
+        if (descriptionList.getLength() > 0) {
+            descriptor.mDescription = descriptionList.item(0).getTextContent();
+        }
+
+        NodeList defaultValueList = element.getElementsByTagName("DefaultValue");
+        if (defaultValueList.getLength() > 0) {
+            descriptor.mDef = defaultValueList.item(0).getTextContent();
+        }
+
+        return descriptor;
+    }
 }

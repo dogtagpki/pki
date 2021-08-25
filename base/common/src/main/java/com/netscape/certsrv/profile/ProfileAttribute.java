@@ -19,7 +19,6 @@ package com.netscape.certsrv.profile;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Locale;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -151,31 +150,7 @@ public class ProfileAttribute implements JSONSerializer {
             profileAttributeElement.appendChild(valueElement);
         }
         if (descriptor != null) {
-            Element descriptorElement = document.createElement("Descriptor");
-
-            if (descriptor.getSyntax() != null) {
-                Element syntaxElement = document.createElement("mSyntax");
-                syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
-                descriptorElement.appendChild(syntaxElement);
-            }
-
-            if (descriptor.getConstraint() != null) {
-                Element constraintElement = document.createElement("mConstraint");
-                constraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
-                descriptorElement.appendChild(constraintElement);
-            }
-
-            if (descriptor.getDescription(Locale.getDefault()) != null) {
-                Element descriptionElement = document.createElement("mDescription");
-                descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
-                descriptorElement.appendChild(descriptionElement);
-            }
-
-            if (descriptor.getDefaultValue() != null) {
-                Element defaultValueElement = document.createElement("mDef");
-                defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
-                descriptorElement.appendChild(defaultValueElement);
-            }
+            Element descriptorElement = descriptor.toDOM(document);
             profileAttributeElement.appendChild(descriptorElement);
         }
     }
@@ -201,27 +176,8 @@ public class ProfileAttribute implements JSONSerializer {
 
         NodeList descriptorList = profileAttributeElement.getElementsByTagName("Descriptor");
         if (descriptorList.getLength() > 0) {
-            String syntax = null;
-            String constraint = null;
-            String description = null;
-            String def = null;
-            NodeList syntaxList = profileAttributeElement.getElementsByTagName("mSyntax");
-            NodeList constraintList = profileAttributeElement.getElementsByTagName("mConstraint");
-            NodeList descriptionList = profileAttributeElement.getElementsByTagName("mDescription");
-            NodeList defList = profileAttributeElement.getElementsByTagName("mDef");
-            if (syntaxList.getLength() > 0) {
-                syntax = syntaxList.item(0).getTextContent();
-            }
-            if (constraintList.getLength() > 0) {
-                constraint = constraintList.item(0).getTextContent();
-            }
-            if (descriptionList.getLength() > 0) {
-                description = descriptionList.item(0).getTextContent();
-            }
-            if (defList.getLength() > 0) {
-                def = defList.item(0).getTextContent();
-            }
-            Descriptor descriptor = new Descriptor(syntax, constraint, def, description);
+            Element descriptorElement = (Element) descriptorList.item(0);
+            Descriptor descriptor = Descriptor.fromDOM(descriptorElement);
             profileAttribute.setDescriptor(descriptor);
         }
 
