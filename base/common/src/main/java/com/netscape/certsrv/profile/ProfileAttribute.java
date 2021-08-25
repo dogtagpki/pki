@@ -140,9 +140,7 @@ public class ProfileAttribute implements JSONSerializer {
         return true;
     }
 
-    public Element toDOM(Document document) {
-
-        Element profileAttributeElement = document.createElement("Attribute");
+    public void toDOM(Document document, Element profileAttributeElement) {
 
         if (name != null) {
             profileAttributeElement.setAttribute("name", name);
@@ -180,7 +178,12 @@ public class ProfileAttribute implements JSONSerializer {
             }
             profileAttributeElement.appendChild(descriptorElement);
         }
-        return profileAttributeElement;
+    }
+
+    public Element toDOM(Document document) {
+        Element attribute = document.createElement("Attribute");
+        toDOM(document, attribute);
+        return attribute;
     }
 
     public static ProfileAttribute fromDOM(Element profileAttributeElement) {
