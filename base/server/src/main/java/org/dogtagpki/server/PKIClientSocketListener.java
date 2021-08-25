@@ -69,17 +69,10 @@ public class PKIClientSocketListener implements SSLSocketListener {
             Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
             String subjectID = subjectDN == null ? "" : subjectDN.toString();
 */
-String subjectID = "SYSTEM";
+            String subjectID = "SYSTEM";
 
             int description = event.getDescription();
-            String reason = SSLAlertDescription.valueOf(description).toString();
-
-            logger.debug("SSL alert received:");
-            logger.debug("- reason: " + reason);
-            logger.debug("- client: " + clientIP);
-            logger.debug("- server: " + serverIP);
-            logger.debug("- subject: " + subjectID);
-
+            String reason = "clientAlertReceived: " + SSLAlertDescription.valueOf(description).toString();
 
             signedAuditLogger.log(ClientAccessSessionTerminatedEvent.createEvent(
                     clientIP,
@@ -88,11 +81,17 @@ String subjectID = "SYSTEM";
                     subjectID,
                     reason));
 
-            logger.debug(method + "CS_CLIENT_ACCESS_SESSION_TERMINATED");
-            logger.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " serverPort=" + serverPort + " reason=" + reason);
+            //logger.debug(method + "CS_CLIENT_ACCESS_SESSION_TERMINATED");
+
+            logger.debug("PKIClientSocketListener: SSL alert received:");
+            logger.debug("- reason: " + reason);
+            logger.debug("- client: " + clientIP);
+            logger.debug("- server: " + serverIP);
+            logger.debug("- server port: " + serverPort);
+            logger.debug("- subject: " + subjectID);
 
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            logger.warn("PKIClientSocketListener: " + e.getMessage(), e);
         }
     }
 
@@ -105,7 +104,7 @@ String subjectID = "SYSTEM";
 
             int description = event.getDescription();
             logger.debug(method + "got description:"+ description);
-            String reason = SSLAlertDescription.valueOf(description).toString();
+            String reason = "clientAlertSent: " + SSLAlertDescription.valueOf(description).toString();
             logger.debug(method + "got reason:"+ reason);
 
             SignedAuditEvent auditEvent;
@@ -130,9 +129,6 @@ String subjectID = "SYSTEM";
                         subjectID,
                         reason);
 
-                logger.debug(method + "CS_CLIENT_ACCESS_SESSION_TERMINATED");
-                logger.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP+ " serverPort=" + serverPort + " reason=" + reason);
-
             } else {
 
                 // get socket info from the socket itself
@@ -149,7 +145,7 @@ String subjectID = "SYSTEM";
                 Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
                 subjectID = subjectDN == null ? "" : subjectDN.toString();
 */
-subjectID = "SYSTEM";
+                subjectID = "SYSTEM";
 
                 auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
                         clientIP,
@@ -160,19 +156,17 @@ subjectID = "SYSTEM";
 
             }
 
-            logger.debug("SSL alert sent:");
+            signedAuditLogger.log(auditEvent);
+
+            logger.debug("PKIClientSocketListener: SSL alert sent:");
             logger.debug("- reason: " + reason);
             logger.debug("- client: " + clientIP);
             logger.debug("- server: " + serverIP);
             logger.debug("- subject: " + subjectID);
-
-            signedAuditLogger.log(auditEvent);
-
-            logger.debug(method + "CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE");
-            logger.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " serverPort=" + serverPort + " reason=" + reason);
+            logger.debug("- server port: " + serverPort);
 
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            logger.warn("PKIClientSocketListener: " + e.getMessage(), e);
         }
     }
 
@@ -195,11 +189,12 @@ subjectID = "SYSTEM";
             Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
             String subjectID = subjectDN == null ? "" : subjectDN.toString();
 */
-String subjectID = "SYSTEM";
+            String subjectID = "SYSTEM";
 
-            logger.debug("Handshake completed:");
+            logger.debug("PKIClientSocketListener: Handshake completed:");
             logger.debug("- client: " + clientIP);
             logger.debug("- server: " + serverIP);
+            logger.debug("- server port: " + serverPort);
             logger.debug("- subject: " + subjectID);
 
             // store socket info in socketInfos map
@@ -216,11 +211,8 @@ String subjectID = "SYSTEM";
                     serverPort,
                     subjectID));
 
-            logger.debug(method + "CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS");
-            logger.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " serverPort=" + serverPort);
-
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            logger.warn("PKIClientSocketListener: " + e.getMessage(), e);
         }
     }
 }

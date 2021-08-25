@@ -68,9 +68,9 @@ public class PKIServerSocketListener implements SSLSocketListener {
             String subjectID = subjectDN == null ? "" : subjectDN.toString();
 
             int description = event.getDescription();
-            String reason = SSLAlertDescription.valueOf(description).toString();
+            String reason = "serverAlertReceived: " + SSLAlertDescription.valueOf(description).toString();
 
-            logger.debug("SSL alert received:");
+            logger.debug("PKIServerSocketListener: SSL alert received:");
             logger.debug("- reason: " + reason);
             logger.debug("- client: " + clientIP);
             logger.debug("- server: " + serverIP);
@@ -83,7 +83,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
                     reason));
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.error("PKIServerSocketListener: " + e.getMessage(), e);
         }
     }
 
@@ -93,7 +93,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
             SSLSocket socket = event.getSocket();
 
             int description = event.getDescription();
-            String reason = SSLAlertDescription.valueOf(description).toString();
+            String reason = "serverAlertSent: " + SSLAlertDescription.valueOf(description).toString();
 
             SignedAuditEvent auditEvent;
             String clientIP;
@@ -134,7 +134,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
                         reason);
             }
 
-            logger.debug("SSL alert sent:");
+            logger.debug("PKIServerSocketListener: SSL alert sent:");
             logger.debug("- reason: " + reason);
             logger.debug("- client: " + clientIP);
             logger.debug("- server: " + serverIP);
@@ -143,7 +143,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
             signedAuditLogger.log(auditEvent);
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.error("PKIServerSocketListener: " + e.getMessage(), e);
         }
     }
 
@@ -162,7 +162,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
             Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
             String subjectID = subjectDN == null ? "" : subjectDN.toString();
 
-            logger.debug("Handshake completed:");
+            logger.debug("PKIServerSocketListener: Handshake completed:");
             logger.debug("- client: " + clientIP);
             logger.debug("- server: " + serverIP);
             logger.debug("- subject: " + subjectID);
@@ -180,7 +180,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
                     subjectID));
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.error("PKIServerSocketListener: " + e.getMessage(), e);
         }
     }
 }
