@@ -1,8 +1,6 @@
 package com.netscape.cmstools.profile;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
@@ -11,10 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Properties;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.dogtagpki.cli.CLI;
 
@@ -137,13 +131,9 @@ public class ProfileCLI extends CLI {
     }
 
     public static ProfileData readProfileFromFile(String filename)
-            throws JAXBException, FileNotFoundException {
-        ProfileData data = null;
-        JAXBContext context = JAXBContext.newInstance(ProfileData.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        FileInputStream fis = new FileInputStream(filename);
-        data = (ProfileData) unmarshaller.unmarshal(fis);
-        return data;
+            throws Exception {
+        String xml = Files.readString(Path.of(filename));
+        return ProfileData.fromXML(xml);
     }
 
     /** Reads a raw profile from the specified file.
