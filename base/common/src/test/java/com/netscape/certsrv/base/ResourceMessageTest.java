@@ -20,11 +20,11 @@ public class ResourceMessageTest {
     @Test
     public void testXML() throws Exception {
         // Act
-        String xml = ResourceMessage.marshal(before, ResourceMessage.class);
+        String xml = before.toXML();
         System.out.println("XML (before): " + xml);
 
-        ResourceMessage afterXML = ResourceMessage.unmarshal(xml, ResourceMessage.class);
-        System.out.println("XML (after): " + ResourceMessage.marshal(afterXML, ResourceMessage.class));
+        ResourceMessage afterXML = ResourceMessage.fromXML(xml);
+        System.out.println("XML (after): " + afterXML.toXML());
 
         // Assert
         Assert.assertEquals(before, afterXML);

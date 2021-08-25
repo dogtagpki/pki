@@ -73,9 +73,9 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest  {
     @Override
     public String toString() {
         try {
-            return ResourceMessage.marshal(this, AsymKeyGenerationRequest.class);
+            return toXML();
         } catch (Exception e) {
-            return super.toString();
+            throw new RuntimeException(e);
         }
     }
 
