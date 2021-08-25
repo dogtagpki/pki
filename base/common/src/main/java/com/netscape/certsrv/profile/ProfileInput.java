@@ -231,6 +231,12 @@ public class ProfileInput implements JSONSerializer {
             profileInputElement.setAttribute("id", id);
         }
 
+        if (classId != null) {
+            Element classIDElement = document.createElement("ClassID");
+            classIDElement.appendChild(document.createTextNode(classId));
+            profileInputElement.appendChild(classIDElement);
+        }
+
         if (name != null) {
             Element nameElement = document.createElement("Name");
             nameElement.appendChild(document.createTextNode(name));
@@ -292,6 +298,12 @@ public class ProfileInput implements JSONSerializer {
 
         String id = profileInputElement.getAttribute("id");
         profileInput.setId(id);
+
+        NodeList classIDList = profileInputElement.getElementsByTagName("ClassID");
+        if (classIDList.getLength() > 0) {
+            String value = classIDList.item(0).getTextContent();
+            profileInput.setClassId(value);
+        }
 
         NodeList nameList = profileInputElement.getElementsByTagName("Name");
         if (nameList.getLength() > 0) {

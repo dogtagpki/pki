@@ -165,19 +165,22 @@ public class PolicyConstraint implements JSONSerializer {
         if (constraints != null) {
             for (PolicyConstraintValue pcv : constraints) {
                 Element constraintElement = document.createElement("constraint");
+
+                if (pcv.getName() != null) {
+                    constraintElement.setAttribute("id", pcv.getName());
+                }
+
+                if (pcv.getValue() != null) {
+                    Element valueElement = document.createElement("value");
+                    valueElement.appendChild(document.createTextNode(pcv.getValue()));
+                    constraintElement.appendChild(valueElement);
+                }
+
                 Descriptor descriptor = pcv.getDescriptor();
                 if (descriptor != null) {
                     Element descriptorElement = document.createElement("descriptor");
                     descriptor.toDOM(document, descriptorElement);
                     constraintElement.appendChild(descriptorElement);
-                    if (pcv.getName() != null) {
-                        constraintElement.setAttribute("id", pcv.getName());
-                    }
-                    if (pcv.getValue() != null) {
-                        Element valueElement = document.createElement("value");
-                        valueElement.appendChild(document.createTextNode(pcv.getValue()));
-                        constraintElement.appendChild(valueElement);
-                    }
                 }
                 pcvElement.appendChild(constraintElement);
             }
@@ -224,8 +227,8 @@ public class PolicyConstraint implements JSONSerializer {
                Element descriptorElement = (Element) descriptorList.item(0);
                Descriptor descriptor = Descriptor.fromDOM(descriptorElement);
                pcv.setDescriptor(descriptor);
-               pc.addConstraint(pcv);
            }
+           pc.addConstraint(pcv);
         }
         return pc;
     }
