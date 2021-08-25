@@ -26,10 +26,18 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -354,6 +362,12 @@ public class ResourceMessage implements JSONSerializer {
         }
     }
 
+    public Element toDOM(Document document) {
+        Element element = document.createElement("ResourceMessage");
+        toDOM(document, element);
+        return element;
+    }
+
     public static void fromDOM(Element element, ResourceMessage resourceMessage) {
 
         NodeList classNameList = element.getElementsByTagName("ClassName");
@@ -375,5 +389,43 @@ public class ResourceMessage implements JSONSerializer {
                resourceMessage.setAttribute(name, value);
             }
         }
+    }
+
+    public static ResourceMessage fromDOM(Element element) {
+        ResourceMessage resourceMessage = new ResourceMessage();
+        fromDOM(element, resourceMessage);
+        return resourceMessage;
+    }
+
+    public String toXML() throws Exception {
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+
+        Element element = toDOM(document);
+        document.appendChild(element);
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        DOMSource domSource = new DOMSource(document);
+        StringWriter sw = new StringWriter();
+        StreamResult streamResult = new StreamResult(sw);
+        transformer.transform(domSource, streamResult);
+
+        return sw.toString();
+    }
+
+    public static ResourceMessage fromXML(String xml) throws Exception {
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element element = document.getDocumentElement();
+        return fromDOM(element);
     }
 }
