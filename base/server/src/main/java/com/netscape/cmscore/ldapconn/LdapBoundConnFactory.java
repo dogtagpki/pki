@@ -355,13 +355,18 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      * makes the minumum number of connections
      */
     private void makeMinimum() throws ELdapException {
-        if (mMasterConn == null || mMasterConn.isConnected() == false)
+        String method = "LdapBoundConnFactory.makeMinimum: ";
+        if (mMasterConn == null || mMasterConn.isConnected() == false) {
+            logger.debug(method + "master conn not available; returning");
             return;
+        }
         int increment;
+        logger.debug(method + "begins: total connections: " + mTotal);
+        logger.debug(method + "begins: available connections: " + mNumConns);
 
         if (mNumConns < mMinConns && mTotal <= mMaxConns) {
             increment = Math.min(mMinConns - mNumConns, mMaxConns - mTotal);
-            logger.debug("LdapBoundConnFactory: increasing minimum connections by " + increment);
+            logger.debug(method + "increasing minimum connections by " + increment);
 
             for (int i = increment - 1; i >= 0; i--) {
 
@@ -376,8 +381,8 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
             mTotal += increment;
             mNumConns += increment;
 
-            logger.debug("LdapBoundConnFactory: total connections: " + mTotal);
-            logger.debug("LdapBoundConnFactory: number of connections: " + mNumConns);
+            logger.debug(method + "ends: total connections: " + mTotal);
+            logger.debug(method + "ends: number of connections: " + mNumConns);
         }
     }
 
