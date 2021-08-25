@@ -49,6 +49,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -508,39 +509,68 @@ public class ProfileData implements JSONSerializer {
             profileData.addProfileOutput(profileOutput);
         }
 
+        // <PolicySets>
+        //     <PolicySet>
+        //         <id>...</id>
+        //         <value id="...">
+        //             <def>...</def>
+        //             <constraint>...</constraint>
+        //         </value>
+        //     </PolicySet>
+        // </PolicySets>
+
         NodeList policySetList = profileDataElement.getElementsByTagName("PolicySet");
         int policySetCount = policySetList.getLength();
+
         for (int i = 0; i < policySetCount; i++) {
-            Vector<ProfilePolicy> value = new Vector<>();
-            ProfilePolicy profilePolicy = new ProfilePolicy();
-            NodeList ppList = profileDataElement.getElementsByTagName("def");
-            if (ppList.getLength() > 0) {
-                Element ppElement = (Element) ppList.item(0);
-                PolicyDefault pd = PolicyDefault.fromDOM(ppElement);
-                profilePolicy.setDef(pd);
-            }
-            NodeList constraintList = profileDataElement.getElementsByTagName("constraint");
-            if (constraintList.getLength() > 0) {
-                Element constraintElement = (Element) constraintList.item(0);
-                PolicyConstraint pc = PolicyConstraint.fromDOM(constraintElement);
-                profilePolicy.setConstraint(pc);
-            }
-            NodeList valueIdList = profileDataElement.getElementsByTagName("value");
-            int valueIdCount = valueIdList.getLength();
-            for (int j = 0; j < valueIdCount; j++) {
-                Element valueIdElement = (Element) valueIdList.item(j);
-                String valueId = valueIdElement.getAttribute("id");
-                // Both PolicyDefault and PolicyConstraint have <value> elements, so we
-                // need to select only <value> elements that have a non-blank id attribute
-                if (!valueId.isBlank()) {
-                    profilePolicy.setId(valueId);
-                    value.add(profilePolicy);
-                }
-            }
             Element policySetElement = (Element) policySetList.item(i);
-            NodeList idList = policySetElement.getElementsByTagName("id");
-            String policySetId = idList.item(0).getTextContent();
-            profileData.addProfilePolicySet(policySetId, value);
+
+            String policySetId = null;
+            Vector<ProfilePolicy> policies = new Vector<>();
+
+            // Iterate through the immediate children of <PolicySet> to find <id> and <value>.
+            // Don't use getElementsByTagName() since it's recursive.
+            for (Node node = policySetElement.getFirstChild(); node != null; node = node.getNextSibling()) {
+
+                if (node.getNodeType() != Node.ELEMENT_NODE) continue;
+
+                Element element = (Element) node;
+                String tag = element.getTagName();
+
+                if (tag.equals("id")) {
+                    // found <id>
+                    policySetId = element.getTextContent();
+                    continue;
+
+                } else if (!tag.equals("value")) {
+                    continue;
+                }
+
+                // found <value>
+                Element profilePolicyElement = element;
+                ProfilePolicy profilePolicy = new ProfilePolicy();
+
+                String policyId = profilePolicyElement.getAttribute("id");
+                profilePolicy.setId(policyId);
+
+                NodeList ppList = profilePolicyElement.getElementsByTagName("def");
+                if (ppList.getLength() > 0) {
+                    Element ppElement = (Element) ppList.item(0);
+                    PolicyDefault pd = PolicyDefault.fromDOM(ppElement);
+                    profilePolicy.setDef(pd);
+                }
+
+                NodeList constraintList = profilePolicyElement.getElementsByTagName("constraint");
+                if (constraintList.getLength() > 0) {
+                    Element constraintElement = (Element) constraintList.item(0);
+                    PolicyConstraint pc = PolicyConstraint.fromDOM(constraintElement);
+                    profilePolicy.setConstraint(pc);
+                }
+
+                policies.add(profilePolicy);
+            }
+
+            profileData.addProfilePolicySet(policySetId, policies);
         }
 
         NodeList LinkList = profileDataElement.getElementsByTagName("Link");
