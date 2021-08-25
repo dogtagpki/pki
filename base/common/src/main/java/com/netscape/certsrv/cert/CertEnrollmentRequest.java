@@ -478,29 +478,11 @@ public class CertEnrollmentRequest extends ResourceMessage {
 
                 NodeList descriptorList = attributeElement.getElementsByTagName("Descriptor");
                 if (descriptorList.getLength() > 0) {
-                    String syntax = null;
-                    String constraint = null;
-                    String description = null;
-                    String def = null;
-                    NodeList syntaxList = attributeElement.getElementsByTagName("mSyntax");
-                    NodeList mConstraintList = attributeElement.getElementsByTagName("mConstraint");
-                    NodeList mDescriptionList = attributeElement.getElementsByTagName("mDescription");
-                    NodeList defList = attributeElement.getElementsByTagName("mDef");
-                    if (syntaxList.getLength() > 0) {
-                        syntax = syntaxList.item(0).getTextContent();
-                    }
-                    if (mConstraintList.getLength() > 0) {
-                        constraint = mConstraintList.item(0).getTextContent();
-                    }
-                    if (mDescriptionList.getLength() > 0) {
-                        description = mDescriptionList.item(0).getTextContent();
-                    }
-                    if (defList.getLength() > 0) {
-                        def = defList.item(0).getTextContent();
-                    }
-                    Descriptor descriptor = new Descriptor(syntax, constraint, def, description);
+                    Element descriptorElement = (Element) descriptorList.item(0);
+                    Descriptor descriptor = Descriptor.fromDOM(descriptorElement);
                     profileAttribute.setDescriptor(descriptor);
                 }
+
                 profileInput.addAttribute(profileAttribute);
             }
             certEnrollmentRequest.addInput(profileInput);

@@ -19,7 +19,6 @@ package com.netscape.certsrv.profile;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Locale;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -149,27 +148,7 @@ public class ProfilePolicy implements JSONSerializer {
                     }
                     Descriptor descriptor = attribute.getDescriptor();
                     if (descriptor != null) {
-                        Element descriptorElement = document.createElement("Descriptor");
-                        if (descriptor.getSyntax() != null) {
-                            Element syntaxElement = document.createElement("mSyntax");
-                            syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
-                            descriptorElement.appendChild(syntaxElement);
-                        }
-                        if (descriptor.getConstraint() != null) {
-                            Element constraintElement = document.createElement("mConstraint");
-                            constraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
-                            descriptorElement.appendChild(constraintElement);
-                        }
-                        if (descriptor.getDescription(Locale.getDefault()) != null) {
-                            Element descriptionElement = document.createElement("mDescription");
-                            descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
-                            descriptorElement.appendChild(descriptionElement);
-                        }
-                        if (descriptor.getDefaultValue() != null) {
-                            Element defaultValueElement = document.createElement("mDef");
-                            defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
-                            descriptorElement.appendChild(defaultValueElement);
-                        }
+                        Element descriptorElement = descriptor.toDOM(document);
                         attributeElement.appendChild(descriptorElement);
                     }
                     defElement.appendChild(attributeElement);
@@ -211,26 +190,7 @@ public class ProfilePolicy implements JSONSerializer {
                     Descriptor descriptor = pcv.getDescriptor();
                     if (descriptor != null) {
                         Element descriptorElement = document.createElement("descriptor");
-                        if (descriptor.getSyntax() != null) {
-                            Element syntaxElement = document.createElement("mSyntax");
-                            syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
-                            descriptorElement.appendChild(syntaxElement);
-                        }
-                        if (descriptor.getConstraint() != null) {
-                            Element mConstraintElement = document.createElement("mConstraint");
-                            mConstraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
-                            descriptorElement.appendChild(mConstraintElement);
-                        }
-                        if (descriptor.getDescription(Locale.getDefault()) != null) {
-                            Element descriptionElement = document.createElement("mDescription");
-                            descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
-                            descriptorElement.appendChild(descriptionElement);
-                        }
-                        if (descriptor.getDefaultValue() != null) {
-                            Element defaultValueElement = document.createElement("mDef");
-                            defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
-                            descriptorElement.appendChild(defaultValueElement);
-                        }
+                        descriptor.toDOM(document, descriptorElement);
                         constraintElement.appendChild(descriptorElement);
                     }
                     if (pcv.getValue() != null) {
@@ -294,27 +254,8 @@ public class ProfilePolicy implements JSONSerializer {
 
                NodeList descriptorList = constraintElement.getElementsByTagName("descriptor");
                if (descriptorList.getLength() > 0) {
-                   String syntax = null;
-                   String constraint = null;
-                   String description = null;
-                   String def = null;
-                   NodeList syntaxList = constraintElement.getElementsByTagName("mSyntax");
-                   NodeList mConstraintList = constraintElement.getElementsByTagName("mConstraint");
-                   NodeList mDescriptionList = constraintElement.getElementsByTagName("mDescription");
-                   NodeList defList = constraintElement.getElementsByTagName("mDef");
-                   if (syntaxList.getLength() > 0) {
-                       syntax = syntaxList.item(0).getTextContent();
-                   }
-                   if (mConstraintList.getLength() > 0) {
-                       constraint = mConstraintList.item(0).getTextContent();
-                   }
-                   if (mDescriptionList.getLength() > 0) {
-                       description = mDescriptionList.item(0).getTextContent();
-                   }
-                   if (defList.getLength() > 0) {
-                       def = defList.item(0).getTextContent();
-                   }
-                   Descriptor descriptor = new Descriptor(syntax, constraint, def, description);
+                   Element descriptorElement = (Element) descriptorList.item(0);
+                   Descriptor descriptor = Descriptor.fromDOM(descriptorElement);
                    pcv.setDescriptor(descriptor);
                    pc.addConstraint(pcv);
                }

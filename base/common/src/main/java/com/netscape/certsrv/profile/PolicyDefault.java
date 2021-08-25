@@ -21,7 +21,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -192,27 +191,7 @@ public class PolicyDefault implements JSONSerializer {
             }
             Descriptor descriptor = attribute.getDescriptor();
             if (descriptor != null) {
-                Element descriptorElement = document.createElement("Descriptor");
-                if (descriptor.getSyntax() != null) {
-                    Element syntaxElement = document.createElement("mSyntax");
-                    syntaxElement.appendChild(document.createTextNode(descriptor.getSyntax()));
-                    descriptorElement.appendChild(syntaxElement);
-                }
-                if (descriptor.getConstraint() != null) {
-                    Element constraintElement = document.createElement("mConstraint");
-                    constraintElement.appendChild(document.createTextNode(descriptor.getConstraint()));
-                    descriptorElement.appendChild(constraintElement);
-                }
-                if (descriptor.getDescription(Locale.getDefault()) != null) {
-                    Element descriptionElement = document.createElement("mDescription");
-                    descriptionElement.appendChild(document.createTextNode(descriptor.getDescription(Locale.getDefault())));
-                    descriptorElement.appendChild(descriptionElement);
-                }
-                if (descriptor.getDefaultValue() != null) {
-                    Element defaultValueElement = document.createElement("mDef");
-                    defaultValueElement.appendChild(document.createTextNode(descriptor.getDefaultValue()));
-                    descriptorElement.appendChild(defaultValueElement);
-                }
+                Element descriptorElement = descriptor.toDOM(document);
                 attributeElement.appendChild(descriptorElement);
             }
             pdElement.appendChild(attributeElement);
