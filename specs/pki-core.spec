@@ -16,13 +16,13 @@ License:          GPLv2
 %endif
 
 %if 0%{?rhel}
-Version:                10.5.17
+Version:                10.5.18
 %define redhat_release  1
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.17
+Version:                10.5.18
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -67,7 +67,7 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %global package_rhel_packages 1
 # Package RHCS-specific RPMS Only
 %global package_rhcs_packages 1
-%define pki_core_rhel_version 10.5.17
+%define pki_core_rhel_version 10.5.18
 %else
 # Fedora always packages all RPMS
 %global package_fedora_packages 1

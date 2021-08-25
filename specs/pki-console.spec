@@ -18,13 +18,13 @@ BuildArch:        noarch
 %endif
 
 %if 0%{?rhel}
-Version:                10.5.17
+Version:                10.5.18
 %define redhat_release  1
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.17
+Version:                10.5.18
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -64,10 +64,10 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %bcond_without    javadoc
 
 %if 0%{?rhel}
-%define pki_core_rhel_version      10.5.17
+%define pki_core_rhel_version      10.5.18
 %define pki_core_version           %{pki_core_rhel_version}
 %else
-%define pki_core_fedora_version    10.5.17
+%define pki_core_fedora_version    10.5.18
 %define pki_core_version           %{pki_core_fedora_version}
 %endif
 

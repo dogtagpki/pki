@@ -6,13 +6,13 @@
 
 Name:             dogtag-pki-theme
 %if 0%{?rhel}
-Version:                10.5.17
+Version:                10.5.18
 %define redhat_release  1
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.17
+Version:                10.5.18
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
