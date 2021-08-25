@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -203,13 +204,11 @@ public class ProfileCLI extends CLI {
     }
 
     public static void saveEnrollmentTemplateToFile(String filename, CertEnrollmentRequest request)
-            throws JAXBException, FileNotFoundException {
-        JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            throws Exception {
 
-        FileOutputStream stream = new FileOutputStream(filename);
-        marshaller.marshal(request, stream);
+        try (FileWriter out = new FileWriter(filename)) {
+            out.write(request.toXML());
+        }
 
         MainCLI.printMessage("Saved enrollment template for " + request.getProfileId() + " to " + filename);
     }
