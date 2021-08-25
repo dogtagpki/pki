@@ -210,14 +210,7 @@ public class ProfileOutput implements JSONSerializer {
         if (!attrs.isEmpty()) {
             for (ProfileAttribute attr : attrs) {
                 Element attrElement = document.createElement("attributes");
-                if (attr.getName() != null) {
-                    attrElement.setAttribute("name", attr.getName());
-                }
-                if (attr.getValue() != null) {
-                    Element valueElement = document.createElement("Value");
-                    valueElement.appendChild(document.createTextNode(attr.getValue()));
-                    attrElement.appendChild(valueElement);
-                    }
+                attr.toDOM(document, attrElement);
                 poElement.appendChild(attrElement);
             }
         }
