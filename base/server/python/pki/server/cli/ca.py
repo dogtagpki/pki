@@ -491,7 +491,7 @@ class CACertRequestShowCLI(pki.cli.CLI):
 
         if output_file:
             with io.open(output_file, 'wb') as f:
-                f.write(request['request'])
+                f.write(request['request'].encode())
 
         else:
             CACertRequestCLI.print_request(request, details=True)
