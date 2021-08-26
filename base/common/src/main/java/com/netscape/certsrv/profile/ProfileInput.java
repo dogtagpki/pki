@@ -23,11 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -48,32 +43,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement(name="Input")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileInput implements JSONSerializer {
 
-    @XmlAttribute(name="id")
     private String id;
-
-    @XmlElement(name="ClassID")
     private String classId;
-
-    @XmlElement(name="Name")
     private String name;
-
-    @XmlElement(name="Text")
     private String text;
-
-    @XmlElement(name = "Attribute")
     private List<ProfileAttribute> attrs = new ArrayList<>();
-
-    @XmlElement(name = "ConfigAttribute")
     private List<ProfileAttribute> configAttrs = new ArrayList<>();
 
     public ProfileInput() {
-        // required for jaxb
     }
 
     public ProfileInput(String id, String name, String classId) {
