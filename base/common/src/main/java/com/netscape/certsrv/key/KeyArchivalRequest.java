@@ -21,7 +21,15 @@
  */
 package com.netscape.certsrv.key;
 
+import java.io.StringReader;
+
 import javax.ws.rs.core.MultivaluedMap;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -234,4 +242,25 @@ public class KeyArchivalRequest extends ResourceMessage {
         }
     }
 
+    public Element toDOM(Document document) {
+        Element element = document.createElement("KeyArchivalRequest");
+        toDOM(document, element);
+        return element;
+    }
+
+    public static KeyArchivalRequest fromDOM(Element element) {
+        KeyArchivalRequest request = new KeyArchivalRequest();
+        fromDOM(element, request);
+        return request;
+    }
+
+    public static KeyArchivalRequest fromXML(String xml) throws Exception {
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element element = document.getDocumentElement();
+        return fromDOM(element);
+    }
 }

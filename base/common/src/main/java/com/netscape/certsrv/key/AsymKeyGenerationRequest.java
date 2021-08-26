@@ -17,13 +17,19 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.key;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -94,4 +100,25 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest  {
         return list;
     }
 
+    public Element toDOM(Document document) {
+        Element element = document.createElement("AsymKeyGenerationRequest");
+        toDOM(document, element);
+        return element;
+    }
+
+    public static AsymKeyGenerationRequest fromDOM(Element element) {
+        AsymKeyGenerationRequest request = new AsymKeyGenerationRequest();
+        fromDOM(element, request);
+        return request;
+    }
+
+    public static AsymKeyGenerationRequest fromXML(String xml) throws Exception {
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element element = document.getDocumentElement();
+        return fromDOM(element);
+    }
 }
