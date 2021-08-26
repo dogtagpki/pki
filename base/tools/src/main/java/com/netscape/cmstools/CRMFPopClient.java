@@ -247,6 +247,7 @@ public class CRMFPopClient {
         System.out.println("  -w <keywrap algorithm>       Algorithm to use for key wrapping");
         System.out.println("                               - default: \"AES KeyWrap/Padding\"");
         System.out.println("                               - \"AES/CBC/PKCS5Padding\"");
+	System.out.println("                               - \"AES KeyWrap/Wrapped\"");
         System.out.println("                               - \"DES3/CBC/Pad\"");
         System.out.println("  -b <transport cert>          PEM transport certificate (No archival if not specified)");
         System.out.println("  -v, --verbose                Run in verbose mode.");
@@ -771,7 +772,13 @@ public class CRMFPopClient {
                     rsaKeyWrapAlg, EncryptionAlgorithm.DES3_CBC_PAD,
                     KeyWrapAlgorithm.DES3_CBC_PAD,
                     ivps, ivps);
-        } else  {
+        } else  if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP) {
+	    return new WrappingParams(
+                SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
+                rsaKeyWrapAlg, EncryptionAlgorithm.AES_128_KEY_WRAP_KWP,
+                kwAlg, ivps, ivps);
+	} else
+	{
             throw new Exception("Invalid encryption algorithm");
         }
     }
