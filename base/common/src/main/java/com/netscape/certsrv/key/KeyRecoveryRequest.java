@@ -224,6 +224,12 @@ public class KeyRecoveryRequest extends ResourceMessage {
         attributes.put(PAYLOAD_WRAPPING_NAME, payloadWrappingName);
     }
 
+    public Element toDOM(Document document) {
+        Element element = document.createElement("KeyRecoveryRequest");
+        toDOM(document, element);
+        return element;
+    }
+
     public static KeyRecoveryRequest fromDOM(Element element) {
         KeyRecoveryRequest request = new KeyRecoveryRequest();
         fromDOM(element, request);

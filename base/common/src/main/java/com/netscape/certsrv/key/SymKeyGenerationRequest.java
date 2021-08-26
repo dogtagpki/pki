@@ -1,12 +1,18 @@
 package com.netscape.certsrv.key;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -83,4 +89,25 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
         return list;
     }
 
+    public Element toDOM(Document document) {
+        Element element = document.createElement("SymKeyGenerationRequest");
+        toDOM(document, element);
+        return element;
+    }
+
+    public static SymKeyGenerationRequest fromDOM(Element element) {
+        SymKeyGenerationRequest request = new SymKeyGenerationRequest();
+        fromDOM(element, request);
+        return request;
+    }
+
+    public static SymKeyGenerationRequest fromXML(String xml) throws Exception {
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+        Element element = document.getDocumentElement();
+        return fromDOM(element);
+    }
 }
