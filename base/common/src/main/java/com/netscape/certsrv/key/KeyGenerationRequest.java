@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 
 /**
  * Class to define the common attributes and methods used by
@@ -31,7 +31,7 @@ import com.netscape.certsrv.base.ResourceMessage;
  * @author akoneru
  *
  */
-public class KeyGenerationRequest extends ResourceMessage{
+public class KeyGenerationRequest extends RESTMessage {
 
     protected static final String CLIENT_KEY_ID = "clientKeyID";
     protected static final String KEY_SIZE = "keySize";

@@ -36,7 +36,7 @@ import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
@@ -417,18 +417,18 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
     @Override
     public Response submitRequest(MultivaluedMap<String, String> form) throws Exception {
-        ResourceMessage data = new ResourceMessage(form);
+        RESTMessage data = new RESTMessage(form);
         return submitRequest(data);
     }
 
     @Override
-    public Response submitRequest(ResourceMessage data) throws Exception {
+    public Response submitRequest(RESTMessage data) throws Exception {
 
         Object request = null;
 
         try {
             Class<?> requestClazz = Class.forName(data.getClassName());
-            request = requestClazz.getDeclaredConstructor(ResourceMessage.class).newInstance(data);
+            request = requestClazz.getDeclaredConstructor(RESTMessage.class).newInstance(data);
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException
                 | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new BadRequestException("Invalid request class." + e, e);

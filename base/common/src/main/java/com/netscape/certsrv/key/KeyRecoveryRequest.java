@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
 
@@ -45,7 +45,7 @@ import com.netscape.certsrv.request.RequestId;
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class KeyRecoveryRequest extends ResourceMessage {
+public class KeyRecoveryRequest extends RESTMessage {
 
     private static final String KEY_ID = "keyId";
     private static final String REQUEST_ID = "requestId";
@@ -76,7 +76,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
         setClassName(getClass().getName());
     }
 
-    public KeyRecoveryRequest(ResourceMessage data) {
+    public KeyRecoveryRequest(RESTMessage data) {
         attributes.putAll(data.getAttributes());
         setClassName(getClass().getName());
     }

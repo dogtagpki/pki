@@ -12,7 +12,7 @@ import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.request.RequestId;
 
 @Path("agent/keyrequests")
@@ -56,7 +56,7 @@ public interface KeyRequestResource {
     public Response submitRequest(MultivaluedMap<String, String> form) throws Exception;
 
     @POST
-    public Response submitRequest(ResourceMessage data) throws Exception;
+    public Response submitRequest(RESTMessage data) throws Exception;
 
     /**
      * Used to retrieve key request info for a specific request

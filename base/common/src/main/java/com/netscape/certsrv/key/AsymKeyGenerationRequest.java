@@ -34,7 +34,7 @@ import org.xml.sax.InputSource;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -71,7 +71,7 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest  {
         setClassName(getClass().getName());
     }
 
-    public AsymKeyGenerationRequest(ResourceMessage data) {
+    public AsymKeyGenerationRequest(RESTMessage data) {
         attributes.putAll(data.getAttributes());
         setClassName(getClass().getName());
     }
