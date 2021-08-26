@@ -20,11 +20,6 @@ package com.netscape.certsrv.profile;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -45,19 +40,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
-@XmlRootElement(name="Attribute")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ProfileAttribute implements JSONSerializer {
 
-    @XmlAttribute
     private String name;
-
-    @XmlElement(name="Value")
     private String value;
-
-    @XmlElement(name="Descriptor")
     private Descriptor descriptor;
 
     public ProfileAttribute() {
