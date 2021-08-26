@@ -6,6 +6,7 @@ add_subdirectory(src/main/native/revoker)
 add_subdirectory(src/main/native/setpin)
 add_subdirectory(src/main/native/sslget)
 add_subdirectory(src/main/native/tkstool)
+add_subdirectory(src/main/native/p12tool)
 add_subdirectory(templates)
 
 javac(pki-tools-classes
