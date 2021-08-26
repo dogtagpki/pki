@@ -10,15 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlValue;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -47,10 +38,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.netscape.certsrv.key.AsymKeyGenerationRequest;
-import com.netscape.certsrv.key.KeyArchivalRequest;
-import com.netscape.certsrv.key.KeyRecoveryRequest;
-import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -87,31 +74,22 @@ import com.netscape.certsrv.util.JSONSerializer;
  *
  * @author Ade Lee
  */
-@XmlRootElement(name = "ResourceMessage")
-@XmlSeeAlso({
-    KeyArchivalRequest.class,
-    KeyRecoveryRequest.class,
-    SymKeyGenerationRequest.class,
-    AsymKeyGenerationRequest.class
-})
-@XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ResourceMessage implements JSONSerializer {
+public class RESTMessage implements JSONSerializer {
 
     protected Map<String, String> attributes = new LinkedHashMap<>();
     protected String className;
 
-    public ResourceMessage() {
+    public RESTMessage() {
     }
 
-    public ResourceMessage(MultivaluedMap<String, String> form) {
+    public RESTMessage(MultivaluedMap<String, String> form) {
         for (Map.Entry<String, List<String>> entry : form.entrySet()) {
             attributes.put(entry.getKey(), entry.getValue().get(0));
         }
     }
 
-    @XmlElement(name = "ClassName")
     @JsonProperty("ClassName")
     public String getClassName() {
         return className;
@@ -121,8 +99,6 @@ public class ResourceMessage implements JSONSerializer {
         this.className = className;
     }
 
-    @XmlElement(name = "Attributes")
-    @XmlJavaTypeAdapter(MapAdapter.class)
     @JsonIgnore
     public Map<String, String> getAttributes() {
         return attributes;
@@ -169,44 +145,15 @@ public class ResourceMessage implements JSONSerializer {
         return attributes.remove(name);
     }
 
-    public static class MapAdapter extends XmlAdapter<AttributeList, Map<String, String>> {
-
-        @Override
-        public AttributeList marshal(Map<String, String> map) {
-            AttributeList list = new AttributeList();
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                Attribute attribute = new Attribute();
-                attribute.name = entry.getKey();
-                attribute.value = entry.getValue();
-                list.attrs.add(attribute);
-            }
-            return list;
-        }
-
-        @Override
-        public Map<String, String> unmarshal(AttributeList list) {
-            Map<String, String> map = new LinkedHashMap<>();
-            for (Attribute attribute : list.attrs) {
-                map.put(attribute.name, attribute.value);
-            }
-            return map;
-        }
-    }
-
     @JsonSerialize(using=AttributeListSerializer.class)
     @JsonDeserialize(using=AttributeListDeserializer.class)
     public static class AttributeList {
-        @XmlElement(name = "Attribute")
         @JsonProperty("Attribute")
         public List<Attribute> attrs = new ArrayList<>();
     }
 
     public static class Attribute {
-
-        @XmlAttribute
         public String name;
-
-        @XmlValue
         public String value;
     }
 
@@ -291,7 +238,7 @@ public class ResourceMessage implements JSONSerializer {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ResourceMessage other = (ResourceMessage) obj;
+        RESTMessage other = (RESTMessage) obj;
         if (attributes == null) {
             if (other.attributes != null)
                 return false;
@@ -331,7 +278,7 @@ public class ResourceMessage implements JSONSerializer {
         return element;
     }
 
-    public static void fromDOM(Element element, ResourceMessage resourceMessage) {
+    public static void fromDOM(Element element, RESTMessage resourceMessage) {
 
         NodeList classNameList = element.getElementsByTagName("ClassName");
         if (classNameList.getLength() > 0) {
@@ -354,8 +301,8 @@ public class ResourceMessage implements JSONSerializer {
         }
     }
 
-    public static ResourceMessage fromDOM(Element element) {
-        ResourceMessage resourceMessage = new ResourceMessage();
+    public static RESTMessage fromDOM(Element element) {
+        RESTMessage resourceMessage = new RESTMessage();
         fromDOM(element, resourceMessage);
         return resourceMessage;
     }
@@ -382,7 +329,7 @@ public class ResourceMessage implements JSONSerializer {
         return sw.toString();
     }
 
-    public static ResourceMessage fromXML(String xml) throws Exception {
+    public static RESTMessage fromXML(String xml) throws Exception {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();

@@ -21,14 +21,14 @@ package org.dogtagpki.common;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 
 /**
  * @author Ade Lee
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class KRAInfo extends ResourceMessage {
+public class KRAInfo extends RESTMessage {
 
     String archivalMechanism;
     String recoveryMechanism;

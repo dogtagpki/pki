@@ -40,14 +40,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Info extends ResourceMessage {
+public class Info extends RESTMessage {
 
     public static Logger logger = LoggerFactory.getLogger(Info.class);
 
