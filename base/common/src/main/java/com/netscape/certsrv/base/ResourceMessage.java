@@ -15,7 +15,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -47,10 +46,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.netscape.certsrv.key.AsymKeyGenerationRequest;
-import com.netscape.certsrv.key.KeyArchivalRequest;
-import com.netscape.certsrv.key.KeyRecoveryRequest;
-import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -88,12 +83,6 @@ import com.netscape.certsrv.util.JSONSerializer;
  * @author Ade Lee
  */
 @XmlRootElement(name = "ResourceMessage")
-@XmlSeeAlso({
-    KeyArchivalRequest.class,
-    KeyRecoveryRequest.class,
-    SymKeyGenerationRequest.class,
-    AsymKeyGenerationRequest.class
-})
 @XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown=true)

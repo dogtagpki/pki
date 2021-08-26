@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 
 /**
  * @author alee
@@ -43,7 +43,7 @@ import com.netscape.certsrv.base.ResourceMessage;
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class KeyArchivalRequest extends ResourceMessage {
+public class KeyArchivalRequest extends RESTMessage {
 
     private static final String CLIENT_KEY_ID = "clientKeyID";
     private static final String DATA_TYPE = "dataType";
@@ -81,7 +81,7 @@ public class KeyArchivalRequest extends ResourceMessage {
         setClassName(getClass().getName());
     }
 
-    public KeyArchivalRequest(ResourceMessage data) {
+    public KeyArchivalRequest(RESTMessage data) {
         attributes.putAll(data.getAttributes());
         setClassName(getClass().getName());
     }

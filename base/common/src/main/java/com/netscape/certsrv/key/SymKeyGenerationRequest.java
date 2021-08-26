@@ -17,7 +17,7 @@ import org.xml.sax.InputSource;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 
 /**
  * @author alee
@@ -55,7 +55,7 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
         setClassName(getClass().getName());
     }
 
-    public SymKeyGenerationRequest(ResourceMessage data) {
+    public SymKeyGenerationRequest(RESTMessage data) {
         attributes.putAll(data.getAttributes());
         setClassName(getClass().getName());
     }

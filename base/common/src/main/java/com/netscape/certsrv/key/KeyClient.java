@@ -34,7 +34,7 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -308,7 +308,7 @@ public class KeyClient extends Client {
      * @param data -- A KeyArchivalRequest/KeyRecoveryRequest/SymKeyGenerationRequest object
      * @return A KeyRequestResponse object
      */
-    private KeyRequestResponse submitRequest(ResourceMessage request) throws Exception {
+    private KeyRequestResponse submitRequest(RESTMessage request) throws Exception {
 
         if (request == null) {
             throw new IllegalArgumentException("A Request object must be specified.");
