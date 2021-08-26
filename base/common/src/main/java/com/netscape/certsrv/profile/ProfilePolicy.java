@@ -118,9 +118,9 @@ public class ProfilePolicy implements JSONSerializer {
             return false;
         return true;
     }
-    public Element toDOM(Document document) {
 
-        Element ppElement = document.createElement("profilePolicy");
+    public void toDOM(Document document, Element ppElement) {
+
         ppElement.setAttribute("id", id);
 
         if (def != null) {
@@ -203,7 +203,12 @@ public class ProfilePolicy implements JSONSerializer {
             }
             ppElement.appendChild(pcElement);
         }
-        return ppElement;
+    }
+
+    public Element toDOM(Document document) {
+        Element element = document.createElement("profilePolicy");
+        toDOM(document, element);
+        return element;
     }
 
     public static ProfilePolicy fromDOM(Element profilePolicyElement) {

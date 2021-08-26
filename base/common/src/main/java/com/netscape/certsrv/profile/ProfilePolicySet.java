@@ -62,7 +62,8 @@ public class ProfilePolicySet {
         Element element = document.createElement("ProfilePolicySet");
 
         for (ProfilePolicy profilePolicy : policies) {
-            Element policyElement = profilePolicy.toDOM(document);
+            Element policyElement = document.createElement("policies");
+            profilePolicy.toDOM(document, policyElement);
             element.appendChild(policyElement);
         }
 
