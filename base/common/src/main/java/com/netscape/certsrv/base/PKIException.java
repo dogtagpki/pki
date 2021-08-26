@@ -103,7 +103,7 @@ public class PKIException extends RuntimeException {
     @JsonIgnoreProperties(ignoreUnknown=true)
     @JsonSerialize(using=PKIExceptionSerializer.class)
     @JsonDeserialize(using=PKIExceptionDeserializer.class)
-    public static class Data extends ResourceMessage {
+    public static class Data extends RESTMessage {
 
         public int code;
         public String message;
