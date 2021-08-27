@@ -629,6 +629,13 @@ public class RecoveryService implements IService {
                     logger.debug("RecoverService: createPFX() key not null");
                 }
             } else {
+	        String nonLegacyAlg = engine.getConfig().getString("kra.nonLegacyAlg", "AES/CBC/NoPadding");
+                EncryptionAlgorithm encAlg = EncryptionAlgorithm.fromString(nonLegacyAlg);
+                logger.debug("RecoverService: createPFX() selected enc alg: " + encAlg);
+                if( encAlg == null || "AES/CBC/NoPadding".equals(encAlg.toString())) {
+                    /* Make sure we use the 256 bit version of the default alg */
+                    encAlg = EncryptionAlgorithm.AES_256_CBC;
+                }
                 byte[] epkiBytes = ct.getCryptoStore().getEncryptedPrivateKeyInfo(
                     /* For compatibility with OpenSSL and NSS >= 3.31,
                      * do not BMPString-encode the passphrase when using
@@ -642,7 +649,7 @@ public class RecoveryService implements IService {
                     /* NSS has a bug that causes any AES CBC encryption
                      * to use AES-256, but AlgorithmID contains chosen
                      * alg.  To avoid mismatch, use AES_256_CBC. */
-                    EncryptionAlgorithm.AES_256_CBC,
+                    encAlg,
                     0 /* iterations (use default) */,
                     priKey);
                 logger.debug("RecoverService: createPFX() getEncryptedPrivateKeyInfo() returned");
