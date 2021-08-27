@@ -1,9 +1,6 @@
 package com.netscape.certsrv.base;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -13,10 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -113,7 +106,6 @@ public class ResourceMessage implements JSONSerializer {
     protected String className;
 
     public ResourceMessage() {
-        // required for jax-b
     }
 
     public ResourceMessage(MultivaluedMap<String, String> form) {
@@ -314,32 +306,6 @@ public class ResourceMessage implements JSONSerializer {
         } else if (!className.equals(other.className))
             return false;
         return true;
-    }
-
-    public static <T> String marshal(T object, Class<T> clazz) throws JAXBException {
-        Marshaller marshaller = JAXBContext.newInstance(clazz).createMarshaller();
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(object, sw);
-        return sw.toString();
-    }
-
-    public void marshall(OutputStream os) throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(this.getClass());
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(this, os);
-    }
-
-    public static <T> T unmarshal(String string, Class<T> clazz) throws Exception {
-        Unmarshaller unmarshaller = JAXBContext.newInstance(clazz).createUnmarshaller();
-        return (T) unmarshaller.unmarshal(new StringReader(string));
-    }
-
-    public static <T> T unmarshall(Class<T> t, String filePath) throws JAXBException, FileNotFoundException {
-        JAXBContext context = JAXBContext.newInstance(t);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        FileInputStream fis = new FileInputStream(filePath);
-        return (T) unmarshaller.unmarshal(fis);
     }
 
     public void toDOM(Document document, Element element) {

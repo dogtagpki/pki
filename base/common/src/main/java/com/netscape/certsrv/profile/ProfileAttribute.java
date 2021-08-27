@@ -49,7 +49,6 @@ public class ProfileAttribute implements JSONSerializer {
     private Descriptor descriptor;
 
     public ProfileAttribute() {
-        // required for jax-b
     }
 
     public ProfileAttribute(String name, String value, Descriptor descriptor) {

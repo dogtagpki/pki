@@ -48,7 +48,6 @@ public class PolicyConstraintValue implements JSONSerializer {
     private String value;
 
     public PolicyConstraintValue() {
-        // required for jax-b
     }
 
     public PolicyConstraintValue(String name, Descriptor descriptor, String value) {
