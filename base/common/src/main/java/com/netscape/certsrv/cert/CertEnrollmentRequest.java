@@ -45,7 +45,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
@@ -59,7 +59,7 @@ import com.netscape.certsrv.property.Descriptor;
 
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class CertEnrollmentRequest extends ResourceMessage {
+public class CertEnrollmentRequest extends RESTMessage {
 
     private static final String PROFILE_ID = "profileId";
     private static final String RENEWAL = "renewal";
@@ -350,6 +350,7 @@ public class CertEnrollmentRequest extends ResourceMessage {
         return true;
     }
 
+    @Override
     public void toDOM(Document document, Element certEnrollmentRequestElement) {
 
         super.toDOM(document, certEnrollmentRequestElement);
@@ -399,6 +400,7 @@ public class CertEnrollmentRequest extends ResourceMessage {
         }
     }
 
+    @Override
     public Element toDOM(Document document) {
         Element certEnrollmentRequestElement = document.createElement("CertEnrollmentRequest");
         toDOM(document, certEnrollmentRequestElement);
@@ -407,7 +409,7 @@ public class CertEnrollmentRequest extends ResourceMessage {
 
     public static void fromDOM(Element certEnrollmentRequestElement, CertEnrollmentRequest certEnrollmentRequest) {
 
-        ResourceMessage.fromDOM(certEnrollmentRequestElement, certEnrollmentRequest);
+        RESTMessage.fromDOM(certEnrollmentRequestElement, certEnrollmentRequest);
 
         NodeList profileIdList = certEnrollmentRequestElement.getElementsByTagName("ProfileID");
         if (profileIdList.getLength() > 0) {
@@ -502,6 +504,7 @@ public class CertEnrollmentRequest extends ResourceMessage {
         return certEnrollmentRequest;
     }
 
+    @Override
     public String toXML() throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
