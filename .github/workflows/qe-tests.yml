@@ -118,6 +118,7 @@ jobs:
               --ansible-module-path tests/dogtag/pytest-ansible/common-modules \
               --junit-xml pki_cert_junit.xml \
               -qsvvv \
+              -x \
               tests/dogtag/pytest-ansible/pytest/sanity/test_role_users.py
 
       - name: Gather artifacts
