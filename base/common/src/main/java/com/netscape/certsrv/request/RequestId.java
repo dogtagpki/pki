@@ -20,6 +20,7 @@ package com.netscape.certsrv.request;
 import java.io.Serializable;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -34,6 +35,7 @@ import com.netscape.certsrv.util.JSONSerializer;
 public class RequestId implements Serializable, JSONSerializer {
 
     private static final long serialVersionUID = -5184710368124269481L;
+    @JsonProperty
     protected BigInteger value;
 
     public RequestId() {
