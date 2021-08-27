@@ -420,7 +420,6 @@ Requires:         %{product_id}-base = %{version}-%{release}
 Requires:         resteasy >= 3.0.26
 %else
 Requires:         resteasy-client >= 3.0.17-1
-Requires:         resteasy-jaxb-provider >= 3.0.17-1
 Requires:         resteasy-core >= 3.0.17-1
 Requires:         resteasy-jackson2-provider >= 3.0.17-1
 %endif
