@@ -45,13 +45,13 @@ jobs:
             BUILD_OPTS=--with-pkgs=base,server,acme,ca,kra --with-timestamp --with-commit-id
           tags: pki-runner
           target: pki-runner
-          outputs: type=docker,dest=/tmp/pki-runner.tar
+          outputs: type=docker,dest=/tmp/ipa-runner.tar
 
       - name: Upload runner image
-        uses: actions/upload-artifact@v2
+        uses: actions/cache@v2
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp/pki-runner.tar
+          key: ipa-runner-${{ matrix.os }}
+          path: /tmp/ipa-runner.tar
 
   ipa-test:
     name: Testing IPA
@@ -66,13 +66,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Download runner image
-        uses: actions/download-artifact@v2
+        uses: actions/cache@v2
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp
+          key: ipa-runner-${{ matrix.os }}
+          path: /tmp/ipa-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input /tmp/ipa-runner.tar
 
       - name: Run IPA container
         run: |
@@ -170,13 +170,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Download runner image
-        uses: actions/download-artifact@v2
+        uses: actions/cache@v2
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp
+          key: ipa-runner-${{ matrix.os }}
+          path: /tmp/ipa-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input /tmp/ipa-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -331,13 +331,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Download runner image
-        uses: actions/download-artifact@v2
+        uses: actions/cache@v2
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp
+          key: ipa-runner-${{ matrix.os }}
+          path: /tmp/ipa-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input /tmp/ipa-runner.tar
 
       - name: Create network
         run: docker network create example
