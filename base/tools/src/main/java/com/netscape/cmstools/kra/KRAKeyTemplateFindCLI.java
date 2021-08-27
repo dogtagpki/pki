@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.key.KeyTemplate;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -56,7 +56,7 @@ public class KRAKeyTemplateFindCLI extends CommandCLI {
             throw new Exception("Missing template files.");
         }
         KeyTemplate template = null;
-        ResourceMessage data = null;
+        RESTMessage data = null;
         String[] templateFiles = file.list();
         for (String templateName : templateFiles) {
             if (templateName.indexOf(".xml") == -1) {
@@ -64,7 +64,7 @@ public class KRAKeyTemplateFindCLI extends CommandCLI {
             }
             String id = templateName.substring(0, templateName.indexOf(".xml"));
             String xml = Files.readString(Path.of(templateDir + templateName));
-            data = ResourceMessage.fromXML(xml);
+            data = RESTMessage.fromXML(xml);
             template = new KeyTemplate(id, data.getAttribute("description"));
             templates.add(template);
         }

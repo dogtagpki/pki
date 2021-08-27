@@ -8,7 +8,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
-import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyTemplateShowCLI extends CommandCLI {
@@ -50,7 +50,7 @@ public class KRAKeyTemplateShowCLI extends CommandCLI {
         String templateDir = "/usr/share/pki/key/templates/";
         String templatePath = templateDir + templateId + ".xml";
         String xml = Files.readString(Path.of(templatePath));
-        ResourceMessage data = ResourceMessage.fromXML(xml);
+        RESTMessage data = RESTMessage.fromXML(xml);
 
         if (writeToFile != null) {
             try (FileWriter out = new FileWriter(writeToFile)) {
