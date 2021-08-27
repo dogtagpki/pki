@@ -45,13 +45,13 @@ jobs:
             BUILD_OPTS=--with-timestamp --with-commit-id
           tags: pki-runner
           target: pki-runner
-          outputs: type=docker,dest=/tmp/pki-runner.tar
+          outputs: type=docker,dest=/tmp/qe-runner.tar
 
       - name: Upload runner image
-        uses: actions/upload-artifact@v2
+        uses: actions/cache@v2
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp/pki-runner.tar
+          key: qe-runner-${{ matrix.os }}
+          path: /tmp/qe-runner.tar
 
   # Tier 0
   installation-sanity-test:
@@ -76,13 +76,13 @@ jobs:
           pip3 install -e tests/dogtag/pytest-ansible
 
       - name: Download runner image
-        uses: actions/download-artifact@v2
+        uses: actions/cache@v2
         with:
-          name: pki-runner-${{ matrix.os }}
-          path: /tmp
+          key: qe-runner-${{ matrix.os }}
+          path: /tmp/qe-runner.tar
 
       - name: Load runner image
-        run: docker load --input /tmp/pki-runner.tar
+        run: docker load --input /tmp/qe-runner.tar
 
       - name: Run master container
         run: |
