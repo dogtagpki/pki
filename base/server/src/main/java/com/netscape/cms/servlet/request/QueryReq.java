@@ -236,7 +236,8 @@ public class QueryReq extends CMSServlet {
      */
     @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
-        logger.debug("in QueryReq servlet");
+
+        logger.info("QueryReq: Searching for requests");
 
         // Authentication / Authorization
 
@@ -286,13 +287,19 @@ public class QueryReq extends CMSServlet {
          *
          **/
         String filter = getFilter(req);
+        logger.info("QueryReq: - filter: " + filter);
+
         String reqState = req.getParameter("reqState");
+        logger.info("QueryReq: - state: " + reqState);
+
         String reqType = req.getParameter("reqType");
+        logger.info("QueryReq: - type: " + reqType);
 
         String direction = "begin";
         if (req.getParameter("direction") != null) {
             direction = req.getParameter("direction").trim();
         }
+        logger.info("QueryReq: - direction: " + direction);
 
         BigInteger top = BigInteger.ZERO;
         BigInteger bottom = BigInteger.ZERO;
@@ -318,7 +325,7 @@ public class QueryReq extends CMSServlet {
             }
 
         } catch (NumberFormatException e) {
-
+            logger.warn("QueryReq: " + e.getMessage(), e);
         }
 
         // avoid NumberFormatException to the user interface
@@ -326,11 +333,13 @@ public class QueryReq extends CMSServlet {
         try {
             maxCount = Integer.parseInt(req.getParameter(IN_MAXCOUNT));
         } catch (Exception e) {
+            logger.warn("QueryReq: " + e.getMessage(), e);
         }
         if (maxCount > mMaxReturns) {
             logger.debug("Resetting page size from " + maxCount + " to " + mMaxReturns);
             maxCount = mMaxReturns;
         }
+        logger.info("QueryReq: - max count: " + maxCount);
 
         HttpServletResponse resp = cmsReq.getHttpResp();
         CMSTemplateParams argset = doSearch(locale[0], filter, maxCount, direction, top, bottom);
@@ -448,6 +457,7 @@ public class QueryReq extends CMSServlet {
             BigInteger firstNum = BigInteger.ONE.negate();
             Enumeration<IRequest> requests = v.elements();
 
+            logger.info("QueryReq: Requests:");
             while (requests.hasMoreElements()) {
                 IRequest request = null;
                 try {
@@ -461,6 +471,7 @@ public class QueryReq extends CMSServlet {
                     continue;
                 }
 
+                logger.info("QueryReq: - " + request.getRequestId());
                 curNum = new BigInteger(request.getRequestId().toString());
 
                 if (firstNum.equals(BigInteger.ONE.negate())) {
@@ -483,8 +494,10 @@ public class QueryReq extends CMSServlet {
             header.addBigIntegerValue(OUT_LAST_ENTRY_ON_PAGE, curNum, 10);
 
         } catch (EBaseException e) {
+            logger.warn("QueryReq: " + e.getMessage(), e);
             header.addStringValue(OUT_ERROR, e.toString(locale));
         } catch (Exception e) {
+            logger.warn("QueryReq: " + e.getMessage(), e);
         }
         return argset;
     }
@@ -520,6 +533,8 @@ public class QueryReq extends CMSServlet {
 
         Vector<IRequest> v = new Vector<>();
         int count = list.getSize();
+        logger.info("QueryReq: Fetching " + count + " request(s)");
+
         int c = 0;
         for (int i = 0; i < count; i++) {
             IRequest request = list.getElementAt(i);
