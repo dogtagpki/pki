@@ -675,7 +675,16 @@ public class ACMEEngine implements ServletContextListener {
             publicKey = keyFactory.generatePublic(keySpec);
 
         } else {
-            throw new Exception("Unsupported JWS algorithm: " + alg);
+            ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
+            builder.type("application/problem+json");
+
+            ACMEError error = new ACMEError();
+            error.setType("urn:ietf:params:acme:error:badSignatureAlgorithm");
+            error.setDetail("Signature of type " + alg + " not supported\n" +
+                    "Try again with RS256.");
+            builder.entity(error);
+
+            throw new WebApplicationException(builder.build());
         }
 
         validateJWS(jws, signer, publicKey);
