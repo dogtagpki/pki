@@ -1372,7 +1372,7 @@ class PKIDeployer:
             subprocess.run(
                 cmd,
                 input=cert,
-                text=True,
+                universal_newlines=True,
                 check=True)
 
         finally:
@@ -1554,7 +1554,7 @@ class PKIDeployer:
         subprocess.run(
             cmd,
             input=json.dumps(shared_secret),
-            text=True,
+            universal_newlines=True,
             check=True)
 
     def setup_shared_secret(self, instance, subsystem):
