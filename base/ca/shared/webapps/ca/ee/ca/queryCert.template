@@ -446,8 +446,8 @@ var disabledDown = ((result.header.querySentinelDown == null) ||
 var disabledUp = (result.header.querySentinelUp != null && result.header.querySentinelUp <= 1) ? "disabled='true'" : "";
 
 document.write(
-"<button NAME=begin onClick='doNext(this)' VALUE='|<<' width='72'>|&lt;&lt;</button>\n"+
-"<button "+disabledUp+" NAME=up onClick='doNext(this)' VALUE='<' width='72'>&lt;</button>\n"+
+"<button NAME=begin onclick='doNext(this)' VALUE='|<<' width='72'>|&lt;&lt;</button>\n"+
+"<button "+disabledUp+" NAME=up onclick='doNext(this)' VALUE='<' width='72'>&lt;</button>\n"+
 "<INPUT TYPE=hidden NAME=totalRecordCount VALUE='"+
 result.header.totalRecordCount+ "'>\n"+
 "<INPUT TYPE=hidden NAME=queryCertFilter VALUE='"+
@@ -467,8 +467,8 @@ result.header.direction+ "'>\n"+
 "<INPUT style='padding-left: 2px;' TYPE=text SIZE=16 NAME=maxCount VALUE='"+
 result.header.maxCount+ "'>\n"+
 
-"<button "+disabledDown+" NAME=down onClick='doNext(this)' VALUE='>' width='72'>&gt;</button>\n"+
-"<button NAME=end onClick='doNext(this)' VALUE='>>|' width='72'>&gt;&gt;|</button>\n"+
+"<button "+disabledDown+" NAME=down onclick='doNext(this)' VALUE='>' width='72'>&gt;</button>\n"+
+"<button NAME=end onclick='doNext(this)' VALUE='>>|' width='72'>&gt;&gt;|</button>\n"+
 "</FORM>\n");
 }
 
