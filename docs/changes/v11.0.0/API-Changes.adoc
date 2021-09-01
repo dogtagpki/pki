@@ -10,3 +10,11 @@ In most cases users using the REST API indirectly via CLI or Web UI should not b
 However, PKI tools that used to take or produce an XML file will now take or produce a JSON file instead.
 
 See link:Tools-Changes.adoc[Tools Changes].
+
+== Replace User method from REST API has been removed ==
+
+This endpoint was not exposed through the web UI or the CLI for any subsystem. It was possible to access it via curl however, with unexpected results, so it has been removed.
+
+The modify user functions in the web UI and CLI for all subsystems are unaffected.
+
+Any user reliant on a replace user method via bypassing the web UI and CLI will need to refactor to use a modify user method instead.
