@@ -43,29 +43,11 @@ public class APDUResponse extends APDU {
     }
 
     public byte getSW1() {
-        if (data == null) {
-            return 0x0;
-        } else {
-            if (data.size() < 2) {
-                return 0x0;
-            } else {
-                return data.at(data.size() - 2);
-            }
-        }
-
+        return data == null || data.size() < 2 ? 0x0 : data.at(data.size() - 2);
     }
 
     public byte getSW2() {
-        if (data == null) {
-            return 0x0;
-        } else {
-            if (data.size() < 2) {
-                return 0x0;
-            } else {
-                return data.at(data.size() - 1);
-            }
-        }
-
+        return data == null || data.size() < 2 ? 0x0 : data.at(data.size() - 1);
     }
 
     //Not every non 0x90 0x00 is considered fatal, return result
