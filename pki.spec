@@ -5,6 +5,8 @@ Name:             pki
 %global           product_name Dogtag PKI
 %global           product_id dogtag-pki
 %global           theme dogtag
+%global           phase beta1
+%global           _phase %{?phase:-}%{phase}
 
 Summary:          %{product_name} Package
 URL:              https://www.dogtagpki.org
@@ -14,8 +16,7 @@ License:          GPLv2 and LGPLv2
 # For development (i.e. unsupported) releases, use x.y.z-0.n.<phase>.
 # For official (i.e. supported) releases, use x.y.z-r where r >=1.
 Version:          11.0.0
-Release:          0.4.beta1%{?_timestamp}%{?_commit_id}%{?dist}
-%global           _phase -beta1
+Release:          0.4.%{?_phase}%{?_timestamp}%{?_commit_id}%{?dist}
 
 # To create a tarball from a version tag:
 # $ git archive \
