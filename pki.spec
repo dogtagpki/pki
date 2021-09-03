@@ -15,7 +15,7 @@ License:          GPLv2 and LGPLv2
 # For official (i.e. supported) releases, use x.y.z-r where r >=1.
 Version:          11.0.0
 Release:          0.4.beta1%{?_timestamp}%{?_commit_id}%{?dist}
-%global           _phase -alpha2
+%global           _phase -beta1
 
 # To create a tarball from a version tag:
 # $ git archive \
