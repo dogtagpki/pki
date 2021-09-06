@@ -320,11 +320,7 @@ public class CAService implements ICAService, IService {
 
     public boolean isProfileRequest(IRequest request) {
         String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
-
-        if (profileId == null || profileId.equals(""))
-            return false;
-        else
-            return true;
+        return !(profileId == null || profileId.equals(""));
     }
 
     /**
@@ -440,8 +436,8 @@ public class CAService implements ICAService, IService {
 
                 boolean sendStatus = mKRAConnector.send(request);
 
-                if (mArchivalRequired == true) {
-                    if (sendStatus == false) {
+                if (mArchivalRequired) {
+                    if (!sendStatus) {
                         String message = CMS.getUserMessage("CMS_CA_SEND_KRA_REQUEST");
                         request.setExtData(IRequest.RESULT,
                                 IRequest.RES_ERROR);
@@ -455,11 +451,10 @@ public class CAService implements ICAService, IService {
                                 message));
 
                         return true;
-                    } else {
-                        if (request.getExtDataInString(IRequest.ERROR) != null) {
-                            request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
-                            request.deleteExtData(IRequest.ERROR);
-                        }
+                    }
+                    if (request.getExtDataInString(IRequest.ERROR) != null) {
+                        request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+                        request.deleteExtData(IRequest.ERROR);
                     }
 
                     String message = request.getExtDataInString(IRequest.ERROR);
@@ -839,7 +834,7 @@ public class CAService implements ICAService, IService {
 
         byte[] utf8_encodingOrder = { DerValue.tag_UTF8String };
 
-        if (doUTF8 == true) {
+        if (doUTF8) {
             try {
 
                 logger.debug("doUTF8 true, updating subject.");
@@ -1311,10 +1306,8 @@ class serviceIssue implements IServant {
         // request types, not policy.
         // XXX how do we know what to look for in request ?
 
-        if (request.getExtDataInCertInfoArray(IRequest.CERT_INFO) != null)
-            return serviceX509(request);
-        else
-            return false; // Don't know what it is ?????
+        boolean requestContentsAreNull = request.getExtDataInCertInfoArray(IRequest.CERT_INFO) == null;
+        return !requestContentsAreNull && serviceX509(request);
     }
 
     public boolean serviceX509(IRequest request)
@@ -1729,10 +1722,7 @@ class serviceCheckChallenge implements IServant {
         String challengeString =
                 (String) metaInfo.get(CertRecord.META_CHALLENGE_PHRASE);
 
-        if (!challengeString.equals(hashpwd)) {
-            return false;
-        } else
-            return true;
+        return challengeString.equals(hashpwd);
     }
 
     private String hashPassword(String pwd) {
@@ -1810,17 +1800,15 @@ class serviceRevoke implements IServant {
 
             request.setRequestType(IRequest.CLA_CERT4CRL_REQUEST);
             sendStatus = CAService.mCLAConnector.send(request);
-            if (sendStatus == false) {
+            if (sendStatus && request.getExtDataInString(IRequest.ERROR) != null) {
+                request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+                request.deleteExtData(IRequest.ERROR);
+            } else {
                 request.setExtData(IRequest.RESULT,
                         IRequest.RES_ERROR);
                 request.setExtData(IRequest.ERROR,
                         new ECAException(CMS.getUserMessage("CMS_CA_SEND_CLA_REQUEST")));
                 return sendStatus;
-            } else {
-                if (request.getExtDataInString(IRequest.ERROR) != null) {
-                    request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
-                    request.deleteExtData(IRequest.ERROR);
-                }
             }
             if (request.getExtDataInString(IRequest.ERROR) != null) {
                 return sendStatus;
@@ -1900,17 +1888,15 @@ class serviceUnrevoke implements IServant {
         if (CAService.mCLAConnector != null) {
             request.setRequestType(IRequest.CLA_UNCERT4CRL_REQUEST);
             sendStatus = CAService.mCLAConnector.send(request);
-            if (sendStatus == false) {
+            if (sendStatus && request.getExtDataInString(IRequest.ERROR) != null) {
+                request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+                request.deleteExtData(IRequest.ERROR);
+            } else {
                 request.setExtData(IRequest.RESULT,
                         IRequest.RES_ERROR);
                 request.setExtData(IRequest.ERROR,
                         new ECAException(CMS.getUserMessage("CMS_CA_SEND_CLA_REQUEST")));
                 return sendStatus;
-            } else {
-                if (request.getExtDataInString(IRequest.ERROR) != null) {
-                    request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
-                    request.deleteExtData(IRequest.ERROR);
-                }
             }
 
         }
