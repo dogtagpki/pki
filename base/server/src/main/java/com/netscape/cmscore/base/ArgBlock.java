@@ -113,11 +113,7 @@ public class ArgBlock implements IArgBlock {
     @Override
     public boolean isValuePresent(String n) {
         logger.trace("GET r={},k={}", mType, n);
-        if (mArgs.get(n) != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return mArgs.get(n) != null;
     }
 
     /**
@@ -129,11 +125,7 @@ public class ArgBlock implements IArgBlock {
      */
     @Override
     public Object addStringValue(String n, String v) {
-        if (v == null) {
-            return mArgs.put(n, Character.valueOf((char) 0));
-        } else {
-            return mArgs.put(n, v);
-        }
+        return v == null ? mArgs.put(n, Character.valueOf((char) 0)) : mArgs.put(n, v);
     }
 
     /**
@@ -148,11 +140,10 @@ public class ArgBlock implements IArgBlock {
         String t = (String) mArgs.get(n);
         logger.trace("GET r={},k={},v={}", mType, n, t);
 
-        if (t != null) {
-            return t;
-        } else {
+        if (t == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", n));
         }
+        return t;
     }
 
     /**
@@ -167,11 +158,7 @@ public class ArgBlock implements IArgBlock {
         String val = (String) mArgs.get(n);
         logger.trace("GET r={},k={},v={},d={}", mType, n, val, def);
 
-        if (val != null) {
-            return val;
-        } else {
-            return def;
-        }
+        return val == null ? def : val;
     }
 
     /**
@@ -183,17 +170,16 @@ public class ArgBlock implements IArgBlock {
      */
     @Override
     public int getValueAsInt(String n) throws EBaseException {
-        if (mArgs.get(n) != null) {
-            logger.trace("GET r={},k={},v={}", mType, n, mArgs.get(n));
-            try {
-                return Integer.valueOf((String) mArgs.get(n)).intValue();
-            } catch (NumberFormatException e) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_TYPE", n, e.toString()));
-            }
-        } else {
+        if (mArgs.get(n) == null) {
             logger.trace("GET r={},k={},v={}", mType, n, "<notpresent>");
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", n));
+        }
+        logger.trace("GET r={},k={},v={}", mType, n, mArgs.get(n));
+        try {
+            return Integer.valueOf((String) mArgs.get(n)).intValue();
+        } catch (NumberFormatException e) {
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_BASE_INVALID_ATTR_TYPE", n, e.toString()));
         }
     }
 
@@ -207,13 +193,12 @@ public class ArgBlock implements IArgBlock {
     @Override
     public int getValueAsInt(String n, int def) {
         logger.trace("GET r={},k={},v={},d={}", mType, n, mArgs.get(n), def);
-        if (mArgs.get(n) != null) {
-            try {
-                return Integer.valueOf((String) mArgs.get(n)).intValue();
-            } catch (NumberFormatException e) {
-                return def;
-            }
-        } else {
+        if (mArgs.get(n) == null) {
+            return def;
+        }
+        try {
+            return Integer.valueOf((String) mArgs.get(n)).intValue();
+        } catch (NumberFormatException e) {
             return def;
         }
     }
@@ -230,19 +215,18 @@ public class ArgBlock implements IArgBlock {
             throws EBaseException {
         String v = (String) mArgs.get(n);
 
-        if (v != null) {
-            try {
-                return new BigInteger(v, 10);
-            } catch (NumberFormatException e) {
-                try {
-                    return new BigInteger(v, 16);
-                } catch (NumberFormatException ex) {
-                    throw new EBaseException(
-                            CMS.getUserMessage("CMS_BASE_INVALID_ATTR_TYPE", n, ex.toString()));
-                }
-            }
-        } else {
+        if (v == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", n));
+        }
+        try {
+            return new BigInteger(v, 10);
+        } catch (NumberFormatException e) {
+            try {
+                return new BigInteger(v, 16);
+            } catch (NumberFormatException ex) {
+                throw new EBaseException(
+                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_TYPE", n, ex.toString()));
+            }
         }
     }
 
@@ -271,11 +255,10 @@ public class ArgBlock implements IArgBlock {
      */
     @Override
     public Object getValue(Object n) throws EBaseException {
-        if (mArgs.get(n) != null) {
-            return mArgs.get(n);
-        } else {
+        if (mArgs.get(n) == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", (String) n));
         }
+        return mArgs.get(n);
     }
 
     /**
@@ -287,11 +270,7 @@ public class ArgBlock implements IArgBlock {
      */
     @Override
     public Object getValue(Object n, Object def) {
-        if (mArgs.get(n) != null) {
-            return mArgs.get(n);
-        } else {
-            return def;
-        }
+        return mArgs.get(n) == null ? def : mArgs.get(n);
     }
 
     /**
@@ -306,15 +285,10 @@ public class ArgBlock implements IArgBlock {
         String val = (String) mArgs.get(name);
         logger.trace("GET r={},k={},v={}", mType, name, val);
 
-        if (val != null) {
-            if (val.equalsIgnoreCase("true") ||
-                    val.equalsIgnoreCase("on"))
-                return true;
-            else
-                return false;
-        } else {
+        if (val == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", name));
         }
+        return val.equalsIgnoreCase("true") || val.equalsIgnoreCase("on");
     }
 
     /**
@@ -350,14 +324,12 @@ public class ArgBlock implements IArgBlock {
         logger.trace("GET r={},k={}", mType, name);
         KeyGenInfo keyGenInfo;
 
-        if (mArgs.get(name) != null) {
-            try {
-                keyGenInfo = new KeyGenInfo((String) mArgs.get(name));
-            } catch (IOException e) {
-                return def;
-            }
-
-        } else {
+        if (mArgs.get(name) == null) {
+            return def;
+        }
+        try {
+            keyGenInfo = new KeyGenInfo((String) mArgs.get(name));
+        } catch (IOException e) {
             return def;
         }
         return keyGenInfo;
@@ -375,24 +347,23 @@ public class ArgBlock implements IArgBlock {
     public PKCS10 getValueAsRawPKCS10(String name) throws EBaseException {
         PKCS10 request;
 
-        if (mArgs.get(name) != null) {
-            logger.trace("GET r={},k={},v={}", mType, name, mArgs.get(name));
-
-            String tempStr = unwrap((String) mArgs.get(name), false);
-
-            if (tempStr == null) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, "Empty Content"));
-            }
-            try {
-                request = decodePKCS10(tempStr);
-            } catch (Exception e) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, e.toString()));
-            }
-        } else {
+        if (mArgs.get(name) == null) {
             logger.trace("GET r={},k={},v={}", mType, name, "<notpresent>");
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", name));
+        }
+        logger.trace("GET r={},k={},v={}", mType, name, mArgs.get(name));
+
+        String tempStr = unwrap((String) mArgs.get(name), false);
+
+        if (tempStr == null) {
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, "Empty Content"));
+        }
+        try {
+            request = decodePKCS10(tempStr);
+        } catch (Exception e) {
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, e.toString()));
         }
 
         return request;
@@ -414,19 +385,17 @@ public class ArgBlock implements IArgBlock {
         logger.trace("GET r={},k={}", mType, name);
         PKCS10 request;
 
-        if (mArgs.get(name) != null) {
+        if (mArgs.get(name) == null) {
+            return def;
+        }
+        String tempStr = unwrap((String) mArgs.get(name), false);
 
-            String tempStr = unwrap((String) mArgs.get(name), false);
-
-            if (tempStr == null) {
-                return def;
-            }
-            try {
-                request = decodePKCS10(tempStr);
-            } catch (Exception e) {
-                return def;
-            }
-        } else {
+        if (tempStr == null) {
+            return def;
+        }
+        try {
+            request = decodePKCS10(tempStr);
+        } catch (Exception e) {
             return def;
         }
         return request;
@@ -447,22 +416,20 @@ public class ArgBlock implements IArgBlock {
         logger.trace("GET r={},k={}", mType, name);
         PKCS10 request;
 
-        if (mArgs.get(name) != null) {
-
-            String tempStr = unwrap((String) mArgs.get(name), checkheader);
-
-            if (tempStr == null) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, "Empty Content"));
-            }
-            try {
-                request = decodePKCS10(tempStr);
-            } catch (Exception e) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, e.toString()));
-            }
-        } else {
+        if (mArgs.get(name) == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", name));
+        }
+        String tempStr = unwrap((String) mArgs.get(name), checkheader);
+
+        if (tempStr == null) {
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, "Empty Content"));
+        }
+        try {
+            request = decodePKCS10(tempStr);
+        } catch (Exception e) {
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, e.toString()));
         }
 
         return request;
@@ -485,19 +452,17 @@ public class ArgBlock implements IArgBlock {
         logger.trace("GET r={},k={}", mType, name);
         PKCS10 request;
 
-        if (mArgs.get(name) != null) {
+        if (mArgs.get(name) == null) {
+            return def;
+        }
+        String tempStr = unwrap((String) mArgs.get(name), checkheader);
 
-            String tempStr = unwrap((String) mArgs.get(name), checkheader);
-
-            if (tempStr == null) {
-                return def;
-            }
-            try {
-                request = decodePKCS10(tempStr);
-            } catch (Exception e) {
-                return def;
-            }
-        } else {
+        if (tempStr == null) {
+            return def;
+        }
+        try {
+            request = decodePKCS10(tempStr);
+        } catch (Exception e) {
             return def;
         }
 
@@ -520,15 +485,13 @@ public class ArgBlock implements IArgBlock {
         PKCS10 request;
         String p10b64 = (String) mArgs.get(name);
 
-        if (p10b64 != null) {
-
-            try {
-                request = decodePKCS10(p10b64);
-                return request;
-            } catch (Exception e) {
-                return def;
-            }
-        } else {
+        if (p10b64 == null) {
+            return def;
+        }
+        try {
+            request = decodePKCS10(p10b64);
+            return request;
+        } catch (Exception e) {
             return def;
         }
     }
@@ -654,13 +617,11 @@ public class ArgBlock implements IArgBlock {
         int trail = -1;
 
         // check for "-----BEGIN NEW CERTIFICATE REQUEST-----";
-        if (header == null) {
-            head = request.indexOf(CERT_NEW_REQUEST_HEADER);
-            trail = request.indexOf(CERT_NEW_REQUEST_TRAILER);
+        head = request.indexOf(CERT_NEW_REQUEST_HEADER);
+        trail = request.indexOf(CERT_NEW_REQUEST_TRAILER);
 
-            if (!(head == -1 && trail == -1)) {
-                header = CERT_NEW_REQUEST_HEADER;
-            }
+        if (!(head == -1 && trail == -1)) {
+            header = CERT_NEW_REQUEST_HEADER;
         }
 
         // check for "-----BEGIN CERTIFICATE REQUEST-----";
@@ -693,11 +654,7 @@ public class ArgBlock implements IArgBlock {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_MISSING_PKCS10_TRAILER"));
         }
 
-        if (header != null) {
-            unwrapped = request.substring(head + header.length(), trail);
-        } else {
-            unwrapped = request;
-        }
+        unwrapped = header == null ? request : request.substring(head + header.length(), trail);
 
         // strip all the crtl-characters (i.e. \r\n)
         StringTokenizer st = new StringTokenizer(unwrapped, "\t\r\n ");
