@@ -88,24 +88,6 @@ public class Configurator {
 
     public static ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
 
-    protected static org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage rsa_keypair_usages[] = {
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.ENCRYPT,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DECRYPT,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.WRAP,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.UNWRAP,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
-        };
-
-    protected static  org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage rsa_keypair_usages_mask[] = {
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.ENCRYPT,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DECRYPT,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.WRAP,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.UNWRAP,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
-        };
-
     protected CMSEngine engine;
     protected EngineConfig cs;
     protected ServerXml serverXml;
@@ -336,7 +318,9 @@ public class Configurator {
         KeyPair pair = null;
         do {
             if("transport".equals(tag) || "storage".equals(tag)) {
-                pair = CryptoUtil.generateRSAKeyPair(token,size,rsa_keypair_usages,rsa_keypair_usages_mask);
+                pair = CryptoUtil.generateRSAKeyPair(token,size,
+                                CryptoUtil.RSA_KEYPAIR_USAGES,
+                                CryptoUtil.RSA_KEYPAIR_USAGES_MASK);
             } else {
                 pair = CryptoUtil.generateRSAKeyPair(token, size);
             }

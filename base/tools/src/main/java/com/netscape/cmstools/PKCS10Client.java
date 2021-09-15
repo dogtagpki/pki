@@ -56,7 +56,7 @@ public class PKCS10Client {
 
     private static void printUsage() {
         System.out.println(
-                "Usage: PKCS10Client -d <location of certdb> -h <token name> -p <token password> -a <algorithm: 'rsa' or 'ec'> -l <rsa key length> -c <ec curve name> -o <output file which saves the base64 PKCS10> -n <subjectDN>\n");
+                "\nUsage: PKCS10Client -d <location of certdb> -h <token name> -p <token password> -a <algorithm: 'rsa' or 'ec'> -l <rsa key length> -c <ec curve name> -o <output file which saves the base64 PKCS10> -n <subjectDN>\n");
         System.out.println(
                 "    Optionally, for ECC key generation per definition in JSS pkcs11.PK11KeyPairGenerator:\n");
         System.out.println(
@@ -72,9 +72,11 @@ public class PKCS10Client {
         System.out.println(
                 "    -x <true for SSL cert that does ECDH ECDSA; false otherwise; default false>\n");
         System.out.println(
-                "    -v Verbose mode");
-        System.out.println(
                 "   available ECC curve names (if provided by the crypto module): nistp256 (secp256r1),nistp384 (secp384r1),nistp521 (secp521r1),nistk163 (sect163k1),sect163r1,nistb163 (sect163r2),sect193r1,sect193r2,nistk233 (sect233k1),nistb233 (sect233r1),sect239k1,nistk283 (sect283k1),nistb283 (sect283r1),nistk409 (sect409k1),nistb409 (sect409r1),nistk571 (sect571k1),nistb571 (sect571r1),secp160k1,secp160r1,secp160r2,secp192k1,nistp192 (secp192r1, prime192v1),secp224k1,nistp224 (secp224r1),secp256k1,prime192v2,prime192v3,prime239v1,prime239v2,prime239v3,c2pnb163v1,c2pnb163v2,c2pnb163v3,c2pnb176v1,c2tnb191v1,c2tnb191v2,c2tnb191v3,c2pnb208w1,c2tnb239v1,c2tnb239v2,c2tnb239v3,c2pnb272w1,c2pnb304w1,c2tnb359w1,c2pnb368w1,c2tnb431r1,secp112r1,secp112r2,secp128r1,secp128r2,sect113r1,sect113r2,sect131r1,sect131r2\n");
+        System.out.println(
+                "    -v Verbose mode\n");
+        System.out.println(
+                "    -w geneate RSA keypair with keyOpFlags for doing wrap/unwrap\n");
         System.out.println(
                 "In addition: -y <true for adding SubjectKeyIdentifier extensionfor CMC SharedSecret requests; false otherwise; default false> To be used with 'request.useSharedSecret=true' when running CMCRequest.\n");
     }
@@ -90,6 +92,7 @@ public class PKCS10Client {
         int ec_sensitive = -1; /* -1, 0, or 1 */
         int ec_extractable = -1; /* -1, 0, or 1 */
         boolean ec_ssl_ecdh = false;
+        boolean rsa_keygen_wrap_unwrap_ops = false;
         int rsa_keylen = 2048;
 
         boolean use_shared_secret = false;
@@ -118,6 +121,9 @@ public class PKCS10Client {
                     ec_ssl_ecdh = true;
                 else
                     ec_ssl_ecdh = false;
+            } else if (name.equals("-w")) {
+                rsa_keygen_wrap_unwrap_ops = true;
+                i--;
             } else if (name.equals("-t")) {
                 String temp = args[i+1];
                 if (temp.equals("true"))
@@ -170,6 +176,7 @@ public class PKCS10Client {
                     use_shared_secret = false;
             } else if (name.equals("-v")) {
                 verbose = true;
+                i--;
             } else {
                 System.out.println("Unrecognized argument(" + i + "): "
                     + name);
@@ -225,7 +232,15 @@ public class PKCS10Client {
             KeyPair pair = null;
 
             if (alg.equals("rsa")) {
-                pair = CryptoUtil.generateRSAKeyPair(token, rsa_keylen);
+                if (!rsa_keygen_wrap_unwrap_ops) {
+                    pair = CryptoUtil.generateRSAKeyPair(token, rsa_keylen);
+                } else {
+                    if (verbose)
+                        System.out.println("PKCS10Client: rsa_keygen_wrap_unwrap_ops is true");
+                    pair = CryptoUtil.generateRSAKeyPair(token, rsa_keylen,
+                            CryptoUtil.RSA_KEYPAIR_USAGES,
+                            CryptoUtil.RSA_KEYPAIR_USAGES_MASK);
+                }
 
             }  else if (alg.equals("ec")) {
 
