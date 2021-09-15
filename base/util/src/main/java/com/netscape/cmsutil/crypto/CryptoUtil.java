@@ -198,6 +198,25 @@ public class CryptoUtil {
             KeyPairGeneratorSpi.Usage.SIGN_RECOVER,
     };
 
+    // nCipher (v. 12.60+) wrapping/unwrapping keys requirements
+    public final static org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage RSA_KEYPAIR_USAGES[] = {
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.ENCRYPT,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DECRYPT,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.WRAP,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.UNWRAP,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
+        };
+
+    public final static org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage RSA_KEYPAIR_USAGES_MASK[] = {
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.ENCRYPT,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DECRYPT,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.WRAP,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.UNWRAP,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
+        };
+
     static public final Integer[] clientECCiphers = {
 /*
         SSLSocket.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
@@ -610,6 +629,7 @@ public class CryptoUtil {
         KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
         if(usages != null) {
+            System.out.println("CryptoUtil: generateRSAKeyPair: calling kg.setKeyPairUsages");
             kg.setKeyPairUsages(usages, usages_mask);
         }
 
@@ -2909,7 +2929,7 @@ public class CryptoUtil {
     * Maps from HMACAlgorithm name to JSS Provider HMAC Alg name.
     */
     public static String getHMACAlgName(String name) {
-	logger.debug("CrytoUtil: getHMaCAlgName: name: " + name);
+        logger.debug("CrytoUtil: getHMaCAlgName: name: " + name);
         String mdName = "HmacSHA256";
         if (name != null) {
             if (name.equals("SHA-256-HMAC")) {
@@ -2921,7 +2941,7 @@ public class CryptoUtil {
             }
         }
 
-	logger.debug("CrytoUtil: getHMaCAlgName: returning: " +mdName);
+        logger.debug("CrytoUtil: getHMaCAlgName: returning: " +mdName);
         return mdName;
     }
 
@@ -2947,8 +2967,8 @@ public class CryptoUtil {
             return KeyWrapAlgorithm.DES_CBC_PAD_OID;
         if (name.equals(KeyWrapAlgorithm.DES_CBC_PAD.toString()))
             return KeyWrapAlgorithm.DES_CBC_PAD_OID;
-	if (name.equals(KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP.toString()))
-	    return KeyWrapAlgorithm.AES_KEY_WRAP_KWP_OID;
+        if (name.equals(KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP.toString()))
+            return KeyWrapAlgorithm.AES_KEY_WRAP_KWP_OID;
         throw new NoSuchAlgorithmException();
     }
 
