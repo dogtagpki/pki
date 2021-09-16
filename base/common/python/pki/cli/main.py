@@ -98,6 +98,7 @@ class PKICLI(pki.cli.CLI):
 
         java_path = os.getenv('PKI_JAVA_PATH')
         java_home = os.getenv('JAVA_HOME')
+        java_fips_cmd = os.getenv('JAVA_FIPS_ENABLED')
         pki_lib = os.getenv('PKI_LIB')
         logging_config = os.getenv('PKI_LOGGING_CONFIG')
 
@@ -113,7 +114,15 @@ class PKICLI(pki.cli.CLI):
             cmd.extend(['/usr/bin/env', 'java'])
 
         cmd.extend([
-            '-cp', pki_lib + '/*',
+            '-cp', pki_lib + '/*'
+        ])
+
+        if java_fips_cmd is not None:
+            cmd.extend([
+                java_fips_cmd
+            ])
+
+        cmd.extend([
             '-Djava.util.logging.config.file=' + logging_config,
             'com.netscape.cmstools.cli.MainCLI'
         ])
