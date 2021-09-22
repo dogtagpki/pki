@@ -48,9 +48,9 @@ jobs:
           outputs: type=docker,dest=/tmp/qe-runner.tar
 
       - name: Upload runner image
-        uses: actions/cache@v2
+        uses: actions/upload-artifact@v2
         with:
-          key: qe-runner-${{ matrix.os }}
+          name: qe-runner-${{ matrix.os }}
           path: /tmp/qe-runner.tar
 
   # Tier 0
@@ -76,10 +76,10 @@ jobs:
           pip3 install -e tests/dogtag/pytest-ansible
 
       - name: Download runner image
-        uses: actions/cache@v2
+        uses: actions/download-artifact@v2
         with:
-          key: qe-runner-${{ matrix.os }}
-          path: /tmp/qe-runner.tar
+          name: qe-runner-${{ matrix.os }}
+          path: /tmp
 
       - name: Load runner image
         run: docker load --input /tmp/qe-runner.tar

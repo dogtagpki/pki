@@ -48,9 +48,9 @@ jobs:
           outputs: type=docker,dest=/tmp/ipa-runner.tar
 
       - name: Upload runner image
-        uses: actions/cache@v2
+        uses: actions/upload-artifact@v2
         with:
-          key: ipa-runner-${{ matrix.os }}
+          name: ipa-runner-${{ matrix.os }}
           path: /tmp/ipa-runner.tar
 
   ipa-test:
@@ -66,10 +66,10 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Download runner image
-        uses: actions/cache@v2
+        uses: actions/download-artifact@v2
         with:
-          key: ipa-runner-${{ matrix.os }}
-          path: /tmp/ipa-runner.tar
+          name: ipa-runner-${{ matrix.os }}
+          path: /tmp
 
       - name: Load runner image
         run: docker load --input /tmp/ipa-runner.tar
@@ -170,10 +170,10 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Download runner image
-        uses: actions/cache@v2
+        uses: actions/download-artifact@v2
         with:
-          key: ipa-runner-${{ matrix.os }}
-          path: /tmp/ipa-runner.tar
+          name: ipa-runner-${{ matrix.os }}
+          path: /tmp
 
       - name: Load runner image
         run: docker load --input /tmp/ipa-runner.tar
@@ -331,10 +331,10 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Download runner image
-        uses: actions/cache@v2
+        uses: actions/download-artifact@v2
         with:
-          key: ipa-runner-${{ matrix.os }}
-          path: /tmp/ipa-runner.tar
+          name: ipa-runner-${{ matrix.os }}
+          path: /tmp
 
       - name: Load runner image
         run: docker load --input /tmp/ipa-runner.tar
