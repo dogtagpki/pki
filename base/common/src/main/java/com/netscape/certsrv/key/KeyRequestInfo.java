@@ -47,7 +47,6 @@ public class KeyRequestInfo extends CMSRequestInfo {
     protected String keyURL;
 
     public KeyRequestInfo() {
-        // required to be here for JAXB (defaults)
     }
 
     /**

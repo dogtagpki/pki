@@ -56,7 +56,6 @@ public class CertRequestInfo extends CMSRequestInfo {
     protected String errorMessage;
 
     public CertRequestInfo() {
-        // required to be here for JAXB (defaults)
     }
 
     /**

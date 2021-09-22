@@ -63,7 +63,6 @@ public class SystemCertData implements JSONSerializer {
     protected String[] dnsNames;
 
     public SystemCertData() {
-        // required for JAXB
     }
 
     /**

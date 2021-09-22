@@ -57,7 +57,6 @@ public class KRAConnectorInfo implements JSONSerializer {
     String enable;
 
     public KRAConnectorInfo() {
-        // needed for jaxb
     }
 
     public KRAConnectorInfo(MultivaluedMap<String, String> form) {

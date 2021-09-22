@@ -44,9 +44,8 @@ public class PKIExceptionMapper implements ExceptionMapper<PKIException> {
                 logger.info("PKIExceptionMapper: XML exception:\n" + entity);
 
             } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(contentType)) {
-                // Use JAXB to map the exception to JSON
                 entity = exception.getData();
-                // TODO: Replace JAXB with custom JSON mapping
+                // TODO: Replace with custom JSON mapping
                 // entity = exception.getData().toJSON();
                 // logger.info("PKIExceptionMapper: JSON exception:\n" + entity);
 

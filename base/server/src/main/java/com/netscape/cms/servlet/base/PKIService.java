@@ -163,7 +163,7 @@ public class PKIService {
      * Marshall response object with custom mapping if available.
      *
      * This method is called for by all services. It will use
-     * custom mapping if available, otherwise it will use JAXB.
+     * custom mapping if available.
      */
     public Object marshall(Object response) {
 
@@ -194,7 +194,6 @@ public class PKIService {
             throw new RuntimeException(e);
         }
 
-        // use JAXB mapping by default
         return response;
     }
 
@@ -227,7 +226,6 @@ public class PKIService {
             throw new RuntimeException(e);
         }
 
-        // use JAXB mapping by default
         return (T) request;
     }
 

@@ -52,7 +52,6 @@ public class PolicyConstraint implements JSONSerializer {
     private List<PolicyConstraintValue> constraints = new ArrayList<>();
 
     public PolicyConstraint() {
-        // required for jaxb
     }
 
     public void addConstraint(PolicyConstraintValue constraint) {

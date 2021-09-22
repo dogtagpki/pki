@@ -61,7 +61,6 @@ public class ProfileOutput implements JSONSerializer {
     }
 
     public ProfileOutput() {
-        // required for jaxb
     }
 
     public ProfileOutput(String id, String name, String classId) {

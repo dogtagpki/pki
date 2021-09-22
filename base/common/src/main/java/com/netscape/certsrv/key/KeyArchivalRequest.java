@@ -65,7 +65,6 @@ public class KeyArchivalRequest extends RESTMessage {
     private static final String REALM = "realm";
 
     public KeyArchivalRequest() {
-        // required for JAXB (defaults)
         setClassName(getClass().getName());
     }
 

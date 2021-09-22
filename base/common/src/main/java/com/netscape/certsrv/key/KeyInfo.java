@@ -54,7 +54,6 @@ public class KeyInfo implements JSONSerializer {
     private String realm;
 
     public KeyInfo() {
-        // required for JAXB (defaults)
     }
 
     /**

@@ -60,7 +60,6 @@ public class TokenStatus {
     Integer value;
 
     public TokenStatus() {
-        // required for JAXB
     }
 
     TokenStatus(String name, Integer value) {

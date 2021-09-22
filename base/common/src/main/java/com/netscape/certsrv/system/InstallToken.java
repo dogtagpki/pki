@@ -39,7 +39,6 @@ public class InstallToken implements JSONSerializer {
     }
 
     public InstallToken() {
-        // required by jaxb
     }
 
     public String getToken() {

@@ -56,7 +56,6 @@ public class ProfileDataInfo implements JSONSerializer {
     protected String profileDescription;
 
     public ProfileDataInfo() {
-        // required for JAXB (defaults)
     }
 
     /**

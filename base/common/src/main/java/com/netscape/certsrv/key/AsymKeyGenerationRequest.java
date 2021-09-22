@@ -52,7 +52,6 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest  {
     public static final String DERIVE = "derive";
 
     public AsymKeyGenerationRequest() {
-        // required for JAXB (defaults)
         setClassName(getClass().getName());
     }
 

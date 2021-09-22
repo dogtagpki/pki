@@ -37,7 +37,6 @@ public class ProfileRetrievalRequest {
     protected String profileId;
 
     public ProfileRetrievalRequest() {
-        // required for JAXB (defaults)
     }
 
     public ProfileRetrievalRequest(MultivaluedMap<String, String> form) {

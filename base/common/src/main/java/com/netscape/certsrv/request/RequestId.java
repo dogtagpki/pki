@@ -39,7 +39,6 @@ public class RequestId implements Serializable, JSONSerializer {
     protected BigInteger value;
 
     public RequestId() {
-        // required for jaxb
     }
 
     /**

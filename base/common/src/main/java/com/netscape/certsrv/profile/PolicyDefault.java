@@ -52,7 +52,6 @@ public class PolicyDefault implements JSONSerializer {
     private List<ProfileParameter> params = new ArrayList<>();
 
     public PolicyDefault() {
-        // required for jaxb
     }
 
     public void addAttribute(ProfileAttribute attr) {

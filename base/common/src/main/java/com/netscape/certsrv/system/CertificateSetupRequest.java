@@ -46,7 +46,6 @@ public class CertificateSetupRequest implements JSONSerializer {
     protected URL masterURL;
 
     public CertificateSetupRequest() {
-        // required for JAXB
     }
 
     public String getPin() {

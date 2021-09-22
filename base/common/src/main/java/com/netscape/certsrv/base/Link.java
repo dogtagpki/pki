@@ -41,7 +41,6 @@ public class Link implements JSONSerializer {
     private String type;
 
     public Link() {
-        // required for jaxb
     }
 
     public Link(String relationship, String href, String type) {

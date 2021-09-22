@@ -61,7 +61,6 @@ public class KeyData implements JSONSerializer {
     String publicKey;
 
     public KeyData() {
-        // required for JAXB (defaults)
     }
 
     /**

@@ -139,7 +139,6 @@ public class PKIClient implements AutoCloseable {
            throw e;
        }
 
-       // use JAXB mapping by default
        return request;
    }
 
@@ -171,7 +170,6 @@ public class PKIClient implements AutoCloseable {
             throw e;
         }
 
-        // use JAXB mapping by default
         return response.readEntity(clazz);
     }
 

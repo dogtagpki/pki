@@ -36,7 +36,6 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
     public static final String ENCRYPT_USAGE = "encrypt";
 
     public SymKeyGenerationRequest() {
-        // required for JAXB (defaults)
         setClassName(getClass().getName());
     }
 

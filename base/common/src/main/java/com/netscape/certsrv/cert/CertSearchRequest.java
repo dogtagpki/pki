@@ -507,7 +507,6 @@ public class CertSearchRequest implements JSONSerializer {
     }
 
     public CertSearchRequest() {
-        // required for JAXB (defaults)
     }
 
     public CertSearchRequest(MultivaluedMap<String, String> form) {
