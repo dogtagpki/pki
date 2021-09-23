@@ -2603,6 +2603,7 @@ class ConfigClient:
 
     def process_admin_cert(self, admin_cert):
 
+        logger.info('process_admin_cert')
         admin_cert_file = self.mdict['pki_client_admin_cert']
         logger.info('Storing admin certificate into %s', admin_cert_file)
 
@@ -2625,7 +2626,8 @@ class ConfigClient:
         finally:
             client_nssdb.close()
 
-        logger.info('Exporting admin certificate into %s',
+    def process_admin_p12(self):
+        logger.info('process_admin_p12: Exporting admin certificate into %s',
                     self.mdict['pki_client_admin_cert_p12'])
 
         # create directory for p12 file if it does not exist

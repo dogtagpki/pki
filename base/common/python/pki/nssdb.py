@@ -1622,7 +1622,7 @@ class NSSDatabase(object):
                 'pki',
                 '-d', self.directory,
                 'pkcs7-cert-export',
-                '--pkcs7-file', pkcs7_file,
+                '--pkcs7', pkcs7_file,
                 '--output-prefix', prefix,
                 '--output-suffix', suffix
             ]
