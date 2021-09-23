@@ -383,9 +383,6 @@ Requires:         python3-ldap
 Requires:         python3-lxml
 Requires:         python3-requests >= 2.6.0
 Requires:         python3-six
-%if 0%{?rhel} < 9 || 0%{?fedora} < 34
-Recommends:       python3-nss
-%endif
 
 %description -n   python3-%{product_id}
 This package provides common and client library for Python 3.

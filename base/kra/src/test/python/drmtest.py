@@ -97,17 +97,16 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     connection = PKIConnection(protocol, hostname, port)
     connection.set_authentication_cert(client_cert)
 
-    # create kraclient
-    crypto = pki.crypto.NSSCryptoProvider(certdb_dir, certdb_password)
-    kraclient = KRAClient(connection, crypto)
-    keyclient = kraclient.keys
-
-    # Get transport cert and insert in the certdb
+    # TODO: Load transport cert
     transport_nick = "kra transport cert"
-    transport_cert = kraclient.system_certs.get_transport_cert()
+    transport_cert = None
     print("Subject DN: " + transport_cert.subject_dn)
     print(transport_cert.encoded)
-    crypto.import_cert(transport_nick, transport_cert)
+
+    # create kraclient
+    crypto = pki.crypto.CryptographyCryptoProvider(transport_nick, transport_cert)
+    kraclient = KRAClient(connection, crypto)
+    keyclient = kraclient.keys
 
     # initialize the certdb for crypto operations
     # for NSS db, this must be done after importing the transport cert
