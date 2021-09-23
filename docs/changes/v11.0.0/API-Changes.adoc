@@ -18,3 +18,8 @@ This endpoint was not exposed through the web UI or the CLI for any subsystem. I
 The modify user functions in the web UI and CLI for all subsystems are unaffected.
 
 Any user reliant on a replace user method via bypassing the web UI and CLI will need to refactor to use a modify user method instead.
+
+== pki.crypto.NSSCryptoProvider has been removed ==
+
+The `pki.crypto.NSSCryptoProvider` Python class has been removed.
+Use `pki.crypto.CryptographyCryptoProvider` instead.

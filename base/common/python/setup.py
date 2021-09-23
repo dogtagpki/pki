@@ -124,7 +124,7 @@ and set up in less than an hour.""",
     keywords='pki x509 cert certificate',
     url='https://www.dogtagpki.org',
     packages=['pki', 'pki.cli'],
-    install_requires=['python-nss', 'requests', 'six', 'cryptography'],
+    install_requires=['requests', 'six', 'cryptography'],
     cmdclass={'version_info': VersionInfo},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
