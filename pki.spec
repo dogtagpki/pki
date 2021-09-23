@@ -169,7 +169,6 @@ BuildRequires:    apache-commons-io
 BuildRequires:    apache-commons-lang3 >= 3.2
 BuildRequires:    apache-commons-logging
 BuildRequires:    apache-commons-net
-BuildRequires:    glassfish-jaxb-api
 BuildRequires:    slf4j
 BuildRequires:    slf4j-jdk14
 BuildRequires:    nspr-devel
@@ -408,7 +407,6 @@ Requires:         apache-commons-io
 Requires:         apache-commons-lang3 >= 3.2
 Requires:         apache-commons-logging
 Requires:         apache-commons-net
-Requires:         glassfish-jaxb-api
 Requires:         slf4j
 Requires:         slf4j-jdk14
 Requires:         jpackage-utils >= 0:1.7.5-10
