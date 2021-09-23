@@ -760,37 +760,19 @@ class PKIDeployer:
 
     def load_admin_cert(self, subsystem):
 
-        logger.info(
-            'Loading admin cert from client database: %s',
-            self.mdict['pki_admin_nickname'])
-
-        client_nssdb = pki.nssdb.NSSDatabase(
-            directory=self.mdict['pki_client_database_dir'],
-            password=self.mdict['pki_client_database_password'])
-
-        try:
-            b64cert = client_nssdb.get_cert(
-                nickname=self.mdict['pki_admin_nickname'],
-                output_format='base64',
-                output_text=True,  # JSON encoder needs text
-            )
-
-        finally:
-            client_nssdb.close()
-
-        if b64cert:
-            return b64cert
+        logger.info('load_admin_cert')
 
         standalone = config.str2bool(self.mdict['pki_standalone'])
-        external = config.str2bool(self.mdict['pki_external'])
+        external_step_two = config.str2bool(self.mdict['pki_external_step_two'])
 
-        if standalone or external and subsystem.type in ['KRA', 'OCSP']:
+        if standalone or external_step_two and subsystem.type != 'CA':
 
             # Stand-alone/External PKI (Step 2)
             #
             # Copy the externally-issued admin certificate into
             # 'ca_admin.cert' under the specified 'pki_client_dir'
             # stripping the certificate HEADER/FOOTER prior to saving it.
+            logger.info('load_admin_cert: external_step_two and not CA')
 
             logger.info('Loading admin cert from %s', self.mdict['pki_admin_cert_path'])
 
@@ -805,6 +787,30 @@ class PKIDeployer:
                 f.write(b64cert)
 
         else:
+            # pki_import_admin_cert is true for sharing admin cert
+            logger.info(
+                'Loading admin cert from client database: %s',
+                self.mdict['pki_admin_nickname'])
+
+            client_nssdb = pki.nssdb.NSSDatabase(
+                directory=self.mdict['pki_client_database_dir'],
+                password=self.mdict['pki_client_database_password'])
+
+            try:
+                b64cert = client_nssdb.get_cert(
+                    nickname=self.mdict['pki_admin_nickname'],
+                    output_format='base64',
+                    output_text=True,  # JSON encoder needs text
+                )
+
+            finally:
+                client_nssdb.close()
+
+            if b64cert:
+                return b64cert
+
+            # admin cert was in 'pki_admin_cert_file' but not yet in client
+            # nssdb
             logger.info('Loading admin cert from %s', self.mdict['pki_admin_cert_file'])
 
             with open(self.mdict['pki_admin_cert_file'], 'r') as f:
@@ -948,14 +954,23 @@ class PKIDeployer:
 
     def get_admin_cert(self, subsystem, client):
 
+        logger.info('get_admin_cert')
+        external_step_two = config.str2bool(self.mdict['pki_external_step_two'])
         if config.str2bool(self.mdict['pki_import_admin_cert']):
             b64cert = self.load_admin_cert(subsystem)
         else:
-            b64csr = self.create_admin_csr()
-            if subsystem.type == 'CA':
-                b64cert = self.create_admin_cert(client, b64csr)
+            if external_step_two and subsystem.type != 'CA':
+                logger.info('get_admin_cert: pki_external_step_two True')
+                b64cert = self.load_admin_cert(subsystem)
+                self.config_client.process_admin_p12()
+                logger.debug('Admin cert: %s', b64cert)
+                return base64.b64decode(b64cert)
             else:
-                b64cert = self.request_admin_cert(subsystem, b64csr)
+                b64csr = self.create_admin_csr()
+                if subsystem.type == 'CA':
+                    b64cert = self.create_admin_cert(client, b64csr)
+                else:
+                    b64cert = self.request_admin_cert(subsystem, b64csr)
 
         logger.debug('Admin cert: %s', b64cert)
 
@@ -964,6 +979,7 @@ class PKIDeployer:
                 or not config.str2bool(self.mdict['pki_import_admin_cert']):
 
             self.config_client.process_admin_cert(b64cert)
+            self.config_client.process_admin_p12()
 
         return base64.b64decode(b64cert)
 
