@@ -1254,6 +1254,8 @@ class NSSDatabase(object):
     def get_cert(self, nickname, token=None, output_format='pem',
                  output_text=False):
 
+        logger.info('nssdb.get_cert')
+
         if output_format == 'pem':
             output_format_option = '-a'
 
@@ -1309,10 +1311,14 @@ class NSSDatabase(object):
 
             if not cert_data:
                 # certutil did not return data
+                logger.info('certutil did not return data')
                 return None
+            else:
+                logger.info('certutil returned data for cert')
 
             if p.returncode != 0:
                 logger.warning('certutil returned non-zero exit code (bug #1539996)')
+                logger.info('certutil returned errocode: %s', p.returncode)
 
             if output_format == 'base64':
                 cert_data = base64.b64encode(cert_data).decode('utf-8')

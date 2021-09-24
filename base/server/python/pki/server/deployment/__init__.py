@@ -443,6 +443,7 @@ class PKIDeployer:
 
         cert_data = nssdb.get_cert(
             nickname=nickname,
+            token=self.mdict['pki_%s_token' % cert_id],
             output_format='base64',
             output_text=True,
         )
