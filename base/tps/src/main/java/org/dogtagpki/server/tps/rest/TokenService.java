@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -54,11 +53,11 @@ import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
 import com.netscape.certsrv.tps.token.TokenResource;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.certsrv.user.UserResource;
-import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.usrgrp.User;
 
 import netscape.ldap.LDAPException;
 
@@ -326,7 +325,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
         } catch (EDBException e) {
             Throwable t = e.getCause();
-            if (t != null && t instanceof LDAPException) {
+            if (t instanceof LDAPException) {
                 throw LDAPExceptionConverter.toPKIException((LDAPException) t);
             }
             throw new PKIException(e);
@@ -485,7 +484,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
         } catch (EDBException e) {
             Throwable t = e.getCause();
-            if (t != null && t instanceof LDAPException) {
+            if (t instanceof LDAPException) {
                 throw LDAPExceptionConverter.toPKIException((LDAPException) t);
             }
             throw new PKIException(e);
@@ -574,7 +573,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
             if (e instanceof EDBException) {
                 Throwable t = e.getCause();
-                if (t != null && t instanceof LDAPException) {
+                if (t instanceof LDAPException) {
                     PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
                     auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
                             auditModParams, ex.toString());
@@ -654,7 +653,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
             if (e instanceof EDBException) {
                 Throwable t = e.getCause();
-                if (t != null && t instanceof LDAPException) {
+                if (t instanceof LDAPException) {
                     PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
                     auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
                             auditModParams, ex.toString());
@@ -770,7 +769,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
             if (e instanceof EDBException) {
                 Throwable t = e.getCause();
-                if (t != null && t instanceof LDAPException) {
+                if (t instanceof LDAPException) {
                     PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
                     auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
                             auditModParams, ex.toString());
@@ -905,7 +904,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
             if (e instanceof EDBException) {
                 Throwable t = e.getCause();
-                if (t != null && t instanceof LDAPException) {
+                if (t instanceof LDAPException) {
                     PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
                     auditTokenStateChange(ILogger.FAILURE, oldStatus,
                             newStatus, oldReason, newReason,
@@ -977,7 +976,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
             if (e instanceof EDBException) {
                 Throwable t = e.getCause();
-                if (t != null && t instanceof LDAPException) {
+                if (t instanceof LDAPException) {
                     PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
                     auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
                             auditModParams, ex.toString());
