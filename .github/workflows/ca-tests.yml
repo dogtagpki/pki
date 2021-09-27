@@ -75,22 +75,36 @@ jobs:
       - name: Load runner image
         run: docker load --input /tmp/pki-runner.tar
 
-      - name: Run container
+      - name: Create network
+        run: docker network create example
+
+      - name: Run DS container
+        run: tests/bin/ds-container-create.sh
+        env:
+          NAME: ds
+          HOSTNAME: ds.example.com
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Run PKI container
         run: |
           IMAGE=pki-runner \
           NAME=pki \
           HOSTNAME=pki.example.com \
           tests/bin/runner-init.sh
 
-      - name: Install dependencies
-        run: docker exec pki dnf install -y 389-ds-base
-
-      - name: Install DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
 
       - name: Install CA
         run: |
-          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
           # set buffer size to 0 so that revocation takes effect immediately
           docker exec pki pki-server ca-config-set auths.revocationChecking.bufferSize 0
           # enable signed audit log
@@ -136,15 +150,12 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Remove DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -176,21 +187,36 @@ jobs:
       - name: Load runner image
         run: docker load --input /tmp/pki-runner.tar
 
-      - name: Run container
+      - name: Create network
+        run: docker network create example
+
+      - name: Run DS container
+        run: tests/bin/ds-container-create.sh
+        env:
+          NAME: ds
+          HOSTNAME: ds.example.com
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Run PKI container
         run: |
           IMAGE=pki-runner \
           NAME=pki \
           HOSTNAME=pki.example.com \
           tests/bin/runner-init.sh
 
-      - name: Install dependencies
-        run: docker exec pki dnf install -y 389-ds-base
-
-      - name: Install DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
 
       - name: Install CA
-        run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-ecc.cfg -s CA -v
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-ecc.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
@@ -223,15 +249,12 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Remove DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -266,46 +289,63 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Run root container
+      - name: Run root DS container
+        run: tests/bin/ds-container-create.sh
+        env:
+          NAME: rootds
+          HOSTNAME: rootds.example.com
+
+      - name: Connect root DS container to network
+        run: docker network connect example rootds --alias rootds.example.com
+
+      - name: Run root PKI container
         run: |
           IMAGE=pki-runner \
           NAME=root \
           HOSTNAME=root.example.com \
           tests/bin/runner-init.sh
 
-      - name: Connect root container to network
+      - name: Connect root PKI container to network
         run: docker network connect example root --alias root.example.com
 
-      - name: Install dependencies in root container
-        run: docker exec root dnf install -y 389-ds-base
-
-      - name: Install DS in root container
-        run: docker exec root ${PKIDIR}/tests/bin/ds-create.sh
-
       - name: Install root CA in root container
-        run: docker exec root pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+        run: |
+          docker exec root pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=rootds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Setup subordinate container
+      - name: Run subordinate DS container
+        run: tests/bin/ds-container-create.sh
+        env:
+          NAME: subds
+          HOSTNAME: subds.example.com
+
+      - name: Connect subordinate DS container to network
+        run: docker network connect example subds --alias subds.example.com
+
+      - name: Setup subordinate PKI container
         run: |
           IMAGE=pki-runner \
           NAME=subordinate \
           HOSTNAME=sub.example.com \
           tests/bin/runner-init.sh
 
-      - name: Connect subordinate container to network
+      - name: Connect subordinate PKI container to network
         run: docker network connect example subordinate --alias sub.example.com
-
-      - name: Install dependencies in subordinate container
-        run: docker exec subordinate dnf install -y 389-ds-base
-
-      - name: Install DS in subordinate container
-        run: docker exec subordinate ${PKIDIR}/tests/bin/ds-create.sh
 
       - name: Install subordinate CA in subordinate container
         run: |
           docker exec root pki-server cert-export ca_signing --cert-file ${PKIDIR}/root-ca_signing.crt
           docker exec subordinate cp ${PKIDIR}/root-ca_signing.crt .
-          docker exec subordinate pkispawn -f /usr/share/pki/server/examples/installation/subca.cfg -s CA -v
+          docker exec subordinate pkispawn \
+              -f /usr/share/pki/server/examples/installation/subca.cfg \
+              -s CA \
+              -D pki_ds_hostname=subds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Run PKI healthcheck
         run: docker exec subordinate pki-healthcheck --debug
@@ -321,37 +361,22 @@ jobs:
       - name: Gather artifacts from root container
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh root
+          tests/bin/ds-artifacts-save.sh rootds
           tests/bin/pki-artifacts-save.sh root
         continue-on-error: true
 
       - name: Gather artifacts from subordinate container
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh subordinate
+          tests/bin/ds-artifacts-save.sh subds
           tests/bin/pki-artifacts-save.sh subordinate
         continue-on-error: true
 
       - name: Remove subordinate CA from subordinate container
         run: docker exec subordinate pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from subordinate container
-        run: docker exec subordinate ${PKIDIR}/tests/bin/ds-remove.sh
-
-      - name: Disconnect subordinate container from network
-        run: docker network disconnect example subordinate
-
       - name: Remove root CA from root container
         run: docker exec root pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Remove DS from root container
-        run: docker exec root ${PKIDIR}/tests/bin/ds-remove.sh
-
-      - name: Disconnect root container from network
-        run: docker network disconnect example root
-
-      - name: Remove network
-        run: docker network rm example
 
       - name: Upload artifacts from root container
         if: always()
@@ -391,6 +416,18 @@ jobs:
       - name: Load runner image
         run: docker load --input /tmp/pki-runner.tar
 
+      - name: Create network
+        run: docker network create example
+
+      - name: Run DS container
+        run: tests/bin/ds-container-create.sh
+        env:
+          NAME: ds
+          HOSTNAME: ds.example.com
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
       - name: Setup PKI container
         run: |
           IMAGE=pki-runner \
@@ -398,11 +435,8 @@ jobs:
           HOSTNAME=pki.example.com \
           tests/bin/runner-init.sh
 
-      - name: Install dependencies
-        run: docker exec pki dnf install -y 389-ds-base
-
-      - name: Install DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
 
       - name: Create root CA in NSS database
         run: |
@@ -421,13 +455,23 @@ jobs:
 
       - name: Install subordinate CA
         run: |
-          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg -s CA -v
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
           docker exec pki pki -d nssdb nss-cert-issue \
               --issuer root-ca_signing \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
-          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg -s CA -v
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
@@ -443,15 +487,12 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
       - name: Remove subordinate CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Remove DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -483,6 +524,18 @@ jobs:
       - name: Load runner image
         run: docker load --input /tmp/pki-runner.tar
 
+      - name: Create network
+        run: docker network create example
+
+      - name: Run DS container
+        run: tests/bin/ds-container-create.sh
+        env:
+          NAME: ds
+          HOSTNAME: ds.example.com
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
       - name: Setup PKI container
         run: |
           IMAGE=pki-runner \
@@ -490,11 +543,8 @@ jobs:
           HOSTNAME=pki.example.com \
           tests/bin/runner-init.sh
 
-      - name: Install dependencies
-        run: docker exec pki dnf install -y 389-ds-base
-
-      - name: Install DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
 
       - name: Create CA signing cert
         run: |
@@ -559,9 +609,19 @@ jobs:
 
       - name: Install CA with existing certs
         run: |
-          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-existing-certs-step1.cfg -s CA -v
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-existing-certs-step1.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
           sleep 1  # avoid pkispawn log conflict due to identical timestamps
-          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-existing-certs-step2.cfg -s CA -v
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-existing-certs-step2.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
@@ -588,15 +648,12 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Remove DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -631,40 +688,52 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Run primary container
+      - name: Run primary DS container
+        run: tests/bin/ds-container-create.sh
+        env:
+          NAME: primaryds
+          HOSTNAME: primaryds.example.com
+
+      - name: Connect primary DS container to network
+        run: docker network connect example primaryds --alias primaryds.example.com
+
+      - name: Run primary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=primary \
           HOSTNAME=primary.example.com \
           tests/bin/runner-init.sh
 
-      - name: Connect primary container to network
+      - name: Connect primary PKI container to network
         run: docker network connect example primary --alias primary.example.com
 
-      - name: Install dependencies in primary container
-        run: docker exec primary dnf install -y 389-ds-base
-
-      - name: Install DS in primary container
-        run: docker exec primary ${PKIDIR}/tests/bin/ds-create.sh
-
       - name: Install CA in primary container
-        run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=primaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Setup secondary container
+      - name: Run secondary DS container
+        run: tests/bin/ds-container-create.sh
+        env:
+          NAME: secondaryds
+          HOSTNAME: secondaryds.example.com
+
+      - name: Connect secondary DS container to network
+        run: docker network connect example secondaryds --alias secondaryds.example.com
+
+      - name: Run secondary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=secondary \
           HOSTNAME=secondary.example.com \
           tests/bin/runner-init.sh
 
-      - name: Connect secondary container to network
+      - name: Connect secondary PKI container to network
         run: docker network connect example secondary --alias secondary.example.com
-
-      - name: Install dependencies in secondary container
-        run: docker exec secondary dnf install -y 389-ds-base
-
-      - name: Install DS in secondary container
-        run: docker exec secondary ${PKIDIR}/tests/bin/ds-create.sh
 
       - name: Install CA in secondary container
         run: |
@@ -672,7 +741,12 @@ jobs:
           docker exec primary pki-server ca-clone-prepare --pkcs12-file ${PKIDIR}/ca-certs.p12 --pkcs12-password Secret.123
           docker exec secondary cp ${PKIDIR}/ca_signing.crt .
           docker exec secondary cp ${PKIDIR}/ca-certs.p12 .
-          docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone.cfg -s CA -v
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
+              -s CA \
+              -D pki_ds_hostname=secondaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Verify CA admin in secondary container
         run: |
@@ -684,21 +758,24 @@ jobs:
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec secondary pki -n caadmin ca-user-show caadmin
 
-      - name: Setup tertiary container
+      - name: Run tertiary DS container
+        run: tests/bin/ds-container-create.sh
+        env:
+          NAME: tertiaryds
+          HOSTNAME: tertiaryds.example.com
+
+      - name: Connect tertiary DS container to network
+        run: docker network connect example tertiaryds --alias tertiaryds.example.com
+
+      - name: Run tertiary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=tertiary \
           HOSTNAME=tertiary.example.com \
           tests/bin/runner-init.sh
 
-      - name: Connect tertiary container to network
+      - name: Connect tertiary PKI container to network
         run: docker network connect example tertiary --alias tertiary.example.com
-
-      - name: Install dependencies in tertiary container
-        run: docker exec tertiary dnf install -y 389-ds-base
-
-      - name: Install DS in tertiary container
-        run: docker exec tertiary ${PKIDIR}/tests/bin/ds-create.sh
 
       - name: Install CA in tertiary container
         run: |
@@ -706,7 +783,12 @@ jobs:
           docker exec secondary pki-server ca-clone-prepare --pkcs12-file ${PKIDIR}/ca-certs.p12 --pkcs12-password Secret.123
           docker exec tertiary cp ${PKIDIR}/ca_signing.crt .
           docker exec tertiary cp ${PKIDIR}/ca-certs.p12 .
-          docker exec tertiary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg -s CA -v
+          docker exec tertiary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg \
+              -s CA \
+              -D pki_ds_hostname=tertiaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Verify CA admin in tertiary container
         run: |
@@ -719,29 +801,26 @@ jobs:
       - name: Gather artifacts from primary container
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh primary
+          tests/bin/ds-artifacts-save.sh primaryds
           tests/bin/pki-artifacts-save.sh primary
         continue-on-error: true
 
       - name: Gather artifacts from secondary container
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh secondary
+          tests/bin/ds-artifacts-save.sh secondaryds
           tests/bin/pki-artifacts-save.sh secondary
         continue-on-error: true
 
       - name: Gather artifacts from tertiary container
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh tertiary
+          tests/bin/ds-artifacts-save.sh tertiaryds
           tests/bin/pki-artifacts-save.sh tertiary
         continue-on-error: true
 
       - name: Remove CA from tertiary container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Remove DS from tertiary container
-        run: docker exec tertiary ${PKIDIR}/tests/bin/ds-remove.sh
 
       - name: Disconnect tertiary container from network
         run: docker network disconnect example tertiary
@@ -749,23 +828,14 @@ jobs:
       - name: Remove CA from secondary container
         run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from secondary container
-        run: docker exec secondary ${PKIDIR}/tests/bin/ds-remove.sh
-
       - name: Disconnect secondary container from network
         run: docker network disconnect example secondary
 
       - name: Remove CA from primary container
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from primary container
-        run: docker exec primary ${PKIDIR}/tests/bin/ds-remove.sh
-
       - name: Disconnect primary container from network
         run: docker network disconnect example primary
-
-      - name: Remove network
-        run: docker network rm example
 
       - name: Upload artifacts from primary container
         if: always()
@@ -1229,6 +1299,15 @@ jobs:
       - name: Create network
         run: docker network create example
 
+      - name: Run DS container
+        run: tests/bin/ds-container-create.sh
+        env:
+          NAME: ds
+          HOSTNAME: ds.example.com
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
       - name: Run PKI container
         run: |
           IMAGE=pki-runner \
@@ -1252,14 +1331,14 @@ jobs:
           docker inspect -f '{{ .NetworkSettings.Networks.example.IPAddress }}' client > client.ip
           echo "Client's IP: `cat client.ip`"
 
-      - name: Install dependencies in PKI container
-        run: docker exec pki dnf install -y 389-ds-base
-
-      - name: Install DS in PKI container
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
-
       - name: Install CA in PKI container
-        run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       # https://github.com/dogtagpki/pki/wiki/Configuring-SCEP-Responder
       - name: Configure SCEP in CA
@@ -1309,14 +1388,12 @@ jobs:
       - name: Gather artifacts from PKI container
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
 
       - name: Remove CA from PKI container
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Remove DS from PKI container
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
