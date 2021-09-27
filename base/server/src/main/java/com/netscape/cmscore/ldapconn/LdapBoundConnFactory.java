@@ -356,7 +356,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      */
     private void makeMinimum() throws ELdapException {
         String method = "LdapBoundConnFactory.makeMinimum: ";
-        if (mMasterConn == null || mMasterConn.isConnected() == false) {
+        if (mMasterConn == null || !mMasterConn.isConnected()) {
             logger.debug(method + "master conn not available; returning");
             return;
         }
@@ -369,13 +369,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
             logger.debug(method + "increasing minimum connections by " + increment);
 
             for (int i = increment - 1; i >= 0; i--) {
-
-                if (doCloning == true) {
-                    mConns[i] = (LdapBoundConnection) mMasterConn.clone();
-                } else {
-                    mConns[i] = makeNewConnection(true);
-                }
-
+                mConns[i] = doCloning ? (LdapBoundConnection) mMasterConn.clone() : makeNewConnection(true);
             }
 
             mTotal += increment;
@@ -481,11 +475,10 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         //If masterConn is still alive, lets try to bring this one
         //back to life
 
-        if ((isConnected == false) && (mMasterConn != null)
-                && (mMasterConn.isConnected() == true)) {
+        if (!isConnected && mMasterConn != null && mMasterConn.isConnected()) {
             logger.debug("LdapBoundConnFactory: reestablishing connection");
 
-            if (doCloning == true) {
+            if (doCloning) {
                 mConns[mNumConns] = (LdapBoundConnection) mMasterConn.clone();
             } else {
                 try {
