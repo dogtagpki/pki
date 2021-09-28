@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
+import java.io.BufferedReader;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -56,7 +58,7 @@ public class PKCS10Client {
 
     private static void printUsage() {
         System.out.println(
-                "\nUsage: PKCS10Client -d <location of certdb> -h <token name> -p <token password> -a <algorithm: 'rsa' or 'ec'> -l <rsa key length> -c <ec curve name> -o <output file which saves the base64 PKCS10> -n <subjectDN>\n");
+                "\nUsage: PKCS10Client -d <location of certdb> -h <token name> -P <token password file> -a <algorithm: 'rsa' or 'ec'> -l <rsa key length> -c <ec curve name> -o <output file which saves the base64 PKCS10> -n <subjectDN>\n");
         System.out.println(
                 "    Optionally, for ECC key generation per definition in JSS pkcs11.PK11KeyPairGenerator:\n");
         System.out.println(
@@ -83,6 +85,7 @@ public class PKCS10Client {
 
     public static void main(String args[]) throws Exception {
         String dbdir = null, ofilename = null, kid_ofilename = null, password = null, subjectName = null, tokenName = null;
+        String passwordFile = null;
 
         String alg = "rsa";
         String ecc_curve = "nistp256";
@@ -107,6 +110,8 @@ public class PKCS10Client {
 
             if (name.equals("-p")) {
                 password = args[i+1];
+	    } else if (name.equals("-P")) {
+                passwordFile = args[i+1];
             } else if (name.equals("-d")) {
                 dbdir = args[i+1];
             } else if (name.equals("-a")) {
@@ -191,6 +196,12 @@ public class PKCS10Client {
             System.exit(1);
         }
 
+        if (password != null && passwordFile != null) {
+            System.out.println("PKCS10Client: '-p' and '-P' cannot be both specified.");
+            printUsage();
+            System.exit(1);
+        }
+
         if (dbdir == null)
             dbdir = ".";
 
@@ -216,7 +227,25 @@ public class PKCS10Client {
                 System.out.println("PKCS10Client: Debug: thread token set.");
             }
 
-            if (password != null) {
+            if (passwordFile != null) {
+                String line;
+                try (BufferedReader in = new BufferedReader(new FileReader(passwordFile))) {
+                    line = in.readLine();
+                    if (line == null) {
+                        line = "";
+                    }
+                }
+                Password pass = new Password(line.toCharArray());
+
+                try {
+                    token.login(pass);
+                    if (verbose) {
+                        System.out.println("PKCS10Client: token "+ tokenName + " logged in...");
+                    }
+                } finally {
+                    pass.clear();
+                }
+            } else if (password != null) {
                 Password pass = new Password(password.toCharArray());
 
                 try {
@@ -325,7 +354,7 @@ public class PKCS10Client {
             }
 
             String pem = CertUtil.toPEM(certReq);
-            System.out.print(pem);
+            // System.out.print(pem);
 
             try (FileOutputStream fos = new FileOutputStream(ofilename);
                     PrintStream ps = new PrintStream(fos)) {

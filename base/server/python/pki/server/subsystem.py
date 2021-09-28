@@ -157,6 +157,8 @@ class PKISubsystem(object):
 
     def get_subsystem_cert(self, cert_id):
 
+        logger.debug('get_subsystem_cert')
+
         cert = self.get_cert_info(cert_id)
 
         # If nickname is empty, then cert cannot be queried for in NSSDB
@@ -191,6 +193,7 @@ class PKISubsystem(object):
 
     def get_nssdb_cert_info(self, cert_id):
 
+        logger.info('get_nssdb_cert_info')
         logger.info('Getting %s cert info from NSS database', cert_id)
 
         nickname = self.config.get('%s.%s.nickname' % (self.name, cert_id))
@@ -224,8 +227,8 @@ class PKISubsystem(object):
             print(subprocess.check_output(
                 cmd,
                 stderr=subprocess.STDOUT))
-        except subprocess.CalledProcessError as e:
-            print("pki-server subsystem-cert-validate stdout output:\n", e.output)
+        except subprocess.CalledProcessError as v:
+            print("pki-server subsystem-cert-validate stdout output:\n", v.output)
 
     def export_system_cert(
             self,

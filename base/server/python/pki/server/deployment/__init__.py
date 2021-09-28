@@ -290,6 +290,8 @@ class PKIDeployer:
             tag,
             trust_attributes=None):
 
+        logger.debug('import_system_cert')
+
         cert_id = self.get_cert_id(subsystem, tag)
         param = 'pki_%s_cert_path' % cert_id
         cert_file = self.mdict.get(param)
@@ -355,7 +357,7 @@ class PKIDeployer:
 
         nickname = self.mdict['pki_cert_chain_nickname']
 
-        logger.info('Importing certificate chain from %s', chain_file)
+        logger.info('import_cert_chain: Importing certificate chain from %s', chain_file)
 
         nssdb.import_cert_chain(
             nickname=nickname,
@@ -363,6 +365,8 @@ class PKIDeployer:
             trust_attributes='CT,C,C')
 
     def import_system_certs(self, nssdb, subsystem):
+
+        logger.debug("import_system_certs")
 
         if subsystem.name == 'ca':
             self.import_system_cert(nssdb, subsystem, 'signing', 'CT,C,C')
@@ -417,6 +421,8 @@ class PKIDeployer:
 
     def configure_system_certs(self, subsystem):
 
+        logger.debug('configure_system_certs')
+
         if subsystem.name == 'ca':
             self.configure_system_cert(subsystem, 'signing')
 
@@ -437,6 +443,8 @@ class PKIDeployer:
         self.configure_system_cert(subsystem, 'audit_signing')
 
     def update_system_cert(self, nssdb, subsystem, tag):
+
+        logger.debug('update_system_cert')
 
         cert_id = self.get_cert_id(subsystem, tag)
         nickname = self.mdict['pki_%s_nickname' % cert_id]
@@ -473,6 +481,8 @@ class PKIDeployer:
 
     def update_system_certs(self, nssdb, subsystem):
 
+        logger.debug('update_system_certs')
+
         if subsystem.name == 'ca':
             self.update_system_cert(nssdb, subsystem, 'signing')
             self.update_system_cert(nssdb, subsystem, 'ocsp_signing')
@@ -492,10 +502,17 @@ class PKIDeployer:
 
     def validate_system_cert(self, nssdb, subsystem, tag):
 
+        logger.debug('validate_system_cert')
+
         cert_id = self.get_cert_id(subsystem, tag)
         nickname = self.mdict['pki_%s_nickname' % cert_id]
 
-        cert_data = nssdb.get_cert(nickname=nickname, output_text=True)
+        cert_data = nssdb.get_cert(
+            nickname=nickname,
+            token=self.mdict['pki_%s_token' % cert_id],
+            output_text=True
+        )
+
         if not cert_data:
             return
 
@@ -504,6 +521,8 @@ class PKIDeployer:
         subsystem.validate_system_cert(tag)
 
     def validate_system_certs(self, nssdb, subsystem):
+
+        logger.debug('validate_system_certs')
 
         if subsystem.name == 'ca':
             self.validate_system_cert(nssdb, subsystem, 'signing')
