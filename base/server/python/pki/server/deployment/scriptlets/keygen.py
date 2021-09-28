@@ -61,6 +61,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             curve = key_size
             key_size = None
 
+            if (cert_id in ['storage', 'transport']):
+                raise Exception('Invalid key type for KRA %s cert: %s' % (cert_id, key_type))
+
             m = re.match(r'(.*)withEC', key_alg)
             if not m:
                 raise Exception('Invalid key algorithm: %s' % key_alg)
@@ -93,23 +96,54 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         (key_type, key_size, curve, hash_alg) = self.get_key_params(
             deployer, cert_id)
 
-        nssdb.create_request(
-            subject_dn=subject_dn,
-            request_file=csr_path,
-            key_type=key_type,
-            key_size=key_size,
-            curve=curve,
-            hash_alg=hash_alg,
-            basic_constraints_ext=basic_constraints_ext,
-            key_usage_ext=key_usage_ext,
-            extended_key_usage_ext=extended_key_usage_ext,
-            subject_key_id=subject_key_id,
-            generic_exts=generic_exts)
+        """
+        For newer HSM in FIPS mode:
+        for KRA, storage cert and transport cert need to use the new -w
+        option of PKCS10Client
+        e.g. PKCS10Client -d /var/lib/pki/<ca instance>/alias -h hsm-module
+          -a rsa -l 2048 -n "CN= KRA storage cert" -w -v -o kra-storage.csr.b64
 
-        with open(csr_path) as f:
-            csr = f.read()
+        Here we use the two pkispawn config params to tell us that it's likely
+        the newer HSM in FIPS mode:
+            pki_hsm_enable = True
+            pki_use_pss_rsa_signing_algorithm = True
 
-        b64_csr = pki.nssdb.convert_csr(csr, 'pem', 'base64')
+        """
+
+        print('pki_hsm_enable: ', config.str2bool(deployer.mdict['pki_hsm_enable']))
+        print('pki_use_pss_rsa_signing_algorithm: ',
+              config.str2bool(deployer.mdict['pki_use_pss_rsa_signing_algorithm']))
+
+        print('subsystem.type: ', subsystem.type)
+        if (subsystem.type == 'KRA' and
+            config.str2bool(deployer.mdict['pki_hsm_enable']) and
+            config.str2bool(deployer.mdict['pki_use_pss_rsa_signing_algorithm']) and
+                (cert_id in ['storage', 'transport'])):
+            print('generate_csr: calling PKCS10Client for', cert_id)
+            b64_csr = nssdb.create_request_with_wrap_key(
+                subject_dn=subject_dn,
+                request_file=csr_path,
+                key_size=key_size)
+        else:
+            print('generate_csr: calling certutil for', cert_id)
+            nssdb.create_request(
+                subject_dn=subject_dn,
+                request_file=csr_path,
+                key_type=key_type,
+                key_size=key_size,
+                curve=curve,
+                hash_alg=hash_alg,
+                basic_constraints_ext=basic_constraints_ext,
+                key_usage_ext=key_usage_ext,
+                extended_key_usage_ext=extended_key_usage_ext,
+                subject_key_id=subject_key_id,
+                generic_exts=generic_exts)
+
+            with open(csr_path) as f:
+                csr = f.read()
+
+            b64_csr = pki.nssdb.convert_csr(csr, 'pem', 'base64')
+
         subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
 
     def generate_ca_signing_csr(self, deployer, subsystem):
