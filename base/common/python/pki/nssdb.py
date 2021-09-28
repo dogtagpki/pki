@@ -452,6 +452,8 @@ class NSSDatabase(object):
 
     def add_cert(self, nickname, cert_file, token=None, trust_attributes=None):
 
+        logger.debug('nssdb.add_cert')
+
         tmpdir = tempfile.mkdtemp()
         try:
             token = self.get_effective_token(token)
@@ -815,6 +817,51 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
+    def create_request_with_wrap_key(
+            self,
+            subject_dn,
+            request_file,
+            token=None,
+            key_size=None):
+
+        """
+        Generate a CSR for certs that need to perform key wrapping/unwrapping
+        on an HSM (dependent on make/model). Only RSA key type is supported.
+        """
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+
+            cmd = [
+                'PKCS10Client',
+                '-d', self.directory
+            ]
+
+            token = self.get_effective_token(token)
+            password_file = self.get_password_file(tmpdir, token)
+
+            if token:
+                cmd.extend(['-h', token])
+
+            if password_file:
+                cmd.extend(['-P', password_file])
+
+            size = key_size if key_size else 2048
+            cmd.extend([
+                '-a', 'rsa',
+                '-l', str(size),
+                '-n', subject_dn,
+                '-w',
+                '-v',
+                '-o', request_file,
+            ])
+
+            logger.debug('Command: %s', ' '.join(map(str, cmd)))
+            subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def __generate_key(
             self, tmpdir,
             key_type=None, key_size=None, curve=None,
@@ -1158,6 +1205,9 @@ class NSSDatabase(object):
         :return: Trust flag
         :rtype: str
         """
+        logger.debug('get_trust')
+        cert_trust = None
+
         tmpdir = tempfile.mkdtemp()
         try:
             token = self.get_effective_token(token)
@@ -1173,6 +1223,8 @@ class NSSDatabase(object):
                 cmd.extend(['-h', token])
                 fullname = token + ':' + fullname
 
+            logger.debug('fullname = %s', fullname)
+
             if password_file:
                 cmd.extend(['-f', password_file])
 
@@ -1187,6 +1239,7 @@ class NSSDatabase(object):
             if error:
                 # certutil returned an error
                 # raise exception unless its not cert not found
+                logger.error('error : %s', error)
                 if error.startswith(b'certutil: Could not find cert: '):
                     return None
 
@@ -1325,6 +1378,8 @@ class NSSDatabase(object):
             if output_text and not isinstance(cert_data, six.string_types):
                 cert_data = cert_data.decode('ascii')
 
+            logger.info('nssdb.get_cert ends')
+
             return cert_data
 
         finally:
@@ -1332,6 +1387,7 @@ class NSSDatabase(object):
 
     def get_cert_info(self, nickname, token=None):
 
+        logger.debug('nssdb.get_cert_info begins: %s', nickname)
         cert_pem = self.get_cert(nickname=nickname, token=token)
 
         if not cert_pem:
@@ -1351,6 +1407,8 @@ class NSSDatabase(object):
         cert['not_before'] = self.convert_time_to_millis(cert_obj.not_valid_before)
         cert['not_after'] = self.convert_time_to_millis(cert_obj.not_valid_after)
         cert['trust_flags'] = self.get_trust(nickname=nickname, token=token)
+
+        logger.debug('nssdb.get_cert_info ends: %s', nickname)
 
         return cert
 
@@ -1515,7 +1573,7 @@ class NSSDatabase(object):
 
         tmpdir = tempfile.mkdtemp()
 
-        logger.debug('import_cert_chain begins')
+        logger.debug('nssdb.import_cert_chain begins')
 
         try:
             file_type = get_file_type(cert_chain_file)
@@ -1586,6 +1644,8 @@ class NSSDatabase(object):
             nickname=None,
             token=None,
             trust_attributes=None):
+
+        logger.debug('import_pkcs7')
 
         if not nickname:
 
