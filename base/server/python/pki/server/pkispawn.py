@@ -107,6 +107,12 @@ def main(argv):
         '(MUST specify complete path)')
 
     parser.optional.add_argument(
+        '-D',
+        dest='params', action='append',
+        metavar='<name>=<value>',
+        help='configuration parameter name and value')
+
+    parser.optional.add_argument(
         '--precheck',
         dest='precheck', action='store_true',
         help='Execute pre-checks and exit')
@@ -531,6 +537,13 @@ def main(argv):
     # --skip-installation
     if args.skip_installation:
         deployer.set_property('pki_skip_installation', 'True')
+
+    if args.params:
+        for param in args.params:
+            i = param.index('=')
+            name = param[0:i]
+            value = param[i + 1:]
+            deployer.set_property(name, value)
 
     create_master_dictionary(parser)
     deployer.init()
