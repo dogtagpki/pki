@@ -780,7 +780,7 @@ class PKIDeployer:
 
     def load_admin_cert(self, subsystem):
 
-        logger.info ('load_admin_cert')
+        logger.info('load_admin_cert')
 
         standalone = config.str2bool(self.mdict['pki_standalone'])
         external_step_two = config.str2bool(self.mdict['pki_external_step_two'])
@@ -979,7 +979,7 @@ class PKIDeployer:
         if config.str2bool(self.mdict['pki_import_admin_cert']):
             b64cert = self.load_admin_cert(subsystem)
         else:
-            if external_step_two and subsystem.type!='CA' :
+            if external_step_two and subsystem.type != 'CA':
                 logger.info('get_admin_cert: pki_external_step_two True')
                 b64cert = self.load_admin_cert(subsystem)
                 self.config_client.process_admin_p12()
