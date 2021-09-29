@@ -37,6 +37,7 @@ import java.util.Set;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
+import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
@@ -95,7 +96,6 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -1542,8 +1542,7 @@ public class TPSProcessor {
 
         try {
             org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
-            IConfigStore configStore = subsystem.getConfigStore();
+            TPSEngineConfig configStore = engine.getConfig();
 
             String config = "tokendb.defaultPolicy";
             String defaultPolicy = configStore.getString(config);
