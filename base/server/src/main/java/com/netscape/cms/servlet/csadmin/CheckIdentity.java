@@ -25,14 +25,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.w3c.dom.Node;
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.cmsutil.json.JSONObject;
 
 public class CheckIdentity extends CMSServlet {
 
@@ -75,18 +74,13 @@ public class CheckIdentity extends CMSServlet {
         }
 
         try {
-            XMLObject xmlObj = null;
-
-            xmlObj = new XMLObject();
-
-            Node root = xmlObj.createRoot("XMLResponse");
-
-            xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            byte[] cb = xmlObj.toByteArray();
-
-            outputResult(httpResp, "application/xml", cb);
+            JSONObject jsonObj = new JSONObject();
+            ObjectNode responseNode = jsonObj.getMapper().createObjectNode();
+            responseNode.put("Status", SUCCESS);
+            jsonObj.getRootNode().set("Response", responseNode);
+            outputResult(httpResp, "application/json", jsonObj.toByteArray());
         } catch (Exception e) {
-            logger.warn("Failed to send the XML output: " + e.getMessage(), e);
+            logger.warn("Failed to send the output: " + e.getMessage(), e);
         }
     }
 
