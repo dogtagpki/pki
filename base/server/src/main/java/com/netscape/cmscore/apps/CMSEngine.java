@@ -147,9 +147,11 @@ public class CMSEngine implements ServletContextListener {
 
     private Debug debug = new Debug();
     private PluginRegistry pluginRegistry = new PluginRegistry();
+    private PKIServerSocketListener serverSocketListener = null;
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
     protected JssSubsystem jssSubsystem = JssSubsystem.getInstance();
     protected DBSubsystem dbSubsystem = new DBSubsystem();
+
 
     protected RequestRepository requestRepository;
     protected RequestQueue requestQueue;
@@ -1128,16 +1130,19 @@ public class CMSEngine implements ServletContextListener {
         // Register realm for this subsystem
         ProxyRealm.registerRealm(id, new PKIRealm());
 
-        // Register TomcatJSS socket listener
-        TomcatJSS tomcatJss = TomcatJSS.getInstance();
-        tomcatJss.addSocketListener(new PKIServerSocketListener());
-
         ready = true;
         isStarted = true;
 
         mStartupTime = System.currentTimeMillis();
 
         logger.info(name + " engine started");
+        // Register TomcatJSS socket listener
+        TomcatJSS tomcatJss = TomcatJSS.getInstance();
+       if(serverSocketListener == null) {
+           serverSocketListener = new PKIServerSocketListener();
+        }
+        tomcatJss.addSocketListener(serverSocketListener);
+
         notifySubsystemStarted();
     }
 
@@ -1327,6 +1332,12 @@ public class CMSEngine implements ServletContextListener {
      */
     public void shutdown() {
 
+        isStarted = false;
+        if(serverSocketListener != null) {
+            // De-Register TomcatJSS socket listener
+            TomcatJSS tomcatJss = TomcatJSS.getInstance();
+            tomcatJss.removeSocketListener(serverSocketListener);
+        }
         logger.info("Shutting down " + name + " subsystem");
 
         /*
