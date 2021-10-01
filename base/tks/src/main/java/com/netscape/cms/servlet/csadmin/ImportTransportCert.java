@@ -30,8 +30,8 @@ import org.dogtagpki.server.tks.TKSEngine;
 import org.dogtagpki.server.tks.TKSEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.w3c.dom.Node;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -40,7 +40,7 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.cmsutil.json.JSONObject;
 
 /**
  * This servlet imports DRM's transport certificate into TKS.
@@ -50,8 +50,8 @@ public class ImportTransportCert extends CMSServlet {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ImportTransportCert.class);
 
     private static final long serialVersionUID = 7490067757951541235L;
-    private final static String SUCCESS = "0";
-    private final static String AUTH_FAILURE = "2";
+    private static final String SUCCESS = "0";
+    private static final String AUTH_FAILURE = "2";
 
     public ImportTransportCert() {
         super();
@@ -135,15 +135,13 @@ public class ImportTransportCert extends CMSServlet {
 
             // send success status back to the requestor
             logger.debug("ImportTransportCert: Sending response");
-            XMLObject xmlObj = new XMLObject();
-            Node root = xmlObj.createRoot("XMLResponse");
-
-            xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            byte[] cb = xmlObj.toByteArray();
-
-            outputResult(httpResp, "application/xml", cb);
+            JSONObject jsonObj = new JSONObject();
+            ObjectNode responseNode = jsonObj.getMapper().createObjectNode();
+            jsonObj.getRootNode().set("Response", responseNode);
+            responseNode.put("Status", SUCCESS);
+            outputResult(httpResp, "application/json", jsonObj.toByteArray());
         } catch (Exception e) {
-            logger.warn("ImportTransportCert: Failed to send the XML output " + e.getMessage(), e);
+            logger.warn("ImportTransportCert: Failed to send the output " + e.getMessage(), e);
         }
     }
 

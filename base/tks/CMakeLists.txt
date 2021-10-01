@@ -17,6 +17,8 @@ javac(pki-tks-classes
         ${COMMONS_CODEC_JAR}
         ${COMMONS_LANG3_JAR}
         ${JACKSON2_ANNOTATIONS_JAR}
+        ${JACKSON2_CORE_JAR}
+        ${JACKSON2_DATABIND_JAR}
         ${LDAPJDK_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
