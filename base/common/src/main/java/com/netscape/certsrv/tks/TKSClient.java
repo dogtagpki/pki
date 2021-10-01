@@ -24,6 +24,7 @@ import java.net.URI;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
@@ -31,7 +32,7 @@ import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.user.UserClient;
-import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.cmsutil.json.JSONObject;
 
 public class TKSClient extends SubsystemClient {
 
@@ -71,9 +72,10 @@ public class TKSClient extends SubsystemClient {
         }
 
         ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-        XMLObject parser = new XMLObject(bis);
+        JSONObject jsonObj = new JSONObject(bis);
+        JsonNode responseNode = jsonObj.getJsonNode().get("Response");
+        String status = responseNode.get("Status").asText();
 
-        String status = parser.getValue("Status");
         logger.debug("TKSClient: Status: " + status);
 
         if (status.equals(AUTH_FAILURE)) {
@@ -81,7 +83,7 @@ public class TKSClient extends SubsystemClient {
         }
 
         if (!status.equals(SUCCESS)) {
-            String error = parser.getValue("Error");
+            String error = jsonObj.getJsonNode().get("Error").asText();
             throw new IOException(error);
         }
 
