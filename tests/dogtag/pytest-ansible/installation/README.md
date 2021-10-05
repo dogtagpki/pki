@@ -37,7 +37,7 @@ Required Packages:
 
     - redhat-pki
     - redhat-pki-console-theme
-    - redhat-pki-server-theme
+    - redhat-pki-theme
     - pki-console
     - 389-ds-base
     - pki-ca
