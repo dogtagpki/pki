@@ -23,6 +23,7 @@ import java.net.URI;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -32,10 +33,13 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.dogtagpki.common.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.cmsutil.json.JSONObject;
 import com.netscape.cmsutil.xml.XMLObject;
 
 
@@ -120,8 +124,46 @@ public class SubsystemClient extends Client {
             throw new IOException(message);
         }
 
+        try {
+            return buildRangeFromJSONResponse(new ByteArrayInputStream(response.getBytes()));
+        } catch (Exception e) {
+            return buildRangeFromXMLResponse(new ByteArrayInputStream(response.getBytes()));
+        }
+    }
+
+    private Range buildRangeFromJSONResponse(ByteArrayInputStream bais) throws IOException, EAuthException {
         // when the admin servlet is unavailable, we return a badly formatted error page
-        XMLObject parser = new XMLObject(new ByteArrayInputStream(response.getBytes()));
+        JSONObject parser = new JSONObject(bais);
+
+        JsonNode responseNode = parser.getJsonNode().get("Response");
+        String status = responseNode.get("Status").asText();
+        logger.debug("Status: " + status);
+
+        if (status.equals(AUTH_FAILURE)) {
+            throw new EAuthException(AUTH_FAILURE);
+        }
+
+        if (!status.equals(SUCCESS)) {
+            String error = parser.getJsonNode().get("Error").asText();
+            throw new IOException(error);
+        }
+
+        String begin = responseNode.get("beginNumber").asText();
+        logger.info("Begin: " + begin);
+
+        String end = responseNode.get("endNumber").asText();
+        logger.info("End: " + end);
+
+        Range range = new Range();
+        range.setBegin(begin);
+        range.setEnd(end);
+        return range;
+        }
+
+    @Deprecated(since = "11.0.0", forRemoval = true)
+    private Range buildRangeFromXMLResponse(ByteArrayInputStream bais) throws IOException, EAuthException, SAXException, ParserConfigurationException {
+        // when the admin servlet is unavailable, we return a badly formatted error page
+        XMLObject parser = new XMLObject(bais);
 
         String status = parser.getValue("Status");
         logger.debug("Status: " + status);
@@ -144,7 +186,6 @@ public class SubsystemClient extends Client {
         Range range = new Range();
         range.setBegin(begin);
         range.setEnd(end);
-
         return range;
     }
 
