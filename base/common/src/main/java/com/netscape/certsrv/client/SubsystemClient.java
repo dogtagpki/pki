@@ -215,8 +215,33 @@ public class SubsystemClient extends Client {
         }
 
         ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-        XMLObject parser = new XMLObject(bis);
+        try {
+            processJSONResponse(bis);
+        } catch (Exception e) {
+            processXMLResponse(bis);
+        }
+        logger.debug("SubsystemClient: Added user " + uid);
+    }
 
+    private void processJSONResponse(ByteArrayInputStream bis) throws EAuthException, IOException {
+        JSONObject parser = new JSONObject(bis);
+        JsonNode responseNode = parser.getJsonNode().get("Response");
+        String status = responseNode.get("Status").asText();
+        logger.debug("SubsystemClient: Status: " + status);
+
+        if (status.equals(AUTH_FAILURE)) {
+            throw new EAuthException(AUTH_FAILURE);
+        }
+
+        if (!status.equals(SUCCESS)) {
+            String error = parser.getJsonNode().get("Error").asText();
+            throw new IOException(error);
+        }
+    }
+
+    @Deprecated(since = "11.0.0", forRemoval = true)
+    private void processXMLResponse(ByteArrayInputStream bis) throws EAuthException, IOException, SAXException, ParserConfigurationException {
+        XMLObject parser = new XMLObject(bis);
         String status = parser.getValue("Status");
         logger.debug("SubsystemClient: Status: " + status);
 
@@ -228,8 +253,6 @@ public class SubsystemClient extends Client {
             String error = parser.getValue("Error");
             throw new IOException(error);
         }
-
-        logger.debug("SubsystemClient: Added user " + uid);
     }
 
     /**
