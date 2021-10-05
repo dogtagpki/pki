@@ -53,18 +53,18 @@ run_rhcs_install_packages() {
 	# Initialize Global TESTCOUNT variable
         #TESTCOUNT=1
 
-        COMMON_SERVER_PACKAGES="bind expect pki-console xmlstarlet dos2unix bc"
+        COMMON_SERVER_PACKAGES="bind expect xmlstarlet dos2unix bc"
 	NTPDATE_PACKAGE="ntpdate"
-	DEPENDENT_PACKAGES="idm-console-framework pki-base pki-ca pki-console pki-kra pki-ocsp pki-server pki-symkey pki-tks pki-tools pki-tps tomcat"
+	DEPENDENT_PACKAGES="pki-base pki-ca pki-kra pki-ocsp pki-server pki-symkey pki-tks pki-tools pki-tps tomcat"
 	#rlRun "setenforce 0"
         cat /etc/redhat-release | grep "Fedora"
         if [ $? -eq 0 ] ; then
                FLAVOR="Fedora"
-		OS_SPECIFIC_PACKAGES="pki-tools pki-symkey dogtag-pki dogtag-pki-console-theme dogtag-pki-theme 389-ds-base"
+		OS_SPECIFIC_PACKAGES="pki-tools pki-symkey dogtag-pki dogtag-pki-theme 389-ds-base"
                rlLog "Automation is running against Fedora"
 	else
 		FLAVOR="RHEL"
-		OS_SPECIFIC_PACKAGES="pki-tools pki-symkey redhat-pki redhat-pki-console-theme redhat-pki-theme redhat-ds"
+		OS_SPECIFIC_PACKAGES="pki-tools pki-symkey redhat-pki redhat-pki-theme redhat-ds"
 		rlLog "Automation is running against RHEL"
 	fi
 	

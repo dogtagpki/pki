@@ -36,9 +36,7 @@ correctly  before triggering ansible playbooks for system installation.
 Required Packages:
 
     - redhat-pki
-    - redhat-pki-console-theme
     - redhat-pki-theme
-    - pki-console
     - 389-ds-base
     - pki-ca
     - pki-kra

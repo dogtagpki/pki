@@ -62,9 +62,7 @@
   yum : pkg={{item}} state=latest
   with_items:
     - redhat-pki
-    - redhat-pki-console-theme
     - redhat-pki-theme
-    - pki-console
     - 389-ds-base
     - pki-ca
     - pki-kra
@@ -82,7 +80,6 @@
   with_items:
     - 389-ds-base
     - dogtag-pki
-    - dogtag-pki-console-theme
     - dogtag-pki-theme
     - policycoreutils-python-utils
     - expect
