@@ -1,0 +1,7 @@
+= Packaging Changes =
+
+== Package Name Changes ==
+
+The following packages have been renamed:
+
+* `dogtag-pki-base-java` -> `dogtag-pki-java`

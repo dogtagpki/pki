@@ -388,7 +388,7 @@ Requires:         python3-six
 This package provides common and client library for Python 3.
 
 ################################################################################
-%package -n       %{product_id}-base-java
+%package -n       %{product_id}-java
 ################################################################################
 
 Summary:          %{product_name} Base Java Package
@@ -396,6 +396,9 @@ BuildArch:        noarch
 
 Obsoletes:        pki-base-java < %{version}-%{release}
 Provides:         pki-base-java = %{version}-%{release}
+
+Obsoletes:        %{product_id}-base-java < %{version}-%{release}
+Provides:         %{product_id}-base-java = %{version}-%{release}
 
 Requires:         %{java_headless}
 Requires:         apache-commons-cli
@@ -423,7 +426,7 @@ Requires:         xalan-j2
 Requires:         xerces-j2
 Requires:         xml-commons-resolver
 
-%description -n   %{product_id}-base-java
+%description -n   %{product_id}-java
 This package provides common and client libraries for Java.
 
 ################################################################################
@@ -437,7 +440,7 @@ Provides:         pki-tools = %{version}-%{release}
 
 Requires:         openldap-clients
 Requires:         nss-tools >= 3.36.1
-Requires:         %{product_id}-base-java = %{version}-%{release}
+Requires:         %{product_id}-java = %{version}-%{release}
 Requires:         p11-kit-trust
 
 # PKICertImport depends on certutil and openssl
@@ -753,7 +756,7 @@ Obsoletes:        pki-console < %{version}-%{release}
 Provides:         pki-console = %{version}-%{release}
 
 Requires:         idm-console-framework >= 2.0
-Requires:         %{product_id}-base-java = %{version}-%{release}
+Requires:         %{product_id}-java = %{version}-%{release}
 Requires:         %{product_id}-console-theme = %{version}-%{release}
 
 %description -n   %{product_id}-console
@@ -1060,7 +1063,7 @@ fi
 %{_mandir}/man8/pki-upgrade.8.gz
 
 ################################################################################
-%files -n %{product_id}-base-java
+%files -n %{product_id}-java
 ################################################################################
 
 %license base/common/LICENSE
