@@ -23,15 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import java.security.cert.Certificate;
-
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLAlertDescription;
 import org.mozilla.jss.ssl.SSLAlertEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLSecurityStatus;
 import org.mozilla.jss.ssl.SSLSocket;
-import org.mozilla.jss.nss.SSLFDProxy;
 import org.mozilla.jss.ssl.SSLSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +37,12 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.AccessSessionEstablishEvent;
 import com.netscape.certsrv.logging.event.AccessSessionTerminatedEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
-import org.mozilla.jss.ssl.javax.*;
 
 public class PKIServerSocketListener implements SSLSocketListener {
 
     private static Logger logger = LoggerFactory.getLogger(PKIServerSocketListener.class);
     private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    private static final String defaultUnknown = "--";
     /**
      * The socketInfos map is a storage for socket information that may not be available
      * after the socket has been closed such as client IP address and subject ID. The
@@ -61,44 +56,17 @@ public class PKIServerSocketListener implements SSLSocketListener {
     public void alertReceived(SSLAlertEvent event) {
         try {
             SSLSocket socket = event.getSocket();
-            SSLFDProxy fdProxy = event.getFileDesc();
-            JSSEngine engine = event.getEngine();
 
-            InetAddress clientAddress = null;
-            InetAddress serverAddress = null;
-            /**
-             * Set these ip related quantities to -
-             * This is because with the engine implementation we
-             * can't get some of this info, but with a Socket we can
-             */
-            String clientIP = defaultUnknown;
-            String serverIP = defaultUnknown; 
-            String subjectID = defaultUnknown;
-            String hostname = defaultUnknown;
-            SSLSecurityStatus status = null;
+            InetAddress clientAddress = socket.getInetAddress();
+            InetAddress serverAddress = socket.getLocalAddress();
+            String clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
+            String serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
 
-            if(socket != null) { 
-                clientAddress = socket.getInetAddress();
-                serverAddress = socket.getLocalAddress();
-                clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
-                serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
+            SSLSecurityStatus status = socket.getStatus();
+            X509Certificate peerCertificate = status.getPeerCertificate();
+            Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
+            String subjectID = subjectDN == null ? "" : subjectDN.toString();
 
-                status = socket.getStatus();
-                X509Certificate peerCertificate = status.getPeerCertificate();
-                Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
-                subjectID = subjectDN == null ? "" : subjectDN.toString();
-            } else {
-                if(engine != null) {
-                    JSSSession session = engine.getSession();
-                    if(session != null) {
-                        Certificate[] certs = session.getPeerCertificates();
-                        if(certs != null) {
-                            X509Certificate cert = (X509Certificate) certs[0];
-                            subjectID = cert.getSubjectDN().toString();
-                        }
-                    }
-                }
-            }
             int description = event.getDescription();
             String reason = "serverAlertReceived: " + SSLAlertDescription.valueOf(description).toString();
 
@@ -123,72 +91,41 @@ public class PKIServerSocketListener implements SSLSocketListener {
     public void alertSent(SSLAlertEvent event) {
         try {
             SSLSocket socket = event.getSocket();
-            SSLFDProxy fdProxy = event.getFileDesc();
-            JSSEngine engine = event.getEngine();
 
             int description = event.getDescription();
             String reason = "serverAlertSent: " + SSLAlertDescription.valueOf(description).toString();
 
             SignedAuditEvent auditEvent;
-            String clientIP = defaultUnknown;
-            String serverIP = defaultUnknown;
-            String subjectID = defaultUnknown;
-
-            InetAddress clientAddress =  null;
-            InetAddress serverAddress = null;
+            String clientIP;
+            String serverIP;
+            String subjectID;
 
             if (description == SSLAlertDescription.CLOSE_NOTIFY.getID()) {
 
                 // get socket info from socketInfos map since socket has been closed
-            if(socket != null) {
                 Map<String,Object> info = socketInfos.get(socket);
                 clientIP = (String)info.get("clientIP");
                 serverIP = (String)info.get("serverIP");
                 subjectID = (String)info.get("subjectID");
-            } else {
-                if(engine != null) {
-                    JSSSession session = engine.getSession();
-                    if(session != null) {
-                        Certificate[] certs = session.getPeerCertificates();
-                        if(certs != null) {
-                             X509Certificate cert = (X509Certificate) certs[0];
-                             subjectID = cert.getSubjectDN().toString();
-                        }
-                    }
-                }
-            }
 
-            auditEvent = AccessSessionTerminatedEvent.createEvent(
-                    clientIP,
-                    serverIP,
-                    subjectID,
-                    reason);
+                auditEvent = AccessSessionTerminatedEvent.createEvent(
+                        clientIP,
+                        serverIP,
+                        subjectID,
+                        reason);
 
             } else {
+
                 // get socket info from the socket itself
-                if(socket != null) {
-                    clientAddress = socket.getInetAddress();
-                    serverAddress = socket.getLocalAddress();
-                    clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
-                    serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
+                InetAddress clientAddress = socket.getInetAddress();
+                InetAddress serverAddress = socket.getLocalAddress();
+                clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
+                serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
 
-                    SSLSecurityStatus status = socket.getStatus();
-                    X509Certificate peerCertificate = status.getPeerCertificate();
-                    Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
-                    subjectID = subjectDN == null ? "" : subjectDN.toString();
-
-               } else {
-                   if(engine != null) {
-                        JSSSession session = engine.getSession();
-                        if(session != null) {
-                            Certificate[] certs = session.getPeerCertificates();
-                            if(certs != null) {
-                                 X509Certificate cert = (X509Certificate) certs[0];
-                                 subjectID = cert.getSubjectDN().toString();
-                            }
-                        }
-                    }
-                }
+                SSLSecurityStatus status = socket.getStatus();
+                X509Certificate peerCertificate = status.getPeerCertificate();
+                Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
+                subjectID = subjectDN == null ? "" : subjectDN.toString();
 
                 auditEvent = AccessSessionEstablishEvent.createFailureEvent(
                         clientIP,
@@ -214,49 +151,28 @@ public class PKIServerSocketListener implements SSLSocketListener {
     public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
         try {
             SSLSocket socket = event.getSocket();
-            JSSEngine engine = event.getEngine();
 
-            InetAddress clientAddress = null;
-            InetAddress serverAddress = null;
-            String clientIP = defaultUnknown;
-            String serverIP = defaultUnknown;
-            SSLSecurityStatus status = null;
-            X509Certificate peerCertificate = null;
-            Principal subjectDN = null;
-            String subjectID = defaultUnknown;
+            InetAddress clientAddress = socket.getInetAddress();
+            InetAddress serverAddress = socket.getLocalAddress();
+            String clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
+            String serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
 
-            if(socket != null) {
-                clientAddress = socket.getInetAddress();
-                serverAddress = socket.getLocalAddress();
-                clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
-                serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
+            SSLSecurityStatus status = socket.getStatus();
+            X509Certificate peerCertificate = status.getPeerCertificate();
+            Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
+            String subjectID = subjectDN == null ? "" : subjectDN.toString();
 
-                status = socket.getStatus();
-                peerCertificate = status.getPeerCertificate();
-                subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
-                subjectID = subjectDN == null ? "" : subjectDN.toString();
-                // store socket info in socketInfos map
-                Map<String,Object> info = new HashMap<>();
-                info.put("clientIP", clientIP);
-                info.put("serverIP", serverIP);
-                info.put("subjectID", subjectID);
-                socketInfos.put(socket, info);
-            } else {
-                if(engine != null) {
-                    JSSSession session = engine.getSession();
-                    if(session != null) {
-                        Certificate[] certs = session.getPeerCertificates();
-                        if(certs != null) {
-                            X509Certificate cert = (X509Certificate) certs[0];
-                            subjectID = cert.getSubjectDN().toString();
-                        }
-                    }
-                }
-            }
             logger.debug("PKIServerSocketListener: Handshake completed:");
             logger.debug("- client: " + clientIP);
             logger.debug("- server: " + serverIP);
             logger.debug("- subject: " + subjectID);
+
+            // store socket info in socketInfos map
+            Map<String,Object> info = new HashMap<>();
+            info.put("clientIP", clientIP);
+            info.put("serverIP", serverIP);
+            info.put("subjectID", subjectID);
+            socketInfos.put(socket, info);
 
             signedAuditLogger.log(AccessSessionEstablishEvent.createSuccessEvent(
                     clientIP,
