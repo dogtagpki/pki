@@ -28,8 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.repository.IRepository;
@@ -43,7 +43,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.cmsutil.json.JSONObject;
 
 public abstract class UpdateNumberRange extends CMSServlet {
 
@@ -268,16 +268,14 @@ public abstract class UpdateNumberRange extends CMSServlet {
             // insert info
             logger.debug("UpdateNumberRange: Sending response");
 
-            // send success status back to the requestor
-            XMLObject xmlObj = new XMLObject();
-            Node root = xmlObj.createRoot("XMLResponse");
-
-            xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            xmlObj.addItemToContainer(root, "beginNumber", beginNum.toString(radix));
-            xmlObj.addItemToContainer(root, "endNumber", endNum.toString(radix));
-            byte[] cb = xmlObj.toByteArray();
-
-            outputResult(httpResp, "application/xml", cb);
+            // send success status back to the requester
+            JSONObject jsonObj = new JSONObject();
+            ObjectNode responseNode = jsonObj.getMapper().createObjectNode();
+            responseNode.put("Status", SUCCESS);
+            responseNode.put("beginNumber", beginNum.toString(radix));
+            responseNode.put("endNumber", endNum.toString(radix));
+            jsonObj.getRootNode().set("Response", responseNode);
+            outputResult(httpResp, "application/json", jsonObj.toByteArray());
             cs.commit(false);
 
             auditParams += "+beginNumber;;" + beginNum.toString(radix) +
