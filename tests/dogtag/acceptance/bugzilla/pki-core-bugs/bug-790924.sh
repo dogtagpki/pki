@@ -70,7 +70,7 @@ run_bug_790924(){
      rlPhaseStartTest "Bug 790924 - pkispawn configuration does not provide CA extensions in subordinate certificate signing requests CSR"
 
         rlLog "https://bugzilla.redhat.com/show_bug.cgi?id=790924"
-	COMMON_SERVER_PACKAGES="bind expect pki-console xmlstarlet dos2unix"
+	COMMON_SERVER_PACKAGES="bind expect xmlstarlet dos2unix"
         RHELRHCS_PACKAGES="pki-base pki-server pki-tools pki-symkey pki-javadoc pki-ca"
         cat /etc/redhat-release | grep "Fedora"
         if [ $? -eq 0 ] ; then
