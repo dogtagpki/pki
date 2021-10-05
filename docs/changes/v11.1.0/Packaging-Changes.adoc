@@ -5,3 +5,4 @@
 The following packages have been renamed:
 
 * `dogtag-pki-base-java` -> `dogtag-pki-java`
+* `dogtag-pki-server-theme` -> `dogtag-pki-theme`

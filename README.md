@@ -34,7 +34,7 @@ sudo dnf install pki-ca pki-kra pki-ocsp pki-tks pki-tps
 To install **web UI theme packages**:
 
 ````bash
-sudo dnf install dogtag-pki-server-theme dogtag-pki-console-theme
+sudo dnf install dogtag-pki-theme dogtag-pki-console-theme
 ````
 
 ## Deploying

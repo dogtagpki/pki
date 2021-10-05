@@ -272,7 +272,7 @@ Obsoletes:        idm-console-framework < 2.0
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI theme packages
-Requires:         %{product_id}-server-theme = %{version}-%{release}
+Requires:         %{product_id}-theme = %{version}-%{release}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI core packages
@@ -332,6 +332,7 @@ Requires:         nss >= 3.38.0
 Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-javadoc < %{version}
 Conflicts:        pki-server-theme < %{version}
+Conflicts:        %{product_id}-theme < %{version}
 
 %description -n   %{product_id}-symkey
 This package provides library for symmetric key operations.
@@ -355,6 +356,7 @@ Requires(post):   python3-pki = %{version}-%{release}
 Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-javadoc < %{version}
 Conflicts:        pki-server-theme < %{version}
+Conflicts:        %{product_id}-theme < %{version}
 
 %description -n   %{product_id}-base
 This package provides default configuration files for %{product_name} client.
@@ -735,6 +737,7 @@ Provides:         pki-javadoc = %{version}-%{release}
 Conflicts:        pki-base < %{version}
 Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-server-theme < %{version}
+Conflicts:        %{product_id}-theme < %{version}
 
 %description -n   %{product_id}-javadoc
 This package provides %{product_name} API documentation.
@@ -767,7 +770,7 @@ Requires:         %{product_id}-console-theme = %{version}-%{release}
 
 %if %{with theme}
 ################################################################################
-%package -n       %{product_id}-server-theme
+%package -n       %{product_id}-theme
 ################################################################################
 
 Summary:          %{product_name} Server Theme Package
@@ -776,13 +779,16 @@ BuildArch:        noarch
 Obsoletes:        pki-server-theme < %{version}-%{release}
 Provides:         pki-server-theme = %{version}-%{release}
 
+Obsoletes:        %{product_id}-server-theme < %{version}-%{release}
+Provides:         %{product_id}-server-theme = %{version}-%{release}
+
 # Ensure we end up with a useful installation
 Conflicts:        pki-base < %{version}
 Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-javadoc < %{version}
 
-%description -n   %{product_id}-server-theme
-This package provides theme files for %{product_name} Server.
+%description -n   %{product_id}-theme
+This package provides theme files for %{product_name}.
 
 %if %{with console}
 ################################################################################
@@ -800,6 +806,7 @@ Conflicts:        pki-base < %{version}
 Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-server-theme < %{version}
 Conflicts:        pki-javadoc < %{version}
+Conflicts:        %{product_id}-theme < %{version}
 
 %description -n   %{product_id}-console-theme
 This package provides theme files for %{product_name} Console.
@@ -1325,7 +1332,7 @@ fi
 
 %if %{with theme}
 ################################################################################
-%files -n %{product_id}-server-theme
+%files -n %{product_id}-theme
 ################################################################################
 
 %license themes/%{theme}/common-ui/LICENSE

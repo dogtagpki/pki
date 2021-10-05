@@ -27,7 +27,7 @@
   with_items:
     - redhat-pki
     - redhat-pki-console-theme
-    - redhat-pki-server-theme
+    - redhat-pki-theme
     - pki-console
     - 389-ds-base
     - pki-ca
@@ -48,7 +48,7 @@
     - 389-ds-base
     - dogtag-pki
     - dogtag-pki-console-theme
-    - dogtag-pki-server-theme
+    - dogtag-pki-theme
     - policycoreutils-python-utils
     - expect
   when: ansible_distribution == "Fedora"

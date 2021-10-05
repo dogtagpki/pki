@@ -60,11 +60,11 @@ run_rhcs_install_packages() {
         cat /etc/redhat-release | grep "Fedora"
         if [ $? -eq 0 ] ; then
                FLAVOR="Fedora"
-		OS_SPECIFIC_PACKAGES="pki-tools pki-symkey dogtag-pki dogtag-pki-console-theme dogtag-pki-server-theme 389-ds-base"
+		OS_SPECIFIC_PACKAGES="pki-tools pki-symkey dogtag-pki dogtag-pki-console-theme dogtag-pki-theme 389-ds-base"
                rlLog "Automation is running against Fedora"
 	else
 		FLAVOR="RHEL"
-		OS_SPECIFIC_PACKAGES="pki-tools pki-symkey redhat-pki redhat-pki-console-theme redhat-pki-server-theme redhat-ds"
+		OS_SPECIFIC_PACKAGES="pki-tools pki-symkey redhat-pki redhat-pki-console-theme redhat-pki-theme redhat-ds"
 		rlLog "Automation is running against RHEL"
 	fi
 	
