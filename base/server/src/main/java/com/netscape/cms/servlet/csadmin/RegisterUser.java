@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.w3c.dom.Node;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -48,7 +48,7 @@ import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
-import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.cmsutil.json.JSONObject;
 
 /**
  * This servlet creates a TPS user in the CA,
@@ -288,17 +288,14 @@ public class RegisterUser extends CMSServlet {
         }
 
         try {
-            logger.debug("RegisterUser: Sending response");
-            XMLObject xmlObj = new XMLObject();
-            Node root = xmlObj.createRoot("XMLResponse");
-
-            xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            byte[] cb = xmlObj.toByteArray();
-
-            outputResult(httpResp, "application/xml", cb);
+            JSONObject jsonObj = new JSONObject();
+            ObjectNode responseNode = jsonObj.getMapper().createObjectNode();
+            jsonObj.getRootNode().set("Response", responseNode);
+            responseNode.put("Status", SUCCESS);
+            outputResult(httpResp, "application/json", jsonObj.toByteArray());
 
         } catch (Exception e) {
-            logger.warn("RegisterUser: Failed to send the XML output: " + e.getMessage(), e);
+            logger.warn("RegisterUser: Failed to send the output: " + e.getMessage(), e);
         }
     }
 
