@@ -55,7 +55,7 @@ run_rhcs_install_packages() {
 
         COMMON_SERVER_PACKAGES="bind expect pki-console xmlstarlet dos2unix bc"
 	NTPDATE_PACKAGE="ntpdate"
-	DEPENDENT_PACKAGES="idm-console-framework pki-base pki-ca pki-console pki-kra pki-ocsp pki-server pki-symkey pki-tks pki-tools pki-tps tomcat resteasy-base-jackson-provider resteasy-base-jaxb-provider resteasy-base-jaxrs resteasy-base-jaxrs-api"
+	DEPENDENT_PACKAGES="idm-console-framework pki-base pki-ca pki-console pki-kra pki-ocsp pki-server pki-symkey pki-tks pki-tools pki-tps tomcat"
 	#rlRun "setenforce 0"
         cat /etc/redhat-release | grep "Fedora"
         if [ $? -eq 0 ] ; then
