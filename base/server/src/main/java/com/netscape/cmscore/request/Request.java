@@ -98,11 +98,7 @@ public class Request implements IRequest {
     @Override
     public boolean isSuccess() {
         Integer result = getExtDataInInteger(IRequest.RESULT);
-
-        if (result != null && result.equals(IRequest.RES_SUCCESS))
-            return true;
-        else
-            return false;
+        return result != null && result.equals(IRequest.RES_SUCCESS);
     }
 
     @Override
@@ -780,12 +776,7 @@ public class Request implements IRequest {
         Hashtable<String, String> hashValue = getExtDataInHashtable(key);
         if (hashValue == null) {
             String s = getExtDataInString(key);
-            if (s == null) {
-                return null;
-            } else {
-                String[] sa = { s };
-                return sa;
-            }
+            return s == null ? null : new String[] { s };
         }
         Set<String> arrayKeys = hashValue.keySet();
         Vector<Object> listValue = new Vector<>(arrayKeys.size());
