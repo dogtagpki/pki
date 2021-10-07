@@ -1,0 +1,11 @@
+= Tools Changes =
+
+== pkispawn and pkidestroy Changes ==
+
+Previously `pkispawn` and `pkidestroy` generated the logs on the console and also stored the logs into a file.
+The tools have been modified to only generate the logs on the console by default.
+To store the logs into a file as well, specify the file path using the `--log-file` option:
+
+----
+$ pkispawn ... --log-file <path>
+----

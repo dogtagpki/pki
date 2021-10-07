@@ -230,18 +230,9 @@ def main(argv):
         group=deployer.mdict['pki_group'])
 
     if args.log_file:
-        log_file = args.log_file
-    else:
-        log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
-        log_name = "pki" + "-" +\
-                   deployer.subsystem_name.lower() +\
-                   "-" + "destroy" + "." +\
-                   deployer.log_timestamp + "." + "log"
-        log_file = os.path.join(log_dir, log_name)
+        print('Uninstallation log: %s' % args.log_file)
 
-    print('Uninstallation log: %s' % log_file)
-
-    pkilogging.enable_pki_logger(log_file)
+    pkilogging.enable_pki_logger(args.log_file)
 
     # Add force_destroy to master dictionary
     parser.mdict['pki_force_destroy'] = force_destroy
