@@ -377,6 +377,10 @@ document.write("</table>\n");
 		document.write("</td><td>\n");
 	}
 
+//	if (result.header.querySentinel != null) {
+	displayNextForm();
+//	}
+
 	document.write("</td></tr></table>\n");
 }
 }
