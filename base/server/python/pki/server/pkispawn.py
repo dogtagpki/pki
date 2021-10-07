@@ -554,18 +554,9 @@ def main(argv):
         group=deployer.mdict['pki_group'])
 
     if args.log_file:
-        log_file = args.log_file
-    else:
-        log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
-        log_name = "pki" + "-" + \
-                   deployer.subsystem_name.lower() + \
-                   "-" + "spawn" + "." + \
-                   deployer.log_timestamp + "." + "log"
-        log_file = os.path.join(log_dir, log_name)
+        print('Installation log: %s' % args.log_file)
 
-    print('Installation log: %s' % log_file)
-
-    pkilogging.enable_pki_logger(log_file)
+    pkilogging.enable_pki_logger(args.log_file)
 
     if not interactive and \
             not config.str2bool(parser.mdict['pki_skip_configuration']):
@@ -603,8 +594,11 @@ def main(argv):
         print("Installation failed: Command failed: %s" % ' '.join(e.cmd))
         if e.output:
             print(e.output)
-        print()
-        print('Please check pkispawn logs in %s' % log_file)
+
+        if args.log_file:
+            print()
+            print('Please check pkispawn logs in %s' % args.log_file)
+
         sys.exit(1)
 
     except requests.HTTPError as e:

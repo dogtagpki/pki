@@ -50,10 +50,17 @@ def log_format(given_dict):
 # PKI Deployment Logging Functions
 def enable_pki_logger(filename):
 
+    logger = logging.getLogger('pki')
+
     # Configure console handler
     console = logging.StreamHandler()
     console_format = logging.Formatter('%(levelname)s: %(message)s')
     console.setFormatter(console_format)
+
+    logger.addHandler(console)
+
+    if not filename:
+        return
 
     # Create an empty file with the proper permission
     pathlib.Path(filename).touch()
@@ -65,6 +72,4 @@ def enable_pki_logger(filename):
                                     '%Y-%m-%d %H:%M:%S')
     log_file.setFormatter(file_format)
 
-    logger = logging.getLogger('pki')
-    logger.addHandler(console)
     logger.addHandler(log_file)
