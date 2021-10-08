@@ -11,6 +11,6 @@
         - dnf-plugins-core
       when: ansible_distribution == "Fedora"
 
-    - name: set PKI master copr repo
-      shell: dnf copr enable @pki/master -y
+    - name: set PKI copr repo
+      shell: dnf copr enable @pki/11.0 -y
       when: ansible_distribution == "Fedora"

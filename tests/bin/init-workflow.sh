@@ -12,7 +12,7 @@ echo "::set-output name=matrix::$MATRIX"
 
 if [ "$BASE64_REPO" == "" ]
 then
-    REPO="@pki/master"
+    REPO="@pki/11.0"
 else
     REPO=$(echo "$BASE64_REPO" | base64 -d)
 fi
