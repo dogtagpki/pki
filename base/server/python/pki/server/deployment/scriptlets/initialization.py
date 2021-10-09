@@ -146,11 +146,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Initialization')
 
             # Verify that the subsystem already exists for the following cases:
-            # - External CA/KRA/OCSP (Step 2)
+            # - External CA/KRA/OCSP/TKS/TPS (Step 2)
             # - Stand-alone PKI (Step 2)
             # - Two-step installation (Step 2)
 
-            if (deployer.subsystem_name in ['CA', 'KRA', 'OCSP'] or
+            if (deployer.subsystem_name in ['CA', 'KRA', 'OCSP', 'TKS', 'TPS'] or
                 config.str2bool(deployer.mdict['pki_standalone'])) and \
                     config.str2bool(deployer.mdict['pki_external_step_two']) or \
                config.str2bool(deployer.mdict['pki_skip_installation']):
