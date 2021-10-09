@@ -462,7 +462,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if subsystem.name == 'ca':
             self.generate_ca_signing_csr(deployer, subsystem)
 
-        if subsystem.name in ['kra', 'ocsp']:
+        if subsystem.name in ['kra', 'ocsp', 'tks', 'tps']:
             self.generate_sslserver_csr(deployer, subsystem)
             self.generate_subsystem_csr(deployer, subsystem)
             self.generate_audit_signing_csr(deployer, subsystem)

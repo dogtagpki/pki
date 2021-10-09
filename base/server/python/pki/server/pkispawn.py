@@ -654,8 +654,14 @@ def main(argv):
         elif deployer.subsystem_name == 'KRA':
             print_kra_step_one_information(parser.mdict)
 
-        else:  # OCSP
+        elif deployer.subsystem_name == 'OCSP':
             print_ocsp_step_one_information(parser.mdict)
+
+        elif deployer.subsystem_name == 'TKS':
+            print_tks_step_one_information(parser.mdict)
+
+        elif deployer.subsystem_name == 'TPS':
+            print_tps_step_one_information(parser.mdict)
 
     else:
         print_final_install_information(parser.mdict)
@@ -852,6 +858,67 @@ def print_ocsp_step_one_information(mdict):
     print(log.PKI_RUN_INSTALLATION_STEP_TWO)
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
+def print_tks_step_one_information(mdict):
+
+    print(log.PKI_SPAWN_INFORMATION_HEADER)
+    print("      The %s subsystem of the '%s' instance is still incomplete." %
+          (deployer.subsystem_name, mdict['pki_instance_name']))
+    print()
+    print("      NSS database: %s" % mdict['pki_server_database_path'])
+    print()
+
+    subsystem_csr = mdict['pki_subsystem_csr_path']
+    sslserver_csr = mdict['pki_sslserver_csr_path']
+    audit_csr = mdict['pki_audit_signing_csr_path']
+    admin_csr = mdict['pki_admin_csr_path']
+
+    if subsystem_csr or sslserver_csr or audit_csr or admin_csr:
+        print("      The CSRs for TKS certificates have been generated in:")
+    else:
+        print("      No CSRs have been generated for TKS certificates.")
+
+    if subsystem_csr:
+        print("          subsystem:     %s" % subsystem_csr)
+    if sslserver_csr:
+        print("          SSL server:    %s" % sslserver_csr)
+    if audit_csr:
+        print("          audit signing: %s" % audit_csr)
+    if admin_csr:
+        print("          admin:         %s" % admin_csr)
+
+    print(log.PKI_RUN_INSTALLATION_STEP_TWO)
+    print(log.PKI_SPAWN_INFORMATION_FOOTER)
+
+def print_tps_step_one_information(mdict):
+
+    print(log.PKI_SPAWN_INFORMATION_HEADER)
+    print("      The %s subsystem of the '%s' instance is still incomplete." %
+          (deployer.subsystem_name, mdict['pki_instance_name']))
+    print()
+    print("      NSS database: %s" % mdict['pki_server_database_path'])
+    print()
+
+    subsystem_csr = mdict['pki_subsystem_csr_path']
+    sslserver_csr = mdict['pki_sslserver_csr_path']
+    audit_csr = mdict['pki_audit_signing_csr_path']
+    admin_csr = mdict['pki_admin_csr_path']
+
+    if subsystem_csr or sslserver_csr or audit_csr or admin_csr:
+        print("      The CSRs for TPS certificates have been generated in:")
+    else:
+        print("      No CSRs have been generated for TpS certificates.")
+
+    if subsystem_csr:
+        print("          subsystem:     %s" % subsystem_csr)
+    if sslserver_csr:
+        print("          SSL server:    %s" % sslserver_csr)
+    if audit_csr:
+        print("          audit signing: %s" % audit_csr)
+    if admin_csr:
+        print("          admin:         %s" % admin_csr)
+
+    print(log.PKI_RUN_INSTALLATION_STEP_TWO)
+    print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 def print_skip_configuration_information(mdict):
 

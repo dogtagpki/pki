@@ -1351,13 +1351,13 @@ class NSSDatabase(object):
             p = subprocess.Popen(cmd,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
-
             cert_data, std_err = p.communicate()
 
             if std_err:
                 # certutil returned an error
                 # raise exception unless its not cert not found
                 if std_err.startswith(b'certutil: Could not find cert: '):
+                    logger.info('-- cert not found --')
                     return None
 
                 raise Exception('Could not find cert: %s: %s' % (fullname, std_err.strip()))
