@@ -135,7 +135,7 @@ class PKIDeployer:
         try:
             self.startup_timeout = int(os.environ['PKISPAWN_STARTUP_TIMEOUT_SECONDS'])
         except (KeyError, ValueError):
-            self.startup_timeout = 60
+            self.startup_timeout = 120
 
         if self.startup_timeout <= 0:
             self.startup_timeout = 60
@@ -411,7 +411,7 @@ class PKIDeployer:
         cert_id = self.get_cert_id(subsystem, tag)
         nickname = self.mdict['pki_%s_nickname' % cert_id]
 
-        logger.info('Configuring %s certificate', cert_id)
+        logger.info('Configuring %s certificate with nickname %s', cert_id, nickname)
 
         subsystem.config['%s.%s.nickname' % (subsystem.name, tag)] = nickname
         subsystem.config['%s.%s.tokenname' % (subsystem.name, tag)] = \
@@ -681,6 +681,8 @@ class PKIDeployer:
 
     def setup_cert(self, subsystem, client, tag, system_cert):
 
+        logger.info('setup_cert:')
+
         # Process existing CA installation like external CA
         external = config.str2bool(self.mdict['pki_external']) or \
             config.str2bool(self.mdict['pki_existing'])
@@ -711,6 +713,8 @@ class PKIDeployer:
             request.systemCert.dnsNames = dns_names
 
         nssdb = subsystem.instance.open_nssdb()
+        cert_data = None
+
         try:
             cert_data = nssdb.get_cert(
                 nickname=request.systemCert.nickname,
@@ -718,14 +722,16 @@ class PKIDeployer:
         finally:
             nssdb.close()
 
+        logger.debug('returned from nssdb.get_cert')
+
         # For external/existing CA case, some/all system certs may be provided.
         # The SSL server cert will always be generated for the current host.
 
-        # For external/standalone KRA/OCSP case, all system certs will be provided.
+        # For external/standalone KRA/OCSP/TKS/TPS case, all system certs will be provided.
         # No system certs will be generated including the SSL server cert.
 
         if subsystem.type == 'CA' and external and tag != 'sslserver' and cert_data or \
-                subsystem.type in ['KRA', 'OCSP'] and (external or standalone):
+                subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS'] and (external or standalone):
 
             logger.info('Loading %s certificate', tag)
             logger.debug('- cert: %s', system_cert['data'])
@@ -749,6 +755,7 @@ class PKIDeployer:
 
     def setup_system_certs(self, subsystem, client):
 
+        logger.info("setup_system_certs: ")
         system_certs = {}
 
         for system_cert in subsystem.find_system_certs():

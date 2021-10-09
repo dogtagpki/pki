@@ -1027,7 +1027,7 @@ class PKIConfigParser:
 
             if config.str2bool(self.mdict['pki_standalone']) \
                     or config.str2bool(self.mdict['pki_external']) \
-                    and self.mdict['pki_subsystem'] in ['KRA', 'OCSP']:
+                    and self.mdict['pki_subsystem'] in ['KRA', 'OCSP', 'TKS', 'TPS']:
 
                 if not config.str2bool(self.mdict['pki_external_step_two']):
                     self.mdict['pki_import_admin_cert'] = 'False'

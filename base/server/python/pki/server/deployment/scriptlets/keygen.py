@@ -120,7 +120,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.str2bool(deployer.mdict['pki_use_pss_rsa_signing_algorithm']) and
                 (cert_id in ['storage', 'transport'])):
             print('generate_csr: calling PKCS10Client for', cert_id)
-            b64_csr = nssdb.create_request_with_wrap_key(
+            b64_csr = nssdb.create_request_with_wrapping_key(
                 subject_dn=subject_dn,
                 request_file=csr_path,
                 key_size=key_size)
@@ -462,7 +462,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if subsystem.name == 'ca':
             self.generate_ca_signing_csr(deployer, subsystem)
 
-        if subsystem.name in ['kra', 'ocsp']:
+        if subsystem.name in ['kra', 'ocsp', 'tks', 'tps']:
             self.generate_sslserver_csr(deployer, subsystem)
             self.generate_subsystem_csr(deployer, subsystem)
             self.generate_audit_signing_csr(deployer, subsystem)
