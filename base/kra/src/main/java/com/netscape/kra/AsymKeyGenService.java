@@ -204,11 +204,10 @@ public class AsymKeyGenService implements IService {
                         clientKeyId,
                         errmsg));
                 throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + e, e);
-            } else {
-                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                        clientKeyId, null, errmsg);
-                throw new EBaseException(errmsg, e);
             }
+            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientKeyId, null, errmsg);
+            throw new EBaseException(errmsg, e);
         }
 
         if (kp == null) {
@@ -222,11 +221,10 @@ public class AsymKeyGenService implements IService {
                         clientKeyId,
                         errmsg));
                 throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: "+ errmsg);
-            } else {
-                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                        clientKeyId, null, errmsg);
-                throw new EBaseException(errmsg);
             }
+            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientKeyId, null, errmsg);
+            throw new EBaseException(errmsg);
         }
 
         if (isSSKeygen) {
@@ -245,13 +243,12 @@ public class AsymKeyGenService implements IService {
                         clientKeyId,
                         errmsg));
                     throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: "+ errmsg);
-                } else {
-                    //logger.debug(method + "public key binary length ="+ publicKeyData.length);
-                    pubKeyStr = CryptoUtil.base64Encode(publicKeyData);
-
-                    //logger.debug(method + "public key length =" + pubKeyStr.length());
-                    request.setExtData("public_key", pubKeyStr);
                 }
+                //logger.debug(method + "public key binary length ="+ publicKeyData.length);
+                pubKeyStr = CryptoUtil.base64Encode(publicKeyData);
+
+                //logger.debug(method + "public key length =" + pubKeyStr.length());
+                request.setExtData("public_key", pubKeyStr);
             } catch (Exception e) {
                 logger.debug(method + e);
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
@@ -282,11 +279,10 @@ public class AsymKeyGenService implements IService {
                         clientKeyId,
                         errmsg));
                 throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + e, e);
-            } else {
-                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                        clientKeyId, null, errmsg);
-                throw new EBaseException(errmsg, e);
             }
+            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientKeyId, null, errmsg);
+            throw new EBaseException(errmsg, e);
         }
 
         if (owner == null)
@@ -310,11 +306,10 @@ public class AsymKeyGenService implements IService {
                         clientKeyId,
                         errmsg));
                 throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: "+ errmsg);
-            } else {
-                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                        clientKeyId, null, errmsg);
-                throw new EBaseException(errmsg);
             }
+            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientKeyId, null, errmsg);
+            throw new EBaseException(errmsg);
         }
 
         // Storing the public key and private key.
@@ -346,11 +341,10 @@ public class AsymKeyGenService implements IService {
                         clientKeyId,
                         errmsg));
                 throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + errmsg, e);
-            } else {
-                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                        clientKeyId, null, errmsg);
-                throw new EBaseException(errmsg, e);
             }
+            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientKeyId, null, errmsg);
+            throw new EBaseException(errmsg, e);
         }
 
         storage.addKeyRecord(record);
