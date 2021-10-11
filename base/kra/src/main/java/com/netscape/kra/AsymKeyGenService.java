@@ -244,10 +244,7 @@ public class AsymKeyGenService implements IService {
                         errmsg));
                     throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: "+ errmsg);
                 }
-                //logger.debug(method + "public key binary length ="+ publicKeyData.length);
                 pubKeyStr = CryptoUtil.base64Encode(publicKeyData);
-
-                //logger.debug(method + "public key length =" + pubKeyStr.length());
                 request.setExtData("public_key", pubKeyStr);
             } catch (Exception e) {
                 logger.debug(method + e);
