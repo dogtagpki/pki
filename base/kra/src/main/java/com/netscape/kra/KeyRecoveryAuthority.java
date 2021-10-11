@@ -528,7 +528,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     @Override
     public boolean setAutoRecoveryState(Credential cs[], boolean on) {
-        if (on == true) {
+        if (on) {
             // check credential before enabling it
             try {
                 getStorageKeyUnit().login(cs);
@@ -597,14 +597,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     public int getNoOfRequiredAgents() throws EBaseException {
         if (mConfig.getBoolean("keySplitting", false)) {
             return mStorageKeyUnit.getNoOfRequiredAgents();
-        } else {
-            int ret = -1;
-            ret = mConfig.getInteger("noOfRequiredRecoveryAgents", 1);
-            if (ret <= 0) {
-                throw new EBaseException("Invalid parameter noOfRequiredRecoveryAgents");
-            }
-            return ret;
         }
+        int ret = -1;
+        ret = mConfig.getInteger("noOfRequiredRecoveryAgents", 1);
+        if (ret <= 0) {
+            throw new EBaseException("Invalid parameter noOfRequiredRecoveryAgents");
+        }
+        return ret;
     }
 
     public int getNoOfRequiredSecurityDataRecoveryAgents() throws EBaseException {
@@ -929,11 +928,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         RequestRepository requestRepository = engine.getRequestRepository();
 
         IRequest r = requestRepository.readRequest(new RequestId(reqID));
-        if ((r.getRequestStatus() == RequestStatus.APPROVED)) {
-            return true;
-        } else {
-            return false;
-        }
+        return r.getRequestStatus() == RequestStatus.APPROVED;
     }
 
     /**
@@ -949,14 +944,14 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         IRequest r = requestRepository.readRequest(new RequestId(reqID));
 
         String agents = r.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
-        if (agents != null) {
+        if (agents == null) { // no approvingAgents existing, can't be async recovery
+            logger.debug("getInitAgentAsyncKeyRecovery: no approvingAgents in request");
+        } else {
             int i = agents.indexOf(",");
             if (i == -1) {
                 return agents;
             }
             return agents.substring(0, i);
-        } else { // no approvingAgents existing, can't be async recovery
-            logger.debug("getInitAgentAsyncKeyRecovery: no approvingAgents in request");
         }
 
         return null;
@@ -1127,17 +1122,16 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 destroyVolatileRequest(r.getRequestId());
 
                 return pkcs12;
-            } else {
-                audit(new SecurityDataRecoveryProcessedEvent(
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditRecoveryID,
-                            new KeyId(kid),
-                            r.getExtDataInString(IRequest.ERROR),
-                            auditAgents));
-
-                throw new EBaseException(r.getExtDataInString(IRequest.ERROR));
             }
+            audit(new SecurityDataRecoveryProcessedEvent(
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        new KeyId(kid),
+                        r.getExtDataInString(IRequest.ERROR),
+                        auditAgents));
+
+            throw new EBaseException(r.getExtDataInString(IRequest.ERROR));
         } catch (EBaseException eAudit1) {
             audit(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,
@@ -1220,17 +1214,16 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 destroyVolatileRequest(r.getRequestId());
 
                 return pkcs12;
-            } else {
-                audit(new SecurityDataRecoveryProcessedEvent(
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRecoveryID,
-                        keyID,
-                        r.getExtDataInString(IRequest.ERROR),
-                        auditAgents));
-
-                throw new EBaseException(r.getExtDataInString(IRequest.ERROR));
             }
+            audit(new SecurityDataRecoveryProcessedEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    auditRecoveryID,
+                    keyID,
+                    r.getExtDataInString(IRequest.ERROR),
+                    auditAgents));
+
+            throw new EBaseException(r.getExtDataInString(IRequest.ERROR));
         } catch (EBaseException eAudit1) {
             audit(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,
@@ -1728,17 +1721,12 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             key = base64Data.replace("\r", "").replace("\n", "");
         }
 
-        if (key != null) {
-            key = key.trim();
-
-            if (key.equals("")) {
-                return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-            } else {
-                return key;
-            }
-        } else {
+        if (key == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
+        key = key.trim();
+
+        return key.isEmpty() ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : key;
     }
 
     /**
@@ -1858,7 +1846,7 @@ public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
                 ep = kgConfig.getBoolean("extractablePairs", false);
                 logger.debug("NetkeyKeygenService: found config store: kra.keygen");
                 // by default, let nethsm work
-                if ((tp == false) && (sp == false) && (ep == false)) {
+                if (!tp && !sp && !ep) {
                     if (kpAlg == KeyPairAlgorithm.EC) {
                         // set to what works for nethsm
                         tp = true;
@@ -1904,58 +1892,56 @@ public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
             }
             return pair;
 
-        } else { // !EC
-            //only specified to "true" will it be set
-            if (tp == true) {
-                logger.debug("NetkeyKeygenService: setting temporaryPairs to true");
-                kpGen.temporaryPairs(true);
-            }
-
-            if (sp == true) {
-                logger.debug("NetkeyKeygenService: setting sensitivePairs to true");
-                kpGen.sensitivePairs(true);
-            }
-
-            if (ep == true) {
-                logger.debug("NetkeyKeygenService: setting extractablePairs to true");
-                kpGen.extractablePairs(true);
-            }
-
-            if (kpAlg == KeyPairAlgorithm.DSA) {
-                if (pqg == null) {
-                    kpGen.initialize(keySize);
-                } else {
-                    kpGen.initialize(pqg);
-                }
-            } else {
-                kpGen.initialize(keySize);
-            }
-
-            if (usageList != null)
-                kpGen.setKeyPairUsages(usageList, usageList);
-
-            if (pqg == null) {
-                KeyPair kp = null;
-                synchronized (new Object()) {
-                    logger.debug("NetkeyKeygenService: key pair generation begins");
-                    kp = kpGen.genKeyPair();
-                    logger.debug("NetkeyKeygenService: key pair generation done");
-                    addEntropy(true);
-                }
-                return kp;
-            } else {
-                // DSA
-                KeyPair kp = null;
-
-                /* no DSA for now... netkey prototype
-                do {
-                    // 602548 NSS bug - to overcome it, we use isBadDSAKeyPair
-                    kp = kpGen.genKeyPair();
-                }
-                while (isBadDSAKeyPair(kp));
-                */
-                return kp;
-            }
         }
+        //only specified to "true" will it be set
+        if (tp) {
+            logger.debug("NetkeyKeygenService: setting temporaryPairs to true");
+            kpGen.temporaryPairs(true);
+        }
+
+        if (sp) {
+            logger.debug("NetkeyKeygenService: setting sensitivePairs to true");
+            kpGen.sensitivePairs(true);
+        }
+
+        if (ep) {
+            logger.debug("NetkeyKeygenService: setting extractablePairs to true");
+            kpGen.extractablePairs(true);
+        }
+
+        if (kpAlg == KeyPairAlgorithm.DSA) {
+            if (pqg == null) {
+                kpGen.initialize(keySize);
+            } else {
+                kpGen.initialize(pqg);
+            }
+        } else {
+            kpGen.initialize(keySize);
+        }
+
+        if (usageList != null)
+            kpGen.setKeyPairUsages(usageList, usageList);
+
+        if (pqg == null) {
+            KeyPair kp = null;
+            synchronized (new Object()) {
+                logger.debug("NetkeyKeygenService: key pair generation begins");
+                kp = kpGen.genKeyPair();
+                logger.debug("NetkeyKeygenService: key pair generation done");
+                addEntropy(true);
+            }
+            return kp;
+        }
+        // DSA
+        KeyPair kp = null;
+
+        /* no DSA for now... netkey prototype
+        do {
+            // 602548 NSS bug - to overcome it, we use isBadDSAKeyPair
+            kp = kpGen.genKeyPair();
+        }
+        while (isBadDSAKeyPair(kp));
+        */
+        return kp;
     }
 }
