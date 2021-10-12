@@ -9,7 +9,7 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.base.RESTMessage;
-import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.certsrv.util.JSONSerializer;
 
 public class KRAKeyTemplateShowCLI extends CommandCLI {
 
@@ -48,17 +48,16 @@ public class KRAKeyTemplateShowCLI extends CommandCLI {
 
         // TODO: Get the template from the server
         String templateDir = "/usr/share/pki/key/templates/";
-        String templatePath = templateDir + templateId + ".xml";
-        String xml = Files.readString(Path.of(templatePath));
-        RESTMessage data = RESTMessage.fromXML(xml);
+        String templatePath = templateDir + templateId + ".json";
+        String json = Files.readString(Path.of(templatePath));
+        RESTMessage data = JSONSerializer.fromJSON(json, RESTMessage.class);
 
         if (writeToFile != null) {
             try (FileWriter out = new FileWriter(writeToFile)) {
-                out.write(data.toXML());
+                out.write(data.toJSON());
             }
         } else {
-            MainCLI.printMessage(data.getAttribute("description"));
-            System.out.println(data.toXML());
+            System.out.println(data.toJSON());
         }
     }
 }

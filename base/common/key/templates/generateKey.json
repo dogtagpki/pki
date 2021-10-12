@@ -1,0 +1,27 @@
+{
+  "ClassName": "com.netscape.certsrv.key.SymKeyGenerationRequest",
+  "Attributes": {
+    "Attribute": [
+      {
+        "name": "clientKeyID",
+        "value": "vek 12345"
+      },
+      {
+        "name": "description",
+        "value": "Template for submitting a request for generating a symmetric key"
+      },
+      {
+        "name": "keyAlgorithm",
+        "value": "[AES/DES/DES3/DESede/RC2/RC4]"
+      },
+      {
+        "name": "keySize",
+        "value": "128"
+      },
+      {
+        "name": "keyUsage",
+        "value": "wrap,unwrap,sign,verify,encrypt,decrypt"
+      }
+    ]
+  }
+}

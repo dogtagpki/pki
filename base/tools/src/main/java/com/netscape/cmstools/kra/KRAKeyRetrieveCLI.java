@@ -52,16 +52,8 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
         option.setArgName("Passphrase");
         options.addOption(option);
 
-        option = new Option(null, "input-format", true, "Input format: xml (default), json");
-        option.setArgName("format");
-        options.addOption(option);
-
         option = new Option(null, "input", true, "Location of the request template file.");
         option.setArgName("Input file path");
-        options.addOption(option);
-
-        option = new Option(null, "output-format", true, "Output format: xml (default), json");
-        option.setArgName("format");
         options.addOption(option);
 
         option = new Option(null, "output", true, "Location to store the retrieved key information");
@@ -101,10 +93,8 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
             String passphrase = cmd.getOptionValue("passphrase");
             String requestId = cmd.getOptionValue("requestID");
             String requestFile = cmd.getOptionValue("input");
-            String inputFormat = cmd.getOptionValue("input-format", "xml");
             String outputFilePath = cmd.getOptionValue("output");
             String outputDataFile = cmd.getOptionValue("output-data");
-            String outputFormat = cmd.getOptionValue("output-format", "xml");
             String transportNickname = cmd.getOptionValue("transport");
 
             KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
@@ -114,13 +104,8 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
                 String input = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
 
                 KeyRecoveryRequest req;
-                if ("json".equalsIgnoreCase(inputFormat)) {
-                    req = JSONSerializer.fromJSON(input, KeyRecoveryRequest.class);
-                    logger.info("Request: " + req.toJSON());
-
-                } else {
-                    throw new Exception("Unsupported format: " + inputFormat);
-                }
+                req = JSONSerializer.fromJSON(input, KeyRecoveryRequest.class);
+                logger.info("Request: " + req.toJSON());
 
                 if (req.getKeyId() == null) {
                     throw new Exception("Key ID must be specified in the request file.");
@@ -207,15 +192,11 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
             } else if (outputFilePath != null) {
 
                 try (FileWriter out = new FileWriter(outputFilePath)) {
-                    if ("json".equalsIgnoreCase(outputFormat)) {
-                        out.write(keyData.toJSON());
-                    }
+                    out.write(keyData.toJSON());
                 }
 
-            } else if ("json".equalsIgnoreCase(outputFormat)) {
-                System.out.println(keyData.toJSON());
-
             } else {
+                System.out.println(keyData.toJSON());
                 MainCLI.printMessage("Retrieve Key Information");
 
                 printKeyInfo(key);

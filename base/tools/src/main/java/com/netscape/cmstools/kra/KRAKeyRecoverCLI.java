@@ -12,6 +12,7 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestResponse;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyRecoverCLI extends CommandCLI {
@@ -60,8 +61,8 @@ public class KRAKeyRecoverCLI extends CommandCLI {
         KeyClient keyClient = keyCLI.getKeyClient();
 
         if (requestFile != null) {
-            String xml = Files.readString(Path.of(requestFile));
-            KeyRecoveryRequest req = KeyRecoveryRequest.fromXML(xml);
+            String json = Files.readString(Path.of(requestFile));
+            KeyRecoveryRequest req = JSONSerializer.fromJSON(json, KeyRecoveryRequest.class);
             response = keyClient.recoverKey(
                     req.getKeyId(),
                     Utils.base64decode(req.getSessionWrappedPassphrase()),

@@ -10,6 +10,7 @@ import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.key.KeyTemplate;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyTemplateFindCLI extends CommandCLI {
@@ -59,12 +60,12 @@ public class KRAKeyTemplateFindCLI extends CommandCLI {
         RESTMessage data = null;
         String[] templateFiles = file.list();
         for (String templateName : templateFiles) {
-            if (templateName.indexOf(".xml") == -1) {
+            if (templateName.indexOf(".json") == -1) {
                 continue;
             }
-            String id = templateName.substring(0, templateName.indexOf(".xml"));
-            String xml = Files.readString(Path.of(templateDir + templateName));
-            data = RESTMessage.fromXML(xml);
+            String id = templateName.substring(0, templateName.indexOf(".json"));
+            String json = Files.readString(Path.of(templateDir + templateName));
+            data = JSONSerializer.fromJSON(json, RESTMessage.class);
             template = new KeyTemplate(id, data.getAttribute("description"));
             templates.add(template);
         }
