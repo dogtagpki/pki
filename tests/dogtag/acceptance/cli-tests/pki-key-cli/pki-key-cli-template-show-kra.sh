@@ -65,22 +65,19 @@ run_pki-key-template-show-kra_tests()
 	rlPhaseStartTest "pki_tey_template_show-002: verify when invalid key-template is provided key-template-show should fail"
 	local template=InvalidTemplate
 	rlRun "pki key-template-show $template > $temp_out1 2>&1" 255,1 "Executing pki key-template-show $template"
-	rlAssertGrep "Error: /usr/share/pki/key/templates/$template.xml (No such file or directory)" "$temp_out1"
+	rlAssertGrep "Error: /usr/share/pki/key/templates/$template.json (No such file or directory)" "$temp_out1"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_template_show-003: verify template files are saved and the xml file is valid"
+	rlPhaseStartTest "pki_key_template_show-003: verify template files are saved and the json file is valid"
 	for i in "${keytemplates[@]}"; do
-	rlRun "pki key-template-show $i --output $i-xml"  0 "Save $i template in $i-xml"
-	rlLog "Validate $i-.xml"
-	rlRun "xmlstarlet val -w $i-xml 1> $temp_out" 
-	rlAssertGrep "$i-xml - valid" "$temp_out"
+	rlRun "pki key-template-show $i --output $i-json"  0 "Save $i template in $i-json"
 	done
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_key_template_show-004: Pass junk data as template and verify template-show fails"
 	template = $tmp_junk_data
 	rlRun "pki key-template-show $tmp_junk_data 2> $temp_out" 255,1 "Passing junk data to template-show"
-	rlAssertGrep "Error: /usr/share/pki/key/templates/$tmp_junk_data\.xml (No such file or directory)" "$temp_out"
+	rlAssertGrep "Error: /usr/share/pki/key/templates/$tmp_junk_data\.json (No such file or directory)" "$temp_out"
 	rlPhaseEnd
 
 	rlPhaseStartCleanup "pki key-template-show cleanup: Delete temp dir"

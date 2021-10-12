@@ -14,6 +14,7 @@ public class KeyRecoveryRequestTest {
 
     @Before
     public void setUpBefore() {
+        before.setClassName(KeyRecoveryRequest.class.getName());
         before.setKeyId(new KeyId("0x123456"));
         before.setNonceData("nonce-XXX12345");
         before.setPassphrase("password");
