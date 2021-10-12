@@ -21,15 +21,7 @@
  */
 package com.netscape.certsrv.key;
 
-import java.io.StringReader;
-
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -224,25 +216,4 @@ public class KeyRecoveryRequest extends RESTMessage {
         attributes.put(PAYLOAD_WRAPPING_NAME, payloadWrappingName);
     }
 
-    public Element toDOM(Document document) {
-        Element element = document.createElement("KeyRecoveryRequest");
-        toDOM(document, element);
-        return element;
-    }
-
-    public static KeyRecoveryRequest fromDOM(Element element) {
-        KeyRecoveryRequest request = new KeyRecoveryRequest();
-        fromDOM(element, request);
-        return request;
-    }
-
-    public static KeyRecoveryRequest fromXML(String xml) throws Exception {
-
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(new InputSource(new StringReader(xml)));
-
-        Element element = document.getDocumentElement();
-        return fromDOM(element);
-    }
 }
