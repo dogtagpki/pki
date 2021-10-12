@@ -1451,8 +1451,8 @@ class PKIDeployer:
             '-n', nickname,
             'tks-tpsconnector-show',
             '--host', self.mdict['pki_hostname'],
-            '--port', securePort,
             '--output-format', 'json'
+            '--port', securePort
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))

@@ -1,0 +1,47 @@
+{
+  "ClassName": "com.netscape.certsrv.key.KeyArchivalRequest",
+  "Attributes": {
+    "Attribute": [
+      {
+        "name": "clientKeyID",
+        "value": ""
+      },
+      {
+        "name": "description",
+        "value": "Template for submitting a key archival request"
+      },
+      {
+        "name": "dataType",
+        "value": "symmetricKey/passphrase/asymmetricKey"
+      },
+      {
+        "name": "wrappedPrivateData",
+        "value": "Base64 encoded session key wrapped secret"
+      },
+      {
+        "name": "algorithmOID",
+        "value": ""
+      },
+      {
+        "name": "keyAlgorithm",
+        "value": ""
+      },
+      {
+        "name": "symmetricAlgorithmParams",
+        "value": "Base64 encoded NonceData"
+      },
+      {
+        "name": "transWrappedSessionKey",
+        "value": "Base64 encoded transport key wrapped session key"
+      },
+      {
+        "name": "pkiArchiveOptions",
+        "value": "Base 64 encoded PKIArchiveOptions object"
+      },
+      {
+        "name": "keySize",
+        "value": "0"
+      }
+    ]
+  }
+}
