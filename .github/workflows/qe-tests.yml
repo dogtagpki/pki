@@ -124,7 +124,7 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh pki1 topology-02-testingmaster
+          tests/bin/ds-artifacts-save.sh pki1 --instance topology-02-testingmaster
           mkdir -p /tmp/artifacts/pki1/etc/pki
           mkdir -p /tmp/artifacts/pki1/var/log
           docker exec pki1 ls -la /etc/pki

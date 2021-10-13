@@ -141,7 +141,7 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh ipa EXAMPLE-COM
+          tests/bin/ds-artifacts-save.sh ipa --instance EXAMPLE-COM
           tests/bin/pki-artifacts-save.sh ipa
           tests/bin/ipa-artifacts-save.sh ipa
         continue-on-error: true
@@ -302,7 +302,7 @@ jobs:
       - name: Gather artifacts from IPA container
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh ipa EXAMPLE-COM
+          tests/bin/ds-artifacts-save.sh ipa --instance EXAMPLE-COM
           tests/bin/pki-artifacts-save.sh ipa
           tests/bin/ipa-artifacts-save.sh ipa
         continue-on-error: true
@@ -419,7 +419,7 @@ jobs:
       - name: Gather artifacts from primary container
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh primary EXAMPLE-COM
+          tests/bin/ds-artifacts-save.sh primary --instance EXAMPLE-COM
           tests/bin/pki-artifacts-save.sh primary
           tests/bin/ipa-artifacts-save.sh primary
         continue-on-error: true
@@ -427,7 +427,7 @@ jobs:
       - name: Gather artifacts from secondary container
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh secondary EXAMPLE-COM
+          tests/bin/ds-artifacts-save.sh secondary --instance EXAMPLE-COM
           tests/bin/pki-artifacts-save.sh secondary
           tests/bin/ipa-artifacts-save.sh secondary
         continue-on-error: true

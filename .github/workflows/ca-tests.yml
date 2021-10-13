@@ -78,7 +78,7 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Run DS container
+      - name: Set up DS container
         run: |
           tests/bin/ds-container-create.sh ds
         env:
@@ -87,7 +87,7 @@ jobs:
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com
 
-      - name: Run PKI container
+      - name: Set up PKI container
         run: |
           IMAGE=pki-runner \
           NAME=pki \
@@ -150,7 +150,7 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
@@ -190,7 +190,7 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Run DS container
+      - name: Set up DS container
         run: |
           tests/bin/ds-container-create.sh ds
         env:
@@ -199,7 +199,7 @@ jobs:
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com
 
-      - name: Run PKI container
+      - name: Set up PKI container
         run: |
           IMAGE=pki-runner \
           NAME=pki \
@@ -249,7 +249,7 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
@@ -289,7 +289,7 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Run root DS container
+      - name: Set up root DS container
         run: |
           tests/bin/ds-container-create.sh rootds
         env:
@@ -298,7 +298,7 @@ jobs:
       - name: Connect root DS container to network
         run: docker network connect example rootds --alias rootds.example.com
 
-      - name: Run root PKI container
+      - name: Set up root PKI container
         run: |
           IMAGE=pki-runner \
           NAME=root \
@@ -317,7 +317,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
-      - name: Run subordinate DS container
+      - name: Set up subordinate DS container
         run: |
           tests/bin/ds-container-create.sh subds
         env:
@@ -326,7 +326,7 @@ jobs:
       - name: Connect subordinate DS container to network
         run: docker network connect example subds --alias subds.example.com
 
-      - name: Setup subordinate PKI container
+      - name: Set up subordinate PKI container
         run: |
           IMAGE=pki-runner \
           NAME=subordinate \
@@ -358,17 +358,17 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec subordinate pki -n caadmin ca-user-show caadmin
 
-      - name: Gather artifacts from root container
+      - name: Gather artifacts from root containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh rootds
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/root rootds
           tests/bin/pki-artifacts-save.sh root
         continue-on-error: true
 
-      - name: Gather artifacts from subordinate container
+      - name: Gather artifacts from subordinate containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh subds
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/subordinate subds
           tests/bin/pki-artifacts-save.sh subordinate
         continue-on-error: true
 
@@ -419,7 +419,7 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Run DS container
+      - name: Set up DS container
         run: |
           tests/bin/ds-container-create.sh ds
         env:
@@ -428,7 +428,7 @@ jobs:
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com
 
-      - name: Setup PKI container
+      - name: Set up PKI container
         run: |
           IMAGE=pki-runner \
           NAME=pki \
@@ -487,7 +487,7 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
@@ -527,7 +527,7 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Run DS container
+      - name: Set up DS container
         run: |
           tests/bin/ds-container-create.sh ds
         env:
@@ -536,7 +536,7 @@ jobs:
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com
 
-      - name: Setup PKI container
+      - name: Set up PKI container
         run: |
           IMAGE=pki-runner \
           NAME=pki \
@@ -648,7 +648,7 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
@@ -688,7 +688,7 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Run primary DS container
+      - name: Set up primary DS container
         run: |
           tests/bin/ds-container-create.sh primaryds
         env:
@@ -697,7 +697,7 @@ jobs:
       - name: Connect primary DS container to network
         run: docker network connect example primaryds --alias primaryds.example.com
 
-      - name: Run primary PKI container
+      - name: Set up primary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=primary \
@@ -707,7 +707,7 @@ jobs:
       - name: Connect primary PKI container to network
         run: docker network connect example primary --alias primary.example.com
 
-      - name: Install CA in primary container
+      - name: Install CA in primary PKI container
         run: |
           docker exec primary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
@@ -716,7 +716,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
-      - name: Run secondary DS container
+      - name: Set up secondary DS container
         run: |
           tests/bin/ds-container-create.sh secondaryds
         env:
@@ -725,7 +725,7 @@ jobs:
       - name: Connect secondary DS container to network
         run: docker network connect example secondaryds --alias secondaryds.example.com
 
-      - name: Run secondary PKI container
+      - name: Set up secondary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=secondary \
@@ -735,7 +735,7 @@ jobs:
       - name: Connect secondary PKI container to network
         run: docker network connect example secondary --alias secondary.example.com
 
-      - name: Install CA in secondary container
+      - name: Install CA in secondary PKI container
         run: |
           docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
@@ -748,7 +748,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
-      - name: Verify CA admin in secondary container
+      - name: Verify CA admin in secondary PKI container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
           docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
@@ -758,7 +758,7 @@ jobs:
               --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec secondary pki -n caadmin ca-user-show caadmin
 
-      - name: Run tertiary DS container
+      - name: Set up tertiary DS container
         run: |
           tests/bin/ds-container-create.sh tertiaryds
         env:
@@ -767,7 +767,7 @@ jobs:
       - name: Connect tertiary DS container to network
         run: docker network connect example tertiaryds --alias tertiaryds.example.com
 
-      - name: Run tertiary PKI container
+      - name: Set up tertiary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=tertiary \
@@ -777,7 +777,7 @@ jobs:
       - name: Connect tertiary PKI container to network
         run: docker network connect example tertiary --alias tertiary.example.com
 
-      - name: Install CA in tertiary container
+      - name: Install CA in tertiary PKI container
         run: |
           docker exec secondary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec secondary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
@@ -790,7 +790,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
-      - name: Verify CA admin in tertiary container
+      - name: Verify CA admin in tertiary PKI container
         run: |
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec tertiary pki client-cert-import \
@@ -798,46 +798,37 @@ jobs:
               --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec tertiary pki -n caadmin ca-user-show caadmin
 
-      - name: Gather artifacts from primary container
+      - name: Gather artifacts from primary containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh primaryds
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/primary primaryds
           tests/bin/pki-artifacts-save.sh primary
         continue-on-error: true
 
-      - name: Gather artifacts from secondary container
+      - name: Gather artifacts from secondary containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh secondaryds
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/secondary secondaryds
           tests/bin/pki-artifacts-save.sh secondary
         continue-on-error: true
 
-      - name: Gather artifacts from tertiary container
+      - name: Gather artifacts from tertiary containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh tertiaryds
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/tertiary tertiaryds
           tests/bin/pki-artifacts-save.sh tertiary
         continue-on-error: true
 
-      - name: Remove CA from tertiary container
+      - name: Remove CA from tertiary PKI container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Disconnect tertiary container from network
-        run: docker network disconnect example tertiary
-
-      - name: Remove CA from secondary container
+      - name: Remove CA from secondary PKI container
         run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Disconnect secondary container from network
-        run: docker network disconnect example secondary
-
-      - name: Remove CA from primary container
+      - name: Remove CA from primary PKI container
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Disconnect primary container from network
-        run: docker network disconnect example primary
-
-      - name: Upload artifacts from primary container
+      - name: Upload artifacts from primary containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
@@ -845,7 +836,7 @@ jobs:
           path: |
             /tmp/artifacts/primary
 
-      - name: Upload artifacts from secondary container
+      - name: Upload artifacts from secondary containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
@@ -853,7 +844,7 @@ jobs:
           path: |
             /tmp/artifacts/secondary
 
-      - name: Upload artifacts from tertiary container
+      - name: Upload artifacts from tertiary containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
@@ -883,7 +874,7 @@ jobs:
       - name: Load runner image
         run: docker load --input /tmp/pki-runner.tar
 
-      - name: Run container
+      - name: Set up container
         run: |
           IMAGE=pki-runner \
           NAME=pki \
@@ -1029,7 +1020,7 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Run primary container
+      - name: Set up primary container
         run: |
           IMAGE=pki-runner \
           NAME=primary \
@@ -1131,7 +1122,7 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec primary pki -n caadmin ca-user-show caadmin
 
-      - name: Run secondary container
+      - name: Set up secondary container
         run: |
           IMAGE=pki-runner \
           NAME=secondary \
@@ -1299,7 +1290,7 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Run DS container
+      - name: Set up DS container
         run: |
           tests/bin/ds-container-create.sh ds
         env:
@@ -1308,7 +1299,7 @@ jobs:
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com
 
-      - name: Run PKI container
+      - name: Set up PKI container
         run: |
           IMAGE=pki-runner \
           NAME=pki \
@@ -1318,7 +1309,7 @@ jobs:
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
 
-      - name: Run client container
+      - name: Set up client container
         run: |
           IMAGE=pki-runner \
           NAME=client \
@@ -1385,10 +1376,10 @@ jobs:
               -S sha256
           docker exec client openssl x509 -text -noout -in local.crt
 
-      - name: Gather artifacts from PKI container
+      - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
