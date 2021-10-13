@@ -75,24 +75,45 @@ jobs:
       - name: Load runner image
         run: docker load --input /tmp/pki-runner.tar
 
-      - name: Run container
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          HOSTNAME: ds.example.com
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
         run: |
           IMAGE=pki-runner \
           NAME=pki \
           HOSTNAME=pki.example.com \
           tests/bin/runner-init.sh
 
-      - name: Install dependencies
-        run: docker exec pki dnf install -y 389-ds-base
-
-      - name: Install DS
-        run: docker exec pki ${SHARED}/tests/bin/ds-create.sh
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
 
       - name: Install CA
-        run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Install KRA
-        run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/kra.cfg -s KRA -v
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
@@ -115,7 +136,7 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
@@ -124,9 +145,6 @@ jobs:
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Remove DS
-        run: docker exec pki ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -161,7 +179,16 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Setup CA container
+      - name: Set up CA DS container
+        run: |
+          tests/bin/ds-container-create.sh cads
+        env:
+          HOSTNAME: cads.example.com
+
+      - name: Connect CA DS container to network
+        run: docker network connect example cads --alias cads.example.com
+
+      - name: Set up CA container
         run: |
           IMAGE=pki-runner \
           NAME=ca \
@@ -171,16 +198,25 @@ jobs:
       - name: Connect CA container to network
         run: docker network connect example ca --alias ca.example.com
 
-      - name: Install dependencies in CA container
-        run: docker exec ca dnf install -y 389-ds-base
-
-      - name: Install DS in CA container
-        run: docker exec ca ${SHARED}/tests/bin/ds-create.sh
-
       - name: Install CA in CA container
-        run: docker exec ca pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+        run: |
+          docker exec ca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=cads.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Setup KRA container
+      - name: Set up KRA DS container
+        run: |
+          tests/bin/ds-container-create.sh krads
+        env:
+          HOSTNAME: krads.example.com
+
+      - name: Connect KRA DS container to network
+        run: docker network connect example krads --alias krads.example.com
+
+      - name: Set up KRA container
         run: |
           IMAGE=pki-runner \
           NAME=kra \
@@ -190,19 +226,18 @@ jobs:
       - name: Connect KRA container to network
         run: docker network connect example kra --alias kra.example.com
 
-      - name: Install dependencies in KRA container
-        run: docker exec kra dnf install -y 389-ds-base
-
-      - name: Install DS in KRA container
-        run: docker exec kra ${SHARED}/tests/bin/ds-create.sh
-
       - name: Install KRA in KRA container
         run: |
           docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${SHARED}/ca_admin.cert
           docker exec kra cp ${SHARED}/ca_signing.crt .
           docker exec kra cp ${SHARED}/ca_admin.cert .
-          docker exec kra pkispawn -f /usr/share/pki/server/examples/installation/kra-separate.cfg -s KRA -v
+          docker exec kra pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-separate.cfg \
+              -s KRA \
+              -D pki_ds_hostname=krads.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
@@ -228,42 +263,27 @@ jobs:
           echo kra.example.com > kra.hostname
           diff kra.hostname kraconnector.host
 
-      - name: Gather artifacts from CA container
+      - name: Gather artifacts from CA containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh ca
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/ca cads
           tests/bin/pki-artifacts-save.sh ca
         continue-on-error: true
 
-      - name: Gather artifacts from KRA container
+      - name: Gather artifacts from KRA containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh kra
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/kra krads
           tests/bin/pki-artifacts-save.sh kra
         continue-on-error: true
 
       - name: Remove KRA from KRA container
         run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
 
-      - name: Remove DS from KRA container
-        run: docker exec kra ${SHARED}/tests/bin/ds-remove.sh
-
-      - name: Disconnect KRA container from network
-        run: docker network disconnect example kra
-
       - name: Remove CA from CA container
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from CA container
-        run: docker exec ca ${SHARED}/tests/bin/ds-remove.sh
-
-      - name: Disconnect CA container from network
-        run: docker network disconnect example ca
-
-      - name: Remove network
-        run: docker network rm example
-
-      - name: Upload artifacts from CA container
+      - name: Upload artifacts from CA containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
@@ -271,7 +291,7 @@ jobs:
           path: |
             /tmp/artifacts/ca
 
-      - name: Upload artifacts from KRA container
+      - name: Upload artifacts from KRA containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
@@ -304,7 +324,16 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Setup CA container
+      - name: Set up CA DS container
+        run: |
+          tests/bin/ds-container-create.sh cads
+        env:
+          HOSTNAME: cads.example.com
+
+      - name: Connect CA DS container to network
+        run: docker network connect example cads --alias cads.example.com
+
+      - name: Set up CA container
         run: |
           IMAGE=pki-runner \
           NAME=ca \
@@ -314,14 +343,14 @@ jobs:
       - name: Connect CA container to network
         run: docker network connect example ca --alias ca.example.com
 
-      - name: Install dependencies in CA container
-        run: docker exec ca dnf install -y 389-ds-base
-
-      - name: Install DS in CA container
-        run: docker exec ca ${SHARED}/tests/bin/ds-create.sh
-
       - name: Install CA in CA container
-        run: docker exec ca pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+        run: |
+          docker exec ca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=cads.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Initialize CA admin in CA container
         run: |
@@ -331,7 +360,16 @@ jobs:
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
 
-      - name: Setup KRA container
+      - name: Set up KRA DS container
+        run: |
+          tests/bin/ds-container-create.sh krads
+        env:
+          HOSTNAME: krads.example.com
+
+      - name: Connect KRA DS container to network
+        run: docker network connect example krads --alias krads.example.com
+
+      - name: Set up KRA container
         run: |
           IMAGE=pki-runner \
           NAME=kra \
@@ -341,16 +379,15 @@ jobs:
       - name: Connect KRA container to network
         run: docker network connect example kra --alias kra.example.com
 
-      - name: Install dependencies in KRA container
-        run: docker exec kra dnf install -y 389-ds-base
-
-      - name: Install DS in KRA container
-        run: docker exec kra ${SHARED}/tests/bin/ds-create.sh
-
       - name: Install KRA in KRA container (step 1)
         run: |
           docker exec kra cp ${SHARED}/ca_signing.crt .
-          docker exec kra pkispawn -f /usr/share/pki/server/examples/installation/kra-external-certs-step1.cfg -s KRA -v
+          docker exec kra pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-external-certs-step1.cfg \
+              -s KRA \
+              -D pki_ds_hostname=krads.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Issue KRA storage cert
         run: |
@@ -402,7 +439,12 @@ jobs:
 
       - name: Install KRA in KRA container (step 2)
         run: |
-          docker exec kra pkispawn -f /usr/share/pki/server/examples/installation/kra-external-certs-step2.cfg -s KRA -v
+          docker exec kra pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-external-certs-step2.cfg \
+              -s KRA \
+              -D pki_ds_hostname=krads.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
@@ -422,42 +464,27 @@ jobs:
           echo kra.example.com > kra.hostname
           diff kra.hostname kraconnector.host
 
-      - name: Gather artifacts from CA container
+      - name: Gather artifacts from CA containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh ca
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/ca cads
           tests/bin/pki-artifacts-save.sh ca
         continue-on-error: true
 
-      - name: Gather artifacts from KRA container
+      - name: Gather artifacts from KRA containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh kra
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/kra krads
           tests/bin/pki-artifacts-save.sh kra
         continue-on-error: true
 
       - name: Remove KRA from KRA container
         run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
 
-      - name: Remove DS from KRA container
-        run: docker exec kra ${SHARED}/tests/bin/ds-remove.sh
-
-      - name: Disconnect KRA container from network
-        run: docker network disconnect example kra
-
       - name: Remove CA from CA container
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from CA container
-        run: docker exec ca ${SHARED}/tests/bin/ds-remove.sh
-
-      - name: Disconnect CA container from network
-        run: docker network disconnect example ca
-
-      - name: Remove network
-        run: docker network rm example
-
-      - name: Upload artifacts from CA container
+      - name: Upload artifacts from CA containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
@@ -465,7 +492,7 @@ jobs:
           path: |
             /tmp/artifacts/ca
 
-      - name: Upload artifacts from KRA container
+      - name: Upload artifacts from KRA containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
@@ -498,59 +525,87 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Run primary container
+      - name: Set up primary DS container
+        run: |
+          tests/bin/ds-container-create.sh primaryds
+        env:
+          HOSTNAME: primaryds.example.com
+
+      - name: Connect primary DS container to network
+        run: docker network connect example primaryds --alias primaryds.example.com
+
+      - name: Set up primary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=primary \
           HOSTNAME=primary.example.com \
           tests/bin/runner-init.sh
 
-      - name: Connect primary container to network
+      - name: Connect primary PKI container to network
         run: docker network connect example primary --alias primary.example.com
 
-      - name: Install dependencies in primary container
-        run: docker exec primary dnf install -y 389-ds-base
+      - name: Install primary CA in primary PKI container
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=primaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Install DS in primary container
-        run: docker exec primary ${SHARED}/tests/bin/ds-create.sh
+      - name: Install primary KRA in primary PKI container
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_hostname=primaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Install primary CA in primary container
-        run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+      - name: Set up secondary DS container
+        run: |
+          tests/bin/ds-container-create.sh secondaryds
+        env:
+          HOSTNAME: secondaryds.example.com
 
-      - name: Install primary KRA in primary container
-        run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/kra.cfg -s KRA -v
+      - name: Connect secondary DS container to network
+        run: docker network connect example secondaryds --alias secondaryds.example.com
 
-      - name: Setup secondary container
+      - name: Set up secondary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=secondary \
           HOSTNAME=secondary.example.com \
           tests/bin/runner-init.sh
 
-      - name: Connect secondary container to network
+      - name: Connect secondary PKI container to network
         run: docker network connect example secondary --alias secondary.example.com
 
-      - name: Install dependencies in secondary container
-        run: docker exec secondary dnf install -y 389-ds-base
-
-      - name: Install DS in secondary container
-        run: docker exec secondary ${SHARED}/tests/bin/ds-create.sh
-
-      - name: Install CA in secondary container
+      - name: Install CA in secondary PKI container
         run: |
           docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
           docker exec secondary cp ${SHARED}/ca_signing.crt .
           docker exec secondary cp ${SHARED}/ca-certs.p12 .
-          docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone.cfg -s CA -v
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
+              -s CA \
+              -D pki_ds_hostname=secondaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Install KRA in secondary container
+      - name: Install KRA in secondary PKI container
         run: |
           docker exec primary pki-server kra-clone-prepare --pkcs12-file ${SHARED}/kra-certs.p12 --pkcs12-password Secret.123
           docker exec secondary cp ${SHARED}/kra-certs.p12 .
-          docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/kra-clone.cfg -s KRA -v
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-clone.cfg \
+              -s KRA \
+              -D pki_ds_hostname=secondaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Verify KRA admin in secondary container
+      - name: Verify KRA admin in secondary PKI container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
           docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
@@ -560,37 +615,50 @@ jobs:
               --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec secondary pki -n caadmin kra-user-show kraadmin
 
-      - name: Setup tertiary container
+      - name: Set up tertiary DS container
+        run: |
+          tests/bin/ds-container-create.sh tertiaryds
+        env:
+          HOSTNAME: tertiaryds.example.com
+
+      - name: Connect tertiary DS container to network
+        run: docker network connect example tertiaryds --alias tertiaryds.example.com
+
+      - name: Set up tertiary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=tertiary \
           HOSTNAME=tertiary.example.com \
           tests/bin/runner-init.sh
 
-      - name: Connect tertiary container to network
+      - name: Connect tertiary PKI container to network
         run: docker network connect example tertiary --alias tertiary.example.com
 
-      - name: Install dependencies in tertiary container
-        run: docker exec tertiary dnf install -y 389-ds-base
-
-      - name: Install DS in tertiary container
-        run: docker exec tertiary ${SHARED}/tests/bin/ds-create.sh
-
-      - name: Install CA in tertiary container
+      - name: Install CA in tertiary PKI container
         run: |
           docker exec secondary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec secondary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
           docker exec tertiary cp ${SHARED}/ca_signing.crt .
           docker exec tertiary cp ${SHARED}/ca-certs.p12 .
-          docker exec tertiary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg -s CA -v
+          docker exec tertiary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg \
+              -s CA \
+              -D pki_ds_hostname=tertiaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Install KRA in tertiary container
+      - name: Install KRA in tertiary PKI container
         run: |
           docker exec secondary pki-server kra-clone-prepare --pkcs12-file ${SHARED}/kra-certs.p12 --pkcs12-password Secret.123
           docker exec tertiary cp ${SHARED}/kra-certs.p12 .
-          docker exec tertiary pkispawn -f /usr/share/pki/server/examples/installation/kra-clone-of-clone.cfg -s KRA -v
+          docker exec tertiary pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-clone-of-clone.cfg \
+              -s KRA \
+              -D pki_ds_hostname=tertiaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Verify KRA admin in tertiary container
+      - name: Verify KRA admin in tertiary PKI container
         run: |
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec tertiary pki client-cert-import \
@@ -598,67 +666,46 @@ jobs:
               --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec tertiary pki -n caadmin kra-user-show kraadmin
 
-      - name: Gather artifacts from primary container
+      - name: Gather artifacts from primary containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh primary
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/primary primaryds
           tests/bin/pki-artifacts-save.sh primary
         continue-on-error: true
 
-      - name: Gather artifacts from secondary container
+      - name: Gather artifacts from secondary containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh secondary
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/secondary secondarys
           tests/bin/pki-artifacts-save.sh secondary
         continue-on-error: true
 
-      - name: Gather artifacts from tertiary container
+      - name: Gather artifacts from tertiary containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh tertiary
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/tertiary tertiaryds
           tests/bin/pki-artifacts-save.sh tertiary
         continue-on-error: true
 
-      - name: Remove KRA from tertiary container
+      - name: Remove KRA from tertiary PKI container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s KRA -v
 
-      - name: Remove CA from tertiary container
+      - name: Remove CA from tertiary PKI container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from tertiary container
-        run: docker exec tertiary ${SHARED}/tests/bin/ds-remove.sh
-
-      - name: Disconnect tertiary container from network
-        run: docker network disconnect example tertiary
-
-      - name: Remove KRA from secondary container
+      - name: Remove KRA from secondary PKI container
         run: docker exec secondary pkidestroy -i pki-tomcat -s KRA -v
 
-      - name: Remove CA from secondary container
+      - name: Remove CA from secondary PKI container
         run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from secondary container
-        run: docker exec secondary ${SHARED}/tests/bin/ds-remove.sh
-
-      - name: Disconnect secondary container from network
-        run: docker network disconnect example secondary
-
-      - name: Remove KRA from primary container
+      - name: Remove KRA from primary PKI container
         run: docker exec primary pkidestroy -i pki-tomcat -s KRA -v
 
-      - name: Remove CA from primary container
+      - name: Remove CA from primary PKI container
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from primary container
-        run: docker exec primary ${SHARED}/tests/bin/ds-remove.sh
-
-      - name: Disconnect primary container from network
-        run: docker network disconnect example primary
-
-      - name: Remove network
-        run: docker network rm example
-
-      - name: Upload artifacts from primary container
+      - name: Upload artifacts from primary containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
@@ -666,7 +713,7 @@ jobs:
           path: |
             /tmp/artifacts/primary
 
-      - name: Upload artifacts from secondary container
+      - name: Upload artifacts from secondary containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
@@ -674,7 +721,7 @@ jobs:
           path: |
             /tmp/artifacts/secondary
 
-      - name: Upload artifacts from tertiary container
+      - name: Upload artifacts from tertiary containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
@@ -703,18 +750,27 @@ jobs:
       - name: Load runner image
         run: docker load --input /tmp/pki-runner.tar
 
-      - name: Run container
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          HOSTNAME: ds.example.com
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
         run: |
           IMAGE=pki-runner \
           NAME=pki \
           HOSTNAME=pki.example.com \
           tests/bin/runner-init.sh
 
-      - name: Install dependencies
-        run: docker exec pki dnf install -y 389-ds-base
-
-      - name: Install DS
-        run: docker exec pki ${SHARED}/tests/bin/ds-create.sh
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
 
       - name: Create CA signing cert
         run: |
@@ -734,7 +790,12 @@ jobs:
 
       - name: Install KRA (step 1)
         run: |
-          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/kra-standalone-step1.cfg -s KRA -v
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-standalone-step1.cfg \
+              -s KRA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Issue KRA storage cert
         run: |
@@ -792,7 +853,12 @@ jobs:
 
       - name: Install KRA (step 2)
         run: |
-          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/kra-standalone-step2.cfg -s KRA -v
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-standalone-step2.cfg \
+              -s KRA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
@@ -809,15 +875,12 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
       - name: Remove KRA
         run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
-
-      - name: Remove DS
-        run: docker exec pki ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
