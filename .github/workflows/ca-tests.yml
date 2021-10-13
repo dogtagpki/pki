@@ -874,78 +874,86 @@ jobs:
       - name: Load runner image
         run: docker load --input /tmp/pki-runner.tar
 
-      - name: Set up container
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          HOSTNAME: ds.example.com
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
         run: |
           IMAGE=pki-runner \
           NAME=pki \
           HOSTNAME=pki.example.com \
           tests/bin/runner-init.sh
 
-      - name: Install dependencies
-        run: docker exec pki dnf install -y 389-ds-base
-
-      - name: Install DS
-        run: docker exec pki ${SHARED}/tests/bin/ds-create.sh
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
 
       - name: Create DS signing cert
         run: |
           docker exec pki pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-request \
               --subject "CN=DS Signing Certificate" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ds_signing.csr
           docker exec pki pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-issue \
               --csr ds_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ds_signing.crt
           docker exec pki pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-import \
               --cert ds_signing.crt \
               --trust CT,C,C \
               Self-Signed-CA
-          docker exec pki certutil -L -d /etc/dirsrv/slapd-localhost
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
 
       - name: Create DS server cert
         run: |
           docker exec pki pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-request \
-              --subject "CN=pki.example.com" \
+              --subject "CN=ds.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr ds_server.csr
           docker exec pki pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-issue \
               --issuer Self-Signed-CA \
               --csr ds_server.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert ds_server.crt
           docker exec pki pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-import \
               --cert ds_server.crt \
               Server-Cert
-          docker exec pki certutil -L -d /etc/dirsrv/slapd-localhost
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
 
-      - name: Enable DS security
+      - name: Import certs into DS container
         run: |
-          docker exec pki dsconf localhost config replace nsslapd-security=on
-          docker exec pki dsctl localhost restart
-          docker exec pki sleep 10
-          docker exec -e LDAPTLS_CACERT=/ds_signing.crt pki ldapsearch -H ldaps://pki.example.com:636 -x -b "" -s base \* +
+          docker exec pki pk12util \
+              -d /root/.dogtag/nssdb \
+              -o ds_server.p12 \
+              -W Secret.123 \
+              -n Server-Cert
+          docker cp pki:ds_server.p12 ds_server.p12
+          tests/bin/ds-container-certs-import.sh ds ds_server.p12
+          tests/bin/ds-container-stop.sh ds
+          tests/bin/ds-container-start.sh ds
 
       - name: Install CA
-        run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-secure-ds.cfg -s CA -v
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-secure-ds.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldaps_port=3636 \
+              -v
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
@@ -954,10 +962,10 @@ jobs:
         run: |
           docker exec pki pki-server ca-db-config-show > output
           cat output
-          echo "pki.example.com" > expected
+          echo "ds.example.com" > expected
           sed -n 's/^\s\+Hostname:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
-          echo "636" > expected
+          echo "3636" > expected
           sed -n 's/^\s\+Port:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
           echo "true" > expected
@@ -976,15 +984,12 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Remove DS
-        run: docker exec pki ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -1020,100 +1025,102 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Set up primary container
+      - name: Set up primary DS container
+        run: |
+          tests/bin/ds-container-create.sh primaryds
+        env:
+          HOSTNAME: primaryds.example.com
+
+      - name: Connect primary DS container to network
+        run: docker network connect example primaryds --alias primaryds.example.com
+
+      - name: Set up primary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=primary \
           HOSTNAME=primary.example.com \
           tests/bin/runner-init.sh
 
-      - name: Connect primary container to network
+      - name: Connect primary PKI container to network
         run: docker network connect example primary --alias primary.example.com
 
-      - name: Install dependencies in primary container
-        run: docker exec primary dnf install -y 389-ds-base
-
-      - name: Install DS in primary container
-        run: docker exec primary ${SHARED}/tests/bin/ds-create.sh
-
-      - name: Create DS signing cert in primary container
+      - name: Create DS signing cert in primary PKI container
         run: |
           docker exec primary pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-request \
               --subject "CN=DS Signing Certificate" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ds_signing.csr
           docker exec primary pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-issue \
               --csr ds_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ds_signing.crt
           docker exec primary pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-import \
               --cert ds_signing.crt \
               --trust CT,C,C \
               Self-Signed-CA
-          docker exec primary certutil -L -d /etc/dirsrv/slapd-localhost
+          docker exec primary certutil -L -d /root/.dogtag/nssdb
 
-      - name: Create DS server cert in primary container
+      - name: Create DS server cert in primary PKI container
         run: |
           docker exec primary pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-request \
-              --subject "CN=primary.example.com" \
+              --subject "CN=primaryds.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr ds_server.csr
           docker exec primary pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-issue \
               --issuer Self-Signed-CA \
               --csr ds_server.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert ds_server.crt
           docker exec primary pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-import \
               --cert ds_server.crt \
               Server-Cert
-          docker exec primary certutil -L -d /etc/dirsrv/slapd-localhost
+          docker exec primary certutil -L -d /root/.dogtag/nssdb
 
-      - name: Enable DS security in primary container
+      - name: Import certs into primary DS container
         run: |
-          docker exec primary dsconf localhost config replace nsslapd-security=on
-          docker exec primary dsctl localhost restart
-          docker exec primary sleep 10
-          docker exec -e LDAPTLS_CACERT=/ds_signing.crt primary ldapsearch -H ldaps://primary.example.com:636 -x -b "" -s base \* +
+          docker exec primary pk12util \
+              -d /root/.dogtag/nssdb \
+              -o ds_server.p12 \
+              -W Secret.123 \
+              -n Server-Cert
+          docker cp primary:ds_server.p12 primaryds_server.p12
+          tests/bin/ds-container-certs-import.sh primaryds primaryds_server.p12
+          tests/bin/ds-container-stop.sh primaryds
+          tests/bin/ds-container-start.sh primaryds
 
-      - name: Install CA in primary container
-        run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/ca-secure-ds-primary.cfg -s CA -v
+      - name: Install CA in primary PKI container
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-secure-ds-primary.cfg \
+              -s CA \
+              -D pki_ds_hostname=primaryds.example.com \
+              -D pki_ds_ldaps_port=3636 \
+              -v
 
-      - name: Run PKI healthcheck in primary container
+      - name: Run PKI healthcheck in primary PKI container
         run: docker exec primary pki-healthcheck --debug
 
-      - name: Verify DS connection in primary container
+      - name: Verify DS connection in primary PKI container
         run: |
           docker exec primary pki-server ca-db-config-show > output
           cat output
-          echo "primary.example.com" > expected
+          echo "primaryds.example.com" > expected
           sed -n 's/^\s\+Hostname:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
-          echo "636" > expected
+          echo "3636" > expected
           sed -n 's/^\s\+Port:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
           echo "true" > expected
           sed -n 's/^\s\+Secure:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Verify CA admin in primary container
+      - name: Verify CA admin in primary PKI container
         run: |
           docker exec primary pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec primary pki client-cert-import ca_signing --ca-cert ca_signing.crt
@@ -1122,98 +1129,104 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec primary pki -n caadmin ca-user-show caadmin
 
-      - name: Set up secondary container
+      - name: Set up secondary DS container
+        run: |
+          tests/bin/ds-container-create.sh secondaryds
+        env:
+          HOSTNAME: secondaryds.example.com
+
+      - name: Connect secondary DS container to network
+        run: docker network connect example secondaryds --alias secondaryds.example.com
+
+      - name: Set up secondary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=secondary \
           HOSTNAME=secondary.example.com \
           tests/bin/runner-init.sh
 
-      - name: Connect secondary container to network
+      - name: Connect secondary PKI container to network
         run: docker network connect example secondary --alias secondary.example.com
 
-      - name: Install dependencies in secondary container
-        run: docker exec secondary dnf install -y 389-ds-base
-
-      - name: Install DS in secondary container
-        run: docker exec secondary ${SHARED}/tests/bin/ds-create.sh
-
-      - name: Import DS signing cert into secondary container
+      - name: Import DS signing cert into secondary PKI container
         run: |
           docker exec primary pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               pkcs12-export \
               --pkcs12-file ${SHARED}/ds_signing.p12 \
               --pkcs12-password Secret.123 \
               Self-Signed-CA
           docker exec secondary pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               pkcs12-import \
               --pkcs12-file ${SHARED}/ds_signing.p12 \
               --pkcs12-password Secret.123
-          docker exec secondary certutil -L -d /etc/dirsrv/slapd-localhost
+          docker exec secondary pki \
+              nss-cert-export \
+              Self-Signed-CA \
+              ds_signing.crt
+          docker exec secondary certutil -L -d /root/.dogtag/nssdb
 
-      - name: Create DS server cert in secondary container
+      - name: Create DS server cert in secondary PKI container
         run: |
           docker exec secondary pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-request \
-              --subject "CN=secondary.example.com" \
+              --subject "CN=secondaryds.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr ds_server.csr
           docker exec secondary pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-issue \
               --issuer Self-Signed-CA \
               --csr ds_server.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert ds_server.crt
           docker exec secondary pki \
-              -d /etc/dirsrv/slapd-localhost \
-              -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               nss-cert-import \
               --cert ds_server.crt \
               Server-Cert
-          docker exec secondary certutil -L -d /etc/dirsrv/slapd-localhost
+          docker exec secondary certutil -L -d /root/.dogtag/nssdb
 
-      - name: Enable DS security in secondary container
+      - name: Import certs into secondary DS container
         run: |
-          docker exec secondary dsconf localhost config replace nsslapd-security=on
-          docker exec secondary dsctl localhost restart
-          docker exec secondary sleep 10
-          docker exec secondary bash -c "certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA -a > ds_signing.crt"
-          docker exec -e LDAPTLS_CACERT=/ds_signing.crt secondary ldapsearch -d 65535 -H ldaps://secondary.example.com:636 -x -b "" -s base \* +
+          docker exec secondary pk12util \
+              -d /root/.dogtag/nssdb \
+              -o ds_server.p12 \
+              -W Secret.123 \
+              -n Server-Cert
+          docker cp secondary:ds_server.p12 secondaryds_server.p12
+          tests/bin/ds-container-certs-import.sh secondaryds secondaryds_server.p12
+          tests/bin/ds-container-stop.sh secondaryds
+          tests/bin/ds-container-start.sh secondaryds
 
-      - name: Install CA in secondary container
+      - name: Install CA in secondary PKI container
         run: |
           docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
           docker exec secondary cp ${SHARED}/ca_signing.crt .
           docker exec secondary cp ${SHARED}/ca-certs.p12 .
-          docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg -s CA -v
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg \
+              -s CA \
+              -D pki_ds_hostname=secondaryds.example.com \
+              -D pki_ds_ldaps_port=3636 \
+              -v
 
-      - name: Run PKI healthcheck in secondary container
+      - name: Run PKI healthcheck in secondary PKI container
         run: docker exec secondary pki-healthcheck --debug
 
-      - name: Verify DS connection in secondary container
+      - name: Verify DS connection in secondary PKI container
         run: |
           docker exec secondary pki-server ca-db-config-show > output
           cat output
-          echo "secondary.example.com" > expected
+          echo "secondaryds.example.com" > expected
           sed -n 's/^\s\+Hostname:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
-          echo "636" > expected
+          echo "3636" > expected
           sed -n 's/^\s\+Port:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
           echo "true" > expected
           sed -n 's/^\s\+Secure:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Verify CA admin in secondary container
+      - name: Verify CA admin in secondary PKI container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
           docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
@@ -1224,33 +1237,27 @@ jobs:
               --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec secondary pki -n caadmin ca-user-show caadmin
 
-      - name: Gather artifacts from primary container
+      - name: Gather artifacts from primary containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh primary
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/primary primaryds
           tests/bin/pki-artifacts-save.sh primary
         continue-on-error: true
 
-      - name: Gather CA artifacts from secondary container
+      - name: Gather artifacts from secondary containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh secondary
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/secondary secondaryds
           tests/bin/pki-artifacts-save.sh secondary
         continue-on-error: true
 
-      - name: Remove CA from secondary container
+      - name: Remove CA from secondary PKI container
         run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from secondary container
-        run: docker exec secondary ${SHARED}/tests/bin/ds-remove.sh
-
-      - name: Remove CA from primary container
+      - name: Remove CA from primary PKI container
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from primary container
-        run: docker exec primary ${SHARED}/tests/bin/ds-remove.sh
-
-      - name: Upload artifacts from primary container
+      - name: Upload artifacts from primary containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
@@ -1258,7 +1265,7 @@ jobs:
           path: |
             /tmp/artifacts/primary
 
-      - name: Upload artifacts from secondary container
+      - name: Upload artifacts from secondary containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
