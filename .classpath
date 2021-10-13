@@ -37,7 +37,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-client.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jaxrs.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/servlet.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/xerces-j2.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-lang3.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/tomcat/catalina.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/tomcat/tomcat-util.jar"/>

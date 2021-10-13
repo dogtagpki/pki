@@ -5,7 +5,7 @@ javac(pki-cmsutil-classes
         src/main/java/*.java
     CLASSPATH
         ${COMMONS_LANG3_JAR} ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
-        ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${LDAPJDK_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${JAXB_API_JAR}
         ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
         ${SLF4J_API_JAR}
@@ -50,7 +50,7 @@ if(WITH_TEST)
             src/test/java/*.java
         CLASSPATH
             ${PKI_CMSUTIL_JAR}
-            ${JSS_JAR} ${LDAPJDK_JAR} ${COMMONS_CODEC_JAR} ${XALAN_JAR} ${XERCES_JAR}
+            ${JSS_JAR} ${LDAPJDK_JAR} ${COMMONS_CODEC_JAR}
             ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR}
         OUTPUT_DIR

@@ -18,7 +18,6 @@ javac(pki-server-classes
         ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${LDAPJDK_JAR}
-        ${XALAN_JAR} ${XERCES_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
         ${TOMCATJSS_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
@@ -57,7 +56,7 @@ if(WITH_TEST)
             src/test/java/*.java
         CLASSPATH
             ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSBUNDLE_JAR}
-            ${LDAPJDK_JAR} ${SERVLET_JAR} ${XALAN_JAR} ${XERCES_JAR}
+            ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
             ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
@@ -67,7 +66,6 @@ if(WITH_TEST)
     )
 
     # create test target
-    # do not include xalan and xerces in class path
     # TODO: create CMake function to find all JUnit test classes
     add_junit_test(test-pki-server
         DEPENDS
@@ -139,7 +137,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JAXRS_JAR} common/lib/resteasy-jaxrs.jar
     COMMAND ln -sf /usr/lib/java/symkey.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/symkey.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${TOMCATJSS_JAR} common/lib/tomcatjss.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${XERCES_JAR} common/lib/xerces-j2.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${XML_COMMONS_RESOLVER_JAR} common/lib/xml-commons-resolver.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_NET_JAR} common/lib/commons-net.jar
 )

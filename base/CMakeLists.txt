@@ -279,24 +279,6 @@ find_file(TOMCATJSS_JAR
         /usr/share/java
 )
 
-find_file(XALAN_JAR
-    NAMES
-        xalan-j2.jar
-        xalan2.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
-find_file(XERCES_JAR
-    NAMES
-        xerces-j2.jar
-        xercesImpl.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(XML_COMMONS_RESOLVER_JAR
     NAMES
         xml-commons-resolver.jar

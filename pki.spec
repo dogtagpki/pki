@@ -181,9 +181,6 @@ BuildRequires:    policycoreutils
 BuildRequires:    python3-lxml
 BuildRequires:    python3-sphinx
 
-BuildRequires:    xalan-j2
-BuildRequires:    xerces-j2
-
 BuildRequires:    resteasy >= 3.0.26
 
 BuildRequires:    python3 >= 3.5
@@ -424,8 +421,6 @@ Requires:         resteasy-core >= 3.0.17-1
 Requires:         resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
-Requires:         xalan-j2
-Requires:         xerces-j2
 Requires:         xml-commons-resolver
 
 %description -n   %{product_id}-java
