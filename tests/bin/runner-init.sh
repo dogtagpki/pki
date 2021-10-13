@@ -16,10 +16,10 @@ docker run \
     --tmpfs /tmp \
     --tmpfs /run \
     -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
-    -v ${GITHUB_WORKSPACE}:${PKIDIR} \
+    -v ${GITHUB_WORKSPACE}:${SHARED} \
     -e BUILDUSER_UID=$(id -u) \
     -e BUILDUSER_GID=$(id -g) \
-    -e PKIDIR="${PKIDIR}" \
+    -e SHARED="${SHARED}" \
     -e BUILDUSER="builduser" \
     -e GITHUB_ACTIONS=${GITHUB_ACTIONS} \
     -e GITHUB_RUN_NUMBER=${GITHUB_RUN_NUMBER} \

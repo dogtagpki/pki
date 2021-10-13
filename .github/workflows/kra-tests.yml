@@ -59,7 +59,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -86,7 +86,7 @@ jobs:
         run: docker exec pki dnf install -y 389-ds-base
 
       - name: Install DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install CA
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
@@ -108,7 +108,7 @@ jobs:
 
       - name: Verify KRA connector in CA
         run: |
-          docker exec pki bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${PKIDIR}/kraconnector.host"
+          docker exec pki bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${SHARED}/kraconnector.host"
           echo pki.example.com > kra.hostname
           diff kra.hostname kraconnector.host
 
@@ -126,7 +126,7 @@ jobs:
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -142,7 +142,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -175,7 +175,7 @@ jobs:
         run: docker exec ca dnf install -y 389-ds-base
 
       - name: Install DS in CA container
-        run: docker exec ca ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec ca ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install CA in CA container
         run: docker exec ca pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
@@ -194,14 +194,14 @@ jobs:
         run: docker exec kra dnf install -y 389-ds-base
 
       - name: Install DS in KRA container
-        run: docker exec kra ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec kra ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install KRA in KRA container
         run: |
-          docker exec ca pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
-          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${PKIDIR}/ca_admin.cert
-          docker exec kra cp ${PKIDIR}/ca_signing.crt .
-          docker exec kra cp ${PKIDIR}/ca_admin.cert .
+          docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${SHARED}/ca_admin.cert
+          docker exec kra cp ${SHARED}/ca_signing.crt .
+          docker exec kra cp ${SHARED}/ca_admin.cert .
           docker exec kra pkispawn -f /usr/share/pki/server/examples/installation/kra-separate.cfg -s KRA -v
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
@@ -210,21 +210,21 @@ jobs:
 
       - name: Verify KRA admin
         run: |
-          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
-          docker exec ca cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
           docker exec kra pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec kra pki client-cert-import \
-              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
+              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec kra pki -n caadmin kra-user-show kraadmin
 
       - name: Verify KRA connector in CA
         run: |
-          docker exec ca pki client-cert-import ca_signing --ca-cert ${PKIDIR}/ca_signing.crt
+          docker exec ca pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
           docker exec ca pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
-          docker exec ca bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${PKIDIR}/kraconnector.host"
+          docker exec ca bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${SHARED}/kraconnector.host"
           echo kra.example.com > kra.hostname
           diff kra.hostname kraconnector.host
 
@@ -246,7 +246,7 @@ jobs:
         run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
 
       - name: Remove DS from KRA container
-        run: docker exec kra ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec kra ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Disconnect KRA container from network
         run: docker network disconnect example kra
@@ -255,7 +255,7 @@ jobs:
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from CA container
-        run: docker exec ca ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec ca ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Disconnect CA container from network
         run: docker network disconnect example ca
@@ -285,7 +285,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -318,15 +318,15 @@ jobs:
         run: docker exec ca dnf install -y 389-ds-base
 
       - name: Install DS in CA container
-        run: docker exec ca ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec ca ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install CA in CA container
         run: docker exec ca pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
 
       - name: Initialize CA admin in CA container
         run: |
-          docker exec ca pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
-          docker exec ca pki client-cert-import ca_signing --ca-cert ${PKIDIR}/ca_signing.crt
+          docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec ca pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
           docker exec ca pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
@@ -345,60 +345,60 @@ jobs:
         run: docker exec kra dnf install -y 389-ds-base
 
       - name: Install DS in KRA container
-        run: docker exec kra ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec kra ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install KRA in KRA container (step 1)
         run: |
-          docker exec kra cp ${PKIDIR}/ca_signing.crt .
+          docker exec kra cp ${SHARED}/ca_signing.crt .
           docker exec kra pkispawn -f /usr/share/pki/server/examples/installation/kra-external-certs-step1.cfg -s KRA -v
 
       - name: Issue KRA storage cert
         run: |
-          docker exec kra cp kra_storage.csr ${PKIDIR}/kra_storage.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caStorageCert --csr-file ${PKIDIR}/kra_storage.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_storage.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_storage.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_storage.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat kra_storage.certid` --output-file ${PKIDIR}/kra_storage.crt"
-          docker exec kra cp ${PKIDIR}/kra_storage.crt kra_storage.crt
+          docker exec kra cp kra_storage.csr ${SHARED}/kra_storage.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caStorageCert --csr-file ${SHARED}/kra_storage.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/kra_storage.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_storage.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/kra_storage.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat kra_storage.certid` --output-file ${SHARED}/kra_storage.crt"
+          docker exec kra cp ${SHARED}/kra_storage.crt kra_storage.crt
 
       - name: Issue KRA transport cert
         run: |
-          docker exec kra cp kra_transport.csr ${PKIDIR}/kra_transport.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caTransportCert --csr-file ${PKIDIR}/kra_transport.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_transport.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_transport.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_transport.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat kra_transport.certid` --output-file ${PKIDIR}/kra_transport.crt"
-          docker exec kra cp ${PKIDIR}/kra_transport.crt kra_transport.crt
+          docker exec kra cp kra_transport.csr ${SHARED}/kra_transport.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caTransportCert --csr-file ${SHARED}/kra_transport.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/kra_transport.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_transport.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/kra_transport.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat kra_transport.certid` --output-file ${SHARED}/kra_transport.crt"
+          docker exec kra cp ${SHARED}/kra_transport.crt kra_transport.crt
 
       - name: Issue subsystem cert
         run: |
-          docker exec kra cp subsystem.csr ${PKIDIR}/subsystem.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${PKIDIR}/subsystem.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/subsystem.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat subsystem.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/subsystem.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat subsystem.certid` --output-file ${PKIDIR}/subsystem.crt"
-          docker exec kra cp ${PKIDIR}/subsystem.crt subsystem.crt
+          docker exec kra cp subsystem.csr ${SHARED}/subsystem.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${SHARED}/subsystem.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/subsystem.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat subsystem.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/subsystem.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat subsystem.certid` --output-file ${SHARED}/subsystem.crt"
+          docker exec kra cp ${SHARED}/subsystem.crt subsystem.crt
 
       - name: Issue SSL server cert
         run: |
-          docker exec kra cp sslserver.csr ${PKIDIR}/sslserver.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caServerCert --csr-file ${PKIDIR}/sslserver.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/sslserver.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat sslserver.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/sslserver.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat sslserver.certid` --output-file ${PKIDIR}/sslserver.crt"
-          docker exec kra cp ${PKIDIR}/sslserver.crt sslserver.crt
+          docker exec kra cp sslserver.csr ${SHARED}/sslserver.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caServerCert --csr-file ${SHARED}/sslserver.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/sslserver.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat sslserver.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/sslserver.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat sslserver.certid` --output-file ${SHARED}/sslserver.crt"
+          docker exec kra cp ${SHARED}/sslserver.crt sslserver.crt
 
       - name: Issue KRA audit signing cert
         run: |
-          docker exec kra cp kra_audit_signing.csr ${PKIDIR}/kra_audit_signing.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${PKIDIR}/kra_audit_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_audit_signing.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_audit_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_audit_signing.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat kra_audit_signing.certid` --output-file ${PKIDIR}/kra_audit_signing.crt"
-          docker exec kra cp ${PKIDIR}/kra_audit_signing.crt kra_audit_signing.crt
+          docker exec kra cp kra_audit_signing.csr ${SHARED}/kra_audit_signing.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${SHARED}/kra_audit_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/kra_audit_signing.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_audit_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/kra_audit_signing.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat kra_audit_signing.certid` --output-file ${SHARED}/kra_audit_signing.crt"
+          docker exec kra cp ${SHARED}/kra_audit_signing.crt kra_audit_signing.crt
 
       - name: Issue KRA admin cert
         run: |
-          docker exec kra cp kra_admin.csr ${PKIDIR}/kra_admin.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caUserCert --csr-file ${PKIDIR}/kra_admin.csr --subject uid=kraadmin | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_admin.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_admin.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_admin.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat kra_admin.certid` --output-file ${PKIDIR}/kra_admin.crt"
-          docker exec kra cp ${PKIDIR}/kra_admin.crt kra_admin.crt
+          docker exec kra cp kra_admin.csr ${SHARED}/kra_admin.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caUserCert --csr-file ${SHARED}/kra_admin.csr --subject uid=kraadmin | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/kra_admin.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_admin.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/kra_admin.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat kra_admin.certid` --output-file ${SHARED}/kra_admin.crt"
+          docker exec kra cp ${SHARED}/kra_admin.crt kra_admin.crt
 
       - name: Install KRA in KRA container (step 2)
         run: |
@@ -418,7 +418,7 @@ jobs:
 
       - name: Verify KRA connector in CA
         run: |
-          docker exec ca bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${PKIDIR}/kraconnector.host"
+          docker exec ca bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${SHARED}/kraconnector.host"
           echo kra.example.com > kra.hostname
           diff kra.hostname kraconnector.host
 
@@ -440,7 +440,7 @@ jobs:
         run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
 
       - name: Remove DS from KRA container
-        run: docker exec kra ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec kra ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Disconnect KRA container from network
         run: docker network disconnect example kra
@@ -449,7 +449,7 @@ jobs:
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from CA container
-        run: docker exec ca ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec ca ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Disconnect CA container from network
         run: docker network disconnect example ca
@@ -479,7 +479,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -512,7 +512,7 @@ jobs:
         run: docker exec primary dnf install -y 389-ds-base
 
       - name: Install DS in primary container
-        run: docker exec primary ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec primary ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install primary CA in primary container
         run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
@@ -534,30 +534,30 @@ jobs:
         run: docker exec secondary dnf install -y 389-ds-base
 
       - name: Install DS in secondary container
-        run: docker exec secondary ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec secondary ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install CA in secondary container
         run: |
-          docker exec primary pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
-          docker exec primary pki-server ca-clone-prepare --pkcs12-file ${PKIDIR}/ca-certs.p12 --pkcs12-password Secret.123
-          docker exec secondary cp ${PKIDIR}/ca_signing.crt .
-          docker exec secondary cp ${PKIDIR}/ca-certs.p12 .
+          docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
+          docker exec secondary cp ${SHARED}/ca_signing.crt .
+          docker exec secondary cp ${SHARED}/ca-certs.p12 .
           docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone.cfg -s CA -v
 
       - name: Install KRA in secondary container
         run: |
-          docker exec primary pki-server kra-clone-prepare --pkcs12-file ${PKIDIR}/kra-certs.p12 --pkcs12-password Secret.123
-          docker exec secondary cp ${PKIDIR}/kra-certs.p12 .
+          docker exec primary pki-server kra-clone-prepare --pkcs12-file ${SHARED}/kra-certs.p12 --pkcs12-password Secret.123
+          docker exec secondary cp ${SHARED}/kra-certs.p12 .
           docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/kra-clone.cfg -s KRA -v
 
       - name: Verify KRA admin in secondary container
         run: |
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
+          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
           docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec secondary pki client-cert-import \
-              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
+              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec secondary pki -n caadmin kra-user-show kraadmin
 
       - name: Setup tertiary container
@@ -574,28 +574,28 @@ jobs:
         run: docker exec tertiary dnf install -y 389-ds-base
 
       - name: Install DS in tertiary container
-        run: docker exec tertiary ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec tertiary ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install CA in tertiary container
         run: |
-          docker exec secondary pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
-          docker exec secondary pki-server ca-clone-prepare --pkcs12-file ${PKIDIR}/ca-certs.p12 --pkcs12-password Secret.123
-          docker exec tertiary cp ${PKIDIR}/ca_signing.crt .
-          docker exec tertiary cp ${PKIDIR}/ca-certs.p12 .
+          docker exec secondary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec secondary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
+          docker exec tertiary cp ${SHARED}/ca_signing.crt .
+          docker exec tertiary cp ${SHARED}/ca-certs.p12 .
           docker exec tertiary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg -s CA -v
 
       - name: Install KRA in tertiary container
         run: |
-          docker exec secondary pki-server kra-clone-prepare --pkcs12-file ${PKIDIR}/kra-certs.p12 --pkcs12-password Secret.123
-          docker exec tertiary cp ${PKIDIR}/kra-certs.p12 .
+          docker exec secondary pki-server kra-clone-prepare --pkcs12-file ${SHARED}/kra-certs.p12 --pkcs12-password Secret.123
+          docker exec tertiary cp ${SHARED}/kra-certs.p12 .
           docker exec tertiary pkispawn -f /usr/share/pki/server/examples/installation/kra-clone-of-clone.cfg -s KRA -v
 
       - name: Verify KRA admin in tertiary container
         run: |
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec tertiary pki client-cert-import \
-              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
+              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec tertiary pki -n caadmin kra-user-show kraadmin
 
       - name: Gather artifacts from primary container
@@ -626,7 +626,7 @@ jobs:
         run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from tertiary container
-        run: docker exec tertiary ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec tertiary ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Disconnect tertiary container from network
         run: docker network disconnect example tertiary
@@ -638,7 +638,7 @@ jobs:
         run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from secondary container
-        run: docker exec secondary ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec secondary ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Disconnect secondary container from network
         run: docker network disconnect example secondary
@@ -650,7 +650,7 @@ jobs:
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from primary container
-        run: docker exec primary ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec primary ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Disconnect primary container from network
         run: docker network disconnect example primary
@@ -687,7 +687,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -714,7 +714,7 @@ jobs:
         run: docker exec pki dnf install -y 389-ds-base
 
       - name: Install DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-create.sh
 
       - name: Create CA signing cert
         run: |
@@ -817,7 +817,7 @@ jobs:
         run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
 
       - name: Remove DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()

@@ -58,7 +58,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -162,7 +162,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -225,7 +225,7 @@ jobs:
           docker exec ipa ipa-acme-manage enable
           docker exec ipa ipa-acme-manage status
           echo "Available" > expected
-          docker exec ipa bash -c "pki acme-info | sed -n 's/\s*Status:\s\+\(\S\+\).*/\1/p' > ${PKIDIR}/actual"
+          docker exec ipa bash -c "pki acme-info | sed -n 's/\s*Status:\s\+\(\S\+\).*/\1/p' > ${SHARED}/actual"
           diff expected actual
 
       - name: Run client container
@@ -296,7 +296,7 @@ jobs:
           docker exec ipa ipa-acme-manage disable
           docker exec ipa ipa-acme-manage status
           echo "Unavailable" > expected
-          docker exec ipa bash -c "pki acme-info | sed -n 's/\s*Status:\s\+\(\S\+\).*/\1/p' > ${PKIDIR}/actual"
+          docker exec ipa bash -c "pki acme-info | sed -n 's/\s*Status:\s\+\(\S\+\).*/\1/p' > ${SHARED}/actual"
           diff expected actual
 
       - name: Gather artifacts from IPA container
@@ -323,7 +323,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -410,10 +410,10 @@ jobs:
 
       - name: Verify CA admin
         run: |
-          docker exec primary cp /root/ca-agent.p12 ${PKIDIR}/ca-agent.p12
+          docker exec primary cp /root/ca-agent.p12 ${SHARED}/ca-agent.p12
           docker exec secondary pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
-          docker exec secondary pki client-cert-import --pkcs12 ${PKIDIR}/ca-agent.p12 --pkcs12-password Secret.123
+          docker exec secondary pki client-cert-import --pkcs12 ${SHARED}/ca-agent.p12 --pkcs12-password Secret.123
           docker exec secondary pki -n ipa-ca-agent ca-user-show admin
 
       - name: Gather artifacts from primary container

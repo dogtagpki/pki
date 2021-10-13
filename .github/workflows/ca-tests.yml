@@ -59,7 +59,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -171,7 +171,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -226,15 +226,15 @@ jobs:
           docker exec pki bash -c "echo Secret.123 > password.txt"
           docker exec pki certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt
           echo "ec" > expected
-          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep ca_signing | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${PKIDIR}/actual"
+          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep ca_signing | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${SHARED}/actual"
           diff expected actual
-          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep ca_ocsp_signing | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${PKIDIR}/actual"
+          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep ca_ocsp_signing | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${SHARED}/actual"
           diff expected actual
-          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep ca_audit_signing | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${PKIDIR}/actual"
+          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep ca_audit_signing | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${SHARED}/actual"
           diff expected actual
-          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep subsystem | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${PKIDIR}/actual"
+          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep subsystem | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${SHARED}/actual"
           diff expected actual
-          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep sslserver | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${PKIDIR}/actual"
+          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep sslserver | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${SHARED}/actual"
           diff expected actual
 
       - name: Verify CA admin
@@ -270,7 +270,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -338,8 +338,8 @@ jobs:
 
       - name: Install subordinate CA in subordinate container
         run: |
-          docker exec root pki-server cert-export ca_signing --cert-file ${PKIDIR}/root-ca_signing.crt
-          docker exec subordinate cp ${PKIDIR}/root-ca_signing.crt .
+          docker exec root pki-server cert-export ca_signing --cert-file ${SHARED}/root-ca_signing.crt
+          docker exec subordinate cp ${SHARED}/root-ca_signing.crt .
           docker exec subordinate pkispawn \
               -f /usr/share/pki/server/examples/installation/subca.cfg \
               -s CA \
@@ -400,7 +400,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -508,7 +508,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -669,7 +669,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -737,10 +737,10 @@ jobs:
 
       - name: Install CA in secondary container
         run: |
-          docker exec primary pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
-          docker exec primary pki-server ca-clone-prepare --pkcs12-file ${PKIDIR}/ca-certs.p12 --pkcs12-password Secret.123
-          docker exec secondary cp ${PKIDIR}/ca_signing.crt .
-          docker exec secondary cp ${PKIDIR}/ca-certs.p12 .
+          docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
+          docker exec secondary cp ${SHARED}/ca_signing.crt .
+          docker exec secondary cp ${SHARED}/ca-certs.p12 .
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
               -s CA \
@@ -750,12 +750,12 @@ jobs:
 
       - name: Verify CA admin in secondary container
         run: |
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
+          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
           docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec secondary pki client-cert-import \
-              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
+              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec secondary pki -n caadmin ca-user-show caadmin
 
       - name: Run tertiary DS container
@@ -779,10 +779,10 @@ jobs:
 
       - name: Install CA in tertiary container
         run: |
-          docker exec secondary pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
-          docker exec secondary pki-server ca-clone-prepare --pkcs12-file ${PKIDIR}/ca-certs.p12 --pkcs12-password Secret.123
-          docker exec tertiary cp ${PKIDIR}/ca_signing.crt .
-          docker exec tertiary cp ${PKIDIR}/ca-certs.p12 .
+          docker exec secondary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec secondary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
+          docker exec tertiary cp ${SHARED}/ca_signing.crt .
+          docker exec tertiary cp ${SHARED}/ca-certs.p12 .
           docker exec tertiary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg \
               -s CA \
@@ -794,8 +794,8 @@ jobs:
         run: |
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec tertiary pki client-cert-import \
-              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
+              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec tertiary pki -n caadmin ca-user-show caadmin
 
       - name: Gather artifacts from primary container
@@ -867,7 +867,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -894,7 +894,7 @@ jobs:
         run: docker exec pki dnf install -y 389-ds-base
 
       - name: Install DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-create.sh
 
       - name: Create DS signing cert
         run: |
@@ -993,7 +993,7 @@ jobs:
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -1010,7 +1010,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -1043,7 +1043,7 @@ jobs:
         run: docker exec primary dnf install -y 389-ds-base
 
       - name: Install DS in primary container
-        run: docker exec primary ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec primary ${SHARED}/tests/bin/ds-create.sh
 
       - name: Create DS signing cert in primary container
         run: |
@@ -1145,7 +1145,7 @@ jobs:
         run: docker exec secondary dnf install -y 389-ds-base
 
       - name: Install DS in secondary container
-        run: docker exec secondary ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec secondary ${SHARED}/tests/bin/ds-create.sh
 
       - name: Import DS signing cert into secondary container
         run: |
@@ -1153,14 +1153,14 @@ jobs:
               -d /etc/dirsrv/slapd-localhost \
               -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               pkcs12-export \
-              --pkcs12-file ${PKIDIR}/ds_signing.p12 \
+              --pkcs12-file ${SHARED}/ds_signing.p12 \
               --pkcs12-password Secret.123 \
               Self-Signed-CA
           docker exec secondary pki \
               -d /etc/dirsrv/slapd-localhost \
               -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
               pkcs12-import \
-              --pkcs12-file ${PKIDIR}/ds_signing.p12 \
+              --pkcs12-file ${SHARED}/ds_signing.p12 \
               --pkcs12-password Secret.123
           docker exec secondary certutil -L -d /etc/dirsrv/slapd-localhost
 
@@ -1199,10 +1199,10 @@ jobs:
 
       - name: Install CA in secondary container
         run: |
-          docker exec primary pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
-          docker exec primary pki-server ca-clone-prepare --pkcs12-file ${PKIDIR}/ca-certs.p12 --pkcs12-password Secret.123
-          docker exec secondary cp ${PKIDIR}/ca_signing.crt .
-          docker exec secondary cp ${PKIDIR}/ca-certs.p12 .
+          docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
+          docker exec secondary cp ${SHARED}/ca_signing.crt .
+          docker exec secondary cp ${SHARED}/ca-certs.p12 .
           docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg -s CA -v
 
       - name: Run PKI healthcheck in secondary container
@@ -1224,13 +1224,13 @@ jobs:
 
       - name: Verify CA admin in secondary container
         run: |
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
+          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
           docker exec secondary pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec secondary pki client-cert-import \
-              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
+              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec secondary pki -n caadmin ca-user-show caadmin
 
       - name: Gather artifacts from primary container
@@ -1251,13 +1251,13 @@ jobs:
         run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from secondary container
-        run: docker exec secondary ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec secondary ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Remove CA from primary container
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from primary container
-        run: docker exec primary ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec primary ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts from primary container
         if: always()
@@ -1280,7 +1280,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:

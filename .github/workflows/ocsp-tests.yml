@@ -59,7 +59,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -86,7 +86,7 @@ jobs:
         run: docker exec pki dnf install -y 389-ds-base
 
       - name: Install DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install CA
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
@@ -120,7 +120,7 @@ jobs:
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -136,7 +136,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -169,15 +169,15 @@ jobs:
         run: docker exec ca dnf install -y 389-ds-base
 
       - name: Install DS in CA container
-        run: docker exec ca ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec ca ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install CA in CA container
         run: docker exec ca pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
 
       - name: Initialize CA admin in CA container
         run: |
-          docker exec ca pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
-          docker exec ca pki client-cert-import ca_signing --ca-cert ${PKIDIR}/ca_signing.crt
+          docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec ca pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
           docker exec ca pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
@@ -196,52 +196,52 @@ jobs:
         run: docker exec ocsp dnf install -y 389-ds-base
 
       - name: Install DS in OCSP container
-        run: docker exec ocsp ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec ocsp ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install OCSP in OCSP container (step 1)
         run: |
-          docker exec ocsp cp ${PKIDIR}/ca_signing.crt .
+          docker exec ocsp cp ${SHARED}/ca_signing.crt .
           docker exec ocsp pkispawn -f /usr/share/pki/server/examples/installation/ocsp-external-certs-step1.cfg -s OCSP -v
 
       - name: Issue OCSP signing cert
         run: |
-          docker exec ocsp cp ocsp_signing.csr ${PKIDIR}/ocsp_signing.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caOCSPCert --csr-file ${PKIDIR}/ocsp_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/ocsp_signing.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat ocsp_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/ocsp_signing.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat ocsp_signing.certid` --output-file ${PKIDIR}/ocsp_signing.crt"
-          docker exec ocsp cp ${PKIDIR}/ocsp_signing.crt ocsp_signing.crt
+          docker exec ocsp cp ocsp_signing.csr ${SHARED}/ocsp_signing.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caOCSPCert --csr-file ${SHARED}/ocsp_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/ocsp_signing.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat ocsp_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/ocsp_signing.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat ocsp_signing.certid` --output-file ${SHARED}/ocsp_signing.crt"
+          docker exec ocsp cp ${SHARED}/ocsp_signing.crt ocsp_signing.crt
 
       - name: Issue subsystem cert
         run: |
-          docker exec ocsp cp subsystem.csr ${PKIDIR}/subsystem.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${PKIDIR}/subsystem.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/subsystem.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat subsystem.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/subsystem.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat subsystem.certid` --output-file ${PKIDIR}/subsystem.crt"
-          docker exec ocsp cp ${PKIDIR}/subsystem.crt subsystem.crt
+          docker exec ocsp cp subsystem.csr ${SHARED}/subsystem.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${SHARED}/subsystem.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/subsystem.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat subsystem.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/subsystem.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat subsystem.certid` --output-file ${SHARED}/subsystem.crt"
+          docker exec ocsp cp ${SHARED}/subsystem.crt subsystem.crt
 
       - name: Issue SSL server cert
         run: |
-          docker exec ocsp cp sslserver.csr ${PKIDIR}/sslserver.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caServerCert --csr-file ${PKIDIR}/sslserver.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/sslserver.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat sslserver.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/sslserver.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat sslserver.certid` --output-file ${PKIDIR}/sslserver.crt"
-          docker exec ocsp cp ${PKIDIR}/sslserver.crt sslserver.crt
+          docker exec ocsp cp sslserver.csr ${SHARED}/sslserver.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caServerCert --csr-file ${SHARED}/sslserver.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/sslserver.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat sslserver.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/sslserver.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat sslserver.certid` --output-file ${SHARED}/sslserver.crt"
+          docker exec ocsp cp ${SHARED}/sslserver.crt sslserver.crt
 
       - name: Issue OCSP audit signing cert
         run: |
-          docker exec ocsp cp ocsp_audit_signing.csr ${PKIDIR}/ocsp_audit_signing.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${PKIDIR}/ocsp_audit_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/ocsp_audit_signing.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat ocsp_audit_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/ocsp_audit_signing.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat ocsp_audit_signing.certid` --output-file ${PKIDIR}/ocsp_audit_signing.crt"
-          docker exec ocsp cp ${PKIDIR}/ocsp_audit_signing.crt ocsp_audit_signing.crt
+          docker exec ocsp cp ocsp_audit_signing.csr ${SHARED}/ocsp_audit_signing.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${SHARED}/ocsp_audit_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/ocsp_audit_signing.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat ocsp_audit_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/ocsp_audit_signing.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat ocsp_audit_signing.certid` --output-file ${SHARED}/ocsp_audit_signing.crt"
+          docker exec ocsp cp ${SHARED}/ocsp_audit_signing.crt ocsp_audit_signing.crt
 
       - name: Issue OCSP admin cert
         run: |
-          docker exec ocsp cp ocsp_admin.csr ${PKIDIR}/ocsp_admin.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caUserCert --csr-file ${PKIDIR}/ocsp_admin.csr --subject uid=ocspadmin | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/ocsp_admin.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat ocsp_admin.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/ocsp_admin.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat ocsp_admin.certid` --output-file ${PKIDIR}/ocsp_admin.crt"
-          docker exec ocsp cp ${PKIDIR}/ocsp_admin.crt ocsp_admin.crt
+          docker exec ocsp cp ocsp_admin.csr ${SHARED}/ocsp_admin.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caUserCert --csr-file ${SHARED}/ocsp_admin.csr --subject uid=ocspadmin | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/ocsp_admin.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat ocsp_admin.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/ocsp_admin.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat ocsp_admin.certid` --output-file ${SHARED}/ocsp_admin.crt"
+          docker exec ocsp cp ${SHARED}/ocsp_admin.crt ocsp_admin.crt
 
       - name: Install OCSP in OCSP container (step 2)
         run: |
@@ -276,7 +276,7 @@ jobs:
         run: docker exec ocsp pkidestroy -i pki-tomcat -s OCSP -v
 
       - name: Remove DS from OCSP container
-        run: docker exec ocsp ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec ocsp ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Disconnect OCSP container from network
         run: docker network disconnect example ocsp
@@ -285,7 +285,7 @@ jobs:
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from CA container
-        run: docker exec ca ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec ca ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Disconnect CA container from network
         run: docker network disconnect example ca
@@ -315,7 +315,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -348,7 +348,7 @@ jobs:
         run: docker exec primary dnf install -y 389-ds-base
 
       - name: Install DS in primary container
-        run: docker exec primary ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec primary ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install primary CA in primary container
         run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
@@ -370,30 +370,30 @@ jobs:
         run: docker exec secondary dnf install -y 389-ds-base
 
       - name: Install DS in secondary container
-        run: docker exec secondary ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec secondary ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install CA in secondary container
         run: |
-          docker exec primary pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
-          docker exec primary pki-server ca-clone-prepare --pkcs12-file ${PKIDIR}/ca-certs.p12 --pkcs12-password Secret.123
-          docker exec secondary cp ${PKIDIR}/ca_signing.crt .
-          docker exec secondary cp ${PKIDIR}/ca-certs.p12 .
+          docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
+          docker exec secondary cp ${SHARED}/ca_signing.crt .
+          docker exec secondary cp ${SHARED}/ca-certs.p12 .
           docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone.cfg -s CA -v
 
       - name: Install OCSP in secondary container
         run: |
-          docker exec primary pki-server ocsp-clone-prepare --pkcs12-file ${PKIDIR}/ocsp-certs.p12 --pkcs12-password Secret.123
-          docker exec secondary cp ${PKIDIR}/ocsp-certs.p12 .
+          docker exec primary pki-server ocsp-clone-prepare --pkcs12-file ${SHARED}/ocsp-certs.p12 --pkcs12-password Secret.123
+          docker exec secondary cp ${SHARED}/ocsp-certs.p12 .
           docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ocsp-clone.cfg -s OCSP -v
 
       - name: Verify OCSP admin in secondary container
         run: |
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
+          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
           docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec secondary pki client-cert-import \
-              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
+              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec secondary pki -n caadmin ocsp-user-show ocspadmin
 
       - name: Setup tertiary container
@@ -410,28 +410,28 @@ jobs:
         run: docker exec tertiary dnf install -y 389-ds-base
 
       - name: Install DS in tertiary container
-        run: docker exec tertiary ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec tertiary ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install CA in tertiary container
         run: |
-          docker exec secondary pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
-          docker exec secondary pki-server ca-clone-prepare --pkcs12-file ${PKIDIR}/ca-certs.p12 --pkcs12-password Secret.123
-          docker exec tertiary cp ${PKIDIR}/ca_signing.crt .
-          docker exec tertiary cp ${PKIDIR}/ca-certs.p12 .
+          docker exec secondary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec secondary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
+          docker exec tertiary cp ${SHARED}/ca_signing.crt .
+          docker exec tertiary cp ${SHARED}/ca-certs.p12 .
           docker exec tertiary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg -s CA -v
 
       - name: Install OCSP in tertiary container
         run: |
-          docker exec secondary pki-server ocsp-clone-prepare --pkcs12-file ${PKIDIR}/ocsp-certs.p12 --pkcs12-password Secret.123
-          docker exec tertiary cp ${PKIDIR}/ocsp-certs.p12 .
+          docker exec secondary pki-server ocsp-clone-prepare --pkcs12-file ${SHARED}/ocsp-certs.p12 --pkcs12-password Secret.123
+          docker exec tertiary cp ${SHARED}/ocsp-certs.p12 .
           docker exec tertiary pkispawn -f /usr/share/pki/server/examples/installation/ocsp-clone-of-clone.cfg -s OCSP -v
 
       - name: Verify OCSP admin in tertiary container
         run: |
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec tertiary pki client-cert-import \
-              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
+              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec tertiary pki -n caadmin ocsp-user-show ocspadmin
 
       - name: Gather artifacts from primary container
@@ -462,7 +462,7 @@ jobs:
         run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from tertiary container
-        run: docker exec tertiary ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec tertiary ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Disconnect tertiary container from network
         run: docker network disconnect example tertiary
@@ -474,7 +474,7 @@ jobs:
         run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from secondary container
-        run: docker exec secondary ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec secondary ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Disconnect secondary container from network
         run: docker network disconnect example secondary
@@ -486,7 +486,7 @@ jobs:
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from primary container
-        run: docker exec primary ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec primary ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Disconnect primary container from network
         run: docker network disconnect example primary
@@ -523,7 +523,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -550,7 +550,7 @@ jobs:
         run: docker exec pki dnf install -y 389-ds-base
 
       - name: Install DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-create.sh
 
       - name: Create CA signing cert
         run: |
@@ -644,7 +644,7 @@ jobs:
         run: docker exec pki pkidestroy -i pki-tomcat -s OCSP -v
 
       - name: Remove DS
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()

@@ -61,7 +61,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:

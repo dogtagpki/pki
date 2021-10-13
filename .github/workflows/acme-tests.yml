@@ -78,7 +78,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -111,7 +111,7 @@ jobs:
         run: docker exec pki dnf install -y 389-ds-base
 
       - name: Install DS in PKI container
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install CA in PKI container
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
@@ -213,7 +213,7 @@ jobs:
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from PKI container
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -230,7 +230,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
@@ -263,7 +263,7 @@ jobs:
         run: docker exec pki dnf install -y 389-ds-base jq
 
       - name: Install DS in PKI container
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-create.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-create.sh
 
       - name: Install CA in PKI container
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
@@ -308,7 +308,7 @@ jobs:
       - name: Verify ACME directory before switchover
         run: |
           echo http://server1.example.com:8080/acme/new-nonce > expected
-          docker exec pki bash -c "curl -s -k http://pki.example.com:8080/acme/directory | jq -r '.newNonce' > ${PKIDIR}/actual"
+          docker exec pki bash -c "curl -s -k http://pki.example.com:8080/acme/directory | jq -r '.newNonce' > ${SHARED}/actual"
           diff expected actual
 
       - name: Verify registration and enrollment before switchover
@@ -340,7 +340,7 @@ jobs:
       - name: Verify ACME directory after switchover
         run: |
           echo http://server2.example.com:8080/acme/new-nonce > expected
-          docker exec pki bash -c "curl -s -k http://pki.example.com:8080/acme/directory | jq -r '.newNonce' > ${PKIDIR}/actual"
+          docker exec pki bash -c "curl -s -k http://pki.example.com:8080/acme/directory | jq -r '.newNonce' > ${SHARED}/actual"
           diff expected actual
 
       - name: Verify renewal, revocation, account update and deactivation after switchover
@@ -379,7 +379,7 @@ jobs:
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from PKI container
-        run: docker exec pki ${PKIDIR}/tests/bin/ds-remove.sh
+        run: docker exec pki ${SHARED}/tests/bin/ds-remove.sh
 
       - name: Upload artifacts
         if: always()
@@ -395,7 +395,7 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
-      PKIDIR: /tmp/workdir/pki
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
