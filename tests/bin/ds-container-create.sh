@@ -21,15 +21,24 @@ fi
 
 max_wait=60 # seconds
 
+echo "Creating DS volume"
+
+docker volume create $NAME-data > /dev/null
+
 echo "Creating DS container"
 
 docker create \
     --name=$NAME \
     --hostname=$HOSTNAME \
+    -v $NAME-data:/data \
     -e DS_DM_PASSWORD=$PASSWORD \
     quay.io/389ds/dirsrv > /dev/null
 
 $SCRIPT_DIR/ds-container-start.sh $NAME
+
+echo "Creating certs folder"
+
+docker exec $NAME mkdir -p /data/tls/ca
 
 echo "Creating suffix"
 
