@@ -13,7 +13,6 @@ javac(pki-tools-classes
     SOURCES
         src/main/java/*.java
     CLASSPATH
-        ${XALAN_JAR} ${XERCES_JAR}
         ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
         ${JSS_JAR} ${LDAPJDK_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
         ${COMMONS_CLI_JAR} ${COMMONS_LANG3_JAR}

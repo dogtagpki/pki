@@ -55,7 +55,6 @@ run_dev_junit_tests() {
     CLASSPATH=$CLASSPATH:/usr/share/java/apache-commons-lang3.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/istack-commons-runtime.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/servlet.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/xerces-j2.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/tomcat/catalina.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/tomcat/tomcat-util.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/commons-io.jar

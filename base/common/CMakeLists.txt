@@ -6,7 +6,7 @@ javac(pki-certsrv-classes
         src/main/java/*.java
     CLASSPATH
         ${SLF4J_API_JAR}
-        ${LDAPJDK_JAR} ${SERVLET_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${LDAPJDK_JAR} ${SERVLET_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
         ${COMMONS_LANG3_JAR} ${COMMONS_CLI_JAR}
         ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
