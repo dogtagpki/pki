@@ -1,8 +1,11 @@
 #!/bin/bash -e
 
+NAME=$1
+
 if [ "$NAME" == "" ]
 then
-    NAME=ds
+    echo "Usage: ds-container-remove.sh <name>"
+    exit 1
 fi
 
 echo "Stopping DS container"

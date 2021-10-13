@@ -79,9 +79,9 @@ jobs:
         run: docker network create example
 
       - name: Run DS container
-        run: tests/bin/ds-container-create.sh
+        run: |
+          tests/bin/ds-container-create.sh ds
         env:
-          NAME: ds
           HOSTNAME: ds.example.com
 
       - name: Connect DS container to network
@@ -191,9 +191,9 @@ jobs:
         run: docker network create example
 
       - name: Run DS container
-        run: tests/bin/ds-container-create.sh
+        run: |
+          tests/bin/ds-container-create.sh ds
         env:
-          NAME: ds
           HOSTNAME: ds.example.com
 
       - name: Connect DS container to network
@@ -290,9 +290,9 @@ jobs:
         run: docker network create example
 
       - name: Run root DS container
-        run: tests/bin/ds-container-create.sh
+        run: |
+          tests/bin/ds-container-create.sh rootds
         env:
-          NAME: rootds
           HOSTNAME: rootds.example.com
 
       - name: Connect root DS container to network
@@ -318,9 +318,9 @@ jobs:
               -v
 
       - name: Run subordinate DS container
-        run: tests/bin/ds-container-create.sh
+        run: |
+          tests/bin/ds-container-create.sh subds
         env:
-          NAME: subds
           HOSTNAME: subds.example.com
 
       - name: Connect subordinate DS container to network
@@ -420,9 +420,9 @@ jobs:
         run: docker network create example
 
       - name: Run DS container
-        run: tests/bin/ds-container-create.sh
+        run: |
+          tests/bin/ds-container-create.sh ds
         env:
-          NAME: ds
           HOSTNAME: ds.example.com
 
       - name: Connect DS container to network
@@ -528,9 +528,9 @@ jobs:
         run: docker network create example
 
       - name: Run DS container
-        run: tests/bin/ds-container-create.sh
+        run: |
+          tests/bin/ds-container-create.sh ds
         env:
-          NAME: ds
           HOSTNAME: ds.example.com
 
       - name: Connect DS container to network
@@ -689,9 +689,9 @@ jobs:
         run: docker network create example
 
       - name: Run primary DS container
-        run: tests/bin/ds-container-create.sh
+        run: |
+          tests/bin/ds-container-create.sh primaryds
         env:
-          NAME: primaryds
           HOSTNAME: primaryds.example.com
 
       - name: Connect primary DS container to network
@@ -717,9 +717,9 @@ jobs:
               -v
 
       - name: Run secondary DS container
-        run: tests/bin/ds-container-create.sh
+        run: |
+          tests/bin/ds-container-create.sh secondaryds
         env:
-          NAME: secondaryds
           HOSTNAME: secondaryds.example.com
 
       - name: Connect secondary DS container to network
@@ -759,9 +759,9 @@ jobs:
           docker exec secondary pki -n caadmin ca-user-show caadmin
 
       - name: Run tertiary DS container
-        run: tests/bin/ds-container-create.sh
+        run: |
+          tests/bin/ds-container-create.sh tertiaryds
         env:
-          NAME: tertiaryds
           HOSTNAME: tertiaryds.example.com
 
       - name: Connect tertiary DS container to network
@@ -1300,9 +1300,9 @@ jobs:
         run: docker network create example
 
       - name: Run DS container
-        run: tests/bin/ds-container-create.sh
+        run: |
+          tests/bin/ds-container-create.sh ds
         env:
-          NAME: ds
           HOSTNAME: ds.example.com
 
       - name: Connect DS container to network

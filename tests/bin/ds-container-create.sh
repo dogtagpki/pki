@@ -2,9 +2,12 @@
 
 # https://fy.blackhats.net.au/blog/html/2020/03/28/389ds_in_containers.html
 
+NAME=$1
+
 if [ "$NAME" == "" ]
 then
-    NAME=ds
+    echo "Usage: ds-container-create.sh <name>"
+    exit 1
 fi
 
 if [ "$PASSWORD" == "" ]
@@ -34,7 +37,7 @@ while :
 do
     sleep 1
 
-    docker exec -i $NAME \
+    docker exec $NAME \
         ldapsearch \
         -H ldap://$HOSTNAME:3389 \
         -D "cn=Directory Manager" \
@@ -63,7 +66,7 @@ done
 
 echo "Creating suffix"
 
-docker exec -i $NAME \
+docker exec $NAME \
     dsconf localhost backend create \
         --suffix dc=example,dc=com \
         --be-name userRoot > /dev/null
@@ -75,7 +78,7 @@ fi
 
 echo "Adding base entries"
 
-docker exec -i $NAME \
+docker exec $NAME \
     ldapadd \
     -H ldap://$HOSTNAME:3389 \
     -D "cn=Directory Manager" \
