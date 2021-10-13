@@ -16,4 +16,8 @@ echo "Removing DS container"
 
 docker rm $NAME > /dev/null
 
+echo "Removing DS volume"
+
+docker volume rm $NAME-data > /dev/null
+
 echo "DS container has been removed"
