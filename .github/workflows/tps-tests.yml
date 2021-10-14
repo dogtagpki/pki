@@ -75,30 +75,65 @@ jobs:
       - name: Load runner image
         run: docker load --input /tmp/pki-runner.tar
 
-      - name: Run container
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          HOSTNAME: ds.example.com
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
         run: |
           IMAGE=pki-runner \
           NAME=pki \
           HOSTNAME=pki.example.com \
           tests/bin/runner-init.sh
 
-      - name: Install dependencies
-        run: docker exec pki dnf install -y 389-ds-base
-
-      - name: Install DS
-        run: docker exec pki ${SHARED}/tests/bin/ds-create.sh
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
 
       - name: Install CA
-        run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Install KRA
-        run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/kra.cfg -s KRA -v
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Install TKS
-        run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/tks.cfg -s TKS -v
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/tks.cfg \
+              -s TKS \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
       - name: Install TPS
-        run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/tps.cfg -s TPS -v
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/tps.cfg \
+              -s TPS \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_authdb_hostname=ds.example.com \
+              -D pki_authdb_port=3389 \
+              -v
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
@@ -117,14 +152,16 @@ jobs:
           #
           # import sample TPS users
           #
-          docker exec pki ldapadd -h pki.example.com -p 389 \
+          docker exec ds ldapadd \
+              -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -f /usr/share/pki/tps/auth/ds/create.ldif
-          docker exec pki ldapadd -h pki.example.com -p 389 \
+              -f $SHARED/base/tps/auth/ds/create.ldif
+          docker exec ds ldapadd \
+              -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -f /usr/share/pki/tps/auth/ds/example.ldif
+              -f $SHARED/base/tps/auth/ds/example.ldif
           #
           # configure TPS to use the sample TPS users
           #
@@ -167,7 +204,7 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
@@ -183,9 +220,6 @@ jobs:
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS
-        run: docker exec pki ${SHARED}/tests/bin/ds-remove.sh
-
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
@@ -195,8 +229,8 @@ jobs:
             /tmp/artifacts/pki
 
   # docs/installation/tps/Installing_TPS_Clone.md
-  # This test installs DS, CA, KRA, TKS, and TPS in the primary container,
-  # then installs DS clone, CA clone, KRA clone, TKS clone, and TPS clone in the secondary container.
+  # This test installs DS, CA, KRA, TKS, and TPS in the primary containers,
+  # then installs DS clone, CA clone, KRA clone, TKS clone, and TPS clone in the secondary containers.
   tps-clone-test:
     name: Testing TPS clone
     needs: [init, build]
@@ -221,75 +255,129 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Run primary container
+      - name: Set up primary DS container
+        run: |
+          tests/bin/ds-container-create.sh primaryds
+        env:
+          HOSTNAME: primaryds.example.com
+
+      - name: Connect primary DS container to network
+        run: docker network connect example primaryds --alias primaryds.example.com
+
+      - name: Set up primary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=primary \
           HOSTNAME=primary.example.com \
           tests/bin/runner-init.sh
 
-      - name: Connect primary container to network
+      - name: Connect primary PKI container to network
         run: docker network connect example primary --alias primary.example.com
 
-      - name: Install dependencies in primary container
-        run: docker exec primary dnf install -y 389-ds-base
+      - name: Install CA in primary PKI container
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=primaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Install DS in primary container
-        run: docker exec primary ${SHARED}/tests/bin/ds-create.sh
+      - name: Install KRA in primary PKI container
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_hostname=primaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Install CA in primary container
-        run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+      - name: Install TKS in primary PKI container
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/tks.cfg \
+              -s TKS \
+              -D pki_ds_hostname=primaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Install KRA in primary container
-        run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/kra.cfg -s KRA -v
+      - name: Install TPS in primary PKI container
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/tps.cfg \
+              -s TPS \
+              -D pki_ds_hostname=primaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_authdb_hostname=primaryds.example.com \
+              -D pki_authdb_port=3389 \
+              -v
 
-      - name: Install TKS in primary container
-        run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/tks.cfg -s TKS -v
+      - name: Set up secondary DS container
+        run: |
+          tests/bin/ds-container-create.sh secondaryds
+        env:
+          HOSTNAME: secondaryds.example.com
 
-      - name: Install TPS in primary container
-        run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/tps.cfg -s TPS -v
+      - name: Connect secondary DS container to network
+        run: docker network connect example secondaryds --alias secondaryds.example.com
 
-      - name: Setup secondary container
+      - name: Set up secondary PKI container
         run: |
           IMAGE=pki-runner \
           NAME=secondary \
           HOSTNAME=secondary.example.com \
           tests/bin/runner-init.sh
 
-      - name: Connect secondary container to network
+      - name: Connect secondary PKI container to network
         run: docker network connect example secondary --alias secondary.example.com
 
-      - name: Install dependencies in secondary container
-        run: docker exec secondary dnf install -y 389-ds-base
-
-      - name: Install DS in secondary container
-        run: docker exec secondary ${SHARED}/tests/bin/ds-create.sh
-
-      - name: Install CA in secondary container
+      - name: Install CA in secondary PKI container
         run: |
           docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
           docker exec secondary cp ${SHARED}/ca_signing.crt .
           docker exec secondary cp ${SHARED}/ca-certs.p12 .
-          docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone.cfg -s CA -v
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
+              -s CA \
+              -D pki_ds_hostname=secondaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Install KRA in secondary container
+      - name: Install KRA in secondary PKI container
         run: |
           docker exec primary pki-server kra-clone-prepare --pkcs12-file ${SHARED}/kra-certs.p12 --pkcs12-password Secret.123
           docker exec secondary cp ${SHARED}/kra-certs.p12 .
-          docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/kra-clone.cfg -s KRA -v
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-clone.cfg \
+              -s KRA \
+              -D pki_ds_hostname=secondaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Install TKS in secondary container
+      - name: Install TKS in secondary PKI container
         run: |
           docker exec primary pki-server tks-clone-prepare --pkcs12-file ${SHARED}/tks-certs.p12 --pkcs12-password Secret.123
           docker exec secondary cp ${SHARED}/tks-certs.p12 .
-          docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/tks-clone.cfg -s TKS -v
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/tks-clone.cfg \
+              -s TKS \
+              -D pki_ds_hostname=secondaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
 
-      - name: Install TPS in secondary container
+      - name: Install TPS in secondary PKI container
         run: |
           docker exec primary pki-server tps-clone-prepare --pkcs12-file ${SHARED}/tps-certs.p12 --pkcs12-password Secret.123
           docker exec secondary cp ${SHARED}/tps-certs.p12 .
-          docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/tps-clone.cfg -s TPS -v
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/tps-clone.cfg \
+              -s TPS \
+              -D pki_ds_hostname=secondaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_authdb_hostname=secondaryds.example.com \
+              -D pki_authdb_port=3389 \
+              -v
 
       - name: Verify admin user
         run: |
@@ -301,60 +389,45 @@ jobs:
               --pkcs12-password-file ${SHARED}/pkcs12_password.conf
           docker exec secondary pki -n caadmin tps-user-show tpsadmin
 
-      - name: Gather artifacts from primary container
+      - name: Gather artifacts from primary containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh primary
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/primary primaryds
           tests/bin/pki-artifacts-save.sh primary
         continue-on-error: true
 
-      - name: Gather artifacts from secondary container
+      - name: Gather artifacts from secondary containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh secondary
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/secondary secondaryds
           tests/bin/pki-artifacts-save.sh secondary
         continue-on-error: true
 
-      - name: Remove TPS from secondary container
+      - name: Remove TPS from secondary PKI container
         run: docker exec secondary pkidestroy -i pki-tomcat -s TPS -v
 
-      - name: Remove TKS from secondary container
+      - name: Remove TKS from secondary PKI container
         run: docker exec secondary pkidestroy -i pki-tomcat -s TKS -v
 
-      - name: Remove KRA from secondary container
+      - name: Remove KRA from secondary PKI container
         run: docker exec secondary pkidestroy -i pki-tomcat -s KRA -v
 
-      - name: Remove CA from secondary container
+      - name: Remove CA from secondary PKI container
         run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from secondary container
-        run: docker exec secondary ${SHARED}/tests/bin/ds-remove.sh
-
-      - name: Disconnect secondary container from network
-        run: docker network disconnect example secondary
-
-      - name: Remove TPS from primary container
+      - name: Remove TPS from primary PKI container
         run: docker exec primary pkidestroy -i pki-tomcat -s TPS -v
 
-      - name: Remove TKS from primary container
+      - name: Remove TKS from primary PKI container
         run: docker exec primary pkidestroy -i pki-tomcat -s TKS -v
 
-      - name: Remove KRA from primary container
+      - name: Remove KRA from primary PKI container
         run: docker exec primary pkidestroy -i pki-tomcat -s KRA -v
 
-      - name: Remove CA from primary container
+      - name: Remove CA from primary PKI container
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from primary container
-        run: docker exec primary ${SHARED}/tests/bin/ds-remove.sh
-
-      - name: Disconnect primary container from network
-        run: docker network disconnect example primary
-
-      - name: Remove network
-        run: docker network rm example
-
-      - name: Upload artifacts from primary container
+      - name: Upload artifacts from primary containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
@@ -362,7 +435,7 @@ jobs:
           path: |
             /tmp/artifacts/primary
 
-      - name: Upload artifacts from secondary container
+      - name: Upload artifacts from secondary containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
