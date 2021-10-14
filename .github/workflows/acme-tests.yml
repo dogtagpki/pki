@@ -260,7 +260,7 @@ jobs:
         run: docker network connect example pki --alias pki.example.com --alias server1.example.com
 
       - name: Install dependencies in PKI container
-        run: docker exec pki dnf install -y 389-ds-base jq
+        run: docker exec pki dnf install -y 389-ds-base
 
       - name: Install DS in PKI container
         run: docker exec pki ${SHARED}/tests/bin/ds-create.sh
@@ -303,12 +303,12 @@ jobs:
         run: docker network connect example client --alias client1.example.com --alias client2.example.com
 
       - name: Install dependencies in client container
-        run: docker exec client dnf install -y certbot
+        run: docker exec client dnf install -y certbot jq
 
       - name: Verify ACME directory before switchover
         run: |
           echo http://server1.example.com:8080/acme/new-nonce > expected
-          docker exec pki bash -c "curl -s -k http://pki.example.com:8080/acme/directory | jq -r '.newNonce' > ${SHARED}/actual"
+          docker exec client bash -c "curl -s -k http://pki.example.com:8080/acme/directory | jq -r '.newNonce' > ${SHARED}/actual"
           diff expected actual
 
       - name: Verify registration and enrollment before switchover
@@ -340,7 +340,7 @@ jobs:
       - name: Verify ACME directory after switchover
         run: |
           echo http://server2.example.com:8080/acme/new-nonce > expected
-          docker exec pki bash -c "curl -s -k http://pki.example.com:8080/acme/directory | jq -r '.newNonce' > ${SHARED}/actual"
+          docker exec client bash -c "curl -s -k http://pki.example.com:8080/acme/directory | jq -r '.newNonce' > ${SHARED}/actual"
           diff expected actual
 
       - name: Verify renewal, revocation, account update and deactivation after switchover
