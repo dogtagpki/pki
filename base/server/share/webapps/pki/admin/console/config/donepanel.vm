@@ -57,7 +57,6 @@ Please go to the <A href="https://$host:$port/$systemType/services"><b>services 
 #end
 #end
 <br/>
-To create additional instances, type "/usr/bin/pkicreate" on the command line.
 #if ($systemType != "tps")
 <br>
 To start the administration console, type "/usr/bin/pkiconsole" on the command line.

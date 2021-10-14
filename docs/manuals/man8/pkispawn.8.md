@@ -57,13 +57,6 @@ see the Red Hat Certificate System Documentation at https://access.redhat.com/kn
 
 Instances created using **pkispawn** can be removed using **pkidestroy**.  See **pkidestroy(8)**.
 
-**pkispawn** supersedes and combines the functionality of **pkicreate** and **pkisilent**, which were available in earlier releases of Certificate Server.  It is now possible to completely create and configure the Certificate Server subsystem in a single step using **pkispawn**.
-
-**Note:**
-Previously, as an alternative to using **pkisilent** to perform a non-interactive batch configuration,
-a PKI instance could be interactively configured by a GUI-based configuration wizard via a Firefox browser.
-GUI-based configuration of a PKI instance is unavailable in this version of the product.
-
 ## OPTIONS
 
 **-s** *subsystem*  
