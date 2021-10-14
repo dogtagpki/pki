@@ -330,22 +330,17 @@ public abstract class EnrollProfile extends Profile {
             if (cmc_msgs == null) {
                 logger.debug(method + "parseCMC returns cmc_msgs null");
                 return null;
-            } else {
-                num_requests = cmc_msgs.length;
-                logger.debug(method + "parseCMC returns cmc_msgs num_requests=" +
-                        num_requests);
             }
+            num_requests = cmc_msgs.length;
+            logger.debug(method + "parseCMC returns cmc_msgs num_requests=" +
+                    num_requests);
         }
 
         // only 1 request for renewal
-        if ((is_renewal != null) && (is_renewal.equals("true"))) {
+        if (is_renewal != null && is_renewal.equals("true")) {
             num_requests = 1;
             String renewal_seq_num_str = ctx.get(CTX_RENEWAL_SEQ_NUM);
-            if (renewal_seq_num_str != null) {
-                renewal_seq_num = Integer.parseInt(renewal_seq_num_str);
-            } else {
-                renewal_seq_num = 0;
-            }
+            renewal_seq_num = renewal_seq_num_str == null ? 0 : Integer.parseInt(renewal_seq_num_str);
         }
 
         // populate requests with appropriate content
@@ -353,11 +348,11 @@ public abstract class EnrollProfile extends Profile {
 
         for (int i = 0; i < num_requests; i++) {
             result[i] = createEnrollmentRequest();
-            if ((is_renewal != null) && (is_renewal.equals("true"))) {
+            if (is_renewal != null && is_renewal.equals("true")) {
                 result[i].setExtData(REQUEST_SEQ_NUM, renewal_seq_num);
             } else {
                 result[i].setExtData(REQUEST_SEQ_NUM, Integer.valueOf(i));
-                if ((cmc_msgs != null) && (cmc_msgs[i] != null)) {
+                if (cmc_msgs != null && cmc_msgs[i] != null) {
                     logger.debug(method + "setting cmc TaggedRequest in request");
                     result[i].setExtData(
                             IRequest.CTX_CERT_REQUEST,
@@ -407,16 +402,16 @@ public abstract class EnrollProfile extends Profile {
                     new CertificateSerialNumber(new BigInteger("0")));
             ICertificateAuthority authority =
                     (ICertificateAuthority) getAuthority();
-            if (authority.getIssuerObj() != null) {
+            if (authority.getIssuerObj() == null) {
+                logger.debug("EnrollProfile: setDefaultCertInfo: authority.getIssuerObj() is null, creating new CertificateIssuerName");
+                info.set(X509CertInfo.ISSUER,
+                        new CertificateIssuerName(issuerName));
+            } else {
                 // this ensures the isserDN has the same encoding as the
                 // subjectDN of the CA signing cert
                 logger.debug("EnrollProfile: setDefaultCertInfo: setting issuerDN using exact CA signing cert subjectDN encoding");
                 info.set(X509CertInfo.ISSUER,
                         authority.getIssuerObj());
-            } else {
-                logger.debug("EnrollProfile: setDefaultCertInfo: authority.getIssuerObj() is null, creating new CertificateIssuerName");
-                info.set(X509CertInfo.ISSUER,
-                        new CertificateIssuerName(issuerName));
             }
             info.set(X509CertInfo.KEY,
                     new CertificateX509Key(X509Key.parse(new DerValue(dummykey))));
@@ -525,117 +520,114 @@ public abstract class EnrollProfile extends Profile {
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         byte[] req_key_data = req.getExtDataInByteArray(IRequest.REQUEST_KEY);
-        if (req_key_data != null) {
-            logger.debug(method + "found user public key in request");
-
-            // generate a challenge of 64 bytes;
-            SecureRandom random = jssSubsystem.getRandomNumberGenerator();
-            byte[] challenge = new byte[64];
-            random.nextBytes(challenge);
-
-            ICertificateAuthority authority = (ICertificateAuthority) getAuthority();
-            PublicKey issuanceProtPubKey = authority.getIssuanceProtPubKey();
-            if (issuanceProtPubKey != null)
-                logger.debug(method + "issuanceProtPubKey not null");
-            else {
-                msg = method + "issuanceProtPubKey null";
-                logger.error(msg);
-                throw new EBaseException(method + msg);
-            }
-
-            try {
-                CryptoToken token = null;
-                String tokenName = cs.getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
-                token = CryptoUtil.getCryptoToken(tokenName);
-
-                boolean useOAEP = cs.getBoolean("keyWrap.useOAEP",false);
-
-                byte[] iv = CryptoUtil.getNonceData(EncryptionAlgorithm.AES_128_CBC.getIVLength());
-                IVParameterSpec ivps = new IVParameterSpec(iv);
-
-                PublicKey userPubKey = X509Key.parsePublicKey(new DerValue(req_key_data));
-                if (userPubKey == null) {
-                    msg = method + "userPubKey null after X509Key.parsePublicKey";
-                    logger.error(msg);
-                    throw new EBaseException(msg);
-                }
-
-                SymmetricKey symKey = CryptoUtil.generateKey(
-                        token,
-                        KeyGenAlgorithm.AES,
-                        128,
-                        null,
-                        true);
-
-                byte[] pop_encryptedData = CryptoUtil.encryptUsingSymmetricKey(
-                        token,
-                        symKey,
-                        challenge,
-                        EncryptionAlgorithm.AES_128_CBC,
-                        ivps);
-
-                if (pop_encryptedData == null) {
-                    msg = method + "pop_encryptedData null";
-                    logger.error(msg);
-                    throw new EBaseException(msg);
-                }
-
-                KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
-                if(useOAEP) {
-                    wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
-                }
-
-                byte[] pop_sysPubEncryptedSession =  CryptoUtil.wrapUsingPublicKey(
-                        token,
-                        issuanceProtPubKey,
-                        symKey,
-                        wrapAlg);
-
-                if (pop_sysPubEncryptedSession == null) {
-                    msg = method + "pop_sysPubEncryptedSession null";
-                    logger.error(msg);
-                    throw new EBaseException(msg);
-                }
-
-
-                byte[] pop_userPubEncryptedSession = CryptoUtil.wrapUsingPublicKey(
-                        token,
-                        userPubKey,
-                        symKey,
-                        wrapAlg);
-
-                if (pop_userPubEncryptedSession == null) {
-                    msg = method + "pop_userPubEncryptedSession null";
-                    logger.error(msg);
-                    throw new EBaseException(msg);
-                }
-                logger.debug(method + "POP challenge fields generated successfully...setting request extData");
-
-                req.setExtData("pop_encryptedData", pop_encryptedData);
-
-                req.setExtData("pop_sysPubEncryptedSession", pop_sysPubEncryptedSession);
-
-                req.setExtData("pop_userPubEncryptedSession", pop_userPubEncryptedSession);
-
-                req.setExtData("pop_encryptedDataIV", iv);
-
-                // now compute and set witness
-                logger.debug(method + "now compute and set witness");
-                String hashName = CryptoUtil.getDefaultHashAlgName();
-                logger.debug(method + "hashName is " + hashName);
-                MessageDigest hash = MessageDigest.getInstance(hashName);
-                byte[] witness = hash.digest(challenge);
-                req.setExtData("pop_witness", witness);
-
-            } catch (Exception e) {
-                String message = "Unable to generate POP challenge: " + e.getMessage();
-                logger.error(message, e);
-                throw new EBaseException(message, e);
-            }
-
-        } else {
+        if (req_key_data == null) {
             logger.error(method + " public key not found in request");
             throw new EBaseException(method + " public key not found in request");
+        }
+        logger.debug(method + "found user public key in request");
+
+        // generate a challenge of 64 bytes;
+        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
+        byte[] challenge = new byte[64];
+        random.nextBytes(challenge);
+
+        ICertificateAuthority authority = (ICertificateAuthority) getAuthority();
+        PublicKey issuanceProtPubKey = authority.getIssuanceProtPubKey();
+        if (issuanceProtPubKey == null) {
+            msg = method + "issuanceProtPubKey null";
+            logger.error(msg);
+            throw new EBaseException(method + msg);
+        }
+        logger.debug(method + "issuanceProtPubKey not null");
+
+        try {
+            CryptoToken token = null;
+            String tokenName = cs.getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+            token = CryptoUtil.getCryptoToken(tokenName);
+
+            boolean useOAEP = cs.getBoolean("keyWrap.useOAEP",false);
+
+            byte[] iv = CryptoUtil.getNonceData(EncryptionAlgorithm.AES_128_CBC.getIVLength());
+            IVParameterSpec ivps = new IVParameterSpec(iv);
+
+            PublicKey userPubKey = X509Key.parsePublicKey(new DerValue(req_key_data));
+            if (userPubKey == null) {
+                msg = method + "userPubKey null after X509Key.parsePublicKey";
+                logger.error(msg);
+                throw new EBaseException(msg);
+            }
+
+            SymmetricKey symKey = CryptoUtil.generateKey(
+                    token,
+                    KeyGenAlgorithm.AES,
+                    128,
+                    null,
+                    true);
+
+            byte[] pop_encryptedData = CryptoUtil.encryptUsingSymmetricKey(
+                    token,
+                    symKey,
+                    challenge,
+                    EncryptionAlgorithm.AES_128_CBC,
+                    ivps);
+
+            if (pop_encryptedData == null) {
+                msg = method + "pop_encryptedData null";
+                logger.error(msg);
+                throw new EBaseException(msg);
+            }
+
+            KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+            if (useOAEP) {
+                wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+            }
+
+            byte[] pop_sysPubEncryptedSession =  CryptoUtil.wrapUsingPublicKey(
+                    token,
+                    issuanceProtPubKey,
+                    symKey,
+                    wrapAlg);
+
+            if (pop_sysPubEncryptedSession == null) {
+                msg = method + "pop_sysPubEncryptedSession null";
+                logger.error(msg);
+                throw new EBaseException(msg);
+            }
+
+
+            byte[] pop_userPubEncryptedSession = CryptoUtil.wrapUsingPublicKey(
+                    token,
+                    userPubKey,
+                    symKey,
+                    wrapAlg);
+
+            if (pop_userPubEncryptedSession == null) {
+                msg = method + "pop_userPubEncryptedSession null";
+                logger.error(msg);
+                throw new EBaseException(msg);
+            }
+            logger.debug(method + "POP challenge fields generated successfully...setting request extData");
+
+            req.setExtData("pop_encryptedData", pop_encryptedData);
+
+            req.setExtData("pop_sysPubEncryptedSession", pop_sysPubEncryptedSession);
+
+            req.setExtData("pop_userPubEncryptedSession", pop_userPubEncryptedSession);
+
+            req.setExtData("pop_encryptedDataIV", iv);
+
+            // now compute and set witness
+            logger.debug(method + "now compute and set witness");
+            String hashName = CryptoUtil.getDefaultHashAlgName();
+            logger.debug(method + "hashName is " + hashName);
+            MessageDigest hash = MessageDigest.getInstance(hashName);
+            byte[] witness = hash.digest(challenge);
+            req.setExtData("pop_witness", witness);
+
+        } catch (Exception e) {
+            String message = "Unable to generate POP challenge: " + e.getMessage();
+            logger.error(message, e);
+            throw new EBaseException(message, e);
         }
     }
 
@@ -689,12 +681,13 @@ public abstract class EnrollProfile extends Profile {
          * If auth.explicitApprovalRequired is true, then the request goes into
          * queue for agent approval even though auth and authz succeed.
          */
-         if ((token == null) || (explicitApprovalRequired == true)){
+         if (token == null || explicitApprovalRequired) {
 
-            if (token ==  null)
+            if (token ==  null) {
                 logger.debug(method + " auth token is null; agent manual approval required;");
-            else
+            } else {
                 logger.debug(method + "explicitApprovalRequired is true; agent manual approval required");
+            }
 
 
             logger.debug(method + " validating request");
@@ -795,11 +788,7 @@ public abstract class EnrollProfile extends Profile {
             String certSerial) throws Exception {
         X509CertImpl userCert = getCMCSigningCertFromCertSerial(certSerial);
 
-        if (userCert != null) {
-            return userCert.getSubjectObj();
-        } else {
-            return null;
-        }
+        return userCert == null ? null : userCert.getSubjectObj();
     }
 
     /**
@@ -841,14 +830,13 @@ public abstract class EnrollProfile extends Profile {
             throw new Exception(msg, e);
         }
 
-        if (userCert != null) {
-            msg = method + "signing user cert found; serial=" + certSerial;
-            logger.info(msg);
-        } else {
+        if (userCert == null) {
             msg = method + "signing user cert not found: serial=" + certSerial;
             logger.error(msg);
             throw new Exception(msg);
         }
+        msg = method + "signing user cert found; serial=" + certSerial;
+        logger.info(msg);
 
         return userCert;
     }
@@ -902,7 +890,7 @@ public abstract class EnrollProfile extends Profile {
             } else {
                 logger.debug(method + "authManagerId =" + authManagerId);
             }
-            if(authManagerId.equals("CMCAuth")) {
+            if (authManagerId.equals("CMCAuth")) {
                 donePOI = true;
             }
 
@@ -994,10 +982,9 @@ public abstract class EnrollProfile extends Profile {
                             throw new ECMCBadRequestException(
                                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST") + ":" +
                                             msg);
-                        } else {
-                            ident_s = (UTF8String) (ASN1Util.decode(UTF8String.getTemplate(),
-                                    ASN1Util.encode(ident.elementAt(0))));
                         }
+                        ident_s = (UTF8String) (ASN1Util.decode(UTF8String.getTemplate(),
+                                ASN1Util.encode(ident.elementAt(0))));
                         if (ident_s == null) {
                             msg = " id_cmc_identification contains invalid content";
                             logger.error(method + msg);
@@ -1024,7 +1011,7 @@ public abstract class EnrollProfile extends Profile {
                         } else {
                             logger.debug(method + "pre-signed CMC request; no further proof of identification check");
                         }
-                    } else if (id_cmc_identityProofV2 && (attr != null)) {
+                    } else if (id_cmc_identityProofV2 && attr != null) {
                         // either V2 or not V2; can't be both
                         logger.debug(method +
                                 "not pre-signed CMC request; calling verifyIdentityProofV2;");
@@ -1047,7 +1034,9 @@ public abstract class EnrollProfile extends Profile {
                         }
 
                         boolean valid = verifyIdentityProofV2(context, attr, ident_s, reqSeq, pkiData);
-                        if (!valid) {
+                        if (valid) {
+                            logger.debug(method + "passed verifyIdentityProofV2; Proof of Identity successful;");
+                        } else {
                             SEQUENCE bpids = getRequestBpids(reqSeq);
                             context.put("identityProofV2", bpids);
 
@@ -1055,13 +1044,15 @@ public abstract class EnrollProfile extends Profile {
                             logger.error(method + msg);
                             throw new ECMCBadIdentityException(CMS.getUserMessage(locale,
                                     "CMS_POI_VERIFICATION_ERROR") + msg);
-                        } else {
-                            logger.debug(method + "passed verifyIdentityProofV2; Proof of Identity successful;");
                         }
-                    } else if (id_cmc_identityProof && (attr != null)) {
+                    } else if (id_cmc_identityProof && attr != null) {
                         logger.debug(method + "not pre-signed CMC request; calling verifyIdentityProof;");
                         boolean valid = verifyIdentityProof(attr, reqSeq, pkiData);
-                        if (!valid) {
+                        if (valid) {
+                            logger.debug(method + "passed verifyIdentityProof; Proof of Identity successful;");
+                            // in case it was set
+                            auditSubjectID = auditSubjectID();
+                        } else {
                             SEQUENCE bpids = getRequestBpids(reqSeq);
                             context.put("identityProof", bpids);
 
@@ -1069,10 +1060,6 @@ public abstract class EnrollProfile extends Profile {
                             logger.error(method + msg);
                             throw new ECMCBadIdentityException(CMS.getUserMessage(locale,
                                     "CMS_POI_VERIFICATION_ERROR") + msg);
-                        } else {
-                            logger.debug(method + "passed verifyIdentityProof; Proof of Identity successful;");
-                            // in case it was set
-                            auditSubjectID = auditSubjectID();
                         }
                     } else {
                         msg = "not pre-signed CMC request; missing Proof of Identification control";
@@ -1088,50 +1075,7 @@ public abstract class EnrollProfile extends Profile {
                     }
 
                     if (id_cmc_decryptedPOP) {
-                        if (decPopVals != null) {
-                            if (!id_cmc_regInfo) {
-                                msg = "id_cmc_decryptedPOP must be accompanied by id_cmc_regInfo for request id per server/client agreement";
-                                logger.error(method + msg);
-                                auditMessage = CMS.getLogMessage(
-                                        AuditEvent.PROOF_OF_POSSESSION,
-                                        auditSubjectID,
-                                        ILogger.FAILURE,
-                                        method + msg);
-                                signedAuditLogger.log(auditMessage);
-
-                                SEQUENCE bpids = getRequestBpids(reqSeq);
-                                context.put("decryptedPOP", bpids);
-                                throw new ECMCPopFailedException(CMS.getUserMessage(locale,
-                                        "CMS_POP_VERIFICATION_ERROR") + ":" + msg);
-                            }
-
-                            OCTET_STRING reqIdOS =
-                                    (OCTET_STRING) (ASN1Util.decode(OCTET_STRING.getTemplate(),
-                                    ASN1Util.encode(reqIdVals.elementAt(0))));
-
-                            DecryptedPOP decPop = (DecryptedPOP) (ASN1Util.decode(DecryptedPOP.getTemplate(),
-                                    ASN1Util.encode(decPopVals.elementAt(0))));
-                            logger.error(method + "DecryptedPOP encoded");
-
-                            BigInteger reqId = verifyDecryptedPOP(locale, decPop, reqIdOS);
-                            if (reqId != null) {
-                                context.put("cmcDecryptedPopReqId", reqId);
-                            } else {
-                                msg = "DecryptedPOP failed to verify";
-                                logger.error(method + msg);
-                                auditMessage = CMS.getLogMessage(
-                                        AuditEvent.PROOF_OF_POSSESSION,
-                                        auditSubjectID,
-                                        ILogger.FAILURE,
-                                        method + msg);
-                                signedAuditLogger.log(auditMessage);
-
-                                SEQUENCE bpids = getRequestBpids(reqSeq);
-                                context.put("decryptedPOP", bpids);
-                                throw new ECMCPopFailedException(CMS.getUserMessage(locale,
-                                        "CMS_POP_VERIFICATION_ERROR") + ":" + msg);
-                            }
-                        } else { //decPopVals == null
+                        if (decPopVals == null) { //decPopVals == null
                             msg = "id_cmc_decryptedPOP contains invalid DecryptedPOP";
                             logger.error(method + msg);
                             auditMessage = CMS.getLogMessage(
@@ -1146,6 +1090,47 @@ public abstract class EnrollProfile extends Profile {
                             throw new ECMCPopFailedException(CMS.getUserMessage(locale,
                                     "CMS_POP_VERIFICATION_ERROR") + ":" + msg);
                         }
+                        if (!id_cmc_regInfo) {
+                            msg = "id_cmc_decryptedPOP must be accompanied by id_cmc_regInfo for request id per server/client agreement";
+                            logger.error(method + msg);
+                            auditMessage = CMS.getLogMessage(
+                                    AuditEvent.PROOF_OF_POSSESSION,
+                                    auditSubjectID,
+                                    ILogger.FAILURE,
+                                    method + msg);
+                            signedAuditLogger.log(auditMessage);
+
+                            SEQUENCE bpids = getRequestBpids(reqSeq);
+                            context.put("decryptedPOP", bpids);
+                            throw new ECMCPopFailedException(CMS.getUserMessage(locale,
+                                    "CMS_POP_VERIFICATION_ERROR") + ":" + msg);
+                        }
+
+                        OCTET_STRING reqIdOS =
+                                (OCTET_STRING) (ASN1Util.decode(OCTET_STRING.getTemplate(),
+                                ASN1Util.encode(reqIdVals.elementAt(0))));
+
+                        DecryptedPOP decPop = (DecryptedPOP) (ASN1Util.decode(DecryptedPOP.getTemplate(),
+                                ASN1Util.encode(decPopVals.elementAt(0))));
+                        logger.error(method + "DecryptedPOP encoded");
+
+                        BigInteger reqId = verifyDecryptedPOP(locale, decPop, reqIdOS);
+                        if (reqId == null) {
+                            msg = "DecryptedPOP failed to verify";
+                            logger.error(method + msg);
+                            auditMessage = CMS.getLogMessage(
+                                    AuditEvent.PROOF_OF_POSSESSION,
+                                    auditSubjectID,
+                                    ILogger.FAILURE,
+                                    method + msg);
+                            signedAuditLogger.log(auditMessage);
+
+                            SEQUENCE bpids = getRequestBpids(reqSeq);
+                            context.put("decryptedPOP", bpids);
+                            throw new ECMCPopFailedException(CMS.getUserMessage(locale,
+                                    "CMS_POP_VERIFICATION_ERROR") + ":" + msg);
+                        }
+                        context.put("cmcDecryptedPopReqId", reqId);
 
                         // decryptedPOP is expected to return null;
                         // POPLinkWitnessV2 would have to be checked in
@@ -1238,7 +1223,15 @@ public abstract class EnrollProfile extends Profile {
                         // POPLinkWitnessV2 or POPLinkWitness
                         // If failure, context is set in verifyPOPLinkWitness
                         valid = verifyPOPLinkWitness(ident_s, randomSeed, msgs[i], bpids, context, pkiData);
-                        if (valid == false) {
+                        if (valid) {
+                            msg = ": ident_s=" + ident_s;
+                            auditMessage = CMS.getLogMessage(
+                                    AuditEvent.CMC_ID_POP_LINK_WITNESS,
+                                    auditSubjectID,
+                                    ILogger.SUCCESS,
+                                    method + msg);
+                            signedAuditLogger.log(auditMessage);
+                        } else {
                             if (context.containsKey("POPLinkWitnessV2"))
                                 msg = " in POPLinkWitnessV2";
                             else if (context.containsKey("POPLinkWitness"))
@@ -1256,14 +1249,6 @@ public abstract class EnrollProfile extends Profile {
                             signedAuditLogger.log(auditMessage);
                             throw new ECMCBadRequestException(CMS.getUserMessage(locale,
                                     "CMS_POP_LINK_WITNESS_VERIFICATION_ERROR") + ":" + msg);
-                        } else {
-                            msg = ": ident_s=" + ident_s;
-                            auditMessage = CMS.getLogMessage(
-                                    AuditEvent.CMC_ID_POP_LINK_WITNESS,
-                                    auditSubjectID,
-                                    ILogger.SUCCESS,
-                                    method + msg);
-                            signedAuditLogger.log(auditMessage);
                         }
                     }
                 } //for
@@ -1358,13 +1343,12 @@ public abstract class EnrollProfile extends Profile {
 
         ICertificateAuthority authority = (ICertificateAuthority) getAuthority();
         PrivateKey issuanceProtPrivKey = authority.getIssuanceProtPrivKey();
-        if (issuanceProtPrivKey != null)
-            logger.debug(method + "issuanceProtPrivKey not null");
-        else {
+        if (issuanceProtPrivKey == null) {
             msg = method + "issuanceProtPrivKey null";
             logger.warn(msg);
             return null;
         }
+        logger.debug(method + "issuanceProtPrivKey not null");
 
         try {
             CryptoToken token = null;
@@ -1372,8 +1356,8 @@ public abstract class EnrollProfile extends Profile {
             token = CryptoUtil.getKeyStorageToken(tokenName);
 
             KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
-            boolean useOAEP = cs.getBoolean("keyWrap.useOAEP",false);
-            if(useOAEP == true) {
+            boolean useOAEP = cs.getBoolean("keyWrap.useOAEP", false);
+            if (useOAEP) {
                 wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
             }
             SymmetricKey symKey = CryptoUtil.unwrap(
@@ -1478,9 +1462,7 @@ public abstract class EnrollProfile extends Profile {
             String ident_string) {
         String method = "EnrollProfile: verifyPopLinkWitnessV2: ";
 
-        if ((popLinkWitnessV2 == null) ||
-                (randomSeed == null) ||
-                (sharedSecret == null)) {
+        if (popLinkWitnessV2 == null || randomSeed == null || sharedSecret == null) {
             logger.warn(method + " method parameters cannot be null");
             return false;
         }
@@ -1513,13 +1495,13 @@ public abstract class EnrollProfile extends Profile {
 
             ByteBuffer bb = null;
 
-            if(ident_string != null) {
+            if (ident_string == null) {
+                verifyBytes = sharedSecret;
+            } else {
                 bb = ByteBuffer.allocate(ident_string.getBytes().length + sharedSecret.length);
                 bb.put(sharedSecret);
                 bb.put(ident_string.getBytes());
                 verifyBytes = bb.array();
-            } else {
-                verifyBytes = sharedSecret;
             }
 
             boolean result = verifyDigest(
@@ -1586,10 +1568,10 @@ public abstract class EnrollProfile extends Profile {
 
                 ISharedToken tokenClass = (ISharedToken) sharedTokenAuth;
 
-                if (ident_string != null) {
-                    sharedSecret = tokenClass.getSharedToken(ident_string, authToken);
-                } else {
+                if (ident_string == null) {
                     sharedSecret = tokenClass.getSharedToken(pkiData);
+                } else {
+                    sharedSecret = tokenClass.getSharedToken(ident_string, authToken);
                 }
                 if (sharedSecret == null) {
                     sharedSecretFound = false;
@@ -1610,11 +1592,7 @@ public abstract class EnrollProfile extends Profile {
                 logger.debug(methodPos + "begins");
 
                 TaggedCertificationRequest tcr = req.getTcr();
-                if (!sharedSecretFound) {
-                    bpids.addElement(tcr.getBodyPartID());
-                    context.put("POPLinkWitness", bpids);
-                    return false;
-                } else {
+                if (sharedSecretFound) {
                     CertificationRequest creq = tcr.getCertificationRequest();
                     CertificationRequestInfo cinfo = creq.getInfo();
                     SET attrs = cinfo.getAttributes();
@@ -1669,6 +1647,9 @@ public abstract class EnrollProfile extends Profile {
 
                     return false;
                 }
+                bpids.addElement(tcr.getBodyPartID());
+                context.put("POPLinkWitness", bpids);
+                return false;
             } else if (req.getType().equals(TaggedRequest.CRMF)) {
                 String methodPos = method + "CRMF: ";
                 logger.debug(methodPos + "begins");
@@ -1680,55 +1661,54 @@ public abstract class EnrollProfile extends Profile {
                     bpids.addElement(reqId);
                     context.put("POPLinkWitness", bpids);
                     return false;
-                } else {
-                    for (int i = 0; i < certReq.numControls(); i++) {
-                        AVA ava = certReq.controlAt(i);
+                }
+                for (int i = 0; i < certReq.numControls(); i++) {
+                    AVA ava = certReq.controlAt(i);
 
-                        if (ava.getOID().equals(OBJECT_IDENTIFIER.id_cmc_popLinkWitnessV2)) {
-                            logger.debug(methodPos + "found id_cmc_popLinkWitnessV2");
-                            if (ident_string == null) {
-                                bpids.addElement(reqId);
-                                context.put("identification", bpids);
-                                context.put("POPLinkWitnessV2", bpids);
-                                String msg = "id_cmc_popLinkWitnessV2 must be accompanied by id_cmc_identification in this server";
-                                logger.warn(methodPos + msg);
-                                return false;
-                            }
+                    if (ava.getOID().equals(OBJECT_IDENTIFIER.id_cmc_popLinkWitnessV2)) {
+                        logger.debug(methodPos + "found id_cmc_popLinkWitnessV2");
+                        if (ident_string == null) {
+                            bpids.addElement(reqId);
+                            context.put("identification", bpids);
+                            context.put("POPLinkWitnessV2", bpids);
+                            String msg = "id_cmc_popLinkWitnessV2 must be accompanied by id_cmc_identification in this server";
+                            logger.warn(methodPos + msg);
+                            return false;
+                        }
 
-                            ASN1Value value = ava.getValue();
-                            PopLinkWitnessV2 popLinkWitnessV2 = getPopLinkWitnessV2control(value);
+                        ASN1Value value = ava.getValue();
+                        PopLinkWitnessV2 popLinkWitnessV2 = getPopLinkWitnessV2control(value);
 
-                            boolean valid = verifyPopLinkWitnessV2(popLinkWitnessV2,
-                                    randomSeed,
-                                    sharedSecretBytes,
-                                    ident_string);
-                            if (!valid) {
-                                bpids.addElement(reqId);
-                                context.put("POPLinkWitnessV2", bpids);
-                                return valid;
-                            }
-                        } else if (ava.getOID().equals(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness)) {
-                            logger.debug(methodPos + "found id_cmc_idPOPLinkWitness");
-                            ASN1Value value = ava.getValue();
-                            ByteArrayInputStream bis = new ByteArrayInputStream(
-                                    ASN1Util.encode(value));
-                            OCTET_STRING ostr = null;
-                            try {
-                                ostr = (OCTET_STRING) (new OCTET_STRING.Template()).decode(bis);
-                                bv = ostr.toByteArray();
-                            } catch (Exception e) {
-                                bpids.addElement(reqId);
-                                context.put("POPLinkWitness", bpids);
-                                return false;
-                            }
+                        boolean valid = verifyPopLinkWitnessV2(popLinkWitnessV2,
+                                randomSeed,
+                                sharedSecretBytes,
+                                ident_string);
+                        if (!valid) {
+                            bpids.addElement(reqId);
+                            context.put("POPLinkWitnessV2", bpids);
+                            return valid;
+                        }
+                    } else if (ava.getOID().equals(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness)) {
+                        logger.debug(methodPos + "found id_cmc_idPOPLinkWitness");
+                        ASN1Value value = ava.getValue();
+                        ByteArrayInputStream bis = new ByteArrayInputStream(
+                                ASN1Util.encode(value));
+                        OCTET_STRING ostr = null;
+                        try {
+                            ostr = (OCTET_STRING) (new OCTET_STRING.Template()).decode(bis);
+                            bv = ostr.toByteArray();
+                        } catch (Exception e) {
+                            bpids.addElement(reqId);
+                            context.put("POPLinkWitness", bpids);
+                            return false;
+                        }
 
-                            boolean valid = verifyDigest(sharedSecretBytes,
-                                    randomSeed, bv);
-                            if (!valid) {
-                                bpids.addElement(reqId);
-                                context.put("POPLinkWitness", bpids);
-                                return valid;
-                            }
+                        boolean valid = verifyDigest(sharedSecretBytes,
+                                randomSeed, bv);
+                        if (!valid) {
+                            bpids.addElement(reqId);
+                            context.put("POPLinkWitness", bpids);
+                            return valid;
                         }
                     }
                 }
@@ -1772,11 +1752,11 @@ public abstract class EnrollProfile extends Profile {
         logger.debug(method + "in verifyDigest: hashAlg=" + hashAlg.toString() +
                 "; macAlg=" + macAlg.toString());
 
-        if ((sharedSecret == null) ||
-            (text == null) ||
-            (bv == null) ||
-            (hashAlg == null) ||
-            (macAlg == null)) {
+        if (sharedSecret == null ||
+            text == null ||
+            bv == null ||
+            hashAlg == null ||
+            macAlg == null) {
             logger.warn(method + "method parameters cannot be null");
             return false;
         }
@@ -1852,9 +1832,7 @@ public abstract class EnrollProfile extends Profile {
         boolean verified = false;
         String auditMessage = method;
 
-        if ((attr == null) ||
-                (ident == null) ||
-                (reqSeq == null)) {
+        if (attr == null || ident == null || reqSeq == null) {
             logger.warn(method + "method parameters cannot be null");
             // this is internal error
             return false;
@@ -1900,11 +1878,12 @@ public abstract class EnrollProfile extends Profile {
             ISharedToken tokenClass = (ISharedToken) sharedTokenAuth;
 
             char[] token = null;
-            if (ident_string != null) {
+            if (ident_string == null)
+                token = tokenClass.getSharedToken(pkiData);
+            else {
                 auditAttemptedCred = ident_string;
                 token = tokenClass.getSharedToken(ident_string, authToken);
-            } else
-                token = tokenClass.getSharedToken(pkiData);
+            }
 
             if (token == null) {
                 msg = " Failed to retrieve shared secret";
@@ -1943,13 +1922,13 @@ public abstract class EnrollProfile extends Profile {
 
             byte[] tokenBytes = CryptoUtil.charsToBytes(token);
 
-            if(ident_string != null) {
+            if (ident_string == null) {
+                verifyBytes = tokenBytes;
+            } else {
                 bb = ByteBuffer.allocate(ident_string.getBytes().length + token.length);
                 bb.put(tokenBytes);
                 bb.put(ident_string.getBytes());
                 verifyBytes = bb.array();
-            } else {
-                verifyBytes = tokenBytes;
             }
 
 
@@ -1961,7 +1940,7 @@ public abstract class EnrollProfile extends Profile {
 
             String auditSubjectID = null;
 
-            if(ident_string != null) {
+            if (ident_string != null) {
                 CryptoUtil.obscureBytes(verifyBytes, "random");
             }
 
@@ -2088,7 +2067,7 @@ public abstract class EnrollProfile extends Profile {
                 // for PKCS10, "sigver" would provide the POP
                 sigver = cs.getBoolean("ca.requestVerify.enabled", true);
                 cm = CryptoManager.getInstance();
-                if (sigver == true) {
+                if (sigver) {
                     logger.debug(methodPos + "sigver true, POP is to be verified");
                     String tokenName = cs.getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                     savedToken = cm.getThreadToken();
@@ -2128,7 +2107,7 @@ public abstract class EnrollProfile extends Profile {
                 if (sigver)
                     popFailed(locale, auditSubjectID, auditMessage, e);
             }  finally {
-                if ((sigver == true) && (tokenSwitched == true)){
+                if (sigver && tokenSwitched){
                     cm.setThreadToken(savedToken);
                 }
             }
@@ -2156,9 +2135,7 @@ public abstract class EnrollProfile extends Profile {
                 // check if the LRA POP Witness Control attribute exists
                 if (nums != null && nums.intValue() > 0) {
                     TaggedAttribute attr = (TaggedAttribute) (context.get(OBJECT_IDENTIFIER.id_cmc_lraPOPWitness));
-                    if (attr != null) {
-                        parseLRAPopWitness(locale, crm, attr);
-                    } else {
+                    if (attr == null) {
                         logger.debug(
                                 methodPos + " verify POP in CMC because LRA POP Witness control attribute doesnt exist in the CMC request.");
                         if (crm.hasPop()) {
@@ -2168,6 +2145,8 @@ public abstract class EnrollProfile extends Profile {
                             logger.debug(methodPos + "hasPop false, need to challenge");
                             req.setExtData("cmc_POPchallengeRequired", "true");
                         }
+                    } else {
+                        parseLRAPopWitness(locale, crm, attr);
                     }
                 } else {
                     logger.debug(
@@ -2829,13 +2808,7 @@ public abstract class EnrollProfile extends Profile {
     protected String auditProfileID() {
 
         String profileID = getId();
-
-        if (profileID != null) {
-            profileID = profileID.trim();
-        } else {
-            profileID = ILogger.UNIDENTIFIED;
-        }
-
+        profileID = profileID == null ? ILogger.UNIDENTIFIED : profileID.trim();
         return profileID;
     }
 
@@ -2908,12 +2881,11 @@ public abstract class EnrollProfile extends Profile {
                     msg);
             signedAuditLogger.log(auditMessage);
 
-            if (e != null) {
-                throw new ECMCPopFailedException(CMS.getUserMessage(locale,
-                        "CMS_POP_VERIFICATION_ERROR"), e);
-            } else {
+            if (e == null) {
                 throw new ECMCPopFailedException(CMS.getUserMessage(locale,
                         "CMS_POP_VERIFICATION_ERROR"));
             }
+            throw new ECMCPopFailedException(CMS.getUserMessage(locale,
+                    "CMS_POP_VERIFICATION_ERROR"), e);
     }
 }
