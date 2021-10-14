@@ -31,6 +31,7 @@ docker create \
     --name=$NAME \
     --hostname=$HOSTNAME \
     -v $NAME-data:/data \
+    -v $GITHUB_WORKSPACE:$SHARED \
     -e DS_DM_PASSWORD=$PASSWORD \
     quay.io/389ds/dirsrv > /dev/null
 
@@ -40,17 +41,17 @@ echo "Creating certs folder"
 
 docker exec $NAME mkdir -p /data/tls/ca
 
-echo "Creating suffix"
+echo "Creating database backend"
 
-docker exec $NAME \
-    dsconf localhost backend create \
-        --suffix dc=example,dc=com \
-        --be-name userRoot > /dev/null
+docker exec $NAME dsconf localhost backend create \
+    --suffix dc=example,dc=com \
+    --be-name userRoot > /dev/null
+
+docker exec $NAME dsconf localhost backend suffix list
 
 echo "Adding base entries"
 
-docker exec $NAME \
-    ldapadd \
+docker exec -i $NAME ldapadd \
     -H ldap://$HOSTNAME:3389 \
     -D "cn=Directory Manager" \
     -w $PASSWORD \
@@ -63,5 +64,12 @@ dn: dc=pki,dc=example,dc=com
 objectClass: domain
 dc: pki
 EOF
+
+docker exec $NAME ldapsearch \
+    -H ldap://$HOSTNAME:3389 \
+    -D "cn=Directory Manager" \
+    -w $PASSWORD \
+    -x \
+    -b "dc=example,dc=com"
 
 echo "DS container is ready"
