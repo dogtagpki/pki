@@ -103,9 +103,7 @@ public abstract class EnrollDefault extends PolicyDefault {
     @Override
     public void setConfig(String name, String value)
             throws EPropertyException {
-        if (mConfig.getSubStore("params") == null) {
-            //
-        } else {
+        if (mConfig.getSubStore("params") != null) {
             mConfig.getSubStore("params").putString(name, value);
         }
     }
@@ -272,7 +270,7 @@ public abstract class EnrollDefault extends PolicyDefault {
         setValue(name, locale, info, value);
 
         boolean ret = request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
-        if (ret == false) {
+        if (!ret) {
             logger.error("EnrollDefault: setValue(): request.setExtData() returned false");
             throw new EPropertyException("EnrollDefault: setValue(): request.setExtData() failed");
         }
@@ -442,11 +440,11 @@ public abstract class EnrollDefault extends PolicyDefault {
     }
 
     protected boolean getBoolean(String value) {
-        return Boolean.valueOf(value).booleanValue();
+        return Boolean.parseBoolean(value);
     }
 
     protected int getInt(String value) {
-        return Integer.valueOf(value).intValue();
+        return Integer.parseInt(value);
     }
 
     protected boolean getConfigBoolean(String value) {
@@ -464,9 +462,7 @@ public abstract class EnrollDefault extends PolicyDefault {
         if (pos == -1)
             return false;
         String nameValue = name.substring(pos + 1).trim();
-        if (nameValue.equals(""))
-            return false;
-        return true;
+        return !nameValue.equals("");
     }
 
     protected GeneralNameInterface parseGeneralName(String name)
@@ -575,9 +571,8 @@ public abstract class EnrollDefault extends PolicyDefault {
                     logger.debug("OtherName about to create OtherName object:");
                     logger.debug("OID: " + on_oid + " Value:" + on_value);
                     return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_PrintableString, on_value);
-                } else {
-                    return null;
                 }
+                return null;
             } else if (nameValue.startsWith("(KerberosName)")) {
                 // Syntax: (KerberosName)Realm|NameType|NameString(s)
                 int pos0 = nameValue.indexOf(')');
@@ -611,9 +606,8 @@ public abstract class EnrollDefault extends PolicyDefault {
                 String on_value = nameValue.substring(pos1 + 1).trim();
                 if (isValidOID(on_oid)) {
                     return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_IA5String, on_value);
-                } else {
-                    return null;
                 }
+                return null;
             } else if (nameValue.startsWith("(UTF8String)")) {
                 int pos0 = nameValue.indexOf(')');
                 int pos1 = nameValue.indexOf(',');
@@ -623,9 +617,8 @@ public abstract class EnrollDefault extends PolicyDefault {
                 String on_value = nameValue.substring(pos1 + 1).trim();
                 if (isValidOID(on_oid)) {
                     return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_UTF8String, on_value);
-                } else {
-                    return null;
                 }
+                return null;
             } else if (nameValue.startsWith("(BMPString)")) {
                 int pos0 = nameValue.indexOf(')');
                 int pos1 = nameValue.indexOf(',');
@@ -635,9 +628,8 @@ public abstract class EnrollDefault extends PolicyDefault {
                 String on_value = nameValue.substring(pos1 + 1).trim();
                 if (isValidOID(on_oid)) {
                     return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_BMPString, on_value);
-                } else {
-                    return null;
                 }
+                return null;
             } else if (nameValue.startsWith("(Any)")) {
                 int pos0 = nameValue.indexOf(')');
                 int pos1 = nameValue.indexOf(',');
@@ -648,10 +640,9 @@ public abstract class EnrollDefault extends PolicyDefault {
                 if (isValidOID(on_oid)) {
                     logger.debug("OID: " + on_oid + " Value:" + on_value);
                     return new OtherName(new ObjectIdentifier(on_oid), getBytes(on_value));
-                } else {
-                    logger.error("Invalid OID: " + on_oid);
-                    return null;
                 }
+                logger.error("Invalid OID: " + on_oid);
+                return null;
             } else {
                 return null;
             }
@@ -668,9 +659,9 @@ public abstract class EnrollDefault extends PolicyDefault {
         if (string == null)
             return null;
         int stringLength = string.length();
-        if ((stringLength == 0) || ((stringLength % 2) != 0))
+        if (stringLength == 0 || (stringLength % 2) != 0)
             return null;
-        byte[] bytes = new byte[(stringLength / 2)];
+        byte[] bytes = new byte[stringLength / 2];
         for (int i = 0, b = 0; i < stringLength; i += 2, ++b) {
             String nextByte = string.substring(i, (i + 2));
             bytes[b] = (byte) Integer.parseInt(nextByte, 0x10);
@@ -762,13 +753,9 @@ public abstract class EnrollDefault extends PolicyDefault {
             if (pos <= 0) {
                 logger.error("Missing colon");
                 throw new EPropertyException("Missing colon");
-            } else {
-                if (pos == (token.length() - 1)) {
-                    nvps.put(token.substring(0, pos), "");
-                } else {
-                    nvps.put(token.substring(0, pos), token.substring(pos + 1));
-                }
             }
+            String[] parts = token.split(":");
+            nvps.put(parts[0], parts[1]);
         }
 
         return v;
@@ -805,15 +792,11 @@ public abstract class EnrollDefault extends PolicyDefault {
 
         if (type == GeneralNameInterface.NAME_DIRECTORY)
             return s;
-        else {
-            int pos = s.indexOf(":");
+        int pos = s.indexOf(":");
 
-            if (pos <= 0)
-                throw new EPropertyException("Badly formatted general name: " + s);
-            else {
-                return s.substring(pos + 1).trim();
-            }
-        }
+        if (pos <= 0)
+            throw new EPropertyException("Badly formatted general name: " + s);
+        return s.substring(pos + 1).trim();
     }
 
     public Locale getLocale(IRequest request) {
