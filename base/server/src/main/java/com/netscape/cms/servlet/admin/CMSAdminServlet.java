@@ -1272,16 +1272,15 @@ public class CMSAdminServlet extends AdminServlet {
         CMSEngine engine = CMS.getCMSEngine();
         IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
 
-        if (ocsp != null) {
-            SigningUnit signingUnit = ocsp.getSigningUnit();
-
-            return signingUnit.getNewNickName();
-        } else {
+        if (ocsp == null) {
             ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             SigningUnit signingUnit = ca.getOCSPSigningUnit();
 
             return signingUnit.getNewNickName();
         }
+        SigningUnit signingUnit = ocsp.getSigningUnit();
+
+        return signingUnit.getNewNickName();
     }
 
     private void setKRANewnickname(String tokenName, String nickname)
@@ -1289,13 +1288,12 @@ public class CMSAdminServlet extends AdminServlet {
         CMSEngine engine = CMS.getCMSEngine();
         IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
 
-        if (CryptoUtil.isInternalToken(tokenName))
+        if (CryptoUtil.isInternalToken(tokenName)) {
             kra.setNewNickName(nickname);
-        else {
-            if (tokenName.equals("") && nickname.equals(""))
-                kra.setNewNickName("");
-            else
-                kra.setNewNickName(tokenName + ":" + nickname);
+        } else if (tokenName.equals("") && nickname.equals("")) {
+            kra.setNewNickName("");
+        } else {
+            kra.setNewNickName(tokenName + ":" + nickname);
         }
     }
 
@@ -1469,25 +1467,24 @@ public class CMSAdminServlet extends AdminServlet {
                                 CMS.getLogMessage("BASE_INVALID_FILE_PATH"));
 
                         throw ex;
-                    } else {
-                        FileInputStream in = new FileInputStream(certpath);
-                        BufferedReader d =
-                                new BufferedReader(new InputStreamReader(in));
-                        String content = "";
-
-                        pkcs = "";
-                        StringBuffer sb = new StringBuffer();
-                        while ((content = d.readLine()) != null) {
-                            sb.append(content);
-                            sb.append("\n");
-                        }
-
-                        pkcs = sb.toString();
-                        if (d != null) {
-                            d.close();
-                        }
-                        pkcs = pkcs.substring(0, pkcs.length() - 1);
                     }
+                    FileInputStream in = new FileInputStream(certpath);
+                    BufferedReader d =
+                            new BufferedReader(new InputStreamReader(in));
+                    String content = "";
+
+                    pkcs = "";
+                    StringBuffer sb = new StringBuffer();
+                    while ((content = d.readLine()) != null) {
+                        sb.append(content);
+                        sb.append("\n");
+                    }
+
+                    pkcs = sb.toString();
+                    if (d != null) {
+                        d.close();
+                    }
+                    pkcs = pkcs.substring(0, pkcs.length() - 1);
                 }
             } catch (IOException ee) {
 
@@ -1804,24 +1801,23 @@ public class CMSAdminServlet extends AdminServlet {
                                 CMS.getLogMessage("BASE_INVALID_FILE_PATH"));
 
                         throw ex;
-                    } else {
-                        FileInputStream in = new FileInputStream(certpath);
-                        BufferedReader d =
-                                new BufferedReader(new InputStreamReader(in));
-                        String content = "";
-
-                        b64Cert = "";
-                        StringBuffer sb = new StringBuffer();
-                        while ((content = d.readLine()) != null) {
-                            sb.append(content);
-                            sb.append("\n");
-                        }
-                        b64Cert = sb.toString();
-                        if (d != null) {
-                            d.close();
-                        }
-                        b64Cert = b64Cert.substring(0, b64Cert.length() - 1);
                     }
+                    FileInputStream in = new FileInputStream(certpath);
+                    BufferedReader d =
+                            new BufferedReader(new InputStreamReader(in));
+                    String content = "";
+
+                    b64Cert = "";
+                    StringBuffer sb = new StringBuffer();
+                    while ((content = d.readLine()) != null) {
+                        sb.append(content);
+                        sb.append("\n");
+                    }
+                    b64Cert = sb.toString();
+                    if (d != null) {
+                        d.close();
+                    }
+                    b64Cert = b64Cert.substring(0, b64Cert.length() - 1);
                 }
             } catch (IOException ee) {
 
@@ -2000,24 +1996,23 @@ public class CMSAdminServlet extends AdminServlet {
                             CMS.getLogMessage("BASE_INVALID_FILE_PATH"));
 
                     throw ex;
-                } else {
-                    FileInputStream in = new FileInputStream(path);
-                    BufferedReader d =
-                            new BufferedReader(new InputStreamReader(in));
-                    String content = "";
-
-                    pkcs = "";
-                    StringBuffer sb = new StringBuffer();
-                    while ((content = d.readLine()) != null) {
-                        sb.append(content);
-                        sb.append("\n");
-                    }
-                    pkcs = sb.toString();
-                    if (d != null) {
-                        d.close();
-                    }
-                    pkcs = pkcs.substring(0, pkcs.length() - 1);
                 }
+                FileInputStream in = new FileInputStream(path);
+                BufferedReader d =
+                        new BufferedReader(new InputStreamReader(in));
+                String content = "";
+
+                pkcs = "";
+                StringBuffer sb = new StringBuffer();
+                while ((content = d.readLine()) != null) {
+                    sb.append(content);
+                    sb.append("\n");
+                }
+                pkcs = sb.toString();
+                if (d != null) {
+                    d.close();
+                }
+                pkcs = pkcs.substring(0, pkcs.length() - 1);
             }
         } catch (IOException ee) {
             throw new EBaseException(CMS.getLogMessage("BASE_OPEN_FILE_FAILED"));
@@ -2717,10 +2712,9 @@ public class CMSAdminServlet extends AdminServlet {
 
                             throw new ESelfTestException("Selftest failure: " + e.getMessage(), e);
 
-                        } else {
-                            // store this information for console notification
-                            content += "FAILED WITH NON-CRITICAL ERROR\n";
                         }
+                        // store this information for console notification
+                        content += "FAILED WITH NON-CRITICAL ERROR\n";
                     }
                 }
 
@@ -2830,16 +2824,11 @@ public class CMSAdminServlet extends AdminServlet {
             key = base64Data.replace("\r", "").replace("\n", "");
         }
 
-        if (key != null) {
-            key = key.trim();
-
-            if (key.equals("")) {
-                return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-            } else {
-                return key;
-            }
-        } else {
+        if (key == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
+        key = key.trim();
+
+        return key.equals("") ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : key;
     }
 }
