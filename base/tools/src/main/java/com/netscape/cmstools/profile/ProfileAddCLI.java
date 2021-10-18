@@ -70,7 +70,7 @@ public class ProfileAddCLI extends CommandCLI {
 
             MainCLI.printMessage("Added profile " + data.getId());
 
-            ProfileCLI.printProfile(data, profileCLI.getConfig().getServerURL().toURI());
+            ProfileCLI.printProfile(data);
         }
     }
 }

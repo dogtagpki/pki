@@ -3,7 +3,6 @@ package com.netscape.cmstools.profile;
 import java.io.ByteArrayInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,12 +46,8 @@ public class ProfileCLI extends CLI {
 
     @Override
     public String getFullName() {
-        if (parent instanceof MainCLI) {
-            // do not include MainCLI's name
-            return name;
-        } else {
-            return parent.getFullName() + "-" + name;
-        }
+        // do not include MainCLI's name
+        return (parent instanceof MainCLI) ? name : (parent.getFullName() + "-" + name);
     }
 
     @Override
@@ -84,7 +79,7 @@ public class ProfileCLI extends CLI {
         System.out.println("  Description: " + info.getProfileDescription());
     }
 
-    public static void printProfile(ProfileData data, URI baseUri) {
+    public static void printProfile(ProfileData data) {
         System.out.println("  Profile ID: " + data.getId());
         logger.info("URL: " + data.getLink().getHref().toString());
 

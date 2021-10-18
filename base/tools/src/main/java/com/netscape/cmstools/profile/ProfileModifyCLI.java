@@ -70,7 +70,7 @@ public class ProfileModifyCLI extends CommandCLI {
 
             MainCLI.printMessage("Modified profile " + data.getId());
 
-            ProfileCLI.printProfile(data, profileCLI.getConfig().getServerURL().toURI());
+            ProfileCLI.printProfile(data);
         }
     }
 }
