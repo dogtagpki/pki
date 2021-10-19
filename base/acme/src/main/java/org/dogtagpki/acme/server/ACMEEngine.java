@@ -65,7 +65,6 @@ import org.dogtagpki.acme.validator.ACMEValidatorConfig;
 import org.dogtagpki.acme.validator.ACMEValidatorsConfig;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -911,9 +910,8 @@ public class ACMEEngine implements ServletContextListener {
             logger.info("- " + dnsName);
         }
 
-        logger.info("Parsing CSR");
-        Set<String> dnsNames = new HashSet<>();
-        parseCSR(pkcs10, dnsNames);
+        logger.info("Getting DNS names from CSR");
+        Set<String> dnsNames = CertUtil.getDNSNames(pkcs10);
 
         logger.info("Validating DNS names in CSR");
         for (String dnsName : dnsNames) {
@@ -946,34 +944,6 @@ public class ACMEEngine implements ServletContextListener {
         // TODO: validate other things in CSR
 
         logger.info("CSR is valid");
-    }
-
-    public void parseCSR(PKCS10 pkcs10, Set<String> dnsNames) throws Exception {
-
-        X500Name subjectDN = pkcs10.getSubjectName();
-        logger.info("Getting DNS name from subject DN: " + subjectDN);
-
-        String cn;
-        try {
-            cn = subjectDN.getCommonName();
-
-        } catch (NullPointerException e) {
-            // X500Name.getCommonName() throws NPE if subject DN is blank
-            // TODO: fix X500Name.getCommonName() to return null
-            cn = null;
-        }
-
-        if (cn != null) {
-            dnsNames.add(cn.toLowerCase());
-        }
-
-        logger.info("Getting SAN extension from CSR");
-        SubjectAlternativeNameExtension sanExtension = CertUtil.getSANExtension(pkcs10);
-
-        if (sanExtension != null) {
-            logger.info("Getting DNS names from SAN extension");
-            dnsNames.addAll(CertUtil.getDNSNames(sanExtension));
-        }
     }
 
     public void validateRevocation(ACMEAccount account, ACMERevocation revocation) throws Exception {
