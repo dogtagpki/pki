@@ -78,10 +78,8 @@ public class NSSIssuer extends ACMEIssuer {
         issuer = cm.findCertByNickname(nickname);
 
         String monthsValid = config.getParameter("monthsValid");
-        if (monthsValid != null) {
-            logger.info("- months valid: " + monthsValid);
-            this.monthsValid = Integer.valueOf(monthsValid);
-        }
+        this.monthsValid = monthsValid == null ? 3 : Integer.valueOf(monthsValid);
+        logger.info("- months valid: " + monthsValid);
 
         String hash = config.getParameter("hash");
         if (hash != null) {
