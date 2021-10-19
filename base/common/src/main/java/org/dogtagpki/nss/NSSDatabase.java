@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,11 +38,14 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.security.KeyPair;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.security.spec.ECParameterSpec;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
-import java.util.Comparator;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
@@ -52,7 +56,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CLIException;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.extensions.AccessDescription;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
@@ -66,6 +72,8 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CPSuri;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificatePoliciesExtension;
 import org.mozilla.jss.netscape.security.x509.CertificatePolicyId;
 import org.mozilla.jss.netscape.security.x509.CertificatePolicyInfo;
@@ -78,7 +86,10 @@ import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo;
 import org.mozilla.jss.netscape.security.x509.PolicyQualifiers;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs11.PK11ECPrivateKey;
 import org.mozilla.jss.pkcs11.PK11PrivKey;
 import org.mozilla.jss.pkcs11.PK11PubKey;
@@ -1009,7 +1020,7 @@ public class NSSDatabase {
                 null, // token name
                 issuer,
                 pkcs10,
-                null, // serial number
+                serialNumber,
                 monthsValid,
                 hash,
                 extensions);
@@ -1024,107 +1035,111 @@ public class NSSDatabase {
             String hash,
             Extensions extensions) throws Exception {
 
-        Path tmpDir = null;
+        logger.info("NSSDatabase: Issuing certificate:");
 
-        try {
-            tmpDir = Files.createTempDirectory("pki-nss-", DIR_PERMISSIONS);
-            Path csrPath = tmpDir.resolve("request.der");
-            Path certPath = tmpDir.resolve("cert.der");
+        logger.info("NSSDatabase: - token: " + tokenName);
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
-            logger.info("NSSDatabase: Storing CSR into " + csrPath);
-            Files.write(csrPath, pkcs10.toByteArray());
+        X500Name subjectName = pkcs10.getSubjectName();
+        String subjectDN = subjectName.toString();
+        logger.info("NSSDatabase: - subject: " + subjectDN);
 
-            // TODO: Use JSS to issue the certificate.
+        X500Name issuerName;
+        if (issuer == null) {
+            issuerName = subjectName;
+        } else {
+            issuerName = new X500Name(issuer.getSubjectDN().toString());
+        }
+        CertificateIssuerName issuerDN = new CertificateIssuerName(issuerName);
+        logger.info("NSSDatabase: - issuer: " + issuerDN);
 
-            List<String> cmd = new ArrayList<>();
-            cmd.add("certutil");
-            cmd.add("-C");
-            cmd.add("-d");
-            cmd.add(path.toString());
+        X509Key x509Key = pkcs10.getSubjectPublicKeyInfo();
+        logger.info("NSSDatabase: - public key algorithm: " + x509Key.getAlgorithm());
 
-            if (tokenName != null) {
-                cmd.add("-h");
-                cmd.add(tokenName);
-            }
+        BigInteger serialNo;
+        if (serialNumber == null) {
+            byte[] bytes = new byte[16];
+            SecureRandom random = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
+            random.nextBytes(bytes);
+            serialNo = new BigInteger(1, bytes);
+        } else {
+            serialNo = new BigInteger(serialNumber);
+        }
+        logger.info("NSSDatabase: - serial number: " + serialNo);
 
-            if (passwordStore != null) {
+        Calendar calendar = Calendar.getInstance();
+        Date notBeforeDate = calendar.getTime();
+        logger.info("NSSDatabase: - not before: " + notBeforeDate);
 
-                String tag = tokenName == null ? "internal" : "hardware-" + tokenName;
-                String password = passwordStore.getPassword(tag, 0);
+        calendar.add(Calendar.MONTH, monthsValid);
+        Date notAfterDate = calendar.getTime();
+        logger.info("NSSDatabase: - not after: " + notAfterDate);
 
-                if (password != null) {
-                    Path passwordPath = tmpDir.resolve("password.txt");
-                    logger.info("NSSDatabase: Storing password into " + passwordPath);
+        if (hash == null) {
+            hash = "SHA256";
+        }
+        logger.info("NSSDatabase: - hash algorithm: " + hash);
 
-                    Files.write(passwordPath, password.getBytes());
+        String keyAlgorithm = hash + "with" + x509Key.getAlgorithm();
+        logger.info("NSSDatabase: - key algorithm: " + keyAlgorithm);
 
-                    cmd.add("-f");
-                    cmd.add(passwordPath.toString());
+        // convert Extensions into CertificateExtensions
+        CertificateExtensions certExts = new CertificateExtensions();
+        Enumeration<String> names = extensions.getAttributeNames();
+        while (names.hasMoreElements()) {
+            String name = names.nextElement();
+            Extension extension = (Extension) extensions.get(name);
+            certExts.set(name, extension);
+        }
+
+        X509CertInfo info = CryptoUtil.createX509CertInfo(
+                x509Key,
+                serialNo,
+                issuerDN,
+                subjectDN,
+                notBeforeDate,
+                notAfterDate,
+                keyAlgorithm,
+                certExts);
+
+        PrivateKey privateKey = null;
+
+        if (issuer == null) {
+
+            logger.info("NSSDatabase: Finding request private key");
+            byte[] requestPublicKey = x509Key.getEncoded();
+
+            CryptoStore store = token.getCryptoStore();
+
+            for (PrivateKey privKey : store.getPrivateKeys()) {
+                PK11PrivKey pk11PrivKey = (PK11PrivKey) privKey;
+                logger.info("NSSDatabase: - private key: " + Utils.HexEncode(privKey.getUniqueID()));
+
+                PK11PubKey pk11PubKey = pk11PrivKey.getPublicKey();
+                byte[] publicKey = pk11PubKey.getEncoded();
+
+                if (Arrays.equals(requestPublicKey, publicKey)) {
+                    privateKey = privKey;
+                    break;
                 }
             }
 
-            if (hash != null) {
-                cmd.add("-Z");
-                cmd.add(hash);
+            if (privateKey == null) {
+                throw new Exception("Unable to find request private key");
             }
 
-            if (issuer == null) {
-                cmd.add("-x");
-
-            } else {
-                cmd.add("-c");
-                cmd.add(issuer.getNickname());
-            }
-
-            cmd.add("-i");
-            cmd.add(csrPath.toString());
-
-            cmd.add("-o");
-            cmd.add(certPath.toString());
-
-            if (serialNumber != null) {
-                cmd.add("-m");
-                cmd.add(serialNumber.toString());
-            }
-
-            if (monthsValid != null) {
-                cmd.add("-v");
-                cmd.add(monthsValid.toString());
-            }
-
-            StringWriter stdin = new StringWriter();
-            if (extensions != null) {
-                addExtensions(cmd, stdin, extensions, tmpDir);
-            }
-
-            debug(cmd);
-            Process p = new ProcessBuilder(cmd).start();
-
-            readStdout(p);
-            readStderr(p);
-
-            if (extensions != null) {
-                writeStdin(p, stdin.toString());
-            }
-
-            int rc = p.waitFor();
-
-            if (rc != 0) {
-                throw new CLIException("Command failed. RC: " + rc, rc);
-            }
-
-            logger.info("NSSDatabase: Loading certificate from " + certPath);
-            byte[] certBytes = Files.readAllBytes(certPath);
-            return new X509CertImpl(certBytes);
-
-        } finally {
-            if (tmpDir != null) {
-                Files.walk(tmpDir).
-                    sorted(Comparator.reverseOrder()).
-                    map(Path::toFile).
-                    forEach(File::delete);
-            }
+        } else {
+            logger.info("NSSDatabase: Finding issuer private key");
+            CryptoManager cm = CryptoManager.getInstance();
+            privateKey = cm.findPrivKeyByCert(issuer);
+            logger.info("NSSDatabase: - private key: " + Utils.HexEncode(privateKey.getUniqueID()));
         }
+
+        logger.info("NSSDatabase: Private key algorithm: " + privateKey.getAlgorithm());
+        String signingAlgorithm = hash + "with" + privateKey.getAlgorithm();
+        logger.info("NSSDatabase: Signing algorithm: " + signingAlgorithm);
+
+        return CryptoUtil.signCert(privateKey, info, signingAlgorithm);
     }
 
     public void delete() throws Exception {
