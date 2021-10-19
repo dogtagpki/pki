@@ -64,13 +64,8 @@ import org.dogtagpki.acme.validator.ACMEValidator;
 import org.dogtagpki.acme.validator.ACMEValidatorConfig;
 import org.dogtagpki.acme.validator.ACMEValidatorsConfig;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
-import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
-import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.CertAttrSet;
 import org.mozilla.jss.netscape.security.x509.DNSName;
-import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
@@ -960,7 +955,7 @@ public class ACMEEngine implements ServletContextListener {
     public void parseCSR(PKCS10 pkcs10, Set<String> dnsNames) throws Exception {
 
         X500Name subjectDN = pkcs10.getSubjectName();
-        logger.info("Parsing subject DN: " + subjectDN);
+        logger.info("Getting DNS name from subject DN: " + subjectDN);
 
         String cn;
         try {
@@ -976,25 +971,12 @@ public class ACMEEngine implements ServletContextListener {
             dnsNames.add(cn.toLowerCase());
         }
 
-        logger.info("Parsing CSR Attributes:");
-        PKCS10Attributes attributes = pkcs10.getAttributes();
-        for (PKCS10Attribute attribute : attributes) {
+        logger.info("Getting SAN extension from CSR");
+        SubjectAlternativeNameExtension sanExtension = CertUtil.getSANExtension(pkcs10);
 
-            ObjectIdentifier attrID = attribute.getAttributeId();
-            CertAttrSet attrValues = attribute.getAttributeValue();
-            String attrName = attrValues.getName();
-            logger.info("- " + attrID + ": " + attrName);
-
-            // TODO: support other attributes
-
-            if (attrValues instanceof Extensions) {
-                Extensions extensions = (Extensions) attrValues;
-
-                SubjectAlternativeNameExtension sanExtension = CertUtil.getSANExtension(extensions);
-                if (sanExtension != null) {
-                    parseCSRSAN(sanExtension, dnsNames);
-                }
-            }
+        if (sanExtension != null) {
+            logger.info("Getting DNS names from SAN extension");
+            parseCSRSAN(sanExtension, dnsNames);
         }
     }
 
