@@ -19,7 +19,6 @@ import java.security.cert.X509Certificate;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +41,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEError;
@@ -70,7 +70,6 @@ import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertAttrSet;
 import org.mozilla.jss.netscape.security.x509.DNSName;
-import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
@@ -990,26 +989,11 @@ public class ACMEEngine implements ServletContextListener {
 
             if (attrValues instanceof Extensions) {
                 Extensions extensions = (Extensions) attrValues;
-                parseCSRExtensions(extensions, dnsNames);
-            }
-        }
-    }
 
-    public void parseCSRExtensions(Extensions extensions, Set<String> dnsNames) throws Exception {
-
-        Enumeration<String> extNames = extensions.getAttributeNames();
-        while (extNames.hasMoreElements()) {
-
-            String name = extNames.nextElement();
-            Extension extension = (Extension) extensions.get(name);
-            logger.info("  - " + name);
-            logger.info("    - critical: " + extension.isCritical());
-
-            // TODO: support other extensions
-
-            if (extension instanceof SubjectAlternativeNameExtension) {
-                SubjectAlternativeNameExtension sanExt = (SubjectAlternativeNameExtension) extension;
-                parseCSRSAN(sanExt, dnsNames);
+                SubjectAlternativeNameExtension sanExtension = CertUtil.getSANExtension(extensions);
+                if (sanExtension != null) {
+                    parseCSRSAN(sanExtension, dnsNames);
+                }
             }
         }
     }

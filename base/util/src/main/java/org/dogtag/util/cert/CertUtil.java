@@ -20,6 +20,7 @@ package org.dogtag.util.cert;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.security.cert.X509Certificate;
+import java.util.Enumeration;
 import java.util.StringTokenizer;
 
 import org.mozilla.jss.crypto.CryptoStore;
@@ -27,6 +28,9 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.pkcs11.PK11Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,5 +128,23 @@ public class CertUtil {
         } else {
             logger.warn("CertUtil: unsupported crypto store: " + store.getClass().getName());
         }
+    }
+
+    /**
+     * Get SAN extension from a collection of extensions.
+     */
+    public static SubjectAlternativeNameExtension getSANExtension(Extensions extensions) throws Exception {
+
+        Enumeration<Extension> e = extensions.elements();
+
+        while (e.hasMoreElements()) {
+            Extension extension = e.nextElement();
+
+            if (extension instanceof SubjectAlternativeNameExtension) {
+                return (SubjectAlternativeNameExtension) extension;
+            }
+        }
+
+        return null;
     }
 }
