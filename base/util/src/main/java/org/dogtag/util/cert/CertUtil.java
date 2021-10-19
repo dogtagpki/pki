@@ -26,8 +26,11 @@ import java.util.StringTokenizer;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertAttrSet;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
@@ -142,6 +145,25 @@ public class CertUtil {
 
             if (extension instanceof SubjectAlternativeNameExtension) {
                 return (SubjectAlternativeNameExtension) extension;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get SAN extension from PKCS #10 request.
+     */
+    public static SubjectAlternativeNameExtension getSANExtension(PKCS10 pkcs10) throws Exception {
+
+        PKCS10Attributes attributes = pkcs10.getAttributes();
+
+        for (PKCS10Attribute attribute : attributes) {
+            CertAttrSet attrValues = attribute.getAttributeValue();
+
+            if (attrValues instanceof Extensions) {
+                Extensions extensions = (Extensions) attrValues;
+                return CertUtil.getSANExtension(extensions);
             }
         }
 
