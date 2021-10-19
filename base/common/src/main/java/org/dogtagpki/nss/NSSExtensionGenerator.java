@@ -14,9 +14,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
+import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
 import org.mozilla.jss.netscape.security.extensions.OCSPNoCheckExtension;
@@ -29,12 +31,16 @@ import org.mozilla.jss.netscape.security.x509.CPSuri;
 import org.mozilla.jss.netscape.security.x509.CertificatePoliciesExtension;
 import org.mozilla.jss.netscape.security.x509.CertificatePolicyId;
 import org.mozilla.jss.netscape.security.x509.CertificatePolicyInfo;
+import org.mozilla.jss.netscape.security.x509.DNSName;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo;
 import org.mozilla.jss.netscape.security.x509.PolicyQualifiers;
+import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -430,6 +436,28 @@ public class NSSExtensionGenerator {
         return new OCSPNoCheckExtension();
     }
 
+    public SubjectAlternativeNameExtension createSANExtension(PKCS10 pkcs10) throws Exception {
+
+        if (pkcs10 == null) return null;
+
+        logger.info("Getting DNS names from CSR");
+        Set<String> dnsNames = CertUtil.getDNSNames(pkcs10);
+        if (dnsNames.isEmpty()) return null;
+
+        logger.info("Converting DNS names to general names");
+        GeneralNameInterface[] generalName = new GeneralNameInterface[dnsNames.size()];
+        int i = 0;
+        for (String dnsName : dnsNames) {
+            logger.info("- " + dnsName);
+            generalName[i] = new DNSName(dnsName);
+            i++;
+        }
+        GeneralNames generalNames = new GeneralNames(generalName);
+
+        logger.info("Creating SAN extension");
+        return new SubjectAlternativeNameExtension(generalNames);
+    }
+
     public Extensions createExtensions() throws Exception {
         return createExtensions(null, null);
     }
@@ -478,6 +506,11 @@ public class NSSExtensionGenerator {
         OCSPNoCheckExtension ocspNoCheckExtension = createOCSPNoCheckExtension();
         if (ocspNoCheckExtension != null) {
             extensions.parseExtension(ocspNoCheckExtension);
+        }
+
+        SubjectAlternativeNameExtension sanExtension = createSANExtension(pkcs10);
+        if (sanExtension != null) {
+            extensions.parseExtension(sanExtension);
         }
 
         return extensions;
