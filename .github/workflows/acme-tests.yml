@@ -195,12 +195,14 @@ jobs:
               -d client.example.com \
               --standalone \
               --non-interactive
+          docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client.example.com/fullchain.pem
           docker exec client certbot renew \
               --server http://pki.example.com:8080/acme/directory \
               --cert-name client.example.com \
               --force-renewal \
               --no-random-sleep-on-renew \
               --non-interactive
+          docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client.example.com/fullchain.pem
           docker exec client certbot revoke \
               --server http://pki.example.com:8080/acme/directory \
               --cert-name client.example.com \
@@ -352,11 +354,13 @@ jobs:
               -d client1.example.com \
               --standalone \
               --non-interactive
+          docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client1.example.com/fullchain.pem
           docker exec client certbot certonly \
               --server http://pki.example.com:8080/acme/directory \
               -d client2.example.com \
               --standalone \
               --non-interactive
+          docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client2.example.com/fullchain.pem
 
       - name: Simulate ACME server switchover by replacing the baseURL parameter
         run: |
@@ -380,6 +384,7 @@ jobs:
               --force-renewal \
               --no-random-sleep-on-renew \
               --non-interactive
+          docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client1.example.com/fullchain.pem
           docker exec client certbot revoke \
               --server http://pki.example.com:8080/acme/directory \
               --cert-name client2.example.com \
@@ -484,6 +489,7 @@ jobs:
               -d client.example.com \
               --standalone \
               --non-interactive
+          docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client.example.com/fullchain.pem
           docker exec client certbot renew \
               --server http://pki.example.com:8080/acme/directory \
               --cert-name client.example.com \
