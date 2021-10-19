@@ -65,10 +65,6 @@ import org.dogtagpki.acme.validator.ACMEValidatorConfig;
 import org.dogtagpki.acme.validator.ACMEValidatorsConfig;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.DNSName;
-import org.mozilla.jss.netscape.security.x509.GeneralName;
-import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
-import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -976,39 +972,7 @@ public class ACMEEngine implements ServletContextListener {
 
         if (sanExtension != null) {
             logger.info("Getting DNS names from SAN extension");
-            parseCSRSAN(sanExtension, dnsNames);
-        }
-    }
-
-    public void parseCSRSAN(SubjectAlternativeNameExtension sanExt, Set<String> dnsNames) throws Exception {
-
-        GeneralNames generalNames = sanExt.getGeneralNames();
-        for (GeneralNameInterface generalName : generalNames) {
-            logger.info("    - " + generalName);
-
-            if (generalName instanceof GeneralName) {
-                generalName = ((GeneralName) generalName).unwrap();
-            }
-
-            // TODO: support other GeneralName types
-
-            if (generalName instanceof DNSName) {
-                String dnsName = ((DNSName) generalName).getValue();
-                dnsNames.add(dnsName.toLowerCase());
-            } else {
-                // Unrecognised identifier type
-                //
-                // We cannot allow this to pass through, otherwise a CSR
-                // with unvalidated SAN values will be passed along to the
-                // CA, and these are likely to be accepted as-is.
-                //
-                // This is also required by RFC 8555 Section 7.4:
-                //
-                //    The CSR MUST indicate the exact same set of requested
-                //    identifiers as the initial newOrder request.
-                //
-                throw new Exception("Unauthorized identifier: " + generalName.toString());
-            }
+            dnsNames.addAll(CertUtil.getDNSNames(sanExtension));
         }
     }
 

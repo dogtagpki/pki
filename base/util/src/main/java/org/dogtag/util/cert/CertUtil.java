@@ -21,6 +21,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.mozilla.jss.crypto.CryptoStore;
@@ -31,8 +33,12 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertAttrSet;
+import org.mozilla.jss.netscape.security.x509.DNSName;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.pkcs11.PK11Store;
 import org.slf4j.Logger;
@@ -168,5 +174,42 @@ public class CertUtil {
         }
 
         return null;
+    }
+
+    /**
+     * Get DNS names from SAN extension.
+     */
+    public static Set<String> getDNSNames(SubjectAlternativeNameExtension sanExtension) throws Exception {
+
+        Set<String> dnsNames = new HashSet<>();
+
+        GeneralNames generalNames = sanExtension.getGeneralNames();
+        for (GeneralNameInterface generalName : generalNames) {
+
+            if (generalName instanceof GeneralName) {
+                generalName = ((GeneralName) generalName).unwrap();
+            }
+
+            if (generalName instanceof DNSName) {
+                String dnsName = ((DNSName) generalName).getValue();
+                dnsNames.add(dnsName.toLowerCase());
+                continue;
+            }
+
+            // Unsupported identifier type
+            //
+            // We cannot allow this to pass through, otherwise a CSR
+            // with unvalidated SAN values will be passed along to the
+            // CA, and these are likely to be accepted as-is.
+            //
+            // This is also required by RFC 8555 Section 7.4:
+            //
+            //    The CSR MUST indicate the exact same set of requested
+            //    identifiers as the initial newOrder request.
+            //
+            throw new Exception("Unsupported identifier: " + generalName);
+        }
+
+        return dnsNames;
     }
 }
