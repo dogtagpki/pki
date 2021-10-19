@@ -257,7 +257,7 @@ public abstract class APolicyRule implements IPolicyRule {
 
     public static KeyIdentifier createKeyIdentifier(X509Key key)
             throws NoSuchAlgorithmException, InvalidKeyException {
-        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
 
         md.update(key.getEncoded());
         return new KeyIdentifier(md.digest());
@@ -334,7 +334,7 @@ public abstract class APolicyRule implements IPolicyRule {
             }
             byte[] rawKey = key.getKey();
 
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
 
             md.update(rawKey);
             keyId = new KeyIdentifier(md.digest());

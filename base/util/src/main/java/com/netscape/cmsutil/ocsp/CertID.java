@@ -167,7 +167,6 @@ public class CertID implements ASN1Value {
     static {
         digestNames.put(new OBJECT_IDENTIFIER("1.2.840.113549.2.2"), "MD2");
         digestNames.put(new OBJECT_IDENTIFIER("1.2.840.113549.2.5"), "MD5");
-        digestNames.put(new OBJECT_IDENTIFIER("1.3.14.3.2.26"), "SHA-1");
         digestNames.put(new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.2.4"), "SHA-224");
         digestNames.put(new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.2.1"), "SHA-256");
         digestNames.put(new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.2.2"), "SHA-384");

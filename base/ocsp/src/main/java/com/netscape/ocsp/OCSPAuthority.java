@@ -232,14 +232,14 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     public ResponderID getResponderIDByHash() {
 
         /*
-         KeyHash ::= OCTET STRING --SHA-1 hash of responder's public key
+         KeyHash ::= OCTET STRING --SHA-256 hash of responder's public key
          --(excluding the tag and length fields)
          */
         PublicKey publicKey = getSigningUnit().getPublicKey();
         MessageDigest md = null;
 
         try {
-            md = MessageDigest.getInstance("SHA1");
+            md = MessageDigest.getInstance("SHA256");
         } catch (NoSuchAlgorithmException e) {
             return null;
         }

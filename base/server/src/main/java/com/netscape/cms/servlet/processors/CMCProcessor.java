@@ -299,7 +299,7 @@ public class CMCProcessor extends PKIProcessor {
                         X509Key subjectKeyInfo =
                                 (X509Key) ((CertificateX509Key) certInfoArray[j].get(X509CertInfo.KEY))
                                         .get(CertificateX509Key.KEY);
-                        MessageDigest md = MessageDigest.getInstance("SHA-1");
+                        MessageDigest md = MessageDigest.getInstance("SHA-256");
 
                         md.update(subjectKeyInfo.getEncoded());
                         byte[] skib = md.digest();

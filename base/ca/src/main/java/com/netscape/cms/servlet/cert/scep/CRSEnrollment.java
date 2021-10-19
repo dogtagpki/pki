@@ -640,7 +640,6 @@ public class CRSEnrollment extends HttpServlet {
              - GetNextCACert (currently not supported by Dogtag)
              - POSTPKIOperation (currently not supported by Dogtag)
              - Renewal (currently not supported by Dogtag)
-             - SHA-1
              - SHA-256
              - SHA-512
              - SCEPStandard (currently not supported by Dogtag due to missing AES support)
@@ -649,9 +648,6 @@ public class CRSEnrollment extends HttpServlet {
                 response.append("DES3\n");
             }
             // response.append("POSTPKIOperation\n");
-            if (isAlgorithmAllowed(mAllowedHashAlgorithm, "SHA1")) {
-                response.append("SHA-1\n");
-            }
             if (isAlgorithmAllowed(mAllowedHashAlgorithm, "SHA256")) {
                 response.append("SHA-256\n");
             }

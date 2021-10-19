@@ -55,7 +55,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
     public static final String VAL_KEY_ID = "keyid";
     public static final String CONFIG_MD = "messageDigest";
     public static final String VAL_MD = "messageDigest";
-    public static final String DEF_CONFIG_MDS = "SHA-1,SHA-256,SHA-384,SHA-512";
+    public static final String DEF_CONFIG_MDS = "SHA-256,SHA-384,SHA-512";
     public static final String MD_LABEL="Message digest";
     public static final String USE_SKI_LABEL="Use SKI From Cert Request";
     public static final String VAL_USE_SKI_IF_IN_REQUEST = "useSKIFromCertRequest";
@@ -78,7 +78,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
     public IDescriptor getConfigDescriptor(Locale locale, String name) { /* testms */
         if (name.equals(CONFIG_MD)) {
             return new Descriptor(IDescriptor.CHOICE, DEF_CONFIG_MDS,
-                    "SHA-1",
+                    "SHA-256",
                     MD_LABEL);
         } else if (name.equals(CONFIG_USE_SKI_IF_IN_REQUEST)) {
             return new Descriptor(IDescriptor.BOOLEAN,null,"false",USE_SKI_LABEL);
@@ -203,7 +203,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
             String alg = getConfig(CONFIG_MD);
 
             if (alg == null || alg.length() == 0) {
-                alg = "SHA-1";
+                alg = "SHA-256";
             }
             return alg;
         } else if (name.equals(VAL_USE_SKI_IF_IN_REQUEST)) {
@@ -303,7 +303,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
                     info.get(X509CertInfo.KEY);
             X509Key key = (X509Key) infokey.get(CertificateX509Key.KEY);
 
-            // "SHA-1" is default for CryptoUtil.generateKeyIdentifier.
+            // "SHA-256" is default for CryptoUtil.generateKeyIdentifier.
             // you could specify different algorithm with the alg parameter
             // like this:
             //byte[] hash = CryptoUtil.generateKeyIdentifier(key.getKey(), "SHA-256");
@@ -314,7 +314,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
                 logger.debug(method + " generating hash with alg: " + configHashAlg);
                 hash = CryptoUtil.generateKeyIdentifier(key.getKey(), configHashAlg);
             } else {
-                logger.debug(method + " generating hash with default alg: SHA-1");
+                logger.debug(method + " generating hash with default alg: SHA-256");
                 hash = CryptoUtil.generateKeyIdentifier(key.getKey());
             }
 
