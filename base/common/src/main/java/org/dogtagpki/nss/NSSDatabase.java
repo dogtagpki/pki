@@ -36,8 +36,9 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.security.SecureRandom;
+import java.security.KeyPair;
 import java.security.cert.X509Certificate;
+import java.security.spec.ECParameterSpec;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -51,6 +52,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CLIException;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.netscape.security.extensions.AccessDescription;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
@@ -77,6 +79,10 @@ import org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo;
 import org.mozilla.jss.netscape.security.x509.PolicyQualifiers;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.pkcs11.PK11ECPrivateKey;
+import org.mozilla.jss.pkcs11.PK11PrivKey;
+import org.mozilla.jss.pkcs11.PK11PubKey;
+import org.mozilla.jss.pkcs11.PK11RSAPrivateKey;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
@@ -914,141 +920,65 @@ public class NSSDatabase {
 
         logger.info("NSSDatabase: Creating certificate signing request for " + subject);
 
-        if (tokenName != null) {
-            logger.info("NSSDatabase: - token: " + tokenName);
-        }
+        logger.info("NSSDatabase: - token: " + tokenName);
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
+        KeyPair keyPair = null;
         if (keyID != null) {
+
             logger.info("NSSDatabase: - key ID: " + keyID);
-        }
 
-        if (keyType != null) {
-            logger.info("NSSDatabase: - key type: " + keyType);
-        }
+            byte[] id = CryptoUtil.hexString2Bytes(keyID);
+            PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKeyFromID(id);
+            PK11PubKey publicKey = privateKey.getPublicKey();
 
-        if (keySize != null) {
-            logger.info("NSSDatabase: - key size: " + keySize);
-        }
+            keyType = privateKey.getType().toString();
+            logger.info("NSSDatabase: - type: " + keyType);
 
-        if (curve != null) {
+            logger.info("NSSDatabase: - class: " + privateKey.getClass().getName());
+            if (privateKey instanceof PK11RSAPrivateKey) {
+                logger.info("NSSDatabase: - size: " + privateKey.getStrength());
+
+            } else if (privateKey instanceof PK11ECPrivateKey) {
+                PK11ECPrivateKey ecPrivateKey = (PK11ECPrivateKey) privateKey;
+                ECParameterSpec spec = ecPrivateKey.getParams();
+                logger.info("NSSDatabase: - curve: " + spec.getCurve());
+            }
+
+            keyPair = new KeyPair(publicKey, privateKey);
+
+        } else if ("rsa".equalsIgnoreCase(keyType)) {
+
+            logger.info("NSSDatabase: - type: RSA");
+            logger.info("NSSDatabase: - size: " + keySize);
+            int size = Integer.parseInt(keySize);
+
+            keyPair = CryptoUtil.generateRSAKeyPair(token, size);
+
+        } else if ("ec".equalsIgnoreCase(keyType)) {
+
+            logger.info("NSSDatabase: - type: EC");
             logger.info("NSSDatabase: - curve: " + curve);
+
+            keyPair = CryptoUtil.generateECCKeyPair(token, curve);
+
+        } else {
+            throw new Exception("Unsupported key type: " + keyType);
         }
 
-        Path tmpDir = null;
-
-        try {
-            tmpDir = Files.createTempDirectory("pki-nss-", DIR_PERMISSIONS);
-            Path csrPath = tmpDir.resolve("request.der");
-
-            // TODO: Use JSS to generate the request.
-
-            List<String> cmd = new ArrayList<>();
-            cmd.add("certutil");
-            cmd.add("-R");
-            cmd.add("-d");
-            cmd.add(path.toString());
-
-            if (tokenName != null) {
-                cmd.add("-h");
-                cmd.add(tokenName);
-            }
-
-            if (passwordStore != null) {
-
-                String tag = tokenName == null ? "internal" : "hardware-" + tokenName;
-                String password = passwordStore.getPassword(tag, 0);
-
-                if (password != null) {
-                    Path passwordPath = tmpDir.resolve("password.txt");
-                    logger.info("NSSDatabase: Storing password into " + passwordPath);
-
-                    Files.write(passwordPath, password.getBytes());
-
-                    cmd.add("-f");
-                    cmd.add(passwordPath.toString());
-                }
-            }
-
-            cmd.add("-s");
-            cmd.add(subject);
-
-            cmd.add("-o");
-            cmd.add(csrPath.toString());
-
-            if (keyID != null) { // use existing key
-
-                cmd.add("-k");
-                cmd.add(keyID);
-
-            } else { // generate new key
-
-                if (keyType != null) {
-                    cmd.add("-k");
-                    cmd.add(keyType.toLowerCase());
-                }
-
-                if (keySize != null) {
-                    cmd.add("-g");
-                    cmd.add(keySize);
-
-                }
-
-                if (curve != null) {
-                    cmd.add("-q");
-                    cmd.add(curve);
-                }
-
-                Path noisePath = tmpDir.resolve("noise.bin");
-                logger.info("NSSDatabase: Storing noise into " + noisePath);
-
-                byte[] bytes = new byte[2048];
-                SecureRandom random = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
-                random.nextBytes(bytes);
-
-                Files.write(noisePath, bytes);
-
-                cmd.add("-z");
-                cmd.add(noisePath.toString());
-            }
-
-            if (hash != null) {
-                cmd.add("-Z");
-                cmd.add(hash);
-            }
-
-            StringWriter stdin = new StringWriter();
-            if (extensions != null) {
-                addExtensions(cmd, stdin, extensions, tmpDir);
-            }
-
-            debug(cmd);
-            Process p = new ProcessBuilder(cmd).start();
-
-            readStdout(p);
-            readStderr(p);
-
-            if (extensions != null) {
-                writeStdin(p, stdin.toString());
-            }
-
-            int rc = p.waitFor();
-
-            if (rc != 0) {
-                throw new CLIException("Command failed. RC: " + rc, rc);
-            }
-
-            logger.info("NSSDatabase: Loading CSR from " + csrPath);
-            byte[] csrBytes = Files.readAllBytes(csrPath);
-            return new PKCS10(csrBytes);
-
-        } finally {
-            if (tmpDir != null) {
-                Files.walk(tmpDir).
-                    sorted(Comparator.reverseOrder()).
-                    map(Path::toFile).
-                    forEach(File::delete);
-            }
+        if (hash == null) {
+            hash = "SHA256";
         }
+        logger.info("NSSDatabase: - hash algorithm: " + hash);
+
+        String keyAlgorithm = hash + "with" + keyType;
+        logger.info("NSSDatabase: - key algorithm: " + keyAlgorithm);
+
+        return CryptoUtil.createCertificationRequest(
+                subject,
+                keyPair,
+                keyAlgorithm,
+                extensions);
     }
 
     public X509Certificate createCertificate(
