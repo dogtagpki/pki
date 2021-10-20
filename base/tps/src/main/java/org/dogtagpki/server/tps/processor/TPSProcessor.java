@@ -712,18 +712,18 @@ public class TPSProcessor {
 
         boolean doesVersionMatchTokenDB = checkCardGPKeyVersionMatchesTokenDB(appletInfo.getCUIDhexStringPlain(), appletInfo.getKDDhexStringPlain(), keyInfoData.toHexStringPlain());
 
-        if(cuidOK == false) {
+        if (!cuidOK) {
             throw new TPSException("TPSProcessor.generateSecureChannel: cuid vs kdd matching policy not met!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        if(isVersionInRange == false) {
+        if (!isVersionInRange) {
 
             throw new TPSException("TPSProcessor.generateSecureChannel: key version is not within acceptable range!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        if(doesVersionMatchTokenDB == false) {
+        if (!doesVersionMatchTokenDB) {
             throw new TPSException("TPSProcessor.generateSecureChannel: key version from token does not match that of the token db!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
@@ -1310,25 +1310,24 @@ public class TPSProcessor {
         try {
             // Authenticate user
             authToken = auth.authenticate(userCred);
-            if (authToken != null) {
-                logger.debug("TPSProcessor.authenticateUser: authentication success");
-                Enumeration<String> n = authToken.getElements();
-                while (n.hasMoreElements()) {
-                    String name = n.nextElement();
-                    logger.debug("TPSProcessor.authenticateUser: got authToken val name:" + name);
-                    /* debugging authToken content vals
-                    String[] vals = authToken.getInStringArray(name);
-                    if (vals != null) {
-                        logger.debug("TPSProcessor.authenticateUser: got authToken val :" + vals[0]);
-                    }
-                    */
-                }
-                return authToken;
-            } else {
+            if (authToken == null) {
                 logger.error("TPSProcessor.authenticateUser: authentication failure with authToken null");
                 throw new TPSException("TPS error user authentication failed.",
                         TPSStatus.STATUS_ERROR_LOGIN);
             }
+            logger.debug("TPSProcessor.authenticateUser: authentication success");
+            Enumeration<String> n = authToken.getElements();
+            while (n.hasMoreElements()) {
+                String name = n.nextElement();
+                logger.debug("TPSProcessor.authenticateUser: got authToken val name:" + name);
+                /* debugging authToken content vals
+                String[] vals = authToken.getInStringArray(name);
+                if (vals != null) {
+                    logger.debug("TPSProcessor.authenticateUser: got authToken val :" + vals[0]);
+                }
+                */
+            }
+            return authToken;
         } catch (EBaseException e) {
             logger.error("TPSProcessor.authenticateUser: authentication failure: " + e, e);
             throw new TPSException("TPS error user authentication failed.",
@@ -2109,13 +2108,13 @@ public class TPSProcessor {
 
         tokenRecord = isTokenRecordPresent(appletInfo);
 
-        if (tokenRecord != null) {
-            logger.debug("TPSProcessor.format: found token...");
-            isTokenPresent = true;
-        } else {
+        if (tokenRecord == null) {
             logger.debug("TPSProcessor.format: token does not exist in tokendb... create one in memory");
             tokenRecord = new TokenRecord();
             tokenRecord.setId(appletInfo.getCUIDhexStringPlain());
+        } else {
+            logger.debug("TPSProcessor.format: found token...");
+            isTokenPresent = true;
         }
 
         fillTokenRecord(tokenRecord, appletInfo);
@@ -2362,7 +2361,11 @@ public class TPSProcessor {
 
             checkInvalidTokenStatus(tokenRecord, ActivityDatabase.OP_FORMAT);
 
-            if (!tps.isOperationTransitionAllowed(tokenRecord, newState)) {
+            if (tps.isOperationTransitionAllowed(tokenRecord, newState)) {
+                logger.debug("TPSProcessor.format: token transition allowed " +
+                        tokenRecord.getTokenStatus() +
+                        " to " + newState);
+            } else {
                 String info = " illegal transition attempted: " + tokenRecord.getTokenStatus() +
                         " to " + newState;
                 logger.error("TPSProcessor.format: token transition: " + info);
@@ -2374,10 +2377,6 @@ public class TPSProcessor {
 
                 throw new TPSException(logMsg,
                         TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
-            } else {
-                logger.debug("TPSProcessor.format: token transition allowed " +
-                        tokenRecord.getTokenStatus() +
-                        " to " + newState);
             }
         } else {
             checkAllowUnknownToken(TPSEngine.FORMAT_OP);
@@ -2865,7 +2864,7 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
-        if (allow == false) {
+        if (!allow) {
             throw new TPSException(
                     "TPSProcessor.checkAllowUnknownToken: Unknown tokens not allowed for this operation!",
                     TPSStatus.STATUS_ERROR_UNKNOWN_TOKEN);
@@ -3399,7 +3398,7 @@ public class TPSProcessor {
             }
 
             //If we failed we need to upgrade the keys
-            if (failed == true) {
+            if (failed) {
 
                 selectCardManager();
 
@@ -3447,18 +3446,18 @@ public class TPSProcessor {
                 boolean isVersionInRange = checkCardGPKeyVersionIsInRange(appletInfo.getCUIDhexStringPlain(), appletInfo.getKDDhexStringPlain(), curKeyInfo.toHexStringPlain());
                 boolean doesVersionMatchTokenDB = checkCardGPKeyVersionMatchesTokenDB(appletInfo.getCUIDhexStringPlain(), appletInfo.getKDDhexStringPlain(), curKeyInfo.toHexStringPlain());
 
-                if(cuidOK == false) {
+                if (!cuidOK) {
                     throw new TPSException("TPSProcessor.generateSecureChannel: cuid vs kdd matching policy not met!",
                             TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
                 }
 
-                if(isVersionInRange == false) {
+                if (!isVersionInRange) {
 
                     throw new TPSException("TPSProcessor.generateSecureChannel: key version is not within acceptable range!",
                             TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
                 }
 
-                if(doesVersionMatchTokenDB == false) {
+                if (!doesVersionMatchTokenDB) {
                     throw new TPSException("TPSProcessor.generateSecureChannel: key version from token does not match that of the token db!",
                             TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
                 }
@@ -3665,14 +3664,9 @@ public class TPSProcessor {
             pattern = result;
         }
 
-        if (result.equals("")) {
-            logger.debug("TPSProcessor.mapPattern: returning: " + inPattern);
-            return (inPattern);
-        } else {
-            logger.debug("TPSProcessor.mapPattern: returning: " + result);
-            return result;
-        }
-
+        String returnVal = result.isEmpty() ? inPattern : result;
+        logger.debug("TPSProcessor.mapPattern: returning: {}", returnVal);
+        return returnVal;
     }
 
     protected String formatCurrentAppletVersion(AppletInfo aInfo) throws TPSException, IOException {
@@ -3757,7 +3751,7 @@ public class TPSProcessor {
 
             enabled = configStore.getBoolean(pinResetEnableConfig, true);
 
-            if (enabled == false) {
+            if (!enabled) {
                 logger.debug("TPSProcessor.checkAndHandlePinReset:  Pin Reset not allowed by configuration, exiting...");
                 return;
 
@@ -4042,7 +4036,7 @@ public class TPSProcessor {
 
         // Check only if asked.
 
-        if (result == true) {
+        if (result) {
 
             String minConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                     + TPSEngine.CFG_MINIMUM_GP_KEY_VERSION;
@@ -4188,7 +4182,7 @@ public class TPSProcessor {
         logger.debug(method + " config result: " + result);
 
         // Check only if asked to
-        if (result == true) {
+        if (result) {
             if (CUID.compareToIgnoreCase(KDD) == 0) {
                 logger.debug(method + " CUID and KDD values match!");
                 result = true;
@@ -4270,7 +4264,7 @@ public class TPSProcessor {
         logger.debug(method + " config result: " + result);
 
 
-        if(result == true) {
+        if(result) {
             //Check only if asked to.
 
             String keyInfoInDB = getKeyInfoFromTokenDB(CUID);
