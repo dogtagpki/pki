@@ -18,12 +18,21 @@
 package com.netscape.cms.authentication;
 
 // ldap java sdk
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Vector;
+
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -44,6 +53,8 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.certsrv.usrgrp.IUser;
 // cert server x509 imports
 // java sdk imports.
 
@@ -65,6 +76,12 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
 
     protected String mAttrName = null;
     protected String mAttrDesc = null;
+    protected String mMemberAttrName = null;
+    protected String mMemberAttrValue = null;
+    protected String mInternalGroup = null;
+    protected boolean mInternalUserRequired = false;
+    protected IUGSubsystem mUGS = null;
+    protected String mAttrs[] = null;
 
     /* Holds configuration parameters accepted by this implementation.
      * This list is passed to the configuration console so configuration
@@ -82,6 +99,10 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
                     "ldap.basedn",
                     "ldap.attrName",
                     "ldap.attrDesc",
+                    "ldap.memberAttrName",
+                    "ldap.memberAttrValue",
+                    "ldap.internalUserRequired",
+                    "ldap.internalGroup",
                     "ldap.minConns",
                     "ldap.maxConns",
             };
@@ -138,6 +159,36 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
         }
         CMS.debug("UserPwdDirAuthentication init  mAttr=" + mAttr +
                 "  mAttrName=" + mAttrName + "  mAttrDesc=" + mAttrDesc);
+
+        // Optional attribute, which presence and value have to be checked if included in configuration
+        mMemberAttrName = mLdapConfig.getString("memberAttrName", null);
+        mMemberAttrName = (mMemberAttrName != null)? mMemberAttrName.trim(): mMemberAttrName; 
+        if (mMemberAttrName != null && mMemberAttrName.length() > 0) {
+            mMemberAttrValue = mLdapConfig.getString("memberAttrValue", null);
+            mMemberAttrValue = (mMemberAttrValue != null)? mMemberAttrValue.trim(): mMemberAttrValue; 
+            CMS.debug("UserPwdDirAuthentication init  mMemberAttrName=" + mMemberAttrName + "  mMemberAttrValue=" + mMemberAttrValue);
+        }
+        // Optional attribute, which indicates local user entry presence that have to be checked if included in configuration
+        mInternalUserRequired = mLdapConfig.getBoolean("internalUserRequired", false);
+        CMS.debug("UserPwdDirAuthentication init  mInternalUserRequired=" + mInternalUserRequired);
+        mInternalGroup = mLdapConfig.getString("internalGroup", null);
+        mInternalGroup = (mInternalGroup != null)? mInternalGroup.trim(): mInternalGroup;
+        if (mInternalGroup != null && mInternalGroup.length() > 0) {
+            mInternalUserRequired = true;
+            CMS.debug("UserPwdDirAuthentication init  mInternalGroup=" + mInternalGroup);
+        }
+        if (mInternalUserRequired) {
+            mUGS = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        }
+
+        ArrayList<String> attrList = new ArrayList<>();
+        if (mInternalUserRequired) {
+            attrList.add(CRED_UID);
+        }
+        if (mMemberAttrName != null && mMemberAttrName.length() > 0 && !mMemberAttrName.equalsIgnoreCase(CRED_UID)) {
+            attrList.add(mMemberAttrName);
+        }
+        mAttrs = (String[])attrList.toArray(new String[attrList.size()]);
     }
 
     /**
@@ -182,6 +233,105 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
             // bind as user dn and pwd - authenticates user with pwd.
             conn.authenticate(userdn, pwd);
             CMS.debug("Authenticated: userdn=" + userdn);
+
+            LDAPEntry entry = null;
+            Map<String, String[]> entryAttributes = new HashMap<String, String[]>();
+            if (mAttrs != null && mAttrs.length > 0) {
+                LDAPSearchResults results = conn.search(userdn, LDAPConnection.SCOPE_BASE, null, mAttrs, false);
+                if (results != null && results.hasMoreElements()) {
+                    entry = results.next();
+                    if (entry != null) {
+                        CMS.debug("Reviewing entry: " + entry.getDN());
+                        for (int i = 0; i < mAttrs.length; i++) {
+                            LDAPAttribute memberAttribute = entry.getAttribute(mAttrs[i]);
+                            if (memberAttribute != null) {
+                                String[] values = memberAttribute.getStringValueArray();
+                                if (values != null && values.length > 0) {
+                                    entryAttributes.put(mAttrs[i], values);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (mAttrs != null && mAttrs.length > 0 && (entry == null || entryAttributes.size() == 0)) {
+                CMS.debug("Failed to obtain data required for verification.");
+                throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            }
+
+            if (mMemberAttrName != null && mMemberAttrName.length() > 0) {
+                CMS.debug("Authenticating: memberAttribute=" + mMemberAttrName);
+                String[] values = entryAttributes.get(mMemberAttrName);
+                boolean verified = false;
+                if (values != null && values.length > 0) {
+                    if (mMemberAttrValue != null && mMemberAttrValue.length() > 0) {
+                        for (int i = 0; i < values.length; i++) {
+                            if (mMemberAttrValue.equalsIgnoreCase(values[i])) {
+                                verified = true;
+                            }
+                        }
+                    } else {
+                        verified = true;
+                    }
+                }
+                if (!verified) {
+                    CMS.debug("Failed to verify memberAttribute");
+                    throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                }
+
+                if (mInternalUserRequired) {
+                    values = entryAttributes.get(CRED_UID);
+                    verified = false;
+                    if (values != null && values.length > 0) {
+                        for (int i = 0; i < values.length; i++) {
+                            IUser user = mUGS.getUser(values[i]);
+                            if (user != null) {
+                                if (mInternalGroup != null && mInternalGroup.length() > 0) {
+                                    if (mUGS.isMemberOf(values[i], mInternalGroup)) {
+                                        verified = true;
+                                        CMS.debug("Authenticated: user='" + user.getUserDN() + "' is member of '" + mInternalGroup + "'");
+                                    }
+                                } else {
+                                    verified = true;
+                                    CMS.debug("Authenticated: user='" + user.getUserDN() + "'");
+                                }
+                            }
+                        }
+                    }
+                    if (!verified) {
+                        CMS.debug("Failed to verify userAttribute");
+                        throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                    }
+                }
+
+            } else {
+                if (mInternalUserRequired) {
+                    String userAttr = (mAttr.equalsIgnoreCase(CRED_UID))? attr: entryAttributes.get(CRED_UID)[0];
+                    if (userAttr != null  && userAttr.length() > 0) {
+                        CMS.debug("Authenticating: InternalUser: '" + CRED_UID + "=" + userAttr + "'");
+                        IUser user = mUGS.getUser(userAttr);
+                        if (user != null) {
+                            if (mInternalGroup != null && mInternalGroup.length() > 0) {
+                                if (mUGS.isMemberOf(userAttr, mInternalGroup)) {
+                                    CMS.debug("Authenticated: user='" + user.getUserDN() + "' is member of '" + mInternalGroup + "'");
+                                } else {
+                                    CMS.debug("Authenticated: user='" + user.getUserDN() + "' is NOT member of '" + mInternalGroup + "'");
+                                    throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                                }
+                            } else {
+                                CMS.debug("Authenticated: user='" + user.getUserDN() + "'");
+                            }
+                        } else {
+                            CMS.debug("Missing InternalUser='" + userAttr + "'");
+                            throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                        }
+                    } else {
+                        CMS.debug("Incorrect attribute requested: '" + mAttr + "' instead of '" + CRED_UID + "'");
+                        throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                    }
+                }
+            }
+
             // set attr in the token.
             token.set(mAttr, attr);
 
