@@ -479,6 +479,7 @@ jobs:
 
       - name: Verify certbot in client container
         run: |
+          docker exec client bash -c "curl -I http://pki.example.com:8080/acme/directory"
           docker exec client certbot register \
               --server http://pki.example.com:8080/acme/directory \
               --email user1@example.com \
