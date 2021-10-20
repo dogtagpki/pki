@@ -103,21 +103,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         e.g. PKCS10Client -d /var/lib/pki/<ca instance>/alias -h hsm-module
           -a rsa -l 2048 -n "CN= KRA storage cert" -w -v -o kra-storage.csr.b64
 
-        Here we use the two pkispawn config params to tell us that it's likely
-        the newer HSM in FIPS mode:
+        Here we use the pkispawn config param to determin if it's hsm to trigger:
             pki_hsm_enable = True
-            pki_use_pss_rsa_signing_algorithm = True
 
         """
 
         print('pki_hsm_enable: ', config.str2bool(deployer.mdict['pki_hsm_enable']))
-        print('pki_use_pss_rsa_signing_algorithm: ',
-              config.str2bool(deployer.mdict['pki_use_pss_rsa_signing_algorithm']))
 
         print('subsystem.type: ', subsystem.type)
         if (subsystem.type == 'KRA' and
             config.str2bool(deployer.mdict['pki_hsm_enable']) and
-            config.str2bool(deployer.mdict['pki_use_pss_rsa_signing_algorithm']) and
                 (cert_id in ['storage', 'transport'])):
             print('generate_csr: calling PKCS10Client for', cert_id)
             b64_csr = nssdb.create_request_with_wrapping_key(
