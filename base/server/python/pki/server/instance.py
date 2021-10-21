@@ -144,6 +144,10 @@ class PKIInstance(pki.server.PKIServer):
         return os.path.join(pki.server.PKIServer.CONFIG_DIR, self.name)
 
     @property
+    def logging_properties(self):
+        return os.path.join(self.base_dir, 'conf', 'logging.properties')
+
+    @property
     def log_dir(self):
         return os.path.join(pki.server.PKIServer.LOG_DIR, self.name)
 
