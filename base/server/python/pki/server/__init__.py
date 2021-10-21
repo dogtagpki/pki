@@ -594,8 +594,7 @@ grant codeBase "file:%s" {
         bin_dir = os.path.join(Tomcat.SHARE_DIR, 'bin')
         self.symlink(bin_dir, self.bin_dir, force=force)
 
-        logger.info('Creating %s', self.conf_dir)
-        self.makedirs(self.conf_dir, force=force)
+        self.create_conf_dir(force=force)
 
         logger.info('Creating %s', self.catalina_policy)
         catalina_policy = os.path.join(Tomcat.CONF_DIR, 'catalina.policy')
@@ -667,6 +666,11 @@ grant codeBase "file:%s" {
 
         with open(self.service_conf, 'a') as f:
             print('CATALINA_BASE="%s"' % self.base_dir, file=f)
+
+    def create_conf_dir(self, force=False):
+
+        logger.info('Creating %s', self.conf_dir)
+        self.makedirs(self.conf_dir, force=force)
 
     def create_server_xml(self):
 
@@ -1023,9 +1027,7 @@ grant codeBase "file:%s" {
         pki.util.rmtree(self.temp_dir, force=force)
 
         self.remove_libs(force=force)
-
-        logger.info('Removing %s', self.conf_dir)
-        pki.util.rmtree(self.conf_dir, force=force)
+        self.remove_conf_dir(force=force)
 
         logger.info('Removing %s', self.bin_dir)
         pki.util.unlink(self.bin_dir, force=force)
@@ -1043,6 +1045,11 @@ grant codeBase "file:%s" {
 
         logger.info('Removing %s', self.lib_dir)
         pki.util.unlink(self.lib_dir, force=force)
+
+    def remove_conf_dir(self, force=False):
+
+        logger.info('Removing %s', self.conf_dir)
+        pki.util.rmtree(self.conf_dir, force=force)
 
     def remove_nssdb(self, force=False):
 

@@ -230,10 +230,6 @@ class PKIInstance(pki.server.PKIServer):
 
         super(PKIInstance, self).create(force=force)
 
-        conf_link = os.path.join(self.base_dir, 'conf')
-        logger.info('Creating %s', conf_link)
-        self.symlink(self.conf_dir, conf_link, force=force)
-
         logs_link = os.path.join(self.base_dir, 'logs')
         logger.info('Creating %s', logs_link)
         self.symlink(self.log_dir, logs_link, force=force)
@@ -255,6 +251,14 @@ class PKIInstance(pki.server.PKIServer):
 
         logger.info('Creating %s', self.unit_file)
         self.symlink(PKIInstance.UNIT_FILE, self.unit_file, force=force)
+
+    def create_conf_dir(self, force=False):
+
+        super(PKIInstance, self).create_conf_dir(force=force)
+
+        conf_link = os.path.join(self.base_dir, 'conf')
+        logger.info('Creating %s', conf_link)
+        self.symlink(self.conf_dir, conf_link, force=force)
 
     def create_libs(self, force=False):
 
@@ -385,10 +389,6 @@ class PKIInstance(pki.server.PKIServer):
         logger.info('Removing %s', logs_link)
         pki.util.unlink(logs_link, force=force)
 
-        conf_link = os.path.join(self.base_dir, 'conf')
-        logger.info('Removing %s', conf_link)
-        pki.util.unlink(conf_link, force=force)
-
         super(PKIInstance, self).remove(force=force)
 
     def remove_libs(self, force=False):
@@ -401,6 +401,14 @@ class PKIInstance(pki.server.PKIServer):
             pki.util.unlink(self.lib_dir, force=force)
         else:
             pki.util.rmtree(self.lib_dir, force=force)
+
+    def remove_conf_dir(self, force=False):
+
+        conf_link = os.path.join(self.base_dir, 'conf')
+        logger.info('Removing %s', conf_link)
+        pki.util.unlink(conf_link, force=force)
+
+        super(PKIInstance, self).remove_conf_dir(force=force)
 
     @staticmethod
     def read_external_certs(conf_file):
