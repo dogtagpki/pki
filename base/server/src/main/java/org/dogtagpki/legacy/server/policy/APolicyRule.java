@@ -212,11 +212,7 @@ public abstract class APolicyRule implements IPolicyRule {
                 req.getExtDataInStringVector(AgentApprovals.class.getName()));
 
         // Any approvals causes success
-        if (aa != null && aa.elements().hasMoreElements()) {
-            return PolicyResult.ACCEPTED;
-        } else {
-            return PolicyResult.DEFERRED;
-        }
+        return aa != null && aa.elements().hasMoreElements() ? PolicyResult.ACCEPTED : PolicyResult.DEFERRED;
     }
 
     /**
@@ -228,11 +224,7 @@ public abstract class APolicyRule implements IPolicyRule {
                 req.getExtDataInStringVector(AgentApprovals.class.getName()));
 
         // Any approvals causes success
-        if (aa != null && aa.elements().hasMoreElements()) {
-            return true;
-        } else {
-            return false;
-        }
+        return aa != null && aa.elements().hasMoreElements();
     }
 
     public void setPolicyException(IRequest req, String format,
