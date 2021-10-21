@@ -32,7 +32,6 @@ public class RequestQueueTest extends CMSBaseTestCase {
                 requestRepository,
                 null,
                 null,
-                null,
                 null);
     }
 

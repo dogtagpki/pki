@@ -22,7 +22,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.PQGParams;
@@ -188,13 +187,6 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      * @return request listener
      */
     public IRequestListener getRequestInQListener();
-
-    /**
-     * Returns policy processor of the key recovery
-     * authority.
-     * @return policy processor
-     */
-    public IPolicyProcessor getPolicyProcessor();
 
     /**
      * Returns the nickname of the transport certificate.

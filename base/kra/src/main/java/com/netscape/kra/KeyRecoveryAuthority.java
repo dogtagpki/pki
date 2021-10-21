@@ -32,8 +32,6 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.dogtagpki.legacy.kra.KRAPolicy;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.kra.KRAConfig;
 import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.KRAEngineConfig;
@@ -64,7 +62,6 @@ import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
-import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
@@ -118,7 +115,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
 
     protected boolean mInitialized = false;
     protected KRAConfig mConfig;
-    protected KRAPolicy mPolicy = null;
     protected X500Name mName = null;
     protected boolean mQueueRequests = false;
     protected String mId = null;
@@ -176,11 +172,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
     @Override
     public void setId(String id) throws EBaseException {
         mId = id;
-    }
-
-    @Override
-    public IPolicyProcessor getPolicyProcessor() {
-        return mPolicy.getPolicyProcessor();
     }
 
     // initialize entropy collection parameters
@@ -292,10 +283,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
 
         mConfig = engineConfig.getKRAConfig();
 
-        // initialize policy processor
-        mPolicy = new KRAPolicy();
-        mPolicy.init(this, mConfig.getSubStore(PROP_POLICY, ConfigStore.class));
-
         // create key repository
         int keydb_inc = mConfig.getInteger(PROP_KEYDB_INC, 5);
 
@@ -397,7 +384,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
         RequestQueue requestQueue = new RequestQueue(
                 dbSubsystem,
                 requestRepository,
-                mPolicy,
                 service,
                 requestNotifier,
                 pendingNotifier);
@@ -1460,10 +1446,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
     @Override
     public void setNewNickName(String name) {
         mConfig.putString(PROP_NEW_NICKNAME, name);
-    }
-
-    public IPolicy getPolicy() {
-        return mPolicy;
     }
 
     /**
