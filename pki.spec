@@ -421,8 +421,6 @@ Requires:         resteasy-core >= 3.0.17-1
 Requires:         resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
-Requires:         xml-commons-resolver
-
 %description -n   %{product_id}-java
 This package provides common and client libraries for Java.
 

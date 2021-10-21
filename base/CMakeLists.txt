@@ -279,14 +279,6 @@ find_file(TOMCATJSS_JAR
         /usr/share/java
 )
 
-find_file(XML_COMMONS_RESOLVER_JAR
-    NAMES
-        xml-commons-resolver.jar
-        xml-resolver.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(BASE_JAR
     NAMES
         idm-console-base.jar
