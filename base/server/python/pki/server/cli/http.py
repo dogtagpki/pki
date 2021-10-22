@@ -209,11 +209,10 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
 
         server_config = instance.get_server_config()
 
-        try:
-            server_config.get_connector(name)
+        connector = server_config.get_connector(name)
+
+        if connector:
             raise Exception('Connector already exists: %s' % name)
-        except KeyError:
-            pass
 
         connector = server_config.create_connector(name)
 
@@ -438,6 +437,9 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
         server_config = instance.get_server_config()
         connector = server_config.get_connector(name)
 
+        if not connector:
+            raise KeyError('Connector not found: %s' % name)
+
         HTTPConnectorCLI.print_connector(connector)
 
 
@@ -570,6 +572,9 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
         server_config = instance.get_server_config()
         connector = server_config.get_connector(name)
+
+        if not connector:
+            raise KeyError('Connector not found: %s' % name)
 
         if connector_type == 'JSS':
 
@@ -738,6 +743,9 @@ class SSLHostAddCLI(pki.cli.CLI):
         server_config = instance.get_server_config()
         connector = server_config.get_connector(connector_name)
 
+        if not connector:
+            raise KeyError('Connector not found: %s' % connector_name)
+
         try:
             server_config.get_sslhost(connector, hostname)
             raise Exception('SSL host already exists: %s' % hostname)
@@ -822,6 +830,10 @@ class SSLHostDeleteCLI(pki.cli.CLI):
 
         server_config = instance.get_server_config()
         connector = server_config.get_connector(connector_name)
+
+        if not connector:
+            raise KeyError('Connector not found: %s' % connector_name)
+
         server_config.remove_sslhost(connector, hostname)
 
         server_config.save()
@@ -889,6 +901,10 @@ class SSLHostFindCLI(pki.cli.CLI):
 
         server_config = instance.get_server_config()
         connector = server_config.get_connector(connector_name)
+
+        if not connector:
+            raise KeyError('Connector not found: %s' % connector_name)
+
         sslhosts = server_config.get_sslhosts(connector)
 
         self.print_message('%s entries matched' % len(sslhosts))
@@ -1045,6 +1061,10 @@ class SSLCertAddCLI(pki.cli.CLI):
 
         server_config = instance.get_server_config()
         connector = server_config.get_connector(connector_name)
+
+        if not connector:
+            raise KeyError('Connector not found: %s' % connector_name)
+
         sslhost = server_config.get_sslhost(connector, hostname)
 
         try:
@@ -1142,6 +1162,10 @@ class SSLCertDeleteCLI(pki.cli.CLI):
 
         server_config = instance.get_server_config()
         connector = server_config.get_connector(connector_name)
+
+        if not connector:
+            raise KeyError('Connector not found: %s' % connector_name)
+
         sslhost = server_config.get_sslhost(connector, hostname)
 
         server_config.remove_sslcert(sslhost, certType)
@@ -1218,6 +1242,10 @@ class SSLCertFindLI(pki.cli.CLI):
 
         server_config = instance.get_server_config()
         connector = server_config.get_connector(connector_name)
+
+        if not connector:
+            raise KeyError('Connector not found: %s' % connector_name)
+
         sslhost = server_config.get_sslhost(connector, hostname)
 
         sslcerts = server_config.get_sslcerts(sslhost)

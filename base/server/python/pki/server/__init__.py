@@ -1204,6 +1204,10 @@ grant codeBase "file:%s" {
 
         server_config = self.get_server_config()
         connector = server_config.get_connector('Secure')
+
+        if not connector:
+            raise KeyError('Connector not found: Secure')
+
         sslhost = server_config.get_sslhost(connector)
         sslcert = server_config.get_sslcert(sslhost)
 
@@ -1220,6 +1224,10 @@ grant codeBase "file:%s" {
 
         server_config = self.get_server_config()
         connector = server_config.get_connector('Secure')
+
+        if not connector:
+            raise KeyError('Connector not found: Secure')
+
         sslhost = server_config.get_sslhost(connector)
         sslcert = server_config.get_sslcert(sslhost)
         sslcert.set('certificateKeyAlias', fullname)
@@ -1638,7 +1646,7 @@ class ServerConfiguration(object):
             if n == name:
                 return connector
 
-        raise KeyError('Connector not found: %s' % name)
+        return None
 
     def create_connector(self, name):
 
@@ -1659,6 +1667,10 @@ class ServerConfiguration(object):
     def remove_connector(self, name):
 
         connector = self.get_connector(name)
+
+        if not connector:
+            raise KeyError('Connector not found: %s' % name)
+
         service = connector.getparent()
         service.remove(connector)
 
