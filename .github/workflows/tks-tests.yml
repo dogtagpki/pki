@@ -28,9 +28,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     steps:
+      - name: Install git
+        run: dnf install -y git
+
       - name: Clone repository
         uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          dnf install -y dnf-plugins-core rpm-build moby-engine
+          dnf copr enable -y ${{ needs.init.outputs.repo }}
+          dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
+
+      - name: Build PKI packages
+        run: ./build.sh --with-pkgs=base,server,ca,tks --with-timestamp --with-commit-id --work-dir=build rpm
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -42,7 +55,6 @@ jobs:
           build-args: |
             OS_VERSION=${{ matrix.os }}
             COPR_REPO=${{ needs.init.outputs.repo }}
-            BUILD_OPTS=--with-pkgs=base,server,ca,tks --with-timestamp --with-commit-id
           tags: pki-runner
           target: pki-runner
           outputs: type=docker,dest=/tmp/pki-runner.tar
