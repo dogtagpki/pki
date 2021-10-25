@@ -30,20 +30,27 @@ jobs:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     steps:
-      - name: Install git
-        run: dnf install -y git
-
       - name: Clone the repository
         uses: actions/checkout@v2
 
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: /var/cache/dnf
+          key: fedora:${{ matrix.os }}-ipa-${{ hashFiles('pki.spec') }}
+
       - name: Install dependencies
         run: |
+          # keep packages after installation
+          echo "keepcache=True" >> /etc/dnf/dnf.conf
           dnf install -y dnf-plugins-core rpm-build moby-engine
           dnf copr enable -y ${{ needs.init.outputs.repo }}
           dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
+          # don't cache COPR packages
+          rm -f `find /var/cache/dnf -name '*.rpm' | grep '/var/cache/dnf/copr:'`
 
       - name: Build PKI packages
-        run: ./build.sh --with-pkgs=base,server,ca,kra,acme --with-timestamp --with-commit-id --work-dir=build rpm
+        run: ./build.sh --with-pkgs=base,server,ca,kra,acme --with-timestamp --work-dir=build rpm
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
