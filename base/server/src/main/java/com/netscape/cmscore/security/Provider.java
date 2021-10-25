@@ -25,7 +25,7 @@ public class Provider extends java.security.Provider {
     private static final long serialVersionUID = -8050884788034389693L;
 
     public Provider() {
-        super("CMS", 1.4,
+        super("CMS", "1.4",
                 "Provides Signature and Message Digesting");
 
         /////////////////////////////////////////////////////////////
