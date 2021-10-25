@@ -59,7 +59,17 @@ if(WITH_TEST)
             pki-cmsutil-jar
     )
 
-    # TODO: create CMake function to find all JUnit test classes
+    execute_process(
+        COMMAND bash "-c"
+        "grep -ilR @Test ${PROJECT_SOURCE_DIR} \
+        | cut -d':' -f1 \
+        | awk -F '/src/test/java/' '{ print $2 }' \
+        | sed 's/.java/;/g' \
+        | sed 's!/!.!g' \
+        | tr -d '\n'"
+        OUTPUT_VARIABLE DISCOVERED_TESTS
+    )
+
     add_junit_test(test-pki-util
         CLASSPATH
             ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
@@ -69,7 +79,7 @@ if(WITH_TEST)
             ${HAMCREST_JAR} ${JUNIT_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
         TESTS
-            com.netscape.cmsutil.crypto.KeyIDCodecTest
+            ${DISCOVERED_TESTS}
         REPORTS_DIR
             reports
         DEPENDS
