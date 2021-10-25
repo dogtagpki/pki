@@ -215,11 +215,22 @@ jobs:
               --server http://pki.example.com:8080/acme/directory \
               --non-interactive
 
-      - name: Gather artifacts
+      - name: Gather artifacts from server containers
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Gather artifacts from client container
+        if: always()
+        run: |
+          mkdir -p /tmp/artifacts/client
+          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
+          mkdir -p /tmp/artifacts/client/etc/letsencrypt
+          docker cp client:/etc/letsencrypt/live /tmp/artifacts/client/etc/letsencrypt
+          mkdir -p /tmp/artifacts/client/var/log/letsencrypt
+          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
         continue-on-error: true
 
       - name: Remove ACME from PKI container
@@ -230,13 +241,20 @@ jobs:
       - name: Remove CA from PKI container
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Upload artifacts
+      - name: Upload artifacts from server containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: acme-${{ matrix.os }}
+          name: acme-server-${{ matrix.os }}
           path: |
             /tmp/artifacts/pki
+
+      - name: Upload artifacts from client container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: acme-client-${{ matrix.os }}
+          path: /tmp/artifacts/client
 
   # This test verifies that in a cluster the baseURL parameter can be used
   # to replace a server with another server without affecting the client.
@@ -397,11 +415,22 @@ jobs:
               --server http://pki.example.com:8080/acme/directory \
               --non-interactive
 
-      - name: Gather artifacts
+      - name: Gather artifacts from server containers
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
           tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Gather artifacts from client container
+        if: always()
+        run: |
+          mkdir -p /tmp/artifacts/client
+          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
+          mkdir -p /tmp/artifacts/client/etc/letsencrypt
+          docker cp client:/etc/letsencrypt/live /tmp/artifacts/client/etc/letsencrypt
+          mkdir -p /tmp/artifacts/client/var/log/letsencrypt
+          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
         continue-on-error: true
 
       - name: Remove ACME from PKI container
@@ -412,13 +441,20 @@ jobs:
       - name: Remove CA from PKI container
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Upload artifacts
+      - name: Upload artifacts from server containers
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: acme-switchover-${{ matrix.os }}
+          name: acme-switchover-server-${{ matrix.os }}
           path: |
             /tmp/artifacts/pki
+
+      - name: Upload artifacts from client container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: acme-switchover-client-${{ matrix.os }}
+          path: /tmp/artifacts/client
 
   # docs/installation/podman/Deploying_PKI_ACME_Responder_on_Podman.md
   acme-container-test:
@@ -518,15 +554,22 @@ jobs:
       - name: Gather artifacts from server container
         if: always()
         run: |
+          mkdir -p /tmp/artifacts/server
+          docker logs server > /tmp/artifacts/server/container.out 2> /tmp/artifacts/server/container.err
           mkdir -p /tmp/artifacts/server/var/lib
           docker cp server:/var/lib/tomcats /tmp/artifacts/server/var/lib
-          docker logs server > /tmp/artifacts/server/container.log
+        continue-on-error: true
 
       - name: Gather artifacts from client container
         if: always()
         run: |
+          mkdir -p /tmp/artifacts/client
+          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
+          mkdir -p /tmp/artifacts/client/etc/letsencrypt
+          docker cp client:/etc/letsencrypt/live /tmp/artifacts/client/etc/letsencrypt
           mkdir -p /tmp/artifacts/client/var/log/letsencrypt
           docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
+        continue-on-error: true
 
       - name: Upload artifacts from server container
         if: always()

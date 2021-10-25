@@ -26,9 +26,9 @@ jobs:
     name: Building PKI
     needs: init
     runs-on: ubuntu-latest
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     steps:
       - name: Install git
         run: dnf install -y git
