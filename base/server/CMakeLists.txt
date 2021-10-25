@@ -66,7 +66,17 @@ if(WITH_TEST)
     )
 
     # create test target
-    # TODO: create CMake function to find all JUnit test classes
+    execute_process(
+        COMMAND bash "-c"
+        "grep -ilR @Test ${PROJECT_SOURCE_DIR} \
+        | cut -d':' -f1 \
+        | awk -F '/src/test/java/' '{ print $2 }' \
+        | sed 's/.java/;/g' \
+        | sed 's!/!.!g' \
+        | tr -d '\n'"
+        OUTPUT_VARIABLE DISCOVERED_TESTS
+    )
+
     add_junit_test(test-pki-server
         DEPENDS
             pki-server-test-classes
@@ -80,16 +90,7 @@ if(WITH_TEST)
             ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
         TESTS
-            com.netscape.cmscore.authentication.AuthTokenTest
-            com.netscape.cmscore.dbs.CertRecordListTest
-            com.netscape.cmscore.dbs.DBRegistryTest
-            com.netscape.cmscore.request.AgentApprovalsTest
-            com.netscape.cmscore.request.ExtAttrDynMapperTest
-            com.netscape.cmscore.request.ExtDataHashtableTest
-            com.netscape.cmscore.request.RequestQueueTest
-            com.netscape.cmscore.request.RequestRecordTest
-            com.netscape.cmscore.request.RequestTest
-            com.netscape.cmscore.password.PlainPasswordFileTest
+            ${DISCOVERED_TESTS}
         REPORTS_DIR
             reports
     )
