@@ -32,22 +32,8 @@ public class Provider extends java.security.Provider {
         // Signature
         /////////////////////////////////////////////////////////////
 
-        put("Signature.SHA1withDSA", "org.mozilla.jss.provider.DSASignature");
-
-        put("Alg.Alias.Signature.DSA", "SHA1withDSA");
-        put("Alg.Alias.Signature.DSS", "SHA1withDSA");
-        put("Alg.Alias.Signature.SHA/DSA", "SHA1withDSA");
-        put("Alg.Alias.Signature.SHA-1/DSA", "SHA1withDSA");
-        put("Alg.Alias.Signature.SHA1/DSA", "SHA1withDSA");
-        put("Alg.Alias.Signature.DSAWithSHA1", "SHA1withDSA");
-        put("Alg.Alias.Signature.SHAwithDSA", "SHA1withDSA");
-
         put("Signature.MD5/RSA", "org.mozilla.jss.provider.MD5RSASignature");
         put("Signature.MD2/RSA", "org.mozilla.jss.provider.MD2RSASignature");
-        put("Signature.SHA-1/RSA",
-                "org.mozilla.jss.provider.SHA1RSASignature");
-
-        put("Alg.Alias.Signature.SHA1/RSA", "SHA-1/RSA");
 
         /////////////////////////////////////////////////////////////
         // Message Digesting
