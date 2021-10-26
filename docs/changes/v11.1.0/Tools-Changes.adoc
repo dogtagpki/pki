@@ -21,3 +21,7 @@ The `pki-server <subsystem>-db-access` commands have been added to manage the ac
 == pkidaemon Changes ==
 
 The `pkidaemon status` command has been removed. Use `pki-server status` instead.
+
+== New pki nss-cert-find CLI ==
+
+The `pki nss-cert-find` command has been added to list certificates in NSS database.
