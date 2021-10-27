@@ -582,6 +582,153 @@ jobs:
           echo "u,u,u" > expected
           diff actual expected
 
+  # https://github.com/dogtagpki/pki/wiki/PKI-PKCS11-CLI
+  pki-pkcs11-test:
+    name: Testing PKI PKCS11 CLI
+    needs: [init, build]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    steps:
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Install PKI packages
+        run: |
+          dnf install -y dnf-plugins-core softhsm
+          dnf copr enable -y ${{ needs.init.outputs.repo }}
+          dnf -y localinstall build/RPMS/*
+
+      - name: Create HSM token
+        run: |
+          softhsm2-util --init-token \
+              --label HSM \
+              --so-pin Secret.123 \
+              --pin Secret.123 \
+              --free
+          softhsm2-util --show-slots
+
+      - name: Create cert in internal token
+        run: |
+          pki nss-cert-request \
+              --subject "CN=Certificate 1" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr cert1.csr
+          pki nss-cert-issue \
+              --csr cert1.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert cert1.crt
+          pki nss-cert-import \
+              --cert cert1.crt \
+              --trust CT,C,C \
+              cert1
+
+      - name: Create cert in HSM
+        run: |
+          echo "internal=" > password.conf
+          echo "hardware-HSM=Secret.123" >> password.conf
+
+          pki --token HSM -f password.conf nss-cert-request \
+              --subject "CN=Certificate 2" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr cert2.csr
+          pki --token HSM -f password.conf nss-cert-issue \
+              --csr cert2.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert cert2.crt
+          pki --token HSM -f password.conf nss-cert-import \
+              --cert cert2.crt \
+              --trust CT,C,C \
+              cert2
+
+      - name: Verify certs creation
+        run: |
+          # internal token should have cert1 and cert2
+          certutil -L -d /root/.dogtag/nssdb | tee output
+          cat output | sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' > expected
+
+          pki pkcs11-cert-find | sed -n 's/^\s*Cert ID:\s*\(\S\+\)\s*$/\1/p' > actual
+          diff actual expected
+
+          pki pkcs11-cert-show cert1
+          pki pkcs11-cert-export cert1
+
+          pki pkcs11-cert-show cert2
+          pki pkcs11-cert-export cert2
+
+          # HSM should have cert2 only
+          echo "Secret.123" > password.txt
+          certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
+          cat output | sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' > expected
+
+          pki --token HSM -f password.conf pkcs11-cert-find | sed -n 's/^\s*Cert ID:\s*\(\S\+\)\s*$/\1/p' > actual
+          diff actual expected
+
+          pki --token HSM -f password.conf pkcs11-cert-show HSM:cert2
+          pki --token HSM -f password.conf pkcs11-cert-export HSM:cert2
+
+      - name: Verify cert keys creation
+        run: |
+          # internal token should have cert1's key
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          cat output | sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' > cert1key
+
+          pki pkcs11-key-find | sed -n 's/^\s*Key ID:\s*\(\S\+\)\s*$/\1/p' > actual
+          diff actual cert1key
+
+          pki pkcs11-key-show `cat cert1key`
+
+          # HSM should have cert2's key
+          certutil -K -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
+          cat output | sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' > cert2key
+
+          pki --token HSM -f password.conf pkcs11-key-find | sed -n 's/^\s*Key ID:\s*HSM:\(\S\+\)\s*$/\1/p' > actual
+          diff actual cert2key
+
+          pki --token HSM -f password.conf pkcs11-key-show HSM:`cat cert2key`
+
+      - name: Remove certs
+        run: |
+          pki pkcs11-cert-del cert1
+          pki pkcs11-cert-del cert2
+          pki --token HSM -f password.conf pkcs11-cert-del HSM:cert2
+
+      - name: Remove cert keys
+        run: |
+          pki pkcs11-key-del `cat cert1key`
+          pki --token HSM -f password.conf pkcs11-key-del HSM:`cat cert2key`
+
+      - name: Verify certs removal
+        run: |
+          # internal token should have no certs
+          certutil -L -d /root/.dogtag/nssdb | tee output
+          cat output | sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' > actual
+          diff actual /dev/null
+
+          # HSM should have no certs
+          certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
+          cat output | sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' > actual
+          diff actual /dev/null
+
+      - name: Verify cert keys removal
+        run: |
+          # internal token should have no cert keys
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          cat output | sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' > actual
+          diff actual /dev/null
+
+          # HSM should have no cert keys
+          certutil -K -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
+          cat output | sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' > actual
+          diff actual /dev/null
+
+      - name: Remove HSM token
+        run: softhsm2-util --delete-token --token HSM
+
   # https://github.com/dogtagpki/pki/wiki/PKI-PKCS12-CLI
   pki-pkcs12-test:
     name: Testing PKI PKCS12 CLI
