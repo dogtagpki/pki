@@ -30,9 +30,6 @@ jobs:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     steps:
-      - name: Install git
-        run: dnf install -y git
-
       - name: Clone repository
         uses: actions/checkout@v2
 
