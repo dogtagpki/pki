@@ -452,7 +452,7 @@ class NSSDatabase(object):
 
     def add_cert(self, nickname, cert_file, token=None, trust_attributes=None):
 
-        logger.debug('nssdb.add_cert')
+        logger.debug('NSSDatabase.add_cert(%s)', nickname)
 
         tmpdir = tempfile.mkdtemp()
         try:
@@ -1205,7 +1205,7 @@ class NSSDatabase(object):
         :return: Trust flag
         :rtype: str
         """
-        logger.debug('get_trust')
+        logger.debug('NSSDatabase.get_trust(%s)', nickname)
         cert_trust = None
 
         tmpdir = tempfile.mkdtemp()
@@ -1223,7 +1223,7 @@ class NSSDatabase(object):
                 cmd.extend(['-h', token])
                 fullname = token + ':' + fullname
 
-            logger.debug('fullname = %s', fullname)
+            logger.debug('fullname: %s', fullname)
 
             if password_file:
                 cmd.extend(['-f', password_file])
@@ -1307,7 +1307,7 @@ class NSSDatabase(object):
     def get_cert(self, nickname, token=None, output_format='pem',
                  output_text=False):
 
-        logger.info('nssdb.get_cert')
+        logger.debug('NSSDatabase.get_cert(%s) begins', nickname)
 
         if output_format == 'pem':
             output_format_option = '-a'
@@ -1357,28 +1357,27 @@ class NSSDatabase(object):
                 # certutil returned an error
                 # raise exception unless its not cert not found
                 if std_err.startswith(b'certutil: Could not find cert: '):
-                    logger.info('-- cert not found --')
+                    logger.debug('Cert not found: %s', nickname)
                     return None
 
                 raise Exception('Could not find cert: %s: %s' % (fullname, std_err.strip()))
 
             if not cert_data:
-                # certutil did not return data
-                logger.info('certutil did not return data')
+                logger.debug('certutil did not return cert data')
                 return None
             else:
-                logger.info('certutil returned data for cert')
+                logger.debug('certutil returned cert data')
 
             if p.returncode != 0:
                 logger.warning('certutil returned non-zero exit code (bug #1539996)')
-                logger.info('certutil returned errocode: %s', p.returncode)
+                logger.debug('return code: %s', p.returncode)
 
             if output_format == 'base64':
                 cert_data = base64.b64encode(cert_data).decode('utf-8')
             if output_text and not isinstance(cert_data, six.string_types):
                 cert_data = cert_data.decode('ascii')
 
-            logger.info('nssdb.get_cert ends')
+            logger.debug('NSSDatabase.get_cert(%s) ends', nickname)
 
             return cert_data
 
@@ -1387,7 +1386,7 @@ class NSSDatabase(object):
 
     def get_cert_info(self, nickname, token=None):
 
-        logger.debug('nssdb.get_cert_info begins: %s', nickname)
+        logger.debug('NSSDatabase.get_cert_info(%s) begins', nickname)
         cert_pem = self.get_cert(nickname=nickname, token=token)
 
         if not cert_pem:
@@ -1408,7 +1407,7 @@ class NSSDatabase(object):
         cert['not_after'] = self.convert_time_to_millis(cert_obj.not_valid_after)
         cert['trust_flags'] = self.get_trust(nickname=nickname, token=token)
 
-        logger.debug('nssdb.get_cert_info ends: %s', nickname)
+        logger.debug('NSSDatabase.get_cert_info(%s) ends', nickname)
 
         return cert
 
@@ -1571,15 +1570,15 @@ class NSSDatabase(object):
             token=None,
             trust_attributes=None):
 
-        tmpdir = tempfile.mkdtemp()
+        logger.debug('NSSDatabase.import_cert_chain(%s) begins', nickname)
 
-        logger.debug('nssdb.import_cert_chain begins')
+        tmpdir = tempfile.mkdtemp()
 
         try:
             file_type = get_file_type(cert_chain_file)
 
             if file_type == 'cert':  # import single PEM cert
-                logger.debug('type is cert')
+                logger.debug('Importing a single cert')
                 self.add_cert(
                     nickname=nickname,
                     cert_file=cert_chain_file,
@@ -1594,7 +1593,7 @@ class NSSDatabase(object):
                 )
 
             elif file_type == 'pkcs7':  # import PKCS #7 cert chain
-                logger.debug('type is pkcs7')
+                logger.debug('Importing a PKCS #7 cert chain')
                 self.import_pkcs7(
                     pkcs7_file=cert_chain_file,
                     nickname=nickname,
@@ -1609,7 +1608,7 @@ class NSSDatabase(object):
                 return base64_data, [nickname]
 
             else:  # import PKCS #7 data without header/footer
-                logger.debug('type is pkcs7 without header/footer')
+                logger.debug('Importing a PKCS #7 data without header/footer')
                 with open(cert_chain_file, 'r') as f:
                     base64_data = f.read()
 
@@ -1635,7 +1634,7 @@ class NSSDatabase(object):
 
         finally:
             shutil.rmtree(tmpdir)
-            logger.info('import_cert_chain ends')
+            logger.debug('NSSDatabase.import_cert_chain(%s) ends', nickname)
 
     def import_pkcs7(
             self,
@@ -1645,7 +1644,7 @@ class NSSDatabase(object):
             token=None,
             trust_attributes=None):
 
-        logger.debug('import_pkcs7')
+        logger.debug('NSSDatabase.import_pkcs7()')
 
         if not nickname:
 
@@ -1704,8 +1703,7 @@ class NSSDatabase(object):
                     break
                 n = n + 1
 
-            logger.debug('Number of certs in pkcs#7 to import: %s', n)
-
+            logger.debug('Number of certs in PKCS #7: %s', n)
             # Import CA certs with default nicknames and trust attributes.
             for i in range(0, n - 1):
                 cert_file = prefix + str(i) + suffix

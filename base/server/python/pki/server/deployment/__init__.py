@@ -350,6 +350,8 @@ class PKIDeployer:
 
     def import_cert_chain(self, nssdb):
 
+        logger.debug('PKIDeployer.import_cert_chain()')
+
         chain_file = self.mdict.get('pki_cert_chain_path')
 
         if not chain_file or not os.path.exists(chain_file):
@@ -357,7 +359,7 @@ class PKIDeployer:
 
         nickname = self.mdict['pki_cert_chain_nickname']
 
-        logger.info('import_cert_chain: Importing certificate chain from %s', chain_file)
+        logger.info('Importing certificate chain from %s', chain_file)
 
         nssdb.import_cert_chain(
             nickname=nickname,
@@ -421,7 +423,7 @@ class PKIDeployer:
 
     def configure_system_certs(self, subsystem):
 
-        logger.debug('configure_system_certs')
+        logger.debug('PKIDeployer.configure_system_certs()')
 
         if subsystem.name == 'ca':
             self.configure_system_cert(subsystem, 'signing')
@@ -553,7 +555,7 @@ class PKIDeployer:
 
     def ds_connect(self):
         if not self.ds_url:
-            logger.info('ds_connect called without corresponding call to ds_init')
+            logger.debug('ds_connect() called without corresponding call to ds_init()')
             self.ds_init()
 
         logger.info('Connecting to LDAP server at %s', self.ds_url)
@@ -681,7 +683,7 @@ class PKIDeployer:
 
     def setup_cert(self, subsystem, client, tag, system_cert):
 
-        logger.info('setup_cert:')
+        logger.debug('PKIDeployer.setup_cert()')
 
         # Process existing CA installation like external CA
         external = config.str2bool(self.mdict['pki_external']) or \
@@ -755,7 +757,7 @@ class PKIDeployer:
 
     def setup_system_certs(self, subsystem, client):
 
-        logger.info("setup_system_certs: ")
+        logger.debug('PKIDeployer.setup_system_certs()')
         system_certs = {}
 
         for system_cert in subsystem.find_system_certs():
@@ -787,7 +789,7 @@ class PKIDeployer:
 
     def load_admin_cert(self, subsystem):
 
-        logger.info('load_admin_cert')
+        logger.debug('PKIDeployer.load_admin_cert()')
 
         standalone = config.str2bool(self.mdict['pki_standalone'])
         external_step_two = config.str2bool(self.mdict['pki_external_step_two'])
@@ -799,7 +801,7 @@ class PKIDeployer:
             # Copy the externally-issued admin certificate into
             # 'ca_admin.cert' under the specified 'pki_client_dir'
             # stripping the certificate HEADER/FOOTER prior to saving it.
-            logger.info('load_admin_cert: external_step_two and not CA')
+            logger.debug('load_admin_cert: external_step_two and not CA')
 
             logger.info('Loading admin cert from %s', self.mdict['pki_admin_cert_path'])
 
@@ -981,13 +983,13 @@ class PKIDeployer:
 
     def get_admin_cert(self, subsystem, client):
 
-        logger.info('get_admin_cert')
+        logger.debug('PKIDeployer.get_admin_cert()')
         external_step_two = config.str2bool(self.mdict['pki_external_step_two'])
         if config.str2bool(self.mdict['pki_import_admin_cert']):
             b64cert = self.load_admin_cert(subsystem)
         else:
             if external_step_two and subsystem.type != 'CA':
-                logger.info('get_admin_cert: pki_external_step_two True')
+                logger.debug('get_admin_cert: pki_external_step_two True')
                 b64cert = self.load_admin_cert(subsystem)
                 self.config_client.process_admin_p12()
                 logger.debug('Admin cert: %s', b64cert)

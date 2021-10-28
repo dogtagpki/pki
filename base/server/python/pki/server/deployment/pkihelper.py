@@ -1680,7 +1680,7 @@ class HSM:
             command = [config.PKI_HSM_NCIPHER_EXE, "restart"]
 
             # Display this "nCipher" HSM command
-            logger.info(log.PKIHELPER_NCIPHER_RESTART_1, ' '.join(command))
+            logger.debug(log.PKIHELPER_NCIPHER_RESTART_1, ' '.join(command))
             # Execute this "nCipher" HSM command
             subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
@@ -1798,7 +1798,7 @@ class Certutil:
                     raise Exception(
                         log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
             # Display this "certutil" command
-            logger.info('Command: %s', ' '.join(command))
+            logger.debug('Command: %s', ' '.join(command))
             # Execute this "certutil" command
             if silent:
                 # By default, execute this command silently
@@ -2598,7 +2598,7 @@ class ConfigClient:
 
     def process_admin_cert(self, admin_cert):
 
-        logger.info('process_admin_cert')
+        logger.debug('ConfigClient.process_admin_cert()')
         admin_cert_file = self.mdict['pki_client_admin_cert']
         logger.info('Storing admin certificate into %s', admin_cert_file)
 
@@ -2622,7 +2622,10 @@ class ConfigClient:
             client_nssdb.close()
 
     def process_admin_p12(self):
-        logger.info('process_admin_p12: Exporting admin certificate into %s',
+
+        logger.debug('ConfigClient.process_admin_p12()')
+
+        logger.info('Exporting admin certificate into %s',
                     self.mdict['pki_client_admin_cert_p12'])
 
         # create directory for p12 file if it does not exist
