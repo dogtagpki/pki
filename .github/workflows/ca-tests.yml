@@ -735,6 +735,16 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
+      - name: Verify users and SD hosts in primary PKI container
+        run: |
+          docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec primary pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+          docker exec primary pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+          docker exec primary pki -n caadmin ca-user-find
+          docker exec primary pki securitydomain-host-find
+
       - name: Set up secondary DS container
         run: |
           tests/bin/ds-container-create.sh secondaryds
@@ -756,7 +766,6 @@ jobs:
 
       - name: Install CA in secondary PKI container
         run: |
-          docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
           docker exec secondary cp ${SHARED}/ca_signing.crt .
           docker exec secondary cp ${SHARED}/ca-certs.p12 .
@@ -767,7 +776,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
-      - name: Verify CA admin in secondary PKI container
+      - name: Verify users and SD hosts in secondary PKI container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
           docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
@@ -775,7 +784,8 @@ jobs:
           docker exec secondary pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password-file ${SHARED}/pkcs12_password.conf
-          docker exec secondary pki -n caadmin ca-user-show caadmin
+          docker exec secondary pki -n caadmin ca-user-find
+          docker exec secondary pki securitydomain-host-find
 
       - name: Set up tertiary DS container
         run: |
@@ -809,13 +819,14 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
-      - name: Verify CA admin in tertiary PKI container
+      - name: Verify users and SD hosts in tertiary PKI container
         run: |
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec tertiary pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password-file ${SHARED}/pkcs12_password.conf
-          docker exec tertiary pki -n caadmin ca-user-show caadmin
+          docker exec tertiary pki -n caadmin ca-user-find
+          docker exec tertiary pki securitydomain-host-find
 
       - name: Gather artifacts from primary containers
         if: always()
@@ -839,13 +850,22 @@ jobs:
         continue-on-error: true
 
       - name: Remove CA from tertiary PKI container
-        run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
+        run: |
+          docker exec tertiary pki -n caadmin ca-user-find
+          docker exec tertiary pki securitydomain-host-find
+          docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove CA from secondary PKI container
-        run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+        run: |
+          docker exec secondary pki -n caadmin ca-user-find
+          docker exec secondary pki securitydomain-host-find
+          docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove CA from primary PKI container
-        run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
+        run: |
+          docker exec primary pki -n caadmin ca-user-find
+          docker exec primary pki securitydomain-host-find
+          docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Upload artifacts from primary containers
         if: always()
@@ -1139,14 +1159,15 @@ jobs:
           sed -n 's/^\s\+Secure:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Verify CA admin in primary PKI container
+      - name: Verify users and DS hosts in primary PKI container
         run: |
           docker exec primary pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec primary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec primary pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
-          docker exec primary pki -n caadmin ca-user-show caadmin
+          docker exec primary pki -n caadmin ca-user-find
+          docker exec primary pki securitydomain-host-find
 
       - name: Set up secondary DS container
         run: |
@@ -1245,7 +1266,7 @@ jobs:
           sed -n 's/^\s\+Secure:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Verify CA admin in secondary PKI container
+      - name: Verify users and SD hosts in secondary PKI container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
           docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
@@ -1254,7 +1275,8 @@ jobs:
           docker exec secondary pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password-file ${SHARED}/pkcs12_password.conf
-          docker exec secondary pki -n caadmin ca-user-show caadmin
+          docker exec secondary pki -n caadmin ca-user-find
+          docker exec secondary pki securitydomain-host-find
 
       - name: Gather artifacts from primary containers
         if: always()
@@ -1271,10 +1293,16 @@ jobs:
         continue-on-error: true
 
       - name: Remove CA from secondary PKI container
-        run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+        run: |
+          docker exec secondary pki -n caadmin ca-user-find
+          docker exec secondary pki securitydomain-host-find
+          docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove CA from primary PKI container
-        run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
+        run: |
+          docker exec primary pki -n caadmin ca-user-find
+          docker exec primary pki securitydomain-host-find
+          docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Upload artifacts from primary containers
         if: always()
