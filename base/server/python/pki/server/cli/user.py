@@ -454,7 +454,8 @@ class UserCertCLI(pki.cli.CLI):
 
     def __init__(self, parent):
         super(UserCertCLI, self).__init__(
-            'cert', '%s user cert management commands' % parent.name.upper())
+            'cert',
+            '%s user cert management commands' % parent.parent.name.upper())
 
         self.parent = parent
         self.add_module(UserCertAddCLI(self))
