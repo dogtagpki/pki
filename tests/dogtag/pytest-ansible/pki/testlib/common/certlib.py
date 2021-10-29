@@ -23,6 +23,7 @@ import os
 import sys
 from datetime import datetime
 from subprocess import CalledProcessError
+from time import sleep
 
 import OpenSSL.crypto as crypto
 import pytest
@@ -139,13 +140,13 @@ class CertSetup(object):
                 group_name = [i for i in common_groups if role in i][0]
                 if self.create_role_user(ansible_module, subsystem, user_name, group_name):
                     subject_dn = "UID={},E={}@example.org,CN={},OU=IDMQE,C=US".format(user_name, user_name, user_name)
-                    if u_id is 'E':
+                    if u_id == 'E':
                         cert_serial = userop.process_certificate_request(ansible_module, subject=subject_dn,
                                                                          profile='caAgentFoobar')
                     else:
                         cert_serial = userop.process_certificate_request(ansible_module, subject=subject_dn,
                                                                          profile='caUserCert')
-                    if u_id is 'R':
+                    if u_id == 'R':
                         userop.revoke_certificate(ansible_module, cert_serial, 'Key_Compromise')
 
                     added = userop.add_cert_to_user(ansible_module, user_name, cert_serial, subsystem=subsystem,
@@ -213,10 +214,10 @@ class CertSetup(object):
             return [result['rc'], result['stdout']]
 
     def add_expired_profile_to_ca(self, ansible_module, duration):
-        profileid = 'caAgentFoobar'
+        profile_id = 'caAgentFoobar'
         # create a custom profile for Agent
-        p_obj = Setup(profile_type='user', profile_id=profileid)
-        profile_params = {'ProfileName': '%s Enrollment Profile' % (profileid),
+        p_obj = Setup(profile_type='user', profile_id=profile_id)
+        profile_params = {'ProfileName': '%s Enrollment Profile' % profile_id,
                           'notBefore': '2',
                           'notAfter': '2',
                           'ValidFor': '1',
@@ -225,14 +226,25 @@ class CertSetup(object):
 
         output_list = p_obj.create_profile(profile_params)
         try:
-            self.add_new_profile(ansible_module, profileid, output_list[0])
+            retry_count = 1
+            max_retries = 10
+            while retry_count < max_retries:
+                log.info("Attempting to add %s attempt: %i/ %i" % (profile_id, retry_count, max_retries))
+                if self.add_new_profile(ansible_module, profile_id, output_list[0]):
+                    break
+                retry_count += 1
+                sleep(1)
+            else:
+                log.error("Bug #2015507 - Failed to add profile %s" % profile_id)
         except PkiLibException as err:
-            pytest.xfail("Unable to add new profile, failed with error: %s" % (err.msg))
+            log.error("Failed to add %s with error: %s" % (profile_id, err.msg))
+            pytest.xfail("Unable to add new profile, failed with error: %s" % err.msg)
         # Enable the profile Using Agent cert
         try:
-            self.enable_profile(ansible_module, profileid)
+            self.enable_profile(ansible_module, profile_id)
         except PkiLibException as err:
-            pytest.xfail("Unable to enable profile, failed with error: %s" % (err.msg))
+            log.error("Failed to add %s with error: %s" % (profile_id, err.msg))
+            pytest.xfail("Unable to enable profile, failed with error: %s" % err.msg)
 
     def add_new_profile(self, ansible_module, profile_id, profile_xml, user_nick=None):
         ''' Add a new profile xml as user_nick

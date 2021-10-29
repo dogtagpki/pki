@@ -317,8 +317,6 @@ class UserOperations(object):
 
         cli_params += " --type {}".format(kwargs.get('request_type', 'pkcs10'))
 
-        transport_file = kwargs.get('transport_file', '/tmp/transport.pem')
-
         try:
             cert_request = ansible_module.pki(cli='client-cert-request',
                                               nssdb=self.nssdb,
@@ -328,8 +326,9 @@ class UserOperations(object):
                                               certnick=self.nick,
                                               extra_args=' {}'.format(cli_params))
             for host, result in cert_request.items():
+                log.info("Command result: %s" % result)
                 if result['rc'] == 0:
-                    request_id = re.search('Request ID: [\w]*', result['stdout'])
+                    request_id = re.search(r'Request ID: [\w]*', result['stdout'])
                     pkcs10_req_id = request_id.group().split(':')[1].strip()
                     return pkcs10_req_id
         except Exception as e:
@@ -372,6 +371,10 @@ class UserOperations(object):
                                                          transport_file=transport_file,
                                                          crmf_request_file=crmf_request_file)
 
+        if not request_id:
+            log.error("Failed to get request ID after creating certificate request.")
+            sys.exit(1)
+
         approve_request = ansible_module.pki(cli='ca-cert-request-review',
                                              nssdb=self.nssdb,
                                              dbpassword=self.db_pass,
@@ -383,7 +386,7 @@ class UserOperations(object):
         for result in approve_request.values():
             if result['rc'] == 0:
                 if action not in ['cancel', 'reject']:
-                    request_id = re.findall('Certificate ID: [\w]*', result['stdout'])
+                    request_id = re.findall(r'Certificate ID: [\w]*', result['stdout'])
                     certificate_id = request_id[0].split(':')[1].strip()
                     if revoke:
                         self.revoke_certificate(ansible_module, certificate_id, reason='Key_Compromise')
