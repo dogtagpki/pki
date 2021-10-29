@@ -183,7 +183,7 @@ BuildRequires:    python3-sphinx
 
 BuildRequires:    resteasy >= 3.0.26
 
-BuildRequires:    python3 >= 3.5
+BuildRequires:    python3 >= 3.9
 BuildRequires:    python3-devel
 BuildRequires:    python3-setuptools
 BuildRequires:    python3-cryptography
@@ -376,7 +376,7 @@ Provides:         pki-base-python3 = %{version}-%{release}
 %endif
 
 Requires:         %{product_id}-base = %{version}-%{release}
-Requires:         python3 >= 3.5
+Requires:         python3 >= 3.9
 Requires:         python3-cryptography
 Requires:         python3-ldap
 Requires:         python3-lxml
