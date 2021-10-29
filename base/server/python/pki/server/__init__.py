@@ -1205,7 +1205,7 @@ grant codeBase "file:%s" {
         server_config = self.get_server_config()
         connector = server_config.get_connector('Secure')
 
-        if not connector:
+        if connector is None:
             raise KeyError('Connector not found: Secure')
 
         sslhost = server_config.get_sslhost(connector)
@@ -1225,7 +1225,7 @@ grant codeBase "file:%s" {
         server_config = self.get_server_config()
         connector = server_config.get_connector('Secure')
 
-        if not connector:
+        if connector is None:
             raise KeyError('Connector not found: Secure')
 
         sslhost = server_config.get_sslhost(connector)
@@ -1668,7 +1668,7 @@ class ServerConfiguration(object):
 
         connector = self.get_connector(name)
 
-        if not connector:
+        if connector is None:
             raise KeyError('Connector not found: %s' % name)
 
         service = connector.getparent()
