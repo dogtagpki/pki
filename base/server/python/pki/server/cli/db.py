@@ -21,10 +21,12 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import getopt
+import getpass
+import inspect
 import logging
 import subprocess
 import sys
-import getpass
+import textwrap
 
 import pki.cli
 import pki.server.instance
@@ -219,6 +221,7 @@ class SubsystemDBCLI(pki.cli.CLI):
         self.add_module(SubsystemDBRemoveCLI(self))
         self.add_module(SubsystemDBUpgradeCLI(self))
 
+        self.add_module(SubsystemDBAccessCLI(self))
         self.add_module(SubsystemDBVLVCLI(self))
 
     @staticmethod
@@ -854,6 +857,202 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem.run(cmd, as_current_user=as_current_user)
+
+
+class SubsystemDBAccessCLI(pki.cli.CLI):
+    '''
+    {subsystem} database access management commands
+    '''
+
+    def __init__(self, parent):
+        super(SubsystemDBAccessCLI, self).__init__(
+            'access',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.name.upper()))
+
+        self.parent = parent
+        self.add_module(SubsystemDBAccessGrantCLI(self))
+        self.add_module(SubsystemDBAccessRevokeCLI(self))
+
+
+class SubsystemDBAccessGrantCLI(pki.cli.CLI):
+    '''
+    Grant {subsystem} database access
+    '''
+
+    help = '''\
+        Usage: pki-server {subsystem}-db-access-grant [OPTIONS] <DN>
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --as-current-user              Run as current user.
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''
+
+    def __init__(self, parent):
+        super(SubsystemDBAccessGrantCLI, self).__init__(
+            'grant',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.parent.name.upper()))
+
+        self.parent = parent
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help).format(
+            subsystem=self.parent.parent.parent.name))
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'as-current-user',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.parent.name
+        as_current_user = False
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--as-current-user':
+                as_current_user = True
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing DN')
+            self.print_help()
+            sys.exit(1)
+
+        dn = args[0]
+
+        instance = pki.server.instance.PKIInstance(instance_name)
+
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        subsystem.grant_database_access(dn, as_current_user=as_current_user)
+
+
+class SubsystemDBAccessRevokeCLI(pki.cli.CLI):
+    '''
+    Revoke {subsystem} database access
+    '''
+
+    help = '''\
+        Usage: pki-server {subsystem}-db-access-revoke [OPTIONS] <DN>
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --as-current-user              Run as current user.
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''
+
+    def __init__(self, parent):
+        super(SubsystemDBAccessRevokeCLI, self).__init__(
+            'revoke',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.parent.name.upper()))
+
+        self.parent = parent
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help).format(
+            subsystem=self.parent.parent.parent.name))
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'as-current-user',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.parent.name
+        as_current_user = False
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--as-current-user':
+                as_current_user = True
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing DN')
+            self.print_help()
+            sys.exit(1)
+
+        dn = args[0]
+
+        instance = pki.server.instance.PKIInstance(instance_name)
+
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        subsystem.revoke_database_access(dn, as_current_user=as_current_user)
 
 
 class SubsystemDBVLVCLI(pki.cli.CLI):

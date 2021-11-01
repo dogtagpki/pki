@@ -138,14 +138,24 @@ public class LDAPConfigurator {
         }
     }
 
-    public void setupDatabaseManager(String dn) throws Exception {
+    public void grantDatabaseAccess(String dn) throws Exception {
 
-        logger.info("Setting up database manager " + dn);
+        logger.info("Granting database access to " + dn);
 
         Map<String, String> params = new HashMap<>();
         params.put("dbuser", dn);
 
-        importLDIF("/usr/share/pki/server/conf/manager.ldif", true, params);
+        importLDIF("/usr/share/pki/server/conf/db-access-grant.ldif", true, params);
+    }
+
+    public void revokeDatbaseAccess(String dn) throws Exception {
+
+        logger.info("Revoking database access from " + dn);
+
+        Map<String, String> params = new HashMap<>();
+        params.put("dbuser", dn);
+
+        importLDIF("/usr/share/pki/server/conf/db-access-revoke.ldif", true, params);
     }
 
     public List<LDAPEntry> findVLVs() throws Exception {
