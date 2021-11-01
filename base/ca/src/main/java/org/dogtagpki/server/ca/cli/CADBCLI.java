@@ -22,6 +22,7 @@ import org.dogtagpki.cli.CLI;
 import org.dogtagpki.server.cli.SubsystemDBEmptyCLI;
 import org.dogtagpki.server.cli.SubsystemDBInfoCLI;
 import org.dogtagpki.server.cli.SubsystemDBInitCLI;
+import org.dogtagpki.server.cli.SubsystemDBAccessCLI;
 import org.dogtagpki.server.cli.SubsystemDBRemoveCLI;
 import org.dogtagpki.server.cli.SubsystemDBVLVCLI;
 
@@ -39,6 +40,7 @@ public class CADBCLI extends CLI {
         addModule(new SubsystemDBRemoveCLI(this));
         addModule(new CADBUpgradeCLI(this));
 
+        addModule(new SubsystemDBAccessCLI(this));
         addModule(new SubsystemDBVLVCLI(this));
     }
 }

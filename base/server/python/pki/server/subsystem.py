@@ -1027,6 +1027,46 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
+    def grant_database_access(
+            self,
+            dn,
+            as_current_user=False):
+
+        cmd = [self.name + '-db-access-grant']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(dn)
+
+        self.run(
+            cmd,
+            as_current_user=as_current_user,
+            capture_output=True)
+
+    def revoke_database_access(
+            self,
+            dn,
+            as_current_user=False):
+
+        cmd = [self.name + '-db-access-revoke']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(dn)
+
+        self.run(
+            cmd,
+            as_current_user=as_current_user,
+            capture_output=True)
+
     def find_vlv(self, as_current_user=False):
 
         cmd = [self.name + '-db-vlv-find']

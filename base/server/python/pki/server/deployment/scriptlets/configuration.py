@@ -673,6 +673,22 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             replication_port=replication_port,
             master_replication_port=master_replication_port)
 
+        # For security a PKI subsystem can be configured to use a database user
+        # that only has a limited access to the database (instead of cn=Directory
+        # Manager that has a full access to the database).
+        #
+        # The default database user is uid=pkidbuser,ou=people,<subsystem base DN>.
+        # However, if the subsystem is configured to share the database with another
+        # subsystem (pki_share_db=True), it can also be configured to use the same
+        # database user (pki_share_dbuser_dn).
+
+        if config.str2bool(deployer.mdict['pki_share_db']):
+            dbuser = deployer.mdict['pki_share_dbuser_dn']
+        else:
+            dbuser = 'uid=pkidbuser,ou=people,' + deployer.mdict['pki_ds_base_dn']
+
+        subsystem.grant_database_access(dbuser)
+
         subsystem.add_vlv()
         subsystem.reindex_vlv()
 

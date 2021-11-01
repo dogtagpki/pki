@@ -34,6 +34,7 @@ public class SubsystemDBCLI extends CLI {
         addModule(new SubsystemDBRemoveCLI(this));
         addModule(new SubsystemDBUpgradeCLI(this));
 
+        addModule(new SubsystemDBAccessCLI(this));
         addModule(new SubsystemDBVLVCLI(this));
     }
 }
