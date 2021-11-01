@@ -1076,26 +1076,41 @@ class PKIDeployer:
         secure_port = server_config.get_secure_port()
 
         uid = 'CA-%s-%s' % (self.mdict['pki_hostname'], secure_port)
-
         logger.info('Adding %s', uid)
-        subsystem.add_user(
-            uid,
-            full_name=uid,
-            user_type='agentType',
-            state='1')
 
-        logger.info('Adding subsystem certificate into %s', uid)
+        try:
+            subsystem.add_user(
+                uid,
+                full_name=uid,
+                user_type='agentType',
+                state='1')
+        except Exception:    # pylint: disable=W0703
+            logger.warning('Unable to add %s', uid)
+            # TODO: ignore error only if user already exists
+
         cert_data = pki.nssdb.convert_cert(
             cert['data'],
             'base64',
             'pem')
-        subsystem.add_user_cert(
-            uid,
-            cert_data=cert_data.encode(),
-            cert_format='PEM')
+
+        logger.info('Adding certificate for %s', uid)
+
+        try:
+            subsystem.add_user_cert(
+                uid,
+                cert_data=cert_data.encode(),
+                cert_format='PEM')
+        except Exception:    # pylint: disable=W0703
+            logger.warning('Unable to add certificate for %s', uid)
+            # TODO: ignore error only if user cert already exists
 
         logger.info('Adding %s into Subsystem Group', uid)
-        subsystem.add_group_member('Subsystem Group', uid)
+
+        try:
+            subsystem.add_group_member('Subsystem Group', uid)
+        except Exception:    # pylint: disable=W0703
+            logger.warning('Unable to add %s into Subsystem Group', uid)
+            # TODO: ignore failure only if user already exists in the group
 
     def backup_keys(self, instance, subsystem):
 

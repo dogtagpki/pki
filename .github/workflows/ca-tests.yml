@@ -1278,6 +1278,19 @@ jobs:
           docker exec secondary pki -n caadmin ca-user-find
           docker exec secondary pki securitydomain-host-find
 
+      - name: Remove CA from secondary PKI container
+        run: |
+          docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Re-install CA in secondary PKI container
+        run: |
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg \
+              -s CA \
+              -D pki_ds_hostname=secondaryds.example.com \
+              -D pki_ds_ldaps_port=3636 \
+              -v
+
       - name: Gather artifacts from primary containers
         if: always()
         run: |
