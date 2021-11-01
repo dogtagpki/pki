@@ -285,7 +285,7 @@ public class KeyCertUtil {
         if (keyType.equals("RSA"))
             sAlg = SignatureAlgorithm.RSASignatureWithMD5Digest;
         else
-            sAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;
+            sAlg = SignatureAlgorithm.ECSignatureWithSHA256Digest;
 
         return sAlg;
     }
@@ -298,14 +298,12 @@ public class KeyCertUtil {
                 sAlg = SignatureAlgorithm.RSASignatureWithMD2Digest;
             else if (hashtype.equals("MD5"))
                 sAlg = SignatureAlgorithm.RSASignatureWithMD5Digest;
-            else if (hashtype.equals("SHA1"))
-                sAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
             else if (hashtype.equals("SHA256"))
                 sAlg = SignatureAlgorithm.RSASignatureWithSHA256Digest;
             else if (hashtype.equals("SHA512"))
                 sAlg = SignatureAlgorithm.RSASignatureWithSHA512Digest;
         } else {
-            sAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;
+            sAlg = SignatureAlgorithm.ECSignatureWithSHA256Digest;
         }
 
         return sAlg;

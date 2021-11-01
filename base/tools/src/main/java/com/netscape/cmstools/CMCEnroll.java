@@ -187,9 +187,9 @@ public class CMCEnroll {
             byte[] dig;
 
             try {
-                MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
+                MessageDigest SHA256Digest = MessageDigest.getInstance("SHA256");
 
-                dig = SHA1Digest.digest(salt.getBytes());
+                dig = SHA256Digest.digest(salt.getBytes());
             } catch (NoSuchAlgorithmException ex) {
                 dig = salt.getBytes();
             }
@@ -226,20 +226,20 @@ public class CMCEnroll {
             EncapsulatedContentInfo ci = new
                     EncapsulatedContentInfo(OBJECT_IDENTIFIER.id_cct_PKIData,
                             pkidata);
-            // SHA1 is the default digest Alg for now.
+            // SHA256 is the default digest alg.
             DigestAlgorithm digestAlg = null;
-            SignatureAlgorithm signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
+            SignatureAlgorithm signAlg = SignatureAlgorithm.RSASignatureWithSHA256Digest;
             org.mozilla.jss.crypto.PrivateKey.Type signingKeyType =
                     ((org.mozilla.jss.crypto.PrivateKey) privKey).getType();
 
             if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA))
-                signAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;
+                signAlg = SignatureAlgorithm.ECSignatureWithSHA256Digest;
             MessageDigest SHADigest = null;
             byte[] digest = null;
 
             try {
-                SHADigest = MessageDigest.getInstance("SHA1");
-                digestAlg = DigestAlgorithm.SHA1;
+                SHADigest = MessageDigest.getInstance("SHA256");
+                digestAlg = DigestAlgorithm.SHA256;
 
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 

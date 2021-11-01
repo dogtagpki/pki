@@ -76,7 +76,7 @@ public class PFXUtils {
                     ASN1Util.decode(PrivateKeyInfo.getTemplate(),
                             privateKeyInfo);
             ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
-                    PBEAlgorithm.PBE_SHA1_DES3_CBC,
+                    PBEAlgorithm.PBE_PKCS5_PBMAC1,
                     pass, salt, 1, passConverter, pki);
             SET keyAttrs = createBagAttrs(
                     x509cert.getSubjectDN().toString(),

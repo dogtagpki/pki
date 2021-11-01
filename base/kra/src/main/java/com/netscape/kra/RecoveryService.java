@@ -619,7 +619,7 @@ public class RecoveryService implements IService {
                 ran.nextBytes(salt);
 
                 key = EncryptedPrivateKeyInfo.createPBE(
-                        PBEAlgorithm.PBE_SHA1_DES3_CBC,
+                        PBEAlgorithm.PBE_PKCS5_PBMAC1,
                         pass, salt, 1, passConverter, priKey, ct);
                 logger.debug("RecoverService: createPFX() EncryptedPrivateKeyInfo.createPBE() returned");
                 if (key == null) {
@@ -824,7 +824,7 @@ public class RecoveryService implements IService {
                  * does not support CKM_PKCS5_PBKD2 mechanism */
                 byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
                 epki = EncryptedPrivateKeyInfo.createPBE(
-                    PBEAlgorithm.PBE_SHA1_DES3_CBC,
+                    PBEAlgorithm.PBE_PKCS5_PBMAC1,
                     pass, salt, 1, new PasswordConverter(), pki);
             } else {
                 epki = EncryptedPrivateKeyInfo.createPBES2(

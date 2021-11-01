@@ -70,17 +70,17 @@ import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.BMPString;
-import org.mozilla.jss.asn1.PrintableString;
-import org.mozilla.jss.asn1.TeletexString;
-import org.mozilla.jss.asn1.UTF8String;
-import org.mozilla.jss.asn1.UniversalString;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.NULL;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.PrintableString;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.asn1.TeletexString;
+import org.mozilla.jss.asn1.UTF8String;
+import org.mozilla.jss.asn1.UniversalString;
 import org.mozilla.jss.crypto.Algorithm;
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoStore;
@@ -157,8 +157,8 @@ import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.crmf.EncryptedKey;
 import org.mozilla.jss.pkix.crmf.EncryptedValue;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.AVA;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.ssl.SSLCipher;
@@ -2213,7 +2213,7 @@ public class CryptoUtil {
         // TODO (alee) - this needs to work with AES keys.  It does not appear to be used though in the current KeyClient
         // We may end up simply removing this.
         @SuppressWarnings("unused")
-        PBEAlgorithm pbeAlg = PBEAlgorithm.PBE_SHA1_DES3_CBC;
+        PBEAlgorithm pbeAlg = PBEAlgorithm.PBE_PKCS5_PBMAC1;
 
         Password pass = new Password(recoveryPassphrase.toCharArray());
         try {
@@ -2949,18 +2949,12 @@ public class CryptoUtil {
             return "MD5withRSA";
         else if (algname.equals(SignatureAlgorithm.RSASignatureWithMD2Digest.toString()))
             return "MD2withRSA";
-        else if (algname.equals(SignatureAlgorithm.RSASignatureWithSHA1Digest.toString()))
-            return "SHA1withRSA";
-        else if (algname.equals(SignatureAlgorithm.DSASignatureWithSHA1Digest.toString()))
-            return "SHA1withDSA";
         else if (algname.equals(SignatureAlgorithm.RSASignatureWithSHA256Digest.toString()))
             return "SHA256withRSA";
         else if (algname.equals(SignatureAlgorithm.RSASignatureWithSHA384Digest.toString()))
             return "SHA384withRSA";
         else if (algname.equals(SignatureAlgorithm.RSASignatureWithSHA512Digest.toString()))
             return "SHA512withRSA";
-        else if (algname.equals(SignatureAlgorithm.ECSignatureWithSHA1Digest.toString()))
-            return "SHA1withEC";
         else if (algname.equals(SignatureAlgorithm.ECSignatureWithSHA256Digest.toString()))
             return "SHA256withEC";
         else if (algname.equals(SignatureAlgorithm.ECSignatureWithSHA384Digest.toString()))

@@ -456,7 +456,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         Password pass = new Password(pin.toCharArray());
         try {
             KeyGenerator kg = token.getKeyGenerator(
-                        PBEAlgorithm.PBE_SHA1_DES3_CBC);
+                        PBEAlgorithm.PBE_PKCS5_PBMAC1);
             byte salt[] = { 0x01, 0x01, 0x01, 0x01,
                     0x01, 0x01, 0x01, 0x01 };
             PBEKeyGenParams kgp = new PBEKeyGenParams(pass,

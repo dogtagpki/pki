@@ -37,6 +37,7 @@ import org.mozilla.jss.asn1.PrintableString;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.pkcs7.Attribute;
 import org.mozilla.jss.pkcs7.ContentInfo;
 import org.mozilla.jss.pkcs7.EncryptedContentInfo;
@@ -48,8 +49,6 @@ import org.mozilla.jss.pkcs7.SignerInfo;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.pkix.cert.CertificateInfo;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
-
-import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 
 public class CRSPKIMessage {
 
@@ -101,10 +100,6 @@ public class CRSPKIMessage {
 
     public static OBJECT_IDENTIFIER MD5_DIGEST =
             new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 2, 5 }
-            );
-
-    public static OBJECT_IDENTIFIER SHA1_DIGEST =
-            new OBJECT_IDENTIFIER(new long[] { 1, 3, 14, 3, 2, 26 }
             );
 
     public static OBJECT_IDENTIFIER SHA256_DIGEST =
@@ -212,9 +207,7 @@ public class CRSPKIMessage {
     private SignatureAlgorithm getSignatureAlgorithm(String hashAlgorithm) {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.RSASignatureWithMD5Digest;
         if (hashAlgorithm != null) {
-            if (hashAlgorithm.equals("SHA1")) {
-                signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA1Digest;
-            } else if (hashAlgorithm.equals("SHA256")) {
+            if (hashAlgorithm.equals("SHA256")) {
                 signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA256Digest;
             } else if (hashAlgorithm.equals("SHA512")) {
                 signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA512Digest;
@@ -226,9 +219,7 @@ public class CRSPKIMessage {
     private OBJECT_IDENTIFIER getAlgorithmOID(String hashAlgorithm) {
         OBJECT_IDENTIFIER oid = MD5_DIGEST;
         if (hashAlgorithm != null) {
-            if (hashAlgorithm.equals("SHA1")) {
-                oid = SHA1_DIGEST;
-            } else if (hashAlgorithm.equals("SHA256")) {
+            if (hashAlgorithm.equals("SHA256")) {
                 oid = SHA256_DIGEST;
             } else if (hashAlgorithm.equals("SHA512")) {
                 oid = SHA512_DIGEST;
@@ -243,8 +234,6 @@ public class CRSPKIMessage {
         if (algorithmOID != null) {
             if (algorithmOID.equals(MD5_DIGEST)) {
                 hashAlgorithm = "MD5";
-            } else if (algorithmOID.equals(SHA1_DIGEST)) {
-                hashAlgorithm = "SHA1";
             } else if (algorithmOID.equals(SHA256_DIGEST)) {
                 hashAlgorithm = "SHA256";
             } else if (algorithmOID.equals(SHA512_DIGEST)) {

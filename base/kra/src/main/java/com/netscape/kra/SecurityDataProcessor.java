@@ -877,7 +877,7 @@ public class SecurityDataProcessor {
 
         EncryptedContentInfo cInfo = null;
         String retData = null;
-        PBEAlgorithm keyGenAlg = PBEAlgorithm.PBE_SHA1_DES3_CBC;
+        PBEAlgorithm keyGenAlg = PBEAlgorithm.PBE_PKCS5_PBMAC1;
 
         byte[] encoded = null;
         try {
