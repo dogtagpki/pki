@@ -125,7 +125,7 @@ public class LDAPConfigurator {
         File tmpFile = File.createTempFile("pki-" + subsystem + "-reindex-", ".ldif");
 
         try {
-            customizeFile(file, tmpFile);
+            customizeFile(file, tmpFile, params);
 
             LDIF ldif = new LDIF(tmpFile.getAbsolutePath());
             LDIFRecord record = ldif.nextRecord();
@@ -382,7 +382,7 @@ public class LDAPConfigurator {
         connection.add(entry);
     }
 
-    public void customizeFile(File file, File tmpFile) throws Exception {
+    public void customizeFile(File file, File tmpFile, Map<String, String> params) throws Exception {
 
         logger.info("Creating " + tmpFile);
 
@@ -428,8 +428,22 @@ public class LDAPConfigurator {
     }
 
     public Collection<LDIFRecord> importLDIF(String filename, boolean ignoreErrors) throws Exception {
+        return importLDIF(filename, ignoreErrors, null);
+    }
 
-        logger.info("Importing " + filename);
+    public Collection<LDIFRecord> importLDIF(String filename, boolean ignoreErrors, Map<String, String> inputParams) throws Exception {
+
+        logger.info("Importing " + filename + " with params:");
+
+        Map<String, String> params = new HashMap<>(this.params);
+
+        if (inputParams != null) {
+            params.putAll(inputParams);
+        }
+
+        for (String name : params.keySet()) {
+            logger.info("- " + name + ": " + params.get(name));
+        }
 
         File file = new File(filename);
         File tmpFile = File.createTempFile("pki-import-", ".ldif");
@@ -437,7 +451,7 @@ public class LDAPConfigurator {
         Collection<LDIFRecord> records = new ArrayList<>();
 
         try {
-            customizeFile(file, tmpFile);
+            customizeFile(file, tmpFile, params);
 
             LDIF ldif = new LDIF(tmpFile.getAbsolutePath());
 
@@ -523,6 +537,9 @@ public class LDAPConfigurator {
                 String message = "Unable to modify " + dn + ": " + e;
 
                 if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT && ignoreErrors) {
+                    logger.info(message);
+
+                } else if (e.getLDAPResultCode() == LDAPException.NO_SUCH_ATTRIBUTE && ignoreErrors) {
                     logger.info(message);
 
                 } else if (e.getLDAPResultCode() == LDAPException.ATTRIBUTE_OR_VALUE_EXISTS && ignoreErrors) {
