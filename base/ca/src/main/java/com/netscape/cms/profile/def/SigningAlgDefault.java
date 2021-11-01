@@ -47,7 +47,7 @@ public class SigningAlgDefault extends EnrollDefault {
 
     public static final String VAL_ALGORITHM = "signingAlg";
     public static final String DEF_CONFIG_ALGORITHMS =
-            "-,SHA1withRSA,SHA256withRSA,SHA384withRSA,SHA512withRSA";
+            "-,SHA256withRSA,SHA384withRSA,SHA512withRSA";
 
     public SigningAlgDefault() {
         super();

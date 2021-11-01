@@ -80,7 +80,6 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
     public static final boolean DEF_REMOVE_PIN = false;
     public static final String DEF_PIN_ATTR = "pin";
 
-    protected static final byte SENTINEL_SHA = 0;
     protected static final byte SENTINEL_MD5 = 1;
     protected static final byte SENTINEL_SHA256 = 2;
     protected static final byte SENTINEL_NONE = 0x2d;
@@ -138,7 +137,6 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
 
     protected boolean mRemovePin = DEF_REMOVE_PIN;
     protected String mPinAttr = DEF_PIN_ATTR;
-    protected MessageDigest mSHADigest = null;
     protected MessageDigest mMD5Digest = null;
     protected MessageDigest mSHA256Digest = null;
 
@@ -180,7 +178,6 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         }
 
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
             mMD5Digest = MessageDigest.getInstance("MD5");
             mSHA256Digest = MessageDigest.getInstance("SHA256");
         } catch (NoSuchAlgorithmException e) {
@@ -349,10 +346,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         byte[] pinDigest = null;
         String toBeDigested = userdn + pin;
 
-        if (hashtype == SENTINEL_SHA) {
-
-            pinDigest = mSHADigest.digest(toBeDigested.getBytes());
-        } else if (hashtype == SENTINEL_MD5) {
+        if (hashtype == SENTINEL_MD5) {
             pinDigest = mMD5Digest.digest(toBeDigested.getBytes());
         } else if (hashtype == SENTINEL_SHA256) {
             pinDigest = mSHA256Digest.digest(toBeDigested.getBytes());

@@ -226,8 +226,6 @@ public interface Constants {
     public static final String PR_SIGNING_ALGORITHM = "signingAlgorithm";
     public static final String PR_MD2_RSA = "MD2withRSA";
     public static final String PR_MD5_RSA = "MD5withRSA";
-    public static final String PR_SHA1_RSA = "SHA1withRSA";
-    public static final String PR_SHA1_DSA = "SHA1withDSA";
     public static final String PR_DESCRIPTION = "description";
     public static final String PR_CLASS = "class";
 

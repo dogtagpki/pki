@@ -617,20 +617,6 @@ public class CMCOutputTemplate {
             SignatureAlgorithm signAlg = ca.getDefaultSignatureAlgorithm();
             org.mozilla.jss.crypto.PrivateKey privKey =
                     CryptoManager.getInstance().findPrivKeyByCert(x509CAcert);
-            /*
-                        org.mozilla.jss.crypto.PrivateKey.Type keyType = privKey.getType();
-                        if( keyType.equals( org.mozilla.jss.crypto.PrivateKey.RSA ) ) {
-                            signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
-                        } else if( keyType.equals( org.mozilla.jss.crypto.PrivateKey.DSA ) ) {
-                            signAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;
-                        } else if( keyType.equals( org.mozilla.jss.crypto.PrivateKey.EC ) ) {
-                             signAlg = SignatureAlgorithm.ECSignatureWithSHA1Digest;
-                        } else {
-                            logger.warn( "CMCOutputTemplate::getContentInfo() - "
-                                     + "signAlg is unsupported!" );
-                            return null;
-                        }
-            */
             DigestAlgorithm digestAlg = signAlg.getDigestAlg();
             MessageDigest msgDigest = null;
             byte[] digest = null;

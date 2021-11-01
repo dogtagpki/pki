@@ -64,8 +64,7 @@ public class WMessageDigestPage extends WizardBasePanel implements IWizardPanel 
             mECCHashTypeBox.setVisible(false);
             mDSAHashTypeBox.setVisible(false);
             mRSAHashTypeBox.setVisible(true);
-            String sha1 = mResource.getString(mPanelName+"_COMBOBOX_RSAHASHTYPE_VALUE_2");
-            mRSAHashTypeBox.setSelectedItem(sha1);
+            mRSAHashTypeBox.setSelectedItem(mResource.getString(mPanelName + "_COMBOBOX_RSAHASHTYPE_VALUE_2"));
         } else if (mCAKeyType.equals("ECC")) {
             mECCHashTypeBox.setVisible(true);
             mDSAHashTypeBox.setVisible(false);

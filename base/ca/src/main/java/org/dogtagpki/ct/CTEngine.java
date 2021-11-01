@@ -588,13 +588,13 @@ public class CTEngine {
      * CT signature
      *
      *  enum HashAlgorithm {
-     *      none, md5, sha1, sha224, sha256, sha384, sha512};
+     *      none, md5, sha224, sha256, sha384, sha512};
      */
-    enum HashAlgorithm {none, MD5, SHA1, SHA224, SHA256, SHA384, SHA512};
+    enum HashAlgorithm {none, MD5, SHA224, SHA256, SHA384, SHA512};
     public String getHashAlgFromSig(byte[] ct_signature) {
 
         int hashingAlg = Byte.toUnsignedInt(ct_signature[0]);
-        if (hashingAlg != 4) // only SHA256 supported for v1
+        if (hashingAlg != 3) // only SHA256 supported for v1
             return null;
 
         return HashAlgorithm.values()[hashingAlg].name();

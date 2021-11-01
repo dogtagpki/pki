@@ -174,7 +174,7 @@ public class CRSEnrollment extends HttpServlet {
     private boolean mUseCA = true;
     private String mNickname = null;
     private String mTokenName = "";
-    private String mHashAlgorithm = "SHA1";
+    private String mHashAlgorithm = "SHA256";
     private String mHashAlgorithmList = null;
     private String[] mAllowedHashAlgorithm;
     private String mConfiguredEncryptionAlgorithm = "DES3";
@@ -265,10 +265,10 @@ public class CRSEnrollment extends HttpServlet {
                 mIsDynamicProfileId = true;
                 logger.debug("CRSEnrollment: init: expecting dynamic ProfileId in URL");
             }
-            mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
+            mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA256");
             mConfiguredEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
             mNonceSizeLimit = scepConfig.getInteger("nonceSizeLimit", 0);
-            mHashAlgorithmList = scepConfig.getString("allowedHashAlgorithms", "SHA1,SHA256,SHA512");
+            mHashAlgorithmList = scepConfig.getString("allowedHashAlgorithms", "SHA256,SHA512");
             mAllowedHashAlgorithm = mHashAlgorithmList.split(",");
             mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
             mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");
@@ -357,7 +357,7 @@ public class CRSEnrollment extends HttpServlet {
         OID_SERIALNUMBER = X500NameAttrMap.getDefault().getOid("SERIALNUMBER");
 
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
+            mSHADigest = MessageDigest.getInstance("SHA256");
         } catch (NoSuchAlgorithmException e) {
         }
 
@@ -1853,7 +1853,7 @@ public class CRSEnrollment extends HttpServlet {
         Hashtable<String, byte[]> fingerprints = new Hashtable<>();
 
         MessageDigest md;
-        String[] hashes = new String[] { "MD2", "MD5", "SHA1", "SHA256", "SHA512" };
+        String[] hashes = new String[] { "MD2", "MD5", "SHA256", "SHA512" };
         PKCS10 p10 = req.getP10();
 
         for (int i = 0; i < hashes.length; i++) {
