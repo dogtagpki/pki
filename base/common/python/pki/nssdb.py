@@ -226,6 +226,7 @@ class NSSDatabase(object):
             return self.token
         return token
 
+
     def create_password_file(self, tmpdir, password, filename=None):
         if not filename:
             filename = 'password.txt'
@@ -233,6 +234,7 @@ class NSSDatabase(object):
         with open(password_file, 'w') as f:
             f.write(password)
         return password_file
+
 
     def get_dbtype(self):
         def dbexists(filename):
@@ -479,11 +481,8 @@ class NSSDatabase(object):
                 Raw extension data (``bytes``)
 
         """
-        if not cka_id:
-            cka_id = self.generate_key(
-                key_type=key_type, key_size=key_size,
-                curve=curve, noise_file=noise_file)
-        if not isinstance(cka_id, six.text_type):
+        logger.debug('nssdb:create_request starts');
+        if cka_id is not None and not isinstance(cka_id, six.text_type):
             raise TypeError('cka_id must be a text string')
 
         tmpdir = tempfile.mkdtemp()
@@ -493,18 +492,25 @@ class NSSDatabase(object):
                 if subject_key_id == 'DEFAULT':
                     # Caller wants a default subject key ID included
                     # in CSR.  To do this we must first generate a
-                    # temporary CSR for the key, then compute an SKI
+                    # key and temporary CSR, then compute an SKI
                     # from the public key data.
+
+                    if not cka_id:
+                        cka_id = self.__generate_key(
+                            tmpdir, key_type=key_type, key_size=key_size,
+                            curve=curve, noise_file=noise_file, token=token)
+
                     tmp_csr = os.path.join(tmpdir, 'tmp_csr.pem')
                     self.create_request(
                         subject_dn, tmp_csr,
-                        cka_id=cka_id, subject_key_id=None)
+                        token=token, cka_id=cka_id, subject_key_id=None)
                     with open(tmp_csr, 'rb') as f:
                         data = f.read()
                     csr = x509.load_pem_x509_csr(data, default_backend())
                     pub = csr.public_key()
                     ski = x509.SubjectKeyIdentifier.from_public_key(pub)
                     ski_bytes = ski.digest
+
                 else:
                     # Explicit subject_key_id provided; decode it
                     ski_bytes = binascii.unhexlify(subject_key_id)
@@ -531,16 +537,31 @@ class NSSDatabase(object):
                 '-d', self.directory
             ]
 
+            if cka_id is not None:
+                key_args = ['-k', cka_id]
+            else:
+                key_args = self.__generate_key_args(
+                    key_type=key_type, key_size=key_size, curve=curve)
+                if noise_file is None:
+                    noise_file = os.path.join(tmpdir, 'noise')
+                    size = key_size if key_size else 2048
+                    self.create_noise(noise_file=noise_file, size=size)
+                key_args.extend(['-z', noise_file])
+
+            cmd.extend(key_args)
+
             token = self.get_effective_token(token)
+            password_file = self.password_file
 
             if token:
                 cmd.extend(['-h', token])
 
+            if password_file:
+                cmd.extend(['-f', password_file])
+
             cmd.extend([
-                '-f', self.password_file,
                 '-s', subject_dn,
                 '-o', binary_request_file,
-                '-k', cka_id,
             ])
 
             if hash_alg:
@@ -592,26 +613,22 @@ class NSSDatabase(object):
                 cmd.extend([','.join(usages)])
 
             if generic_exts:
-
                 cmd.extend(['--extGeneric'])
-
-                counter = 0
                 exts = []
 
-                for generic_ext in generic_exts:
-                    data_file = os.path.join(tmpdir, 'csr-ext-%d' % counter)
-                    with open(data_file, 'w') as f:
-                        f.write(generic_ext['data'])
+                for i, ext in enumerate(generic_exts):
+                    data_file = os.path.join(tmpdir, 'csr-ext-%d' % i)
+                    with open(data_file, 'wb') as f:
+                        f.write(ext['data'])
 
-                    critical = ('critical' if generic_ext['critical']
-                                else 'not-critical')
+                    if ext['critical']:
+                        critical = 'critical'
+                    else:
+                        critical = 'not-critical'
 
-                    ext = generic_ext['oid']
-                    ext += ':' + critical
-                    ext += ':' + data_file
-
-                    exts.append(ext)
-                    counter += 1
+                    exts.append(
+                        '{}:{}:{}'.format(ext['oid'], critical, data_file)
+                    )
 
                 cmd.append(','.join(exts))
 
@@ -623,13 +640,14 @@ class NSSDatabase(object):
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT)
 
-            p.communicate(keystroke)
+            p.communicate(keystroke.encode('ascii'))
 
             rc = p.wait()
 
             if rc:
-                raise Exception(
-                    'Failed to generate certificate request. RC: %d' % rc)
+                msg = "Failed to generate certificate request. Return code: %d\n"
+                msg += "Command: %s"
+                raise Exception(msg % (rc, cmd))
 
             # encode binary request in base-64
             b64_request_file = os.path.join(tmpdir, 'request.b64')
@@ -649,48 +667,54 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def generate_key(
-            self,
+
+    def __generate_key(
+            self, tmpdir,
             key_type=None, key_size=None, curve=None,
-            noise_file=None):
+            noise_file=None, token=None):
         """
         Generate a key of the given type and size.
         Returns the CKA_ID of the generated key, as a text string.
+
+        This method enumerates all keys in the token, twice.  This
+        could be expensive on an HSM with lots of keys.  Therefore
+        avoid this method if possible.
+
+        ``tmpdir``
+          An existing temporary dir where a password file can be
+          written.  Must be valid.  It is caller responsibility to
+          create it and clean it up.
 
         ``noise_file``
           Path to a noise file, or ``None`` to automatically
           generate a noise file.
 
         """
-        ids_pre = set(self.list_private_keys())
+        password_file = self.get_password_file(tmpdir, token)
+        ids_pre = set(self.__list_private_keys(password_file, token=token))
 
         cmd = [
             'certutil',
-            '-d', self.directory,
-            '-f', self.password_file,
             '-G',
+            '-d', self.directory
         ]
-        if self.token:
-            cmd.extend(['-h', self.token])
-        if key_type:
-            cmd.extend(['-k', key_type])
-        if key_type.lower() == 'ec':
-            # This is fix for Bugzilla 1544843
-            cmd.extend([
-                '--keyOpFlagsOn', 'sign',
-                '--keyOpFlagsOff', 'derive',
-            ])
-        if key_size:
-            cmd.extend(['-g', str(key_size)])
-        if curve:
-            cmd.extend(['-q', curve])
+
+        if password_file:
+            cmd.extend(['-f', password_file])
+
+        token = self.get_effective_token(token)
+        if token:
+            cmd.extend(['-h', token])
+
+        cmd.extend(self.__generate_key_args(
+            key_type=key_type, key_size=key_size, curve=curve))
 
         temp_noise_file = noise_file is None
         if temp_noise_file:
             fd, noise_file = tempfile.mkstemp()
             os.close(fd)
             size = key_size if key_size else 2048
-            self.create_noise(noise_file=noise_file, size=size)
+            self.create_noise(noise_file=noise_file, size=size, key_type=key_type)
         cmd.extend(['-z', noise_file])
 
         try:
@@ -699,8 +723,80 @@ class NSSDatabase(object):
             if temp_noise_file:
                 os.unlink(noise_file)
 
-        ids_post = set(self.list_private_keys())
+        ids_post = set(self.__list_private_keys(password_file, token=token))
         return list(ids_post - ids_pre)[0].decode('ascii')
+
+
+    def __list_private_keys(self, password_file, token=None):
+        """
+        Return list of hex-encoded private key CKA_IDs in the token.
+
+        """
+        cmd = [
+            'certutil',
+            '-K',
+            '-d', self.directory
+        ]
+
+        if password_file:
+            cmd.extend(['-f', password_file])
+
+        token = self.get_effective_token(token)
+        if token:
+            cmd.extend(['-h', token])
+
+        try:
+            out = subprocess.check_output(cmd)
+        except subprocess.CalledProcessError as e:
+            if e.returncode == 255:
+                return []  # no keys were found
+            else:
+                raise e  # other error; re-raise
+
+        # output contains list that looks like:
+        #   < 0> rsa      b995381610fb58e8b45d3c2401dfd30d6efdd595 (orphan)
+        #   < 1> rsa      dcd6cbc1226ede02a961488553b01639ff981cdd someNickame
+        #
+        # The hex string is the hex-encoded CKA_ID
+        return re.findall(br'^<\s*\d+>\s+\w+\s+(\w+)', out, re.MULTILINE)
+
+    def create_cert(self, request_file, cert_file, serial, issuer=None,
+                    key_usage_ext=None, basic_constraints_ext=None,
+                    aki_ext=None, ski_ext=None, aia_ext=None,
+                    ext_key_usage_ext=None, validity=None):
+        cmd = [
+            'certutil',
+            '-C',
+            '-d', self.directory
+        ]
+
+        # Check if it's self signed
+        if issuer:
+            cmd.extend(['-c', issuer])
+        else:
+            cmd.extend(['-x'])
+
+        if self.token:
+            cmd.extend(['-h', self.token])
+
+        if self.password_file:
+            cmd.extend(['-f', self.password_file])
+
+        cmd.extend([
+            '-a',
+            '-i', request_file,
+            '-o', cert_file,
+            '-m', str(serial)
+        ])
+
+        if validity:
+            cmd.extend(['-v', str(validity)])
+
+        keystroke = ''
+
+        if aki_ext:
+            cmd.extend(['-3'])
+
 
     def list_private_keys(self):
         """
@@ -1334,3 +1430,54 @@ class NSSDatabase(object):
 
         finally:
             shutil.rmtree(tmpdir)
+
+
+    @staticmethod
+    def __generate_key_args(key_type=None, key_size=None, curve=None):
+        """
+        Construct certutil keygen command args.
+
+        """
+        args = []
+        is_ec = key_type and key_type.lower() in ('ec', 'ecc')
+
+        if key_type:
+            # The -k parameter is either a key type or an identifer of a key
+            # to reuse. Make sure to handle ec correctly: the type should be
+            # "ec" not "ecc".
+            if is_ec:
+                args.extend(['-k', 'ec'])
+            else:
+                args.extend(['-k', key_type])
+
+        if is_ec:
+            # This is fix for Bugzilla 1544843
+            args.extend([
+                '--keyOpFlagsOn', 'sign',
+                '--keyOpFlagsOff', 'derive',
+            ])
+
+            # When we want to generate a new EC key, we have to know the curve
+            # we want to use. This is either passed via the curve parameter or
+            # via the key_size parameter. If neither is specified, we have a
+            # problem. If both are specified and differ, we're confused. The
+            # reason is because the curve determines the size of the key;
+            # after that you don't have a choice.
+            if not curve and not key_size:
+                msg = "Must specify the curve to use when generating an "
+                msg += "elliptic curve key."
+                raise ValueError(msg)
+            if curve and key_size and curve != key_size:
+                msg = "Specified both curve (%s) and key size (%s) when "
+                msg += "generating an elliptic curve key, but they differ."
+                raise ValueError(msg % (curve, key_size))
+
+            if curve:
+                args.extend(['-q', str(curve)])
+            else:
+                args.extend(['-q', str(key_size)])
+        else:
+            if key_size:
+                args.extend(['-g', str(key_size)])
+
+        return args
