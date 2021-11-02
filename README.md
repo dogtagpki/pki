@@ -60,7 +60,7 @@ For other types of deployments (Sub-CA, Clones, HSMs, etc) please see under [doc
 sudo dnf install dnf-plugins-core rpm-build git
 
 # NOTE: Use the intendended branch name instead of "master" to pull right dependency version
-sudo dnf copr enable @pki/10.11
+sudo dnf copr enable @pki/10.12
 
 sudo dnf builddep pki.spec
 ````

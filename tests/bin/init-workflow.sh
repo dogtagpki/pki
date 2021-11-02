@@ -2,7 +2,7 @@
 
 if [ "$BASE64_MATRIX" == "" ]
 then
-    MATRIX="{\"os\":[\"latest\"]}"
+    MATRIX="{\"os\":[\"34\"]}"
 else
     MATRIX=$(echo "$BASE64_MATRIX" | base64 -d)
 fi
@@ -12,7 +12,7 @@ echo "::set-output name=matrix::$MATRIX"
 
 if [ "$BASE64_REPO" == "" ]
 then
-    REPO="@pki/10.11"
+    REPO="@pki/10.12"
 else
     REPO=$(echo "$BASE64_REPO" | base64 -d)
 fi

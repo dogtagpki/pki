@@ -5,7 +5,7 @@
 #
 # https://docs.fedoraproject.org/en-US/containers/guidelines/guidelines/
 
-FROM registry.fedoraproject.org/fedora:latest
+FROM registry.fedoraproject.org/fedora:34
 
 ARG NAME="pki-acme"
 ARG SUMMARY="Dogtag PKI ACME Responder"
@@ -15,7 +15,7 @@ ARG ARCH="x86_64"
 ARG MAINTAINER="Dogtag PKI Team <devel@lists.dogtagpki.org>"
 ARG VENDOR="Dogtag"
 ARG COMPONENT="pki-core"
-ARG COPR_REPO="@pki/10.11"
+ARG COPR_REPO="@pki/10.12"
 
 LABEL name="$NAME" \
       summary="$SUMMARY" \
