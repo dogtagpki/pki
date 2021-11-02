@@ -2,7 +2,7 @@
 
 if [ "$BASE64_MATRIX" == "" ]
 then
-    MATRIX="{\"os\":[\"latest\"]}"
+    MATRIX="{\"os\":[\"34\"]}"
 else
     MATRIX=$(echo "$BASE64_MATRIX" | base64 -d)
 fi
