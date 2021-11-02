@@ -661,26 +661,35 @@ public class LDAPConfigurator {
 
         try {
             connection.add(entry);
+            // replication manager added -> done
+            return;
 
         } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                logger.warn("Entry already exists: " + dn);
-
-                try {
-                    logger.info("Deleting " + dn);
-                    connection.delete(dn);
-
-                    logger.info("Re-adding " + dn);
-                    connection.add(entry);
-
-                } catch (LDAPException ee) {
-                    logger.warn("Unable to recreate " + dn + ": " + ee.getMessage());
-                }
-
-            } else {
+            if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
                 logger.error("Unable to add " + dn + ": " + e.getMessage(), e);
                 throw e;
             }
+            logger.warn("Replication manager already exists: " + dn);
+        }
+
+        logger.warn("Deleting existing replication manager: " + dn);
+
+        try {
+            connection.delete(dn);
+
+        } catch (LDAPException e) {
+            logger.error("Unable to delete " + dn + ": " + e.getMessage());
+            throw e;
+        }
+
+        logger.warn("Adding new replication manager: " + dn);
+
+        try {
+            connection.add(entry);
+
+        } catch (LDAPException e) {
+            logger.error("Unable to add " + dn + ": " + e.getMessage());
+            throw e;
         }
     }
 
@@ -799,28 +808,41 @@ public class LDAPConfigurator {
 
         try {
             connection.add(entry);
+            // replica object added -> done
+            return true;
 
         } catch (LDAPException e) {
-
             if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
+                logger.error("Unable to add " + replicaDN + ": " + e.getMessage(), e);
                 throw e;
             }
-
-            // BZ 470918: We can't just add the new dn.
-            // We need to do a replace until the bug is fixed.
-            logger.warn("Entry already exists, adding bind DN");
-
-            entry = connection.read(replicaDN);
-            LDAPAttribute attr = entry.getAttribute("nsDS5ReplicaBindDN");
-            attr.addValue(bindDN);
-
-            LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
-            connection.modify(replicaDN, mod);
-
-            return false;
+            logger.warn("Replica object already exists: " + replicaDN);
         }
 
-        return true;
+        logger.info("Adding replica bind DN");
+
+        // BZ 470918: We can't just add the new dn.
+        // We need to do a replace until the bug is fixed.
+
+        entry = connection.read(replicaDN);
+        LDAPAttribute attr = entry.getAttribute("nsDS5ReplicaBindDN");
+        attr.addValue(bindDN);
+
+        LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
+
+        try {
+            connection.modify(replicaDN, mod);
+            // replica bind DN added -> done
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() != LDAPException.ATTRIBUTE_OR_VALUE_EXISTS) {
+                logger.error("Unable to add " + bindDN + ": " + e.getMessage(), e);
+                throw e;
+            }
+            logger.warn("Replica bind DN already exists: " + bindDN);
+        }
+
+        return false;
     }
 
     public void createReplicationAgreement(
@@ -864,29 +886,33 @@ public class LDAPConfigurator {
 
         try {
             connection.add(entry);
+            // replication agreement added -> done
+            return;
 
         } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                logger.warn("Entry already exists: " + dn);
-
-                try {
-                    connection.delete(dn);
-                } catch (LDAPException ee) {
-                    logger.error("Unable to delete " + dn + ": " + ee.getMessage(), ee);
-                    throw ee;
-                }
-
-                try {
-                    connection.add(entry);
-                } catch (LDAPException ee) {
-                    logger.error("Unable to add " + dn + ": " + ee.getMessage(), ee);
-                    throw ee;
-                }
-
-            } else {
+            if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
                 logger.error("Unable to add " + dn + ": " + e.getMessage(), e);
                 throw e;
             }
+            logger.warn("Replication agreement already exists: " + dn);
+        }
+
+        logger.warn("Removing existing replication agreement: " + dn);
+
+        try {
+            connection.delete(dn);
+        } catch (LDAPException e) {
+            logger.error("Unable to delete " + dn + ": " + e.getMessage(), e);
+            throw e;
+        }
+
+        logger.warn("Adding new replication agreement: " + dn);
+
+        try {
+            connection.add(entry);
+        } catch (LDAPException e) {
+            logger.error("Unable to add " + dn + ": " + e.getMessage(), e);
+            throw e;
         }
     }
 
