@@ -11,7 +11,7 @@ ARG COMPONENT="pki-core"
 ARG LICENSE="GPLv2 and LGPLv2"
 ARG ARCH="x86_64"
 ARG VERSION="0"
-ARG OS_VERSION="latest"
+ARG OS_VERSION="34"
 ARG COPR_REPO="@pki/10.10"
 
 ################################################################################
