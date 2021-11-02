@@ -1163,6 +1163,17 @@ jobs:
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec secondary pki -n caadmin ca-user-show caadmin
 
+      - name: Remove CA from secondary PKI container
+        run: |
+          docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Re-install CA in secondary PKI container
+        run: |
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg \
+              -s CA \
+              -v
+
       - name: Gather artifacts from primary container
         if: always()
         run: |
