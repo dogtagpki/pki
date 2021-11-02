@@ -11,8 +11,8 @@ ARG COMPONENT="pki-core"
 ARG LICENSE="GPLv2 and LGPLv2"
 ARG ARCH="x86_64"
 ARG VERSION="0"
-ARG OS_VERSION="latest"
-ARG COPR_REPO="@pki/10.11"
+ARG OS_VERSION="34"
+ARG COPR_REPO="@pki/10.12"
 
 ################################################################################
 FROM registry.fedoraproject.org/fedora:$OS_VERSION AS pki-builder
