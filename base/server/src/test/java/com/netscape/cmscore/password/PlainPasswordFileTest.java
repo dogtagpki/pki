@@ -17,16 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.password;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import com.netscape.cmsutil.password.PlainPasswordFile;
@@ -66,9 +67,6 @@ public class PlainPasswordFileTest {
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void testInitNormal() throws IOException {
@@ -112,20 +110,17 @@ public class PlainPasswordFileTest {
 
     @Test
     public void testNoValue() throws IOException {
-        expectedException.expect(IOException.class);
-        testHelper(8, false);
+        assertThrows(IOException.class, () -> testHelper(8, false));
     }
 
     @Test
     public void testWrongDelimiter() throws IOException {
-        expectedException.expect(IOException.class);
-        testHelper(9, false);
+        assertThrows(IOException.class, () -> testHelper(9, false));
     }
 
     @Test
     public void testSpaceDelimiter() throws IOException {
-        expectedException.expect(IOException.class);
-        testHelper(10, false);
+        assertThrows(IOException.class, () -> testHelper(10, false));
     }
 
     private void writeToFileAndInit(File file, String string) throws IOException {
@@ -136,9 +131,9 @@ public class PlainPasswordFileTest {
     private void testHelper(int testCaseId, boolean isEmpty) throws IOException {
         writeToFileAndInit(createdFile, testCases[testCaseId][TESTCASE_ENTRY]);
         if (isEmpty) {
-            Assert.assertEquals(0, pwdFile.getSize());
+            assertEquals(0, pwdFile.getSize());
         } else {
-            Assert.assertEquals(testCases[testCaseId][TESTCASE_VALUE],
+            assertEquals(testCases[testCaseId][TESTCASE_VALUE],
                     pwdFile.getPassword(testCases[testCaseId][TESTCASE_KEY], 0));
         }
     }
