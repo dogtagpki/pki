@@ -174,7 +174,8 @@ public class SubsystemDBInitCLI extends CommandCLI {
                         masterReplicationPort);
             }
 
-            ldapConfigurator.setupDatabaseManager();
+            String dbuser = ldapConfig.getDBUser("uid=pkidbuser,ou=people," + baseDN);
+            ldapConfigurator.setupDatabaseManager(dbuser);
 
             cs.commit(false);
 

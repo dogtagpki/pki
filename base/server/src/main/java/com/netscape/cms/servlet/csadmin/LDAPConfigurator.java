@@ -72,9 +72,6 @@ public class LDAPConfigurator {
 
         String database = config.getDatabase();
         params.put("database", database);
-
-        String dbuser = config.getDBUser("uid=pkidbuser,ou=people," + baseDN);
-        params.put("dbuser", dbuser);
     }
 
     public LDAPConfigurator(LDAPConnection connection, LDAPConfig config, String instanceID) throws Exception {
@@ -141,9 +138,14 @@ public class LDAPConfigurator {
         }
     }
 
-    public void setupDatabaseManager() throws Exception {
-        logger.info("Setting up database manager");
-        importLDIF("/usr/share/pki/server/conf/manager.ldif", true);
+    public void setupDatabaseManager(String dn) throws Exception {
+
+        logger.info("Setting up database manager " + dn);
+
+        Map<String, String> params = new HashMap<>();
+        params.put("dbuser", dn);
+
+        importLDIF("/usr/share/pki/server/conf/manager.ldif", true, params);
     }
 
     public List<LDAPEntry> findVLVs() throws Exception {
