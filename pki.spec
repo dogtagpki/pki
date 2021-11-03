@@ -202,9 +202,9 @@ BuildRequires:    ldapjdk >= 5.0.0
 BuildRequires:    systemd-units
 
 %if 0%{?rhel} && ! 0%{?eln}
-BuildRequires:    pki-servlet-engine
+BuildRequires:    pki-servlet-engine >= 9.0.31
 %else
-BuildRequires:    tomcat >= 1:9.0.7
+BuildRequires:    tomcat >= 1:9.0.31
 %endif
 
 # additional build requirements needed to build native 'tpsclient'
@@ -480,9 +480,9 @@ Requires:         python3-policycoreutils
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
 %if 0%{?rhel} && ! 0%{?eln}
-Requires:         pki-servlet-engine
+Requires:         pki-servlet-engine >= 9.0.31
 %else
-Requires:         tomcat >= 1:9.0.7
+Requires:         tomcat >= 1:9.0.31
 %endif
 
 Requires:         systemd
