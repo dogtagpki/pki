@@ -195,7 +195,7 @@ BuildRequires:    python3-six
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 5.0.0
+BuildRequires:    jss >= 5.1.0
 BuildRequires:    tomcatjss >= 8.0.0
 BuildRequires:    ldapjdk >= 5.0.0
 
@@ -322,7 +322,7 @@ Provides:         pki-symkey = %{version}-%{release}
 
 Requires:         %{java_headless}
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 5.0.0
+Requires:         jss >= 5.1.0
 Requires:         nss >= 3.38.0
 
 # Ensure we end up with a useful installation
@@ -409,7 +409,7 @@ Requires:         apache-commons-net
 Requires:         slf4j
 Requires:         slf4j-jdk14
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 5.0.0
+Requires:         jss >= 5.1.0
 Requires:         ldapjdk >= 5.0.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
