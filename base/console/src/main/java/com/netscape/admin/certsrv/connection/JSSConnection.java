@@ -40,6 +40,7 @@ import javax.swing.JLabel;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.InternalCertificate;
+import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.ssl.SSLAlertDescription;
 import org.mozilla.jss.ssl.SSLAlertEvent;
 import org.mozilla.jss.ssl.SSLAlertLevel;
@@ -253,8 +254,8 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
                       cryptoManager.importCertToPerm(serverCert,
                       (nickname==null)?serverCert.getSubjectDN().toString():nickname);
 			        internalCert.setSSLTrust(
-                      org.mozilla.jss.crypto.InternalCertificate.TRUSTED_PEER |
-                      org.mozilla.jss.crypto.InternalCertificate.VALID_PEER);
+			                PK11Cert.TRUSTED_PEER |
+			                PK11Cert.VALID_PEER);
 			    } catch (Exception e) {
                     mServerCertImported = false;
                     mCertAccepted = false;

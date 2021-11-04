@@ -286,9 +286,9 @@ public class ComCrypto {
                     // set the trust bits
                     InternalCertificate icert =
                         (InternalCertificate) ca_certs[i];
-                    icert.setSSLTrust(InternalCertificate.TRUSTED_CA
-                          | InternalCertificate.TRUSTED_CLIENT_CA
-                          | InternalCertificate.VALID_CA);
+                    icert.setSSLTrust(PK11Cert.TRUSTED_CA
+                          | PK11Cert.TRUSTED_CLIENT_CA
+                          | PK11Cert.VALID_CA);
 
                     System.out.println("importCert string: CA trust bits set");
                     break;
@@ -323,9 +323,9 @@ public class ComCrypto {
             X509Certificate cert = manager.importCACertPackage(tmp.getBytes());
             // adjust the trust bits
             InternalCertificate icert = (InternalCertificate) cert;
-            icert.setSSLTrust(InternalCertificate.TRUSTED_CA
-                          | InternalCertificate.TRUSTED_CLIENT_CA
-                          | InternalCertificate.VALID_CA);
+            icert.setSSLTrust(PK11Cert.TRUSTED_CA
+                          | PK11Cert.TRUSTED_CLIENT_CA
+                          | PK11Cert.VALID_CA);
 
             return true;
 

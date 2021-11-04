@@ -79,6 +79,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.pkcs11.PK11SecureRandom;
 import org.mozilla.jss.pkcs7.ContentInfo;
 import org.mozilla.jss.pkcs7.SignedData;
@@ -1453,7 +1454,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 int flag = icert.getSSLTrust();
                 String trust = "U";
 
-                if ((InternalCertificate.TRUSTED_CLIENT_CA & flag) == InternalCertificate.TRUSTED_CLIENT_CA)
+                if ((PK11Cert.TRUSTED_CLIENT_CA & flag) == PK11Cert.TRUSTED_CLIENT_CA)
                     trust = "T";
                 X509CertImpl impl = null;
 
@@ -1503,13 +1504,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         if (notAfter.equals(qualifier)) {
                             if (cert instanceof InternalCertificate) {
                                 if (trust.equals("Trust")) {
-                                    int trustflag = InternalCertificate.TRUSTED_CA |
-                                            InternalCertificate.TRUSTED_CLIENT_CA |
-                                            InternalCertificate.VALID_CA;
+                                    int trustflag = PK11Cert.TRUSTED_CA |
+                                            PK11Cert.TRUSTED_CLIENT_CA |
+                                            PK11Cert.VALID_CA;
 
                                     ((InternalCertificate) cert).setSSLTrust(trustflag);
                                 } else
-                                    ((InternalCertificate) cert).setSSLTrust(InternalCertificate.VALID_CA);
+                                    ((InternalCertificate) cert).setSSLTrust(PK11Cert.VALID_CA);
                                 break;
                             } else {
                                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ""));
@@ -1768,13 +1769,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
         X509Certificate cert = getCertificate(nickname, serialno, issuerName);
         if (cert instanceof InternalCertificate) {
             if (trust.equals("trust")) {
-                int trustflag = InternalCertificate.TRUSTED_CA |
-                        InternalCertificate.TRUSTED_CLIENT_CA |
-                        InternalCertificate.VALID_CA;
+                int trustflag = PK11Cert.TRUSTED_CA |
+                        PK11Cert.TRUSTED_CLIENT_CA |
+                        PK11Cert.VALID_CA;
 
                 ((InternalCertificate) cert).setSSLTrust(trustflag);
             } else {
-                ((InternalCertificate) cert).setSSLTrust(InternalCertificate.VALID_CA);
+                ((InternalCertificate) cert).setSSLTrust(PK11Cert.VALID_CA);
             }
         }
     }
@@ -1848,7 +1849,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             if (certs[i] instanceof InternalCertificate) {
                 InternalCertificate icert = (InternalCertificate) certs[i];
                 int flag = icert.getSSLTrust();
-                if ((InternalCertificate.TRUSTED_CLIENT_CA & flag) == InternalCertificate.TRUSTED_CLIENT_CA)
+                if ((PK11Cert.TRUSTED_CLIENT_CA & flag) == PK11Cert.TRUSTED_CLIENT_CA)
                     trust = "T";
             } else
                 trust = "N/A";

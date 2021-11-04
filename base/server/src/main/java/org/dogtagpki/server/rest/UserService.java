@@ -41,6 +41,7 @@ import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.pkcs11.PK11Cert;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
@@ -850,9 +851,9 @@ public class UserService extends SubsystemService implements UserResource {
 
                         if (leafCert instanceof InternalCertificate) {
                             ((InternalCertificate) leafCert).setSSLTrust(
-                                    InternalCertificate.VALID_CA |
-                                            InternalCertificate.TRUSTED_CA |
-                                            InternalCertificate.TRUSTED_CLIENT_CA);
+                                    PK11Cert.VALID_CA |
+                                    PK11Cert.TRUSTED_CA |
+                                    PK11Cert.TRUSTED_CLIENT_CA);
                         } else {
                             logger.error(CMS.getLogMessage("ADMIN_SRVLT_NOT_INTERNAL_CERT",
                                     String.valueOf(p7certs[j].getSubjectDN())));

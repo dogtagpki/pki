@@ -8,7 +8,7 @@ package com.netscape.cmstools.nss;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.pkcs11.PK11InternalCert;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -52,11 +52,11 @@ public class NSSCertShowCLI extends CommandCLI {
         System.out.println("  Not Valid After: " + cert.getNotAfter());
 
         StringBuilder sb = new StringBuilder();
-        sb.append(PKCS12.encodeFlags(cert.getSSLTrust()));
+        sb.append(PK11Cert.encodeTrustFlags(cert.getSSLTrust()));
         sb.append(",");
-        sb.append(PKCS12.encodeFlags(cert.getEmailTrust()));
+        sb.append(PK11Cert.encodeTrustFlags(cert.getEmailTrust()));
         sb.append(",");
-        sb.append(PKCS12.encodeFlags(cert.getObjectSigningTrust()));
+        sb.append(PK11Cert.encodeTrustFlags(cert.getObjectSigningTrust()));
 
         System.out.println("  Trust Attributes: " + sb);
     }

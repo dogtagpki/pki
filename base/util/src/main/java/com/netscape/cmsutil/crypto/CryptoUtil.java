@@ -70,17 +70,17 @@ import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.BMPString;
-import org.mozilla.jss.asn1.PrintableString;
-import org.mozilla.jss.asn1.TeletexString;
-import org.mozilla.jss.asn1.UTF8String;
-import org.mozilla.jss.asn1.UniversalString;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.NULL;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.PrintableString;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.asn1.TeletexString;
+import org.mozilla.jss.asn1.UTF8String;
+import org.mozilla.jss.asn1.UniversalString;
 import org.mozilla.jss.crypto.Algorithm;
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoStore;
@@ -112,7 +112,6 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
-import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.PKCS9Attribute;
 import org.mozilla.jss.netscape.security.pkcs.ParsingException;
@@ -144,6 +143,7 @@ import org.mozilla.jss.netscape.security.x509.X500Signer;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs7.IssuerAndSerialNumber;
@@ -157,8 +157,8 @@ import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.crmf.EncryptedKey;
 import org.mozilla.jss.pkix.crmf.EncryptedValue;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.AVA;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.ssl.SSLCipher;
@@ -1683,7 +1683,7 @@ public class CryptoUtil {
         // remove TRUSTED_CA
         int flag = cert.getSSLTrust();
 
-        flag ^= InternalCertificate.VALID_CA;
+        flag ^= PK11Cert.VALID_CA;
         cert.setSSLTrust(flag);
     }
 
@@ -1708,9 +1708,9 @@ public class CryptoUtil {
      * Trusts a certificate.
      */
     public static void trustCert(InternalCertificate cert) {
-        int flag = InternalCertificate.VALID_CA | InternalCertificate.TRUSTED_CA
-                | InternalCertificate.USER
-                | InternalCertificate.TRUSTED_CLIENT_CA;
+        int flag = PK11Cert.VALID_CA | PK11Cert.TRUSTED_CA
+                | PK11Cert.USER
+                | PK11Cert.TRUSTED_CLIENT_CA;
 
         cert.setSSLTrust(flag);
         cert.setObjectSigningTrust(flag);
@@ -1724,9 +1724,9 @@ public class CryptoUtil {
             throw new Exception("Invalid trust flags: " + trustFlags);
 
         InternalCertificate internalCert = (InternalCertificate) cert;
-        internalCert.setSSLTrust(PKCS12.decodeFlags(flags[0]));
-        internalCert.setEmailTrust(PKCS12.decodeFlags(flags[1]));
-        internalCert.setObjectSigningTrust(PKCS12.decodeFlags(flags[2]));
+        internalCert.setSSLTrust(PK11Cert.decodeTrustFlags(flags[0]));
+        internalCert.setEmailTrust(PK11Cert.decodeTrustFlags(flags[1]));
+        internalCert.setObjectSigningTrust(PK11Cert.decodeTrustFlags(flags[2]));
     }
 
     public static void trustCACert(X509Certificate cert) {
@@ -1734,15 +1734,15 @@ public class CryptoUtil {
         // set trust flags to CT,C,C
         InternalCertificate ic = (InternalCertificate) cert;
 
-        ic.setSSLTrust(InternalCertificate.TRUSTED_CA
-                | InternalCertificate.TRUSTED_CLIENT_CA
-                | InternalCertificate.VALID_CA);
+        ic.setSSLTrust(PK11Cert.TRUSTED_CA
+                | PK11Cert.TRUSTED_CLIENT_CA
+                | PK11Cert.VALID_CA);
 
-        ic.setEmailTrust(InternalCertificate.TRUSTED_CA
-                | InternalCertificate.VALID_CA);
+        ic.setEmailTrust(PK11Cert.TRUSTED_CA
+                | PK11Cert.VALID_CA);
 
-        ic.setObjectSigningTrust(InternalCertificate.TRUSTED_CA
-                | InternalCertificate.VALID_CA);
+        ic.setObjectSigningTrust(PK11Cert.TRUSTED_CA
+                | PK11Cert.VALID_CA);
     }
 
     public static void trustAuditSigningCert(X509Certificate cert) {
@@ -1750,13 +1750,13 @@ public class CryptoUtil {
         // set trust flags to u,u,Pu
         InternalCertificate ic = (InternalCertificate) cert;
 
-        ic.setSSLTrust(InternalCertificate.USER);
+        ic.setSSLTrust(PK11Cert.USER);
 
-        ic.setEmailTrust(InternalCertificate.USER);
+        ic.setEmailTrust(PK11Cert.USER);
 
-        ic.setObjectSigningTrust(InternalCertificate.USER
-                | InternalCertificate.VALID_PEER
-                | InternalCertificate.TRUSTED_PEER);
+        ic.setObjectSigningTrust(PK11Cert.USER
+                | PK11Cert.VALID_PEER
+                | PK11Cert.TRUSTED_PEER);
     }
 
     /**
@@ -1770,10 +1770,10 @@ public class CryptoUtil {
     }
 
     public static boolean isTrust(int flag) {
-        return ((flag & InternalCertificate.VALID_CA) > 0)
-                && ((flag & InternalCertificate.TRUSTED_CA) > 0)
-                && ((flag & InternalCertificate.USER) > 0)
-                && ((flag & InternalCertificate.TRUSTED_CLIENT_CA) > 0);
+        return ((flag & PK11Cert.VALID_CA) > 0)
+                && ((flag & PK11Cert.TRUSTED_CA) > 0)
+                && ((flag & PK11Cert.USER) > 0)
+                && ((flag & PK11Cert.TRUSTED_CLIENT_CA) > 0);
     }
 
     public static SymmetricKey generateKey(CryptoToken token, KeyGenAlgorithm alg, int keySize,

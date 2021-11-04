@@ -92,6 +92,7 @@ import org.mozilla.jss.netscape.security.x509.X500Signer;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.pkcs11.PK11ECPublicKey;
 import org.mozilla.jss.util.Base64OutputStream;
 
@@ -678,40 +679,40 @@ public class KeyCertUtil {
 
     public static void setTrust(String certType, InternalCertificate inCert) {
         if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-            int flag = InternalCertificate.VALID_CA |
-                    InternalCertificate.TRUSTED_CA |
-                    InternalCertificate.USER |
-                    InternalCertificate.TRUSTED_CLIENT_CA;
+            int flag = PK11Cert.VALID_CA |
+                    PK11Cert.TRUSTED_CA |
+                    PK11Cert.USER |
+                    PK11Cert.TRUSTED_CLIENT_CA;
 
             inCert.setSSLTrust(flag);
             inCert.setObjectSigningTrust(flag);
             inCert.setEmailTrust(flag);
         } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)) {
-            int flag = InternalCertificate.USER | InternalCertificate.VALID_CA;
+            int flag = PK11Cert.USER | PK11Cert.VALID_CA;
 
             inCert.setSSLTrust(flag);
             inCert.setObjectSigningTrust(flag);
             inCert.setEmailTrust(flag);
         } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
-            int flag = InternalCertificate.USER | InternalCertificate.VALID_CA;
+            int flag = PK11Cert.USER | PK11Cert.VALID_CA;
 
             inCert.setSSLTrust(flag);
             inCert.setObjectSigningTrust(flag);
             inCert.setEmailTrust(flag);
         } else if (certType.equals(Constants.PR_SERVER_CERT) ||
                 certType.equals(Constants.PR_SUBSYSTEM_CERT)) {
-            int flag = InternalCertificate.USER | InternalCertificate.VALID_CA;
+            int flag = PK11Cert.USER | PK11Cert.VALID_CA;
 
             inCert.setSSLTrust(flag);
             inCert.setObjectSigningTrust(flag);
             inCert.setEmailTrust(flag);
         } else if (certType.equals(Constants.PR_TRUSTED_CA_CERT)) {
-            inCert.setSSLTrust(InternalCertificate.TRUSTED_CA | InternalCertificate.TRUSTED_CLIENT_CA |
-                    InternalCertificate.VALID_CA);
-            //inCert.setEmailTrust(InternalCertificate.TRUSTED_CA);
+            inCert.setSSLTrust(PK11Cert.TRUSTED_CA | PK11Cert.TRUSTED_CLIENT_CA |
+                    PK11Cert.VALID_CA);
+            //inCert.setEmailTrust(PK11Cert.TRUSTED_CA);
 
             // cannot set this bit. If set, then the cert will not appear when you called getCACerts().
-            //inCert.setObjectSigningTrust(InternalCertificate.TRUSTED_CA);
+            //inCert.setObjectSigningTrust(PK11Cert.TRUSTED_CA);
         }
     }
 
