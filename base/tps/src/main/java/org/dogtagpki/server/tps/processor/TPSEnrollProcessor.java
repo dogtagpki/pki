@@ -66,6 +66,7 @@ import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class TPSEnrollProcessor extends TPSProcessor {
 
@@ -3748,8 +3749,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     private TPSBuffer makeKeyIDFromPublicKeyInfo(byte[] publicKeyInfo) throws TPSException {
 
-        final String alg = "SHA1";
-
         if (publicKeyInfo == null) {
             throw new TPSException("TPSEnrollProcessor.makeKeyIDFromPublicKeyInfo: invalid input data",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
@@ -3761,7 +3760,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         java.security.MessageDigest mozillaDigest;
         try {
-            mozillaDigest = java.security.MessageDigest.getInstance(alg);
+            mozillaDigest = java.security.MessageDigest.getInstance(CryptoUtil.getDefaultHashAlgName());
         } catch (NoSuchAlgorithmException e) {
             throw new TPSException("TPSEnrollProcessor.makeKeyIDFromPublicKeyInfo: " + e,
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
