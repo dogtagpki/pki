@@ -174,7 +174,7 @@ public class CRSEnrollment extends HttpServlet {
     private boolean mUseCA = true;
     private String mNickname = null;
     private String mTokenName = "";
-    private String mHashAlgorithm = "SHA1";
+    private String mHashAlgorithm = CryptoUtil.getDefaultHashAlgName();
     private String mHashAlgorithmList = null;
     private String[] mAllowedHashAlgorithm;
     private String mConfiguredEncryptionAlgorithm = "DES3";
@@ -265,7 +265,7 @@ public class CRSEnrollment extends HttpServlet {
                 mIsDynamicProfileId = true;
                 logger.debug("CRSEnrollment: init: expecting dynamic ProfileId in URL");
             }
-            mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
+            mHashAlgorithm = scepConfig.getString("hashAlgorithm", CryptoUtil.getDefaultHashAlgName());
             mConfiguredEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
             mNonceSizeLimit = scepConfig.getInteger("nonceSizeLimit", 0);
             mHashAlgorithmList = scepConfig.getString("allowedHashAlgorithms", "SHA1,SHA256,SHA512");
@@ -357,7 +357,7 @@ public class CRSEnrollment extends HttpServlet {
         OID_SERIALNUMBER = X500NameAttrMap.getDefault().getOid("SERIALNUMBER");
 
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
+            mSHADigest = MessageDigest.getInstance(CryptoUtil.getDefaultHashAlgName());
         } catch (NoSuchAlgorithmException e) {
         }
 

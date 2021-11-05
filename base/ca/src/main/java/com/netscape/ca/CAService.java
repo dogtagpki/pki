@@ -1628,7 +1628,7 @@ class serviceCheckChallenge implements IServant {
 
     public serviceCheckChallenge(CAService service) {
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
+            mSHADigest = MessageDigest.getInstance(CryptoUtil.getDefaultHashAlgName());
         } catch (NoSuchAlgorithmException e) {
             logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
         }
