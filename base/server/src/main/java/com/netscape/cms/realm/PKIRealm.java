@@ -69,6 +69,8 @@ public class PKIRealm extends RealmBase {
             authToken.set(SessionContext.AUTH_MANAGER_ID, AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
             auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
 
+            logger.info("PKIRealm: User " + username + " authenticated");
+
             signedAuditLogger.log(AuthEvent.createSuccessEvent(
                         auditSubjectID,
                         AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID));
@@ -137,7 +139,7 @@ public class PKIRealm extends RealmBase {
             // reset it to the one authenticated with authManager
             auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
 
-            logger.info("PKIRealm: User ID: " + username);
+            logger.info("PKIRealm: User " + username + " authenticated");
 
             signedAuditLogger.log(AuthEvent.createSuccessEvent(
                         auditSubjectID,
@@ -147,7 +149,7 @@ public class PKIRealm extends RealmBase {
 
         } catch (EMissingCredential | EInvalidCredentials e) { // authentication failure
 
-            logger.warn("Unable to authenticate cert chain: " + e.getMessage());
+            logger.warn("Unable to authenticate user with certificate " + auditSubjectID + ": " + e.getMessage());
 
             signedAuditLogger.log(AuthEvent.createFailureEvent(
                     auditSubjectID,
@@ -158,7 +160,7 @@ public class PKIRealm extends RealmBase {
 
         } catch (Exception e) { // internal server error (e.g. LDAP exceptions)
 
-            logger.warn("Unable to authenticate cert chain: " + e.getMessage(), e);
+            logger.warn("Unable to authenticate user with certificate " + auditSubjectID + ": " + e.getMessage(), e);
 
             signedAuditLogger.log(AuthEvent.createFailureEvent(
                         auditSubjectID,

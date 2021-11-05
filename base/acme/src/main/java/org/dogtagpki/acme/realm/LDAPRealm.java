@@ -52,7 +52,7 @@ public class LDAPRealm extends ACMERealm {
     @Override
     public void init() throws Exception {
 
-        logger.info("Initializing realm");
+        logger.info("Initializing LDAP realm");
 
         EngineConfig cs;
         IPasswordStore ps;
@@ -207,9 +207,9 @@ public class LDAPRealm extends ACMERealm {
     public List<String> getUserRoles(LDAPConnection conn, String userDN) throws Exception {
 
         List<String> roles = new ArrayList<>();
-        String filter = "uniqueMember=" + userDN;
+        String filter = "(uniqueMember=" + userDN + ")";
 
-        logger.info("Getting user roles:");
+        logger.info("LDAP search:");
         logger.info("- base DN: " + groupsDN);
         logger.info("- filter: " + filter);
 
@@ -221,7 +221,7 @@ public class LDAPRealm extends ACMERealm {
                 false /* return attribute values */
         );
 
-        logger.info("Roles:");
+        logger.info("User roles:");
         while (results.hasMoreElements()) {
             LDAPEntry groupEntry = results.next();
             logger.info("- " + groupEntry.getDN());
@@ -236,9 +236,9 @@ public class LDAPRealm extends ACMERealm {
 
     public User findUserByUsername(LDAPConnection conn, String username) throws Exception {
 
-        String filter = "uid=" + username;
+        String filter = "(uid=" + username + ")";
 
-        logger.info("Finding user by username:");
+        logger.info("LDAP search:");
         logger.info("- base DN: " + usersDN);
         logger.info("- filter: " + filter);
 
@@ -251,7 +251,6 @@ public class LDAPRealm extends ACMERealm {
         );
 
         if (!results.hasMoreElements()) {
-            logger.info("User not found");
             return null;
         }
 
@@ -270,9 +269,9 @@ public class LDAPRealm extends ACMERealm {
 
     public User findUserByCertID(LDAPConnection conn, String certID) throws Exception {
 
-        String filter = "description=" + certID;
+        String filter = "(description=" + certID + ")";
 
-        logger.info("Finding user by cert:");
+        logger.info("LDAP search:");
         logger.info("- base DN: " + usersDN);
         logger.info("- filter: " + filter);
 
@@ -285,7 +284,6 @@ public class LDAPRealm extends ACMERealm {
         );
 
         if (!results.hasMoreElements()) {
-            logger.info("User not found");
             return null;
         }
 
@@ -302,11 +300,15 @@ public class LDAPRealm extends ACMERealm {
 
         LDAPConnection conn = connFactory.getConn();
         try {
+            logger.info("Searching for user " + username);
             User user = findUserByUsername(conn, username);
 
             if (user == null) {
+                logger.warn("Unable to authenticate user " + username + ": User not found");
                 return null;
             }
+
+            logger.info("Authenticating user " + user.getUserDN() + " with password");
 
             PKISocketFactory socketFactory = new PKISocketFactory(connConfig.isSecure());
             socketFactory.init(socketConfig);
@@ -317,6 +319,7 @@ public class LDAPRealm extends ACMERealm {
                 authConn.authenticate(user.getUserDN(), password);
 
             } catch (LDAPException e) {
+                logger.warn("Unable to authenticate user " + user.getUserDN() + ": " + e.getMessage());
                 if (e.getLDAPResultCode() == LDAPException.INVALID_CREDENTIALS) {
                     return null;
                 } else {
@@ -325,6 +328,8 @@ public class LDAPRealm extends ACMERealm {
             } finally {
                 authConn.close();
             }
+
+            logger.info("User " + username + " authenticated");
 
             List<String> roles = getUserRoles(conn, user.getUserDN());
             return new PKIPrincipal(user, null, roles);
@@ -337,45 +342,52 @@ public class LDAPRealm extends ACMERealm {
     @Override
     public Principal authenticate(X509Certificate[] certChain) throws Exception {
 
-        logger.info("Authenticating user with client certificate");
-
         // sort cert chain from leaf to root
         certChain = Cert.sortCertificateChain(certChain, true);
 
         // get leaf cert
         X509Certificate cert = certChain[0];
+        String certID = getCertID(cert);
+
+        logger.info("Authenticating user with certificate " + certID);
 
         // cert already validated during SSL handshake
 
         LDAPConnection conn = connFactory.getConn();
         try {
-            // find user by cert ID
-            String certID = getCertID(cert);
+            logger.info("Searching for user with certificate " + certID);
             User user = findUserByCertID(conn, certID);
 
             if (user == null) {
+                logger.warn("Unable to authenticate user with certificate " + certID + ": User not found");
                 return null;
             }
 
-            // validate cert data
+            logger.info("Searching for matching certificates in user " + user.getUserDN());
+            X509Certificate[] certs = user.getX509Certificates();
+
+            if (certs == null || certs.length == 0) {
+                logger.warn("Unable to authenticate user " + user.getUserDN() + ": User has no certificates");
+                return null;
+            }
+
             boolean found = false;
             byte[] data = cert.getEncoded();
 
-            X509Certificate[] certs = user.getX509Certificates();
-            if (certs != null) {
-                for (X509Certificate c : certs) {
-                    if (Arrays.equals(data, c.getEncoded())) {
-                        found = true;
-                        break;
-                    }
+            for (X509Certificate c : certs) {
+                if (Arrays.equals(data, c.getEncoded())) {
+                    found = true;
+                    break;
                 }
             }
 
             if (!found) {
+                logger.warn("Unable to authenticate user " + user.getUserDN() + ": No matching certificate");
                 return null;
             }
 
-            // create user principal
+            logger.info("User " + user.getUserDN() + " authenticated");
+
             List<String> roles = getUserRoles(conn, user.getUserDN());
             return new PKIPrincipal(user, null, roles);
 
@@ -387,7 +399,7 @@ public class LDAPRealm extends ACMERealm {
     @Override
     public void close() throws Exception {
 
-        logger.info("Shutting down realm");
+        logger.info("Shutting down LDAP realm");
 
         connFactory.shutdown();
     }

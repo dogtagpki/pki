@@ -45,12 +45,16 @@ public class InMemoryRealm extends ACMERealm {
         logger.info("Authenticating user " + username + " with password");
 
         if (!this.username.equals(username)) {
+            logger.warn("Unable to authenticate user " + username + ": User not found");
             return null;
         }
 
         if (!this.password.equals(password)) {
+            logger.warn("Unable to authenticate user " + username + ": Invalid password");
             return null;
         }
+
+        logger.info("User " + username + " authenticated");
 
         return new PKIPrincipal(user, null, roles);
     }

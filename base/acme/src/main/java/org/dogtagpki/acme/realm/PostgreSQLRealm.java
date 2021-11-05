@@ -47,7 +47,7 @@ public class PostgreSQLRealm extends ACMERealm {
     @Override
     public void init() throws Exception {
 
-        logger.info("Initializing realm");
+        logger.info("Initializing PostgreSQL realm");
 
         info = new Properties();
         for (String name : config.getParameterNames()) {
@@ -119,7 +119,7 @@ public class PostgreSQLRealm extends ACMERealm {
      */
     public void setup() throws Exception {
 
-        logger.info("Setting up realm");
+        logger.info("Setting up PostgreSQL realm");
 
         String filename = "/usr/share/pki/acme/realm/postgresql/create.sql";
         String content = new String(Files.readAllBytes(Paths.get(filename)));
@@ -304,15 +304,23 @@ public class PostgreSQLRealm extends ACMERealm {
 
         connect();
 
+        logger.info("Searching for user " + username);
         User user = getUserByID(username);
+
         if (user == null) {
+            logger.warn("Unable to authenticate user " + username + ": User not found");
             return null;
         }
 
+        logger.info("Validating password for user " + username);
         String storedCredentials = user.getPassword();
+
         if (!handler.matches(credentials, storedCredentials)) {
+            logger.warn("Unable to authenticate user " + username + ": Invalid password");
             return null;
         }
+
+        logger.info("User " + username + " authenticated");
 
         List<String> roles = getUserRoles(username);
         return new PKIPrincipal(user, null, roles);
@@ -321,31 +329,38 @@ public class PostgreSQLRealm extends ACMERealm {
     @Override
     public Principal authenticate(X509Certificate[] certChain) throws Exception {
 
-        logger.info("Authenticating user with client certificate");
-
-        connect();
-
         // sort cert chain from leaf to root
         certChain = Cert.sortCertificateChain(certChain, true);
 
         // get leaf cert
         X509Certificate cert = certChain[0];
+        String certID = getCertID(cert);
+
+        logger.info("Authenticating user with certificate " + certID);
+
+        connect();
 
         // cert already validated during SSL handshake
 
-        // find user by cert ID
-        String certID = getCertID(cert);
+        logger.info("Searching for user with certificate " + certID);
         User user = getUserByCertID(certID);
 
         if (user == null) {
+            logger.warn("Unable to authenticate user with certificate " + certID + ": User not found");
             return null;
         }
 
-        // validate cert data
+        logger.info("Searching for matching certificates in user " + user.getUserID());
+        List<X509Certificate> certs = getUserCerts(user.getUserID());
+
+        if (certs == null || certs.isEmpty()) {
+            logger.warn("Unable to authenticate user " + user.getUserID() + ": User has no certificates");
+            return null;
+        }
+
         boolean found = false;
         byte[] data = cert.getEncoded();
 
-        List<X509Certificate> certs = getUserCerts(user.getUserID());
         for (X509Certificate c : certs) {
             if (Arrays.equals(data, c.getEncoded())) {
                 found = true;
@@ -354,10 +369,12 @@ public class PostgreSQLRealm extends ACMERealm {
         }
 
         if (!found) {
+            logger.warn("Unable to authenticate user " + user.getUserID() + ": No matching certificate");
             return null;
         }
 
-        // create user principal
+        logger.info("User " + user.getUserID() + " authenticated");
+
         List<String> roles = getUserRoles(user.getUserID());
         return new PKIPrincipal(user, null, roles);
     }
@@ -365,7 +382,7 @@ public class PostgreSQLRealm extends ACMERealm {
     @Override
     public void close() throws Exception {
 
-        logger.info("Shutting down realm");
+        logger.info("Shutting down PostgreSQL realm");
 
         if (connection != null) {
             connection.close();
