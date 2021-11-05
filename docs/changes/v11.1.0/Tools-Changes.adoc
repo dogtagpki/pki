@@ -13,3 +13,7 @@ $ pkispawn ... --log-file <path>
 == KRA CLI Changes ==
 
 Previously `pki kra-key-retrieve` command supported both XML and JSON for input and output formats which could be specified using the optional arguments `--input-format` and `--output-format`. Now this command only supports JSON, so these options have been removed.
+
+== New Database Access CLIs ==
+
+The `pki-server <subsystem>-db-access` commands have been added to manage the access to PKI databases.
