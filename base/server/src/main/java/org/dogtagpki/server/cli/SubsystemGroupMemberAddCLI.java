@@ -5,20 +5,13 @@
 //
 package org.dogtagpki.server.cli;
 
-import java.io.File;
-
 import org.apache.commons.cli.CommandLine;
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
-import org.dogtagpki.cli.CommandCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.group.GroupNotFoundException;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -35,7 +28,7 @@ import com.netscape.cmsutil.password.PasswordStoreConfig;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemGroupMemberAddCLI extends CommandCLI {
+public class SubsystemGroupMemberAddCLI extends SubsystemCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemGroupMemberAddCLI.class);
 
@@ -59,18 +52,9 @@ public class SubsystemGroupMemberAddCLI extends CommandCLI {
         String groupID = cmdArgs[0];
         String memberID = cmdArgs[1];
 
-        String catalinaBase = System.getProperty("catalina.base");
-
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
-
+        initializeTomcatJSS();
         String subsystem = parent.getParent().getParent().getName();
-        String configDir = catalinaBase + File.separator + subsystem;
-        String configFile = configDir+ File.separator + "conf" + File.separator + CMS.CONFIG_FILE;
-
-        ConfigStorage storage = new FileConfigStore(configFile);
-        EngineConfig cs = new EngineConfig(storage);
+        EngineConfig cs = getEngineConfig(subsystem);
         cs.load();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 

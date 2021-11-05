@@ -5,24 +5,18 @@
 //
 package org.dogtagpki.server.cli;
 
-import java.io.File;
 import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
-import org.dogtagpki.cli.CommandCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.group.GroupMemberCollection;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.group.GroupNotFoundException;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -39,7 +33,7 @@ import com.netscape.cmsutil.password.PasswordStoreConfig;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemGroupMemberFindCLI extends CommandCLI {
+public class SubsystemGroupMemberFindCLI extends SubsystemCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemGroupMemberFindCLI.class);
 
@@ -67,19 +61,9 @@ public class SubsystemGroupMemberFindCLI extends CommandCLI {
 
         String outputFormat = cmd.getOptionValue("output-format", "text");
 
-        String catalinaBase = System.getProperty("catalina.base");
-
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
-
+        initializeTomcatJSS();
         String subsystem = parent.getParent().getParent().getName();
-        String configDir = catalinaBase + File.separator + subsystem;
-        String configFile = configDir+ File.separator + "conf" + File.separator + CMS.CONFIG_FILE;
-
-        logger.info("Loading " + configFile);
-        ConfigStorage storage = new FileConfigStore(configFile);
-        EngineConfig cs = new EngineConfig(storage);
+        EngineConfig cs = getEngineConfig(subsystem);
         cs.load();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
