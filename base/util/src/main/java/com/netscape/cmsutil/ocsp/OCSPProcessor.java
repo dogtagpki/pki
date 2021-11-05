@@ -44,6 +44,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
 /**
  * This class implements an OCSP utility.
  *
@@ -98,7 +100,7 @@ public class OCSPProcessor {
     public OCSPRequest createRequest(X500Name issuerName, X509Key issuerKey, BigInteger serialNumber)
             throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA");
+        MessageDigest md = MessageDigest.getInstance(CryptoUtil.getDefaultHashAlgName());
 
         // calculate hashes
         byte issuerNameHash[] = md.digest(issuerName.getEncoded());
