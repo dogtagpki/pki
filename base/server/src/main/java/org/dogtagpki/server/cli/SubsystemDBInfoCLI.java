@@ -18,21 +18,15 @@
 
 package org.dogtagpki.server.cli;
 
-import java.io.File;
 import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
-import org.dogtagpki.cli.CommandCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -53,7 +47,7 @@ import netscape.ldap.LDAPv3;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemDBInfoCLI extends CommandCLI {
+public class SubsystemDBInfoCLI extends SubsystemCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemDBInfoCLI.class);
 
@@ -76,19 +70,9 @@ public class SubsystemDBInfoCLI extends CommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
-        String catalinaBase = System.getProperty("catalina.base");
-
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
-
+        initializeTomcatJSS();
         String subsystem = parent.getParent().getName();
-        String configFile = catalinaBase + File.separator + subsystem + File.separator +
-                "conf" + File.separator + CMS.CONFIG_FILE;
-
-        logger.info("Loading " + configFile);
-        ConfigStorage storage = new FileConfigStore(configFile);
-        EngineConfig cs = new EngineConfig(storage);
+        EngineConfig cs = getEngineConfig(subsystem);
         cs.load();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
