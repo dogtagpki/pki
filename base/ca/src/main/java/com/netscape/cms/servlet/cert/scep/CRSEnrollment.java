@@ -1853,7 +1853,7 @@ public class CRSEnrollment extends HttpServlet {
         Hashtable<String, byte[]> fingerprints = new Hashtable<>();
 
         MessageDigest md;
-        String[] hashes = new String[] { "MD2", "MD5", "SHA1", "SHA256", "SHA512" };
+        String[] hashes = new String[] { "MD2", "MD5", "SHA256", "SHA512" };
         PKCS10 p10 = req.getP10();
 
         for (int i = 0; i < hashes.length; i++) {

@@ -245,7 +245,7 @@ extern void SECU_PrintRSAPublicKey(FILE *out, SECKEYPublicKey *pk, char *m, int 
 /* Dump contents of a DSA public key */
 extern void SECU_PrintDSAPublicKey(FILE *out, SECKEYPublicKey *pk, char *m, int level);
 
-/* Print the MD5 and SHA1 fingerprints of a cert */
+/* Print the SHA-256 fingerprint of a cert */
 extern int SECU_PrintFingerprints(FILE *out, SECItem *derCert, char *m,
                                   int level);
 

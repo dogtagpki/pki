@@ -768,27 +768,25 @@ public class CertUtils {
 
     /**
      * Returns a string that has the certificate's fingerprint using
-     * MD5, MD2 and SHA1 hashes.
+     * MD5 and MD2 hashes.
      * A certificate's fingerprint is a hash digest of the DER encoded
      * certificate.
      *
      * @param cert Certificate to get the fingerprints of.
-     * @return a String with fingerprints using the MD5, MD2 and SHA1 hashes.
+     * @return a String with fingerprints using the MD5 and MD2 hashes.
      *         For example,
      *
      *         <pre>
      * MD2:   78:7E:D1:F9:3E:AF:50:18:68:A7:29:50:C3:21:1F:71
      *
      * MD5:   0E:89:91:AC:40:50:F7:BE:6E:7B:39:4F:56:73:75:75
-     *
-     * SHA1:  DC:D9:F7:AF:E2:83:10:B2:F7:0A:77:E8:50:E2:F7:D1:15:9A:9D:00
      * </pre>
      */
     public static String getFingerPrints(Certificate cert)
             throws NoSuchAlgorithmException, CertificateEncodingException {
         byte certDer[] = cert.getEncoded();
         /*
-        String[] hashes = new String[] {"MD2", "MD5", "SHA1"};
+        String[] hashes = new String[] {"MD2", "MD5"};
         String certFingerprints = "";
         PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
@@ -806,26 +804,24 @@ public class CertUtils {
 
     /**
      * Returns a string that has the certificate's fingerprint using
-     * MD5, MD2 and SHA1 hashes.
+     * MD5 and MD2 hashes.
      * A certificate's fingerprint is a hash digest of the DER encoded
      * certificate.
      *
      * @param certDer Certificate to get the fingerprints of.
-     * @return a String with fingerprints using the MD5, MD2 and SHA1 hashes.
+     * @return a String with fingerprints using the MD5 and MD2 hashes.
      *         For example,
      *
      *         <pre>
      * MD2:   78:7E:D1:F9:3E:AF:50:18:68:A7:29:50:C3:21:1F:71
      *
      * MD5:   0E:89:91:AC:40:50:F7:BE:6E:7B:39:4F:56:73:75:75
-     *
-     * SHA1:  DC:D9:F7:AF:E2:83:10:B2:F7:0A:77:E8:50:E2:F7:D1:15:9A:9D:00
      * </pre>
      */
     public static String getFingerPrints(byte[] certDer)
             throws NoSuchAlgorithmException/*, CertificateEncodingException*/{
         //        byte certDer[] = cert.getEncoded();
-        String[] hashes = new String[] { "MD2", "MD5", "SHA1", "SHA256", "SHA512" };
+        String[] hashes = new String[] { "MD2", "MD5", "SHA256", "SHA512" };
         StringBuffer certFingerprints = new StringBuffer();
         PrettyPrintFormat pp = new PrettyPrintFormat(":");
 

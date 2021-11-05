@@ -260,7 +260,7 @@ extern int SECU_PrintPublicKey(FILE *out, SECItem *der, const char *m, int level
 extern int SECU_PrintPrivateKey(FILE *out, SECItem *der, char *m, int level);
 #endif
 
-/* Print the MD5 and SHA1 fingerprints of a cert */
+/* Print the MD5 fingerprint of a cert */
 extern int SECU_PrintFingerprints(FILE *out, SECItem *derCert, const char *m,
                                   int level);
 
