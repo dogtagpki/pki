@@ -44,6 +44,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Challenge phrase based authentication.
@@ -113,7 +114,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
         mConfig = config;
 
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
+            mSHADigest = MessageDigest.getInstance(CryptoUtil.getDefaultHashAlgName());
 
         } catch (NoSuchAlgorithmException e) {
             throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.getMessage()), e);

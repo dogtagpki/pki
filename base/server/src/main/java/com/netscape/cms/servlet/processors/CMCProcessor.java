@@ -68,6 +68,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Process CMC messages according to RFC 2797
@@ -299,7 +300,7 @@ public class CMCProcessor extends PKIProcessor {
                         X509Key subjectKeyInfo =
                                 (X509Key) ((CertificateX509Key) certInfoArray[j].get(X509CertInfo.KEY))
                                         .get(CertificateX509Key.KEY);
-                        MessageDigest md = MessageDigest.getInstance("SHA-1");
+                        MessageDigest md = MessageDigest.getInstance(CryptoUtil.getDefaultHashAlgName());
 
                         md.update(subjectKeyInfo.getEncoded());
                         byte[] skib = md.digest();

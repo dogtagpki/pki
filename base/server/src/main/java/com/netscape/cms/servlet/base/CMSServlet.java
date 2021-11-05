@@ -109,6 +109,7 @@ import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -376,7 +377,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
+            mSHADigest = MessageDigest.getInstance(CryptoUtil.getDefaultHashAlgName());
         } catch (NoSuchAlgorithmException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS", e.toString()), e);
             throw new ServletException(e);
