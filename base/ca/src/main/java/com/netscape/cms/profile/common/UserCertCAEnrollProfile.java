@@ -77,7 +77,7 @@ public class UserCertCAEnrollProfile extends CAEnrollProfile {
         defConfig4
                 .putString(
                         "params.signingAlgsAllowed",
-                        "SHA1withRSA,SHA256withRSA,SHA384withRSA,SHA512withRSA,SHA1withEC,SHA256withEC,SHA384withEC,SHA512withEC");
+                        "SHA256withRSA,SHA384withRSA,SHA512withRSA,SHA256withEC,SHA384withEC,SHA512withEC");
 
         ProfilePolicy policy5 =
                 createProfilePolicy("set1", "p5",
