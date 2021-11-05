@@ -265,10 +265,10 @@ public class CRSEnrollment extends HttpServlet {
                 mIsDynamicProfileId = true;
                 logger.debug("CRSEnrollment: init: expecting dynamic ProfileId in URL");
             }
-            mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
+            mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA256");
             mConfiguredEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
             mNonceSizeLimit = scepConfig.getInteger("nonceSizeLimit", 0);
-            mHashAlgorithmList = scepConfig.getString("allowedHashAlgorithms", "SHA1,SHA256,SHA512");
+            mHashAlgorithmList = scepConfig.getString("allowedHashAlgorithms", "SHA256,SHA512");
             mAllowedHashAlgorithm = mHashAlgorithmList.split(",");
             mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
             mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");

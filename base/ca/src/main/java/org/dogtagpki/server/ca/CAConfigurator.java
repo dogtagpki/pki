@@ -326,7 +326,7 @@ public class CAConfigurator extends Configurator {
         String profileFile = cs.getString("profile.caAdminCert.config");
         String defaultSigningAlgsAllowed = cs.getString(
                 "ca.profiles.defaultSigningAlgsAllowed",
-                "SHA256withRSA,SHA256withEC,SHA1withDSA");
+                "SHA256withRSA,SHA256withEC");
         String keyAlgorithm = CertUtils.getAdminProfileAlgorithm(
                 caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
 
