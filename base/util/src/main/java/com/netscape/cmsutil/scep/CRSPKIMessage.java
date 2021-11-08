@@ -37,6 +37,7 @@ import org.mozilla.jss.asn1.PrintableString;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.pkcs7.Attribute;
 import org.mozilla.jss.pkcs7.ContentInfo;
 import org.mozilla.jss.pkcs7.EncryptedContentInfo;
@@ -48,8 +49,6 @@ import org.mozilla.jss.pkcs7.SignerInfo;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.pkix.cert.CertificateInfo;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
-
-import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 
 public class CRSPKIMessage {
 
@@ -103,6 +102,7 @@ public class CRSPKIMessage {
             new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 2, 5 }
             );
 
+    @Deprecated(since="11.0.1", forRemoval=true)
     public static OBJECT_IDENTIFIER SHA1_DIGEST =
             new OBJECT_IDENTIFIER(new long[] { 1, 3, 14, 3, 2, 26 }
             );

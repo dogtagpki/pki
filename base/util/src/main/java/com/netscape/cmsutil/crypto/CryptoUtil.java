@@ -2796,6 +2796,7 @@ public class CryptoUtil {
      * @return The JSS SymKey
      *
      */
+    @Deprecated(since="11.0.1", forRemoval=true)
     public static Key importHmacSha1Key(byte[] key) throws Exception {
         SecretKeyFactory factory = SecretKeyFactory.getInstance("HmacSHA1", "Mozilla-JSS");
         return factory.generateSecret(new SecretKeySpec(key, "SHA1_HMAC"));
