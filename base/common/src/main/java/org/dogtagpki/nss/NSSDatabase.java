@@ -931,7 +931,10 @@ public class NSSDatabase {
 
         logger.info("NSSDatabase: Creating certificate signing request for " + subject);
 
-        logger.info("NSSDatabase: - token: " + tokenName);
+        if (tokenName != null) {
+            logger.info("NSSDatabase: - token: " + tokenName);
+        }
+
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
         KeyPair keyPair = null;
@@ -1037,7 +1040,10 @@ public class NSSDatabase {
 
         logger.info("NSSDatabase: Issuing certificate:");
 
-        logger.info("NSSDatabase: - token: " + tokenName);
+        if (tokenName != null) {
+            logger.info("NSSDatabase: - token: " + tokenName);
+        }
+
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
         X500Name subjectName = pkcs10.getSubjectName();
@@ -1085,11 +1091,14 @@ public class NSSDatabase {
 
         // convert Extensions into CertificateExtensions
         CertificateExtensions certExts = new CertificateExtensions();
-        Enumeration<String> names = extensions.getAttributeNames();
-        while (names.hasMoreElements()) {
-            String name = names.nextElement();
-            Extension extension = (Extension) extensions.get(name);
-            certExts.set(name, extension);
+
+        if (extensions != null) {
+            Enumeration<String> names = extensions.getAttributeNames();
+            while (names.hasMoreElements()) {
+                String name = names.nextElement();
+                Extension extension = (Extension) extensions.get(name);
+                certExts.set(name, extension);
+            }
         }
 
         X509CertInfo info = CryptoUtil.createX509CertInfo(
