@@ -450,9 +450,23 @@ class NSSDatabase(object):
             stdout=subprocess.DEVNULL,
             check=True)
 
-    def add_cert(self, nickname, cert_file, token=None, trust_attributes=None):
+    def add_cert(
+            self,
+            nickname,
+            cert_file,
+            token=None,
+            trust_attributes=None,
+            use_jss=False):
 
         logger.debug('NSSDatabase.add_cert(%s)', nickname)
+
+        if use_jss:
+            self.__add_cert(
+                nickname,
+                cert_file,
+                token=token,
+                trust_attributes=trust_attributes)
+            return
 
         tmpdir = tempfile.mkdtemp()
         try:
@@ -514,6 +528,49 @@ class NSSDatabase(object):
 
         finally:
             shutil.rmtree(tmpdir)
+
+    def __add_cert(
+            self,
+            nickname,
+            cert_file,
+            token=None,
+            trust_attributes=None):
+        '''
+        Import certificate using pki nss-cert-import command.
+        In the future this will replace add_cert().
+        '''
+
+        cmd = [
+            'pki',
+            '-d', self.directory
+        ]
+
+        if self.password_conf:
+            cmd.extend(['-f', self.password_conf])
+
+        elif self.password_file:
+            cmd.extend(['-C', self.password_file])
+
+        token = self.get_effective_token(token)
+        if token:
+            cmd.extend(['--token', token])
+
+        cmd.extend(['nss-cert-import'])
+        cmd.extend(['--cert', cert_file])
+
+        if trust_attributes:
+            cmd.extend(['--trust', trust_attributes])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(nickname)
+
+        logger.debug('Command: %s', ' '.join(map(str, cmd)))
+        subprocess.check_call(cmd)
 
     def add_ca_cert(self, cert_file, trust_attributes='CT,C,C'):
 
@@ -604,7 +661,8 @@ class NSSDatabase(object):
             extended_key_usage_ext=None,
             cka_id=None,
             subject_key_id=None,
-            generic_exts=None):
+            generic_exts=None,
+            use_jss=False):
         """
         Generate a CSR.
 
@@ -633,6 +691,16 @@ class NSSDatabase(object):
                 Raw extension data (``bytes``)
 
         """
+
+        if use_jss:
+            self.__create_request(
+                subject_dn,
+                request_file,
+                token=token,
+                key_type=key_type,
+                key_size=key_size)
+            return
+
         if cka_id is not None and not isinstance(cka_id, six.text_type):
             raise TypeError('cka_id must be a text string')
 
@@ -953,10 +1021,84 @@ class NSSDatabase(object):
         # The hex string is the hex-encoded CKA_ID
         return re.findall(br'^<\s*\d+>\s+\w+\s+(\w+)', out, re.MULTILINE)
 
-    def create_cert(self, request_file, cert_file, serial, issuer=None,
-                    key_usage_ext=None, basic_constraints_ext=None,
-                    aki_ext=None, ski_ext=None, aia_ext=None,
-                    ext_key_usage_ext=None, validity=None):
+    def __create_request(
+            self,
+            subject_dn,
+            request_file,
+            token=None,
+            key_type=None,
+            key_size=None):
+        '''
+        Generate CSR using pki nss-cert-request command.
+        In the future this will replace create_request().
+        '''
+
+        cmd = [
+            'pki',
+            '-d', self.directory
+        ]
+
+        if self.password_conf:
+            cmd.extend(['-f', self.password_conf])
+
+        elif self.password_file:
+            cmd.extend(['-C', self.password_file])
+
+        token = self.get_effective_token(token)
+        if token:
+            cmd.extend(['--token', token])
+
+        cmd.extend(['nss-cert-request'])
+        cmd.extend(['--subject', subject_dn])
+        cmd.extend(['--csr', request_file])
+
+        # normalize key type
+        if key_type:
+            key_type = key_type.upper()
+            if key_type == 'ECC':
+                key_type = 'EC'
+
+        if key_type:
+            cmd.extend(['--key-type', key_type])
+
+        if key_size:
+            if key_type == 'EC':
+                cmd.extend(['--curve', key_size])
+            else:
+                cmd.extend(['--key-size', key_size])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        logger.debug('Command: %s', ' '.join(map(str, cmd)))
+        subprocess.check_call(cmd)
+
+    def create_cert(
+            self,
+            request_file,
+            cert_file,
+            serial,
+            issuer=None,
+            key_usage_ext=None,
+            basic_constraints_ext=None,
+            aki_ext=None,
+            ski_ext=None,
+            aia_ext=None,
+            ext_key_usage_ext=None,
+            validity=None,
+            use_jss=False):
+
+        if use_jss:
+            self.__create_cert(
+                request_file,
+                cert_file,
+                serial,
+                validity=validity)
+            return
+
         cmd = [
             'certutil',
             '-C',
@@ -1129,6 +1271,45 @@ class NSSDatabase(object):
         rc = p.wait()
 
         return rc
+
+    def __create_cert(
+            self,
+            request_file,
+            cert_file,
+            serial,
+            validity=None):
+        '''
+        Issue certificate using pki nss-cert-issue command.
+        In the future this will replace create_cert().
+        '''
+
+        cmd = [
+            'pki',
+            '-d', self.directory
+        ]
+
+        if self.password_conf:
+            cmd.extend(['-f', self.password_conf])
+
+        elif self.password_file:
+            cmd.extend(['-C', self.password_file])
+
+        cmd.extend(['nss-cert-issue'])
+        cmd.extend(['--csr', request_file])
+        cmd.extend(['--serial', str(serial)])
+        cmd.extend(['--cert', cert_file])
+
+        if validity:
+            cmd.extend(['--months-valid', str(validity)])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        logger.debug('Command: %s', ' '.join(map(str, cmd)))
+        subprocess.check_call(cmd)
 
     def create_self_signed_ca_cert(self, request_file, cert_file,
                                    serial='1', validity=240):
