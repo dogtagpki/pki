@@ -590,7 +590,7 @@ public class CTEngine {
      *  enum HashAlgorithm {
      *      none, md5, sha1, sha224, sha256, sha384, sha512};
      */
-    enum HashAlgorithm {none, MD5, SHA1, SHA224, SHA256, SHA384, SHA512};
+    enum HashAlgorithm {none, MD5, @Deprecated(since="11.0.1", forRemoval=true) SHA1, SHA224, SHA256, SHA384, SHA512};
     public String getHashAlgFromSig(byte[] ct_signature) {
 
         int hashingAlg = Byte.toUnsignedInt(ct_signature[0]);
