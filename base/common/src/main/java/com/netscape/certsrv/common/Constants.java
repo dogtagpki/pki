@@ -226,8 +226,13 @@ public interface Constants {
     public static final String PR_SIGNING_ALGORITHM = "signingAlgorithm";
     public static final String PR_MD2_RSA = "MD2withRSA";
     public static final String PR_MD5_RSA = "MD5withRSA";
+
+    //Should be replaced with SHA-2
+    @Deprecated(since="11.0.1", forRemoval=true)
     public static final String PR_SHA1_RSA = "SHA1withRSA";
+    @Deprecated(since="11.0.1", forRemoval=true)
     public static final String PR_SHA1_DSA = "SHA1withDSA";
+
     public static final String PR_DESCRIPTION = "description";
     public static final String PR_CLASS = "class";
 
