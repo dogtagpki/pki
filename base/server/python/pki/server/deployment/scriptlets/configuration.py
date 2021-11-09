@@ -675,33 +675,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         create_containers = not config.str2bool(deployer.mdict['pki_clone'])
 
-        # Set up replication if required for cloning.
-
-        setup_replication = clone and \
-            config.str2bool(deployer.mdict['pki_clone_setup_replication'])
-
         ds_port = subsystem.config['internaldb.ldapconn.port']
         logger.info('- internaldb.ldapconn.port: %s', ds_port)
 
         secure_conn = subsystem.config['internaldb.ldapconn.secureConn']
         logger.info('- internaldb.ldapconn.secureConn: %s', secure_conn)
-
-        replication_security = deployer.mdict['pki_clone_replication_security']
-        logger.info('- pki_clone_replication_security: %s', replication_security)
-
-        replication_port = deployer.mdict['pki_clone_replication_clone_port']
-        logger.info('- pki_clone_replication_clone_port: %s', replication_port)
-
-        master_replication_port = deployer.mdict['pki_clone_replication_master_port']
-        logger.info('- pki_clone_replication_master_port: %s', master_replication_port)
-
-        if replication_port == ds_port and secure_conn == 'true':
-            replication_security = 'SSL'
-
-        elif not replication_security:
-            replication_security = 'None'
-
-        logger.info('- replication_security: %s', replication_security)
 
         # If the database is already replicated but not yet indexed, rebuild the indexes.
 
@@ -714,11 +692,33 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             create_database=create_database,
             create_base=create_base,
             create_containers=create_containers,
-            rebuild_indexes=rebuild_indexes,
-            setup_replication=setup_replication,
-            replication_security=replication_security,
-            replication_port=replication_port,
-            master_replication_port=master_replication_port)
+            rebuild_indexes=rebuild_indexes)
+
+        if config.str2bool(deployer.mdict['pki_clone']) and \
+                config.str2bool(deployer.mdict['pki_clone_setup_replication']):
+
+            logger.info('Setting up replication')
+
+            master_replication_port = deployer.mdict['pki_clone_replication_master_port']
+            logger.info('- master replication port: %s', master_replication_port)
+
+            replica_replication_port = deployer.mdict['pki_clone_replication_clone_port']
+            logger.info('- replica replication port: %s', replica_replication_port)
+
+            if replica_replication_port == ds_port and secure_conn == 'true':
+                replication_security = 'SSL'
+
+            else:
+                replication_security = deployer.mdict['pki_clone_replication_security']
+                if not replication_security:
+                    replication_security = 'None'
+
+            logger.info('- replication security: %s', replication_security)
+
+            subsystem.setup_replication(
+                master_replication_port=master_replication_port,
+                replica_replication_port=replica_replication_port,
+                replication_security=replication_security)
 
         # For security a PKI subsystem can be configured to use a database user
         # that only has a limited access to the database (instead of cn=Directory
