@@ -895,9 +895,6 @@ class PKIConfigParser:
             self.mdict['pki_self_signed_subject'] = \
                 "cn=" + self.mdict['pki_hostname'] + "," + \
                 "o=" + self.mdict['pki_certificate_timestamp']
-            self.mdict['pki_self_signed_serial_number'] = 0
-            self.mdict['pki_self_signed_validity_period'] = 12
-            self.mdict['pki_self_signed_trustargs'] = "CTu,CTu,CTu"
 
             # Tomcat NSS security database convenience
             # symbolic links

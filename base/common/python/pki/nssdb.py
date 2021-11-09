@@ -1080,7 +1080,7 @@ class NSSDatabase(object):
             self,
             request_file,
             cert_file,
-            serial,
+            serial=None,
             issuer=None,
             key_usage_ext=None,
             basic_constraints_ext=None,
@@ -1095,7 +1095,7 @@ class NSSDatabase(object):
             self.__create_cert(
                 request_file,
                 cert_file,
-                serial,
+                serial=serial,
                 validity=validity)
             return
 
@@ -1276,7 +1276,7 @@ class NSSDatabase(object):
             self,
             request_file,
             cert_file,
-            serial,
+            serial=None,
             validity=None):
         '''
         Issue certificate using pki nss-cert-issue command.
@@ -1296,8 +1296,10 @@ class NSSDatabase(object):
 
         cmd.extend(['nss-cert-issue'])
         cmd.extend(['--csr', request_file])
-        cmd.extend(['--serial', str(serial)])
         cmd.extend(['--cert', cert_file])
+
+        if serial:
+            cmd.extend(['--serial', serial])
 
         if validity:
             cmd.extend(['--months-valid', str(validity)])
