@@ -101,8 +101,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             nssdb.create_cert(
                 request_file=csr_file,
                 cert_file=cert_file,
-                serial=deployer.mdict['pki_self_signed_serial_number'],
-                validity=deployer.mdict['pki_self_signed_validity_period'],
+                serial=deployer.mdict.get('pki_self_signed_serial_number'),
+                validity=deployer.mdict.get('pki_self_signed_validity_period'),
                 use_jss=True
             )
 
@@ -110,7 +110,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 nickname=nickname,
                 cert_file=cert_file,
                 token=deployer.mdict['pki_self_signed_token'],
-                trust_attributes=deployer.mdict['pki_self_signed_trustargs'],
+                trust_attributes=deployer.mdict.get('pki_self_signed_trustargs'),
                 use_jss=True
             )
 
