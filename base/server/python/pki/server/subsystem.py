@@ -1223,35 +1223,7 @@ class PKISubsystem(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def update_config(self, master_url, session_id=None, install_token=None):
-
-        logger.info('Updating configuration')
-
-        names = [
-            'internaldb.ldapauth.password',
-            'internaldb.replication.password'
-        ]
-
-        substores = [
-            'internaldb',
-            'internaldb.ldapauth',
-            'internaldb.ldapconn'
-        ]
-
-        tags = self.config['preop.cert.list'].split(',')
-        for tag in tags:
-            if tag == 'sslserver':
-                continue
-            substores.append(self.name + '.' + tag)
-
-        if self.name == 'ca':
-            substores.append('ca.connector.KRA')
-        else:
-            names.append('cloning.ca.type')
-
-        config = self.retrieve_config(
-            master_url, names, substores, session_id=session_id, install_token=install_token)
-        properties = config['properties']
+    def import_master_config(self, properties):
 
         for name in properties:
 
@@ -1273,16 +1245,6 @@ class PKISubsystem(object):
         self.config['preop.clone.configuration'] = 'true'
 
         self.save()
-
-        master_hostname = self.config['preop.internaldb.master.ldapconn.host']
-        master_port = self.config['preop.internaldb.master.ldapconn.port']
-
-        replica_hostname = self.config['internaldb.ldapconn.host']
-        replica_port = self.config['internaldb.ldapconn.port']
-
-        if master_hostname == replica_hostname and \
-                master_port == replica_port:
-            raise Exception('Master and replica must not share LDAP database')
 
     def configure_security_domain(
             self,

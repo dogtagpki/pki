@@ -588,8 +588,52 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 logger.info('Requesting ranges from %s master', subsystem.type)
                 subsystem.request_ranges(master_url, session_id=deployer.install_token.token)
 
-            logger.info('Updating configuration for %s clone', subsystem.type)
-            subsystem.update_config(master_url, session_id=deployer.install_token.token)
+            logger.info('Retrieving config params from %s master', subsystem.type)
+
+            names = [
+                'internaldb.ldapauth.password',
+                'internaldb.replication.password'
+            ]
+
+            substores = [
+                'internaldb',
+                'internaldb.ldapauth',
+                'internaldb.ldapconn'
+            ]
+
+            tags = subsystem.config['preop.cert.list'].split(',')
+            for tag in tags:
+                if tag == 'sslserver':
+                    continue
+                substores.append(subsystem.name + '.' + tag)
+
+            if subsystem.name == 'ca':
+                substores.append('ca.connector.KRA')
+            else:
+                names.append('cloning.ca.type')
+
+            master_config = subsystem.retrieve_config(
+                master_url,
+                names,
+                substores,
+                session_id=deployer.install_token.token)
+
+            logger.info('Validating %s master config params', subsystem.type)
+
+            master_properties = master_config['properties']
+
+            master_hostname = master_properties['internaldb.ldapconn.host']
+            master_port = master_properties['internaldb.ldapconn.port']
+
+            replica_hostname = subsystem.config['internaldb.ldapconn.host']
+            replica_port = subsystem.config['internaldb.ldapconn.port']
+
+            if master_hostname == replica_hostname and master_port == replica_port:
+                raise Exception('Master and replica must not share LDAP database')
+
+            logger.info('Importing %s master config params', subsystem.type)
+
+            subsystem.import_master_config(master_properties)
 
         if config.str2bool(deployer.mdict['pki_ds_remove_data']):
 
