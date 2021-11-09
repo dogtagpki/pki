@@ -954,10 +954,6 @@ class PKISubsystem(object):
             create_base=False,
             create_containers=False,
             rebuild_indexes=False,
-            setup_replication=False,
-            replication_security=None,
-            replication_port=None,
-            master_replication_port=None,
             as_current_user=False):
 
         cmd = [self.name + '-db-init']
@@ -976,18 +972,6 @@ class PKISubsystem(object):
 
         if rebuild_indexes:
             cmd.append('--rebuild-indexes')
-
-        if setup_replication:
-            cmd.append('--setup-replication')
-
-        if replication_security:
-            cmd.extend(['--replication-security', replication_security])
-
-        if replication_port:
-            cmd.extend(['--replication-port', replication_port])
-
-        if master_replication_port:
-            cmd.extend(['--master-replication-port', master_replication_port])
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1066,6 +1050,32 @@ class PKISubsystem(object):
             cmd,
             as_current_user=as_current_user,
             capture_output=True)
+
+    def setup_replication(
+            self,
+            master_replication_port=None,
+            replica_replication_port=None,
+            replication_security=None,
+            as_current_user=False):
+
+        cmd = [self.name + '-db-replication-setup']
+
+        if master_replication_port:
+            cmd.extend(['--master-replication-port', master_replication_port])
+
+        if replica_replication_port:
+            cmd.extend(['--replica-replication-port', replica_replication_port])
+
+        if replication_security:
+            cmd.extend(['--replication-security', replication_security])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
 
     def find_vlv(self, as_current_user=False):
 
