@@ -1053,29 +1053,41 @@ class PKISubsystem(object):
 
     def setup_replication(
             self,
+            master_config,
             master_replication_port=None,
             replica_replication_port=None,
-            replication_security=None,
-            as_current_user=False):
+            replication_security=None):
 
-        cmd = [self.name + '-db-replication-setup']
+        tmpdir = tempfile.mkdtemp()
+        try:
+            master_config_file = os.path.join(tmpdir, 'master.conf')
+            pki.util.store_properties(master_config_file, master_config)
 
-        if master_replication_port:
-            cmd.extend(['--master-replication-port', master_replication_port])
+            cmd = [self.name + '-db-replication-setup']
 
-        if replica_replication_port:
-            cmd.extend(['--replica-replication-port', replica_replication_port])
+            if master_replication_port:
+                cmd.extend(['--master-replication-port', master_replication_port])
 
-        if replication_security:
-            cmd.extend(['--replication-security', replication_security])
+            if replica_replication_port:
+                cmd.extend(['--replica-replication-port', replica_replication_port])
 
-        if logger.isEnabledFor(logging.DEBUG):
-            cmd.append('--debug')
+            if replication_security:
+                cmd.extend(['--replication-security', replication_security])
 
-        elif logger.isEnabledFor(logging.INFO):
-            cmd.append('--verbose')
+            if master_config_file:
+                cmd.extend(['--master-config', master_config_file])
 
-        self.run(cmd, as_current_user=as_current_user)
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            # run as current user so it can read the input file
+            self.run(cmd, as_current_user=True)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
     def find_vlv(self, as_current_user=False):
 
@@ -1238,7 +1250,8 @@ class PKISubsystem(object):
         for name in properties:
 
             if name.startswith('internaldb'):
-                new_name = 'preop.internaldb.master' + name[10:]
+                # don't import master database configuration
+                continue
 
             elif name.startswith('cloning.ca'):
                 new_name = 'preop.ca' + name[10:]

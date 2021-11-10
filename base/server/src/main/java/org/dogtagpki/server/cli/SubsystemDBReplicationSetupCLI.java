@@ -16,7 +16,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.csadmin.LDAPConfigurator;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
@@ -44,6 +43,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
     @Override
     public void createOptions() {
 
+        options.addOption(null, "master-config", true, "Master configuration file");
         options.addOption(null, "master-replication-port", true, "Master replication port");
         options.addOption(null, "replica-replication-port", true, "Replica replication port");
         options.addOption(null, "replication-security", true, "Replication security: SSL, TLS, None");
@@ -63,6 +63,12 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
             PKILogger.setLevel(Level.INFO);
         }
 
+        String masterConfigFile = cmd.getOptionValue("master-config");
+
+        if (masterConfigFile == null) {
+            throw new Exception("Missing master configuration file");
+        }
+
         String masterReplicationPort = cmd.getOptionValue("master-replication-port");
         String replicaReplicationPort = cmd.getOptionValue("replica-replication-port");
         String replicationSecurity = cmd.getOptionValue("replication-security");
@@ -72,12 +78,18 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();
 
+        logger.info("Loading {}", masterConfigFile);
+        ConfigStorage masterStorage = new FileConfigStore(masterConfigFile);
+        PropConfigStore masterConfig = new PropConfigStore(masterStorage);
+        masterConfig.load();
+
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
         IPasswordStore passwordStore = IPasswordStore.create(psc);
 
         setupReplication(
                 cs,
                 passwordStore,
+                masterConfig,
                 masterReplicationPort,
                 replicaReplicationPort,
                 replicationSecurity);
@@ -88,13 +100,13 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
     public void setupReplication(
             EngineConfig cs,
             IPasswordStore passwordStore,
+            PropConfigStore masterConfig,
             String masterReplicationPort,
             String replicaReplicationPort,
-            String security) throws Exception {
+            String replicationSecurity) throws Exception {
 
         String hostname = cs.getHostname();
         String instanceID = cs.getInstanceID();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
@@ -114,8 +126,8 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig, instanceID);
 
         try {
-            LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
-            LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
+            LDAPConfig masterDBConfig = masterConfig.getSubStore("internaldb", LDAPConfig.class);
+            LDAPConnectionConfig masterConnConfig = masterDBConfig.getConnectionConfig();
             String masterHostname = masterConnConfig.getString("host", "");
             String masterPort = masterConnConfig.getString("port", "");
 
@@ -123,13 +135,13 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
                 masterReplicationPort = masterPort;
             }
 
-            String masterReplicationPassword = preopConfig.getString("internaldb.master.replication.password", "");
+            String masterReplicationPassword = masterConfig.getString("internaldb.replication.password", "");
             String replicaReplicationPassword = passwordStore.getPassword("replicationdb", 0);
 
             // Set master LDAP password (if it exists) temporarily in password store
             // in case it is needed for replication. Not stored in password.conf.
 
-            LDAPAuthenticationConfig masterAuthConfig = masterConfig.getAuthenticationConfig();
+            LDAPAuthenticationConfig masterAuthConfig = masterDBConfig.getAuthenticationConfig();
             String masterPassword = masterAuthConfig.getString("password", "");
 
             if (!masterPassword.equals("")) {
@@ -139,10 +151,10 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
             }
 
             LdapBoundConnFactory masterFactory = new LdapBoundConnFactory("MasterLDAPConfigurator");
-            masterFactory.init(socketConfig, masterConfig, passwordStore);
+            masterFactory.init(socketConfig, masterDBConfig, passwordStore);
 
             LDAPConnection masterConn = masterFactory.getConn();
-            LDAPConfigurator masterConfigurator = new LDAPConfigurator(masterConn, masterConfig);
+            LDAPConfigurator masterConfigurator = new LDAPConfigurator(masterConn, masterDBConfig);
 
             try {
                 String masterAgreementName = "masterAgreement1-" + hostname + "-" + instanceID;
@@ -158,7 +170,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
                         ldapConfigurator,
                         masterAgreementName,
                         replicaAgreementName,
-                        security,
+                        replicationSecurity,
                         masterHostname,
                         replicaHostname,
                         Integer.parseInt(masterReplicationPort),

@@ -716,6 +716,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('- replication security: %s', replication_security)
 
             subsystem.setup_replication(
+                master_properties,
                 master_replication_port=master_replication_port,
                 replica_replication_port=replica_replication_port,
                 replication_security=replication_security)
