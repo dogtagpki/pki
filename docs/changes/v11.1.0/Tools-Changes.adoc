@@ -17,3 +17,7 @@ Previously `pki kra-key-retrieve` command supported both XML and JSON for input 
 == New Database Access CLIs ==
 
 The `pki-server <subsystem>-db-access` commands have been added to manage the access to PKI databases.
+
+== pkidaemon Changes ==
+
+The `pkidaemon status` command has been removed. Use `pki-server status` instead.
