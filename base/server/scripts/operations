@@ -804,9 +804,27 @@ backup_instance_configuration_files()
     return 0
 }
 
+check_deprecated_algorithms() {
+
+    # Check deprecated algorithms in config files and cert profiles.
+    # Exclude NSS database files and links to Tomcat standard config files.
+    # The result will appear in systemd journal when the server is started.
+
+    FILES=$(find /etc/pki/${pki_instance_id} -type f -not -path "/etc/pki/${pki_instance_id}/alias/*")
+
+    if [ -d /var/lib/pki/${pki_instance_id}/ca/profiles ]
+    then
+        FILES="$FILES $(find /var/lib/pki/${pki_instance_id}/ca/profiles -type f)"
+    fi
+
+    grep -n -E "SHA\s*$|SHA\s*,|SHAwith|SHA1|SHA-1|SHA_1" $FILES | awk -F: '{ print "WARNING: Deprecated algorithm in " $1 ":" $2 ": " $3 }'
+}
+
 start_instance()
 {
     rv=0
+
+    check_deprecated_algorithms
 
     # Always create a backup of each PKI subsystem's 'CS.cfg' file
     # within an instance.
