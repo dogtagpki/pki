@@ -49,7 +49,7 @@ public class NSSCertIssueCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "serial", true, "Serial number (default is random)");
+        option = new Option(null, "serial", true, "Serial number (default is 128-bit random number)");
         option.setArgName("number");
         options.addOption(option);
 
@@ -57,7 +57,7 @@ public class NSSCertIssueCLI extends CommandCLI {
         option.setArgName("months");
         options.addOption(option);
 
-        option = new Option(null, "hash", true, "Serial number (default is SHA256)");
+        option = new Option(null, "hash", true, "Hash algorithm (default is SHA256)");
         option.setArgName("hash");
         options.addOption(option);
 

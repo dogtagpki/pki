@@ -1071,7 +1071,7 @@ public class NSSDatabase {
         } else {
             serialNo = new BigInteger(serialNumber);
         }
-        logger.info("NSSDatabase: - serial number: " + serialNo);
+        logger.info("NSSDatabase: - serial number: 0x" + Utils.HexEncode(serialNo.toByteArray()));
 
         Calendar calendar = Calendar.getInstance();
         Date notBeforeDate = calendar.getTime();
@@ -1122,7 +1122,7 @@ public class NSSDatabase {
 
             for (PrivateKey privKey : store.getPrivateKeys()) {
                 PK11PrivKey pk11PrivKey = (PK11PrivKey) privKey;
-                logger.info("NSSDatabase: - private key: " + Utils.HexEncode(privKey.getUniqueID()));
+                logger.info("NSSDatabase: - private key: 0x" + Utils.HexEncode(privKey.getUniqueID()));
 
                 PK11PubKey pk11PubKey = pk11PrivKey.getPublicKey();
                 byte[] publicKey = pk11PubKey.getEncoded();

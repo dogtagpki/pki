@@ -33,7 +33,6 @@ public abstract class SubsystemCLI extends CommandCLI {
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
         tomcatjss.loadConfig();
         tomcatjss.init();
-        logger.info("TomcatJSS inititialized");
     }
 
     protected EngineConfig getEngineConfig(String subsystem) throws Exception {
