@@ -394,9 +394,9 @@ public class TokenService extends SubsystemService implements TokenResource {
 
         String method = "TokenService.retrieveTokensWithoutVLV: ";
 
-	List<TokenRecord> tokens = (List<TokenRecord>) database.findRecords(filter);
-	int total = tokens.size();
-	CMS.debug(method + "total: " + total);
+        List<TokenRecord> tokens = (List<TokenRecord>) database.findRecords(filter);
+        int total = tokens.size();
+        CMS.debug(method + "total: " + total);
 
         List<String> authorizedProfiles = getAuthorizedProfiles();
 
@@ -596,9 +596,26 @@ public class TokenService extends SubsystemService implements TokenResource {
         TokenRecord tokenRecord = null;
         String msg = "replace token";
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if (authorizedProfiles == null) {
+                msg = "authorizedProfiles null";
+                CMS.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
             TokenDatabase database = subsystem.getTokenDatabase();
 
             tokenRecord = database.getRecord(tokenID);
+            if (tokenRecord == null) {
+                msg = "Token record not found";
+                CMS.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
+            String type = tokenRecord.getType();
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type))
+                   throw new PKIException(method + "Token record restricted");
+
             tokenRecord.setUserID(remoteUser);
             auditModParams.put("userID", remoteUser);
             tokenRecord.setType(tokenData.getType());
@@ -921,8 +938,24 @@ public class TokenService extends SubsystemService implements TokenResource {
         TokenRecord tokenRecord = null;
         String msg = "remove token";
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if (authorizedProfiles == null) {
+                msg = "authorizedProfiles null";
+                CMS.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
             TokenDatabase database = subsystem.getTokenDatabase();
             tokenRecord = database.getRecord(tokenID);
+            if (tokenRecord == null) {
+                msg = "Token record not found";
+                CMS.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
+            String type = tokenRecord.getType();
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type))
+                   throw new PKIException(method + "Token record restricted");
 
             //delete all certs associated with this token
             CMS.debug(method + "about to remove all certificates associated with the token first");

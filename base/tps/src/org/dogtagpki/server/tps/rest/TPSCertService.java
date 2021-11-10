@@ -21,8 +21,10 @@ package org.dogtagpki.server.tps.rest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
@@ -32,13 +34,19 @@ import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.cert.TPSCertCollection;
 import com.netscape.certsrv.tps.cert.TPSCertData;
 import com.netscape.certsrv.tps.cert.TPSCertResource;
+import org.dogtagpki.server.tps.dbs.TokenDatabase;
+import org.dogtagpki.server.tps.dbs.TokenRecord;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.certsrv.user.UserResource;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.certsrv.usrgrp.IUser;
 
 /**
  * @author Endi S. Dewata
@@ -98,6 +106,8 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
     @Override
     public Response findCerts(String filter, String tokenID, Integer start, Integer size) {
+        String method = "TPSCertService:findCerts: ";
+        String msg = "";
 
         CMS.debug("TPSCertService.findCerts(" + filter + ", " + tokenID + ", " + start + ", " + size + ")");
 
@@ -116,24 +126,43 @@ public class TPSCertService extends PKIService implements TPSCertResource {
         size = size == null ? DEFAULT_SIZE : size;
 
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if (authorizedProfiles == null) {
+                msg = "authorizedProfiles null";
+                CMS.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TokenDatabase tokDatabase = subsystem.getTokenDatabase();
+            TokenRecord record = tokDatabase.getRecord(tokenID);
+            if (record == null) {
+                msg = "Token record not found";
+                CMS.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+            String type = record.getType();
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type))
+                throw new PKIException(method + "Token record restricted");
+
+            // token was from an authorized profile
             TPSCertDatabase database = subsystem.getCertDatabase();
 
-            Iterator<TPSCertRecord> activities = database.findRecords(filter, attributes).iterator();
+            Iterator<TPSCertRecord> certRecs = database.findRecords(filter, attributes).iterator();
 
             TPSCertCollection response = new TPSCertCollection();
             int i = 0;
 
             // skip to the start of the page
-            for ( ; i<start && activities.hasNext(); i++) activities.next();
+            for ( ; i<start && certRecs.hasNext(); i++) certRecs.next();
 
             // return entries up to the page size
-            for ( ; i<start+size && activities.hasNext(); i++) {
-                response.addEntry(createCertData(activities.next()));
+            for ( ; i<start+size && certRecs.hasNext(); i++) {
+                response.addEntry(createCertData(certRecs.next()));
             }
 
             // count the total entries
-            for ( ; activities.hasNext(); i++) activities.next();
+            for ( ; certRecs.hasNext(); i++) certRecs.next();
             response.setTotal(i);
 
             if (start > 0) {
@@ -156,14 +185,27 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
     @Override
     public Response getCert(String certID) {
+       String method = "TPSCertService:getCert: ";
+       String msg = "";
 
         if (certID == null) throw new BadRequestException("Certificate ID is null.");
 
         CMS.debug("TPSCertService.getCert(\"" + certID + "\")");
 
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if (authorizedProfiles == null) {
+                msg = "authorizedProfiles null";
+                CMS.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
+            TPSCertRecord certRec = database.getRecord(certID);
+            String type = certRec.getKeyType();
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type))
+                   throw new PKIException(method + "Cert record restricted");
 
             return createOKResponse(createCertData(database.getRecord(certID)));
 
@@ -171,5 +213,18 @@ public class TPSCertService extends PKIService implements TPSCertResource {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
         }
+    }
+
+    /*
+     * returns a list of TPS profiles allowed for the current user
+     */
+    List<String> getAuthorizedProfiles()
+           throws Exception {
+        String method = "TokenService.getAuthorizedProfiles: ";
+
+        PKIPrincipal pkiPrincipal = (PKIPrincipal) servletRequest.getUserPrincipal();
+        IUser user = pkiPrincipal.getUser();
+
+        return user.getTpsProfiles();
     }
 }
