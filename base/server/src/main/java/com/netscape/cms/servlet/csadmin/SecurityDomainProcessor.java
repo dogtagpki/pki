@@ -522,7 +522,6 @@ public class SecurityDomainProcessor extends Processor {
 
         LDAPEntry entry = new LDAPEntry(dn, attrs);
 
-        String status = SUCCESS;
         LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
 
@@ -533,25 +532,29 @@ public class SecurityDomainProcessor extends Processor {
             conn = connFactory.getConn();
             conn.add(entry);
 
+            return SUCCESS;
+
         } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                logger.warn("SecurityDomainProcessor: Entry already exists");
-                try {
-                    conn.delete(entry.getDN());
-                    conn.add(entry);
-
-                } catch (LDAPException ee) {
-                    logger.error("SecurityDomainProcessor: Unable to replace entry: " + e.getMessage(), e);
-                    status = FAILED;
-                }
-
-            } else {
+            if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
                 logger.error("SecurityDomainProcessor: Unable to add entry: " + e.getMessage(), e);
-                status = FAILED;
+                return FAILED;
+            }
+
+            logger.warn("SecurityDomainProcessor: Entry already exists");
+            try {
+                conn.delete(entry.getDN());
+                conn.add(entry);
+
+                return SUCCESS;
+
+            } catch (LDAPException ee) {
+                logger.error("SecurityDomainProcessor: Unable to replace entry: " + ee.getMessage(), ee);
+                return FAILED;
             }
 
         } catch (Exception e) {
             logger.warn("SecurityDomainProcessor: Unable to add entry: " + e.getMessage(), e);
+            return SUCCESS;
 
         } finally {
             try {
@@ -564,8 +567,6 @@ public class SecurityDomainProcessor extends Processor {
                 logger.warn("SecurityDomainProcessor: Unable to release LDAP connection: " + e.getMessage(), e);
             }
         }
-
-        return status;
     }
 
     public String modifyEntry(String dn, LDAPModification mod) {
