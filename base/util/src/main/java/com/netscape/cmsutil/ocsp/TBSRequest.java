@@ -64,11 +64,7 @@ public class TBSRequest implements ASN1Value {
     }
 
     public int getRequestCount() {
-        if (requestList == null) {
-            return 0;
-        } else {
-            return requestList.size();
-        }
+        return requestList == null ? 0 : requestList.size();
     }
 
     public Request getRequestAt(int index) {
@@ -76,11 +72,7 @@ public class TBSRequest implements ASN1Value {
     }
 
     public int getExtensionsCount() {
-        if (requestExtensions == null) {
-            return 0;
-        } else {
-            return requestExtensions.size();
-        }
+        return requestExtensions == null ? 0 : requestExtensions.size();
     }
 
     public Extension getRequestExtensionAt(int index) {
