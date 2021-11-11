@@ -401,65 +401,63 @@ public class SecurityDomainProcessor extends Processor {
         String listName = type + "List";
         String cn = hostname + ":" + securePort;
 
-        String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + baseDN;
-        logger.info("SecurityDomainProcessor: Removing host " + dn);
+        String hostDN = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + baseDN;
+        logger.info("SecurityDomainProcessor: Removing host " + hostDN);
 
         String auditSubjectID = auditSubjectID();
 
-        String status = removeEntry(dn);
+        String status = removeEntry(hostDN);
 
         if (!status.equals(SUCCESS)) {
             return status;
         }
 
-        String adminUserDN = "uid=" + type + "-" + hostname + "-" + securePort + ",ou=People," + baseDN;
+        String adminDN = "uid=" + type + "-" + hostname + "-" + securePort + ",ou=People," + baseDN;
+        logger.info("SecurityDomainProcessor: Removing admin " + adminDN);
 
-        logger.info("SecurityDomainProcessor: Removing admin " + adminUserDN);
+        String usersAuditParams = "Scope;;users+Operation;;OP_DELETE+source;;SecurityDomainProcessor" +
+                                     "+resource;;" + adminDN;
 
-        String userAuditParams = "Scope;;users+Operation;;OP_DELETE+source;;SecurityDomainProcessor" +
-                                     "+resource;;" + adminUserDN;
-
-        status = removeEntry(adminUserDN);
+        status = removeEntry(adminDN);
 
         if (!status.equals(SUCCESS)) {
             signedAuditLogger.log(new ConfigRoleEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
-                    userAuditParams));
+                    usersAuditParams));
             return status;
         }
 
         signedAuditLogger.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.SUCCESS,
-                               userAuditParams));
+                               usersAuditParams));
 
-        dn = "cn=Subsystem Group, ou=groups," + baseDN;
+        String groupDN = "cn=Subsystem Group, ou=groups," + baseDN;
+        logger.info("SecurityDomainProcessor: Removing admin from group " + groupDN);
 
-        logger.info("SecurityDomainProcessor: Removing admin from group " + dn);
-
-        userAuditParams = "Scope;;groups+Operation;;OP_DELETE_USER" +
+        String groupsAuditParams = "Scope;;groups+Operation;;OP_DELETE_USER" +
                               "+source;;SecurityDomainProcessor" +
-                              "+resource;;Subsystem Group+user;;" + adminUserDN;
+                              "+resource;;Subsystem Group+user;;" + adminDN;
 
         LDAPModification mod = new LDAPModification(
                 LDAPModification.DELETE,
-                new LDAPAttribute("uniqueMember", adminUserDN));
+                new LDAPAttribute("uniqueMember", adminDN));
 
-        status = modifyEntry(dn, mod);
+        status = modifyEntry(groupDN, mod);
 
         if (!status.equals(SUCCESS)) {
             signedAuditLogger.log(new ConfigRoleEvent(
                                    auditSubjectID,
                                    ILogger.FAILURE,
-                                   userAuditParams));
+                                   groupsAuditParams));
             return status;
         }
 
         signedAuditLogger.log(new ConfigRoleEvent(
                 auditSubjectID,
                 ILogger.SUCCESS,
-                userAuditParams));
+                groupsAuditParams));
 
         return SUCCESS;
     }
@@ -485,15 +483,15 @@ public class SecurityDomainProcessor extends Processor {
         String baseDN = ldapConfig.getBaseDN();
 
         String listName = type + "List";
-        String cn = hostname + ":" + securePort;
+        String hostID = hostname + ":" + securePort;
 
-        String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + baseDN;
+        String dn = "cn=" + hostID + ",cn=" + listName + ",ou=Security Domain," + baseDN;
         logger.info("SecurityDomainProcessor: Adding entry " + dn);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", "top"));
         attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
-        attrs.add(new LDAPAttribute("cn", cn));
+        attrs.add(new LDAPAttribute("cn", hostID));
         attrs.add(new LDAPAttribute("Host", hostname));
         attrs.add(new LDAPAttribute("SecurePort", securePort));
 
