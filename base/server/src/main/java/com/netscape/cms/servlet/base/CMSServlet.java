@@ -1980,28 +1980,19 @@ public abstract class CMSServlet extends HttpServlet {
      */
     protected String auditSubjectID() {
 
-        logger.debug("CMSServlet: in auditSubjectID");
-        String subjectID = null;
-
-        // Initialize subjectID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        logger.debug("CMSServlet: auditSubjectID auditContext " + auditContext);
-        if (auditContext != null) {
-            subjectID = (String)
-                    auditContext.get(SessionContext.USER_ID);
-
-            logger.debug("CMSServlet auditSubjectID: subjectID: " + subjectID);
-            if (subjectID != null) {
-                subjectID = subjectID.trim();
-            } else {
-                subjectID = ILogger.NONROLEUSER;
-            }
-        } else {
-            subjectID = ILogger.UNIDENTIFIED;
+        if (auditContext == null) {
+            return ILogger.UNIDENTIFIED;
         }
 
-        return subjectID;
+        String subjectID = (String) auditContext.get(SessionContext.USER_ID);
+
+        if (subjectID == null) {
+            return ILogger.NONROLEUSER;
+        }
+
+        return subjectID.trim();
     }
 
     /**
