@@ -2175,28 +2175,6 @@ class KRAConnector:
         if critical_failure:
             raise Exception(log.PKI_SUBPROCESS_ERROR_1 % output)
 
-    def execute_using_sslget(
-            self, caport, cahost, subsystemnick,
-            token_pwd, krahost, kraport):
-        update_url = "/ca/rest/admin/kraconnector/remove"
-
-        params = "host=" + str(krahost) + \
-                 "&port=" + str(kraport)
-
-        command = ["/usr/bin/sslget",
-                   "-n", subsystemnick,
-                   "-p", token_pwd,
-                   "-d", self.mdict['pki_server_database_path'],
-                   "-e", params,
-                   "-v",
-                   "-r", update_url, cahost + ":" + str(caport)]
-
-        # update KRA connector
-        # Execute this "sslget" command
-        # Note that sslget will return non-zero value for HTTP code != 200
-        # and this will raise an exception
-        subprocess.check_output(command, stderr=subprocess.STDOUT)
-
 
 class TPSConnector:
     """PKI Deployment TPS Connector Class"""
