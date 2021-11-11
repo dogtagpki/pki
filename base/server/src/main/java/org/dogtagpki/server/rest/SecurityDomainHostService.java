@@ -177,7 +177,7 @@ public class SecurityDomainHostService extends PKIService implements SecurityDom
         logger.debug("SecurityDomainService: port: " + port);
 
         SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
-        String status = processor.removeHost(type, hostname, port);
+        String status = processor.removeHost(hostID, type, hostname, port);
         logger.debug("SecurityDomainService: status: " + status);
 
         if (!SecurityDomainProcessor.SUCCESS.equals(status)) {
