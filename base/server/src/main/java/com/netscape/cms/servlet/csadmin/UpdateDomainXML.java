@@ -31,8 +31,6 @@ import org.w3c.dom.Node;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -161,16 +159,6 @@ public class UpdateDomainXML extends CMSServlet {
             return;
         }
 
-        String auditMessage = null;
-        String auditSubjectID = auditSubjectID();
-        String auditParams = "host;;" + host + "+name;;" + name + "+sport;;" + sport +
-                             "+clone;;" + clone + "+type;;" + type;
-        if (operation != null) {
-            auditParams += "+operation;;" + operation;
-        } else {
-            auditParams += "+operation;;add";
-        }
-
         String basedn = null;
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
@@ -185,7 +173,7 @@ public class UpdateDomainXML extends CMSServlet {
 
         String status;
         if ((operation != null) && (operation.equals("remove"))) {
-            status = processor.removeHost(type, host, sport);
+            status = processor.removeHost(name, type, host, sport);
 
         } else {
             status = processor.addHost(
@@ -200,22 +188,6 @@ public class UpdateDomainXML extends CMSServlet {
                     domainmgr,
                     clone);
         }
-
-        if (status.equals(SUCCESS)) {
-            auditMessage = CMS.getLogMessage(
-                               AuditEvent.SECURITY_DOMAIN_UPDATE,
-                               auditSubjectID,
-                               ILogger.SUCCESS,
-                               auditParams);
-        } else {
-            // what if already exists or already deleted
-            auditMessage = CMS.getLogMessage(
-                               AuditEvent.SECURITY_DOMAIN_UPDATE,
-                               auditSubjectID,
-                               ILogger.FAILURE,
-                               auditParams);
-        }
-        audit(auditMessage);
 
         try {
             // send success status back to the requestor

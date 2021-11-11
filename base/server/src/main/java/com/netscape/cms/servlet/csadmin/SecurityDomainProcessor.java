@@ -387,6 +387,7 @@ public class SecurityDomainProcessor extends Processor {
     }
 
     public String removeHost(
+            String name,
             String type,
             String hostname,
             String securePort)
@@ -405,10 +406,19 @@ public class SecurityDomainProcessor extends Processor {
         logger.info("SecurityDomainProcessor: Removing host " + hostDN);
 
         String auditSubjectID = auditSubjectID();
+        String domainAuditParams = "host;;" + hostname + "+name;;" + name + "+sport;;" + securePort +
+                "+type;;" + type + "+operation;;remove";
 
         String status = removeEntry(hostDN);
 
         if (!status.equals(SUCCESS)) {
+
+            signedAuditLogger.log(CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    domainAuditParams));
+
             return status;
         }
 
@@ -421,10 +431,18 @@ public class SecurityDomainProcessor extends Processor {
         status = removeEntry(adminDN);
 
         if (!status.equals(SUCCESS)) {
+
             signedAuditLogger.log(new ConfigRoleEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     usersAuditParams));
+
+            signedAuditLogger.log(CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    domainAuditParams));
+
             return status;
         }
 
@@ -451,6 +469,13 @@ public class SecurityDomainProcessor extends Processor {
                                    auditSubjectID,
                                    ILogger.FAILURE,
                                    groupsAuditParams));
+
+            signedAuditLogger.log(CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    domainAuditParams));
+
             return status;
         }
 
@@ -458,6 +483,12 @@ public class SecurityDomainProcessor extends Processor {
                 auditSubjectID,
                 ILogger.SUCCESS,
                 groupsAuditParams));
+
+        signedAuditLogger.log(CMS.getLogMessage(
+                AuditEvent.SECURITY_DOMAIN_UPDATE,
+                auditSubjectID,
+                ILogger.SUCCESS,
+                domainAuditParams));
 
         return SUCCESS;
     }
@@ -520,6 +551,10 @@ public class SecurityDomainProcessor extends Processor {
 
         LDAPEntry entry = new LDAPEntry(dn, attrs);
 
+        String auditSubjectID = auditSubjectID();
+        String auditParams = "host;;" + hostname + "+name;;" + name + "+sport;;" + securePort +
+                "+clone;;" + clone + "+type;;" + type + "+operation;;add";
+
         LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
 
@@ -529,6 +564,12 @@ public class SecurityDomainProcessor extends Processor {
 
             conn = connFactory.getConn();
             conn.add(entry);
+
+            signedAuditLogger.log(CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    auditSubjectID,
+                    ILogger.SUCCESS,
+                    auditParams));
 
             return SUCCESS;
 
@@ -543,6 +584,12 @@ public class SecurityDomainProcessor extends Processor {
                 conn.delete(entry.getDN());
                 conn.add(entry);
 
+                signedAuditLogger.log(CMS.getLogMessage(
+                        AuditEvent.SECURITY_DOMAIN_UPDATE,
+                        auditSubjectID,
+                        ILogger.SUCCESS,
+                        auditParams));
+
                 return SUCCESS;
 
             } catch (LDAPException ee) {
@@ -552,6 +599,13 @@ public class SecurityDomainProcessor extends Processor {
 
         } catch (Exception e) {
             logger.warn("SecurityDomainProcessor: Unable to add entry: " + e.getMessage(), e);
+
+            signedAuditLogger.log(CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    auditSubjectID,
+                    ILogger.SUCCESS,
+                    auditParams));
+
             return SUCCESS;
 
         } finally {
