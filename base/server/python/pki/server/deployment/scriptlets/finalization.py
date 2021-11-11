@@ -101,7 +101,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Start this Tomcat PKI Process back if there are any subsystems still existing
         if len(deployer.instance.tomcat_instance_subsystems()) >= 1:
             logger.info('Starting PKI server')
-            instance.start()
+            instance.start(
+                wait=True,
+                max_wait=deployer.startup_timeout,
+                timeout=deployer.request_timeout)
 
         logger.info(log.PKIDESTROY_END_MESSAGE_2,
                     deployer.mdict['pki_subsystem'],

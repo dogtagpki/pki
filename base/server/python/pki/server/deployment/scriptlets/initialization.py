@@ -225,4 +225,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             # ALWAYS Stop this Tomcat PKI Process
             logger.info('Stopping PKI server')
-            instance.stop()
+            instance.stop(
+                wait=True,
+                max_wait=deployer.startup_timeout,
+                timeout=deployer.request_timeout)
