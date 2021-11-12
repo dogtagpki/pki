@@ -587,8 +587,8 @@ public class SecureChannel {
                     cur++;
                     buffer.setAt(i, cur);
                     break;
-            } else
-                    buffer.setAt(i,(byte) 0x00);
+            }
+            buffer.setAt(i,(byte) 0x00);
         }
 
         System.out.println("enc buffer: " + buffer.toHexString());
@@ -1478,10 +1478,7 @@ public class SecureChannel {
         if (type == TokenKeyType.KEY_TYPE_ENCRYPTION)
             return 0;
 
-        if (type == TokenKeyType.KEY_TYPE_SIGNING)
-            return 1;
-        else
-            return 2;
+        return type == TokenKeyType.KEY_TYPE_SIGNING ? 1 : 2;
     }
 
     public void setLifecycleState(byte flag) throws TPSException, IOException {
@@ -1575,11 +1572,6 @@ public class SecureChannel {
 
         }
         computeAPDU(putKey);
-
-        int kill = 0;
-        if (kill == 1) {
-            throw new TPSException("putKeys end of progress.", TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
-        }
 
         APDUResponse response = processor.handleAPDURequest(putKey);
 
@@ -1710,28 +1702,15 @@ public class SecureChannel {
     }
 
     public boolean isSCP03() {
-        if (platProtInfo.isSCP03())
-            return true;
-        else
-            return false;
+        return platProtInfo.isSCP03();
     }
 
     public boolean isSCP02() {
-        if (platProtInfo.isGP211() && platProtInfo.isSCP02()) {
-
-            return true;
-        }
-
-        return false;
+        return platProtInfo.isGP211() && platProtInfo.isSCP02();
     }
 
     private boolean isGP211() {
-
-        if (platProtInfo.isGP211()) {
-            return true;
-        }
-
-        return false;
+        return platProtInfo.isGP211();
     }
 
     public TPSBuffer getDekSessionKeyWrapped() {
