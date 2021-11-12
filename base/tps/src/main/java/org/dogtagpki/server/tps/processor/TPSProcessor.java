@@ -2387,6 +2387,7 @@ public class TPSProcessor {
             try {
                 tps.tdb.tdbAddTokenEntry(tokenRecord, TokenStatus.UNFORMATTED);
                 tps.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord, session.getIpAddress(), logMsg, "success");
+                fillTokenRecordDefaultPolicy(tokenRecord);
                 logger.debug("TPSProcessor.format: token added");
             } catch (Exception e) {
                 logMsg = logMsg + ":" + e.toString();
