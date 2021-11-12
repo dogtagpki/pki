@@ -81,10 +81,7 @@ class WIMasterOrClone extends WizardBasePanel implements IWizardPanel {
             mYes.setSelected(false);
             mNo.setSelected(true);
         }
-        if(wizardInfo.isClonePageDone())
-            return false;
-        else
-            return true;
+        return !wizardInfo.isClonePageDone();
     }
 
     @Override
