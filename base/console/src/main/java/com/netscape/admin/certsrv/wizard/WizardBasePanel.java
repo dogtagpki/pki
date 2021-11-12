@@ -19,11 +19,17 @@ package com.netscape.admin.certsrv.wizard;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.util.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import java.net.*;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.net.Socket;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
+
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSBasePanel;
 
 /**
  * Wizard Base Panel
@@ -143,10 +149,10 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
 
     public String getErrorMessage(WizardInfo wizardInfo) {
         String value = (String)wizardInfo.get("NMC_ERRINFO");
-        if (value != null || value.trim().length() == 0)
+        if (value != null)
             return value;
         value = (String)wizardInfo.get("NMC_WARNINFO");
-        if (value != null || value.trim().length() == 0)
+        if (value != null)
             return value;
 
         return null;
@@ -154,8 +160,8 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
 
     public boolean send(String host, int port, String servlet, String rawData,
       WizardInfo wizardInfo) {
-        try {
-            Socket socket = new Socket(host, port);
+        try (Socket socket = new Socket(host, port);
+                ByteArrayOutputStream bstream = new ByteArrayOutputStream(10000)) {
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
             InputStream is = socket.getInputStream();
             String spost = "POST "+servlet+" HTTP/1.0\r\n";
@@ -169,7 +175,6 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
             dos.writeBytes("\r\n");
             dos.flush();
 
-            ByteArrayOutputStream bstream = new ByteArrayOutputStream(10000);
             while (true)
             {
                 int r = is.read();
@@ -178,7 +183,6 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
                 bstream.write(r);
             }
 
-            socket.close();
             String test = bstream.toString();
 
             StringTokenizer tokenizer = new StringTokenizer(test, "\r\n");
@@ -193,13 +197,9 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
                     wizardInfo.put(name, value);
                 }
             }
-            bstream.close();
             String sendStatus = (String)wizardInfo.get("NMC_STATUS");
-            if (sendStatus.equals("0")) {
-                return true;
-            } else {
-                return false;
-            }
+            System.out.println("sendStatus=" + sendStatus);
+            return sendStatus.equals("0");
         } catch (Exception e) {
         }
 
@@ -208,8 +208,8 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
 
     @Override
     public boolean send(String rawData, WizardInfo wizardInfo) {
-        try {
-            Socket socket = new Socket("droopy-linux.sfbay.redhat.com", 1924);
+        try (Socket socket = new Socket("droopy-linux.sfbay.redhat.com", 1924);
+                ByteArrayOutputStream bstream = new ByteArrayOutputStream(10000)) {
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
             InputStream is = socket.getInputStream();
             String servlet = "/config/configSubsystem";
@@ -224,7 +224,6 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
             dos.writeBytes("\r\n");
             dos.flush();
 
-            ByteArrayOutputStream bstream = new ByteArrayOutputStream(10000);
             while (true)
             {
                 int r = is.read();
@@ -233,7 +232,6 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
                 bstream.write(r);
             }
 
-            socket.close();
             String test = bstream.toString();
 
             StringTokenizer tokenizer = new StringTokenizer(test, "\r\n");
@@ -248,13 +246,9 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
                     wizardInfo.put(name, value);
                 }
             }
-            bstream.close();
             String sendStatus = (String)wizardInfo.get("NMC_STATUS");
-            if (sendStatus.equals("0")) {
-                return true;
-            } else {
-                return false;
-            }
+            System.out.println("sendStatus=" + sendStatus);
+            return sendStatus.equals("0");
         } catch (Exception e) {
         }
 
