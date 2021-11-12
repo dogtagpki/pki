@@ -210,9 +210,8 @@ public class SelfTestSubsystem
 
                 throw new EMissingSelfTestException(instanceFullName,
                         instanceValue);
-            } else {
-                instanceValue = instanceValue.trim();
             }
+            instanceValue = instanceValue.trim();
 
         } catch (EPropertyNotFound e) {
             // self test plugin instance property name is not present
@@ -469,11 +468,7 @@ public class SelfTestSubsystem
             SelfTestOrderedInstance instance = instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
-                if (instance.isSelfTestCritical()) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return instance.isSelfTestCritical();
             }
         }
 
@@ -790,11 +785,7 @@ public class SelfTestSubsystem
             SelfTestOrderedInstance instance = instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
-                if (instance.isSelfTestCritical()) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return instance.isSelfTestCritical();
             }
         }
 
@@ -1018,10 +1009,9 @@ public class SelfTestSubsystem
                             instanceFullName));
 
             throw new EDuplicateSelfTestException(instanceFullName);
-        } else {
-            // append this self test plugin instance to the end of the list
-            mSelfTestInstances.put(instanceName, instance);
         }
+        // append this self test plugin instance to the end of the list
+        mSelfTestInstances.put(instanceName, instance);
 
         // register the individual self test on the "on demand" list
         enableSelfTestOnDemand(instanceName, isCritical);
@@ -1065,10 +1055,9 @@ public class SelfTestSubsystem
                             instanceFullName));
 
             throw new EMissingSelfTestException(instanceFullName);
-        } else {
-            // append this self test plugin instance to the end of the list
-            mSelfTestInstances.remove(instanceName);
         }
+        // append this self test plugin instance to the end of the list
+        mSelfTestInstances.remove(instanceName);
 
         // deregister the individual self test from the "on demand" list
         disableSelfTestOnDemand(instanceName);
@@ -1118,10 +1107,9 @@ public class SelfTestSubsystem
                             instanceFullName));
 
             throw new EDuplicateSelfTestException(instanceFullName);
-        } else {
-            // append this self test plugin instance to the end of the list
-            mSelfTestInstances.put(instanceName, instance);
         }
+        // append this self test plugin instance to the end of the list
+        mSelfTestInstances.put(instanceName, instance);
 
         // register the individual self test on the "startup" list
         enableSelfTestAtStartup(instanceName, isCritical);
@@ -1165,10 +1153,9 @@ public class SelfTestSubsystem
                             instanceFullName));
 
             throw new EMissingSelfTestException(instanceFullName);
-        } else {
-            // append this self test plugin instance to the end of the list
-            mSelfTestInstances.remove(instanceName);
         }
+        // append this self test plugin instance to the end of the list
+        mSelfTestInstances.remove(instanceName);
 
         // deregister the individual self test from the "startup" list
         disableSelfTestAtStartup(instanceName);
@@ -1332,14 +1319,9 @@ public class SelfTestSubsystem
                 mLogger = (ILogEventListener) o;
                 mLogger.init(this, loggerConfig);
 
-            } catch (EMissingSelfTestException e) {
+            } catch (EMissingSelfTestException | EInvalidSelfTestException e) {
                 // already logged
                 throw e;
-
-            } catch (EInvalidSelfTestException e) {
-                // already logged
-                throw e;
-
             } catch (EBaseException e) {
                 // self test property name EBaseException
 
