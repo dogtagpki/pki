@@ -56,9 +56,8 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
             return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -67,9 +66,8 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
             return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -98,7 +96,7 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
         if (name.equals(VAL_CRITICAL)) {
             ext = (OCSPNoCheckExtension)
                     getExtension(OCSPNoCheckExtension.OID, info);
-            boolean val = Boolean.valueOf(value).booleanValue();
+            boolean val = Boolean.parseBoolean(value);
 
             if (ext == null) {
                 return;
@@ -140,15 +138,10 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
             if (ext == null) {
                 return null;
             }
-            if (ext.isCritical()) {
-                return "true";
-            } else {
-                return "false";
-            }
-        } else {
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
+            return ext.isCritical() ? "true" : "false";
         }
+        throw new EPropertyException(CMS.getUserMessage(
+                    locale, "CMS_INVALID_PROPERTY", name));
     }
 
     @Override
