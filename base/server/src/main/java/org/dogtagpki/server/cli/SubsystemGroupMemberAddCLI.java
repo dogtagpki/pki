@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.group.GroupNotFoundException;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
@@ -62,17 +61,9 @@ public class SubsystemGroupMemberAddCLI extends SubsystemCLI {
         IPasswordStore passwordStore = IPasswordStore.create(psc);
 
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
-        LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
 
         LdapConnInfo connInfo = new LdapConnInfo(connConfig);
-
-        LdapAuthInfo authInfo = new LdapAuthInfo();
-        authInfo.setPasswordStore(passwordStore);
-        authInfo.init(
-                authConfig,
-                connInfo.getHost(),
-                connInfo.getPort(),
-                connInfo.getSecure());
+        LdapAuthInfo authInfo = getAuthInfo(passwordStore, connInfo, ldapConfig);
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
