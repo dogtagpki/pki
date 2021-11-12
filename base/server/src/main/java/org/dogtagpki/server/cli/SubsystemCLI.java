@@ -13,10 +13,16 @@ import org.dogtagpki.cli.CommandCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LdapAuthInfo;
+import com.netscape.cmscore.ldapconn.LdapConnInfo;
+import com.netscape.cmsutil.password.IPasswordStore;
 
 /**
  * @author Chris S. Kelley
@@ -42,5 +48,18 @@ public abstract class SubsystemCLI extends CommandCLI {
         logger.info("Loading {}", configFile);
         ConfigStorage storage = new FileConfigStore(configFile);
         return new EngineConfig(storage);
+    }
+
+    protected LdapAuthInfo getAuthInfo(IPasswordStore passwordStore, LdapConnInfo connInfo, LDAPConfig ldapConfig)
+            throws EBaseException {
+        LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
+        LdapAuthInfo authInfo = new LdapAuthInfo();
+        authInfo.setPasswordStore(passwordStore);
+        authInfo.init(
+                authConfig,
+                connInfo.getHost(),
+                connInfo.getPort(),
+                connInfo.getSecure());
+        return authInfo;
     }
 }
