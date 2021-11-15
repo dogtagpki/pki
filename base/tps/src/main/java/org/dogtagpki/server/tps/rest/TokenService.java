@@ -619,9 +619,27 @@ public class TokenService extends SubsystemService implements TokenResource {
         TokenRecord tokenRecord = null;
         String msg = "replace token";
         try {
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if (authorizedProfiles == null) {
+                msg = "authorizedProfiles null";
+                logger.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
             TokenDatabase database = subsystem.getTokenDatabase();
 
             tokenRecord = database.getRecord(tokenID);
+
+            if (tokenRecord == null) {
+                msg = "Token record not found";
+                logger.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
+            String type = tokenRecord.getType();
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type))
+                   throw new PKIException(method + "Token record restricted");
+
             tokenRecord.setUserID(remoteUser);
             auditModParams.put("userID", remoteUser);
             tokenRecord.setType(tokenData.getType());
@@ -950,8 +968,25 @@ public class TokenService extends SubsystemService implements TokenResource {
         TokenRecord tokenRecord = null;
         String msg = "remove token";
         try {
+
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if (authorizedProfiles == null) {
+                msg = "authorizedProfiles null";
+                logger.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
             TokenDatabase database = subsystem.getTokenDatabase();
             tokenRecord = database.getRecord(tokenID);
+            if (tokenRecord == null) {
+                msg = "Token record not found";
+                logger.debug(method + msg);
+                throw new PKIException(method + msg);
+            }
+
+            String type = tokenRecord.getType();
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type))
+                  throw new PKIException(method + "Token record restricted");
 
             //delete all certs associated with this token
             logger.debug(method + "about to remove all certificates associated with the token first");
