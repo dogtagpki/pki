@@ -132,6 +132,7 @@ jobs:
       - name: Run sanity test
         run: |
           pytest \
+              --log-cli-level=INFO \
               --ansible-host-pattern master \
               --ansible-inventory inventory \
               --ansible-module-path tests/dogtag/pytest-ansible/common-modules \

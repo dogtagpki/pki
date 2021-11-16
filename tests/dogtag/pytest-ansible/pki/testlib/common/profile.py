@@ -1245,7 +1245,7 @@ class Setup(object):
                         'keyUsageKeyEncipherment')
             subject_pattern = 'CN=.*'
             policy_set_name = 'pkitest1'
-        elif self.profile_type is 'dualcert':
+        elif self.profile_type == 'dualcert':
             profile_name = "Manual User Signing and Encryption Certificates Enrollment"
             profile_description = "This certificate profile is for enrolling dual user certificates"
             profile_input['Key_Generation_Class'] = 'dualKeyGenInputImpl'
@@ -1255,7 +1255,7 @@ class Setup(object):
             key_list = ('keyUsageCritical', 'keyUsageKeyEncipherment')
             subject_pattern = 'UID=.*'
             policy_set_name = 'encryptionCertSet'
-        elif self.profile_type is 'ca':
+        elif self.profile_type == 'ca':
             policy_set_name = 'caCertSet'
             profile_name = "Manual Certificate Manager Signing Certificate Enrollment"
             profile_description = "This certificate profile is for enrolling Certificate Authority certificates."
@@ -1336,7 +1336,7 @@ class Setup(object):
         except (KeyError, TypeError):
             pass
         # if smime, add generic extensions
-        if self.profile_type is 'smime':
+        if self.profile_type == 'smime':
             profile_input['Generic_extensions'] = 'true'
 
         # include crl extensions
@@ -1637,7 +1637,7 @@ class Setup(object):
         et.write(output1_path, pretty_print=True)
         self.output.append(output1_path)
         os.close(output1_fd)
-        if self.profile_type is 'dualcert':
+        if self.profile_type == 'dualcert':
             keylist2 = ('keyUsageCritical',
                         'keyUsageDigitalSignature',
                         'keyUsageNonRepudiation')
