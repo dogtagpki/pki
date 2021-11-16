@@ -36,7 +36,6 @@ userop = utils.UserOperations(nssdb=constants.NSSDB, db_pass=constants.CLIENT_DA
 template_name = "retrieveKey.template"
 cert_file = "b64_cert"
 
-@pytest.mark.skip(reason='https://github.com/dogtagpki/pki/issues/3656')
 def test_bug_1392616_kra_key_recovery_cli_generates_p12_file(ansible_module):
     """
     :id: 2b115260-a99c-42fe-8e63-b1c58ef51194
@@ -169,13 +168,11 @@ def test_bug_1392616_kra_key_recovery_cli_generates_p12_file(ansible_module):
 
     # edit recovery template
     dict = {
-        '"keyId">.*</Attribute>': '"keyId">{}</Attribute>'.format(key_id),
-        '"requestId">.*</Attribute>': '"requestId">{}</Attribute>'.format(request_id),
-        '"nonceData">.*</Attribute>': '"nonceData"></Attribute>',
-        '"passphrase">.*</Attribute>': '"passphrase">{}</Attribute>'.format(constants.CLIENT_DATABASE_PASSWORD),
-        '"sessionWrappedPassphrase">.*</Attribute>': '"sessionWrappedPassphrase"></Attribute>',
-        '"transWrappedSessionKey">.*</Attribute>': '"transWrappedSessionKey"></Attribute>',
-        '"certificate">.*</Attribute>': '"certificate">{}</Attribute>'.format(b64_cert)
+        '"name" : "keyId",\n.*"value" : ".*"': '"name" : "keyId",\n"value" : "{}"'.format(key_id),
+        '"name" : "requestId",\n.*"value" : ".*"': '"name" : "requestId",\n"value" : "{}"'.format(request_id),
+        '"Passphrase to .*"': '"{}"'.format(constants.CLIENT_DATABASE_PASSWORD),
+        '"Base64 certificate .*"': '"{}"'.format(b64_cert),
+        '"Base64 encoded .*"': '""'
     }
     for key, value in dict.items():
         ansible_module.replace(path=template_name, regexp=key, replace=value)
@@ -191,8 +188,8 @@ def test_bug_1392616_kra_key_recovery_cli_generates_p12_file(ansible_module):
                                  extra_args='--input {}'.format(template_name))
     for result in key_out.values():
         if result['rc'] == 0:
-            raw_cert = re.findall('<p12Data>.*</p12Data>', result['stdout'])
-            b64_cert = raw_cert[0].split(">")[1].split("<")[0]
+            raw_cert = re.findall('"p12Data" :.*', result['stdout'])
+            b64_cert = raw_cert[0].split(":")[1]
             log.info("Successfully run : {}".format(result['cmd']))
         else:
             log.error("Failed to run : {}".format(result['cmd']))
