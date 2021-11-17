@@ -1113,10 +1113,7 @@ public class SecureChannelProtocol {
         //logger.debug(method + "Returning symkey: " + unwrapped);
         logger.debug(method + "Returning symkey...");
 
-        if (finalUnwrapped != null)
-            return finalUnwrapped;
-        else
-            return unwrapped;
+        return finalUnwrapped == null ? unwrapped : finalUnwrapped;
     }
 
     public SymmetricKey unwrapSymKeyOnToken(CryptoToken token, byte[] inputKeyArray, boolean isPerm)
