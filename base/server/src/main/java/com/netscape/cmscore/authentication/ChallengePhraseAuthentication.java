@@ -28,7 +28,6 @@ import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EAuthUserError;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -44,6 +43,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Challenge phrase based authentication.
@@ -77,8 +77,6 @@ public class ChallengePhraseAuthentication implements AuthManager {
     private AuthenticationConfig authenticationConfig;
     private AuthManagerConfig mConfig;
 
-    private MessageDigest mSHADigest = null;
-
     // request attributes hacks
     public static final String CHALLENGE_PHRASE = CRED_CHALLENGE;
     public static final String SUBJECTNAME = "subjectName";
@@ -111,13 +109,6 @@ public class ChallengePhraseAuthentication implements AuthManager {
         mName = name;
         mImplName = implName;
         mConfig = config;
-
-        try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
-
-        } catch (NoSuchAlgorithmException e) {
-            throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.getMessage()), e);
-        }
     }
 
     /**
@@ -179,22 +170,16 @@ public class ChallengePhraseAuthentication implements AuthManager {
 
         if (serialNumString == null || serialNumString.equals(""))
             throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CERT_SERIAL));
-        else {
-            //serialNumString = getDecimalStr(serialNumString);
-            try {
-                serialNumString = serialNumString.trim();
-                if (serialNumString.startsWith("0x") || serialNumString.startsWith("0X")) {
-                    serialNum = new
-                            BigInteger(serialNumString.substring(2), 16);
-                } else {
-                    serialNum = new
-                            BigInteger(serialNumString);
-                }
+        try {
+            serialNumString = serialNumString.trim();
+            boolean hasHexPrefix = serialNumString.toLowerCase().startsWith("0x");
+            serialNum = hasHexPrefix
+                    ? new BigInteger(serialNumString.substring(2), 16)
+                    : new BigInteger(serialNumString);
 
-            } catch (NumberFormatException e) {
-                throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
-                        "Invalid serial number"));
-            }
+        } catch (NumberFormatException e) {
+            throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
+                    "Invalid serial number"));
         }
 
         String challenge = (String) authCred.get(CRED_CHALLENGE);
@@ -303,11 +288,11 @@ public class ChallengePhraseAuthentication implements AuthManager {
             logger.warn("ChallengePhraseAuthentication: challenge pwd is null");
             return false;
         }
-        String hashpwd = hashPassword(pwd);
 
         // got metaInfo
         String challengeString =
                 (String) metaInfo.get(CertRecord.META_CHALLENGE_PHRASE);
+        String hashpwd = hashPassword(pwd, challengeString);
 
         if (challengeString == null) {
             logger.warn("ChallengePhraseAuthentication: challengeString null");
@@ -315,14 +300,11 @@ public class ChallengePhraseAuthentication implements AuthManager {
         }
 
         if (!challengeString.equals(hashpwd)) {
+            logger.error("ChallengePhraseAuthentication: Incorrect challenge phrase password used for revocation");
             return false;
-
-            /*
-             logger.error("ChallengePhraseAuthentication: Incorrect challenge phrase password used for revocation");
-             throw new EInvalidCredentials();
-             */
-        } else
-            return true;
+        }
+        logger.debug("ChallengePhraseAuthentication: Correct challenge phrase password used for revocation");
+        return true;
     }
 
     /**
@@ -364,7 +346,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
     }
 
     /**
-     * gets the configuretion substore used by this authentication
+     * gets the configuration substore used by this authentication
      * manager
      *
      * @return configuration store
@@ -374,11 +356,32 @@ public class ChallengePhraseAuthentication implements AuthManager {
         return mConfig;
     }
 
-    private String hashPassword(String pwd) {
-        String salt = "lala123";
-        byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
-        String b64E = Utils.base64encode(pwdDigest, true);
-
-        return "{SHA}" + b64E;
+ // Use when doing comparison, obtain alg from hash
+    protected String hashPassword(String pwd, String challengeString) {
+        MessageDigest md = null;
+        String digestAlg = null;
+        try {
+            // Attempt to get algorithm from challengeString to ensure a match
+            digestAlg = challengeString.split("\\{")[1].split("\\}")[0].toUpperCase();
+            digestAlg = (digestAlg.equals("SHA1") || digestAlg.equals("SHA-1")) ? "SHA" : digestAlg;
+        } catch (IndexOutOfBoundsException e) {
+            // Fall back to the default hashing algorithm
+            digestAlg = CryptoUtil.getDefaultHashAlgName();
+        }
+        try {
+            md  = MessageDigest.getInstance(digestAlg);
+        } catch (NoSuchAlgorithmException e) {
+            logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+        }
+        return (md == null) ? null : computeHash(md, pwd);
     }
+
+    private String computeHash(MessageDigest md, String pwd) {
+        String salt = "lala123";
+        byte[] pwdDigest = md.digest((salt + pwd).getBytes());
+        String b64E = Utils.base64encode(pwdDigest, true);
+        logger.debug("Password hashed with {}", md.getAlgorithm());
+        return String.format("{%s}%s", md.getAlgorithm(), b64E);
+    }
+
 }

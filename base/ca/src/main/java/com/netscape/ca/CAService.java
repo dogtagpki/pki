@@ -139,7 +139,7 @@ public class CAService implements IService {
                 new serviceRevoke(this));
         mServants.put(
                 Request.REVOCATION_CHECK_CHALLENGE_REQUEST,
-                new serviceCheckChallenge(this));
+                new serviceCheckChallenge());
         mServants.put(
                 Request.GETCERTS_FOR_CHALLENGE_REQUEST,
                 new getCertsForChallenge(this));
@@ -1643,16 +1643,6 @@ class serviceCheckChallenge implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceCheckChallenge.class);
 
-    private MessageDigest mSHADigest = null;
-
-    public serviceCheckChallenge(CAService service) {
-        try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
-        } catch (NoSuchAlgorithmException e) {
-            logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-        }
-    }
-
     @Override
     public boolean service(Request request)
             throws EBaseException {
@@ -1735,21 +1725,40 @@ class serviceCheckChallenge implements IServant {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "metaInfo"));
         }
 
-        String hashpwd = hashPassword(pwd);
-
         // got metaInfo
         String challengeString =
                 (String) metaInfo.get(CertRecord.META_CHALLENGE_PHRASE);
+        String hashpwd = hashPassword(pwd, challengeString);
 
         return challengeString.equals(hashpwd);
     }
 
-    private String hashPassword(String pwd) {
-        String salt = "lala123";
-        byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
-        String b64E = Utils.base64encode(pwdDigest, true);
+    // Use when doing comparison, obtain alg from hash
+    protected String hashPassword(String pwd, String challengeString) {
+        MessageDigest md = null;
+        String digestAlg = null;
+        try {
+            // Attempt to get algorithm from challengeString to ensure a match
+            digestAlg = challengeString.split("\\{")[1].split("\\}")[0].toUpperCase();
+            digestAlg = (digestAlg.equals("SHA1") || digestAlg.equals("SHA-1")) ? "SHA" : digestAlg;
+        } catch (IndexOutOfBoundsException e) {
+            // Fall back to the default hashing algorithm
+            digestAlg = CryptoUtil.getDefaultHashAlgName();
+        }
+        try {
+            md  = MessageDigest.getInstance(digestAlg);
+        } catch (NoSuchAlgorithmException e) {
+            logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+        }
+        return (md == null) ? null : computeHash(md, pwd);
+    }
 
-        return "{SHA}" + b64E;
+    private String computeHash(MessageDigest md, String pwd) {
+        String salt = "lala123";
+        byte[] pwdDigest = md.digest((salt + pwd).getBytes());
+        String b64E = Utils.base64encode(pwdDigest, true);
+        logger.debug("Password hashed with {}", md.getAlgorithm());
+        return String.format("{%s}%s", md.getAlgorithm(), b64E);
     }
 }
 

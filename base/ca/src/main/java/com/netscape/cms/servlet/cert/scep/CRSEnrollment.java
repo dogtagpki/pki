@@ -189,8 +189,6 @@ public class CRSEnrollment extends HttpServlet {
     private String mAllowedDynamicProfileIdList = null;
     private String[] mAllowedDynamicProfileId;
     private boolean mUseOAEPKeyWrap = false;
-    /* for hashing challenge password */
-    protected MessageDigest mSHADigest = null;
 
     private static final String PROP_SUBSTORENAME = "substorename";
     private static final String PROP_AUTHORITY = "authority";
@@ -356,12 +354,6 @@ public class CRSEnrollment extends HttpServlet {
         OID_UNSTRUCTUREDNAME = X500NameAttrMap.getDefault().getOid("UNSTRUCTUREDNAME");
         OID_UNSTRUCTUREDADDRESS = X500NameAttrMap.getDefault().getOid("UNSTRUCTUREDADDRESS");
         OID_SERIALNUMBER = X500NameAttrMap.getDefault().getOid("SERIALNUMBER");
-
-        try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
-        } catch (NoSuchAlgorithmException e) {
-        }
-
         mRandom = jssSubsystem.getRandomNumberGenerator();
 
     }
@@ -1928,11 +1920,23 @@ public class CRSEnrollment extends HttpServlet {
         return issuedCert;
     }
 
+    // Use when getting the hash to store for later comparison
     protected String hashPassword(String pwd) {
+        MessageDigest md = null;
+        try {
+            md  = MessageDigest.getInstance(CryptoUtil.getDefaultHashAlgName());
+        } catch (NoSuchAlgorithmException e) {
+            logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+        }
+        return (md == null) ? null : computeHash(md, pwd);
+    }
+
+    private String computeHash(MessageDigest md, String pwd) {
         String salt = "lala123";
-        byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
+        byte[] pwdDigest = md.digest((salt + pwd).getBytes());
         String b64E = Utils.base64encode(pwdDigest, true);
-        return "{SHA}" + b64E;
+        logger.debug("Password hashed with {}", md.getAlgorithm());
+        return String.format("{%s}%s", md.getAlgorithm(), b64E);
     }
 
     /**
