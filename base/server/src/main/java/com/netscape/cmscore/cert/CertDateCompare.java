@@ -48,9 +48,6 @@ public class CertDateCompare implements Comparator<X509CertImpl>, java.io.Serial
         }
         if (d1 == d2)
             return 0;
-        if (d1.after(d2))
-            return 1;
-        else
-            return -1;
+        return d1.after(d2) ? 1 : -1;
     }
 }
