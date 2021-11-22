@@ -102,6 +102,7 @@ jobs:
           tests/bin/ds-container-create.sh ds
         env:
           HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
 
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com
@@ -202,6 +203,7 @@ jobs:
           tests/bin/ds-container-create.sh cads
         env:
           HOSTNAME: cads.example.com
+          PASSWORD: Secret.123
 
       - name: Connect CA DS container to network
         run: docker network connect example cads --alias cads.example.com
@@ -229,6 +231,7 @@ jobs:
           tests/bin/ds-container-create.sh krads
         env:
           HOSTNAME: krads.example.com
+          PASSWORD: Secret.123
 
       - name: Connect KRA DS container to network
         run: docker network connect example krads --alias krads.example.com
@@ -345,6 +348,7 @@ jobs:
           tests/bin/ds-container-create.sh cads
         env:
           HOSTNAME: cads.example.com
+          PASSWORD: Secret.123
 
       - name: Connect CA DS container to network
         run: docker network connect example cads --alias cads.example.com
@@ -380,6 +384,7 @@ jobs:
           tests/bin/ds-container-create.sh krads
         env:
           HOSTNAME: krads.example.com
+          PASSWORD: Secret.123
 
       - name: Connect KRA DS container to network
         run: docker network connect example krads --alias krads.example.com
@@ -544,6 +549,7 @@ jobs:
           tests/bin/ds-container-create.sh primaryds
         env:
           HOSTNAME: primaryds.example.com
+          PASSWORD: Secret.123
 
       - name: Connect primary DS container to network
         run: docker network connect example primaryds --alias primaryds.example.com
@@ -580,6 +586,7 @@ jobs:
           tests/bin/ds-container-create.sh secondaryds
         env:
           HOSTNAME: secondaryds.example.com
+          PASSWORD: Secret.123
 
       - name: Connect secondary DS container to network
         run: docker network connect example secondaryds --alias secondaryds.example.com
@@ -632,6 +639,7 @@ jobs:
           tests/bin/ds-container-create.sh tertiaryds
         env:
           HOSTNAME: tertiaryds.example.com
+          PASSWORD: Secret.123
 
       - name: Connect tertiary DS container to network
         run: docker network connect example tertiaryds --alias tertiaryds.example.com
@@ -769,6 +777,7 @@ jobs:
           tests/bin/ds-container-create.sh ds
         env:
           HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
 
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com

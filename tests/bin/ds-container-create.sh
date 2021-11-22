@@ -16,7 +16,8 @@ fi
 
 if [ "$PASSWORD" == "" ]
 then
-    PASSWORD=Secret.123
+    echo "Missing Directory Manager password"
+    exit 1
 fi
 
 max_wait=60 # seconds

@@ -120,6 +120,7 @@ jobs:
           tests/bin/ds-container-create.sh ds
         env:
           HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
 
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com
@@ -303,6 +304,7 @@ jobs:
           tests/bin/ds-container-create.sh ds
         env:
           HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
 
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com
