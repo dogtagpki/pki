@@ -28,7 +28,6 @@ docker run \
     --privileged \
     --tmpfs /tmp \
     --tmpfs /run \
-    -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
     -v ${GITHUB_WORKSPACE}:${SHARED} \
     -e BUILDUSER_UID=$(id -u) \
     -e BUILDUSER_GID=$(id -g) \
