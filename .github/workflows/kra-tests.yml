@@ -108,10 +108,9 @@ jobs:
 
       - name: Set up PKI container
         run: |
-          IMAGE=pki-runner \
-          NAME=pki \
-          HOSTNAME=pki.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
@@ -209,10 +208,9 @@ jobs:
 
       - name: Set up CA container
         run: |
-          IMAGE=pki-runner \
-          NAME=ca \
-          HOSTNAME=ca.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh ca
+        env:
+          HOSTNAME: ca.example.com
 
       - name: Connect CA container to network
         run: docker network connect example ca --alias ca.example.com
@@ -237,10 +235,9 @@ jobs:
 
       - name: Set up KRA container
         run: |
-          IMAGE=pki-runner \
-          NAME=kra \
-          HOSTNAME=kra.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh kra
+        env:
+          HOSTNAME: kra.example.com
 
       - name: Connect KRA container to network
         run: docker network connect example kra --alias kra.example.com
@@ -354,10 +351,9 @@ jobs:
 
       - name: Set up CA container
         run: |
-          IMAGE=pki-runner \
-          NAME=ca \
-          HOSTNAME=ca.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh ca
+        env:
+          HOSTNAME: ca.example.com
 
       - name: Connect CA container to network
         run: docker network connect example ca --alias ca.example.com
@@ -390,10 +386,9 @@ jobs:
 
       - name: Set up KRA container
         run: |
-          IMAGE=pki-runner \
-          NAME=kra \
-          HOSTNAME=kra.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh kra
+        env:
+          HOSTNAME: kra.example.com
 
       - name: Connect KRA container to network
         run: docker network connect example kra --alias kra.example.com
@@ -555,10 +550,9 @@ jobs:
 
       - name: Set up primary PKI container
         run: |
-          IMAGE=pki-runner \
-          NAME=primary \
-          HOSTNAME=primary.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh primary
+        env:
+          HOSTNAME: primary.example.com
 
       - name: Connect primary PKI container to network
         run: docker network connect example primary --alias primary.example.com
@@ -592,10 +586,9 @@ jobs:
 
       - name: Set up secondary PKI container
         run: |
-          IMAGE=pki-runner \
-          NAME=secondary \
-          HOSTNAME=secondary.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh secondary
+        env:
+          HOSTNAME: secondary.example.com
 
       - name: Connect secondary PKI container to network
         run: docker network connect example secondary --alias secondary.example.com
@@ -645,10 +638,9 @@ jobs:
 
       - name: Set up tertiary PKI container
         run: |
-          IMAGE=pki-runner \
-          NAME=tertiary \
-          HOSTNAME=tertiary.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh tertiary
+        env:
+          HOSTNAME: tertiary.example.com
 
       - name: Connect tertiary PKI container to network
         run: docker network connect example tertiary --alias tertiary.example.com
@@ -783,10 +775,9 @@ jobs:
 
       - name: Set up PKI container
         run: |
-          IMAGE=pki-runner \
-          NAME=pki \
-          HOSTNAME=pki.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com

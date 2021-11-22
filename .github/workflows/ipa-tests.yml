@@ -95,10 +95,9 @@ jobs:
 
       - name: Run IPA container
         run: |
-          IMAGE=pki-runner \
-          NAME=ipa \
-          HOSTNAME=ipa.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh ipa
+        env:
+          HOSTNAME: ipa.example.com
 
       - name: Install IPA packages
         run: |
@@ -202,10 +201,9 @@ jobs:
 
       - name: Run IPA container
         run: |
-          IMAGE=pki-runner \
-          NAME=ipa \
-          HOSTNAME=ipa.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh ipa
+        env:
+          HOSTNAME: ipa.example.com
 
       - name: Connect IPA container to network
         run: docker network connect example ipa --alias ipa.example.com --alias ipa-ca.example.com
@@ -363,10 +361,9 @@ jobs:
 
       - name: Run primary container
         run: |
-          IMAGE=pki-runner \
-          NAME=primary \
-          HOSTNAME=primary.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh primary
+        env:
+          HOSTNAME: primary.example.com
 
       - name: Connect primary container to network
         run: docker network connect example primary --alias primary.example.com
@@ -393,10 +390,9 @@ jobs:
 
       - name: Run secondary container
         run: |
-          IMAGE=pki-runner \
-          NAME=secondary \
-          HOSTNAME=secondary.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh secondary
+        env:
+          HOSTNAME: secondary.example.com
 
       - name: Connect secondary container to network
         run: docker network connect example secondary --alias secondary.example.com

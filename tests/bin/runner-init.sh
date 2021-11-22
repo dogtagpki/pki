@@ -8,6 +8,19 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+NAME=$1
+
+if [ "$NAME" == "" ]
+then
+    echo "Usage: runner-init.sh <name>"
+    exit 1
+fi
+
+if [ "$IMAGE" == "" ]
+then
+    IMAGE=pki-runner
+fi
+
 docker run \
     --detach \
     --name=${NAME} \

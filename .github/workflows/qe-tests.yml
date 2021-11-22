@@ -105,10 +105,9 @@ jobs:
 
       - name: Run master container
         run: |
-          IMAGE=pki-runner \
-          NAME=pki1 \
-          HOSTNAME=pki1.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh pki1
+        env:
+          HOSTNAME: pki1.example.com
 
       - name: Install dependencies in master container
         run: docker exec pki1 dnf install -y 389-ds-base python3-pip

@@ -126,10 +126,9 @@ jobs:
 
       - name: Set up PKI container
         run: |
-          IMAGE=pki-runner \
-          NAME=pki \
-          HOSTNAME=pki.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
@@ -190,10 +189,9 @@ jobs:
 
       - name: Set up client container
         run: |
-          IMAGE=pki-runner \
-          NAME=client \
-          HOSTNAME=client.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh client
+        env:
+          HOSTNAME: client.example.com
 
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com
@@ -311,10 +309,9 @@ jobs:
 
       - name: Set up PKI container
         run: |
-          IMAGE=pki-runner \
-          NAME=pki \
-          HOSTNAME=pki.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com --alias server1.example.com
@@ -361,10 +358,9 @@ jobs:
 
       - name: Set up client container
         run: |
-          IMAGE=pki-runner \
-          NAME=client \
-          HOSTNAME=client.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh client
+        env:
+          HOSTNAME: client.example.com
 
       - name: Connect client container to network
         run: docker network connect example client --alias client1.example.com --alias client2.example.com
@@ -520,10 +516,9 @@ jobs:
 
       - name: Set up client container
         run: |
-          IMAGE=pki-runner \
-          NAME=client \
-          HOSTNAME=client.example.com \
-          tests/bin/runner-init.sh
+          tests/bin/runner-init.sh client
+        env:
+          HOSTNAME: client.example.com
 
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com
