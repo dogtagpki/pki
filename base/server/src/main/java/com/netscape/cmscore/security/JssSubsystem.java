@@ -419,12 +419,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     public String getECType(String certType) throws EBaseException {
-        if (sslConfig != null) {
-            // for SSL server, check the value of jss.ssl.sslserver.ectype
-            return sslConfig.getECType(certType);
-        } else {
-            return "ECDHE";
-        }
+        // for SSL server, check the value of jss.ssl.sslserver.ectype
+        return sslConfig == null ? "ECDHE" : sslConfig.getECType(certType);
     }
 
     @Override
@@ -592,8 +588,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         if (tokenList.length()==0)
             return CryptoUtil.INTERNAL_TOKEN_NAME;
-        else
-            return tokenList.append("," + CryptoUtil.INTERNAL_TOKEN_NAME).toString();
+        return tokenList.append("," + CryptoUtil.INTERNAL_TOKEN_NAME).toString();
     }
 
     @Override
@@ -685,26 +680,25 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             c = CryptoUtil.getKeyStorageToken(name);
 
-            if (c != null) {
-                CryptoStore store = c.getCryptoStore();
-                X509Certificate[] list = store.getCertificates();
-
-                if (list == null)
-                    return "";
-
-                for (int i = 0; i < list.length; i++) {
-                    String nickname = list[i].getNickname();
-                    int index = nickname.indexOf(":");
-
-                    if (index != -1)
-                        nickname = nickname.substring(index + 1);
-                    if (i != 0)
-                        certNames.append(",");
-                    certNames.append(nickname);
-                }
-                return certNames.toString();
-            } else
+            if (c == null)
                 return "";
+            CryptoStore store = c.getCryptoStore();
+            X509Certificate[] list = store.getCertificates();
+
+            if (list == null)
+                return "";
+
+            for (int i = 0; i < list.length; i++) {
+                String nickname = list[i].getNickname();
+                int index = nickname.indexOf(":");
+
+                if (index != -1)
+                    nickname = nickname.substring(index + 1);
+                if (i != 0)
+                    certNames.append(",");
+                certNames.append(nickname);
+            }
+            return certNames.toString();
 
         } catch (Exception e) {
             String[] params = { mId, e.toString() };
@@ -724,24 +718,23 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             c = CryptoUtil.getKeyStorageToken(name);
 
-            if (c != null) {
-                CryptoStore store = c.getCryptoStore();
-                X509Certificate[] list = store.getCertificates();
-
-                if (list == null)
-                    return "";
-
-                for (int i = 0; i < list.length; i++) {
-                    String nickname = list[i].getNickname();
-
-                    if (i != 0)
-                        certNames.append(",");
-                    certNames.append(nickname);
-                }
-
-                return certNames.toString();
-            } else
+            if (c == null)
                 return "";
+            CryptoStore store = c.getCryptoStore();
+            X509Certificate[] list = store.getCertificates();
+
+            if (list == null)
+                return "";
+
+            for (int i = 0; i < list.length; i++) {
+                String nickname = list[i].getNickname();
+
+                if (i != 0)
+                    certNames.append(",");
+                certNames.append(nickname);
+            }
+
+            return certNames.toString();
 
         } catch (Exception e) {
             String[] params = { mId, e.toString() };
@@ -914,9 +907,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             if (eString.contains("Failed to find certificate that was just imported")) {
                 throw new EBaseException(eString);
-            } else {
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
             }
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (UserCertConflictException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_USERCERT_CONFLICT"));
@@ -1125,33 +1117,32 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
                     logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CA_CERT", e.toString()));
                     throw e;
-                } else {
-                    for (int i = 0; i < certs.length; i++) {
-                        X509Certificate cert = certs[i];
-                        X509CertImpl impl = new X509CertImpl(cert.getEncoded());
-                        String num = impl.getSerialNumber().toString();
-                        String issuer = impl.getIssuerDN().toString();
-                        logger.debug("*** num " + num);
-                        logger.debug("*** issuer " + issuer);
-                        if (num.equals(serialno) && issuername.equals(issuer)) {
-                            logger.debug("*** removing root cert");
-                            if (cert instanceof TokenCertificate) {
-                                TokenCertificate tcert = (TokenCertificate) cert;
+                }
+                for (int i = 0; i < certs.length; i++) {
+                    X509Certificate cert = certs[i];
+                    X509CertImpl impl = new X509CertImpl(cert.getEncoded());
+                    String num = impl.getSerialNumber().toString();
+                    String issuer = impl.getIssuerDN().toString();
+                    logger.debug("*** num " + num);
+                    logger.debug("*** issuer " + issuer);
+                    if (num.equals(serialno) && issuername.equals(issuer)) {
+                        logger.debug("*** removing root cert");
+                        if (cert instanceof TokenCertificate) {
+                            TokenCertificate tcert = (TokenCertificate) cert;
 
-                                logger.debug("*** deleting this token cert");
-                                tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
-                                logger.debug("*** finish deleting this token cert");
-                            } else {
-                                CryptoToken token = CryptoManager.getInstance().getInternalKeyStorageToken();
-                                CryptoStore store = token.getCryptoStore();
+                            logger.debug("*** deleting this token cert");
+                            tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
+                            logger.debug("*** finish deleting this token cert");
+                        } else {
+                            CryptoToken token = CryptoManager.getInstance().getInternalKeyStorageToken();
+                            CryptoStore store = token.getCryptoStore();
 
-                                logger.debug("*** deleting this interna cert");
-                                store.deleteCert(cert);
-                                logger.debug("*** removing this interna cert");
-                            }
-                            mNicknameMapCertsTable.remove(nickname);
-                            break;
+                            logger.debug("*** deleting this interna cert");
+                            store.deleteCert(cert);
+                            logger.debug("*** removing this interna cert");
                         }
+                        mNicknameMapCertsTable.remove(nickname);
+                        break;
                     }
                 }
             }
@@ -1399,9 +1390,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
         if (mNicknameMapCertsTable == null) {
             logger.error("JssSubsystem::getCACerts() - " + "mNicknameMapCertsTable is null!");
             throw new EBaseException("JssSubsystem::getCACerts() - mNicknameMapCertsTable is null");
-        } else {
-            mNicknameMapCertsTable.clear();
         }
+        mNicknameMapCertsTable.clear();
 
         // a temp hashtable with vectors
         Hashtable<String, Vector<X509Certificate>> vecTable = new Hashtable<>();
@@ -1494,28 +1484,26 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
                     logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_TRUST_CERT", e.toString()));
                     throw e;
-                } else {
-                    for (int i = 0; i < certs.length; i++) {
-                        X509Certificate cert = certs[i];
-                        X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
-                        Date notAfter = certImpl.getNotAfter();
-                        Date qualifier = mFormatter.parse(date);
+                }
+                for (int i = 0; i < certs.length; i++) {
+                    X509Certificate cert = certs[i];
+                    X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
+                    Date notAfter = certImpl.getNotAfter();
+                    Date qualifier = mFormatter.parse(date);
 
-                        if (notAfter.equals(qualifier)) {
-                            if (cert instanceof InternalCertificate) {
-                                if (trust.equals("Trust")) {
-                                    int trustflag = PK11Cert.TRUSTED_CA |
-                                            PK11Cert.TRUSTED_CLIENT_CA |
-                                            PK11Cert.VALID_CA;
+                    if (notAfter.equals(qualifier)) {
+                        if (cert instanceof InternalCertificate) {
+                            if (trust.equals("Trust")) {
+                                int trustflag = PK11Cert.TRUSTED_CA |
+                                        PK11Cert.TRUSTED_CLIENT_CA |
+                                        PK11Cert.VALID_CA;
 
-                                    ((InternalCertificate) cert).setSSLTrust(trustflag);
-                                } else
-                                    ((InternalCertificate) cert).setSSLTrust(PK11Cert.VALID_CA);
-                                break;
-                            } else {
-                                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ""));
-                            }
+                                ((InternalCertificate) cert).setSSLTrust(trustflag);
+                            } else
+                                ((InternalCertificate) cert).setSSLTrust(PK11Cert.VALID_CA);
+                            break;
                         }
+                        throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ""));
                     }
                 }
             }
@@ -1547,27 +1535,26 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
                     logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CA_CERT", e.toString()));
                     throw e;
-                } else {
-                    for (int i = 0; i < certs.length; i++) {
-                        X509Certificate cert = certs[i];
-                        X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
-                        Date notAfter = certImpl.getNotAfter();
-                        Date qualifier = mFormatter.parse(notAfterTime);
+                }
+                for (int i = 0; i < certs.length; i++) {
+                    X509Certificate cert = certs[i];
+                    X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
+                    Date notAfter = certImpl.getNotAfter();
+                    Date qualifier = mFormatter.parse(notAfterTime);
 
-                        if (notAfter.equals(qualifier)) {
-                            if (cert instanceof TokenCertificate) {
-                                TokenCertificate tcert = (TokenCertificate) cert;
+                    if (notAfter.equals(qualifier)) {
+                        if (cert instanceof TokenCertificate) {
+                            TokenCertificate tcert = (TokenCertificate) cert;
 
-                                tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
-                            } else {
-                                CryptoToken token = CryptoManager.getInstance().getInternalKeyStorageToken();
-                                CryptoStore store = token.getCryptoStore();
+                            tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
+                        } else {
+                            CryptoToken token = CryptoManager.getInstance().getInternalKeyStorageToken();
+                            CryptoStore store = token.getCryptoStore();
 
-                                store.deleteCert(cert);
-                            }
-                            mNicknameMapCertsTable.remove(nickname);
-                            break;
+                            store.deleteCert(cert);
                         }
+                        mNicknameMapCertsTable.remove(nickname);
+                        break;
                     }
                 }
             }
@@ -1625,32 +1612,30 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
                 logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
                 throw e;
-            } else {
+            }
+            for (int i = 0; i < certs.length; i++) {
+                X509Certificate cert = certs[i];
+                X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
+                Date notAfter = certImpl.getNotAfter();
+                Date qualifier = mFormatter.parse(notAfterTime);
 
-                for (int i = 0; i < certs.length; i++) {
-                    X509Certificate cert = certs[i];
-                    X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
-                    Date notAfter = certImpl.getNotAfter();
-                    Date qualifier = mFormatter.parse(notAfterTime);
+                if (notAfter.equals(qualifier)) {
+                    if (cert instanceof TokenCertificate) {
+                        TokenCertificate tcert = (TokenCertificate) cert;
 
-                    if (notAfter.equals(qualifier)) {
-                        if (cert instanceof TokenCertificate) {
-                            TokenCertificate tcert = (TokenCertificate) cert;
+                        tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
+                    } else {
+                        CryptoToken token = CryptoManager.getInstance().getInternalKeyStorageToken();
+                        CryptoStore store = token.getCryptoStore();
 
-                            tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
-                        } else {
-                            CryptoToken token = CryptoManager.getInstance().getInternalKeyStorageToken();
-                            CryptoStore store = token.getCryptoStore();
-
-                            store.deleteCert(cert);
-                        }
-                        if (isUserCert == true) {
-                            mNicknameMapUserCertsTable.remove(nickname);
-                        } else {
-                            mNicknameMapCertsTable.remove(nickname);
-                        }
-                        break;
+                        store.deleteCert(cert);
                     }
+                    if (isUserCert == true) {
+                        mNicknameMapUserCertsTable.remove(nickname);
+                    } else {
+                        mNicknameMapCertsTable.remove(nickname);
+                    }
+                    break;
                 }
             }
 
@@ -1895,10 +1880,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             if (impl != null)
                 print = new CertPrettyPrint(impl);
 
-            if (print != null)
-                return print.toString(locale);
-            else
-                return null;
+            return print == null ? null : print.toString(locale);
         } catch (NotInitializedException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
@@ -1943,12 +1925,10 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 fingerPrint = CertUtils.getFingerPrints(impl.getEncoded());
             }
 
-            if ((print != null) && (fingerPrint != "")) {
-                String pp = print.toString(locale) + "\n" +
-                        "Certificate Fingerprints:" + '\n' + fingerPrint;
-                return pp;
-            } else
+            if (print == null || fingerPrint == "") {
                 return null;
+            }
+            return print.toString(locale) + "\n" + "Certificate Fingerprints:" + '\n' + fingerPrint;
         } catch (NotInitializedException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
@@ -1995,11 +1975,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             if (impl != null)
                 print = new CertPrettyPrint(impl);
-
-            if (print != null)
-                return print.toString(locale);
-            else
-                return null;
+            return print == null ? null : print.toString(locale);
         } catch (NotInitializedException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
@@ -2123,27 +2099,21 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             if (certinfo == null)
                 return false;
-            else {
-                CertificateExtensions exts = (CertificateExtensions) certinfo.get(X509CertInfo.EXTENSIONS);
+            CertificateExtensions exts = (CertificateExtensions) certinfo.get(X509CertInfo.EXTENSIONS);
 
-                if (exts == null)
+            if (exts == null)
+                return false;
+            try {
+                BasicConstraintsExtension ext = (BasicConstraintsExtension) exts
+                        .get(BasicConstraintsExtension.NAME);
+
+                if (ext == null)
                     return false;
-                else {
-                    try {
-                        BasicConstraintsExtension ext = (BasicConstraintsExtension) exts
-                                .get(BasicConstraintsExtension.NAME);
+                Boolean bool = (Boolean) ext.get(BasicConstraintsExtension.IS_CA);
 
-                        if (ext == null)
-                            return false;
-                        else {
-                            Boolean bool = (Boolean) ext.get(BasicConstraintsExtension.IS_CA);
-
-                            return bool.booleanValue();
-                        }
-                    } catch (IOException ee) {
-                        return false;
-                    }
-                }
+                return bool.booleanValue();
+            } catch (IOException ee) {
+                return false;
             }
         } catch (ObjectNotFoundException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IS_CA_CERT", e.toString()), e);
