@@ -114,7 +114,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if deployer.mdict['pki_path'] != "/var/lib/pki":
             logger.info('Removing %s', deployer.mdict['pki_path'])
-            pki.util.rmtree(deployer.mdict['pki_path'], deployer.mdict['pki_force_destroy'])
+            pki.util.rmtree(deployer.mdict['pki_path'],
+                            deployer.force)
 
         # do NOT remove top-level infrastructure logs
         # since it now stores 'pkispawn'/'pkidestroy' logs
@@ -126,6 +127,5 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
 
             logger.info('Removing %s', deployer.mdict['pki_configuration_path'])
-            pki.util.rmtree(
-                deployer.mdict['pki_configuration_path'],
-                deployer.mdict['pki_force_destroy'])
+            pki.util.rmtree(deployer.mdict['pki_configuration_path'],
+                            deployer.force)

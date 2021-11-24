@@ -219,7 +219,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         except Exception as e:  # pylint: disable=broad-except
             logger.error(str(e))
             # If it is a normal destroy, pass any exception
-            if not deployer.mdict['pki_force_destroy']:
+            if not deployer.force:
                 raise
 
         finally:

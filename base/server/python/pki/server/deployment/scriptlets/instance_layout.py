@@ -270,44 +270,41 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Removing %s', deployer.systemd.systemd_link)
         pki.util.unlink(link=deployer.systemd.systemd_link,
-                        force=deployer.mdict['pki_force_destroy'])
+                        force=deployer.force)
 
         if deployer.directory.exists(deployer.systemd.base_override_dir):
             logger.info('Removing %s', deployer.systemd.base_override_dir)
             pki.util.rmtree(path=deployer.systemd.base_override_dir,
-                            force=deployer.mdict['pki_force_destroy'])
+                            force=deployer.force)
 
         if deployer.directory.exists(deployer.systemd.nuxwdog_override_dir):
             logger.info('Removing %s', deployer.systemd.nuxwdog_override_dir)
             pki.util.rmtree(path=deployer.systemd.nuxwdog_override_dir,
-                            force=deployer.mdict['pki_force_destroy'])
+                            force=deployer.force)
 
         deployer.systemd.daemon_reload()
 
         logger.info('Removing %s', deployer.mdict['pki_instance_path'])
         pki.util.rmtree(path=deployer.mdict['pki_instance_path'],
-                        force=deployer.mdict['pki_force_destroy'])
+                        force=deployer.force)
 
         # remove Tomcat instance logs only if --remove-logs is specified
         if deployer.mdict['pki_remove_logs']:
             logger.info('Removing %s', deployer.mdict['pki_instance_log_path'])
             pki.util.rmtree(path=deployer.mdict['pki_instance_log_path'],
-                            force=deployer.mdict['pki_force_destroy'])
+                            force=deployer.force)
 
         logger.info('Removing %s', deployer.mdict['pki_instance_configuration_path'])
         pki.util.rmtree(
             path=deployer.mdict['pki_instance_configuration_path'],
-            force=deployer.mdict['pki_force_destroy']
-        )
+            force=deployer.force)
 
         logger.info('Removing %s', deployer.mdict['pki_target_tomcat_conf_instance_id'])
         pki.util.remove(
             path=deployer.mdict['pki_target_tomcat_conf_instance_id'],
-            force=deployer.mdict['pki_force_destroy']
-        )
+            force=deployer.force)
 
         logger.info('Removing %s', deployer.mdict['pki_instance_registry_path'])
         pki.util.rmtree(
             path=deployer.mdict['pki_instance_registry_path'],
-            force=deployer.mdict['pki_force_destroy']
-        )
+            force=deployer.force)

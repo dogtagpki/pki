@@ -113,6 +113,8 @@ class PKIDeployer:
         self.startup_timeout = None
         self.request_timeout = None
 
+        self.force = False
+
     def set_property(self, key, value, section=None):
 
         if not section:

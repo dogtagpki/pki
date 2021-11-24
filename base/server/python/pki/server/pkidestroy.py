@@ -87,7 +87,7 @@ def main(argv):
 
     parser.optional.add_argument(
         '--force',
-        dest='pki_force_destroy',
+        dest='force',
         action='store_true',
         help='force removal of subsystem'
     )
@@ -165,8 +165,8 @@ def main(argv):
                 pwd_file:
             config.pki_secdomain_pass = pwd_file.readline().strip('\n')
 
-    #   '--force'
-    force_destroy = args.pki_force_destroy
+    # --force
+    deployer.force = args.force
 
     #   '--remove-logs'
     remove_logs = args.pki_remove_logs
@@ -175,7 +175,7 @@ def main(argv):
     deployed_pki_instance_path = os.path.join(
         config.PKI_DEPLOYMENT_BASE_ROOT, config.pki_deployed_instance_name
     )
-    if not os.path.exists(deployed_pki_instance_path) and not force_destroy:
+    if not os.path.exists(deployed_pki_instance_path) and not deployer.force:
         print("ERROR:  " + log.PKI_INSTANCE_DOES_NOT_EXIST_1 %
               deployed_pki_instance_path)
         print()
@@ -186,7 +186,7 @@ def main(argv):
         deployed_pki_instance_path, deployer.subsystem_name.lower()
     )
 
-    if not os.path.exists(deployed_pki_subsystem_path) and not force_destroy:
+    if not os.path.exists(deployed_pki_subsystem_path) and not deployer.force:
         print("ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %
               (deployer.subsystem_name, deployed_pki_instance_path))
         print()
@@ -203,7 +203,7 @@ def main(argv):
         config.USER_DEPLOYMENT_CONFIGURATION
     )
 
-    if force_destroy and not os.path.exists(config.user_deployment_cfg):
+    if deployer.force and not os.path.exists(config.user_deployment_cfg):
         # During force destroy, try to load the file. If file doesn't exist, we ignore it
         config.user_deployment_cfg = None
 
@@ -233,9 +233,6 @@ def main(argv):
         print('Uninstallation log: %s' % args.log_file)
 
     pkilogging.enable_pki_logger(args.log_file)
-
-    # Add force_destroy to master dictionary
-    parser.mdict['pki_force_destroy'] = force_destroy
 
     # Add remove logs to master dictionary
     parser.mdict['pki_remove_logs'] = remove_logs
