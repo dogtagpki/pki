@@ -115,8 +115,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_source_emails'],
                 deployer.mdict['pki_subsystem_emails_path'])
 
-            # Copy /usr/share/pki/ca/profiles/ca
-            # to /var/lib/pki/<instance>/<subsystem>/profiles/ca
+            # Copy /usr/share/pki/ca/profiles
+            # to /var/lib/pki/<instance>/<subsystem>/profiles
             logger.info('Creating %s', deployer.mdict['pki_subsystem_profiles_path'])
             instance.copy(
                 deployer.mdict['pki_source_profiles'],
