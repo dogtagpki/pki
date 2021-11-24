@@ -47,7 +47,9 @@ public abstract class SubsystemCLI extends CommandCLI {
         String configFile = configDir + File.separator + "conf" + File.separator + CMS.CONFIG_FILE;
         logger.info("Loading {}", configFile);
         ConfigStorage storage = new FileConfigStore(configFile);
-        return new EngineConfig(storage);
+        EngineConfig engineConfig = new EngineConfig(storage);
+        engineConfig.load();
+        return engineConfig;
     }
 
     protected LdapAuthInfo getAuthInfo(IPasswordStore passwordStore, LdapConnInfo connInfo, LDAPConfig ldapConfig)

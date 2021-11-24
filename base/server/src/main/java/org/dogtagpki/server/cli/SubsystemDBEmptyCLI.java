@@ -61,7 +61,6 @@ public class SubsystemDBEmptyCLI extends SubsystemCLI {
         initializeTomcatJSS();
         String subsystem = parent.getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
-        cs.load();
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
         String database = ldapConfig.getDatabase();

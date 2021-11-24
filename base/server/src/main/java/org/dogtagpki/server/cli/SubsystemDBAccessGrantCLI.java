@@ -64,7 +64,6 @@ public class SubsystemDBAccessGrantCLI extends SubsystemCLI {
         initializeTomcatJSS();
         String subsystem = parent.parent.parent.getName();
         EngineConfig cs = getEngineConfig(subsystem);
-        cs.load();
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
         String database = ldapConfig.getDatabase();

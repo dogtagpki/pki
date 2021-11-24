@@ -59,7 +59,6 @@ public class SubsystemUserFindCLI extends SubsystemCLI {
         initializeTomcatJSS();
         String subsystem = parent.getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
-        cs.load();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();

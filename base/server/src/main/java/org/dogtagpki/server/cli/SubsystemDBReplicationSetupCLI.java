@@ -76,7 +76,6 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
         initializeTomcatJSS();
         String subsystem = parent.parent.parent.getName();
         EngineConfig cs = getEngineConfig(subsystem);
-        cs.load();
 
         logger.info("Loading {}", masterConfigFile);
         ConfigStorage masterStorage = new FileConfigStore(masterConfigFile);

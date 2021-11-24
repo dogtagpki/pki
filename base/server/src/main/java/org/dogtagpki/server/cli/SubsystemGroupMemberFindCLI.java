@@ -63,7 +63,6 @@ public class SubsystemGroupMemberFindCLI extends SubsystemCLI {
         initializeTomcatJSS();
         String subsystem = parent.getParent().getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
-        cs.load();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();

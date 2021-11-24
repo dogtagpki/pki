@@ -57,7 +57,6 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         initializeTomcatJSS();
         String subsystem = parent.getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
-        cs.load();
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
         String baseDN = ldapConfig.getBaseDN();
