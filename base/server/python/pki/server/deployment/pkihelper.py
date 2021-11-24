@@ -729,38 +729,6 @@ class ConfigurationFile:
                         self.mdict['pki_instance_name']))
         return
 
-# PKI Deployment XML File Class
-# class xml_file:
-#    def remove_filter_section_from_web_xml(self,
-#                                           web_xml_source,
-#                                           web_xml_target):
-#        logger.info(
-#            log.PKIHELPER_REMOVE_FILTER_SECTION_1,
-#            self.mdict['pki_target_subsystem_web_xml'])
-#        begin_filters_section = False
-#        begin_servlet_section = False
-#        FILE = open(web_xml_target, "w")
-#        for line in fileinput.FileInput(web_xml_source):
-#            if not begin_filters_section:
-#                # Read and write lines until first "<filter>" tag
-#                if line.count("<filter>") >= 1:
-#                    # Mark filters section
-#                    begin_filters_section = True
-#                else:
-#                    FILE.write(line)
-#            elif not begin_servlet_section:
-#                # Skip lines until first "<servlet>" tag
-#                if line.count("<servlet>") >= 1:
-#                    # Mark servlets section and write out the opening tag
-#                    begin_servlet_section = True
-#                    FILE.write(line)
-#                else:
-#                    continue
-#            else:
-#                # Read and write lines all lines after "<servlet>" tag
-#                FILE.write(line)
-#        FILE.close()
-
 
 class Instance:
     """PKI Deployment Instance Class"""

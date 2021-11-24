@@ -28,7 +28,6 @@ import pki.server.instance
 import pki.util
 
 # PKI Deployment Imports
-from .. import pkiconfig as config
 from .. import pkiscriptlet
 
 logger = logging.getLogger(__name__)
@@ -38,23 +37,7 @@ logger = logging.getLogger(__name__)
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
-        if config.str2bool(deployer.mdict['pki_skip_installation']):
-            logger.info('Skipping webapp creation')
-            return
-
-        logger.info('Deploying /%s web application', deployer.mdict['pki_subsystem'].lower())
-
-        instance = self.instance
-        instance.load()
-
-        # Create subsystem webapps folder to store custom webapps:
-        # <instance>/<subsystem>/webapps.
-        deployer.directory.create(
-            deployer.mdict['pki_tomcat_subsystem_webapps_path'])
-
-        # set ownerships, permissions, and acls
-        deployer.directory.set_mode(
-            deployer.mdict['pki_tomcat_subsystem_webapps_path'])
+        pass
 
     def destroy(self, deployer):
 
