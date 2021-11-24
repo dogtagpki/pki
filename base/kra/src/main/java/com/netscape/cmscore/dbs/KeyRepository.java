@@ -223,17 +223,13 @@ public class KeyRepository extends Repository implements IKeyRepository {
      */
     @Override
     public void addKeyRecord(IKeyRecord record) throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn" + "=" +
                     ((KeyRecord) record).getSerialNumber().toString() + "," + getDN();
 
             if (s != null)
                 s.add(name, record);
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
@@ -251,18 +247,15 @@ public class KeyRepository extends Repository implements IKeyRepository {
         if (serialNo == null) {
             throw new EBaseException("Invalid Serial Number.");
         }
-        DBSSession s = dbSubsystem.createSession();
+
         KeyRecord rec = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn" + "=" +
                     serialNo.toString() + "," + getDN();
 
             if (s != null)
                 rec = (KeyRecord) s.read(name);
-        } finally {
-            if (s != null)
-                s.close();
         }
         if (rec == null) {
             throw new EBaseException("Failed to recover Key for Serial Number " + serialNo);
@@ -281,10 +274,10 @@ public class KeyRepository extends Repository implements IKeyRepository {
     @Override
     public IKeyRecord readKeyRecord(X500Name ownerName)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         KeyRecord keyRec = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             if (ownerName != null) {
                 String filter = "(" + KeyRecord.ATTR_OWNER_NAME + "=" +
                         ownerName.toString() + ")";
@@ -292,9 +285,6 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
                 keyRec = (KeyRecord) res.nextElement();
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return keyRec;
     }
@@ -310,10 +300,10 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
         if (data == null)
             throw new EBaseException("null data");
-        DBSSession s = dbSubsystem.createSession();
+
         KeyRecord rec = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String filter = "(" + KeyRecord.ATTR_PUBLIC_KEY_DATA + "=" +
                     escapeBinaryData(data) + ")";
             if (s != null) {
@@ -321,9 +311,6 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
                 rec = (KeyRecord) res.nextElement();
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return rec;
     }
@@ -335,10 +322,9 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public IKeyRecord readKeyRecord(String cert)
             throws EBaseException {
 
-        DBSSession s = dbSubsystem.createSession();
         KeyRecord rec = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String filter = "(publicKey=x509cert#\"" + cert + "\")";
             logger.debug("filter= " + filter);
 
@@ -347,9 +333,6 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
                 rec = (KeyRecord) res.nextElement();
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return rec;
     }
@@ -360,9 +343,8 @@ public class KeyRepository extends Repository implements IKeyRepository {
     @Override
     public void modifyKeyRecord(BigInteger serialNo, ModificationSet mods)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn" + "=" +
                     serialNo.toString() + "," + getDN();
 
@@ -370,26 +352,19 @@ public class KeyRepository extends Repository implements IKeyRepository {
                     new Date());
             if (s != null)
                 s.modify(name, mods);
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
     @Override
     public void deleteKeyRecord(BigInteger serialNo)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn" + "=" +
                     serialNo.toString() + "," + getDN();
 
             if (s != null)
                 s.delete(name);
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
@@ -408,17 +383,14 @@ public class KeyRepository extends Repository implements IKeyRepository {
     @Override
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Vector<IKeyRecord> v = new Vector<>();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             IDBSearchResults sr = s.search(getDN(), filter, maxSize);
             while (sr.hasMoreElements()) {
                 v.add((IKeyRecord) sr.nextElement());
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return v.elements();
     }
@@ -426,17 +398,14 @@ public class KeyRepository extends Repository implements IKeyRepository {
     @Override
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize, int timeLimit)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         Vector<IKeyRecord> v = new Vector<>();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             IDBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit);
             while (sr.hasMoreElements()) {
                 v.add((IKeyRecord) sr.nextElement());
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return v.elements();
     }
@@ -455,19 +424,16 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public IKeyRecordList findKeyRecordsInList(String filter,
             String attrs[], String sortKey, int pageSize)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         IKeyRecordList list = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             if (s != null) {
                 list = new KeyRecordList(
                         s.<IKeyRecord>createVirtualList(getDN(), "(&(objectclass=" +
                                 KeyRecord.class.getName() + ")" + filter + ")",
                                 attrs, sortKey, pageSize));
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return list;
     }
@@ -475,7 +441,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public IKeyRecordList findKeyRecordsInList(String filter,
             String attrs[], String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
+
         IKeyRecordList list = null;
 
         int len = jumpTo.length();
@@ -488,16 +454,13 @@ public class KeyRepository extends Repository implements IKeyRepository {
             jumpToVal = "0" + Integer.toString(len) + jumpTo;
         }
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             if (s != null) {
                 list = new KeyRecordList(
                         s.<IKeyRecord>createVirtualList(getDN(), "(&(objectclass=" +
                                 KeyRecord.class.getName() + ")" + filter + ")",
                                 attrs, jumpToVal, sortKey, pageSize));
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return list;
     }
