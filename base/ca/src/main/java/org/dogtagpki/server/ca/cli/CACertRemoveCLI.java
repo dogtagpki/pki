@@ -8,7 +8,6 @@ package org.dogtagpki.server.ca.cli;
 import java.io.File;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.util.logging.PKILogger;
@@ -70,9 +69,7 @@ public class CACertRemoveCLI extends CommandCLI {
 
         String catalinaBase = System.getProperty("catalina.base");
 
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        initializeTomcatJSS();
 
         String subsystem = parent.getParent().getName();
         String confDir = catalinaBase + File.separator + subsystem + File.separator + "conf";

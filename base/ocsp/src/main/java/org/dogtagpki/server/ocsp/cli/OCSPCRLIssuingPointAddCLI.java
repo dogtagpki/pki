@@ -13,7 +13,6 @@ import java.security.cert.X509Certificate;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.io.IOUtils;
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.server.ocsp.OCSPConfig;
@@ -63,9 +62,7 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        initializeTomcatJSS();
 
         String catalinaBase = System.getProperty("catalina.base");
         String subsystem = parent.getParent().getParent().getName();

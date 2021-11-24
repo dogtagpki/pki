@@ -7,7 +7,6 @@ package org.dogtagpki.server.cli;
 
 import java.io.File;
 
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 import org.slf4j.Logger;
@@ -33,12 +32,6 @@ public abstract class SubsystemCLI extends CommandCLI {
 
     protected SubsystemCLI(String name, String description, CLI parent) {
         super(name, description, parent);
-    }
-
-    protected void initializeTomcatJSS() throws Exception {
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
     }
 
     protected EngineConfig getEngineConfig(String subsystem) throws Exception {

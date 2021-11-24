@@ -10,7 +10,6 @@ import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.server.ocsp.OCSPConfig;
@@ -56,9 +55,7 @@ public class OCSPCRLIssuingPointFindCLI extends CommandCLI {
         String s = cmd.getOptionValue("size", "100");
         int size = Integer.valueOf(s);
 
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        initializeTomcatJSS();
 
         String catalinaBase = System.getProperty("catalina.base");
         String subsystem = parent.getParent().getParent().getName();

@@ -10,7 +10,6 @@ import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 
@@ -85,9 +84,7 @@ public class SDHostAddCLI extends CommandCLI {
 
         String catalinaBase = System.getProperty("catalina.base");
 
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        initializeTomcatJSS();
 
         String subsystem = parent.getParent().getParent().getName();
         String subsystemDir = catalinaBase + File.separator + subsystem;

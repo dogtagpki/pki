@@ -10,7 +10,6 @@ import java.io.FileInputStream;
 import java.util.StringTokenizer;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 import org.slf4j.Logger;
@@ -71,9 +70,7 @@ public class CAProfileImportCLI extends CommandCLI {
 
         String catalinaBase = System.getProperty("catalina.base");
 
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        initializeTomcatJSS();
 
         String subsystemName = parent.getParent().getName();
         String configFile = catalinaBase + File.separator + subsystemName + File.separator +

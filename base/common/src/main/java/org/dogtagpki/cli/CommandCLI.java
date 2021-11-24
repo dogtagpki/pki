@@ -19,6 +19,7 @@
 package org.dogtagpki.cli;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.Level;
 
@@ -60,4 +61,11 @@ public class CommandCLI extends CLI {
 
     public void execute(CommandLine cmd) throws Exception {
     }
+
+    protected void initializeTomcatJSS() throws Exception {
+        TomcatJSS tomcatjss = TomcatJSS.getInstance();
+        tomcatjss.loadConfig();
+        tomcatjss.init();
+    }
+
 }
