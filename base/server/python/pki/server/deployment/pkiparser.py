@@ -632,17 +632,6 @@ class PKIConfigParser:
                 os.path.join(
                     self.mdict['pki_instance_configuration_path'],
                     "tomcat.conf")
-            # in-place slot substitution name/value pairs
-            self.mdict['pki_target_subsystem_web_xml'] = \
-                os.path.join(
-                    self.mdict['pki_tomcat_webapps_subsystem_path'],
-                    "WEB-INF",
-                    "web.xml")
-            self.mdict['pki_target_subsystem_web_xml_orig'] = \
-                os.path.join(
-                    self.mdict['pki_tomcat_webapps_subsystem_path'],
-                    "WEB-INF",
-                    "web.xml.orig")
 
             self.mdict['pki_target_registry_cfg'] = \
                 os.path.join(
