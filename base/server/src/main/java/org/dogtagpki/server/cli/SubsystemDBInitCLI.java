@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.cms.servlet.csadmin.LDAPConfigurator;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
@@ -72,8 +71,6 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
 
         logger.info("Initializing database " + database + " for " + baseDN);
 
-        String instanceId = cs.getInstanceID();
-
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
         IPasswordStore passwordStore = IPasswordStore.create(psc);
 
@@ -93,7 +90,7 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
         socketFactory.init(socketConfig);
 
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig, instanceId);
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig);
 
         try {
             ldapConfigurator.initDatabase();

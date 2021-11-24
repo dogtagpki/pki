@@ -82,8 +82,6 @@ public class SubsystemDBRemoveCLI extends SubsystemCLI {
             }
         }
 
-        String instanceId = cs.getInstanceID();
-
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
         IPasswordStore passwordStore = IPasswordStore.create(psc);
 
@@ -103,7 +101,7 @@ public class SubsystemDBRemoveCLI extends SubsystemCLI {
         socketFactory.init(socketConfig);
 
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig, instanceId);
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig);
 
         try {
             ldapConfigurator.deleteDatabase(database, baseDN);
