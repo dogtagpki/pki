@@ -20,6 +20,7 @@
 
 from __future__ import absolute_import
 import logging
+import os
 import random
 import string
 
@@ -109,18 +110,32 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.mdict['pki_subsystem'] == "CA":
 
             # Copy /usr/share/pki/ca/emails
-            # to /var/lib/pki/<instance>/<subsystem>/emails
+            # to /etc/pki/<instance>/ca/emails
             logger.info('Creating %s', deployer.mdict['pki_subsystem_emails_path'])
             instance.copy(
                 deployer.mdict['pki_source_emails'],
                 deployer.mdict['pki_subsystem_emails_path'])
 
+            # Link /var/lib/pki/<instance>/ca/emails
+            # to /etc/pki/<instance>/ca/emails
+            emails_path = os.path.join(instance.conf_dir, 'ca', 'emails')
+            emails_link = os.path.join(instance.base_dir, 'ca', 'emails')
+            logger.info('Creating %s', emails_link)
+            instance.symlink(emails_path, emails_link)
+
             # Copy /usr/share/pki/ca/profiles
-            # to /var/lib/pki/<instance>/<subsystem>/profiles
+            # to /etc/pki/<instance>/ca/profiles
             logger.info('Creating %s', deployer.mdict['pki_subsystem_profiles_path'])
             instance.copy(
                 deployer.mdict['pki_source_profiles'],
                 deployer.mdict['pki_subsystem_profiles_path'])
+
+            # Link /var/lib/pki/<instance>/ca/profiles
+            # to /etc/pki/<instance>/ca/profiles
+            profiles_path = os.path.join(instance.conf_dir, 'ca', 'profiles')
+            profiles_link = os.path.join(instance.base_dir, 'ca', 'profiles')
+            logger.info('Creating %s', profiles_link)
+            instance.symlink(profiles_path, profiles_link)
 
             # Copy /usr/share/pki/<subsystem>/conf/flatfile.txt
             # to /etc/pki/<instance>/<subsystem>/flatfile.txt
