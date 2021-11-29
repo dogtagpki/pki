@@ -619,9 +619,7 @@ grant codeBase "file:%s" {
         context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
         self.symlink(context_xml, self.context_xml, force=force)
 
-        logging_properties = os.path.join(Tomcat.CONF_DIR, 'logging.properties')
-        self.copy(logging_properties, self.logging_properties, force=force)
-
+        self.create_logging_properties(force=force)
         self.create_server_xml()
 
         self.copy(Tomcat.TOMCAT_CONF, self.tomcat_conf, force=force)
@@ -666,6 +664,11 @@ grant codeBase "file:%s" {
     def create_conf_dir(self, force=False):
 
         self.makedirs(self.conf_dir, force=force)
+
+    def create_logging_properties(self, force=False):
+
+        logging_properties = os.path.join(Tomcat.CONF_DIR, 'logging.properties')
+        self.copy(logging_properties, self.logging_properties, force=force)
 
     def create_server_xml(self):
 

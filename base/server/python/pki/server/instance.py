@@ -259,6 +259,12 @@ class PKIInstance(pki.server.PKIServer):
         conf_link = os.path.join(self.base_dir, 'conf')
         self.symlink(self.conf_dir, conf_link, force=force)
 
+    def create_logging_properties(self, force=False):
+
+        logging_properties = os.path.join(
+            pki.server.PKIServer.SHARE_DIR, 'server', 'conf', 'logging.properties')
+        self.symlink(logging_properties, self.logging_properties, force=force)
+
     def create_libs(self, force=False):
 
         if not self.with_maven_deps:
