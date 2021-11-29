@@ -140,7 +140,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /etc/pki/<instance>/catalina.properties
         # to /usr/share/pki/server/conf/catalina.properties.
-        logger.info('Creating %s', os.path.join(instance_conf_path, 'catalina.properties'))
         instance.symlink(
             os.path.join(shared_conf_path, 'catalina.properties'),
             os.path.join(instance_conf_path, 'catalina.properties'),
@@ -148,13 +147,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /etc/pki/<instance>/context.xml
         # to /usr/share/tomcat/conf/context.xml.
-        logger.info('Creating %s', instance.context_xml)
         context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
         instance.symlink(context_xml, instance.context_xml, force=True)
 
         # Link /etc/pki/<instance>/logging.properties
         # to /usr/share/pki/server/conf/logging.properties.
-        logger.info('Creating %s', os.path.join(instance_conf_path, 'logging.properties'))
         instance.symlink(
             os.path.join(shared_conf_path, 'logging.properties'),
             os.path.join(instance_conf_path, 'logging.properties'),
@@ -174,16 +171,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /etc/pki/<instance>/web.xml
         # to /usr/share/tomcat/conf/web.xml.
-        logger.info('Creating %s', instance.web_xml)
         web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
         instance.symlink(web_xml, instance.web_xml, force=True)
 
         catalina_dir = os.path.join(instance_conf_path, 'Catalina')
-        logger.info('Creating %s', catalina_dir)
         instance.makedirs(catalina_dir, force=True)
 
         localhost_dir = os.path.join(catalina_dir, 'localhost')
-        logger.info('Creating %s', localhost_dir)
         instance.makedirs(localhost_dir, force=True)
 
         logger.info('Deploying ROOT web application')

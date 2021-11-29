@@ -132,24 +132,20 @@ class ACMECreateCLI(pki.cli.CLI):
         instance.load()
 
         acme_conf_dir = os.path.join(instance.conf_dir, name)
-        logger.info('Creating %s', acme_conf_dir)
         instance.makedirs(acme_conf_dir, force=force)
 
         acme_share_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'acme')
 
         database_template = os.path.join(acme_share_dir, 'conf', 'database.conf')
         database_conf = os.path.join(acme_conf_dir, 'database.conf')
-        logger.info('Creating %s', database_conf)
         instance.copy(database_template, database_conf, force=force)
 
         issuer_template = os.path.join(acme_share_dir, 'conf', 'issuer.conf')
         issuer_conf = os.path.join(acme_conf_dir, 'issuer.conf')
-        logger.info('Creating %s', issuer_conf)
         instance.copy(issuer_template, issuer_conf, force=force)
 
         realm_template = os.path.join(acme_share_dir, 'conf', 'realm.conf')
         realm_conf = os.path.join(acme_conf_dir, 'realm.conf')
-        logger.info('Creating %s', realm_conf)
         instance.copy(realm_template, realm_conf, force=force)
 
 

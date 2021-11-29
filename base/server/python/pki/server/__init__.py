@@ -539,6 +539,9 @@ grant codeBase "file:%s" {
         os.chmod(path, DEFAULT_FILE_MODE)
 
     def makedirs(self, path, exist_ok=None, force=False):
+
+        logger.info('Creating %s', path)
+
         pki.util.makedirs(
             path,
             mode=DEFAULT_DIR_MODE,
@@ -548,10 +551,16 @@ grant codeBase "file:%s" {
             force=force)
 
     def symlink(self, source, dest, force=False):
+
+        logger.info('Creating %s', dest)
+
         pki.util.symlink(
             source, dest, uid=self.uid, gid=self.gid, force=force)
 
     def copy(self, source, dest, force=False):
+
+        logger.info('Creating %s', dest)
+
         pki.util.copy(
             source,
             dest,
@@ -562,6 +571,9 @@ grant codeBase "file:%s" {
             force=force)
 
     def copydirs(self, source, dest, force=False):
+
+        logger.info('Creating %s', dest)
+
         pki.util.copydirs(
             source,
             dest,
@@ -571,6 +583,9 @@ grant codeBase "file:%s" {
             force=force)
 
     def copyfile(self, source, dest, slots=None, params=None, force=False):
+
+        logger.info('Creating %s', dest)
+
         pki.util.copyfile(
             source,
             dest,
@@ -587,60 +602,44 @@ grant codeBase "file:%s" {
 
     def create(self, force=False):
 
-        logger.info('Creating %s', self.base_dir)
         self.makedirs(self.base_dir, force=force)
 
-        logger.info('Creating %s', self.bin_dir)
         bin_dir = os.path.join(Tomcat.SHARE_DIR, 'bin')
         self.symlink(bin_dir, self.bin_dir, force=force)
 
         self.create_conf_dir(force=force)
 
-        logger.info('Creating %s', self.catalina_policy)
         catalina_policy = os.path.join(Tomcat.CONF_DIR, 'catalina.policy')
         self.copy(catalina_policy, self.catalina_policy, force=force)
 
-        logger.info('Creating %s', self.catalina_properties)
         catalina_properties = os.path.join(
             PKIServer.SHARE_DIR, 'server', 'conf', 'catalina.properties')
         self.symlink(catalina_properties, self.catalina_properties, force=force)
 
-        logger.info('Creating %s', self.context_xml)
         context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
         self.symlink(context_xml, self.context_xml, force=force)
 
-        logger.info('Creating %s', self.logging_properties)
         logging_properties = os.path.join(Tomcat.CONF_DIR, 'logging.properties')
         self.copy(logging_properties, self.logging_properties, force=force)
 
         self.create_server_xml()
 
-        logger.info('Creating %s', self.tomcat_conf)
         self.copy(Tomcat.TOMCAT_CONF, self.tomcat_conf, force=force)
 
         with open(self.tomcat_conf, 'a') as f:
             f.write('\nPKI_VERSION=%s\n' % pki.specification_version())
 
-        logger.info('Creating %s', self.web_xml)
         web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
         self.symlink(web_xml, self.web_xml, force=force)
 
         conf_d_dir = os.path.join(self.conf_dir, 'conf.d')
-        logger.info('Creating %s', conf_d_dir)
         self.makedirs(conf_d_dir, force=force)
 
         self.create_libs(force=force)
 
-        logger.info('Creating %s', self.temp_dir)
         self.makedirs(self.temp_dir, force=force)
-
-        logger.info('Creating %s', self.webapps_dir)
         self.makedirs(self.webapps_dir, force=force)
-
-        logger.info('Creating %s', self.work_dir)
         self.makedirs(self.work_dir, force=force)
-
-        logger.info('Creating %s', self.log_dir)
         self.makedirs(self.log_dir, force=force)
 
         document = etree.parse(self.server_xml, parser)
@@ -650,17 +649,14 @@ grant codeBase "file:%s" {
             engine_name = engine.get('name')
 
             engine_dir = os.path.join(self.conf_dir, engine_name)
-            logger.info('Creating %s', engine_dir)
             self.makedirs(engine_dir, force=force)
 
             for host in engine.findall('Host'):
                 host_name = host.get('name')
 
                 host_dir = os.path.join(engine_dir, host_name)
-                logger.info('Creating %s', host_dir)
                 self.makedirs(host_dir, force=force)
 
-        logger.info('Creating %s', self.service_conf)
         service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
         self.copy(service_conf, self.service_conf, force=force)
 
@@ -669,7 +665,6 @@ grant codeBase "file:%s" {
 
     def create_conf_dir(self, force=False):
 
-        logger.info('Creating %s', self.conf_dir)
         self.makedirs(self.conf_dir, force=force)
 
     def create_server_xml(self):
@@ -743,14 +738,11 @@ grant codeBase "file:%s" {
 
     def create_libs(self, force=False):
 
-        logger.info('Creating %s', self.lib_dir)
         lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'lib')
         self.symlink(lib_dir, self.lib_dir, force=force)
 
-        logger.info('Creating %s', self.common_dir)
         self.makedirs(self.common_dir, force=force)
 
-        logger.info('Creating %s', self.common_lib_dir)
         common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
         self.symlink(common_lib_dir, self.common_lib_dir, force=force)
 
@@ -764,7 +756,6 @@ grant codeBase "file:%s" {
 
         self.makedirs(self.nssdb_dir, force=force)
 
-        logger.info('Creating %s', self.nssdb_link)
         self.symlink(self.nssdb_dir, self.nssdb_link, force=force)
 
         password = self.passwords.get(pki.nssdb.INTERNAL_TOKEN_NAME)

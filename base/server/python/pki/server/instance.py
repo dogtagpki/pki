@@ -235,13 +235,10 @@ class PKIInstance(pki.server.PKIServer):
         super(PKIInstance, self).create(force=force)
 
         logs_link = os.path.join(self.base_dir, 'logs')
-        logger.info('Creating %s', logs_link)
         self.symlink(self.log_dir, logs_link, force=force)
 
-        logger.info('Creating %s', self.registry_dir)
         self.makedirs(self.registry_dir, force=force)
 
-        logger.info('Creating %s', self.registry_file)
         self.copyfile(
             PKIInstance.REGISTRY_FILE,
             self.registry_file,
@@ -253,7 +250,6 @@ class PKIInstance(pki.server.PKIServer):
                 'TOMCAT_PIDFILE': '/var/run/pki/tomcat/' + self.name + '.pid'
             })
 
-        logger.info('Creating %s', self.unit_file)
         self.symlink(PKIInstance.UNIT_FILE, self.unit_file, force=force)
 
     def create_conf_dir(self, force=False):
@@ -261,7 +257,6 @@ class PKIInstance(pki.server.PKIServer):
         super(PKIInstance, self).create_conf_dir(force=force)
 
         conf_link = os.path.join(self.base_dir, 'conf')
-        logger.info('Creating %s', conf_link)
         self.symlink(self.conf_dir, conf_link, force=force)
 
     def create_libs(self, force=False):
@@ -302,13 +297,8 @@ class PKIInstance(pki.server.PKIServer):
 
         dependencies = project.findall('{%s}dependencies/{%s}dependency' % (xmlns, xmlns))
 
-        logger.info('Creating %s', self.lib_dir)
         self.makedirs(self.lib_dir, force=force)
-
-        logger.info('Creating %s', self.common_dir)
         self.makedirs(self.common_dir, force=force)
-
-        logger.info('Creating %s', self.common_lib_dir)
         self.makedirs(self.common_lib_dir, force=force)
 
         for dependency in dependencies:

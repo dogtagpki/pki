@@ -61,39 +61,27 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
 
         # Create /var/log/pki/<instance>/<subsystem>
-        logger.info('Creating %s', deployer.mdict['pki_subsystem_log_path'])
         instance.makedirs(
             deployer.mdict['pki_subsystem_log_path'],
             exist_ok=True)
 
         # Create /var/log/pki/<instance>/<subsystem>/archive
-        logger.info('Creating %s', deployer.mdict['pki_subsystem_archive_log_path'])
         instance.makedirs(
             deployer.mdict['pki_subsystem_archive_log_path'],
             exist_ok=True)
 
         # Create /var/log/pki/<instance>/<subsystem>/signedAudit
-        logger.info('Creating %s', deployer.mdict['pki_subsystem_signed_audit_log_path'])
         instance.makedirs(
             deployer.mdict['pki_subsystem_signed_audit_log_path'],
             exist_ok=True)
 
         # Create /etc/pki/<instance>/<subsystem>
-        logger.info('Creating %s', deployer.mdict['pki_subsystem_configuration_path'])
         instance.makedirs(
             deployer.mdict['pki_subsystem_configuration_path'],
             exist_ok=True)
 
-        # Copy /usr/share/pki/<subsystem_type>/conf
-        # to /etc/pki/<instance>/<subsystem>
-        # logger.info('Creating %s', deployer.mdict['pki_subsystem_configuration_path'])
-        # instance.copy(
-        #   deployer.mdict['pki_source_conf_path'],
-        #   deployer.mdict['pki_subsystem_configuration_path'])
-
         # Copy /usr/share/pki/<subsystem>/conf/CS.cfg
         # to /etc/pki/<instance>/<subsystem>/CS.cfg
-        logger.info('Creating %s', deployer.mdict['pki_target_cs_cfg'])
         instance.copyfile(
             deployer.mdict['pki_source_cs_cfg'],
             deployer.mdict['pki_target_cs_cfg'],
@@ -102,7 +90,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
         # to /etc/pki/<instance>/<subsystem>/registry.cfg
-        logger.info('Creating %s', deployer.mdict['pki_target_registry_cfg'])
         instance.copy(
             deployer.mdict['pki_source_registry_cfg'],
             deployer.mdict['pki_target_registry_cfg'])
@@ -111,7 +98,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # Copy /usr/share/pki/ca/emails
             # to /etc/pki/<instance>/ca/emails
-            logger.info('Creating %s', deployer.mdict['pki_subsystem_emails_path'])
             instance.copy(
                 deployer.mdict['pki_source_emails'],
                 deployer.mdict['pki_subsystem_emails_path'])
@@ -120,12 +106,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # to /etc/pki/<instance>/ca/emails
             emails_path = os.path.join(instance.conf_dir, 'ca', 'emails')
             emails_link = os.path.join(instance.base_dir, 'ca', 'emails')
-            logger.info('Creating %s', emails_link)
             instance.symlink(emails_path, emails_link)
 
             # Copy /usr/share/pki/ca/profiles
             # to /etc/pki/<instance>/ca/profiles
-            logger.info('Creating %s', deployer.mdict['pki_subsystem_profiles_path'])
             instance.copy(
                 deployer.mdict['pki_source_profiles'],
                 deployer.mdict['pki_subsystem_profiles_path'])
@@ -134,61 +118,52 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # to /etc/pki/<instance>/ca/profiles
             profiles_path = os.path.join(instance.conf_dir, 'ca', 'profiles')
             profiles_link = os.path.join(instance.base_dir, 'ca', 'profiles')
-            logger.info('Creating %s', profiles_link)
             instance.symlink(profiles_path, profiles_link)
 
             # Copy /usr/share/pki/<subsystem>/conf/flatfile.txt
             # to /etc/pki/<instance>/<subsystem>/flatfile.txt
-            logger.info('Creating %s', deployer.mdict['pki_target_flatfile_txt'])
             instance.copy(
                 deployer.mdict['pki_source_flatfile_txt'],
                 deployer.mdict['pki_target_flatfile_txt'])
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>AdminCert.profile
             # to /etc/pki/<instance>/<subsystem>/adminCert.profile
-            logger.info('Creating %s', deployer.mdict['pki_target_admincert_profile'])
             instance.copy(
                 deployer.mdict['pki_source_admincert_profile'],
                 deployer.mdict['pki_target_admincert_profile'])
 
             # Copy /usr/share/pki/<subsystem>/conf/caAuditSigningCert.profile
             # to /etc/pki/<instance>/<subsystem>/caAuditSigningCert.profile
-            logger.info('Creating %s', deployer.mdict['pki_target_caauditsigningcert_profile'])
             instance.copy(
                 deployer.mdict['pki_source_caauditsigningcert_profile'],
                 deployer.mdict['pki_target_caauditsigningcert_profile'])
 
             # Copy /usr/share/pki/<subsystem>/conf/caCert.profile
             # to /etc/pki/<instance>/<subsystem>/caCert.profile
-            logger.info('Creating %s', deployer.mdict['pki_target_cacert_profile'])
             instance.copy(
                 deployer.mdict['pki_source_cacert_profile'],
                 deployer.mdict['pki_target_cacert_profile'])
 
             # Copy /usr/share/pki/<subsystem>/conf/caOCSPCert.profile
             # to /etc/pki/<instance>/<subsystem>/caOCSPCert.profile
-            logger.info('Creating %s', deployer.mdict['pki_target_caocspcert_profile'])
             instance.copy(
                 deployer.mdict['pki_source_caocspcert_profile'],
                 deployer.mdict['pki_target_caocspcert_profile'])
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>ServerCert.profile
             # to /etc/pki/<instance>/<subsystem>/serverCert.profile
-            logger.info('Creating %s', deployer.mdict['pki_target_servercert_profile'])
             instance.copy(
                 deployer.mdict['pki_source_servercert_profile'],
                 deployer.mdict['pki_target_servercert_profile'])
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>SubsystemCert.profile
             # to /etc/pki/<instance>/<subsystem>/subsystemCert.profile
-            logger.info('Creating %s', deployer.mdict['pki_target_subsystemcert_profile'])
             instance.copy(
                 deployer.mdict['pki_source_subsystemcert_profile'],
                 deployer.mdict['pki_target_subsystemcert_profile'])
 
             # Copy /usr/share/pki/<subsystem>/conf/proxy.conf
             # to /etc/pki/<instance>/<subsystem>/proxy.conf
-            logger.info('Creating %s', deployer.mdict['pki_target_proxy_conf'])
             instance.copyfile(
                 deployer.mdict['pki_source_proxy_conf'],
                 deployer.mdict['pki_target_proxy_conf'],
@@ -199,14 +174,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
             # to /etc/pki/<instance>/<subsystem>/registry.cfg
-            logger.info('Creating %s', deployer.mdict['pki_target_registry_cfg'])
             instance.copy(
                 deployer.mdict['pki_source_registry_cfg'],
                 deployer.mdict['pki_target_registry_cfg'])
 
             # Copy /usr/share/pki/<subsystem>/conf/phoneHome.xml
             # to /etc/pki/<instance>/<subsystem>/phoneHome.xml
-            logger.info('Creating %s', deployer.mdict['pki_target_phone_home_xml'])
             instance.copyfile(
                 deployer.mdict['pki_source_phone_home_xml'],
                 deployer.mdict['pki_target_phone_home_xml'],
@@ -215,21 +188,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /var/lib/pki/<instance>/<subsystem>/conf
         # to /etc/pki/<instance>/<subsystem>
-        logger.info('Creating %s', deployer.mdict['pki_subsystem_conf_link'])
         instance.symlink(
             deployer.mdict['pki_subsystem_configuration_path'],
             deployer.mdict['pki_subsystem_conf_link'])
 
         # Link /var/lib/pki/<instance>/<subsystem>/logs
         # to /var/log/pki/<instance>/<subsystem>
-        logger.info('Creating %s', deployer.mdict['pki_subsystem_logs_link'])
         instance.symlink(
             deployer.mdict['pki_subsystem_log_path'],
             deployer.mdict['pki_subsystem_logs_link'])
 
         # Link /var/lib/pki/<instance>/<subsystem>/registry
         # to /etc/sysconfig/pki/tomcat/<instance>
-        logger.info('Creating %s', deployer.mdict['pki_subsystem_registry_link'])
         instance.symlink(
             deployer.mdict['pki_instance_registry_path'],
             deployer.mdict['pki_subsystem_registry_link'])

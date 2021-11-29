@@ -73,7 +73,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.file.modify(deployer.mdict['pki_shared_password_conf'])
 
         if not os.path.isdir(deployer.mdict['pki_server_database_path']):
-            logger.info('Creating %s', deployer.mdict['pki_server_database_path'])
             instance.makedirs(deployer.mdict['pki_server_database_path'], force=True)
 
         nssdb = pki.nssdb.NSSDatabase(
