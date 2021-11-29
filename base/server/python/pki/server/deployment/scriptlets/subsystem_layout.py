@@ -350,8 +350,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         pki.util.rmtree(path=deployer.mdict['pki_subsystem_path'],
                         force=deployer.force)
 
-        # remove instance-based subsystem logs only if --remove-logs flag is specified
-        if deployer.mdict['pki_remove_logs']:
+        if deployer.remove_logs:
 
             logger.info('Removing %s', deployer.mdict['pki_subsystem_signed_audit_log_path'])
             pki.util.rmtree(

@@ -114,6 +114,7 @@ class PKIDeployer:
         self.request_timeout = None
 
         self.force = False
+        self.remove_logs = False
 
     def set_property(self, key, value, section=None):
 

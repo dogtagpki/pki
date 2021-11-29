@@ -288,8 +288,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         pki.util.rmtree(path=deployer.mdict['pki_instance_path'],
                         force=deployer.force)
 
-        # remove Tomcat instance logs only if --remove-logs is specified
-        if deployer.mdict['pki_remove_logs']:
+        if deployer.remove_logs:
+
             logger.info('Removing %s', deployer.mdict['pki_instance_log_path'])
             pki.util.rmtree(path=deployer.mdict['pki_instance_log_path'],
                             force=deployer.force)

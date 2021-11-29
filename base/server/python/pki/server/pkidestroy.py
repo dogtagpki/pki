@@ -94,7 +94,7 @@ def main(argv):
 
     parser.optional.add_argument(
         '--remove-logs',
-        dest='pki_remove_logs',
+        dest='remove_logs',
         action='store_true',
         help='remove subsystem logs'
     )
@@ -168,8 +168,8 @@ def main(argv):
     # --force
     deployer.force = args.force
 
-    #   '--remove-logs'
-    remove_logs = args.pki_remove_logs
+    # --remove-logs
+    deployer.remove_logs = args.remove_logs
 
     # verify that previously deployed instance exists
     deployed_pki_instance_path = os.path.join(
@@ -233,9 +233,6 @@ def main(argv):
         print('Uninstallation log: %s' % args.log_file)
 
     pkilogging.enable_pki_logger(args.log_file)
-
-    # Add remove logs to master dictionary
-    parser.mdict['pki_remove_logs'] = remove_logs
 
     logger.debug(log.PKI_DICTIONARY_MASTER)
     logger.debug(pkilogging.log_format(parser.mdict))
