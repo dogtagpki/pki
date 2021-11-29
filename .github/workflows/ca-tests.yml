@@ -1280,20 +1280,9 @@ jobs:
           docker exec pki bash -c "echo PWD:Secret.123 >> /etc/pki/pki-tomcat/ca/flatfile.txt"
           docker exec pki pki-server restart --wait
 
-      # https://github.com/dogtagpki/pki/wiki/Building-SSCEP
-      - name: Build SSCEP in client container
+      - name: Install SSCEP in client container
         run: |
-          docker exec client dnf install -y autoconf automake libtool openssl-devel rpm-build
-          docker exec client bash -c "mkdir -p ~/rpmbuild/SOURCES"
-          docker exec client curl -JLOSs https://github.com/certnanny/sscep/archive/v0.9.0/tags/sscep-0.9.0.tar.gz
-          docker exec client bash -c "mv sscep-0.9.0.tar.gz ~/rpmbuild/SOURCES"
-          docker exec client curl -JLOSs https://raw.githubusercontent.com/certnanny/sscep/v0.9.0/scripts/sscep.spec
-          docker exec client sed -i '/%build/ a ./bootstrap.sh' sscep.spec
-          docker exec client rpmbuild -ba sscep.spec
-          docker exec client bash -c "find ~/rpmbuild/RPMS -name *.rpm" > files
-          docker exec client dnf localinstall -y $(cat files)
-          docker exec client curl -JLOSs https://raw.githubusercontent.com/certnanny/sscep/v0.9.0/mkrequest
-          docker exec client chmod +x mkrequest
+          docker exec client dnf install -y sscep
 
       # https://github.com/dogtagpki/pki/wiki/Certificate-Enrollment-with-SSCEP
       - name: Get CA certificate using SSCEP
@@ -1305,7 +1294,7 @@ jobs:
 
       - name: Enroll certificate with IP address using SSCEP
         run: |
-          docker exec client ./mkrequest -ip $(cat client.ip) Secret.123
+          docker exec client mkrequest -ip $(cat client.ip) Secret.123
           docker exec client openssl req -text -noout -in local.csr
           docker exec client sscep enroll \
               -u http://pki.example.com:8080/ca/cgi-bin/pkiclient.exe \
