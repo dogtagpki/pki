@@ -24,6 +24,7 @@ import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
 import org.mozilla.jss.netscape.security.extensions.OCSPNoCheckExtension;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
@@ -33,6 +34,7 @@ import org.mozilla.jss.netscape.security.x509.CertificatePoliciesExtension;
 import org.mozilla.jss.netscape.security.x509.CertificatePolicyId;
 import org.mozilla.jss.netscape.security.x509.CertificatePolicyInfo;
 import org.mozilla.jss.netscape.security.x509.DNSName;
+import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
@@ -487,6 +489,65 @@ public class NSSExtensionGenerator {
         return new SubjectAlternativeNameExtension(generalNames);
     }
 
+    public Collection<Extension> createGenericExtensions() throws Exception {
+
+        String genericExtensions = getParameter("genericExtensions");
+        if (genericExtensions == null) return null;
+
+        List<String> oids = Arrays.asList(genericExtensions.split("\\s*,\\s*"));
+        List<Extension> extensions = new ArrayList<>();
+
+        for (String oid : oids) {
+            Extension extension = createGenericExtension(oid);
+            extensions.add(extension);
+        }
+
+        return extensions;
+    }
+
+    public Extension createGenericExtension(String oid) throws Exception {
+
+        logger.info("Creating " + oid + " extension:");
+
+        String value = getParameter(oid);
+        List<String> options = Arrays.asList(value.split("\\s*,\\s*"));
+        byte[] extValue = null;
+
+        boolean critical = false;
+
+        for (String option : options) {
+
+            if (option.equals("critical")) {
+                logger.info("- critical");
+                critical = true;
+                continue;
+            }
+
+            if (option.startsWith("DER:")) {
+                String hexValues = option.substring(4);
+                logger.info("- DER: " + hexValues);
+
+                String[] bytes = hexValues.split(":");
+                byte[] data = new byte[bytes.length];
+
+                for (int i=0; i<bytes.length; i++) {
+                    data[i] = (byte) Integer.parseInt(bytes[i], 16);
+                }
+
+                try (DerOutputStream os = new DerOutputStream()) {
+                    os.putOctetString(data);
+                    extValue = os.toByteArray();
+                }
+
+                continue;
+            }
+
+            throw new Exception("Unsupported option: " + option);
+        }
+
+        return new Extension(new ObjectIdentifier(oid), critical, extValue);
+    }
+
     public Extensions createExtensions() throws Exception {
         return createExtensions(null, null);
     }
@@ -540,6 +601,13 @@ public class NSSExtensionGenerator {
         SubjectAlternativeNameExtension sanExtension = createSANExtension(pkcs10);
         if (sanExtension != null) {
             extensions.parseExtension(sanExtension);
+        }
+
+        Collection<Extension> genericExtensions = createGenericExtensions();
+        if (genericExtensions != null) {
+            for (Extension extension : genericExtensions) {
+                extensions.parseExtension(extension);
+            }
         }
 
         return extensions;
