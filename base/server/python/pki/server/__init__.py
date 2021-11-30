@@ -630,9 +630,6 @@ grant codeBase "file:%s" {
         web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
         self.symlink(web_xml, self.web_xml, force=force)
 
-        conf_d_dir = os.path.join(self.conf_dir, 'conf.d')
-        self.makedirs(conf_d_dir, force=force)
-
         self.create_libs(force=force)
 
         self.makedirs(self.temp_dir, force=force)
