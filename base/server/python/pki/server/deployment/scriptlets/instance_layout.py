@@ -219,12 +219,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_tomcat_bin_path'],
             deployer.mdict['pki_tomcat_bin_link'])
 
-        # create systemd links
-        deployer.symlink.create(
-            deployer.mdict['pki_tomcat_systemd'],
-            deployer.mdict['pki_instance_systemd_link'],
-            uid=0, gid=0)
-
         user = deployer.mdict['pki_user']
         group = deployer.mdict['pki_group']
         if user != 'pkiuser' or group != 'pkiuser':
