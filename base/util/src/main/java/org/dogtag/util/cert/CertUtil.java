@@ -170,7 +170,7 @@ public class CertUtil {
 
             if (attrValues instanceof Extensions) {
                 Extensions extensions = (Extensions) attrValues;
-                return CertUtil.getSANExtension(extensions);
+                return getSANExtension(extensions);
             }
         }
 
@@ -214,6 +214,16 @@ public class CertUtil {
         return dnsNames;
     }
 
+    public static String getCommonName(X500Name name) throws Exception {
+        try {
+            return name.getCommonName();
+        } catch (NullPointerException e) {
+            // X500Name.getCommonName() throws NPE if the X.500 name is blank
+            // TODO: fix X500Name.getCommonName() to return null instead
+            return null;
+        }
+    }
+
     /**
      * Get DNS names from PKCS #10 request.
      */
@@ -222,28 +232,18 @@ public class CertUtil {
         Set<String> dnsNames = new HashSet<>();
 
         X500Name subjectDN = pkcs10.getSubjectName();
-        logger.info("Getting DNS name from subject DN: " + subjectDN);
+        logger.info("Getting CN from subject DN: " + subjectDN);
 
-        String cn;
-        try {
-            cn = subjectDN.getCommonName();
-
-        } catch (NullPointerException e) {
-            // X500Name.getCommonName() throws NPE if subject DN is blank
-            // TODO: fix X500Name.getCommonName() to return null
-            cn = null;
-        }
-
+        String cn = getCommonName(subjectDN);
         if (cn != null) {
             dnsNames.add(cn.toLowerCase());
         }
 
         logger.info("Getting SAN extension from CSR");
-        SubjectAlternativeNameExtension sanExtension = CertUtil.getSANExtension(pkcs10);
-
+        SubjectAlternativeNameExtension sanExtension = getSANExtension(pkcs10);
         if (sanExtension != null) {
             logger.info("Getting DNS names from SAN extension");
-            dnsNames.addAll(CertUtil.getDNSNames(sanExtension));
+            dnsNames.addAll(getDNSNames(sanExtension));
         }
 
         return dnsNames;
