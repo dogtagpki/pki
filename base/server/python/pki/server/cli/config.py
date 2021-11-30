@@ -33,8 +33,7 @@ logger = logging.getLogger(__name__)
 class SubsystemConfigCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemConfigCLI, self).__init__(
-            'config', '%s configuration management commands' % parent.name.upper())
+        super().__init__('config', '%s configuration management commands' % parent.name.upper())
 
         self.parent = parent
         self.add_module(SubsystemConfigFindCLI(self))
@@ -46,8 +45,7 @@ class SubsystemConfigCLI(pki.cli.CLI):
 class SubsystemConfigFindCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemConfigFindCLI, self).__init__(
-            'find', 'Find %s configuration parameters' % parent.parent.name.upper())
+        super().__init__('find', 'Find %s configuration parameters' % parent.parent.name.upper())
         self.parent = parent
 
     def print_help(self):
@@ -105,7 +103,7 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
 class SubsystemConfigShowCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemConfigShowCLI, self).__init__(
+        super().__init__(
             'show',
             'Show %s configuration parameter value' % parent.parent.name.upper())
         self.parent = parent
@@ -177,8 +175,9 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
 class SubsystemConfigSetCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemConfigSetCLI, self).__init__(
-            'set', 'Set %s configuration parameter value' % parent.parent.name.upper())
+        super().__init__(
+            'set',
+            'Set %s configuration parameter value' % parent.parent.name.upper())
         self.parent = parent
 
     def print_help(self):
@@ -252,8 +251,7 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
 class SubsystemConfigUnsetCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemConfigUnsetCLI, self).__init__(
-            'unset', 'Unset %s configuration parameter' % parent.parent.name.upper())
+        super().__init__('unset', 'Unset %s configuration parameter' % parent.parent.name.upper())
         self.parent = parent
 
     def print_help(self):

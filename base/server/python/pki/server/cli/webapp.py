@@ -32,8 +32,7 @@ import pki.server.instance
 class WebappCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(WebappCLI, self).__init__(
-            'webapp', 'Webapp management commands')
+        super().__init__('webapp', 'Webapp management commands')
 
         self.add_module(WebappFindCLI())
         self.add_module(WebappDeployCLI())
@@ -55,7 +54,7 @@ class WebappCLI(pki.cli.CLI):
 class WebappFindCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(WebappFindCLI, self).__init__('find', 'Find webapps')
+        super().__init__('find', 'Find webapps')
 
     def print_help(self):
         print('Usage: pki-server webapp-find [OPTIONS]')
@@ -122,7 +121,7 @@ class WebappFindCLI(pki.cli.CLI):
 class WebappDeployCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(WebappDeployCLI, self).__init__('deploy', 'Deploy webapp')
+        super().__init__('deploy', 'Deploy webapp')
 
     def print_help(self):
         print('Usage: pki-server webapp-deploy [OPTIONS] <webapp ID>')
@@ -215,7 +214,7 @@ class WebappDeployCLI(pki.cli.CLI):
 class WebappUndeployCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(WebappUndeployCLI, self).__init__('undeploy', 'Undeploy webapp')
+        super().__init__('undeploy', 'Undeploy webapp')
 
     def print_help(self):
         print('Usage: pki-server webapp-undeploy [OPTIONS] [<webapp ID>]')

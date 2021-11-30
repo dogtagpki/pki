@@ -35,8 +35,7 @@ logger = logging.getLogger(__name__)
 class PasswordCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(PasswordCLI, self).__init__(
-            'password', 'Password utilities')
+        super().__init__('password', 'Password utilities')
 
         self.add_module(PasswordGenerateCLI())
 
@@ -44,8 +43,7 @@ class PasswordCLI(pki.cli.CLI):
 class PasswordGenerateCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(PasswordGenerateCLI, self).__init__(
-            'generate', 'Generate secure random password')
+        super().__init__('generate', 'Generate secure random password')
 
     def print_help(self):
         print('Usage: pki password-generate [OPTIONS]')

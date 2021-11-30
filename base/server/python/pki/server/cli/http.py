@@ -35,8 +35,7 @@ import pki.util
 class HTTPCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(HTTPCLI, self).__init__(
-            'http', 'HTTP management commands')
+        super().__init__('http', 'HTTP management commands')
 
         self.add_module(HTTPConnectorCLI())
 
@@ -44,8 +43,7 @@ class HTTPCLI(pki.cli.CLI):
 class HTTPConnectorCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(HTTPConnectorCLI, self).__init__(
-            'connector', 'HTTP connector management commands')
+        super().__init__('connector', 'HTTP connector management commands')
 
         self.add_module(HTTPConnectorAddCLI())
         self.add_module(HTTPConnectorDeleteCLI())
@@ -99,7 +97,7 @@ class HTTPConnectorCLI(pki.cli.CLI):
 class HTTPConnectorAddCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(HTTPConnectorAddCLI, self).__init__('add', 'Add connector')
+        super().__init__('add', 'Add connector')
 
     def print_help(self):
         print('Usage: pki-server http-connector-add [OPTIONS] <connector ID>')
@@ -237,7 +235,7 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
 class HTTPConnectorDeleteCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(HTTPConnectorDeleteCLI, self).__init__('del', 'Delete connector')
+        super().__init__('del', 'Delete connector')
 
     def print_help(self):
         print('Usage: pki-server http-connector-del [OPTIONS] <connector ID>')
@@ -304,7 +302,7 @@ class HTTPConnectorDeleteCLI(pki.cli.CLI):
 class HTTPConnectorFindCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(HTTPConnectorFindCLI, self).__init__('find', 'Find connectors')
+        super().__init__('find', 'Find connectors')
 
     def print_help(self):
         print('Usage: pki-server http-connector-find [OPTIONS]')
@@ -375,7 +373,7 @@ class HTTPConnectorFindCLI(pki.cli.CLI):
 class HTTPConnectorShowCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(HTTPConnectorShowCLI, self).__init__('show', 'Show connector')
+        super().__init__('show', 'Show connector')
 
     def print_help(self):
         print('Usage: pki-server http-connector-show [OPTIONS] <connector ID>')
@@ -446,7 +444,7 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
 class HTTPConnectorModCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(HTTPConnectorModCLI, self).__init__('mod', 'Modify connector')
+        super().__init__('mod', 'Modify connector')
 
     def print_help(self):
         print('Usage: pki-server http-connector-mod [OPTIONS] <connector ID>')
@@ -638,8 +636,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 class SSLHostCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SSLHostCLI, self).__init__(
-            'host', 'SSL host configuration management commands')
+        super().__init__('host', 'SSL host configuration management commands')
 
         self.add_module(SSLHostAddCLI())
         self.add_module(SSLHostDeleteCLI())
@@ -662,7 +659,7 @@ class SSLHostCLI(pki.cli.CLI):
 class SSLHostAddCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SSLHostAddCLI, self).__init__('add', 'Add SSL host configuration')
+        super().__init__('add', 'Add SSL host configuration')
 
     def print_help(self):
         print('Usage: pki-server http-connector-host-add [OPTIONS] <connector ID> <hostname>')
@@ -766,7 +763,7 @@ class SSLHostAddCLI(pki.cli.CLI):
 class SSLHostDeleteCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SSLHostDeleteCLI, self).__init__('del', 'Delete SSL host configuration')
+        super().__init__('del', 'Delete SSL host configuration')
 
     def print_help(self):
         print('Usage: pki-server http-connector-host-del [OPTIONS] <connector ID> <hostname>')
@@ -842,7 +839,7 @@ class SSLHostDeleteCLI(pki.cli.CLI):
 class SSLHostFindCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SSLHostFindCLI, self).__init__('find', 'Find SSL host configurations')
+        super().__init__('find', 'Find SSL host configurations')
 
     def print_help(self):
         print('Usage: pki-server http-connector-sslhost-find [OPTIONS] <connector ID>')
@@ -923,8 +920,7 @@ class SSLHostFindCLI(pki.cli.CLI):
 class SSLCertCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SSLCertCLI, self).__init__(
-            'cert', 'SSL certificate configuration management commands')
+        super().__init__('cert', 'SSL certificate configuration management commands')
 
         self.add_module(SSLCertAddCLI())
         self.add_module(SSLCertDeleteCLI())
@@ -953,7 +949,7 @@ class SSLCertCLI(pki.cli.CLI):
 class SSLCertAddCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SSLCertAddCLI, self).__init__('add', 'Add SSL certificate configuration')
+        super().__init__('add', 'Add SSL certificate configuration')
 
     def print_help(self):
         print('Usage: pki-server http-connector-cert-add '
@@ -1091,7 +1087,7 @@ class SSLCertAddCLI(pki.cli.CLI):
 class SSLCertDeleteCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SSLCertDeleteCLI, self).__init__('del', 'Delete SSL certificate configuration')
+        super().__init__('del', 'Delete SSL certificate configuration')
 
     def print_help(self):
         print('Usage: pki-server http-connector-cert-del '
@@ -1176,7 +1172,7 @@ class SSLCertDeleteCLI(pki.cli.CLI):
 class SSLCertFindLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SSLCertFindLI, self).__init__('find', 'Find SSL certificate configurations')
+        super().__init__('find', 'Find SSL certificate configurations')
 
     def print_help(self):
         print('Usage: pki-server http-connector-cert-find '

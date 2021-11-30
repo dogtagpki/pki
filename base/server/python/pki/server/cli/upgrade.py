@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 class UpgradeCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(UpgradeCLI, self).__init__('upgrade', 'Upgrade PKI server')
+        super().__init__('upgrade', 'Upgrade PKI server')
 
     def usage(self):
         print('Usage: pki-server upgrade [OPTIONS] [<instance ID>]')

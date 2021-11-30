@@ -1702,7 +1702,7 @@ class PKISubsystem(object):
 class CASubsystem(PKISubsystem):
 
     def __init__(self, instance):
-        super(CASubsystem, self).__init__(instance, 'ca')
+        super().__init__(instance, 'ca')
 
     def get_profile_configs(self):
 
@@ -1854,13 +1854,13 @@ class CASubsystem(PKISubsystem):
 class KRASubsystem(PKISubsystem):
 
     def __init__(self, instance):
-        super(KRASubsystem, self).__init__(instance, 'kra')
+        super().__init__(instance, 'kra')
 
 
 class OCSPSubsystem(PKISubsystem):
 
     def __init__(self, instance):
-        super(OCSPSubsystem, self).__init__(instance, 'ocsp')
+        super().__init__(instance, 'ocsp')
 
     def find_crl_issuing_point(
             self,
@@ -1910,13 +1910,13 @@ class OCSPSubsystem(PKISubsystem):
 class TKSSubsystem(PKISubsystem):
 
     def __init__(self, instance):
-        super(TKSSubsystem, self).__init__(instance, 'tks')
+        super().__init__(instance, 'tks')
 
 
 class TPSSubsystem(PKISubsystem):
 
     def __init__(self, instance):
-        super(TPSSubsystem, self).__init__(instance, 'tps')
+        super().__init__(instance, 'tps')
 
 
 class PKISubsystemFactory(object):

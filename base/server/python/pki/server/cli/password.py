@@ -31,8 +31,7 @@ import pki.server.instance
 class PasswordCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(PasswordCLI, self).__init__(
-            'password', 'Password management commands')
+        super().__init__('password', 'Password management commands')
 
         self.add_module(PasswordFindCLI())
         self.add_module(PasswordAddCLI())
@@ -46,8 +45,7 @@ class PasswordCLI(pki.cli.CLI):
 class PasswordFindCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(PasswordFindCLI, self).__init__(
-            'find', 'Find passwords')
+        super().__init__('find', 'Find passwords')
 
     def print_help(self):
         print('Usage: pki-server password-find [OPTIONS]')
@@ -113,7 +111,7 @@ class PasswordFindCLI(pki.cli.CLI):
 class PasswordAddCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(PasswordAddCLI, self).__init__('add', 'Add password')
+        super().__init__('add', 'Add password')
 
     def print_help(self):
         print('Usage: pki-server password-add [OPTIONS] <password ID>')
@@ -185,7 +183,7 @@ class PasswordAddCLI(pki.cli.CLI):
 class PasswordRemoveCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(PasswordRemoveCLI, self).__init__('del', 'Remove password')
+        super().__init__('del', 'Remove password')
 
     def print_help(self):
         print('Usage: pki-server password-del [OPTIONS] <password ID>')

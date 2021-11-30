@@ -47,8 +47,7 @@ logger = logging.getLogger(__name__)
 
 class CertCLI(pki.cli.CLI):
     def __init__(self):
-        super(CertCLI, self).__init__('cert',
-                                      'System certificate management commands')
+        super().__init__('cert', 'System certificate management commands')
         self.add_module(CertFindCLI())
         self.add_module(CertShowCLI())
         self.add_module(CertUpdateCLI())
@@ -102,8 +101,7 @@ class CertCLI(pki.cli.CLI):
 
 class CertFindCLI(pki.cli.CLI):
     def __init__(self):
-        super(CertFindCLI, self).__init__(
-            'find', 'Find system certificates.')
+        super().__init__('find', 'Find system certificates.')
 
     def print_help(self):
         print('Usage: pki-server cert-find [OPTIONS]')
@@ -190,8 +188,7 @@ class CertFindCLI(pki.cli.CLI):
 
 class CertShowCLI(pki.cli.CLI):
     def __init__(self):
-        super(CertShowCLI, self).__init__(
-            'show', 'Display system certificate details.')
+        super().__init__('show', 'Display system certificate details.')
 
     def print_help(self):
         print('Usage: pki-server cert-show [OPTIONS] <cert ID>')
@@ -292,8 +289,7 @@ class CertShowCLI(pki.cli.CLI):
 
 class CertUpdateCLI(pki.cli.CLI):
     def __init__(self):
-        super(CertUpdateCLI, self).__init__(
-            'update', 'Update system certificate.')
+        super().__init__('update', 'Update system certificate.')
 
     def print_help(self):
         print('Usage: pki-server cert-update [OPTIONS] <cert ID>')
@@ -420,8 +416,7 @@ class CertUpdateCLI(pki.cli.CLI):
 
 class CertCreateCLI(pki.cli.CLI):
     def __init__(self):
-        super(CertCreateCLI, self).__init__(
-            'create', 'Create system certificate.')
+        super().__init__('create', 'Create system certificate.')
 
     def print_help(self):
         print('Usage: pki-server cert-create [OPTIONS] <Cert ID>')
@@ -598,8 +593,7 @@ class CertCreateCLI(pki.cli.CLI):
 
 class CertImportCLI(pki.cli.CLI):
     def __init__(self):
-        super(CertImportCLI, self).__init__(
-            'import', 'Import system certificate.')
+        super().__init__('import', 'Import system certificate.')
 
     def print_help(self):
         print('Usage: pki-server cert-import [OPTIONS] <Cert ID>')
@@ -678,8 +672,7 @@ class CertImportCLI(pki.cli.CLI):
 
 class CertExportCLI(pki.cli.CLI):
     def __init__(self):
-        super(CertExportCLI, self).__init__(
-            'export', 'Export system certificate.')
+        super().__init__('export', 'Export system certificate.')
 
     def print_help(self):
         print('Usage: pki-server cert-export [OPTIONS] <Cert ID>')
@@ -920,8 +913,7 @@ class CertExportCLI(pki.cli.CLI):
 
 class CertRemoveCLI(pki.cli.CLI):
     def __init__(self):
-        super(CertRemoveCLI, self).__init__(
-            'del', 'Remove system certificate.')
+        super().__init__('del', 'Remove system certificate.')
 
     def print_help(self):
         print('Usage: pki-server cert-del [OPTIONS] <Cert ID>')
@@ -995,8 +987,7 @@ class CertRemoveCLI(pki.cli.CLI):
 
 class CertFixCLI(pki.cli.CLI):
     def __init__(self):
-        super(CertFixCLI, self).__init__(
-            'fix', 'Fix expired system certificate(s).')
+        super().__init__('fix', 'Fix expired system certificate(s).')
 
     PKIDBUSER_LDIF_TEMPLATE = (
         "dn: {dn}\n"

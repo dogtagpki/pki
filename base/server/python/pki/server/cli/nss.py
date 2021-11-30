@@ -32,8 +32,7 @@ import pki.server.instance
 class NSSCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(NSSCLI, self).__init__(
-            'nss', 'NSS management commands')
+        super().__init__('nss', 'NSS management commands')
 
         self.add_module(NSSCreateCLI())
         self.add_module(NSSRemoveCLI())
@@ -42,8 +41,7 @@ class NSSCLI(pki.cli.CLI):
 class NSSCreateCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(NSSCreateCLI, self).__init__(
-            'create', 'Create NSS database in PKI server')
+        super().__init__('create', 'Create NSS database in PKI server')
 
     def print_help(self):
         print('Usage: pki-server nss-create [OPTIONS]')
@@ -137,8 +135,7 @@ class NSSCreateCLI(pki.cli.CLI):
 class NSSRemoveCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(NSSRemoveCLI, self).__init__(
-            'remove', 'Remove NSS database in PKI server')
+        super().__init__('remove', 'Remove NSS database in PKI server')
 
     def print_help(self):
         print('Usage: pki-server nss-remove [OPTIONS]')

@@ -35,8 +35,7 @@ logger = logging.getLogger(__name__)
 class BannerCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(BannerCLI, self).__init__('banner',
-                                        'Banner management commands')
+        super().__init__('banner', 'Banner management commands')
 
         self.add_module(BannerShowCLI())
         self.add_module(BannerValidateCLI())
@@ -45,7 +44,7 @@ class BannerCLI(pki.cli.CLI):
 class BannerShowCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(BannerShowCLI, self).__init__('show', 'Show banner')
+        super().__init__('show', 'Show banner')
 
     def usage(self):
         print('Usage: pki-server banner-show [OPTIONS]')
@@ -107,7 +106,7 @@ class BannerShowCLI(pki.cli.CLI):
 class BannerValidateCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(BannerValidateCLI, self).__init__('validate', 'Validate banner')
+        super().__init__('validate', 'Validate banner')
 
     def usage(self):
         print('Usage: pki-server banner-validate [OPTIONS]')

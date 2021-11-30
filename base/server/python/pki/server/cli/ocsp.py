@@ -44,8 +44,7 @@ logger = logging.getLogger(__name__)
 class OCSPCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(OCSPCLI, self).__init__(
-            'ocsp', 'OCSP management commands')
+        super().__init__('ocsp', 'OCSP management commands')
 
         self.add_module(pki.server.cli.subsystem.SubsystemDeployCLI(self))
         self.add_module(pki.server.cli.subsystem.SubsystemUndeployCLI(self))
@@ -61,8 +60,7 @@ class OCSPCLI(pki.cli.CLI):
 class OCSPCloneCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(OCSPCloneCLI, self).__init__(
-            'clone', 'OCSP clone management commands')
+        super().__init__('clone', 'OCSP clone management commands')
 
         self.add_module(OCSPClonePrepareCLI())
 
@@ -70,8 +68,7 @@ class OCSPCloneCLI(pki.cli.CLI):
 class OCSPClonePrepareCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(OCSPClonePrepareCLI, self).__init__(
-            'prepare', 'Prepare OCSP clone')
+        super().__init__('prepare', 'Prepare OCSP clone')
 
     def print_help(self):
         print('Usage: pki-server ocsp-clone-prepare [OPTIONS]')
@@ -180,8 +177,7 @@ class OCSPClonePrepareCLI(pki.cli.CLI):
 class OCSPCRLCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(OCSPCRLCLI, self).__init__(
-            'crl', 'OCSP CRL management commands')
+        super().__init__('crl', 'OCSP CRL management commands')
 
         self.add_module(OCSPCRLIssuingPointCLI())
 
@@ -189,8 +185,7 @@ class OCSPCRLCLI(pki.cli.CLI):
 class OCSPCRLIssuingPointCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(OCSPCRLIssuingPointCLI, self).__init__(
-            'issuingpoint', 'OCSP CRL issuing point management commands')
+        super().__init__('issuingpoint', 'OCSP CRL issuing point management commands')
 
         self.add_module(OCSPCRLIssuingPointFindCLI())
         self.add_module(OCSPCRLIssuingPointAddCLI())
@@ -199,9 +194,7 @@ class OCSPCRLIssuingPointCLI(pki.cli.CLI):
 class OCSPCRLIssuingPointFindCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(OCSPCRLIssuingPointFindCLI, self).__init__(
-            'find',
-            'Find OCSP CRL issuing points')
+        super().__init__('find', 'Find OCSP CRL issuing points')
 
     def print_help(self):
         print('Usage: pki-server ocsp-crl-issuingpoint-find [OPTIONS]')
@@ -268,9 +261,7 @@ class OCSPCRLIssuingPointFindCLI(pki.cli.CLI):
 class OCSPCRLIssuingPointAddCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(OCSPCRLIssuingPointAddCLI, self).__init__(
-            'add',
-            'Add OCSP CRL issuing point')
+        super().__init__('add', 'Add OCSP CRL issuing point')
 
     def print_help(self):
         print('Usage: pki-server ocsp-crl-issuingpoint-add [OPTIONS]')

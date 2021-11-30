@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 class SDCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SDCLI, self).__init__(
-            'sd', 'Security domain management commands')
+        super().__init__('sd', 'Security domain management commands')
 
         self.add_module(SDCreateCLI())
         self.add_module(SDHostCLI())
@@ -29,8 +28,7 @@ class SDCLI(pki.cli.CLI):
 class SDCreateCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SDCreateCLI, self).__init__(
-            'create', 'Create security domain')
+        super().__init__('create', 'Create security domain')
 
     def print_help(self):
         print('Usage: pki-server sd-create [OPTIONS]')
@@ -92,8 +90,7 @@ class SDCreateCLI(pki.cli.CLI):
 class SDHostCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SDHostCLI, self).__init__(
-            'host', 'Security domain host management commands')
+        super().__init__('host', 'Security domain host management commands')
 
         self.add_module(SDHostAddCLI())
 
@@ -101,8 +98,7 @@ class SDHostCLI(pki.cli.CLI):
 class SDHostAddCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SDHostAddCLI, self).__init__(
-            'add', 'Add security domain host')
+        super().__init__('add', 'Add security domain host')
 
     def print_help(self):
         print('Usage: pki-server sd-host-add [OPTIONS] <host ID>')

@@ -44,8 +44,7 @@ logger = logging.getLogger(__name__)
 class TPSCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(TPSCLI, self).__init__(
-            'tps', 'TPS management commands')
+        super().__init__('tps', 'TPS management commands')
 
         self.add_module(pki.server.cli.subsystem.SubsystemDeployCLI(self))
         self.add_module(pki.server.cli.subsystem.SubsystemUndeployCLI(self))
@@ -60,8 +59,7 @@ class TPSCLI(pki.cli.CLI):
 class TPSCloneCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(TPSCloneCLI, self).__init__(
-            'clone', 'TPS clone management commands')
+        super().__init__('clone', 'TPS clone management commands')
 
         self.add_module(TPSClonePrepareCLI())
 
@@ -69,8 +67,7 @@ class TPSCloneCLI(pki.cli.CLI):
 class TPSClonePrepareCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(TPSClonePrepareCLI, self).__init__(
-            'prepare', 'Prepare TPS clone')
+        super().__init__('prepare', 'Prepare TPS clone')
 
     def print_help(self):
         print('Usage: pki-server tps-clone-prepare [OPTIONS]')

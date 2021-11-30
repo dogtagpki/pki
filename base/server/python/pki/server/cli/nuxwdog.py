@@ -41,9 +41,7 @@ logger = logging.getLogger(__name__)
 class NuxwdogCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(NuxwdogCLI, self).__init__(
-            'nuxwdog',
-            'Nuxwdog related commands')
+        super().__init__('nuxwdog', 'Nuxwdog related commands')
         self.add_module(NuxwdogEnableCLI())
         self.add_module(NuxwdogDisableCLI())
 
@@ -58,9 +56,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
         self.nuxwdog_pwstore_class = (
             'com.netscape.cms.tomcat.NuxwdogPasswordStore'
         )
-        super(NuxwdogEnableCLI, self).__init__(
-            'enable',
-            'Enable nuxwdog')
+        super().__init__('enable', 'Enable nuxwdog')
 
     def print_help(self):
         print('Usage: pki-server nuxwdog-enable [OPTIONS]')
@@ -232,9 +228,7 @@ class NuxwdogDisableCLI(pki.cli.CLI):
         self.plain_pwstore_class = (
             'org.apache.tomcat.util.net.jss.PlainPasswordFile'
         )
-        super(NuxwdogDisableCLI, self).__init__(
-            'disable',
-            'Disable nuxwdog')
+        super().__init__('disable', 'Disable nuxwdog')
 
     def print_help(self):
         print('Usage: pki-server nuxwdog-disable [OPTIONS]')

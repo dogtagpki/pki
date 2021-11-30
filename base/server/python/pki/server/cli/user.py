@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 class UserCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(UserCLI, self).__init__(
-            'user', '%s user management commands' % parent.name.upper())
+        super().__init__('user', '%s user management commands' % parent.name.upper())
 
         self.parent = parent
 
@@ -37,9 +36,7 @@ class UserCLI(pki.cli.CLI):
 class UserAddCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(UserAddCLI, self).__init__(
-            'add',
-            'Add %s user' % parent.parent.name.upper())
+        super().__init__('add', 'Add %s user' % parent.parent.name.upper())
 
         self.parent = parent
 
@@ -168,9 +165,7 @@ class UserAddCLI(pki.cli.CLI):
 class UserFindCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(UserFindCLI, self).__init__(
-            'find',
-            'Find %s users' % parent.parent.name.upper())
+        super().__init__('find', 'Find %s users' % parent.parent.name.upper())
 
         self.parent = parent
 
@@ -271,9 +266,7 @@ class UserFindCLI(pki.cli.CLI):
 class UserModifyCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(UserModifyCLI, self).__init__(
-            'mod',
-            'Modify %s user' % parent.parent.name.upper())
+        super().__init__('mod', 'Modify %s user' % parent.parent.name.upper())
 
         self.parent = parent
 
@@ -371,7 +364,7 @@ class UserRemoveCLI(pki.cli.CLI):
     '''
 
     def __init__(self, parent):
-        super(UserRemoveCLI, self).__init__(
+        super().__init__(
             'del',
             inspect.cleandoc(self.__class__.__doc__).format(
                 subsystem=parent.parent.name.upper()))
@@ -443,9 +436,7 @@ class UserRemoveCLI(pki.cli.CLI):
 class UserShowCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(UserShowCLI, self).__init__(
-            'show',
-            'Display %s user' % parent.parent.name.upper())
+        super().__init__('show', 'Display %s user' % parent.parent.name.upper())
 
         self.parent = parent
 
@@ -540,9 +531,7 @@ class UserShowCLI(pki.cli.CLI):
 class UserCertCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(UserCertCLI, self).__init__(
-            'cert',
-            '%s user cert management commands' % parent.parent.name.upper())
+        super().__init__('cert', '%s user cert management commands' % parent.parent.name.upper())
 
         self.parent = parent
         self.add_module(UserCertAddCLI(self))
@@ -551,9 +540,7 @@ class UserCertCLI(pki.cli.CLI):
 class UserCertAddCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(UserCertAddCLI, self).__init__(
-            'add',
-            'Add %s user cert' % parent.parent.parent.name.upper())
+        super().__init__('add', 'Add %s user cert' % parent.parent.parent.name.upper())
 
         self.parent = parent
 

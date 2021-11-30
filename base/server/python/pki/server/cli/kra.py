@@ -45,8 +45,7 @@ logger = logging.getLogger(__name__)
 class KRACLI(pki.cli.CLI):
 
     def __init__(self):
-        super(KRACLI, self).__init__(
-            'kra', 'KRA management commands')
+        super().__init__('kra', 'KRA management commands')
 
         self.add_module(pki.server.cli.subsystem.SubsystemDeployCLI(self))
         self.add_module(pki.server.cli.subsystem.SubsystemUndeployCLI(self))
@@ -62,8 +61,7 @@ class KRACLI(pki.cli.CLI):
 class KRACloneCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(KRACloneCLI, self).__init__(
-            'clone', 'KRA clone management commands')
+        super().__init__('clone', 'KRA clone management commands')
 
         self.add_module(KRAClonePrepareCLI())
 
@@ -71,8 +69,7 @@ class KRACloneCLI(pki.cli.CLI):
 class KRAClonePrepareCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(KRAClonePrepareCLI, self).__init__(
-            'prepare', 'Prepare KRA clone')
+        super().__init__('prepare', 'Prepare KRA clone')
 
     def print_help(self):
         print('Usage: pki-server kra-clone-prepare [OPTIONS]')

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class GroupCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(GroupCLI, self).__init__(
+        super().__init__(
             'group', '%s group management commands' % parent.name.upper())
 
         self.parent = parent
@@ -29,7 +29,7 @@ class GroupCLI(pki.cli.CLI):
 class GroupFindCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(GroupFindCLI, self).__init__(
+        super().__init__(
             'find',
             'Find %s groups' % parent.parent.name.upper())
 
@@ -97,7 +97,7 @@ class GroupFindCLI(pki.cli.CLI):
 class GroupMemberCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(GroupMemberCLI, self).__init__(
+        super().__init__(
             'member', '%s group member management commands' % parent.name.upper())
 
         self.parent = parent
@@ -108,7 +108,7 @@ class GroupMemberCLI(pki.cli.CLI):
 class GroupMemberFindCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(GroupMemberFindCLI, self).__init__(
+        super().__init__(
             'find',
             'Find %s group members' % parent.parent.parent.name.upper())
 
@@ -194,7 +194,7 @@ class GroupMemberFindCLI(pki.cli.CLI):
 class GroupMemberAddCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(GroupMemberAddCLI, self).__init__(
+        super().__init__(
             'add',
             'Add %s group member' % parent.parent.parent.name.upper())
 

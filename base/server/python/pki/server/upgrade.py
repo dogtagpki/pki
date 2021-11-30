@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
     def __init__(self):
-        super(PKIServerUpgradeScriptlet, self).__init__()
+        super().__init__()
         self.instance = None
 
     def get_backup_dir(self):
@@ -55,7 +55,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def __init__(self, instance, upgrade_dir=UPGRADE_DIR):
 
-        super(PKIServerUpgrader, self).__init__(upgrade_dir)
+        super().__init__(upgrade_dir)
 
         self.instance = instance
         self.tracker = None
@@ -91,7 +91,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def init_scriptlet(self, scriptlet):
         scriptlet.instance = self.instance
-        super(PKIServerUpgrader, self).init_scriptlet(scriptlet)
+        super().init_scriptlet(scriptlet)
 
     def run_scriptlet(self, scriptlet):
 
