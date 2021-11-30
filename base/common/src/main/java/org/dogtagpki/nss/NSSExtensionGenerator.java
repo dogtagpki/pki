@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,6 @@ import org.mozilla.jss.netscape.security.x509.CertificatePolicyInfo;
 import org.mozilla.jss.netscape.security.x509.DNSName;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
-import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
@@ -43,6 +43,7 @@ import org.mozilla.jss.netscape.security.x509.PolicyQualifiers;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.URIName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
@@ -440,19 +441,47 @@ public class NSSExtensionGenerator {
 
         if (pkcs10 == null) return null;
 
-        logger.info("Getting DNS names from CSR");
-        Set<String> dnsNames = CertUtil.getDNSNames(pkcs10);
-        if (dnsNames.isEmpty()) return null;
+        String subjectAltName = getParameter("subjectAltName");
+        if (subjectAltName == null) return null;
+
+        List<String> options = Arrays.asList(subjectAltName.split("\\s*,\\s*"));
+        Set<String> dnsNames = new HashSet<>();
+
+        for (String option : options) {
+
+            if (option.equals("DNS:request_subject_cn")) {
+                X500Name subjectName = pkcs10.getSubjectName();
+                logger.info("Getting CN from subject name: " + subjectName);
+
+                String cn = CertUtil.getCommonName(subjectName);
+                if (cn != null) {
+                    cn = cn.toLowerCase();
+                    logger.info("- DNS:" + cn);
+                    dnsNames.add(cn);
+                }
+            }
+
+            if (option.equals("DNS:request_san_ext")) {
+                logger.info("Getting SAN extension from CSR");
+                SubjectAlternativeNameExtension sanExtension = CertUtil.getSANExtension(pkcs10);
+
+                if (sanExtension != null) {
+                    logger.info("Getting DNS names from SAN extension");
+                    Set<String> names = CertUtil.getDNSNames(sanExtension);
+
+                    for (String name : names) {
+                        logger.info("- DNS:" + name);
+                        dnsNames.add(name);
+                    }
+                }
+            }
+        }
 
         logger.info("Converting DNS names to general names");
-        GeneralNameInterface[] generalName = new GeneralNameInterface[dnsNames.size()];
-        int i = 0;
-        for (String dnsName : dnsNames) {
-            logger.info("- " + dnsName);
-            generalName[i] = new DNSName(dnsName);
-            i++;
+        GeneralNames generalNames = new GeneralNames();
+        for (String name : dnsNames) {
+            generalNames.add(new DNSName(name));
         }
-        GeneralNames generalNames = new GeneralNames(generalName);
 
         logger.info("Creating SAN extension");
         return new SubjectAlternativeNameExtension(generalNames);
