@@ -37,8 +37,7 @@ logger = logging.getLogger(__name__)
 class DBCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(DBCLI, self).__init__(
-            'db', 'Database management commands')
+        super().__init__('db', 'Database management commands')
 
         self.add_module(DBUpgradeCLI())
         self.add_module(DBSchemaUpgradeCLI())
@@ -47,8 +46,7 @@ class DBCLI(pki.cli.CLI):
 class DBSchemaUpgradeCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(DBSchemaUpgradeCLI, self).__init__(
-            'schema-upgrade', 'Upgrade PKI database schema')
+        super().__init__('schema-upgrade', 'Upgrade PKI database schema')
 
     def print_help(self):
         print('Usage: pki-server db-schema-upgrade [OPTIONS]')
@@ -133,7 +131,7 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
 class DBUpgradeCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(DBUpgradeCLI, self).__init__('upgrade', 'Upgrade PKI server database')
+        super().__init__('upgrade', 'Upgrade PKI server database')
 
     def print_help(self):
         print('Usage: pki-server db-upgrade [OPTIONS]')
@@ -210,9 +208,7 @@ class DBUpgradeCLI(pki.cli.CLI):
 class SubsystemDBCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemDBCLI, self).__init__(
-            'db',
-            '%s database management commands' % parent.name.upper())
+        super().__init__('db', '%s database management commands' % parent.name.upper())
 
         self.parent = parent
         self.add_module(SubsystemDBConfigCLI(self))
@@ -271,7 +267,7 @@ class SubsystemDBCLI(pki.cli.CLI):
 class SubsystemDBConfigCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemDBConfigCLI, self).__init__(
+        super().__init__(
             'config',
             '%s database configuration management commands' % parent.parent.name.upper())
 
@@ -283,7 +279,7 @@ class SubsystemDBConfigCLI(pki.cli.CLI):
 class SubsystemDBConfigShowCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemDBConfigShowCLI, self).__init__(
+        super().__init__(
             'show',
             'Display %s database configuration' % parent.parent.parent.name.upper())
 
@@ -351,7 +347,7 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
 class SubsystemDBConfigModifyCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemDBConfigModifyCLI, self).__init__(
+        super().__init__(
             'mod',
             'Modify %s database configuration' % parent.parent.parent.name.upper())
 
@@ -543,9 +539,7 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
 class SubsystemDBInfoCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemDBInfoCLI, self).__init__(
-            'info',
-            'Display %s database info' % parent.parent.name.upper())
+        super().__init__('info', 'Display %s database info' % parent.parent.name.upper())
 
         self.parent = parent
 
@@ -621,9 +615,7 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
 class SubsystemDBEmptyCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemDBEmptyCLI, self).__init__(
-            'empty',
-            'Empty %s database' % parent.parent.name.upper())
+        super().__init__('empty', 'Empty %s database' % parent.parent.name.upper())
 
         self.parent = parent
 
@@ -702,9 +694,7 @@ class SubsystemDBEmptyCLI(pki.cli.CLI):
 class SubsystemDBRemoveCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemDBRemoveCLI, self).__init__(
-            'remove',
-            'Remove %s database' % parent.parent.name.upper())
+        super().__init__('remove', 'Remove %s database' % parent.parent.name.upper())
 
         self.parent = parent
 

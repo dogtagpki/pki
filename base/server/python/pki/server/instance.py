@@ -60,8 +60,7 @@ class PKIInstance(pki.server.PKIServer):
                  group='pkiuser',
                  version=10):
 
-        super(PKIInstance, self).__init__(
-            name, instance_type, user, group)
+        super().__init__(name, instance_type, user, group)
 
         self.version = version
 
@@ -222,7 +221,7 @@ class PKIInstance(pki.server.PKIServer):
             logger.debug('Command: %s', ' '.join(cmd))
             subprocess.run(cmd, env=self.config, check=True)
 
-        return super(PKIInstance, self).execute(
+        return super().execute(
             command,
             as_current_user=as_current_user,
             with_jdb=with_jdb,
@@ -232,7 +231,7 @@ class PKIInstance(pki.server.PKIServer):
 
     def create(self, force=False):
 
-        super(PKIInstance, self).create(force=force)
+        super().create(force=force)
 
         logs_link = os.path.join(self.base_dir, 'logs')
         self.symlink(self.log_dir, logs_link, force=force)
@@ -254,7 +253,7 @@ class PKIInstance(pki.server.PKIServer):
 
     def create_conf_dir(self, force=False):
 
-        super(PKIInstance, self).create_conf_dir(force=force)
+        super().create_conf_dir(force=force)
 
         conf_link = os.path.join(self.base_dir, 'conf')
         self.symlink(self.conf_dir, conf_link, force=force)
@@ -268,7 +267,7 @@ class PKIInstance(pki.server.PKIServer):
     def create_libs(self, force=False):
 
         if not self.with_maven_deps:
-            super(PKIInstance, self).create_libs(force=force)
+            super().create_libs(force=force)
             return
 
         logger.info('Updating Maven dependencies')
@@ -347,7 +346,7 @@ class PKIInstance(pki.server.PKIServer):
 
     def load(self):
 
-        super(PKIInstance, self).load()
+        super().load()
 
         # load UID and GID
         if os.path.exists(self.registry_file):
@@ -389,7 +388,7 @@ class PKIInstance(pki.server.PKIServer):
         logger.info('Removing %s', logs_link)
         pki.util.unlink(logs_link, force=force)
 
-        super(PKIInstance, self).remove(force=force)
+        super().remove(force=force)
 
     def remove_libs(self, force=False):
 
@@ -408,7 +407,7 @@ class PKIInstance(pki.server.PKIServer):
         logger.info('Removing %s', conf_link)
         pki.util.unlink(conf_link, force=force)
 
-        super(PKIInstance, self).remove_conf_dir(force=force)
+        super().remove_conf_dir(force=force)
 
     @staticmethod
     def read_external_certs(conf_file):
@@ -504,7 +503,7 @@ class PKIInstance(pki.server.PKIServer):
 
     def get_sslserver_cert_nickname(self):
 
-        nickname = super(PKIInstance, self).get_sslserver_cert_nickname()
+        nickname = super().get_sslserver_cert_nickname()
 
         if nickname:
             return nickname
@@ -518,7 +517,7 @@ class PKIInstance(pki.server.PKIServer):
 
     def set_sslserver_cert_nickname(self, nickname, token=None):
 
-        super(PKIInstance, self).set_sslserver_cert_nickname(nickname, token)
+        super().set_sslserver_cert_nickname(nickname, token)
 
         if pki.nssdb.normalize_token(token):
             fullname = token + ':' + nickname
@@ -845,7 +844,7 @@ class PKIInstance(pki.server.PKIServer):
             shutil.rmtree(tmpdir)
 
     def init(self):
-        super(PKIInstance, self).init()
+        super().init()
         self.validate_banner()
 
     @classmethod

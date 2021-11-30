@@ -44,8 +44,7 @@ logger = logging.getLogger(__name__)
 class TKSCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(TKSCLI, self).__init__(
-            'tks', 'TKS management commands')
+        super().__init__('tks', 'TKS management commands')
 
         self.add_module(pki.server.cli.subsystem.SubsystemDeployCLI(self))
         self.add_module(pki.server.cli.subsystem.SubsystemUndeployCLI(self))
@@ -60,8 +59,7 @@ class TKSCLI(pki.cli.CLI):
 class TKSCloneCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(TKSCloneCLI, self).__init__(
-            'clone', 'TKS clone management commands')
+        super().__init__('clone', 'TKS clone management commands')
 
         self.add_module(TKSClonePrepareCLI())
 
@@ -69,8 +67,7 @@ class TKSCloneCLI(pki.cli.CLI):
 class TKSClonePrepareCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(TKSClonePrepareCLI, self).__init__(
-            'prepare', 'Prepare TKS clone')
+        super().__init__('prepare', 'Prepare TKS clone')
 
     def print_help(self):
         print('Usage: pki-server tks-clone-prepare [OPTIONS]')

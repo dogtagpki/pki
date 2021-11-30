@@ -38,8 +38,7 @@ logger = logging.getLogger(__name__)
 class AuditCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(AuditCLI, self).__init__(
-            'audit', 'Audit management commands')
+        super().__init__('audit', 'Audit management commands')
 
         self.parent = parent
         self.add_module(AuditConfigShowCLI(self))
@@ -93,8 +92,7 @@ class AuditCLI(pki.cli.CLI):
 class AuditConfigShowCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(AuditConfigShowCLI, self).__init__(
-            'config-show', 'Display audit configuration')
+        super().__init__('config-show', 'Display audit configuration')
         self.parent = parent
 
     def print_help(self):
@@ -159,8 +157,7 @@ class AuditConfigShowCLI(pki.cli.CLI):
 class AuditConfigModifyCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(AuditConfigModifyCLI, self).__init__(
-            'config-mod', 'Modify audit configuration')
+        super().__init__('config-mod', 'Modify audit configuration')
         self.parent = parent
 
     def print_help(self):
@@ -327,8 +324,7 @@ class AuditConfigModifyCLI(pki.cli.CLI):
 class AuditEventFindCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(AuditEventFindCLI, self).__init__(
-            'event-find', 'Find audit event configurations')
+        super().__init__('event-find', 'Find audit event configurations')
 
         self.parent = parent
 
@@ -424,8 +420,7 @@ class AuditEventFindCLI(pki.cli.CLI):
 class AuditEventShowCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(AuditEventShowCLI, self).__init__(
-            'event-show', 'Show audit event configuration')
+        super().__init__('event-show', 'Show audit event configuration')
 
         self.parent = parent
 
@@ -502,8 +497,7 @@ class AuditEventShowCLI(pki.cli.CLI):
 class AuditEventEnableCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(AuditEventEnableCLI, self).__init__(
-            'event-enable', 'Enable audit event configurations')
+        super().__init__('event-enable', 'Enable audit event configurations')
 
         self.parent = parent
 
@@ -591,8 +585,7 @@ class AuditEventEnableCLI(pki.cli.CLI):
 class AuditEventUpdateCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(AuditEventUpdateCLI, self).__init__(
-            'event-update', 'Update audit event configurations')
+        super().__init__('event-update', 'Update audit event configurations')
 
         self.parent = parent
 
@@ -675,8 +668,7 @@ class AuditEventUpdateCLI(pki.cli.CLI):
 class AuditEventDisableCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(AuditEventDisableCLI, self).__init__(
-            'event-disable', 'Disable audit event configurations')
+        super().__init__('event-disable', 'Disable audit event configurations')
 
         self.parent = parent
 
@@ -765,8 +757,7 @@ class AuditEventDisableCLI(pki.cli.CLI):
 class AuditFileFindCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(AuditFileFindCLI, self).__init__(
-            'file-find', 'Find audit log files')
+        super().__init__('file-find', 'Find audit log files')
 
         self.parent = parent
 
@@ -843,8 +834,7 @@ class AuditFileFindCLI(pki.cli.CLI):
 class AuditFileVerifyCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(AuditFileVerifyCLI, self).__init__(
-            'file-verify', 'Verify audit log files')
+        super().__init__('file-verify', 'Verify audit log files')
 
         self.parent = parent
 

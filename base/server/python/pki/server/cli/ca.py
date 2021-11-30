@@ -45,8 +45,7 @@ logger = logging.getLogger(__name__)
 class CACLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CACLI, self).__init__(
-            'ca', 'CA management commands')
+        super().__init__('ca', 'CA management commands')
 
         self.add_module(pki.server.cli.subsystem.SubsystemDeployCLI(self))
         self.add_module(pki.server.cli.subsystem.SubsystemUndeployCLI(self))
@@ -64,8 +63,7 @@ class CACLI(pki.cli.CLI):
 class CACertCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CACertCLI, self).__init__(
-            'cert', 'CA certificates management commands')
+        super().__init__('cert', 'CA certificates management commands')
 
         self.add_module(CACertFindCLI())
         self.add_module(CACertRemoveCLI())
@@ -76,8 +74,7 @@ class CACertCLI(pki.cli.CLI):
 class CACertFindCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CACertFindCLI, self).__init__(
-            'find', 'Find certificates in CA')
+        super().__init__('find', 'Find certificates in CA')
 
     def print_help(self):
         print('Usage: pki-server ca-cert-find [OPTIONS]')
@@ -139,8 +136,7 @@ class CACertFindCLI(pki.cli.CLI):
 class CACertRemoveCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CACertRemoveCLI, self).__init__(
-            'del', 'Remove certificate in CA')
+        super().__init__('del', 'Remove certificate in CA')
 
     def print_help(self):
         print('Usage: pki-server ca-cert-remove [OPTIONS] <serial number>')
@@ -208,8 +204,7 @@ class CACertRemoveCLI(pki.cli.CLI):
 class CACertChainCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CACertChainCLI, self).__init__(
-            'chain', 'CA certificate chain management commands')
+        super().__init__('chain', 'CA certificate chain management commands')
 
         self.add_module(CACertChainExportCLI())
 
@@ -217,8 +212,7 @@ class CACertChainCLI(pki.cli.CLI):
 class CACertChainExportCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CACertChainExportCLI, self).__init__(
-            'export', 'Export certificate chain')
+        super().__init__('export', 'Export certificate chain')
 
     def print_help(self):
         print('Usage: pki-server ca-cert-chain-export [OPTIONS]')
@@ -316,8 +310,7 @@ class CACertChainExportCLI(pki.cli.CLI):
 class CACertRequestCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CACertRequestCLI, self).__init__(
-            'request', 'CA certificate requests management commands')
+        super().__init__('request', 'CA certificate requests management commands')
 
         self.add_module(CACertRequestFindCLI())
         self.add_module(CACertRequestShowCLI())
@@ -335,8 +328,7 @@ class CACertRequestCLI(pki.cli.CLI):
 class CACertRequestFindCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CACertRequestFindCLI, self).__init__(
-            'find', 'Find CA certificate requests')
+        super().__init__('find', 'Find CA certificate requests')
 
     def print_help(self):
         print('Usage: pki-server ca-cert-request-find [OPTIONS]')
@@ -419,8 +411,7 @@ class CACertRequestFindCLI(pki.cli.CLI):
 class CACertRequestShowCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CACertRequestShowCLI, self).__init__(
-            'show', 'Show CA certificate request')
+        super().__init__('show', 'Show CA certificate request')
 
     def print_help(self):
         print('Usage: pki-server ca-cert-request-show [OPTIONS] <request ID>')
@@ -500,8 +491,7 @@ class CACertRequestShowCLI(pki.cli.CLI):
 class CACloneCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CACloneCLI, self).__init__(
-            'clone', 'CA clone management commands')
+        super().__init__('clone', 'CA clone management commands')
 
         self.add_module(CAClonePrepareCLI())
 
@@ -509,8 +499,7 @@ class CACloneCLI(pki.cli.CLI):
 class CAClonePrepareCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CAClonePrepareCLI, self).__init__(
-            'prepare', 'Prepare CA clone')
+        super().__init__('prepare', 'Prepare CA clone')
 
     def print_help(self):
         print('Usage: pki-server ca-clone-prepare [OPTIONS]')
@@ -623,8 +612,7 @@ class CAClonePrepareCLI(pki.cli.CLI):
 class CAProfileCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CAProfileCLI, self).__init__(
-            'profile', 'CA profile management commands')
+        super().__init__('profile', 'CA profile management commands')
 
         self.add_module(CAProfileImportCLI())
 
@@ -632,8 +620,7 @@ class CAProfileCLI(pki.cli.CLI):
 class CAProfileImportCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CAProfileImportCLI, self).__init__(
-            'import', 'Import CA profiles')
+        super().__init__('import', 'Import CA profiles')
 
     def print_help(self):
         print('Usage: pki-server ca-profile-import [OPTIONS]')

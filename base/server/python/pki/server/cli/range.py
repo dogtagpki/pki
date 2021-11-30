@@ -18,8 +18,9 @@ logger = logging.getLogger(__name__)
 class RangeCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(RangeCLI, self).__init__(
-            'range', '%s range configuration management commands' % parent.name.upper())
+        super().__init__(
+            'range',
+            '%s range configuration management commands' % parent.name.upper())
 
         self.parent = parent
         self.add_module(RangeShowCLI(self))
@@ -30,9 +31,7 @@ class RangeCLI(pki.cli.CLI):
 class RangeShowCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(RangeShowCLI, self).__init__(
-            'show',
-            'Display %s range configuration' % parent.parent.name.upper())
+        super().__init__('show', 'Display %s range configuration' % parent.parent.name.upper())
 
         self.parent = parent
 
@@ -108,9 +107,7 @@ class RangeShowCLI(pki.cli.CLI):
 class RangeRequestCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(RangeRequestCLI, self).__init__(
-            'request',
-            'Request ranges from %s master' % parent.parent.name.upper())
+        super().__init__('request', 'Request ranges from %s master' % parent.parent.name.upper())
 
         self.parent = parent
 
@@ -201,9 +198,7 @@ class RangeRequestCLI(pki.cli.CLI):
 class RangeUpdateCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(RangeUpdateCLI, self).__init__(
-            'update',
-            'Update %s ranges' % parent.parent.name.upper())
+        super().__init__('update', 'Update %s ranges' % parent.parent.name.upper())
 
         self.parent = parent
 

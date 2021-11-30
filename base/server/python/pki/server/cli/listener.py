@@ -31,8 +31,7 @@ import pki.server.instance
 class ListenerCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ListenerCLI, self).__init__(
-            'listener', 'Listener management commands')
+        super().__init__('listener', 'Listener management commands')
 
         self.add_module(ListenerFindCLI())
 
@@ -48,8 +47,7 @@ class ListenerCLI(pki.cli.CLI):
 class ListenerFindCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ListenerFindCLI, self).__init__(
-            'find', 'Find listeners')
+        super().__init__('find', 'Find listeners')
 
     def print_help(self):
         print('Usage: pki-server listener-find [OPTIONS]')

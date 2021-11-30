@@ -32,16 +32,14 @@ import pki.server.instance
 
 class SelfTestCLI(pki.cli.CLI):
     def __init__(self):
-        super(SelfTestCLI, self).__init__('selftest',
-                                          'Selftest management commands')
+        super().__init__('selftest', 'Selftest management commands')
         self.add_module(EnableSelfTestCLI())
         self.add_module(DisableSelftestCLI())
 
 
 class EnableSelfTestCLI(pki.cli.CLI):
     def __init__(self):
-        super(EnableSelfTestCLI, self).__init__(
-            'enable', 'Enable selftests.')
+        super().__init__('enable', 'Enable selftests.')
 
     def print_help(self):
         print('Usage: pki-server selftest-enable [OPTIONS] [<Selftest ID>]')
@@ -120,8 +118,7 @@ class EnableSelfTestCLI(pki.cli.CLI):
 
 class DisableSelftestCLI(pki.cli.CLI):
     def __init__(self):
-        super(DisableSelftestCLI, self).__init__(
-            'disable', 'Disable selftests.')
+        super().__init__('disable', 'Disable selftests.')
 
     def print_help(self):
         print('Usage: pki-server selftest-disable [OPTIONS] [<Selftest ID>]')

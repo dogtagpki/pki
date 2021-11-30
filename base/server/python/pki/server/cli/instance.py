@@ -40,8 +40,7 @@ logger = logging.getLogger(__name__)
 class InstanceCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceCLI, self).__init__('instance',
-                                          'Instance management commands')
+        super().__init__('instance', 'Instance management commands')
 
         self.add_module(InstanceCertCLI())
         self.add_module(InstanceFindCLI())
@@ -63,8 +62,7 @@ class InstanceCLI(pki.cli.CLI):
 class InstanceCertCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceCertCLI, self).__init__(
-            'cert', 'Instance certificate management commands')
+        super().__init__('cert', 'Instance certificate management commands')
 
         self.add_module(InstanceCertExportCLI())
 
@@ -72,8 +70,7 @@ class InstanceCertCLI(pki.cli.CLI):
 class InstanceCertExportCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceCertExportCLI, self).__init__(
-            'export', 'Export system certificates')
+        super().__init__('export', 'Export system certificates')
 
     def print_help(self):
         print('Usage: pki-server instance-cert-export [OPTIONS] [nicknames...]')
@@ -192,7 +189,7 @@ class InstanceCertExportCLI(pki.cli.CLI):
 class InstanceFindCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceFindCLI, self).__init__('find', 'Find instances')
+        super().__init__('find', 'Find instances')
 
     def print_help(self):
         print('Usage: pki-server instance-find [OPTIONS]')
@@ -256,7 +253,7 @@ class InstanceFindCLI(pki.cli.CLI):
 class InstanceShowCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceShowCLI, self).__init__('show', 'Show instance')
+        super().__init__('show', 'Show instance')
 
     def print_help(self):
         print('Usage: pki-server instance-show [OPTIONS] <instance ID>')
@@ -314,7 +311,7 @@ class InstanceShowCLI(pki.cli.CLI):
 class InstanceStartCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceStartCLI, self).__init__('start', 'Start instance')
+        super().__init__('start', 'Start instance')
 
     def print_help(self):
         print('Usage: pki-server instance-start [OPTIONS] <instance ID>')
@@ -377,7 +374,7 @@ class InstanceStartCLI(pki.cli.CLI):
 class InstanceStopCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceStopCLI, self).__init__('stop', 'Stop instance')
+        super().__init__('stop', 'Stop instance')
 
     def print_help(self):
         print('Usage: pki-server instance-stop [OPTIONS] <instance ID>')
@@ -440,7 +437,7 @@ class InstanceStopCLI(pki.cli.CLI):
 class InstanceMigrateCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceMigrateCLI, self).__init__('migrate', 'Migrate instance')
+        super().__init__('migrate', 'Migrate instance')
 
     def print_help(self):
         print('Usage: pki-server instance-migrate [OPTIONS] <instance ID>')
@@ -516,9 +513,7 @@ class InstanceMigrateCLI(pki.cli.CLI):
 class InstanceNuxwdogEnableCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceNuxwdogEnableCLI, self).__init__(
-            'nuxwdog-enable',
-            'Instance enable nuxwdog')
+        super().__init__('nuxwdog-enable', 'Instance enable nuxwdog')
 
     def print_help(self):
         print('Usage: pki-server instance-nuxwdog-enable [OPTIONS] <instance ID>')
@@ -580,9 +575,7 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
 class InstanceNuxwdogDisableCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceNuxwdogDisableCLI, self).__init__(
-            'nuxwdog-disable',
-            'Instance disable nuxwdog')
+        super().__init__('nuxwdog-disable', 'Instance disable nuxwdog')
 
     def print_help(self):
         print('Usage: pki-server instance-nuxwdog-disable [OPTIONS] <instance ID>')
@@ -644,9 +637,7 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
 class InstanceExternalCertAddCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceExternalCertAddCLI, self).__init__(
-            'externalcert-add',
-            'Add external certificate or chain to the instance')
+        super().__init__('externalcert-add', 'Add external certificate or chain to the instance')
 
     def print_help(self):
         print('Usage: pki-server instance-externalcert-add [OPTIONS]')
@@ -760,9 +751,7 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
 class InstanceExternalCertDeleteCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceExternalCertDeleteCLI, self).__init__(
-            'externalcert-del',
-            'Delete external certificate from the instance')
+        super().__init__('externalcert-del', 'Delete external certificate from the instance')
 
     def print_help(self):
         print('Usage: pki-server instance-externalcert-del [OPTIONS]')

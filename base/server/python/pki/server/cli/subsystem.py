@@ -42,8 +42,7 @@ logger = logging.getLogger(__name__)
 class SubsystemCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemCLI, self).__init__('subsystem',
-                                           'Subsystem management commands')
+        super().__init__('subsystem', 'Subsystem management commands')
 
         self.add_module(SubsystemDisableCLI())
         self.add_module(SubsystemEnableCLI())
@@ -62,7 +61,7 @@ class SubsystemCLI(pki.cli.CLI):
 class SubsystemFindCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemFindCLI, self).__init__('find', 'Find subsystems')
+        super().__init__('find', 'Find subsystems')
 
     def usage(self):
         print('Usage: pki-server subsystem-find [OPTIONS]')
@@ -129,7 +128,7 @@ class SubsystemFindCLI(pki.cli.CLI):
 class SubsystemShowCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemShowCLI, self).__init__('show', 'Show subsystem')
+        super().__init__('show', 'Show subsystem')
 
     def usage(self):
         print('Usage: pki-server subsystem-show [OPTIONS] <subsystem ID>')
@@ -200,8 +199,7 @@ class SubsystemShowCLI(pki.cli.CLI):
 class SubsystemDeployCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemDeployCLI, self).__init__(
-            'deploy', 'Deploy %s subsystem' % parent.name.upper())
+        super().__init__('deploy', 'Deploy %s subsystem' % parent.name.upper())
         self.parent = parent
 
     def print_help(self):
@@ -291,8 +289,7 @@ class SubsystemDeployCLI(pki.cli.CLI):
 class SubsystemUndeployCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(SubsystemUndeployCLI, self).__init__(
-            'undeploy', 'Undeploy %s subsystem' % parent.name.upper())
+        super().__init__('undeploy', 'Undeploy %s subsystem' % parent.name.upper())
         self.parenet = parent
 
     def print_help(self):
@@ -375,7 +372,7 @@ class SubsystemUndeployCLI(pki.cli.CLI):
 class SubsystemEnableCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemEnableCLI, self).__init__('enable', 'Enable subsystem')
+        super().__init__('enable', 'Enable subsystem')
 
     def usage(self):
         print('Usage: pki-server subsystem-enable [OPTIONS] <subsystem ID>')
@@ -476,9 +473,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
 class SubsystemDisableCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemDisableCLI, self).__init__(
-            'disable',
-            'Disable subsystem')
+        super().__init__('disable', 'Disable subsystem')
 
     def usage(self):
         print('Usage: pki-server subsystem-disable [OPTIONS] <subsystem ID>')
@@ -570,8 +565,7 @@ class SubsystemDisableCLI(pki.cli.CLI):
 class SubsystemCertCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemCertCLI, self).__init__(
-            'cert', 'Subsystem certificate management commands')
+        super().__init__('cert', 'Subsystem certificate management commands')
 
         self.add_module(SubsystemCertFindCLI())
         self.add_module(SubsystemCertShowCLI())
@@ -599,8 +593,7 @@ class SubsystemCertCLI(pki.cli.CLI):
 class SubsystemCertFindCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemCertFindCLI, self).__init__(
-            'find', 'Find subsystem certificates')
+        super().__init__('find', 'Find subsystem certificates')
 
     def print_help(self):
         print('Usage: pki-server subsystem-cert-find [OPTIONS] <subsystem ID>')
@@ -692,8 +685,7 @@ class SubsystemCertFindCLI(pki.cli.CLI):
 class SubsystemCertShowCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemCertShowCLI, self).__init__(
-            'show', 'Show subsystem certificate')
+        super().__init__('show', 'Show subsystem certificate')
 
     def usage(self):
         print('Usage: pki-server subsystem-cert-show [OPTIONS] <subsystem ID> <cert ID>')
@@ -776,8 +768,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
 class SubsystemCertExportCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemCertExportCLI, self).__init__(
-            'export', 'Export subsystem certificate')
+        super().__init__('export', 'Export subsystem certificate')
 
     def print_help(self):
         print('Usage: pki-server subsystem-cert-export [OPTIONS] <subsystem ID> [cert ID]')
@@ -962,8 +953,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
 class SubsystemCertUpdateCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemCertUpdateCLI, self).__init__(
-            'update', 'Update subsystem certificate')
+        super().__init__('update', 'Update subsystem certificate')
 
     def usage(self):
         print('Usage: pki-server subsystem-cert-update [OPTIONS] <subsystem ID> <cert ID>')
@@ -1114,8 +1104,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
 class SubsystemCertValidateCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemCertValidateCLI, self).__init__(
-            'validate', 'Validate subsystem certificates')
+        super().__init__('validate', 'Validate subsystem certificates')
 
     def usage(self):
         print('Usage: pki-server subsystem-cert-validate [OPTIONS] <subsystem ID> [<cert_id>]')

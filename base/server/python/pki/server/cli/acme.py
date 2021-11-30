@@ -52,8 +52,7 @@ logger = logging.getLogger(__name__)
 class ACMECLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMECLI, self).__init__(
-            'acme', 'ACME management commands')
+        super().__init__('acme', 'ACME management commands')
 
         self.add_module(ACMECreateCLI())
         self.add_module(ACMERemoveCLI())
@@ -69,8 +68,7 @@ class ACMECLI(pki.cli.CLI):
 class ACMECreateCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMECreateCLI, self).__init__(
-            'create', 'Create ACME subsystem')
+        super().__init__('create', 'Create ACME subsystem')
 
     def print_help(self):
         print('Usage: pki-server acme-create [OPTIONS] [name]')
@@ -152,8 +150,7 @@ class ACMECreateCLI(pki.cli.CLI):
 class ACMERemoveCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMERemoveCLI, self).__init__(
-            'remove', 'Remove ACME subsystem')
+        super().__init__('remove', 'Remove ACME subsystem')
 
     def print_help(self):
         print('Usage: pki-server acme-remove [OPTIONS] [name]')
@@ -222,8 +219,7 @@ class ACMERemoveCLI(pki.cli.CLI):
 class ACMEDeployCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMEDeployCLI, self).__init__(
-            'deploy', 'Deploy ACME subsystem')
+        super().__init__('deploy', 'Deploy ACME subsystem')
 
     def print_help(self):
         print('Usage: pki-server acme-deploy [OPTIONS] [name]')
@@ -312,8 +308,7 @@ class ACMEDeployCLI(pki.cli.CLI):
 class ACMEUndeployCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMEUndeployCLI, self).__init__(
-            'undeploy', 'Undeploy ACME subsystem')
+        super().__init__('undeploy', 'Undeploy ACME subsystem')
 
     def print_help(self):
         print('Usage: pki-server acme-undeploy [OPTIONS] [name]')
@@ -395,8 +390,7 @@ class ACMEUndeployCLI(pki.cli.CLI):
 class ACMEMetadataCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMEMetadataCLI, self).__init__(
-            'metadata', 'ACME metadata management commands')
+        super().__init__('metadata', 'ACME metadata management commands')
 
         self.add_module(ACMEMetadataShowCLI())
         self.add_module(ACMEMetadataModifyCLI())
@@ -405,8 +399,7 @@ class ACMEMetadataCLI(pki.cli.CLI):
 class ACMEMetadataShowCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMEMetadataShowCLI, self).__init__(
-            'show', 'Show ACME metadata configuration')
+        super().__init__('show', 'Show ACME metadata configuration')
 
     def print_help(self):
         print('Usage: pki-server acme-metadata-show [OPTIONS]')
@@ -489,8 +482,7 @@ class ACMEMetadataShowCLI(pki.cli.CLI):
 class ACMEMetadataModifyCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMEMetadataModifyCLI, self).__init__(
-            'mod', 'Modify ACME metadata configuration')
+        super().__init__('mod', 'Modify ACME metadata configuration')
 
     def print_help(self):
         print('Usage: pki-server acme-metadata-mod [OPTIONS]')
@@ -589,8 +581,7 @@ class ACMEMetadataModifyCLI(pki.cli.CLI):
 class ACMEDatabaseCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMEDatabaseCLI, self).__init__(
-            'database', 'ACME database management commands')
+        super().__init__('database', 'ACME database management commands')
 
         self.add_module(ACMEDatabaseShowCLI())
         self.add_module(ACMEDatabaseModifyCLI())
@@ -599,8 +590,7 @@ class ACMEDatabaseCLI(pki.cli.CLI):
 class ACMEDatabaseShowCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMEDatabaseShowCLI, self).__init__(
-            'show', 'Show ACME database configuration')
+        super().__init__('show', 'Show ACME database configuration')
 
     def print_help(self):
         print('Usage: pki-server acme-database-show [OPTIONS]')
@@ -716,8 +706,7 @@ class ACMEDatabaseShowCLI(pki.cli.CLI):
 class ACMEDatabaseModifyCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMEDatabaseModifyCLI, self).__init__(
-            'mod', 'Modify ACME database configuration')
+        super().__init__('mod', 'Modify ACME database configuration')
 
     def print_help(self):
         print('Usage: pki-server acme-database-mod [OPTIONS]')
@@ -928,8 +917,7 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
 class ACMEIssuerCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMEIssuerCLI, self).__init__(
-            'issuer', 'ACME issuer management commands')
+        super().__init__('issuer', 'ACME issuer management commands')
 
         self.add_module(ACMEIssuerShowCLI())
         self.add_module(ACMEIssuerModifyCLI())
@@ -938,8 +926,7 @@ class ACMEIssuerCLI(pki.cli.CLI):
 class ACMEIssuerShowCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMEIssuerShowCLI, self).__init__(
-            'show', 'Show ACME issuer configuration')
+        super().__init__('show', 'Show ACME issuer configuration')
 
     def print_help(self):
         print('Usage: pki-server acme-issuer-show [OPTIONS]')
@@ -1042,8 +1029,7 @@ class ACMEIssuerShowCLI(pki.cli.CLI):
 class ACMEIssuerModifyCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMEIssuerModifyCLI, self).__init__(
-            'mod', 'Modify ACME issuer configuration')
+        super().__init__('mod', 'Modify ACME issuer configuration')
 
     def print_help(self):
         print('Usage: pki-server acme-issuer-mod [OPTIONS]')
@@ -1232,8 +1218,7 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
 class ACMERealmCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMERealmCLI, self).__init__(
-            'realm', 'ACME realm management commands')
+        super().__init__('realm', 'ACME realm management commands')
 
         self.add_module(ACMERealmShowCLI())
         self.add_module(ACMERealmModifyCLI())
@@ -1242,8 +1227,7 @@ class ACMERealmCLI(pki.cli.CLI):
 class ACMERealmShowCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMERealmShowCLI, self).__init__(
-            'show', 'Show ACME realm configuration')
+        super().__init__('show', 'Show ACME realm configuration')
 
     def print_help(self):
         print('Usage: pki-server acme-realm-show [OPTIONS]')
@@ -1369,8 +1353,7 @@ class ACMERealmShowCLI(pki.cli.CLI):
 class ACMERealmModifyCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(ACMERealmModifyCLI, self).__init__(
-            'mod', 'Modify ACME realm configuration')
+        super().__init__('mod', 'Modify ACME realm configuration')
 
     def print_help(self):
         print('Usage: pki-server acme-realm-mod [OPTIONS]')

@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 class MigrateCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(MigrateCLI, self).__init__('migrate', 'Migrate system')
+        super().__init__('migrate', 'Migrate system')
 
         self.parser = etree.XMLParser(remove_blank_text=True)
 

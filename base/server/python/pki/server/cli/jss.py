@@ -31,8 +31,7 @@ import pki.server.instance
 class JSSCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(JSSCLI, self).__init__(
-            'jss', 'JSS management commands')
+        super().__init__('jss', 'JSS management commands')
 
         self.add_module(JSSEnableCLI())
         self.add_module(JSSDisableCLI())
@@ -41,8 +40,7 @@ class JSSCLI(pki.cli.CLI):
 class JSSEnableCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(JSSEnableCLI, self).__init__(
-            'enable', 'Enable JSS in PKI server')
+        super().__init__('enable', 'Enable JSS in PKI server')
 
     def print_help(self):
         print('Usage: pki-server jss-enable [OPTIONS]')
@@ -107,8 +105,7 @@ class JSSEnableCLI(pki.cli.CLI):
 class JSSDisableCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(JSSDisableCLI, self).__init__(
-            'disable', 'Disable JSS in PKI server')
+        super().__init__('disable', 'Disable JSS in PKI server')
 
     def print_help(self):
         print('Usage: pki-server jss-disable [OPTIONS]')
