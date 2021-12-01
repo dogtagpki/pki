@@ -5,7 +5,7 @@ add_subdirectory(templates)
 # build console classes
 javac(pki-console-classes
     DEPENDS
-        symkey-jar pki-cmsutil-jar pki-certsrv-jar
+        pki-cmsutil-jar pki-certsrv-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
