@@ -59,7 +59,6 @@ extern "C"
 #include "main/RA_pblock.h"
 #include "main/LogFile.h"
 #include "main/RollingLogFile.h"
-#include "selftests/SelfTest.h"
 
 typedef struct
 {
@@ -659,9 +658,6 @@ int RA::InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount) {
         // As per CC requirements, we want to flush the audit log immediately
         // to ensure that the audit log is not full
         FlushAuditLogBuffer();
-
-        rc = SelfTest::runStartUpSelfTests(); // run general self tests
-        if (rc != 0) goto loser;
     }
 
     if (m_debug_log != NULL) {
@@ -2339,51 +2335,6 @@ void RA::ErrorThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	PR_Unlock(m_error_log_lock);
 }
 
-TPS_PUBLIC void RA::SelfTestLog (const char *func_name, const char *fmt, ...)
-{ 
-	va_list ap; 
-	va_start(ap, fmt); 
-	RA::SelfTestLogThis(LL_PER_SERVER, func_name, fmt, ap);
-	va_end(ap); 
-	va_start(ap, fmt); 
-	RA::DebugThis(LL_PER_SERVER, func_name, fmt, ap);
-	va_end(ap); 
-}
-
-TPS_PUBLIC void RA::SelfTestLog (RA_Log_Level level, const char *func_name, const char *fmt, ...)
-{ 
-	va_list ap; 
-	va_start(ap, fmt); 
-	RA::SelfTestLogThis(level, func_name, fmt, ap);
-	va_end(ap); 
-	va_start(ap, fmt); 
-	RA::DebugThis(level, func_name, fmt, ap);
-	va_end(ap); 
-}
-
-void RA::SelfTestLogThis (RA_Log_Level level, const char *func_name, const char *fmt, va_list ap)
-{ 
-	PRTime now;
-        const char* time_fmt = "%Y-%m-%d %H:%M:%S";
-        char datetime[1024]; 
-        PRExplodedTime time;
-	PRThread *ct;
-
- 	if ((m_selftest_log == NULL) || (!m_selftest_log->isOpen()))
-		return;
-	if ((int) level >= m_selftest_log_level)
-		return;
-	PR_Lock(m_selftest_log_lock);
-	now = PR_Now();
-	ct = PR_GetCurrentThread();
-        PR_ExplodeTime(now, PR_LocalTimeParameters, &time);
-	PR_FormatTimeUSEnglish(datetime, 1024, time_fmt, &time);
-	m_selftest_log->printf("[%s] %x %s - ", datetime, ct, func_name);
-	m_selftest_log->vfprintf(fmt, ap); 
-	m_selftest_log->write("\n");
-	PR_Unlock(m_selftest_log_lock);
-}
-
 PublisherEntry *RA::getPublisherById(const char *publisher_id)
 {
 
@@ -2670,10 +2621,7 @@ int RA::InitializeHttpConnections(const char *id, int *len, HttpConnection **con
         //     specified certificate:
         if( ( clientnickname != NULL ) &&
             ( PL_strcmp( clientnickname, "" ) != 0 ) ) {
-            SelfTest::Initialize(m_cfg);
 
-            rc = SelfTest::runStartUpSelfTests(clientnickname);
-            if (rc != 0) goto loser;
         } else {
                 RA::Error( LL_PER_SERVER,
                            "RA::InitializeHttpConnections", 

@@ -131,10 +131,6 @@ set(tps_library_SRCS
     processor/RA_Renew_Processor.cpp
     processor/RA_Unblock_Processor.cpp
     processor/RA_Format_Processor.cpp
-    selftests/SelfTest.cpp
-    selftests/TPSPresence.cpp
-    selftests/TPSSystemCertsVerification.cpp
-    selftests/TPSValidity.cpp
 )
 
 include_directories(${TPS_PRIVATE_INCLUDE_DIRS})
