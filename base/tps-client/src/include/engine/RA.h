@@ -154,12 +154,10 @@ class RA
   public:
 	  TPS_PUBLIC static void Audit(const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Error(const char *func_name, const char *fmt, ...);
-	  TPS_PUBLIC static void SelfTestLog(const char *func_name, const char *fmt, ...);
           TPS_PUBLIC static void Debug(const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void DebugBuffer(const char *func_name, const char *prefix, Buffer *buf);
 	  TPS_PUBLIC static void Audit(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Error(RA_Log_Level level, const char *func_name, const char *fmt, ...);
-	  TPS_PUBLIC static void SelfTestLog(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Debug(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  static void DebugBuffer(RA_Log_Level level, const char *func_name, const char *prefix, Buffer *buf);
           TPS_PUBLIC static void FlushAuditLogBuffer();
@@ -173,7 +171,6 @@ class RA
   private:
 	  static void AuditThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
 	  static void ErrorThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
-	  static void SelfTestLogThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
 	  static void DebugThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
           static void do_free(char *s);
   public:
