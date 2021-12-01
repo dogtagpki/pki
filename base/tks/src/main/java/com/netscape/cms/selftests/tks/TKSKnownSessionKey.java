@@ -31,6 +31,7 @@ import java.util.Locale;
 import org.dogtagpki.server.tks.TKSEngine;
 import org.dogtagpki.server.tks.TKSEngineConfig;
 import org.dogtagpki.server.tks.TPSConnectorConfig;
+import org.mozilla.jss.symkey.SessionKey;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -43,7 +44,6 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.symkey.SessionKey;
 
 //////////////////////
 // class definition //

@@ -17,7 +17,7 @@ javac(pki-ocsp-classes
         ${COMMONS_IO_JAR}
         ${SERVLET_JAR}
         ${JAXRS_API_JAR}
-        ${JSS_JAR} ${SYMKEY_JAR}
+        ${JSS_JAR} ${JSS_SYMKEY_JAR}
         ${LDAPJDK_JAR}
         ${TOMCATJSS_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}

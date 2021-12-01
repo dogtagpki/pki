@@ -46,6 +46,7 @@ import org.mozilla.jss.crypto.PQGParams;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.symkey.SessionKey;
 import org.mozilla.jss.util.ConsolePasswordCallback;
 import org.mozilla.jss.util.PasswordCallback;
 
@@ -78,7 +79,6 @@ import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.symkey.SessionKey;
 
 /**
  * A class representings an administration servlet. This
