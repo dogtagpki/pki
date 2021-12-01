@@ -40,9 +40,9 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkcs11.PK11SymKey;
+import org.mozilla.jss.symkey.SessionKey;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.symkey.SessionKey;
 
 public class Util {
 

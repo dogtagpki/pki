@@ -181,6 +181,14 @@ find_file(JSS_JAR
         /usr/share/java
 )
 
+find_file(JSS_SYMKEY_JAR
+    NAMES
+        jss-symkey.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
 find_file(JUNIT_JAR
     NAMES
         junit.jar

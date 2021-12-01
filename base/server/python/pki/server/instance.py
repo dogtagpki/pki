@@ -333,10 +333,10 @@ class PKIInstance(pki.server.PKIServer):
         # install PKI libraries in common/lib
         for filename in [
                 'jss.jar',
+                'jss-symkey.jar',
                 'ldapjdk.jar',
                 'pki-cmsutil.jar',
                 'pki-tomcat.jar',
-                'symkey.jar',
                 'tomcatjss.jar']:
 
             source = os.path.join(common_lib_dir, filename)

@@ -47,6 +47,7 @@ import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11SymKey;
+import org.mozilla.jss.symkey.SessionKey;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -64,7 +65,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.symkey.SessionKey;
 
 /**
  * A class representings an administration servlet for Token Key
