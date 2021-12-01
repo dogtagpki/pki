@@ -7,7 +7,7 @@ add_subdirectory(${APP_SERVER})
 # build pki-tks
 javac(pki-tks-classes
     DEPENDS
-        symkey-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
+        pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH

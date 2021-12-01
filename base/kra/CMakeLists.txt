@@ -7,7 +7,7 @@ add_subdirectory(${APP_SERVER})
 # build pki-kra
 javac(pki-kra-classes
     DEPENDS
-        symkey-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
+        pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH

@@ -1,0 +1,6 @@
+= API Changes =
+
+== com.netscape.symkey.SessionKey has been removed ==
+
+The `com.netscape.symkey.SessionKey` class has been removed.
+Use `org.mozilla.jss.symkey.SessionKey` from JSS instead.

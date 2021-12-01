@@ -10,3 +10,8 @@ The following packages have been renamed:
 == Java Dependency Changes ==
 
 PKI packages will now require OpenJDK 17.
+
+== Symkey Package has been removed ==
+
+The `dogtag-pki-symkey` package has been removed.
+Use the symkey library from `jss` package instead.

@@ -263,6 +263,8 @@ to manage enterprise Public Key Infrastructure deployments.
 Summary:          %{product_name} Package
 %endif
 
+Obsoletes:        pki-symkey < %{version}
+Obsoletes:        %{product_id}-pki-symkey < %{version}
 Obsoletes:        pki-console < %{version}
 Obsoletes:        pki-console-theme < %{version}
 Obsoletes:        idm-console-framework < 2.0
@@ -312,29 +314,6 @@ to manage enterprise Public Key Infrastructure deployments.
 
 %if %{with base}
 ################################################################################
-%package -n       %{product_id}-symkey
-################################################################################
-
-Summary:          %{product_name} Symmetric Key Package
-
-Obsoletes:        pki-symkey < %{version}-%{release}
-Provides:         pki-symkey = %{version}-%{release}
-
-Requires:         %{java_headless}
-Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 5.1.0
-Requires:         nss >= 3.38.0
-
-# Ensure we end up with a useful installation
-Conflicts:        pki-symkey < %{version}
-Conflicts:        pki-javadoc < %{version}
-Conflicts:        pki-server-theme < %{version}
-Conflicts:        %{product_id}-theme < %{version}
-
-%description -n   %{product_id}-symkey
-This package provides library for symmetric key operations.
-
-################################################################################
 %package -n       %{product_id}-base
 ################################################################################
 
@@ -350,7 +329,6 @@ Requires:         python3-pki = %{version}-%{release}
 Requires(post):   python3-pki = %{version}-%{release}
 
 # Ensure we end up with a useful installation
-Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-javadoc < %{version}
 Conflicts:        pki-server-theme < %{version}
 Conflicts:        %{product_id}-theme < %{version}
@@ -466,7 +444,6 @@ Requires:         policycoreutils
 Requires:         procps-ng
 Requires:         openldap-clients
 Requires:         openssl
-Requires:         %{product_id}-symkey = %{version}-%{release}
 Requires:         %{product_id}-tools = %{version}-%{release}
 
 Requires:         keyutils
@@ -728,7 +705,6 @@ Provides:         pki-javadoc = %{version}-%{release}
 
 # Ensure we end up with a useful installation
 Conflicts:        pki-base < %{version}
-Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-server-theme < %{version}
 Conflicts:        %{product_id}-theme < %{version}
 
@@ -777,7 +753,6 @@ Provides:         %{product_id}-server-theme = %{version}-%{release}
 
 # Ensure we end up with a useful installation
 Conflicts:        pki-base < %{version}
-Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-javadoc < %{version}
 
 %description -n   %{product_id}-theme
@@ -796,7 +771,6 @@ Provides:         pki-console-theme = %{version}-%{release}
 
 # Ensure we end up with a useful installation
 Conflicts:        pki-base < %{version}
-Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-server-theme < %{version}
 Conflicts:        pki-javadoc < %{version}
 Conflicts:        %{product_id}-theme < %{version}
@@ -1028,14 +1002,6 @@ fi
 %endif
 
 %if %{with base}
-################################################################################
-%files -n %{product_id}-symkey
-################################################################################
-
-%license base/symkey/LICENSE
-%{_jnidir}/symkey.jar
-%{_libdir}/symkey/
-
 ################################################################################
 %files -n %{product_id}-base
 ################################################################################

@@ -11,8 +11,6 @@ javac(pki-cmsutil-classes
         ${SLF4J_API_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    DEPENDS
-        symkey-jar
 )
 
 configure_file(

@@ -219,13 +219,6 @@ find_file(RESTEASY_CLIENT_JAR
         ${RESTEASY_LIB}
 )
 
-find_file(SYMKEY_JAR
-    NAMES
-        symkey.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-)
-
 find_file(JASPIC_API_JAR
     NAMES
         jaspic-api.jar
@@ -330,7 +323,6 @@ find_file(NMCLF_EN_JAR
 
 # The order is important!
 if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
-    add_subdirectory(symkey)
     add_subdirectory(util)
     add_subdirectory(common)
     add_subdirectory(tools)
