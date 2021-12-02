@@ -22,9 +22,9 @@ if (UNIX AND NOT WIN32)
             set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
         endif (WITH_FPIC)
 
-        check_c_compiler_flag_ssp("-fstack-protector" WITH_STACK_PROTECTOR)
+        check_c_compiler_flag_ssp("-fstack-protector-strong" WITH_STACK_PROTECTOR)
         if (WITH_STACK_PROTECTOR)
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector")
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong")
         endif (WITH_STACK_PROTECTOR)
 
         check_c_compiler_flag("-D_FORTIFY_SOURCE=2" WITH_FORTIFY_SOURCE)
