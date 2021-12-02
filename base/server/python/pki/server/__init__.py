@@ -328,6 +328,39 @@ grant codeBase "file:%s" {
 
         self.create_catalina_policy()
 
+    def is_running(self, timeout=None):
+
+        server_config = self.get_server_config()
+
+        protocol = 'https'
+        hostname = socket.getfqdn()
+        port = server_config.get_secure_port()
+
+        if port is None:
+            protocol = 'http'
+            port = server_config.get_unsecure_port()
+
+        connection = pki.client.PKIConnection(
+            protocol=protocol,
+            hostname=hostname,
+            port=port,
+            trust_env=False,
+            verify=False)
+
+        try:
+            connection.get('/', timeout=timeout)
+
+            # the path exists and the server is running
+            return True
+
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                # the path does not exist but the server is running
+                return True
+
+            # the server is not running
+            raise
+
     def start(self, wait=False, max_wait=60, timeout=None):
 
         cmd = ['systemctl', 'start', '%s.service' % self.service_name]
@@ -346,7 +379,7 @@ grant codeBase "file:%s" {
         while not started:
             try:
                 time.sleep(1)
-                started = self.is_available(timeout=timeout)
+                started = self.is_running(timeout=timeout)
 
             except requests.exceptions.SSLError as e:
                 max_retry_error = e.args[0]
@@ -386,7 +419,7 @@ grant codeBase "file:%s" {
         while not stopped:
             try:
                 time.sleep(1)
-                stopped = not self.is_available(timeout=timeout)
+                stopped = not self.is_running(timeout=timeout)
 
             except requests.exceptions.SSLError as e:
                 max_retry_error = e.args[0]
