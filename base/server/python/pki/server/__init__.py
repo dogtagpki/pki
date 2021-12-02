@@ -264,6 +264,9 @@ class PKIServer(object):
         token = pki.nssdb.INTERNAL_TOKEN_NAME
         nickname = self.get_sslserver_cert_nickname()
 
+        if nickname is None:
+            return
+
         if ':' in nickname:
             parts = nickname.split(':', 1)
             token = parts[0]
@@ -1230,7 +1233,7 @@ grant codeBase "file:%s" {
         connector = server_config.get_connector('Secure')
 
         if connector is None:
-            raise KeyError('Connector not found: Secure')
+            return None
 
         sslhost = server_config.get_sslhost(connector)
         sslcert = server_config.get_sslcert(sslhost)

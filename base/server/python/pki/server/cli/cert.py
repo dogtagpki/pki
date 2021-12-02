@@ -839,6 +839,13 @@ class CertExportCLI(pki.cli.CLI):
 
         if cert_id == 'sslserver':
             full_name = instance.get_sslserver_cert_nickname()
+
+            if full_name is None:
+                logger.error(
+                    'No SSL server certificate in instance %s.',
+                    instance_name)
+                sys.exit(1)
+
             i = full_name.find(':')
             if i < 0:
                 nickname = full_name

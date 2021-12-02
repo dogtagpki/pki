@@ -512,6 +512,10 @@ class PKIInstance(pki.server.PKIServer):
         # TODO: Remove serverCertNick.conf
 
         server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
+
+        if not os.path.exists(server_cert_nick_conf):
+            return None
+
         with open(server_cert_nick_conf) as f:
             return f.readline().strip()
 
