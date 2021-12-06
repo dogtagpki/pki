@@ -20,43 +20,46 @@ then
     exit 1
 fi
 
-max_wait=60 # seconds
+create_container() {
 
-echo "Creating DS volume"
+    echo "Creating DS volume"
 
-docker volume create $NAME-data > /dev/null
+    docker volume create $NAME-data > /dev/null
 
-echo "Creating DS container"
+    echo "Creating DS container"
 
-docker create \
-    --name=$NAME \
-    --hostname=$HOSTNAME \
-    -v $NAME-data:/data \
-    -v $GITHUB_WORKSPACE:$SHARED \
-    -e DS_DM_PASSWORD=$PASSWORD \
-    quay.io/389ds/dirsrv > /dev/null
+    docker create \
+        --name=$NAME \
+        --hostname=$HOSTNAME \
+        -v $NAME-data:/data \
+        -v $GITHUB_WORKSPACE:$SHARED \
+        -e DS_DM_PASSWORD=$PASSWORD \
+        quay.io/389ds/dirsrv > /dev/null
 
-$SCRIPT_DIR/ds-container-start.sh $NAME
+    $SCRIPT_DIR/ds-container-start.sh $NAME
 
-echo "Creating certs folder"
+    echo "Creating certs folder"
 
-docker exec $NAME mkdir -p /data/tls/ca
+    docker exec $NAME mkdir -p /data/tls/ca
 
-echo "Creating database backend"
+    echo "Creating database backend"
 
-docker exec $NAME dsconf localhost backend create \
-    --suffix dc=example,dc=com \
-    --be-name userRoot > /dev/null
+    docker exec $NAME dsconf localhost backend create \
+        --suffix dc=example,dc=com \
+        --be-name userRoot > /dev/null
 
-docker exec $NAME dsconf localhost backend suffix list
+    docker exec $NAME dsconf localhost backend suffix list
+}
 
-echo "Adding base entries"
+add_base_entries() {
 
-docker exec -i $NAME ldapadd \
-    -H ldap://$HOSTNAME:3389 \
-    -D "cn=Directory Manager" \
-    -w $PASSWORD \
-    -x > /dev/null << EOF
+    echo "Adding base entries"
+
+    docker exec -i $NAME ldapadd \
+        -H ldap://$HOSTNAME:3389 \
+        -D "cn=Directory Manager" \
+        -w $PASSWORD \
+        -x > /dev/null << EOF
 dn: dc=example,dc=com
 objectClass: domain
 dc: example
@@ -65,6 +68,10 @@ dn: dc=pki,dc=example,dc=com
 objectClass: domain
 dc: pki
 EOF
+}
+
+create_container
+add_base_entries
 
 docker exec $NAME ldapsearch \
     -H ldap://$HOSTNAME:3389 \
