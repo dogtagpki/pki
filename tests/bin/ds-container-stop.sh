@@ -11,6 +11,12 @@ then
 fi
 
 echo "Stopping DS container"
-docker stop $NAME > /dev/null
+
+if [ "$IMAGE" == "" ]
+then
+    docker exec $NAME dsctl localhost stop
+else
+    docker stop $NAME > /dev/null
+fi
 
 echo "DS container is stopped"

@@ -9,6 +9,7 @@ jobs:
     outputs:
       matrix: ${{ steps.init.outputs.matrix }}
       repo: ${{ steps.init.outputs.repo }}
+      db-image: ${{ steps.init.outputs.db-image }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -18,6 +19,7 @@ jobs:
         env:
           BASE64_MATRIX: ${{ secrets.BASE64_MATRIX }}
           BASE64_REPO: ${{ secrets.BASE64_REPO }}
+          BASE64_DATABASE: ${{ secrets.BASE64_DATABASE }}
         run: |
           tests/bin/init-workflow.sh
 
@@ -101,6 +103,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 
@@ -198,6 +201,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh primaryds
         env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
           HOSTNAME: primaryds.example.com
           PASSWORD: Secret.123
 
@@ -235,6 +239,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh secondaryds
         env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
           HOSTNAME: secondaryds.example.com
           PASSWORD: Secret.123
 
@@ -288,6 +293,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh tertiaryds
         env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
           HOSTNAME: tertiaryds.example.com
           PASSWORD: Secret.123
 
