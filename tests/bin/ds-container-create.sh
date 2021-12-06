@@ -20,6 +20,28 @@ then
     exit 1
 fi
 
+create_server() {
+
+    echo "Creating DS server"
+
+    $SCRIPT_DIR/runner-init.sh $NAME
+
+    docker exec $NAME dnf install -y 389-ds-base
+
+    docker exec $NAME dscreate create-template ds.inf
+
+    docker exec $NAME sed -i \
+        -e "s/;instance_name = .*/instance_name = localhost/g" \
+        -e "s/;port = .*/port = 3389/g" \
+        -e "s/;secure_port = .*/secure_port = 3636/g" \
+        -e "s/;root_password = .*/root_password = Secret.123/g" \
+        -e "s/;suffix = .*/suffix = dc=example,dc=com/g" \
+        -e "s/;self_sign_cert = .*/self_sign_cert = False/g" \
+        ds.inf
+
+    docker exec $NAME dscreate from-file ds.inf
+}
+
 create_container() {
 
     echo "Creating DS volume"
@@ -34,7 +56,7 @@ create_container() {
         -v $NAME-data:/data \
         -v $GITHUB_WORKSPACE:$SHARED \
         -e DS_DM_PASSWORD=$PASSWORD \
-        quay.io/389ds/dirsrv > /dev/null
+        $IMAGE > /dev/null
 
     $SCRIPT_DIR/ds-container-start.sh $NAME
 
@@ -70,7 +92,13 @@ dc: pki
 EOF
 }
 
-create_container
+if [ "$IMAGE" == "" ]
+then
+    create_server
+else
+    create_container
+fi
+
 add_base_entries
 
 docker exec $NAME ldapsearch \

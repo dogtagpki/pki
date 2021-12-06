@@ -23,7 +23,12 @@ fi
 echo "Starting DS container"
 start_time=$(date +%s)
 
-docker start $NAME > /dev/null
+if [ "$IMAGE" == "" ]
+then
+    docker exec $NAME dsctl localhost start
+else
+    docker start $NAME > /dev/null
+fi
 
 if [ $? -ne 0 ]
 then
