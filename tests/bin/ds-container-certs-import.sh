@@ -23,41 +23,46 @@ then
     PASSWORD=Secret.123
 fi
 
-echo "Importing DS certs"
+import_certs() {
 
-# Import input file into container
+    echo "Importing DS certs"
 
-docker cp $INPUT $NAME:/tmp/certs.p12
+    # Import input file into container
 
-# Fix file ownership
+    docker cp $INPUT $NAME:/tmp/certs.p12
 
-docker exec -u 0 $NAME chown dirsrv.dirsrv /tmp/certs.p12
+    # Fix file ownership
 
-# Export server cert into /data/tls/server.crt
+    docker exec -u 0 $NAME chown dirsrv.dirsrv /tmp/certs.p12
 
-docker exec $NAME openssl pkcs12 \
-    -in /tmp/certs.p12 \
-    -passin pass:$PASSWORD \
-    -out /data/tls/server.crt \
-    -clcerts \
-    -nokeys
+    # Export server cert into /data/tls/server.crt
 
-# Export server key into /data/tls/server.key
+    docker exec $NAME openssl pkcs12 \
+        -in /tmp/certs.p12 \
+        -passin pass:$PASSWORD \
+        -out /data/tls/server.crt \
+        -clcerts \
+        -nokeys
 
-docker exec $NAME openssl pkcs12 \
-    -in /tmp/certs.p12 \
-    -passin pass:$PASSWORD \
-    -out /data/tls/server.key \
-    -nodes \
-    -nocerts
+    # Export server key into /data/tls/server.key
 
-# Export CA cert into /data/tls/ca/ca.crt
+    docker exec $NAME openssl pkcs12 \
+        -in /tmp/certs.p12 \
+        -passin pass:$PASSWORD \
+        -out /data/tls/server.key \
+        -nodes \
+        -nocerts
 
-docker exec $NAME openssl pkcs12 \
-    -in /tmp/certs.p12 \
-    -passin pass:$PASSWORD \
-    -out /data/tls/ca/ca.crt \
-    -cacerts \
-    -nokeys
+    # Export CA cert into /data/tls/ca/ca.crt
+
+    docker exec $NAME openssl pkcs12 \
+        -in /tmp/certs.p12 \
+        -passin pass:$PASSWORD \
+        -out /data/tls/ca/ca.crt \
+        -cacerts \
+        -nokeys
+}
+
+import_certs
 
 echo "DS certs imported"
