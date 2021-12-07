@@ -13,7 +13,7 @@ Then export the CA admin certificate and key:
 ----
 $ openssl pkcs12 \
     -in $HOME/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-    -passin file:$HOME/.dogtag/pki-tomcat/ca/pkcs12_password.conf \
+    -passin pass:<password> \
     -out caadmin.pem \
     -nodes
 ----

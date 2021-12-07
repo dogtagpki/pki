@@ -66,7 +66,7 @@ Admin Certificate
 
 After installation the admin certificate and key will be stored
 in `~/.dogtag/pki-tomcat/ca_admin_cert.p12`.
-The password for this file will be stored in `~/.dogtag/pki-tomcat/ca/pkcs12_password.conf`.
+The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
 
 To use the admin certificate, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 
@@ -90,8 +90,8 @@ Finally, import admin certificate and key with the following command:
 
 ```
 $ pki client-cert-import \
-   --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-   --pkcs12-password-file ~/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+    --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+    --pkcs12-password Secret.123
 ```
 
 To verify that the admin certificate can be used to access the CA subsystem, execute the following command:

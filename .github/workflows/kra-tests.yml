@@ -146,7 +146,7 @@ jobs:
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec pki pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec pki pki -n caadmin kra-user-show kraadmin
 
       - name: Verify KRA connector in CA
@@ -270,11 +270,10 @@ jobs:
       - name: Verify KRA admin
         run: |
           docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
-          docker exec ca cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
           docker exec kra pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec kra pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec kra pki -n caadmin kra-user-show kraadmin
 
       - name: Verify KRA connector in CA
@@ -282,7 +281,7 @@ jobs:
           docker exec ca pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
           docker exec ca pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec ca bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${SHARED}/kraconnector.host"
           echo kra.example.com > kra.hostname
           diff kra.hostname kraconnector.host
@@ -383,7 +382,7 @@ jobs:
           docker exec ca pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
           docker exec ca pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+              --pkcs12-password Secret.123
 
       - name: Set up KRA DS container
         run: |
@@ -481,7 +480,7 @@ jobs:
           docker exec kra pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec kra pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/kra_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/kra/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec kra pki -n kraadmin kra-user-show kraadmin
 
       - name: Verify KRA connector in CA
@@ -636,11 +635,10 @@ jobs:
       - name: Verify KRA admin in secondary PKI container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
           docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec secondary pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec secondary pki -n caadmin kra-user-show kraadmin
 
       - name: Set up tertiary DS container
@@ -692,7 +690,7 @@ jobs:
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec tertiary pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec tertiary pki -n caadmin kra-user-show kraadmin
 
       - name: Gather artifacts from primary containers
@@ -899,7 +897,7 @@ jobs:
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec pki pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/kra_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/kra/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec pki pki -n kraadmin kra-user-show kraadmin
 
       - name: Gather artifacts
