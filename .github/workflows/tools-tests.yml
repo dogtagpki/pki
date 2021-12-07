@@ -421,6 +421,11 @@ jobs:
               --csr ca_signing.csr
           openssl req -text -noout -in ca_signing.csr
 
+          certutil -K -d /root/.dogtag/nssdb || true
+
+          echo "Secret.123" > password.txt
+          certutil -K -d /root/.dogtag/nssdb -f password.txt -h HSM
+
       # https://github.com/dogtagpki/pki/wiki/Issuing-CA-Signing-Certificate-with-PKI-NSS
       - name: Issue self-signed CA signing cert
         run: |
@@ -437,17 +442,57 @@ jobs:
               --trust CT,C,C \
               ca_signing
 
-      - name: Verify CA signing cert trust flags in internal token
-        run: |
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' > actual
+          # verify CA signing cert trust flags in internal token
+          certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
           echo "CT,C,C" > expected
           diff actual expected
 
-      - name: Verify CA signing cert trust flags in HSM
-        run: |
-          echo "Secret.123" > password.txt
-          certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | sed -n 's/^HSM:ca_signing\s*\(\S\+\)\s*$/\1/p' > actual
+          # verify CA signing cert trust flags in HSM
+          certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
+          sed -n 's/^HSM:ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
           echo "CTu,Cu,Cu" > expected
+          diff actual expected
+
+      # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
+      - name: Create SSL server cert request with key in HSM
+        run: |
+          pki --token HSM -f password.conf nss-cert-request \
+              --subject "CN=pki.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr sslserver.csr
+          openssl req -text -noout -in sslserver.csr
+
+          certutil -K -d /root/.dogtag/nssdb || true
+
+          certutil -K -d /root/.dogtag/nssdb -f password.txt -h HSM
+
+      # https://github.com/dogtagpki/pki/wiki/Issuing-SSL-Server-Certificate-with-PKI-NSS
+      - name: Issue SSL server cert
+        run: |
+          pki --token HSM -f password.conf nss-cert-issue \
+              --issuer HSM:ca_signing \
+              --csr sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert sslserver.crt
+          openssl x509 -text -noout -in sslserver.crt
+
+      - name: Import SSL server cert into internal token and HSM
+        run: |
+          pki --token HSM -f password.conf nss-cert-import \
+              --cert sslserver.crt \
+              sslserver
+
+          # verify SSL server cert trust flags in internal token
+          certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
+          echo ",," > expected
+          diff actual expected
+
+          # verify SSL server cert trust flags in HSM
+          certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
+          sed -n 's/^HSM:sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
+          echo "u,u,u" > expected
           diff actual expected
 
       - name: Remove HSM token
