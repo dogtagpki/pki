@@ -154,7 +154,7 @@ jobs:
         run: |
           docker exec pki pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
       - name: Test CA agent
@@ -267,7 +267,7 @@ jobs:
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec pki pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
       - name: Gather artifacts
@@ -381,7 +381,7 @@ jobs:
           docker exec subordinate pki client-cert-import ca_signing --ca-cert root-ca_signing.crt
           docker exec subordinate pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec subordinate pki -n caadmin ca-user-show caadmin
 
       - name: Gather artifacts from root containers
@@ -508,7 +508,7 @@ jobs:
           docker exec pki pki client-cert-import ca_signing --ca-cert root-ca_signing.crt
           docker exec pki pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
       - name: Gather artifacts
@@ -670,7 +670,7 @@ jobs:
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec pki pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
       - name: Gather artifacts
@@ -751,7 +751,7 @@ jobs:
           docker exec primary pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
           docker exec primary pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec primary pki -n caadmin ca-user-find
           docker exec primary pki securitydomain-host-find
 
@@ -790,11 +790,10 @@ jobs:
       - name: Verify users and SD hosts in secondary PKI container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
           docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec secondary pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec secondary pki -n caadmin ca-user-find
           docker exec secondary pki securitydomain-host-find
 
@@ -836,7 +835,7 @@ jobs:
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec tertiary pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec tertiary pki -n caadmin ca-user-find
           docker exec tertiary pki securitydomain-host-find
 
@@ -1030,7 +1029,7 @@ jobs:
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec pki pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
       - name: Gather artifacts
@@ -1179,7 +1178,7 @@ jobs:
           docker exec primary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec primary pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec primary pki -n caadmin ca-user-find
           docker exec primary pki securitydomain-host-find
 
@@ -1284,12 +1283,11 @@ jobs:
       - name: Verify users and SD hosts in secondary PKI container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
           docker exec secondary pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec secondary pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec secondary pki -n caadmin ca-user-find
           docker exec secondary pki securitydomain-host-find
 

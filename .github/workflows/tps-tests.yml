@@ -166,7 +166,7 @@ jobs:
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec pki pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec pki pki -n caadmin tps-user-show tpsadmin
 
       - name: Set up TPS authentication
@@ -406,11 +406,10 @@ jobs:
       - name: Verify admin user
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${SHARED}/pkcs12_password.conf
           docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec secondary pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
-              --pkcs12-password-file ${SHARED}/pkcs12_password.conf
+              --pkcs12-password Secret.123
           docker exec secondary pki -n caadmin tps-user-show tpsadmin
 
       - name: Gather artifacts from primary containers

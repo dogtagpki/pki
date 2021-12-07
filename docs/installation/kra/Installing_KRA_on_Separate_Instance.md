@@ -72,7 +72,7 @@ Import CA admin key and certificate:
 ```
 $ pki -c Secret.123 client-cert-import \
     --pkcs12 ca_admin_cert.p12 \
-    --pkcs12-password-file pkcs12_password.conf
+    --pkcs12-password Secret.123
 ```
 
 Verify that the CA admin certificate can be used to access the KRA subsystem by executing the following command:

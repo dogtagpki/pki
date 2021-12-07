@@ -118,8 +118,8 @@ Import admin key and certificate:
 
 ```
 $ pki -c Secret.123 client-cert-import \
- --pkcs12 ca_admin_cert.p12 \
- --pkcs12-password-file pkcs12_password.conf
+    --pkcs12 ca_admin_cert.p12 \
+    --pkcs12-password Secret.123
 ```
 
 Verify that the admin certificate can be used to access the OCSP subsystem by executing the following command:

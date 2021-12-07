@@ -171,8 +171,8 @@ Import the admin key and certificate:
 
 ```
 $ pki -c Secret.123 client-cert-import \
- --pkcs12 ~/.dogtag/pki-tomcat/kra_admin_cert.p12 \
- --pkcs12-password-file ~/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+    --pkcs12 ~/.dogtag/pki-tomcat/kra_admin_cert.p12 \
+    --pkcs12-password Secret.123
 ```
 
 Verify that the admin certificate can be used to access KRA by executing the following command:

@@ -71,7 +71,7 @@ Import admin key and certificate:
 ```
 $ pki client-cert-import \
     --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-    --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+    --pkcs12-password Secret.123
 ```
 
 Verify that the admin certificate can be used to access the subordinate CA subsystem by executing the following command:
