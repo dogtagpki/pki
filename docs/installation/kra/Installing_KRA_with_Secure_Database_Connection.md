@@ -27,7 +27,6 @@ pki_admin_nickname=kraadmin
 pki_admin_password=Secret.123
 pki_admin_uid=kraadmin
 
-pki_client_database_password=Secret.123
 pki_client_pkcs12_password=Secret.123
 
 pki_ds_ldaps_port=636

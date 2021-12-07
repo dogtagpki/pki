@@ -35,7 +35,6 @@ pki_admin_nickname=tksadmin
 pki_admin_password=Secret.123
 pki_admin_uid=tksadmin
 
-pki_client_database_password=Secret.123
 pki_client_pkcs12_password=Secret.123
 
 pki_ds_base_dn=dc=tks,dc=pki,dc=example,dc=com
