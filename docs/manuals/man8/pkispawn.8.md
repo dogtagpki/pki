@@ -385,8 +385,6 @@ where **myconfig.txt** contains the following text:
 pki_admin_password=Secret.123
 pki_client_pkcs12_password=Secret.123
 pki_ds_password=Secret.123
-# Optionally keep client databases
-pki_client_database_purge=False
 ```
 
 To install a shared KRA in the same instance used by the CA execute the following command:
@@ -522,8 +520,6 @@ where **myconfig.txt** contains the following text:
 pki_admin_password=Secret.123
 pki_client_pkcs12_password=Secret.123
 pki_ds_password=Secret.123
-# Optionally keep client databases
-pki_client_database_purge=False
 # Separated CA instance name and ports
 pki_instance_name=pki-ca
 pki_http_port=18080
@@ -552,8 +548,6 @@ pki_client_database_password=Secret.123
 pki_client_pkcs12_password=Secret.123
 pki_ds_password=Secret.123
 pki_security_domain_password=Secret.123
-# Optionally keep client databases
-pki_client_database_purge=False
 # Separated KRA instance name and ports
 pki_instance_name=pki-kra
 pki_http_port=28080
@@ -590,8 +584,6 @@ pki_client_database_password=Secret.123
 pki_client_pkcs12_password=Secret.123
 pki_ds_password=Secret.123
 pki_security_domain_password=Secret.123
-# Optionally keep client databases
-pki_client_database_purge=False
 # Separated OCSP instance name and ports
 pki_instance_name=pki-ocsp
 pki_http_port=29080
@@ -628,8 +620,6 @@ pki_client_database_password=Secret.123
 pki_client_pkcs12_password=Secret.123
 pki_ds_password=Secret.123
 pki_security_domain_password=Secret.123
-# Optionally keep client databases
-pki_client_database_purge=False
 # Separated TKS instance name and ports
 pki_instance_name=pki-tks
 pki_http_port=30080
@@ -666,8 +656,6 @@ pki_client_database_password=Secret.123
 pki_client_pkcs12_password=Secret.123
 pki_ds_password=Secret.123
 pki_security_domain_password=Secret.123
-# Optionally keep client databases
-pki_client_database_purge=False
 # Separated TPS instance name and ports
 pki_instance_name=pki-tps
 pki_http_port=31080
@@ -787,8 +775,6 @@ where **myconfig.txt** contains the following text:
 pki_admin_password=Secret.123
 pki_client_pkcs12_password=Secret.123
 pki_ds_password=Secret.123
-# Optionally keep client databases
-pki_client_database_purge=False
 # Provide HSM parameters
 pki_hsm_enable=True
 pki_hsm_libfile=<hsm_libfile>
