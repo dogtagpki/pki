@@ -164,15 +164,12 @@ public class NSSExtensionGenerator {
 
         logger.info("Creating AKID extension:");
 
-        boolean keyid = false;
-
         List<String> options = Arrays.asList(authorityKeyIdentifier.split("\\s*,\\s*"));
         for (String option : options) {
             option = option.trim();
             logger.info("- " + option);
 
             if (option.equals("keyid") || option.equals("keyid:always")) {
-                keyid = true;
                 continue;
             }
 
