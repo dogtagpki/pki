@@ -97,11 +97,10 @@ public class KRAService implements IService {
             if ((e.getMessage()).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
                 r.setRequestStatus(RequestStatus.REJECTED);
                 return true;
-            } else {
-                // return true;
-                // #546508
-                return false;
             }
+            // return true;
+            // #546508
+            return false;
         }
     }
 }
