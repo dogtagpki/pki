@@ -108,19 +108,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         """
 
-        print('pki_hsm_enable: ', config.str2bool(deployer.mdict['pki_hsm_enable']))
+        logger.debug('generate_csr: pki_hsm_enable: %s', deployer.mdict['pki_hsm_enable'])
+        logger.debug('generate_csr: subsystem.type: %s', subsystem.type)
 
-        print('subsystem.type: ', subsystem.type)
         if (subsystem.type == 'KRA' and
             config.str2bool(deployer.mdict['pki_hsm_enable']) and
                 (cert_id in ['storage', 'transport'])):
-            print('generate_csr: calling PKCS10Client for', cert_id)
+            logger.debug('generate_csr: calling PKCS10Client for %s', cert_id)
             b64_csr = nssdb.create_request_with_wrapping_key(
                 subject_dn=subject_dn,
                 request_file=csr_path,
                 key_size=key_size)
         else:
-            print('generate_csr: calling certutil for', cert_id)
+            logger.debug('generate_csr: calling certutil for %s', cert_id)
             nssdb.create_request(
                 subject_dn=subject_dn,
                 request_file=csr_path,
