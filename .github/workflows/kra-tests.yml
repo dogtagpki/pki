@@ -416,51 +416,63 @@ jobs:
 
       - name: Issue KRA storage cert
         run: |
+          docker exec kra openssl req -text -noout -in kra_storage.csr
           docker exec kra cp kra_storage.csr ${SHARED}/kra_storage.csr
           docker exec ca bash -c "pki ca-cert-request-submit --profile caStorageCert --csr-file ${SHARED}/kra_storage.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/kra_storage.reqid"
           docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_storage.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/kra_storage.certid"
           docker exec ca bash -c "pki ca-cert-export `cat kra_storage.certid` --output-file ${SHARED}/kra_storage.crt"
           docker exec kra cp ${SHARED}/kra_storage.crt kra_storage.crt
+          docker exec kra openssl x509 -text -noout -in kra_storage.crt
 
       - name: Issue KRA transport cert
         run: |
+          docker exec kra openssl req -text -noout -in kra_transport.csr
           docker exec kra cp kra_transport.csr ${SHARED}/kra_transport.csr
           docker exec ca bash -c "pki ca-cert-request-submit --profile caTransportCert --csr-file ${SHARED}/kra_transport.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/kra_transport.reqid"
           docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_transport.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/kra_transport.certid"
           docker exec ca bash -c "pki ca-cert-export `cat kra_transport.certid` --output-file ${SHARED}/kra_transport.crt"
           docker exec kra cp ${SHARED}/kra_transport.crt kra_transport.crt
+          docker exec kra openssl x509 -text -noout -in kra_transport.crt
 
       - name: Issue subsystem cert
         run: |
+          docker exec kra openssl req -text -noout -in subsystem.csr
           docker exec kra cp subsystem.csr ${SHARED}/subsystem.csr
           docker exec ca bash -c "pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${SHARED}/subsystem.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/subsystem.reqid"
           docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat subsystem.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/subsystem.certid"
           docker exec ca bash -c "pki ca-cert-export `cat subsystem.certid` --output-file ${SHARED}/subsystem.crt"
           docker exec kra cp ${SHARED}/subsystem.crt subsystem.crt
+          docker exec kra openssl x509 -text -noout -in subsystem.crt
 
       - name: Issue SSL server cert
         run: |
+          docker exec kra openssl req -text -noout -in sslserver.csr
           docker exec kra cp sslserver.csr ${SHARED}/sslserver.csr
           docker exec ca bash -c "pki ca-cert-request-submit --profile caServerCert --csr-file ${SHARED}/sslserver.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/sslserver.reqid"
           docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat sslserver.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/sslserver.certid"
           docker exec ca bash -c "pki ca-cert-export `cat sslserver.certid` --output-file ${SHARED}/sslserver.crt"
           docker exec kra cp ${SHARED}/sslserver.crt sslserver.crt
+          docker exec kra openssl x509 -text -noout -in sslserver.crt
 
       - name: Issue KRA audit signing cert
         run: |
+          docker exec kra openssl req -text -noout -in kra_audit_signing.csr
           docker exec kra cp kra_audit_signing.csr ${SHARED}/kra_audit_signing.csr
           docker exec ca bash -c "pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${SHARED}/kra_audit_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/kra_audit_signing.reqid"
           docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_audit_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/kra_audit_signing.certid"
           docker exec ca bash -c "pki ca-cert-export `cat kra_audit_signing.certid` --output-file ${SHARED}/kra_audit_signing.crt"
           docker exec kra cp ${SHARED}/kra_audit_signing.crt kra_audit_signing.crt
+          docker exec kra openssl x509 -text -noout -in kra_audit_signing.crt
 
       - name: Issue KRA admin cert
         run: |
+          docker exec kra openssl req -text -noout -in kra_admin.csr
           docker exec kra cp kra_admin.csr ${SHARED}/kra_admin.csr
           docker exec ca bash -c "pki ca-cert-request-submit --profile caUserCert --csr-file ${SHARED}/kra_admin.csr --subject uid=kraadmin | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/kra_admin.reqid"
           docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_admin.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/kra_admin.certid"
           docker exec ca bash -c "pki ca-cert-export `cat kra_admin.certid` --output-file ${SHARED}/kra_admin.crt"
           docker exec kra cp ${SHARED}/kra_admin.crt kra_admin.crt
+          docker exec kra openssl x509 -text -noout -in kra_admin.crt
 
       - name: Install KRA in KRA container (step 2)
         run: |
@@ -809,7 +821,6 @@ jobs:
           docker exec pki pki -d nssdb nss-cert-issue \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --serial 1 \
               --cert ca_signing.crt
           docker exec pki pki -d nssdb nss-cert-import \
               --cert ca_signing.crt \
@@ -827,57 +838,63 @@ jobs:
 
       - name: Issue KRA storage cert
         run: |
+          docker exec pki openssl req -text -noout -in kra_storage.csr
           docker exec pki pki -d nssdb nss-cert-issue \
               --issuer ca_signing \
               --csr kra_storage.csr \
               --ext /usr/share/pki/server/certs/kra_storage.conf \
-              --serial 2 \
               --cert kra_storage.crt
+          docker exec pki openssl x509 -text -noout -in kra_storage.crt
 
       - name: Issue KRA transport cert
         run: |
+          docker exec pki openssl req -text -noout -in kra_transport.csr
           docker exec pki pki -d nssdb nss-cert-issue \
               --issuer ca_signing \
               --csr kra_transport.csr \
               --ext /usr/share/pki/server/certs/kra_transport.conf \
-              --serial 3 \
               --cert kra_transport.crt
+          docker exec pki openssl x509 -text -noout -in kra_transport.crt
 
       - name: Issue subsystem cert
         run: |
+          docker exec pki openssl req -text -noout -in subsystem.csr
           docker exec pki pki -d nssdb nss-cert-issue \
               --issuer ca_signing \
               --csr subsystem.csr \
               --ext /usr/share/pki/server/certs/subsystem.conf \
-              --serial 4 \
               --cert subsystem.crt
+          docker exec pki openssl x509 -text -noout -in subsystem.crt
 
       - name: Issue SSL server cert
         run: |
+          docker exec pki openssl req -text -noout -in sslserver.csr
           docker exec pki pki -d nssdb nss-cert-issue \
               --issuer ca_signing \
               --csr sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
-              --serial 5 \
               --cert sslserver.crt
+          docker exec pki openssl x509 -text -noout -in sslserver.crt
 
       - name: Issue KRA audit signing cert
         run: |
+          docker exec pki openssl req -text -noout -in kra_audit_signing.csr
           docker exec pki pki -d nssdb nss-cert-issue \
               --issuer ca_signing \
               --csr kra_audit_signing.csr \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
-              --serial 6 \
               --cert kra_audit_signing.crt
+          docker exec pki openssl x509 -text -noout -in kra_audit_signing.crt
 
       - name: Issue KRA admin cert
         run: |
+          docker exec pki openssl req -text -noout -in kra_admin.csr
           docker exec pki pki -d nssdb nss-cert-issue \
               --issuer ca_signing \
               --csr kra_admin.csr \
               --ext /usr/share/pki/server/certs/admin.conf \
-              --serial 7 \
               --cert kra_admin.crt
+          docker exec pki openssl x509 -text -noout -in kra_admin.crt
 
       - name: Install KRA (step 2)
         run: |
