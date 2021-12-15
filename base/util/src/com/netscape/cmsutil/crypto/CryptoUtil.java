@@ -1757,11 +1757,16 @@ public class CryptoUtil {
             pkcs10 = new PKCS10(key);
         }
 
-        Name n = getJssName(encodeSubj, subjectName);
-        ByteArrayOutputStream subjectEncStream = new ByteArrayOutputStream();
-        n.encode(subjectEncStream);
-        byte[] b = subjectEncStream.toByteArray();
-        X500Name name = new X500Name(b);
+        X500Name name = null;
+        if (!encodeSubj)
+            name = new X500Name(subjectName);
+        else {
+            Name n = getJssName(encodeSubj, subjectName);
+            ByteArrayOutputStream subjectEncStream = new ByteArrayOutputStream();
+            n.encode(subjectEncStream);
+            byte[] b = subjectEncStream.toByteArray();
+            name = new X500Name(b);
+        }
         X500Signer signer = new X500Signer(sig, name);
 
         pkcs10.encodeAndSign(signer);
