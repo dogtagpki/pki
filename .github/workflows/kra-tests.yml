@@ -254,11 +254,13 @@ jobs:
         run: |
           docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${SHARED}/ca_admin.cert
-          docker exec kra cp ${SHARED}/ca_signing.crt .
-          docker exec kra cp ${SHARED}/ca_admin.cert .
           docker exec kra pkispawn \
-              -f /usr/share/pki/server/examples/installation/kra-separate.cfg \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
               -s KRA \
+              -D pki_security_domain_hostname=ca.example.com \
+              -D pki_cert_chain_nickname=ca_signing \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_admin_cert_file=${SHARED}/ca_admin.cert \
               -D pki_ds_hostname=krads.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
@@ -270,7 +272,7 @@ jobs:
       - name: Verify KRA admin
         run: |
           docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
-          docker exec kra pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec kra pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
           docker exec kra pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
