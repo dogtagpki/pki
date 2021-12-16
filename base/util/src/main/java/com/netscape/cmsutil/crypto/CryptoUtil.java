@@ -1334,12 +1334,16 @@ public class CryptoUtil {
 
         logger.info("CryptoUtil: - subject: " + subjectName);
 
-        Name n = getJssName(encodeSubj, subjectName);
-        ByteArrayOutputStream subjectEncStream = new ByteArrayOutputStream();
-        n.encode(subjectEncStream);
-        byte[] b = subjectEncStream.toByteArray();
-        X500Name name = new X500Name(b);
-
+        X500Name name = null;
+        if (!encodeSubj)
+            name = new X500Name(subjectName);
+        else {
+            Name n = getJssName(encodeSubj, subjectName);
+            ByteArrayOutputStream subjectEncStream = new ByteArrayOutputStream();
+            n.encode(subjectEncStream);
+            byte[] b = subjectEncStream.toByteArray();
+            name = new X500Name(b);
+        }
         X500Signer signer = new X500Signer(sig, name);
 
         logger.info("CryptoUtil: - attributes:");
