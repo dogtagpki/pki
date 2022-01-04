@@ -718,16 +718,31 @@ class PKIDeployer:
             request.systemCert.dnsNames = dns_names
 
         nssdb = subsystem.instance.open_nssdb()
-        cert_data = None
+        cert_info = None
 
         try:
-            cert_data = nssdb.get_cert(
+            cert_info = nssdb.get_cert_info(
                 nickname=request.systemCert.nickname,
                 token=request.systemCert.token)
         finally:
             nssdb.close()
 
-        logger.debug('returned from nssdb.get_cert')
+        if cert_info:
+            logger.info('%s cert already exists', tag)
+
+            token = pki.nssdb.normalize_token(request.systemCert.token)
+            if token:
+                fullname = token + ':' + request.systemCert.nickname
+            else:
+                fullname = request.systemCert.nickname
+
+            logger.info('- serial: %s', cert_info['serial_number'])
+            logger.info('- nickname: %s', fullname)
+            logger.info('- subject: %s', cert_info['subject'])
+            logger.info('- issuer: %s', cert_info['issuer'])
+            logger.info('- trust flags: %s', cert_info['trust_flags'])
+        else:
+            logger.info('%s cert does not exist', tag)
 
         # For external/existing CA case, some/all system certs may be provided.
         # The SSL server cert will always be generated for the current host.
@@ -735,17 +750,17 @@ class PKIDeployer:
         # For external/standalone KRA/OCSP/TKS/TPS case, all system certs will be provided.
         # No system certs will be generated including the SSL server cert.
 
-        if subsystem.type == 'CA' and external and tag != 'sslserver' and cert_data or \
+        if subsystem.type == 'CA' and external and tag != 'sslserver' and cert_info or \
                 subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS'] and (external or standalone):
 
-            logger.info('Loading %s certificate', tag)
+            logger.info('Importing %s certificate', tag)
             logger.debug('- cert: %s', system_cert['data'])
             logger.debug('- request: %s', system_cert['request'])
 
             client.loadCert(request)
             return
 
-        logger.info('Setting up %s certificate', tag)
+        logger.info('Creating %s certificate', tag)
         cert = client.setupCert(request)
 
         logger.info('Storing %s certificate', tag)
