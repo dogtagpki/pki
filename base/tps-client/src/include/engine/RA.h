@@ -111,7 +111,6 @@ class RA
 	  static int IsTpsConfigured();
 //	  TPS_PUBLIC static int InitializeInChild(RA_Context *ctx);
 	  TPS_PUBLIC static int InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount);
-	  TPS_PUBLIC static int Shutdown();
           TPS_PUBLIC static int Child_Shutdown();
   public:
 
