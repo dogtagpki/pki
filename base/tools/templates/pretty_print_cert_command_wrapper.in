@@ -23,54 +23,25 @@
 # set NSS_DEFAULT_DB_TYPE.
 . /usr/share/pki/scripts/config
 
-# Check to insure that this script's original invocation directory
-# has not been deleted!
-
-# shellcheck disable=SC2034
-CWD=`/bin/pwd > /dev/null 2>&1`
-if [ $? -ne 0 ] ; then
-    echo "Cannot invoke '$0' from non-existent directory!"
-    exit 255
-fi
-
-
 ###############################################################################
 ##  (1) Specify variables used by this script.                               ##
 ###############################################################################
 
-PRODUCT=@PKI_PRODUCT@
 COMMAND=PrettyPrintCert
-
 
 ###############################################################################
 ##  (2) Check for valid usage of this command wrapper.                       ##
 ###############################################################################
 
-
-
 ###############################################################################
 ##  (3) Define helper functions.                                             ##
 ###############################################################################
-
-invalid_operating_system() {
-    echo
-    echo "ERROR:  '$0' does not execute on the '$1' operating system!"
-    echo
-}
-
-invalid_architecture() {
-    echo
-    echo "ERROR:  '$0' does not execute on the '$1' architecture!"
-    echo
-}
 
 ###############################################################################
 ##  (4) Set the LD_LIBRARY_PATH environment variable to determine the        ##
 ##      search order this command wrapper uses to find shared libraries.     ##
 ###############################################################################
 
-OS=`uname -s`
-ARCHITECTURE=`arch`
 if [ -e "${PKI_JAVA_PATH}" ]; then
     JAVA="${PKI_JAVA_PATH}"
 elif [ -e "${JAVA_HOME}/jre/bin/java" ]; then
@@ -89,7 +60,6 @@ JAVA_OPTIONS=""
 
 CP="${PKI_LIB}/*"
 export CP
-
 
 ###############################################################################
 ##  (6) Execute the java command specified by this java command wrapper      ##
@@ -125,5 +95,5 @@ then
 fi
 
 ${JAVA} ${JAVA_OPTIONS} -cp "${CP}" com.netscape.cmstools.${COMMAND} "$@"
-exit $?
 
+exit $?
