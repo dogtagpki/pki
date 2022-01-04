@@ -1628,7 +1628,6 @@ class PKISubsystem(object):
             as_current_user=False,
             capture_output=False):
 
-        java_path = os.getenv('PKI_JAVA_PATH')
         java_home = self.instance.config['JAVA_HOME']
         java_opts = self.instance.config['JAVA_OPTS']
 
@@ -1651,14 +1650,7 @@ class PKISubsystem(object):
             if username != self.instance.user:
                 cmd.extend(['/usr/sbin/runuser', '-u', self.instance.user, '--'])
 
-        if os.path.exists(java_path):
-            cmd.extend([java_path])
-        elif os.path.exists(java_home + '/jre/bin/java'):
-            cmd.extend([java_home + '/jre/bin/java'])
-        elif os.path.exists(java_home + '/bin/java'):
-            cmd.extend([java_home + '/bin/java'])
-        else:
-            cmd.extend(['/usr/bin/env', 'java'])
+        cmd.extend([java_home + '/bin/java'])
 
         cmd.extend([
             '-classpath', os.pathsep.join(classpath),

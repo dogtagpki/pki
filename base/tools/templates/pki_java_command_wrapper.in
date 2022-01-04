@@ -42,15 +42,7 @@ COMMAND=@PKI_COMMAND@
 ##      search order this command wrapper uses to find shared libraries.     ##
 ###############################################################################
 
-if [ -e "${PKI_JAVA_PATH}" ]; then
-    JAVA="${PKI_JAVA_PATH}"
-elif [ -e "${JAVA_HOME}/jre/bin/java" ]; then
-    JAVA="${JAVA_HOME}/jre/bin/java"
-elif [ -e "${JAVA_HOME}/bin/java" ]; then
-    JAVA="${JAVA_HOME}/bin/java"
-else
-    JAVA="/usr/bin/env java"
-fi
+JAVA="${JAVA_HOME}/bin/java"
 JAVA_OPTIONS=""
 
 ###############################################################################

@@ -501,7 +501,6 @@ grant codeBase "file:%s" {
             if current_user != self.user:
                 prefix.extend(['/usr/sbin/runuser', '-u', self.user, '--'])
 
-        java_path = os.getenv('PKI_JAVA_PATH')
         java_home = self.config.get('JAVA_HOME')
         java_opts = self.config.get('JAVA_OPTS')
         security_manager = self.config.get('SECURITY_MANAGER')
@@ -524,14 +523,7 @@ grant codeBase "file:%s" {
             cmd.extend(['jdb'])
 
         else:
-            if os.path.exists(java_path):
-                cmd.extend([java_path])
-            elif os.path.exists(java_home + '/jre/bin/java'):
-                cmd.extend([java_home + '/jre/bin/java'])
-            elif os.path.exists(java_home + '/bin/java'):
-                cmd.extend([java_home + '/bin/java'])
-            else:
-                cmd.extend(['/usr/bin/env', 'java'])
+            cmd.extend([java_home + '/bin/java'])
 
         if agentpath:
             cmd.extend(['-agentpath:%s' % agentpath])

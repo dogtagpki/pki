@@ -829,7 +829,6 @@ cd build
     -DP11_KIT_TRUST=/etc/alternatives/libnssckbi.so.%{_arch} \
     -DJAVA_VERSION=${java_version} \
     -DJAVA_HOME=%{java_home} \
-    -DPKI_JAVA_PATH=%{java_home}/bin/java \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
     -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
     -DAPP_SERVER=$app_server \
