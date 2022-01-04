@@ -128,6 +128,8 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
+          docker exec pki pki-server cert-find
+
       - name: Install KRA
         run: |
           docker exec pki pkispawn \
@@ -137,6 +139,8 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
+          docker exec pki pki-server cert-find
+
       - name: Install TKS
         run: |
           docker exec pki pkispawn \
@@ -145,6 +149,8 @@ jobs:
               -D pki_ds_hostname=ds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
+
+          docker exec pki pki-server cert-find
 
       - name: Install TPS
         run: |
@@ -156,6 +162,8 @@ jobs:
               -D pki_authdb_hostname=ds.example.com \
               -D pki_authdb_port=3389 \
               -v
+
+          docker exec pki pki-server cert-find
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
@@ -303,6 +311,8 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
+          docker exec ca pki-server cert-find
+
       - name: Set up KRA DS container
         run: |
           tests/bin/ds-container-create.sh krads
@@ -338,6 +348,8 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
+          docker exec kra pki-server cert-find
+
       - name: Set up TKS DS container
         run: |
           tests/bin/ds-container-create.sh tksds
@@ -370,6 +382,8 @@ jobs:
               -D pki_ds_hostname=tksds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
+
+          docker exec tks pki-server cert-find
 
       - name: Set up TPS DS container
         run: |
@@ -408,6 +422,8 @@ jobs:
               -D pki_authdb_hostname=tpsds.example.com \
               -D pki_authdb_port=3389 \
               -v
+
+          docker exec tps pki-server cert-find
 
       - name: Run PKI healthcheck
         run: docker exec tps pki-healthcheck --debug
@@ -546,6 +562,8 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
+          docker exec ca pki-server cert-find
+
       - name: Initialize CA admin in CA container
         run: |
           docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
@@ -588,6 +606,8 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
+          docker exec kra pki-server cert-find
+
       - name: Set up TKS DS container
         run: |
           tests/bin/ds-container-create.sh tksds
@@ -620,6 +640,8 @@ jobs:
               -D pki_ds_hostname=tksds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
+
+          docker exec tks pki-server cert-find
 
       - name: Set up TPS DS container
         run: |
@@ -722,6 +744,8 @@ jobs:
               -D pki_audit_signing_cert_path=${SHARED}/tps_audit_signing.crt \
               -D pki_admin_cert_path=${SHARED}/tps_admin.crt \
               -v
+
+          docker exec tps pki-server cert-find
 
       - name: Run PKI healthcheck
         run: docker exec tps pki-healthcheck --debug
@@ -862,6 +886,8 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
+          docker exec primary pki-server cert-find
+
       - name: Install KRA in primary PKI container
         run: |
           docker exec primary pkispawn \
@@ -871,6 +897,8 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
+          docker exec primary pki-server cert-find
+
       - name: Install TKS in primary PKI container
         run: |
           docker exec primary pkispawn \
@@ -879,6 +907,8 @@ jobs:
               -D pki_ds_hostname=primaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
+
+          docker exec primary pki-server cert-find
 
       - name: Install TPS in primary PKI container
         run: |
@@ -890,6 +920,8 @@ jobs:
               -D pki_authdb_hostname=primaryds.example.com \
               -D pki_authdb_port=3389 \
               -v
+
+          docker exec primary pki-server cert-find
 
       - name: Set up secondary DS container
         run: |
@@ -924,6 +956,8 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
+          docker exec secondary pki-server cert-find
+
       - name: Install KRA in secondary PKI container
         run: |
           docker exec primary pki-server kra-clone-prepare --pkcs12-file ${SHARED}/kra-certs.p12 --pkcs12-password Secret.123
@@ -936,6 +970,8 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -v
 
+          docker exec secondary pki-server cert-find
+
       - name: Install TKS in secondary PKI container
         run: |
           docker exec primary pki-server tks-clone-prepare --pkcs12-file ${SHARED}/tks-certs.p12 --pkcs12-password Secret.123
@@ -947,6 +983,8 @@ jobs:
               -D pki_ds_hostname=secondaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
+
+          docker exec secondary pki-server cert-find
 
       - name: Install TPS in secondary PKI container
         run: |
@@ -961,6 +999,8 @@ jobs:
               -D pki_authdb_hostname=secondaryds.example.com \
               -D pki_authdb_port=3389 \
               -v
+
+          docker exec secondary pki-server cert-find
 
       - name: Verify admin user
         run: |
