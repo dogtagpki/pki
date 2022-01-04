@@ -109,7 +109,6 @@ class RA
           static void getLastSignature();
 	  static int IsTokendbInitialized();
 	  static int IsTpsConfigured();
-          TPS_PUBLIC static int Child_Shutdown();
   public:
 
  	  static PK11SymKey *ComputeSessionKey(RA_Session *session,
