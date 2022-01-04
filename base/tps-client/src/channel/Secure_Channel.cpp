@@ -244,7 +244,7 @@ int Secure_Channel::ExternalAuthenticate()
 
     // must return 0x90 0x00
     if (!(response->GetSW1() == 0x90 && response->GetSW2() == 0x00)) {
-           RA::Error("RA_Processor::ExternalAuthenticate",
+           RA::Error("Secure_Channel::ExternalAuthenticate",
                 "Bad Response %x %x", response->GetSW1(), response->GetSW2());
            goto loser;
      }
@@ -276,8 +276,8 @@ int Secure_Channel::DeleteFileX(RA_Session *session, Buffer *aid)
     Delete_File_APDU *delete_apdu = NULL;
     // Buffer *mac = NULL;
 
-    RA::Debug("RA_Processor::DeleteFile",
-        "RA_Processor::DeleteFile");
+    RA::Debug("Secure_Channel::DeleteFile",
+        "Secure_Channel::DeleteFile");
 
     delete_apdu = new Delete_File_APDU(*aid);
     rc = ComputeAPDU(delete_apdu);
@@ -292,14 +292,14 @@ int Secure_Channel::DeleteFileX(RA_Session *session, Buffer *aid)
         new RA_Token_PDU_Request_Msg(delete_apdu);
     session->WriteMsg(delete_request_msg);
 
-    RA::Debug("RA_Processor::DeleteFile",
+    RA::Debug("Secure_Channel::DeleteFile",
         "Sent delete_request_msg");
 
     delete_response_msg = (RA_Token_PDU_Response_Msg *)
         session->ReadMsg();
     if (delete_response_msg == NULL)
     {
-       RA::Error("RA_Processor::DeleteFile",
+       RA::Error("Secure_Channel::DeleteFile",
             "No Token PDU Response Msg Received");
 	rc = -1;
         goto loser;
@@ -326,7 +326,7 @@ int Secure_Channel::DeleteFileX(RA_Session *session, Buffer *aid)
 
     if (!(delete_response->GetSW1() == 0x90 && 
 	 	delete_response->GetSW2() == 0x00)) {
-           RA::Error("RA_Processor::DeleteFile",
+           RA::Error("Secure_Channel::DeleteFile",
                 "Bad Response %x %x", delete_response->GetSW1(),
 		delete_response->GetSW2());
 	   rc = -1;
@@ -358,8 +358,8 @@ int Secure_Channel::InstallLoad(RA_Session *session,
     Install_Load_APDU *install_apdu = NULL;
     // Buffer *mac = NULL;
 
-    RA::Debug("RA_Processor::InstallLoad",
-        "RA_Processor::InstallLoad");
+    RA::Debug("Secure_Channel::InstallLoad",
+        "Secure_Channel::InstallLoad");
 
     install_apdu = new Install_Load_APDU(packageAID, sdAID, fileLen);
     rc = ComputeAPDU(install_apdu);
@@ -374,14 +374,14 @@ int Secure_Channel::InstallLoad(RA_Session *session,
         new RA_Token_PDU_Request_Msg(install_apdu);
     session->WriteMsg(install_request_msg);
 
-    RA::Debug("RA_Processor::InstallLoad",
+    RA::Debug("Secure_Channel::InstallLoad",
         "Sent install_request_msg");
 
     install_response_msg = (RA_Token_PDU_Response_Msg *)
         session->ReadMsg();
     if (install_response_msg == NULL)
     {
-       RA::Error("RA_Processor::InstallLoad",
+       RA::Error("Secure_Channel::InstallLoad",
             "No Token PDU Response Msg Received");
 	rc = -1;
         goto loser;
@@ -442,8 +442,8 @@ int Secure_Channel::InstallApplet(RA_Session *session,
     Install_Applet_APDU *install_apdu = NULL;
     // Buffer *mac = NULL;
 
-    RA::Debug("RA_Processor::InstallApplet",
-        "RA_Processor::InstallApplet");
+    RA::Debug("Secure_Channel::InstallApplet",
+        "Secure_Channel::InstallApplet");
 
     install_apdu = new Install_Applet_APDU(packageAID, appletAID, appPrivileges, 
 		    	instanceSize, appletMemorySize );
@@ -459,14 +459,14 @@ int Secure_Channel::InstallApplet(RA_Session *session,
         new RA_Token_PDU_Request_Msg(install_apdu);
     session->WriteMsg(install_request_msg);
 
-    RA::Debug("RA_Processor::InstallApplet",
+    RA::Debug("Secure_Channel::InstallApplet",
         "Sent install_request_msg");
 
     install_response_msg = (RA_Token_PDU_Response_Msg *)
         session->ReadMsg();
     if (install_response_msg == NULL)
     {
-        RA::Error("RA_Processor::InstallApplet",
+        RA::Error("Secure_Channel::InstallApplet",
             "No Token PDU Response Msg Received");
 	rc = -1;
         goto loser;
@@ -544,14 +544,14 @@ int Secure_Channel::LoadFile(RA_Session *session, BYTE refControl, BYTE blockNum
 
     session->WriteMsg(load_file_request_msg);
 
-    RA::Debug("RA_Processor::LoadFile",
+    RA::Debug("Secure_Channel::LoadFile",
         "Sent load_file_request_msg");
 
     load_file_response_msg = (RA_Token_PDU_Response_Msg *)
         session->ReadMsg();
     if (load_file_response_msg == NULL)
     {
-        RA::Error("RA_Processor::LoadFile",
+        RA::Error("Secure_Channel::LoadFile",
             "No Token PDU Response Msg Received");
 	rc = -1;
         goto loser;
@@ -719,7 +719,7 @@ Buffer Secure_Channel::GetIssuerInfo()
     }
     if (!(response->GetSW1() == 0x90 && 
 	 	response->GetSW2() == 0x00)) {
-           RA::Error("RA_Processor::GetIssuerInfo",
+           RA::Error("Secure_Channel::GetIssuerInfo",
                 "Bad Response");
 	       rc = -1;
            goto loser;
@@ -795,7 +795,7 @@ int Secure_Channel::SetIssuerInfo(Buffer *info)
     }
     if (!(response->GetSW1() == 0x90 && 
 	 	response->GetSW2() == 0x00)) {
-           RA::Error("RA_Processor::SetIssuerInfo",
+           RA::Error("Secure_Channel::SetIssuerInfo",
                 "Bad Response");
 	       rc = -1;
            goto loser;
@@ -872,7 +872,7 @@ int Secure_Channel::ResetPin(BYTE pin_number, char *new_pin)
     }
     if (!(response->GetSW1() == 0x90 && 
 	 	response->GetSW2() == 0x00)) {
-           RA::Error("RA_Processor::ResetPin",
+           RA::Error("Secure_Channel::ResetPin",
                 "Bad Response");
 	rc = -1;
            goto loser;
@@ -955,7 +955,7 @@ int Secure_Channel::ImportKey(BYTE key_number)
     }
     if (!(response->GetSW1() == 0x90 && 
 	 	response->GetSW2() == 0x00)) {
-           RA::Error("RA_Processor::ImportKey",
+           RA::Error("Secure_Channel::ImportKey",
                 "Error Response from Token %2x%2x",
 			response->GetSW1(),
 			response->GetSW2());
@@ -1052,7 +1052,7 @@ int Secure_Channel::ImportKeyEnc(BYTE priv_key_number, BYTE pub_key_number, Buff
 
     if (!(response->GetSW1() == 0x90 && 
 		response->GetSW2() == 0x00)) {
-      RA::Error("RA_Processor::ImportKeyEnc",
+      RA::Error("Secure_Channel::ImportKeyEnc",
                 "Error Response from Token %2x%2x",
 				response->GetSW1(),
 				response->GetSW2());
@@ -1152,7 +1152,7 @@ int Secure_Channel::PutKeys(RA_Session *session, BYTE key_version,
 	const char *FN="Secure_Channel::PutKeys";
 
     RA::Debug(LL_PER_CONNECTION, FN,
-        "RA_Processor::PutKey");
+        "Secure_Channel::PutKey");
 
     //For certain keys that require the implicit keyset
     //00 00
@@ -1418,7 +1418,7 @@ int Secure_Channel::StartEnrollment(BYTE p1, BYTE p2, Buffer *wrapped_challenge,
     }
     if (!(response->GetSW1() == 0x90 && 
 	 	response->GetSW2() == 0x00)) {
-           RA::Error("RA_Processor::GenerateKey",
+           RA::Error("Secure_Channel::GenerateKey",
                 "Error Response from token %2x%2x",
 				response->GetSW1(),
 				response->GetSW2());
@@ -1637,7 +1637,7 @@ int Secure_Channel::CreateObject(BYTE *object_id, BYTE *permissions, int len)
     }
     if (!(response->GetSW1() == 0x90 && 
 	 	response->GetSW2() == 0x00)) {
-           RA::Error("RA_Processor::CreateObject",
+           RA::Error("Secure_Channel::CreateObject",
                 "Error Response from token %2x%2x",
 				response->GetSW1(),
 				response->GetSW2());
@@ -1738,7 +1738,7 @@ Buffer *Secure_Channel::ReadObject(BYTE *object_id, int offset, int len)
         }
         if (!(response->GetSW1() == 0x90 && 
 	 	response->GetSW2() == 0x00)) {
-           RA::Error("RA_Processor::ReadObject",
+           RA::Error("Secure_Channel::ReadObject",
                 "Error Response from token %2x%2x",
 				response->GetSW1(),
 				response->GetSW2());
@@ -1863,7 +1863,7 @@ int Secure_Channel::WriteObject(BYTE *objid, BYTE *buf, int buf_len)
         }
         if (!(response->GetSW1() == 0x90 && 
 	 	response->GetSW2() == 0x00)) {
-           RA::Error("RA_Processor::WriteObject",
+           RA::Error("Secure_Channel::WriteObject",
                 "Error Response from token %2x%2x",
 				response->GetSW1(),
 				response->GetSW2());

@@ -3575,7 +3575,7 @@ PK11SymKey *RA::CreateDesKey24Byte(PK11SlotInfo *slot, PK11SymKey *origKey)
     CK_ULONG bitPosition = 0;
     SECItem paramsItem = { siBuffer, NULL, 0 };
     CK_OBJECT_HANDLE keyhandle = 0;
-    RA::Debug("RA_Enroll_Processor::CreateDesKey24Byte",
+    RA::Debug("RA::CreateDesKey24Byte",
                 "entering.");
 
     PK11SlotInfo *internal = PK11_GetInternalSlot();
@@ -3597,7 +3597,7 @@ PK11SymKey *RA::CreateDesKey24Byte(PK11SlotInfo *slot, PK11SymKey *origKey)
         firstEight = PK11_Derive(origKey, CKM_EXTRACT_KEY_FROM_KEY, &paramsItem, CKA_ENCRYPT , CKA_DERIVE, 8);
 
     if (firstEight  == NULL ) {
-         RA::Debug("RA_Enroll_Processor::CreateDesKey24Byte",
+         RA::Debug("RA::CreateDesKey24Byte",
                 "error deriving 8 byte portion of key.");
         goto loser;
     }
@@ -3615,7 +3615,7 @@ PK11SymKey *RA::CreateDesKey24Byte(PK11SlotInfo *slot, PK11SymKey *origKey)
     }
 
     if ( concatKey == NULL ) {
-        RA::Debug("RA_Enroll_Processor::CreateDesKey24Byte",
+        RA::Debug("RA::CreateDesKey24Byte",
                 "error concatenating 8 bytes on end of key.");
         goto loser;
     }
@@ -3626,7 +3626,7 @@ PK11SymKey *RA::CreateDesKey24Byte(PK11SlotInfo *slot, PK11SymKey *origKey)
     newKey =  PK11_MoveSymKey ( slot, CKA_ENCRYPT, 0, PR_FALSE, concatKey);
 
     if ( newKey == NULL ) {
-        RA::Debug("RA_Enroll_Processor::CreateDesKey24Byte",
+        RA::Debug("RA::CreateDesKey24Byte",
                 "error moving key to original slot.");
     }
 
