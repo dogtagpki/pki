@@ -1898,59 +1898,6 @@ PublisherEntry *RA::getPublisherById(const char *publisher_id)
 
 }
 
-void RA::CleanupPublishers()
-{
-
-    if(RA::m_num_publishers == 0)
-      return;
-
-    RA::Debug(LL_PER_PDU, "RA::CleanupPublishers:"," Loaded %d publishers.", RA::m_num_publishers);
-
-    PublisherEntry *cur = RA::publisher_list;
-
-    if(cur == NULL)
-    {
-         return ;
-    }
-
-    while(cur != NULL)
-    {
-
-        PublisherEntry *next =cur->next;
-
-        if(cur)
-        {
-
-            RA::Debug(LL_PER_PDU, "RA::CleanupPublishers:"," Cleanup up publisher %s", cur->id);
-            if( cur->id != NULL)
-            {
-                 free( cur->id );
-                 cur->id = NULL;
-            }
-
-            if( cur->publisher != NULL ) {
-                delete cur->publisher;
-                cur->publisher = NULL;
-            }
-
-            if( cur->publisher_lib != NULL ) {
-                PR_UnloadLibrary( cur->publisher_lib );
-                cur->publisher_lib = NULL;
-            }
-
-            if( cur != NULL ) {
-                free( cur );
-                cur = NULL;
-            }
-
-            cur = next;
-
-        }
-    }
-
-  
-}
-
 int RA::InitializeHttpConnections(const char *id, int *len, HttpConnection **conn, RA_Context *ctx) {
     char configname[256];
     char connID[100];

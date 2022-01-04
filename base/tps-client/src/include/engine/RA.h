@@ -359,7 +359,6 @@ class RA
 
           static PublisherEntry *getPublisherById(const char *publisher_id);
           static int InitializeHttpConnections(const char *id, int *len, HttpConnection **conn, RA_Context *ctx);
-          static void CleanupPublishers();
         static int Failover(HttpConnection *&conn, int len);   
 
           static bool isAlgorithmECC(BYTE algorithm);
