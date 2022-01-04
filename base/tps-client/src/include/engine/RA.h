@@ -94,10 +94,6 @@ enum RA_Algs {
 #define TPS_PUBLIC
 #endif /* !XP_WIN32 */
 
-/* For now, this value must correspond exactly to the successful exit */
-/* status of RA::Initialize( char *cfg_path, RA_Context *ctx ).       */
-#define RA_INITIALIZATION_SUCCESS 1
-
 #define TRANSPORT_KEY_NAME "sharedSecret"
 
 typedef char NSSUTF8;
@@ -113,7 +109,6 @@ class RA
           static void getLastSignature();
 	  static int IsTokendbInitialized();
 	  static int IsTpsConfigured();
-	  TPS_PUBLIC static int Initialize(char *cfg_path, RA_Context *ctx);
 //	  TPS_PUBLIC static int InitializeInChild(RA_Context *ctx);
 	  TPS_PUBLIC static int InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount);
 	  TPS_PUBLIC static int Shutdown();
