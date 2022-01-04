@@ -125,12 +125,6 @@ set(tps_library_SRCS
     channel/Channel.cpp
     channel/Secure_Channel.cpp
     engine/RA.cpp
-    processor/RA_Processor.cpp
-    processor/RA_Enroll_Processor.cpp
-    processor/RA_Pin_Reset_Processor.cpp
-    processor/RA_Renew_Processor.cpp
-    processor/RA_Unblock_Processor.cpp
-    processor/RA_Format_Processor.cpp
 )
 
 include_directories(${TPS_PRIVATE_INCLUDE_DIRS})
