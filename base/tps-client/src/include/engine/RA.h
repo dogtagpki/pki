@@ -109,8 +109,6 @@ class RA
           static void getLastSignature();
 	  static int IsTokendbInitialized();
 	  static int IsTpsConfigured();
-//	  TPS_PUBLIC static int InitializeInChild(RA_Context *ctx);
-	  TPS_PUBLIC static int InitializeInChild(RA_Context *ctx, int nSignedAuditInitCount);
           TPS_PUBLIC static int Child_Shutdown();
   public:
 
