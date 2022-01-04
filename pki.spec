@@ -65,12 +65,6 @@ ExcludeArch: i686
 %define java_home %{_jvmdir}/jre-17-openjdk
 
 ################################################################################
-# RESTEasy
-################################################################################
-
-%define resteasy_lib /usr/share/java/resteasy
-
-################################################################################
 # PKI
 ################################################################################
 
@@ -839,7 +833,6 @@ cd build
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
     -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
     -DAPP_SERVER=$app_server \
-    -DRESTEASY_LIB=%{resteasy_lib} \
     -DNSS_DEFAULT_DB_TYPE=%{nss_default_db_type} \
     -DBUILD_PKI_CORE:BOOL=ON \
     -DPYTHON_EXECUTABLE=%{python_executable} \
