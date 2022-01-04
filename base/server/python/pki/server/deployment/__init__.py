@@ -801,6 +801,23 @@ class PKIDeployer:
 
             self.setup_cert(subsystem, client, tag, system_certs[tag])
 
+        logger.info('Setting up certificate trust flags')
+
+        nssdb = subsystem.instance.open_nssdb()
+
+        try:
+            if subsystem.type == 'CA':
+                nssdb.modify_cert(
+                    nickname=self.mdict['pki_ca_signing_nickname'],
+                    trust_attributes='CTu,Cu,Cu')
+
+            nssdb.modify_cert(
+                nickname=self.mdict['pki_audit_signing_nickname'],
+                trust_attributes='u,u,Pu')
+
+        finally:
+            nssdb.close()
+
         subsystem.save()
 
         return system_certs

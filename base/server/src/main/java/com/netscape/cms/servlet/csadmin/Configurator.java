@@ -566,19 +566,6 @@ public class Configurator {
                 certRequestType,
                 binCertRequest,
                 subjectName);
-
-        trustCert(type, tag, x509Cert);
-    }
-
-    public void trustCert(String type, String tag, X509Certificate x509Cert) {
-
-        if (tag.equals("signing") && type.equals("CA")) { // set trust flags to CT,C,C
-            CryptoUtil.trustCACert(x509Cert);
-
-        } else if (tag.equals("audit_signing")) { // set trust flags to u,u,Pu
-            CryptoUtil.trustAuditSigningCert(x509Cert);
-
-        } // user certs will have u,u,u by default
     }
 
     public Cert setupCert(CertificateSetupRequest request) throws Exception {
@@ -743,8 +730,6 @@ public class Configurator {
 
         logger.debug("Configurator: importing " + tag + " cert");
         x509Cert = CryptoUtil.importUserCertificate(binCert, nickname);
-
-        trustCert(type, tag, x509Cert);
 
         return cert;
     }

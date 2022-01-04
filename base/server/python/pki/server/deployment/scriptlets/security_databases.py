@@ -177,16 +177,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     pkcs12_file=pki_clone_pkcs12_path,
                     pkcs12_password=pki_clone_pkcs12_password)
 
-                # Set certificate trust flags
-                if subsystem.type == 'CA':
-                    nssdb.modify_cert(
-                        nickname=deployer.mdict['pki_ca_signing_nickname'],
-                        trust_attributes='CTu,Cu,Cu')
-
-                nssdb.modify_cert(
-                    nickname=deployer.mdict['pki_audit_signing_nickname'],
-                    trust_attributes='u,u,Pu')
-
                 print('Imported certificates into %s:' %
                       pki_server_database_path)
 
