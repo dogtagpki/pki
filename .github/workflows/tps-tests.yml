@@ -915,11 +915,11 @@ jobs:
         run: |
           docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
-          docker exec secondary cp ${SHARED}/ca_signing.crt .
-          docker exec secondary cp ${SHARED}/ca-certs.p12 .
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
               -s CA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_ds_hostname=secondaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
@@ -927,10 +927,11 @@ jobs:
       - name: Install KRA in secondary PKI container
         run: |
           docker exec primary pki-server kra-clone-prepare --pkcs12-file ${SHARED}/kra-certs.p12 --pkcs12-password Secret.123
-          docker exec secondary cp ${SHARED}/kra-certs.p12 .
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/kra-clone.cfg \
               -s KRA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_clone_pkcs12_path=${SHARED}/kra-certs.p12 \
               -D pki_ds_hostname=secondaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
@@ -938,10 +939,11 @@ jobs:
       - name: Install TKS in secondary PKI container
         run: |
           docker exec primary pki-server tks-clone-prepare --pkcs12-file ${SHARED}/tks-certs.p12 --pkcs12-password Secret.123
-          docker exec secondary cp ${SHARED}/tks-certs.p12 .
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/tks-clone.cfg \
               -s TKS \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_clone_pkcs12_path=${SHARED}/tks-certs.p12 \
               -D pki_ds_hostname=secondaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
@@ -949,10 +951,11 @@ jobs:
       - name: Install TPS in secondary PKI container
         run: |
           docker exec primary pki-server tps-clone-prepare --pkcs12-file ${SHARED}/tps-certs.p12 --pkcs12-password Secret.123
-          docker exec secondary cp ${SHARED}/tps-certs.p12 .
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/tps-clone.cfg \
               -s TPS \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_clone_pkcs12_path=${SHARED}/tps-certs.p12 \
               -D pki_ds_hostname=secondaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -D pki_authdb_hostname=secondaryds.example.com \
@@ -962,7 +965,7 @@ jobs:
       - name: Verify admin user
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
-          docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec secondary pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
           docker exec secondary pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123

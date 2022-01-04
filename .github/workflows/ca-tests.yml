@@ -365,10 +365,10 @@ jobs:
       - name: Install subordinate CA in subordinate container
         run: |
           docker exec root pki-server cert-export ca_signing --cert-file ${SHARED}/root-ca_signing.crt
-          docker exec subordinate cp ${SHARED}/root-ca_signing.crt .
           docker exec subordinate pkispawn \
               -f /usr/share/pki/server/examples/installation/subca.cfg \
               -s CA \
+              -D pki_cert_chain_path=${SHARED}/root-ca_signing.crt \
               -D pki_ds_hostname=subds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
@@ -378,7 +378,7 @@ jobs:
 
       - name: Verify CA admin
         run: |
-          docker exec subordinate pki client-cert-import ca_signing --ca-cert root-ca_signing.crt
+          docker exec subordinate pki client-cert-import ca_signing --ca-cert ${SHARED}/root-ca_signing.crt
           docker exec subordinate pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
@@ -797,11 +797,11 @@ jobs:
       - name: Install CA in secondary PKI container
         run: |
           docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
-          docker exec secondary cp ${SHARED}/ca_signing.crt .
-          docker exec secondary cp ${SHARED}/ca-certs.p12 .
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
               -s CA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_ds_hostname=secondaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
@@ -809,7 +809,7 @@ jobs:
       - name: Verify users and SD hosts in secondary PKI container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
-          docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec secondary pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
           docker exec secondary pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
@@ -840,18 +840,18 @@ jobs:
         run: |
           docker exec secondary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec secondary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
-          docker exec tertiary cp ${SHARED}/ca_signing.crt .
-          docker exec tertiary cp ${SHARED}/ca-certs.p12 .
           docker exec tertiary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg \
               -s CA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_ds_hostname=tertiaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
 
       - name: Verify users and SD hosts in tertiary PKI container
         run: |
-          docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec tertiary pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
           docker exec tertiary pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
@@ -1273,11 +1273,11 @@ jobs:
         run: |
           docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
-          docker exec secondary cp ${SHARED}/ca_signing.crt .
-          docker exec secondary cp ${SHARED}/ca-certs.p12 .
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg \
               -s CA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_ds_hostname=secondaryds.example.com \
               -D pki_ds_ldaps_port=3636 \
               -v
@@ -1319,6 +1319,8 @@ jobs:
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg \
               -s CA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_ds_hostname=secondaryds.example.com \
               -D pki_ds_ldaps_port=3636 \
               -v
