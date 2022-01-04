@@ -68,7 +68,6 @@ ExcludeArch: i686
 # RESTEasy
 ################################################################################
 
-%define jaxrs_api_jar /usr/share/java/jboss-jaxrs-2.0-api.jar
 %define resteasy_lib /usr/share/java/resteasy
 
 ################################################################################
@@ -840,7 +839,6 @@ cd build
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
     -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
     -DAPP_SERVER=$app_server \
-    -DJAXRS_API_JAR=%{jaxrs_api_jar} \
     -DRESTEASY_LIB=%{resteasy_lib} \
     -DNSS_DEFAULT_DB_TYPE=%{nss_default_db_type} \
     -DBUILD_PKI_CORE:BOOL=ON \
@@ -921,7 +919,6 @@ ln -sf /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar %{buildroo
 %if %{with server}
 
 # Customize server common library links in /usr/share/pki/server/common/lib
-ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/server/common/lib/jboss-jaxrs-2.0-api.jar
 ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-logging.jar
 %if 0%{?fedora} && 0%{?fedora} <= 34
 ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-annotations-api_1.2_spec.jar
