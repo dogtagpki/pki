@@ -146,5 +146,3 @@ install(
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}/tps
 )
 
-add_subdirectory(authentication)
-
