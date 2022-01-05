@@ -51,7 +51,6 @@
 #include "channel/Secure_Channel.h"
 #include "cms/HttpConnection.h"
 #include "cms/ConnectionInfo.h"
-#include  "publisher/IPublisher.h"
 
 /*
  *
