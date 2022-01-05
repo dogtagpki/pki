@@ -2473,38 +2473,6 @@ int RA::Failover(HttpConnection *&conn, int len) {
     return rc;
 }
 
-TPS_PUBLIC SECCertificateUsage RA::getCertificateUsage(const char *certusage) {
-    SECCertificateUsage cu = -1;
-    if ((certusage == NULL) || *certusage == 0)
-         cu = certificateUsageCheckAllUsages;
-    else if (strcmp(certusage, "CheckAllUsages") == 0)
-         cu = certificateUsageCheckAllUsages;
-    else if (strcmp(certusage, "SSLServer") == 0)
-         cu = certificateUsageSSLServer;
-    else if (strcmp(certusage, "SSLServerWithStepUp") == 0)
-         cu = certificateUsageSSLServerWithStepUp;
-    else if (strcmp(certusage, "SSLClient") == 0)
-         cu = certificateUsageSSLClient;
-    else if (strcmp(certusage, "SSLCA") == 0)
-         cu = certificateUsageSSLCA;
-    else if (strcmp(certusage, "AnyCA") == 0)
-         cu = certificateUsageAnyCA;
-    else if (strcmp(certusage, "StatusResponder") == 0)
-         cu = certificateUsageStatusResponder;
-    else if (strcmp(certusage, "ObjectSigner") == 0)
-         cu = certificateUsageObjectSigner;
-    else if (strcmp(certusage, "UserCertImport") == 0)
-         cu = certificateUsageUserCertImport;
-    else if (strcmp(certusage, "ProtectedObjectSigner") == 0)
-         cu = certificateUsageProtectedObjectSigner;
-    else if (strcmp(certusage, "VerifyCA") == 0)
-         cu = certificateUsageVerifyCA;
-    else if (strcmp(certusage, "EmailSigner") == 0)
-         cu = certificateUsageEmailSigner;
-
-    return cu;
-}
-
 PK11SymKey *RA::FindSymKeyByName( PK11SlotInfo *slot, char *keyname) {
 char       *name       = NULL;
     PK11SymKey *foundSymKey= NULL;

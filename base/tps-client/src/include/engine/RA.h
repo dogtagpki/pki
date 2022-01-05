@@ -344,7 +344,6 @@ class RA
         static int Failover(HttpConnection *&conn, int len);   
 
           static bool isAlgorithmECC(BYTE algorithm);
-      TPS_PUBLIC static SECCertificateUsage getCertificateUsage(const char *certusage);
 
       static bool transition_allowed(int oldState, int newState);
       static int get_token_state(char *state, char *reason);
