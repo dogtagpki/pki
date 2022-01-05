@@ -213,7 +213,6 @@ class RA
 	  static int tdb_update_certificates(char *cuid, char **tokentypes, char *userid, CERTCertificate **certificates, char **ktypes, char **origins, int numOfCerts);
 	  static int tdb_activity(const char *ip, const char *cuid, const char *op, const char *result, const char *msg, const char *userid, const char *token_type);
 	  static int testTokendb();
-          static int InitializeAuthentication();
           static AuthenticationEntry *GetAuth(const char *id);
   public:
           static HttpConnection *GetCAConn(const char *id);
