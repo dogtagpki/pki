@@ -213,7 +213,6 @@ class RA
 	  static int tdb_update_certificates(char *cuid, char **tokentypes, char *userid, CERTCertificate **certificates, char **ktypes, char **origins, int numOfCerts);
 	  static int tdb_activity(const char *ip, const char *cuid, const char *op, const char *result, const char *msg, const char *userid, const char *token_type);
 	  static int testTokendb();
-          static AuthenticationEntry *GetAuth(const char *id);
   public:
           static HttpConnection *GetCAConn(const char *id);
           static void ReturnCAConn(HttpConnection *conn);
@@ -229,10 +228,6 @@ class RA
 
           static void SetPodIndex(int index);
           static int GetPodIndex();
-          TPS_PUBLIC static int GetAuthCurrentIndex();
-          static void SetAuthCurrentIndex(int index);
-          TPS_PUBLIC static PRLock *GetAuthLock();
-          TPS_PUBLIC static void IncrementAuthCurrentIndex(int len);
           TPS_PUBLIC static void update_signed_audit_selected_events(char *new_selected);
           TPS_PUBLIC static void update_signed_audit_enable(const char *enable);
           TPS_PUBLIC static void update_signed_audit_log_signing(const char *enable);
@@ -312,11 +307,9 @@ class RA
           static HttpConnection* m_drmConnection[];
           static int m_drmConns_len;
           static int m_pod_curr;
-          static int m_auth_curr;
           static bool m_pod_enable;
           static PRLock *m_verify_lock;
           static PRLock *m_pod_lock;
-          static PRLock *m_auth_lock;
           static PRLock *m_error_log_lock;
           static PRLock *m_selftest_log_lock;
           static PRMonitor *m_audit_log_monitor;
@@ -344,8 +337,6 @@ class RA
       static HttpConnection* m_tksConnection[];
       static int m_caConns_len;
       static int m_tksConns_len;
-      static int m_auth_len;
-      static AuthenticationEntry *m_auth_list[];
 	  static SecurityLevel m_global_security_level;
       static void SetCurrentIndex(HttpConnection *&conn, int index);
 

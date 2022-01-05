@@ -86,9 +86,7 @@ RA_Context *RA::m_ctx = NULL;
 bool RA::m_pod_enable=false;
 int RA::m_pod_curr = 0;
 PRLock *RA::m_pod_lock = NULL;
-int RA::m_auth_curr;
 PRLock *RA::m_verify_lock = NULL;
-PRLock *RA::m_auth_lock = NULL;
 PRLock *RA::m_debug_log_lock = NULL;
 PRLock *RA::m_error_log_lock = NULL;
 PRLock *RA::m_selftest_log_lock = NULL;
@@ -117,7 +115,6 @@ int RA::m_selftest_log_level = (int) LL_PER_SERVER;
 int RA::m_caConns_len = 0;
 int RA::m_tksConns_len = 0;
 int RA::m_drmConns_len = 0;
-int RA::m_auth_len = 0;
 
 #define MAX_BODY_LEN 4096
 
@@ -127,7 +124,6 @@ int RA::m_auth_len = 0;
 #define MAX_AUTH_LIST_MEMBERS 20
 HttpConnection* RA::m_caConnection[MAX_CA_CONNECTIONS];
 HttpConnection* RA::m_tksConnection[MAX_TKS_CONNECTIONS];
-AuthenticationEntry* RA::m_auth_list[MAX_AUTH_LIST_MEMBERS];
 HttpConnection* RA::m_drmConnection[MAX_DRM_CONNECTIONS];
 
 /* TKS response parameters */
@@ -535,22 +531,8 @@ HttpConnection *RA::GetCAConn(const char *id) {
     return caconn;
 }
 
-AuthenticationEntry *RA::GetAuth(const char *id) {
-    AuthenticationEntry *authEntry = NULL;
-    for (int i=0; i<m_auth_len; i++) {
-        authEntry = m_auth_list[i];
-        if (strcmp(authEntry->GetId(), id) == 0)
-            return authEntry;
-    }
-    return NULL;
-}
-
 void RA::ReturnCAConn(HttpConnection *conn) {
     // do nothing for now
-}
-
-TPS_PUBLIC PRLock *RA::GetAuthLock() {
-    return m_auth_lock;
 }
 
 int RA::GetPodIndex() {
@@ -579,26 +561,6 @@ int RA::GetCurrentIndex(HttpConnection *conn) {
     int index = conn->GetCurrentIndex();
     PR_Unlock(lock);
     return index;
-}
-
-TPS_PUBLIC int RA::GetAuthCurrentIndex() {
-    PR_Lock(m_auth_lock);
-    int index = m_auth_curr;
-    PR_Unlock(m_auth_lock);
-    return index;
-}
-
-void RA::SetAuthCurrentIndex(int index) {
-    PR_Lock(m_auth_lock);
-    m_auth_curr = index;
-    PR_Unlock(m_auth_lock);
-}
-
-TPS_PUBLIC void RA::IncrementAuthCurrentIndex(int len) {
-    PR_Lock(m_auth_lock);
-    if ((++m_auth_curr) >= len)
-        m_auth_curr = 0;
-    PR_Unlock(m_auth_lock);
 }
 
 void RA::SetGlobalSecurityLevel(SecurityLevel sl) {
