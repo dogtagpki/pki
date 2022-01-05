@@ -184,8 +184,6 @@ const char *RA::CFG_DEF_NETKEY_OLD_INSTANCE_AID = "A00000000101";
 const char *RA::CFG_DEF_NETKEY_OLD_FILE_AID = "A000000001"; 
 const char *RA::CFG_DEF_APPLET_SO_PIN = "000000000000"; 
 
-typedef Authentication* (*makeauthentication)();
-
 extern void BuildHostPortLists(char *host, char *port, char **hostList, 
   char **portList, int len);
 

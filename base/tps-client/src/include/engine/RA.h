@@ -44,7 +44,6 @@
 #include "main/ConfigStore.h"
 #include "main/Buffer.h"
 #include "main/LogFile.h"
-#include "authentication/Authentication.h"
 #include "apdu/APDU.h"
 #include "main/RA_Context.h"
 #include "channel/Secure_Channel.h"

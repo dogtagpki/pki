@@ -58,7 +58,6 @@ set(tps_library_SRCS
     main/SecureId.cpp
     main/Memory.cpp
     main/AuthParams.cpp
-    main/Authentication.cpp
     main/AttributeSpec.cpp
     main/ObjectSpec.cpp
     main/PKCS11Obj.cpp
