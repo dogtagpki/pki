@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs:
   init:
     name: Initializing workflow
+    if: ${{ false }}  # disable for now
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.init.outputs.matrix }}
@@ -26,6 +27,7 @@ jobs:
   # docs/development/Building_PKI.md
   build:
     name: Building PKI
+    if: ${{ false }}  # disable for now
     needs: init
     runs-on: ubuntu-latest
     strategy:
@@ -79,6 +81,7 @@ jobs:
     # This job uses Ansible playbooks in the tests dir to setup a PKI deployment.
     # All 5 subsystems are deployed on "discrete" instances
     name: Testing installation sanity
+    if: ${{ false }}  # disable for now
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
