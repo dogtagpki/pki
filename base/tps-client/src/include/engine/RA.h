@@ -43,7 +43,6 @@
 #include "main/Base.h"
 #include "main/ConfigStore.h"
 #include "main/Buffer.h"
-#include "main/AuthenticationEntry.h"
 #include "main/LogFile.h"
 #include "authentication/Authentication.h"
 #include "apdu/APDU.h"
