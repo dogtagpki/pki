@@ -1874,30 +1874,6 @@ void RA::ErrorThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	PR_Unlock(m_error_log_lock);
 }
 
-PublisherEntry *RA::getPublisherById(const char *publisher_id)
-{
-
-    PublisherEntry *cur = RA::publisher_list;
-
-    if(cur == NULL)
-    {
-         return NULL;
-    }
-
-    while(cur != NULL)
-    {
-       if(!strcmp(publisher_id,cur->id))
-       {
-           break;
-       }
-
-       cur = cur->next;
-    }
-
-    return cur;
-
-}
-
 int RA::InitializeHttpConnections(const char *id, int *len, HttpConnection **conn, RA_Context *ctx) {
     char configname[256];
     char connID[100];
