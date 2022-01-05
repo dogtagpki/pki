@@ -346,7 +346,6 @@ class RA
           static bool isAlgorithmECC(BYTE algorithm);
       TPS_PUBLIC static SECCertificateUsage getCertificateUsage(const char *certusage);
       TPS_PUBLIC static bool verifySystemCertByNickname(const char *nickname, const char *certUsage);
-      TPS_PUBLIC static bool verifySystemCerts();
 
       static bool transition_allowed(int oldState, int newState);
       static int get_token_state(char *state, char *reason);
