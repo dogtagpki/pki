@@ -43,7 +43,6 @@
 #include "main/Base.h"
 #include "main/ConfigStore.h"
 #include "main/Buffer.h"
-#include "main/PublishEntry.h"
 #include "main/AuthenticationEntry.h"
 #include "main/LogFile.h"
 #include "authentication/Authentication.h"
@@ -352,8 +351,6 @@ class RA
 	  static SecurityLevel m_global_security_level;
       static void SetCurrentIndex(HttpConnection *&conn, int index);
 
-          static PublisherEntry *publisher_list;
-          static int m_num_publishers;
           static RA_Context *m_ctx;
 
           static int InitializeHttpConnections(const char *id, int *len, HttpConnection **conn, RA_Context *ctx);

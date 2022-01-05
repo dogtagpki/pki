@@ -129,8 +129,6 @@ HttpConnection* RA::m_caConnection[MAX_CA_CONNECTIONS];
 HttpConnection* RA::m_tksConnection[MAX_TKS_CONNECTIONS];
 AuthenticationEntry* RA::m_auth_list[MAX_AUTH_LIST_MEMBERS];
 HttpConnection* RA::m_drmConnection[MAX_DRM_CONNECTIONS];
-int RA::m_num_publishers = 0;
-PublisherEntry *RA::publisher_list = NULL;
 
 /* TKS response parameters */
 const char *RA::TKS_RESPONSE_STATUS = "status";
