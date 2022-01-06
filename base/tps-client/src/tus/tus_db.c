@@ -4106,40 +4106,6 @@ TPS_PUBLIC int is_update_pin_resetable_policy(char *cn)
     return resetable;
 }
 
-TPS_PUBLIC int is_tus_db_entry_disabled(char *cn)
-{
-    LDAPMessage *result = NULL;
-    LDAPMessage *e = NULL;
-    struct berval **v = NULL;
-    int disabled = 1;
-    int rc = -1;
-
-    if (cn != NULL && PL_strlen(cn) > 0) {
-        if ((rc = find_tus_db_entry (cn, 0, &result)) == LDAP_SUCCESS) {
-            e = get_first_entry (result);
-            if (e != NULL) {
-                if ((v = ldap_get_values_len(ld, e, TOKEN_STATUS)) != NULL) {
-                    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
-                        if (!PL_strcasecmp(v[0]->bv_val, STATE_ACTIVE) ||
-                            !PL_strcasecmp(v[0], STATE_UNINITIALIZED)) {
-                            disabled = 0;
-                        }
-                    }
-                    if( v != NULL ) {
-                        ldap_value_free_len( v );
-                        v = NULL;
-                    }
-                }
-            }
-            if( result != NULL ) {
-                free_results( result );
-                result = NULL;
-            }
-        }
-    }
-    return disabled;
-}
-
 TPS_PUBLIC LDAPMod **allocate_modifications(int size)
 {
     int i, n;

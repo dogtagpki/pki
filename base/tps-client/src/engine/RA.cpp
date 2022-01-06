@@ -2073,11 +2073,6 @@ TPS_PUBLIC int RA::ra_find_tus_token_entries(char *filter, int maxReturns,
     return find_tus_token_entries(filter, maxReturns, ldapResult, num);
 }
 
-TPS_PUBLIC int RA::ra_is_tus_db_entry_disabled(char *cuid)
-{
-   return is_tus_db_entry_disabled(cuid);
-}
-
 TPS_PUBLIC int RA::ra_is_token_pin_resetable(char *cuid)
 {
     return is_token_pin_resetable(cuid);

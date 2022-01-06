@@ -184,7 +184,6 @@ class RA
             int maxReturns, LDAPMessage **ldapResult, int num);
           TPS_PUBLIC static int ra_find_tus_token_entries_no_vlv(char *filter,
             LDAPMessage **ldapResult, int num);
-	  TPS_PUBLIC static int ra_is_tus_db_entry_disabled(char *cuid);
 	  TPS_PUBLIC static int ra_is_token_pin_resetable(char *cuid);
 	  TPS_PUBLIC static int ra_allow_token_reenroll(char *cuid);
 	  TPS_PUBLIC static int ra_allow_token_renew(char *cuid);
