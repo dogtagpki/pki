@@ -205,7 +205,6 @@ class RA
       TPS_PUBLIC static void ra_tus_print_integer(char *out, SECItem *data);
       TPS_PUBLIC static int ra_update_token_status_reason_userid(char *userid,
         char *cuid, const char *status, const char *reason, int modifyDateOfCreate);
-          static int tdb_add_token_entry(char *userid, char* cuid, const char *status, const char *token_type);
 	  static int tdb_update(const char *userid, char *cuid, char *applet_version, char *key_info, const char *state, const char *reason, const char * token_type);
 	  static int tdb_update_certificates(char *cuid, char **tokentypes, char *userid, CERTCertificate **certificates, char **ktypes, char **origins, int numOfCerts);
 	  static int tdb_activity(const char *ip, const char *cuid, const char *op, const char *result, const char *msg, const char *userid, const char *token_type);
