@@ -4040,28 +4040,6 @@ TPS_PUBLIC int force_token_format(char *cn)
     return allow_token_enroll_policy(cn,"FORCE_FORMAT=YES");
 }
 
-TPS_PUBLIC int is_token_present(char *cn)
-{
-    LDAPMessage *result = NULL;
-    LDAPMessage *e = NULL;
-    int present = 0;
-    int rc = -1;
-
-    if (cn != NULL && PL_strlen(cn) > 0) {
-        if ((rc = find_tus_db_entry (cn, 0, &result)) == LDAP_SUCCESS) {
-            e = get_first_entry (result);
-            if (e != NULL) {
-                present = 1;
-            }
-            if( result != NULL ) {
-                free_results( result );
-                result = NULL;
-            }
-        }
-    }
-    return present;
-}
-
 TPS_PUBLIC int is_token_pin_resetable(char *cn)
 {
     LDAPMessage *result = NULL;

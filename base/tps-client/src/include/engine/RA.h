@@ -186,7 +186,6 @@ class RA
             LDAPMessage **ldapResult, int num);
 	  TPS_PUBLIC static int ra_is_tus_db_entry_disabled(char *cuid);
 	  TPS_PUBLIC static int ra_is_token_pin_resetable(char *cuid);
-	  TPS_PUBLIC static int ra_is_token_present(char *cuid);
 	  TPS_PUBLIC static int ra_allow_token_reenroll(char *cuid);
 	  TPS_PUBLIC static int ra_allow_token_renew(char *cuid);
           TPS_PUBLIC static int ra_force_token_format(char *cuid);

@@ -155,7 +155,6 @@ TPS_PUBLIC int allow_token_renew(char *cn);
 TPS_PUBLIC int force_token_format(char *cn);
 TPS_PUBLIC int is_token_pin_resetable(char *cn);
 TPS_PUBLIC int is_update_pin_resetable_policy(char *cn);
-TPS_PUBLIC int is_token_present(char *cn);
 TPS_PUBLIC int update_token_policy (char *cn, char *policy);
 TPS_PUBLIC char *get_token_policy (char *cn);
 TPS_PUBLIC char *get_token_userid(char *cn);

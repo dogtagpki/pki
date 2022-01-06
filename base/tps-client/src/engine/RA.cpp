@@ -2078,11 +2078,6 @@ TPS_PUBLIC int RA::ra_is_tus_db_entry_disabled(char *cuid)
    return is_tus_db_entry_disabled(cuid);
 }
 
-TPS_PUBLIC int RA::ra_is_token_present(char *cuid)
-{
-    return is_token_present(cuid);
-}
-
 TPS_PUBLIC int RA::ra_is_token_pin_resetable(char *cuid)
 {
     return is_token_pin_resetable(cuid);
