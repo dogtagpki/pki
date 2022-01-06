@@ -4040,39 +4040,6 @@ TPS_PUBLIC int force_token_format(char *cn)
     return allow_token_enroll_policy(cn,"FORCE_FORMAT=YES");
 }
 
-TPS_PUBLIC int is_update_pin_resetable_policy(char *cn)
-{
-    LDAPMessage *result = NULL;
-    LDAPMessage *e = NULL;
-    struct berval **v = NULL;
-    int resetable = 0;
-    int rc = -1;
-
-    if (cn != NULL && PL_strlen(cn) > 0) {
-        if ((rc = find_tus_db_entry (cn, 0, &result)) == LDAP_SUCCESS) {
-            e = get_first_entry (result);
-            if (e != NULL) {
-                if ((v = ldap_get_values_len(ld, e, TOKEN_POLICY)) != NULL) {
-                    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
-                        if (PL_strstr(v[0]->bv_val, "RESET_PIN_RESET_TO_NO=YES")) {
-                            resetable = 1;
-                        }
-                    }
-                    if( v != NULL ) {
-                        ldap_value_free_len( v );
-                        v = NULL;
-                    }
-                }
-            }
-            if( result != NULL ) {
-                free_results( result );
-                result = NULL;
-            }
-        }
-    }
-    return resetable;
-}
-
 TPS_PUBLIC LDAPMod **allocate_modifications(int size)
 {
     int i, n;
