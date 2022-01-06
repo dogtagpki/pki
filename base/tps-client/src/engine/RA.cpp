@@ -2083,11 +2083,6 @@ TPS_PUBLIC char *RA::ra_get_token_userid(char *cuid)
     return get_token_userid(cuid);
 }
 
-TPS_PUBLIC int RA::ra_update_token_policy(char *cuid, char *policy)
-{
-    return update_token_policy(cuid, policy);
-}
-
 TPS_PUBLIC int RA::ra_update_cert_status(char *cn, const char *status)
 {
     return update_cert_status(cn, status);
