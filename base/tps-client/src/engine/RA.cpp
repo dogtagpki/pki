@@ -2053,10 +2053,6 @@ TPS_PUBLIC char *RA::ra_get_cert_issuer(LDAPMessage *entry) {
     return get_cert_issuer(entry);
 }
 
-TPS_PUBLIC int RA::ra_tus_has_active_tokens(char *userid) {
-    return tus_has_active_tokens(userid);
-}
-
 TPS_PUBLIC char *RA::ra_get_token_reason(LDAPMessage *msg) {
     return get_token_reason(msg);
 }
