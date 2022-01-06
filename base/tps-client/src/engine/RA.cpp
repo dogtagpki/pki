@@ -1903,40 +1903,6 @@ loser:
     return rc;
 }
 
-int RA::InitializeTokendb(char *cfg_path)
-{
-    char *error    = NULL;
-    int status;
-
-    if (tokendbInitialized)
-      return 0;
-
-    RA::Debug("RA::InitializeTokendb", "config path = %s", cfg_path);
-
-    if (get_tus_db_config(cfg_path) != 1) {
-      RA::Debug("RA::InitializeTokendb", "get_tus_db_config failed");
-      return -1;
-    }
-
-    tokendbInitialized = 1;
-
-    RA::Debug("RA::InitializeTokendb", "Initializing TUS database");
-    if( ( status = tus_db_init( &error ) ) != LDAP_SUCCESS ) {
-        if( error != NULL ) {
-            RA::Debug( "RA::InitializeTokendb",
-                       "Token DB initialization failed: '%s'",
-                       error );
-            PR_smprintf_free( error );
-            error = NULL;
-        } else {
-            RA::Debug( "RA::InitializeTokendb",
-                       "Token DB initialization failed" );
-        }
-    }
-
-    return status;
-}
-
 TPS_PUBLIC void RA::update_signed_audit_selected_events(char *new_selected)
 {
     char *tmp = NULL;
