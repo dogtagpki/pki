@@ -2029,51 +2029,6 @@ TPS_PUBLIC char *RA::ra_get_cert_tokenType(LDAPMessage *entry) {
     return get_cert_tokenType(entry);
 }
 
-TPS_PUBLIC int RA::ra_get_token_status(char *cuid) {
-
-    int rc = -1;
-    LDAPMessage *entry;
-    char *status = NULL;
-    char *reason = NULL;
-
-    int status_int = -1;
-    //Let's say -1 is unknown;
-
-    if ((rc = find_tus_db_entry(cuid, 0, &entry)) != LDAP_SUCCESS) {
-        goto loser;
-    }
-
-    status = ra_get_token_status(entry);
-
-    if (status == NULL) {
-        goto loser;
-    }
-
-    reason = ra_get_token_reason(entry);
-
-    status_int = get_token_state(status, reason);
-
-
-loser:
-    if (entry != NULL) {
-        ldap_msgfree(entry);
-    }
-
-    if (status != NULL) {
-        free(status);
-    }
-
-    if (reason != NULL) {
-        free(reason);
-    }
-
-    return status_int;
-}
-
-TPS_PUBLIC char *RA::ra_get_token_status(LDAPMessage *entry) {
-    return get_token_status(entry);
-}
-
 TPS_PUBLIC char *RA::ra_get_cert_cn(LDAPMessage *entry) {
     return get_cert_cn(entry);
 }

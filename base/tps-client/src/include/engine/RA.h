@@ -172,7 +172,6 @@ class RA
           TPS_PUBLIC static char *ra_get_cert_attr_byname(LDAPMessage *e, const char *name);
           TPS_PUBLIC static char *ra_get_token_id(LDAPMessage *e);
       TPS_PUBLIC static char *ra_get_cert_tokenType(LDAPMessage *entry);
-      TPS_PUBLIC static char *ra_get_token_status(LDAPMessage *entry);
       TPS_PUBLIC static char *ra_get_cert_cn(LDAPMessage *entry);
       TPS_PUBLIC static char *ra_get_cert_status(LDAPMessage *entry);
       TPS_PUBLIC static char *ra_get_cert_type(LDAPMessage *entry);
@@ -190,7 +189,6 @@ class RA
 	  TPS_PUBLIC static int ra_is_token_pin_resetable(char *cuid);
 	  TPS_PUBLIC static int ra_is_token_present(char *cuid);
 	  TPS_PUBLIC static int ra_allow_token_reenroll(char *cuid);
-          TPS_PUBLIC static int ra_get_token_status(char *cuid);
 	  TPS_PUBLIC static int ra_allow_token_renew(char *cuid);
           TPS_PUBLIC static int ra_force_token_format(char *cuid);
 	  TPS_PUBLIC static int ra_is_update_pin_resetable_policy(char *cuid);
