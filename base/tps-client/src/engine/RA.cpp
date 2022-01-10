@@ -1924,13 +1924,6 @@ TPS_PUBLIC void RA::update_signed_audit_log_signing(const char *enable)
    m_cfg->Add(CFG_AUDIT_SIGNED, enable);
 }
 
-TPS_PUBLIC void RA::enable_audit_logging(bool enable)
-{
-    m_audit_enabled = enable;
-    update_signed_audit_enable(enable? "true": "false");
-}
-
-
 TPS_PUBLIC int RA::ra_find_tus_certificate_entries_by_order_no_vlv (char *filter,
   LDAPMessage **result, int order) 
 {

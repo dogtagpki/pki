@@ -153,7 +153,6 @@ class RA
           TPS_PUBLIC static void SetFlushInterval(int interval);
           TPS_PUBLIC static void SetBufferSize(int size);
           static void RunFlushThread(void *arg);
-          TPS_PUBLIC static void enable_audit_logging(bool enable);
   private:
 	  static void AuditThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
 	  static void ErrorThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
