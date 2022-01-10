@@ -80,7 +80,6 @@ static LogFile* m_audit_log = (LogFile *)NULL;
 static LogFile* m_selftest_log = (LogFile *)NULL;
 
 static int tokendbInitialized = 0;
-static int tpsConfigured = 0;
 
 RA_Context *RA::m_ctx = NULL;
 bool RA::m_pod_enable=false;
@@ -403,11 +402,6 @@ bool RA::IsAuditEventSelected(const char* auditEvent)
 int RA::IsTokendbInitialized()
 {
   return tokendbInitialized;
-}
-
-int RA::IsTpsConfigured()
-{
-  return tpsConfigured;
 }
 
 HttpConnection *RA::GetTKSConn(const char *id) {

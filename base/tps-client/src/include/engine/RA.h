@@ -104,7 +104,6 @@ class RA
           static bool IsValidEvent(const char *auditEvent);
           static void getLastSignature();
 	  static int IsTokendbInitialized();
-	  static int IsTpsConfigured();
   public:
 
  	  static PK11SymKey *ComputeSessionKey(RA_Session *session,
