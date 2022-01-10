@@ -56,6 +56,8 @@ create_container() {
         -v $NAME-data:/data \
         -v $GITHUB_WORKSPACE:$SHARED \
         -e DS_DM_PASSWORD=$PASSWORD \
+        -p 3389:3389 \
+        -p 3636:3636 \
         $IMAGE > /dev/null
 
     $SCRIPT_DIR/ds-container-start.sh $NAME
