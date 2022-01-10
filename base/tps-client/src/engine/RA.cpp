@@ -2021,14 +2021,6 @@ TPS_PUBLIC struct berval **RA::ra_get_attribute_values(LDAPMessage *e, const cha
     return get_attribute_values(e, p);
 }
 
-TPS_PUBLIC char *RA::ra_get_token_id(LDAPMessage *e) {
-    return get_token_id(e);
-}
-
-TPS_PUBLIC char *RA::ra_get_cert_tokenType(LDAPMessage *entry) {
-    return get_cert_tokenType(entry);
-}
-
 TPS_PUBLIC char *RA::ra_get_cert_cn(LDAPMessage *entry) {
     return get_cert_cn(entry);
 }
