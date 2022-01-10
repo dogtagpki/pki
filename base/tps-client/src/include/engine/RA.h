@@ -159,7 +159,6 @@ class RA
 	  static void DebugThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
           static void do_free(char *s);
   public:
-          static int InitializeSignedAudit();
           static PRLock *GetVerifyLock();
           static PRLock *GetConfigLock();
           TPS_PUBLIC static CERTCertificate **ra_get_certificates(LDAPMessage *e);
