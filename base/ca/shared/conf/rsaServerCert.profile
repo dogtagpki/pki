@@ -1,9 +1,9 @@
 #
-# Server Certificate
+# RSA Server Certificate
 #
 id=serverCert.profile
-name=All Purpose SSL server cert Profile
-description=This profile creates an SSL server certificate that is valid for SSL servers
+name=All Purpose SSL server cert with RSA keys Profile
+description=This profile creates an SSL server certificate with RSA keys that is valid for SSL servers
 profileIDMapping=caServerCert
 profileSetIDMapping=serverCertSet
 list=2,4,5,6,7,8
@@ -38,4 +38,4 @@ list=2,4,5,6,7,8
 7.default.params.exKeyUsageCritical=false
 7.default.params.exKeyUsageOIDs=1.3.6.1.5.5.7.3.1
 8.default.class=com.netscape.cms.profile.def.CommonNameToSANDefault
-8.default.name=Copy Common Name to Subjec Alternative Name Extension
+8.default.name=Copy Common Name to Subject Alternative Name Extension

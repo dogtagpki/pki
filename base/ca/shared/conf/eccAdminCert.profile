@@ -1,5 +1,5 @@
 #
-# Admin Certificate
+# ECC Admin Certificate
 #
 id=adminCert.profile
 name=All Purpose admin cert with ECC keys Profile

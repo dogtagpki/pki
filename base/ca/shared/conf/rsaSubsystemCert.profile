@@ -1,9 +1,9 @@
 #
-# Subsystem Certificate
+# RSA Subsystem Certificate
 #
 id=subsystemCert.profile
-name=All Purpose SSL server cert Profile
-description=This profile creates a subsystem certificate that is valid for SSL client
+name=Subsystem cert with RSA keys Profile
+description=This profile creates a subsystem certificate with RSA keys that is valid for SSL clients
 profileIDMapping=caSubsystemCert
 profileSetIDMapping=serverCertSet
 list=2,4,5,6,7
