@@ -22,7 +22,6 @@ import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,14 +55,14 @@ import com.netscape.cmscore.request.RequestQueue;
  */
 public class ProfileApproveServlet extends ProfileServlet {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileApproveServlet.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileApproveServlet.class);
 
     private static final long serialVersionUID = 3956879326742839550L;
     private static final String PROP_AUTHORITY_ID = "authorityId";
     private String mAuthorityId = null;
 
-    private final static String OP_APPROVE = "approve";
-    private final static String OP_DISAPPROVE = "disapprove";
+    private static final String OP_APPROVE = "approve";
+    private static final String OP_DISAPPROVE = "disapprove";
 
     public ProfileApproveServlet() {
         super();
@@ -151,7 +150,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
             try {
                 authzToken = authorize(mAclMethod, authToken,
-                            mAuthzResourceName, "approve");
+                            mAuthzResourceName, OP_APPROVE);
             } catch (EAuthzAccessDenied e) {
                 logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             } catch (Exception e) {
@@ -384,8 +383,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                 // (3) query all the profile policies
                 // (4) default plugins convert request parameters
                 //     into string http parameters
-                handlePolicy(list, response, locale,
-                        id, policy);
+                handlePolicy(list, locale, id, policy);
             }
             ArgSet setArg = new ArgSet();
 
@@ -406,8 +404,7 @@ public class ProfileApproveServlet extends ProfileServlet {
         outputTemplate(request, response, args);
     }
 
-    private void handlePolicy(ArgList list, ServletResponse response,
-            Locale locale, String id, ProfilePolicy policy) {
+    private void handlePolicy(ArgList list, Locale locale, String id, ProfilePolicy policy) {
         ArgSet set = new ArgSet();
 
         set.set(ARG_POLICY_ID, id);
@@ -470,14 +467,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
         // Obtain the profileID
         profileID = req.getParameter("profileId");
-
-        if (profileID != null) {
-            profileID = profileID.trim();
-        } else {
-            profileID = ILogger.UNIDENTIFIED;
-        }
-
-        return profileID;
+        return (profileID == null) ? ILogger.UNIDENTIFIED : profileID.trim();
     }
 
     /**
@@ -511,10 +501,6 @@ public class ProfileApproveServlet extends ProfileServlet {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
 
-        if (ps.isProfileEnable(profileID)) {
-            return OP_DISAPPROVE;
-        } else {
-            return OP_APPROVE;
-        }
+        return ps.isProfileEnable(profileID) ? OP_DISAPPROVE : OP_APPROVE;
     }
 }
