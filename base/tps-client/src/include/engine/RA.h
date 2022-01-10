@@ -321,7 +321,6 @@ class RA
 
           static RA_Context *m_ctx;
 
-          static int InitializeHttpConnections(const char *id, int *len, HttpConnection **conn, RA_Context *ctx);
         static int Failover(HttpConnection *&conn, int len);   
 
           static bool isAlgorithmECC(BYTE algorithm);
