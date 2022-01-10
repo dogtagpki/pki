@@ -2206,56 +2206,6 @@ loser:
     return rc;
 }
 
-/*
- * This adds entry to tokendb if entry not found
- * It is then supposed to modify entry (not yet implemented)
- */
-int RA::tdb_update(const char *userid, char* cuid, char* applet_version, char *key_info, const char *state, const char *reason, const char *token_type)
-{
-    int rc = -1;
-    LDAPMessage  *ldapResult = NULL;
-    //    char filter[255];
-
-    if (tokendbInitialized != 1) {
-	rc = 0;
-	goto loser;
-    }
-      
-
-    //    PR_snprintf(filter, 255, "(cn=%s)", cuid);
-    RA::Debug(LL_PER_PDU, "RA::tdb_update",
-	      "searching for tokendb entry: %s", cuid);
-
-    if ((rc = find_tus_db_entry(cuid, 0, &ldapResult)) != LDAP_SUCCESS) {
-      /* create a new entry */
-      rc = add_default_tus_db_entry(userid, "~tps", cuid, state, applet_version, 
-              key_info, token_type);
-      if (rc != LDAP_SUCCESS) {
-	RA::Error(LL_PER_PDU, "RA:tdb_update",
-		  "failed to add tokendb entry");
-	rc = -1;
-	goto loser;
-      } else  {
-          RA::Debug(LL_PER_PDU, "RA::tdb_update",
-		  "add tokendb entry successful");
-      }
-      rc = 0;
-    } else {
-      RA::Debug(LL_PER_PDU, "RA::tdb_update",
-		"entry in tokendb exists...should modify entry");
-
-      /* need code to modify things such as applet version ...*/
-      /* ldap modify code to follow...*/
-      rc =  update_tus_db_entry ("~tps", cuid, userid, key_info, state,
-                         applet_version, reason, token_type);
-    }
-loser:
-   if (ldapResult != NULL) {
-	ldap_msgfree(ldapResult);
-   }
-   return rc;
-}
-
 int RA::Failover(HttpConnection *&conn, int len) {
     int rc = 0;
     if (m_pod_enable) {
