@@ -334,7 +334,6 @@ class RA
 
           static bool isAlgorithmECC(BYTE algorithm);
 
-      static bool transition_allowed(int oldState, int newState);
       static int get_token_state(char *state, char *reason);
    
 };

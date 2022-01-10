@@ -2448,27 +2448,6 @@ bool RA::isAlgorithmECC(BYTE alg)
     return result;
 }
 
-bool RA::transition_allowed(int oldState, int newState) 
-{
-    /* parse the allowed transitions string and look for old:new */
-
-    // See if we need to read in the thing.
-    
-    transitionList = (char *) m_cfg->GetConfigAsString(RA::CFG_OPERATIONS_ALLOWED_TRANSITIONS, NULL);
-
-    if (transitionList == NULL) {
-        transitionList = (char *) m_cfg->GetConfigAsString(RA::CFG_TOKENDB_ALLOWED_TRANSITIONS, NULL);
-    }
-
-    if (transitionList == NULL) return true;
-
-    char search[128];
-
-    PR_snprintf(search, 128, "%d:%d", oldState, newState);
-    return match_comma_list(search, transitionList);
-
-}
-
 int RA::get_token_state(char *state, char *reason)
 {
     int ret = 0;
