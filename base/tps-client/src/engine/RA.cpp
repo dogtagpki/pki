@@ -1924,68 +1924,6 @@ TPS_PUBLIC void RA::update_signed_audit_log_signing(const char *enable)
    m_cfg->Add(CFG_AUDIT_SIGNED, enable);
 }
 
-TPS_PUBLIC int RA::setup_audit_log(bool enable_signing, bool signing_changed)
-{ 
-    int status =0;
-    PR_EnterMonitor(m_audit_log_monitor);
-
-    // get buffer if required
-    if (m_audit_log_buffer == NULL) {
-        m_audit_log_buffer = (char *) PR_Malloc(m_buffer_size);
-        if (m_audit_log_buffer == NULL) {
-            RA::Debug(LL_PER_PDU, "RA:: setup_audit_log", "Unable to allocate memory for audit log buffer ..");
-            goto loser;
-        }
-        PR_snprintf((char *) m_audit_log_buffer, m_buffer_size, "");
-        m_bytes_unflushed = 0;
-    }
-
-    // close old log file if signing config changed
-    if (signing_changed && m_audit_log !=NULL) {
-        RA::Debug(LL_PER_PDU, "RA::setup_audit_log","Closing old audit log file");
-        FlushAuditLogBuffer();
-        m_audit_log->shutdown();
-        delete m_audit_log;
-        m_audit_log = NULL;
-    }
-
-    // open new log file if required
-    if (m_audit_log == NULL) {
-        RA::Debug(LL_PER_PDU, "RA::setup_audit_log","Opening audit log file");
-        m_audit_log = GetLogFile(m_cfg->GetConfigAsString(CFG_AUDIT_FILE_TYPE, "LogFile"));
-        status = m_audit_log->startup(m_ctx, CFG_AUDIT_PREFIX,
-                                  m_cfg->GetConfigAsString((enable_signing)?
-                                  CFG_SIGNED_AUDIT_FILENAME:CFG_AUDIT_FILENAME,
-                                  "/tmp/audit.log"),
-                                  enable_signing);
-        if (status != PR_SUCCESS)
-           goto loser;
-
-        status = m_audit_log->open();
-        if (status != PR_SUCCESS)
-            goto loser;
-    }
-
-    // update variables and CS.cfg
-    m_audit_signed = enable_signing;
-    update_signed_audit_log_signing(enable_signing? "true":"false");
-
-    // initialize signing cert and flush thread, if needed
-    status = InitializeSignedAudit();
-    if (status != 0) {
-        RA::Debug(LL_PER_PDU, "RA::setup_audit_log","Failure in InitializeSignedAudit");
-        goto loser;
-    }
-
-    PR_ExitMonitor(m_audit_log_monitor);
-    return 0;
-
-    loser: 
-        RA::Debug(LL_PER_PDU, "RA::setup_audit_log","Failure in audit log setup");
-        PR_ExitMonitor(m_audit_log_monitor);
-        return -1;
-}
-
 TPS_PUBLIC void RA::enable_audit_logging(bool enable)
 {
     m_audit_enabled = enable;
