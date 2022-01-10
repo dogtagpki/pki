@@ -194,7 +194,6 @@ class RA
       TPS_PUBLIC static void ra_tus_print_integer(char *out, SECItem *data);
       TPS_PUBLIC static int ra_update_token_status_reason_userid(char *userid,
         char *cuid, const char *status, const char *reason, int modifyDateOfCreate);
-	  static int tdb_activity(const char *ip, const char *cuid, const char *op, const char *result, const char *msg, const char *userid, const char *token_type);
 	  static int testTokendb();
   public:
           static HttpConnection *GetCAConn(const char *id);

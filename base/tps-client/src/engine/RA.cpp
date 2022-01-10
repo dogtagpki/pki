@@ -2117,11 +2117,6 @@ TPS_PUBLIC int RA::ra_delete_certificate_entry(LDAPMessage* e)
    return rc;
 }
 
-int RA::tdb_activity(const char *ip, const char *cuid, const char *op, const char *result, const char *msg, const char *userid, const char *token_type)
-{
-  return add_activity(ip, cuid, op, result, msg, userid, token_type);
-}
-
 int RA::Failover(HttpConnection *&conn, int len) {
     int rc = 0;
     if (m_pod_enable) {
