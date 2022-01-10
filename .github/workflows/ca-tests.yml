@@ -250,7 +250,7 @@ jobs:
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
 
-      - name: Verify system keys
+      - name: Verify that system certs have ECC keys
         run: |
           docker exec pki bash -c "echo Secret.123 > password.txt"
           docker exec pki certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt
