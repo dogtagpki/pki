@@ -79,8 +79,6 @@ static LogFile* m_error_log = (LogFile *)NULL;
 static LogFile* m_audit_log = (LogFile *)NULL; 
 static LogFile* m_selftest_log = (LogFile *)NULL;
 
-static int tokendbInitialized = 0;
-
 RA_Context *RA::m_ctx = NULL;
 bool RA::m_pod_enable=false;
 int RA::m_pod_curr = 0;
@@ -397,11 +395,6 @@ bool RA::IsAuditEventSelected(const char* auditEvent)
 {
   return match_comma_list(auditEvent, m_signedAuditNonSelectableEvents) || 
          match_comma_list(auditEvent, m_signedAuditSelectedEvents);
-}
-
-int RA::IsTokendbInitialized()
-{
-  return tokendbInitialized;
 }
 
 HttpConnection *RA::GetTKSConn(const char *id) {
