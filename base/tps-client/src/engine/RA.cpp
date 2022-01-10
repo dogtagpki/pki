@@ -2447,28 +2447,3 @@ bool RA::isAlgorithmECC(BYTE alg)
 
     return result;
 }
-
-int RA::get_token_state(char *state, char *reason)
-{
-    int ret = 0;
-    if (strcmp(state, STATE_UNINITIALIZED) == 0) {
-        ret = TOKEN_UNINITIALIZED;
-    } else if (strcasecmp(state, STATE_ACTIVE) == 0) {
-        ret = TOKEN_FOUND;
-    } else if (strcasecmp(state, STATE_LOST) == 0) {
-        if (strcasecmp(reason, "keyCompromise") == 0) {
-            /* perm lost or temp -> perm lost */
-            ret =  TOKEN_PERM_LOST;
-        } else if (strcasecmp(reason, "destroyed") == 0) {
-            ret = TOKEN_DAMAGED;
-        } else if (strcasecmp(reason, "onHold") == 0) {
-            ret = TOKEN_TEMP_LOST;
-        }
-    } else if (strcasecmp(state, "terminated") == 0) {
-        ret = TOKEN_TERMINATED;
-    } else {
-        /* state is disabled or otherwise : what to do here? */
-        ret = TOKEN_PERM_LOST;
-    }
-    return ret;
-}

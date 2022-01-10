@@ -333,9 +333,6 @@ class RA
         static int Failover(HttpConnection *&conn, int len);   
 
           static bool isAlgorithmECC(BYTE algorithm);
-
-      static int get_token_state(char *state, char *reason);
-   
 };
 
 #endif /* RA_H */
