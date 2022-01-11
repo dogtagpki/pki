@@ -287,14 +287,12 @@ class RA
           static PRLock *m_verify_lock;
           static PRLock *m_pod_lock;
           static PRLock *m_error_log_lock;
-          static PRLock *m_selftest_log_lock;
           static PRMonitor *m_audit_log_monitor;
           static PRLock *m_debug_log_lock;
           static PRLock *m_config_lock;
           static int m_audit_log_level;
           static int m_debug_log_level;
           static int m_error_log_level;
-          static int m_selftest_log_level;
           TPS_PUBLIC static bool m_audit_signed;
           TPS_PUBLIC static bool m_audit_enabled;
           static SECKEYPrivateKey *m_audit_signing_key;
