@@ -152,7 +152,6 @@ TPS_PUBLIC int get_tus_db_config(char *name);
 TPS_PUBLIC int tus_db_init(char **errorMsg);
 TPS_PUBLIC int allow_token_reenroll(char *cn);
 TPS_PUBLIC int allow_token_renew(char *cn);
-TPS_PUBLIC int force_token_format(char *cn);
 TPS_PUBLIC char *get_token_userid(char *cn);
 TPS_PUBLIC void tus_db_end();
 TPS_PUBLIC void tus_db_cleanup();
