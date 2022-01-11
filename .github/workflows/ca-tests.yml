@@ -253,17 +253,22 @@ jobs:
       - name: Verify that system certs have ECC keys
         run: |
           docker exec pki bash -c "echo Secret.123 > password.txt"
-          docker exec pki certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt
+          docker exec pki certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | tee output
           echo "ec" > expected
-          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep ca_signing | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${SHARED}/actual"
+
+          grep ca_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
           diff expected actual
-          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep ca_ocsp_signing | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${SHARED}/actual"
+
+          grep ca_ocsp_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
           diff expected actual
-          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep ca_audit_signing | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${SHARED}/actual"
+
+          grep ca_audit_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
           diff expected actual
-          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep subsystem | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${SHARED}/actual"
+
+          grep subsystem output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
           diff expected actual
-          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep sslserver | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${SHARED}/actual"
+
+          grep sslserver output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
           diff expected actual
 
       - name: Verify CA admin

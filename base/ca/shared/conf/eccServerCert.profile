@@ -38,4 +38,4 @@ list=2,4,5,6,7,8
 7.default.params.exKeyUsageCritical=false
 7.default.params.exKeyUsageOIDs=1.3.6.1.5.5.7.3.1
 8.default.class=com.netscape.cms.profile.def.CommonNameToSANDefault
-8.default.name=Copy Common Name to Subjec Alternative Name Extension
+8.default.name=Copy Common Name to Subject Alternative Name Extension
