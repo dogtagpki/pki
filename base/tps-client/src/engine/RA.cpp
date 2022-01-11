@@ -58,7 +58,6 @@ extern "C"
 #include "cms/HttpConnection.h"
 #include "main/RA_pblock.h"
 #include "main/LogFile.h"
-#include "main/RollingLogFile.h"
 
 typedef struct
 {
