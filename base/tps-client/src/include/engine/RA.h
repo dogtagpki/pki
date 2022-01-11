@@ -187,8 +187,6 @@ class RA
       TPS_PUBLIC static int ra_find_tus_certificate_entries_by_order_no_vlv(
         char *filter, LDAPMessage **msg, int order);
       TPS_PUBLIC static void ra_tus_print_integer(char *out, SECItem *data);
-      TPS_PUBLIC static int ra_update_token_status_reason_userid(char *userid,
-        char *cuid, const char *status, const char *reason, int modifyDateOfCreate);
 	  static int testTokendb();
   public:
           static HttpConnection *GetCAConn(const char *id);

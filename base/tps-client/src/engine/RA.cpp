@@ -1832,11 +1832,6 @@ TPS_PUBLIC int RA::ra_update_cert_status(char *cn, const char *status)
     return update_cert_status(cn, status);
 }
 
-TPS_PUBLIC int RA::ra_update_token_status_reason_userid(char *userid, char *cuid, const char *status, const char *reason, int modifyDateOfCreate)
-{
-    return update_token_status_reason_userid(userid, cuid, status, reason, modifyDateOfCreate);
-}
-
 TPS_PUBLIC int RA::ra_allow_token_reenroll(char *cuid)
 {
     return allow_token_reenroll(cuid);

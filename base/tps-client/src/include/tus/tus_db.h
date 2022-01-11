@@ -249,8 +249,6 @@ TPS_PUBLIC int tus_authorize(const char *group, const char *userid);
 TPS_PUBLIC int update_cert_status(char *cn, const char *status);
 TPS_PUBLIC int update_token_status_reason(char *userid, char *cuid, 
   const char *tokenStatus, const char *reason);
-TPS_PUBLIC int update_token_status_reason_userid(const char *userid, char *cuid,
-  const char *tokenStatus, const char *reason, int modifyDateOfCreate);
 
 TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPassword, char *sn, char *givenName, char *cn, char * userCert);
 TPS_PUBLIC int find_tus_user_entries_no_vlv(char *filter, LDAPMessage **result, int order);
