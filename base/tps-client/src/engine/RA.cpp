@@ -295,15 +295,6 @@ void RA::getLastSignature() {
     }
 }
 
-TPS_PUBLIC LogFile* RA::GetLogFile(const char *log_type)
-{
-    if (strcmp(log_type, "RollingLogFile") == 0) {
-        return new RollingLogFile();
-    } else {
-        return new LogFile();  // default
-    }
-}
-
 int RA::testTokendb() {
     // try to see if we can talk to the database
     int st = 0;

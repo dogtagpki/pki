@@ -199,7 +199,6 @@ class RA
           static HttpConnection *GetDRMConn(const char *id);
           static void ReturnDRMConn(HttpConnection *conn);
           static int GetCurrentIndex(HttpConnection *conn);
-          static LogFile* GetLogFile(const char *log_type);
 
   public:
 
