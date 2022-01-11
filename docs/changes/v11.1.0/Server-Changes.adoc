@@ -10,3 +10,17 @@ The following folders have been relocated:
 The following folders have been removed:
 
 * `/var/lib/pki/<instance>/<subsystem>/webapps`
+
+== System Profile Changes ==
+
+The following profiles have been removed:
+
+* `/usr/share/pki/ca/conf/ECadminCert.profile`
+* `/usr/share/pki/ca/conf/ECserverCert.profile`
+* `/usr/share/pki/ca/conf/ECsubsystemCert.profile`
+
+Use the following profiles instead:
+
+* `/usr/share/pki/ca/conf/eccAdminCert.profile`
+* `/usr/share/pki/ca/conf/eccServerCert.profile`
+* `/usr/share/pki/ca/conf/eccSubsystemCert.profile`
