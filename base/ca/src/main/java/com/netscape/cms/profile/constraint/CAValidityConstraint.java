@@ -31,8 +31,8 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.CAValidityDefault;
-import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NoDefault;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
 import com.netscape.cms.profile.def.ValidityDefault;
 import com.netscape.cmscore.apps.CMS;
@@ -74,59 +74,57 @@ public class CAValidityConstraint extends CAEnrollConstraint {
      * during the validation.
      */
     @Override
-    public void validate(IRequest request, X509CertInfo info)
-            throws ERejectException {
-        String method = "CAValidityConstraint: validate: ";
-        logger.debug(method + "validate start");
-        CertificateValidity v = null;
+    public void validate(IRequest request, X509CertInfo info) throws ERejectException {
 
+        logger.info("CAValidityConstraint: Validating cert validity:");
+
+        CertificateValidity v = null;
         try {
             v = (CertificateValidity) info.get(X509CertInfo.VALIDITY);
         } catch (Exception e) {
-            throw new ERejectException(CMS.getUserMessage(
-                        getLocale(request), "CMS_PROFILE_VALIDITY_NOT_FOUND"));
+            logger.error("CAValidityConstraint: Invalid cert validity: " + e.getMessage(), e);
+            throw new ERejectException(CMS.getUserMessage(getLocale(request), "CMS_PROFILE_VALIDITY_NOT_FOUND"), e);
         }
-        Date notBefore = null;
 
+        Date notBefore = null;
         try {
             notBefore = (Date) v.get(CertificateValidity.NOT_BEFORE);
         } catch (IOException e) {
-            logger.error(method + "not before " + e.getMessage(), e);
-            throw new ERejectException(CMS.getUserMessage(
-                        getLocale(request), "CMS_PROFILE_INVALID_NOT_BEFORE"));
+            logger.error("CAValidityConstraint: Invalid not before: " + e.getMessage(), e);
+            throw new ERejectException(CMS.getUserMessage(getLocale(request), "CMS_PROFILE_INVALID_NOT_BEFORE"), e);
         }
-        Date notAfter = null;
+        logger.info("CAValidityConstraint: - not before: " + notBefore);
 
+        Date notAfter = null;
         try {
             notAfter = (Date) v.get(CertificateValidity.NOT_AFTER);
         } catch (IOException e) {
-            logger.error(method + "not after " + e.getMessage(), e);
-            throw new ERejectException(CMS.getUserMessage(
-                        getLocale(request), "CMS_PROFILE_INVALID_NOT_AFTER"));
+            logger.error("CAValidityConstraint: Invalid not after: " + e.getMessage(), e);
+            throw new ERejectException(CMS.getUserMessage(getLocale(request), "CMS_PROFILE_INVALID_NOT_AFTER"), e);
         }
+        logger.info("CAValidityConstraint: - not after: " + notAfter);
 
+        logger.info("CAValidityConstraint: CA cert validity:");
         if (mDefNotBefore != null) {
-            logger.debug(method + "notBefore=" + notBefore +
-                    " defNotBefore=" + mDefNotBefore);
+            logger.info("CAValidityConstraint: - not before: " + mDefNotBefore);
             if (notBefore.before(mDefNotBefore)) {
-                throw new ERejectException(CMS.getUserMessage(
-                            getLocale(request), "CMS_PROFILE_INVALID_NOT_BEFORE"));
+                logger.error("CAValidityConstraint: Invalid not before: " + notBefore + " < " + mDefNotBefore);
+                throw new ERejectException(CMS.getUserMessage(getLocale(request), "CMS_PROFILE_INVALID_NOT_BEFORE"));
             }
         }
-        logger.debug(method + "notAfter=" + notAfter +
-                " defNotAfter=" + mDefNotAfter);
+        logger.info("CAValidityConstraint: - not after: " + mDefNotAfter);
+
         if (notAfter.after(mDefNotAfter)) {
-            throw new ERejectException(CMS.getUserMessage(
-                        getLocale(request), "CMS_PROFILE_INVALID_NOT_AFTER"));
+            logger.error("CAValidityConstraint: Invalid not after: " + notAfter + " > " + mDefNotAfter);
+            throw new ERejectException(CMS.getUserMessage(getLocale(request), "CMS_PROFILE_INVALID_NOT_AFTER"));
         }
 
         if (notAfter.getTime() < notBefore.getTime()) {
-            logger.error(method + "notAfter (" + notAfter + ") < notBefore (" + notBefore + ")");
-            throw new ERejectException(CMS.getUserMessage(getLocale(request),
-                        "CMS_PROFILE_NOT_AFTER_BEFORE_NOT_BEFORE"));
+            logger.error("CAValidityConstraint: Invalid certificate validity: not after (" + notAfter + ") < not before (" + notBefore + ")");
+            throw new ERejectException(CMS.getUserMessage(getLocale(request), "CMS_PROFILE_NOT_AFTER_BEFORE_NOT_BEFORE"));
         }
 
-        logger.debug(method + "validate end");
+        logger.info("CAValidityConstraint: Certificate validity is valid");
     }
 
     @Override
