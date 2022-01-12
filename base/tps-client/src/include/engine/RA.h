@@ -178,7 +178,6 @@ class RA
           TPS_PUBLIC static int ra_find_tus_token_entries_no_vlv(char *filter,
             LDAPMessage **ldapResult, int num);
 	  TPS_PUBLIC static int ra_allow_token_reenroll(char *cuid);
-	  TPS_PUBLIC static int ra_allow_token_renew(char *cuid);
 	  TPS_PUBLIC static char *ra_get_token_userid(char *cuid);
       TPS_PUBLIC static int ra_find_tus_certificate_entries_by_order(
         char *filter, int num, LDAPMessage **msg, int order);

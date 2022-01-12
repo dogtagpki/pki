@@ -1832,11 +1832,6 @@ TPS_PUBLIC int RA::ra_allow_token_reenroll(char *cuid)
     return allow_token_reenroll(cuid);
 }
 
-TPS_PUBLIC int RA::ra_allow_token_renew(char *cuid)
-{
-    return allow_token_renew(cuid);
-}
-
 TPS_PUBLIC void RA::ra_tus_print_integer(char *out, SECItem *data)
 {
     tus_print_integer(out, data);
