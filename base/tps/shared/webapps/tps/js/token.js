@@ -38,7 +38,6 @@ var TOKEN_REUSE_MESSAGE = "When reusing a token that was previously " +
 var TokenModel = Model.extend({
     urlRoot: "/tps/rest/tokens",
     parseResponse: function(response) {
-    var respModifyTimestamp = (response.ModifyTime === null) ? new Date(null) : new Date(response.ModifyTime)
         return {
             id: response.id,
             tokenID: response.TokenID,
@@ -49,7 +48,7 @@ var TokenModel = Model.extend({
             appletID: response.AppletID,
             keyInfo: response.KeyInfo,
             policy: response.Policy,
-            createTimestamp: new Date(response.CreateTimestamp),
+            createTimestamp: response.CreateTimestamp,
             modifyTimestamp: respModifyTimestamp
         };
     },
@@ -91,7 +90,6 @@ var TokenCollection = Collection.extend({
         return response.Link;
     },
     parseEntry: function(entry) {
-        var custModifyTimestamp = (entry.ModifyTime === null) ? new Date(null) : new Date(entry.ModifyTime)
         return new TokenModel({
             id: entry.id,
             tokenID: entry.TokenID,
@@ -102,7 +100,7 @@ var TokenCollection = Collection.extend({
             appletID: entry.AppletID,
             keyInfo: entry.KeyInfo,
             policy: entry.Policy,
-            createTimestamp: new Date(entry.CreateTimestamp),
+            createTimestamp: entry.CreateTimestamp,
             modifyTimestamp: custModifyTimestamp
         });
     }
