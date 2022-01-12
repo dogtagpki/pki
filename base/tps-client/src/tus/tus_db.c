@@ -3754,16 +3754,6 @@ TPS_PUBLIC int allow_token_enroll_policy(char *cn, const char *policy)
     return can_reenroll;
 }
 
-TPS_PUBLIC int allow_token_renew(char *cn)
-{
-    return allow_token_enroll_policy(cn, "RENEW=YES");
-}
-
-TPS_PUBLIC int allow_token_reenroll(char *cn)
-{
-    return allow_token_enroll_policy(cn, "RE_ENROLL=YES");
-}
-
 TPS_PUBLIC LDAPMod **allocate_modifications(int size)
 {
     int i, n;
