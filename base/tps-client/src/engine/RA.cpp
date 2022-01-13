@@ -319,16 +319,6 @@ TPS_PUBLIC char* RA::remove_from_comma_list(const char*item, char *list)
     return ret;
 }
 
-
-/*
- * returns true if an audit event is valid, false if not
- */
-bool RA::IsValidEvent(const char *auditEvent)
-{
-    return match_comma_list(auditEvent, m_signedAuditNonSelectableEvents) ||
-           match_comma_list(auditEvent, m_signedAuditSelectableEvents);
-}
-
 /*
  * returns true if an audit event is selected, false if not
  */
