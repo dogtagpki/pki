@@ -3190,33 +3190,6 @@ TPS_PUBLIC char **get_view_user_attributes()
     return viewUserAttributes;
 }
 
-CERTCertificate **get_certificates(LDAPMessage *entry) {
-    int i;    
-    struct berval **bvals;
-    CERTCertificate *cert;
-    int c = 0;
-    CERTCertificate **ret = NULL;
-
-    tus_check_conn();
-    bvals = ldap_get_values_len(ld, entry, "userCertificate");
-    if (bvals == NULL)
-        return NULL;
-
-    for (i = 0; bvals[i] != NULL; i++ )
-        c++;    
-    ret = (CERTCertificate **) malloc ((sizeof (CERTCertificate *) * c) + 1);
-    c = 0;
-    for (i = 0; bvals[i] != NULL; i++ ) {
-        cert = CERT_DecodeCertFromPackage((char *) bvals[i]->bv_val, (int) 
-          ( bvals[i]->bv_len ) );
-        ret[c] = cert;
-	c++;
-    }  
-    ret[c] = NULL;
-    return ret;
-   
-}
-
 struct berval **get_attribute_values(LDAPMessage *entry, const char *attribute)
 {
     int i;

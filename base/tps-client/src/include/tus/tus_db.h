@@ -180,7 +180,6 @@ TPS_PUBLIC int free_results (LDAPMessage *results);
 
 TPS_PUBLIC LDAPMessage *get_first_entry (LDAPMessage *result);
 TPS_PUBLIC LDAPMessage *get_next_entry (LDAPMessage *entry);
-TPS_PUBLIC CERTCertificate **get_certificates(LDAPMessage *entry);
 
 TPS_PUBLIC char **get_token_states();
 TPS_PUBLIC char **get_token_attributes();

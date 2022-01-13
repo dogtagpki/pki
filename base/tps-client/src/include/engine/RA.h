@@ -145,7 +145,6 @@ class RA
   public:
           static PRLock *GetVerifyLock();
           static PRLock *GetConfigLock();
-          TPS_PUBLIC static CERTCertificate **ra_get_certificates(LDAPMessage *e);
           TPS_PUBLIC static LDAPMessage *ra_get_first_entry(LDAPMessage *e);
           TPS_PUBLIC static LDAPMessage *ra_get_next_entry(LDAPMessage *e);
           TPS_PUBLIC static struct berval **ra_get_attribute_values(LDAPMessage *e, const char *p);
