@@ -102,7 +102,6 @@ class RA
   public:
           static bool IsAuditEventSelected(const char *auditEvent);
           static bool IsValidEvent(const char *auditEvent);
-          static void getLastSignature();
   public:
 
  	  static PK11SymKey *ComputeSessionKey(RA_Session *session,

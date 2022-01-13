@@ -245,41 +245,6 @@ void RA::do_free(char *p)
     }
 }
 
-/*
- * read off the last sig record of the audit file for computing MAC
- */
-void RA::getLastSignature() {
-    char line[1024];
-    char *sig = NULL;
-
-    RA::Debug("RA:: getLastSignature", "starts");
-    if ((m_audit_log != NULL) && (m_audit_log_monitor != NULL)) {
-        PR_EnterMonitor(m_audit_log_monitor);
-        int removed_return;
-        while (1) {
-          int n = m_audit_log->ReadLine(line, 1024, &removed_return);
-          if (n > 0) {
-            sig = strstr(line, "AUDIT_LOG_SIGNING");
-            if (sig != NULL) {
-                // sig entry found
-                m_last_audit_signature = PL_strdup(line);
-            }
-          } else if (n == 0 && removed_return == 1) {
-            continue; /* skip empty line */
-          } else {
-            break;
-          }
-        } 
-        RA::Debug("RA:: getLastSignature", "ends");
-        PR_ExitMonitor(m_audit_log_monitor);
-    }
-
-    if (m_last_audit_signature != NULL) {
-        RA::Debug("RA:: getLastSignature", "got last sig from file: %s",
-            m_last_audit_signature);
-    }
-}
-
 int RA::testTokendb() {
     // try to see if we can talk to the database
     int st = 0;
