@@ -1512,36 +1512,6 @@ TPS_PUBLIC void RA::SetFlushInterval(int interval)
     }
 }
 
-TPS_PUBLIC void RA::SetBufferSize(int size)
-{
-    char * new_buffer;
-    char size_str[512];
-    int status;
-    char error_msg[512];
-
-    RA::Debug("RA::SetBufferSize", "Setting buffer size to %d bytes", size);
-
-    PR_EnterMonitor(m_audit_log_monitor);
-    FlushAuditLogBuffer();
-    if (m_audit_log_buffer != NULL) {
-        new_buffer = (char *) PR_Realloc(m_audit_log_buffer, size);
-        m_audit_log_buffer = new_buffer;
-    } else {
-        m_audit_log_buffer = (char *) PR_Malloc(size);
-    }
-    m_buffer_size = size;
-    PR_ExitMonitor(m_audit_log_monitor);
-
-    PR_snprintf((char *) size_str, 512, "%d", size);
-    m_cfg->Add(CFG_AUDIT_BUFFER_SIZE, size_str);
-
-    status = m_cfg->Commit(false, error_msg, 512);
-    if (status != 0) {
-        RA::Debug("RA:SetFlushInterval", error_msg);
-    }
-}
-
-
 TPS_PUBLIC void RA::Error (const char *func_name, const char *fmt, ...)
 { 
 	va_list ap; 
