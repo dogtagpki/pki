@@ -151,7 +151,6 @@ class RA
           TPS_PUBLIC static struct berval **ra_get_attribute_values(LDAPMessage *e, const char *p);
           TPS_PUBLIC static void ra_free_values(struct berval **values);
           TPS_PUBLIC static char *ra_get_cert_attr_byname(LDAPMessage *e, const char *name);
-      TPS_PUBLIC static char *ra_get_cert_status(LDAPMessage *entry);
       TPS_PUBLIC static char *ra_get_cert_type(LDAPMessage *entry);
       TPS_PUBLIC static char *ra_get_cert_serial(LDAPMessage *entry);
       TPS_PUBLIC static char *ra_get_cert_issuer(LDAPMessage *entry);
