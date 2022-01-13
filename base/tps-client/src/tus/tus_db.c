@@ -3342,11 +3342,6 @@ int get_cert_attr_byname_int(LDAPMessage *entry, const char *name)
 }
 
 
-TPS_PUBLIC char *get_token_reason(LDAPMessage *entry)
-{
-    return get_cert_attr_byname(entry, "tokenReason");
-}
-
 char *get_token_id(LDAPMessage *entry)
 {
     return get_cert_attr_byname(entry, TOKEN_ID);

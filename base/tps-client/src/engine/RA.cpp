@@ -1353,10 +1353,6 @@ TPS_PUBLIC char *RA::ra_get_cert_issuer(LDAPMessage *entry) {
     return get_cert_issuer(entry);
 }
 
-TPS_PUBLIC char *RA::ra_get_token_reason(LDAPMessage *msg) {
-    return get_token_reason(msg);
-}
-
 TPS_PUBLIC int RA::ra_get_number_of_entries(LDAPMessage *ldapResult) {
     return get_number_of_entries(ldapResult);
 }
