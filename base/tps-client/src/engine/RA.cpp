@@ -1361,12 +1361,6 @@ TPS_PUBLIC int RA::ra_get_number_of_entries(LDAPMessage *ldapResult) {
     return get_number_of_entries(ldapResult);
 }
 
-TPS_PUBLIC int RA::ra_find_tus_token_entries_no_vlv(char *filter, 
-  LDAPMessage **ldapResult, int num) 
-{
-    return find_tus_token_entries_no_vlv(filter, ldapResult, num);
-}
-
 TPS_PUBLIC int RA::ra_find_tus_token_entries(char *filter, int maxReturns,
   LDAPMessage **ldapResult, int num) 
 {

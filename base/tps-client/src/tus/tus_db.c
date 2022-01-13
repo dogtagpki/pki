@@ -2797,38 +2797,6 @@ static int ldap_sort_entries(LDAP *ld, LDAPMessage **result, const char* attr, L
     return ldap_multisort_entries(ld, result, attr ? attrs : NULL, cmp);
 } 
 
-TPS_PUBLIC int find_tus_token_entries_no_vlv(char *filter, LDAPMessage **result, int order) 
-{
-    int rc = LDAP_OTHER, tries = 0;
-
-    tus_check_conn();
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_search_ext_s (ld, baseDN, LDAP_SCOPE_SUBTREE, filter,
-                       NULL, 0, NULL, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
-            /* we do client-side sorting here */
-            if (order == 0) {
-                rc = ldap_sort_entries(ld, result, "dateOfCreate", 
-                                     sort_cmp); 
-            } else { /* order == 1 */
-                rc = ldap_sort_entries(ld, result, "dateOfCreate", 
-                                     reverse_sort_cmp); 
-            }
-            break;
-        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            struct berval credential;
-            credential.bv_val = bindPass;
-            credential.bv_len= strlen(bindPass);
-            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-            if (rc != LDAP_SUCCESS) {
-                bindStatus = rc;
-                break;
-            }
-        }
-    }
-    
-    return rc;
-}
-
 /**
  * find_tus_user_entries_no_vlv
  * params: filter - ldap search filter
