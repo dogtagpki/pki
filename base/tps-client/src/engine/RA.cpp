@@ -1360,27 +1360,6 @@ void RA::ErrorThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	PR_Unlock(m_error_log_lock);
 }
 
-TPS_PUBLIC void RA::update_signed_audit_selected_events(char *new_selected)
-{
-    char *tmp = NULL;
-    m_cfg->Add(CFG_AUDIT_SELECTED_EVENTS, new_selected);
-
-    tmp = m_signedAuditSelectedEvents;
-    m_signedAuditSelectedEvents = PL_strdup(new_selected);
-    PL_strfree(tmp);
-}
-
-TPS_PUBLIC void RA::update_signed_audit_enable(const char *enable)
-{
-   m_cfg->Add(CFG_AUDIT_ENABLE, enable);
-}
-
-
-TPS_PUBLIC void RA::update_signed_audit_log_signing(const char *enable)
-{
-   m_cfg->Add(CFG_AUDIT_SIGNED, enable);
-}
-
 TPS_PUBLIC int RA::ra_find_tus_certificate_entries_by_order_no_vlv (char *filter,
   LDAPMessage **result, int order) 
 {

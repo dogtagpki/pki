@@ -185,9 +185,6 @@ class RA
 
           static void SetPodIndex(int index);
           static int GetPodIndex();
-          TPS_PUBLIC static void update_signed_audit_selected_events(char *new_selected);
-          TPS_PUBLIC static void update_signed_audit_enable(const char *enable);
-          TPS_PUBLIC static void update_signed_audit_log_signing(const char *enable);
      
 	  static void SetGlobalSecurityLevel(SecurityLevel sl);
 	  static SecurityLevel GetGlobalSecurityLevel();
