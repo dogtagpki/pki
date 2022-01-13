@@ -319,15 +319,6 @@ TPS_PUBLIC char* RA::remove_from_comma_list(const char*item, char *list)
     return ret;
 }
 
-/*
- * returns true if an audit event is selected, false if not
- */
-bool RA::IsAuditEventSelected(const char* auditEvent)
-{
-  return match_comma_list(auditEvent, m_signedAuditNonSelectableEvents) || 
-         match_comma_list(auditEvent, m_signedAuditSelectedEvents);
-}
-
 HttpConnection *RA::GetTKSConn(const char *id) {
     HttpConnection *tksconn = NULL;
     for (int i=0; i<m_tksConns_len; i++) {

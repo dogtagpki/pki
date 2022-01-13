@@ -100,8 +100,6 @@ class RA
 	  RA();
 	  ~RA();
   public:
-          static bool IsAuditEventSelected(const char *auditEvent);
-  public:
 
  	  static PK11SymKey *ComputeSessionKey(RA_Session *session,
                                            Buffer &CUID,
