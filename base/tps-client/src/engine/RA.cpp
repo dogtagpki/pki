@@ -1361,12 +1361,6 @@ TPS_PUBLIC int RA::ra_get_number_of_entries(LDAPMessage *ldapResult) {
     return get_number_of_entries(ldapResult);
 }
 
-TPS_PUBLIC int RA::ra_find_tus_token_entries(char *filter, int maxReturns,
-  LDAPMessage **ldapResult, int num) 
-{
-    return find_tus_token_entries(filter, maxReturns, ldapResult, num);
-}
-
 TPS_PUBLIC char *RA::ra_get_token_userid(char *cuid)
 {
     return get_token_userid(cuid);

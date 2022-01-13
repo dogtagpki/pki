@@ -161,7 +161,6 @@ TPS_PUBLIC int delete_tus_general_db_entry (char *dn);
 TPS_PUBLIC int find_tus_db_entry (char *cn, int max, LDAPMessage **result);
 TPS_PUBLIC int find_tus_db_entries (const char *filter, int max, LDAPMessage **result);
 TPS_PUBLIC int find_tus_db_entries_pcontrol_1 (const char *filter, int max, int time_limit, int size_limit, LDAPMessage **result);
-TPS_PUBLIC int find_tus_token_entries (char *filter, int max, LDAPMessage **result, int order);
 TPS_PUBLIC char *get_token_reason(LDAPMessage *e);
 
 TPS_PUBLIC int update_tus_db_entry (const char *agentid,
