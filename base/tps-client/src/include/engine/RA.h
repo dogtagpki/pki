@@ -135,11 +135,9 @@ class RA
           TPS_PUBLIC static bool match_comma_list(const char* item, char *list);
           TPS_PUBLIC static char* remove_from_comma_list(const char*item, char *list);
   public:
-	  TPS_PUBLIC static void Audit(const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Error(const char *func_name, const char *fmt, ...);
           TPS_PUBLIC static void Debug(const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void DebugBuffer(const char *func_name, const char *prefix, Buffer *buf);
-	  TPS_PUBLIC static void Audit(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Error(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Debug(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  static void DebugBuffer(RA_Log_Level level, const char *func_name, const char *prefix, Buffer *buf);

@@ -1319,34 +1319,6 @@ void RA::DebugThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	PR_Unlock(m_debug_log_lock);
 }
 
-TPS_PUBLIC void RA::Audit (const char *func_name, const char *fmt, ...)
-{ 
-        if (!RA::IsAuditEventSelected(func_name))
-            return;
-
-	va_list ap; 
-	va_start(ap, fmt); 
-	RA::AuditThis (LL_PER_SERVER, func_name, fmt, ap);
-	va_end(ap); 
-	va_start(ap, fmt); 
-//	RA::DebugThis (LL_PER_SERVER, func_name, fmt, ap);
-	va_end(ap); 
-}
-
-TPS_PUBLIC void RA::Audit (RA_Log_Level level, const char *func_name, const char *fmt, ...)
-{ 
-        if (!RA::IsAuditEventSelected(func_name))
-            return;
-
-	va_list ap; 
-	va_start(ap, fmt); 
-	RA::AuditThis (level, func_name, fmt, ap);
-	va_end(ap); 
-	va_start(ap, fmt); 
-	RA::DebugThis (level, func_name, fmt, ap);
-	va_end(ap); 
-}
-
 void RA::AuditThis (RA_Log_Level level, const char *func_name, const char *fmt, va_list ap)
 { 
 	PRTime now;
