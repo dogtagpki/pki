@@ -75,7 +75,6 @@ typedef struct
 static ConfigStore *m_cfg = NULL;
 static LogFile* m_debug_log = (LogFile *)NULL; 
 static LogFile* m_error_log = (LogFile *)NULL; 
-static LogFile* m_audit_log = (LogFile *)NULL; 
 
 RA_Context *RA::m_ctx = NULL;
 bool RA::m_pod_enable=false;
@@ -85,24 +84,13 @@ PRLock *RA::m_verify_lock = NULL;
 PRLock *RA::m_debug_log_lock = NULL;
 PRLock *RA::m_error_log_lock = NULL;
 PRLock *RA::m_config_lock = NULL;
-PRMonitor *RA::m_audit_log_monitor = NULL;
-bool RA::m_audit_enabled = false;
-bool RA::m_audit_signed = false;
-SECKEYPrivateKey *RA::m_audit_signing_key = NULL;
-NSSUTF8 *RA::m_last_audit_signature = NULL;
-SECOidTag RA::m_audit_signAlgTag;
 SecurityLevel RA::m_global_security_level;
-char *RA::m_signedAuditSelectedEvents = NULL;
-char *RA::m_signedAuditSelectableEvents = NULL;
-char *RA::m_signedAuditNonSelectableEvents = NULL;
 
-char *RA::m_audit_log_buffer = NULL;
 PRThread *RA::m_flush_thread = (PRThread *) NULL;
 size_t RA::m_bytes_unflushed =0;
 size_t RA::m_buffer_size = 512;
 int RA::m_flush_interval = 5;
 
-int RA::m_audit_log_level = (int) LL_PER_SERVER;
 int RA::m_debug_log_level = (int) LL_PER_SERVER;
 int RA::m_error_log_level = (int) LL_PER_SERVER;
 int RA::m_caConns_len = 0;
@@ -130,12 +118,6 @@ const char *RA::TKS_RESPONSE_HostCryptogram = "hostCryptogram";
 const char *RA::CFG_DEBUG_ENABLE = "logging.debug.enable"; 
 const char *RA::CFG_DEBUG_FILENAME = "logging.debug.filename"; 
 const char *RA::CFG_DEBUG_LEVEL = "logging.debug.level";
-const char *RA::CFG_AUDIT_ENABLE = "logging.audit.enable"; 
-const char *RA::CFG_AUDIT_FILENAME = "logging.audit.filename"; 
-const char *RA::CFG_SIGNED_AUDIT_FILENAME = "logging.audit.signedAuditFilename"; 
-const char *RA::CFG_AUDIT_LEVEL = "logging.audit.level";
-const char *RA::CFG_AUDIT_SIGNED = "logging.audit.logSigning";
-const char *RA::CFG_AUDIT_SIGNING_CERT_NICK = "logging.audit.signedAuditCertNickname";
 const char *RA::CFG_ERROR_ENABLE = "logging.error.enable"; 
 const char *RA::CFG_ERROR_FILENAME = "logging.error.filename"; 
 const char *RA::CFG_ERROR_LEVEL = "logging.error.level";
@@ -151,16 +133,9 @@ const char *RA::CFG_APPLET_NETKEY_OLD_INSTANCE_AID = "applet.aid.netkey_old_inst
 const char *RA::CFG_APPLET_NETKEY_OLD_FILE_AID = "applet.aid.netkey_old_file"; 
 const char *RA::CFG_APPLET_SO_PIN = "applet.so_pin"; 
 const char *RA::CFG_APPLET_DELETE_NETKEY_OLD = "applet.delete_old"; 
-const char *RA::CFG_AUDIT_SELECTED_EVENTS="logging.audit.selected.events";
-const char *RA::CFG_AUDIT_NONSELECTABLE_EVENTS="logging.audit.nonselectable.events";
-const char *RA::CFG_AUDIT_SELECTABLE_EVENTS="logging.audit.selectable.events";
-const char *RA::CFG_AUDIT_BUFFER_SIZE = "logging.audit.buffer.size";
-const char *RA::CFG_AUDIT_FLUSH_INTERVAL = "logging.audit.flush.interval";
-const char *RA::CFG_AUDIT_FILE_TYPE = "logging.audit.file.type";
 const char *RA::CFG_DEBUG_FILE_TYPE = "logging.debug.file.type";
 const char *RA::CFG_ERROR_FILE_TYPE = "logging.error.file.type";
 const char *RA::CFG_SELFTEST_FILE_TYPE = "selftests.container.logger.file.type";
-const char *RA::CFG_AUDIT_PREFIX = "logging.audit";
 const char *RA::CFG_ERROR_PREFIX = "logging.error";
 const char *RA::CFG_DEBUG_PREFIX = "logging.debug";
 const char *RA::CFG_SELFTEST_PREFIX = "selftests.container.logger";
@@ -212,10 +187,6 @@ RA::RA ()
  */
 RA::~RA ()
 {
-    do_free(m_signedAuditSelectedEvents);
-    do_free(m_signedAuditSelectableEvents);
-    do_free(m_signedAuditNonSelectableEvents);
-
     if (m_cfg != NULL) {
         delete m_cfg;
         m_cfg = NULL;
