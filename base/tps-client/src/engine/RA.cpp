@@ -245,17 +245,6 @@ void RA::do_free(char *p)
     }
 }
 
-void RA::RunFlushThread(void *arg) {
-    RA::Debug("RA::FlushThread", "Starting audit flush thread");
-    while (m_flush_interval >0) {
-        PR_Sleep(PR_SecondsToInterval(m_flush_interval));
-        if (m_flush_interval ==0)
-            break;
-        if (m_bytes_unflushed > 0)
-            FlushAuditLogBuffer();
-    }
-}
-
 /*
  * read off the last sig record of the audit file for computing MAC
  */
