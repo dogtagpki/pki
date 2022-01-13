@@ -1488,30 +1488,6 @@ loser:
         return audit_sig_msg;
 } 
 
-TPS_PUBLIC void RA::SetFlushInterval(int interval)
-{
-    char interval_str[512];
-    int status;
-    char error_msg[512];
-
-    RA::Debug("RA::SetFlushInterval", "Setting flush interval to %d seconds", interval);
-    m_flush_interval = interval;
-
-    // Interrupt the flush thread to set new interval
-    // Get monitor so as not to interrupt the flush thread during flushing
-
-    PR_EnterMonitor(m_audit_log_monitor);
-    PR_Interrupt(m_flush_thread);
-    PR_ExitMonitor(m_audit_log_monitor);
-    
-    PR_snprintf((char *) interval_str, 512, "%d", interval);
-    m_cfg->Add(CFG_AUDIT_FLUSH_INTERVAL, interval_str);
-    status = m_cfg->Commit(false, error_msg, 512);
-    if (status != 0) {
-        RA::Debug("RA:SetFlushInterval", error_msg);
-    }
-}
-
 TPS_PUBLIC void RA::Error (const char *func_name, const char *fmt, ...)
 { 
 	va_list ap; 

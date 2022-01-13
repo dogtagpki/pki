@@ -144,7 +144,6 @@ class RA
           TPS_PUBLIC static void FlushAuditLogBuffer();
           TPS_PUBLIC static void SignAuditLog(NSSUTF8 *msg);
           TPS_PUBLIC static char *GetAuditSigningMessage(const NSSUTF8 *msg);
-          TPS_PUBLIC static void SetFlushInterval(int interval);
   private:
 	  static void ErrorThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
 	  static void DebugThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
