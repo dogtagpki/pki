@@ -37,7 +37,6 @@
 #endif /* HAVE_CONFIG_H */
 
 #include "pk11func.h"
-#include "engine/audit.h"
 #include "ldap.h"
 #include "lber.h"
 #include "main/Base.h"
