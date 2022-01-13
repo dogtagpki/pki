@@ -3357,11 +3357,6 @@ char *get_cert_serial(LDAPMessage *entry)
     return get_cert_attr_byname(entry, "tokenSerial");
 }
 
-char *get_cert_type(LDAPMessage *entry)
-{
-    return get_cert_attr_byname(entry, "tokenKeyType");
-}
-
 char *get_cert_issuer(LDAPMessage *entry) {
     return get_cert_attr_byname(entry, "tokenIssuer");
 }
