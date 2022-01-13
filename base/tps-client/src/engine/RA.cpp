@@ -1313,12 +1313,6 @@ void RA::ErrorThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	PR_Unlock(m_error_log_lock);
 }
 
-TPS_PUBLIC int RA::ra_find_tus_certificate_entries_by_order (char *filter,
-  int max, LDAPMessage **result, int order) 
-{
-    return find_tus_certificate_entries_by_order(filter, max, result, order);
-}
-
 TPS_PUBLIC CERTCertificate **RA::ra_get_certificates(LDAPMessage *e) {
     return get_certificates(e);
 }
