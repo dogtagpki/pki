@@ -1333,10 +1333,6 @@ TPS_PUBLIC char *RA::ra_get_cert_attr_byname(LDAPMessage *entry, const char *nam
     return get_cert_attr_byname(entry, name);
 }
 
-TPS_PUBLIC char *RA::ra_get_cert_issuer(LDAPMessage *entry) {
-    return get_cert_issuer(entry);
-}
-
 TPS_PUBLIC int RA::ra_get_number_of_entries(LDAPMessage *ldapResult) {
     return get_number_of_entries(ldapResult);
 }

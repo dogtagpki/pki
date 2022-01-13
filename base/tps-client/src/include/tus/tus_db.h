@@ -193,7 +193,6 @@ TPS_PUBLIC struct berval **get_token_users(LDAPMessage *entry);
 TPS_PUBLIC char *get_token_id(LDAPMessage *entry);
 TPS_PUBLIC char *get_cert_tokenType(LDAPMessage *entry);
 TPS_PUBLIC char *get_token_status(LDAPMessage *entry);
-TPS_PUBLIC char *get_cert_issuer(LDAPMessage *entry);
 TPS_PUBLIC char *get_cert_attr_byname(LDAPMessage *entry, const char *name);
 TPS_PUBLIC char *get_applet_id(LDAPMessage *entry);
 TPS_PUBLIC char *get_key_info(LDAPMessage *entry);
