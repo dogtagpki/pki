@@ -1342,23 +1342,6 @@ TPS_PUBLIC void RA::ra_tus_print_integer(char *out, SECItem *data)
     tus_print_integer(out, data);
 }
 
-TPS_PUBLIC int RA::ra_delete_certificate_entry(LDAPMessage* e) 
-{
-   char *dn = get_dn(e);
-   int rc = LDAP_SUCCESS;
-
-   if (dn != NULL) {
-       rc = delete_tus_general_db_entry(dn);
-       if (rc != LDAP_SUCCESS) {
-           RA::Debug("RA::delete_certificate_entry", 
-                     "Failed to remove certificate entry: %s", dn);
-       }
-       PL_strfree(dn);
-       dn = NULL;
-   }
-   return rc;
-}
-
 int RA::Failover(HttpConnection *&conn, int len) {
     int rc = 0;
     if (m_pod_enable) {
