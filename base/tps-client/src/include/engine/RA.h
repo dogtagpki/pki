@@ -158,7 +158,6 @@ class RA
       TPS_PUBLIC static char *ra_get_cert_issuer(LDAPMessage *entry);
           TPS_PUBLIC static int ra_delete_certificate_entry(LDAPMessage *entry);
           TPS_PUBLIC static int ra_get_number_of_entries(LDAPMessage *ldapResult);
-	  TPS_PUBLIC static char *ra_get_token_userid(char *cuid);
       TPS_PUBLIC static void ra_tus_print_integer(char *out, SECItem *data);
   public:
           static HttpConnection *GetCAConn(const char *id);

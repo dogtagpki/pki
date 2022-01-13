@@ -150,7 +150,6 @@ TPS_PUBLIC void set_tus_db_bindPass(char *p);
 TPS_PUBLIC int is_tus_db_initialized();
 TPS_PUBLIC int get_tus_db_config(char *name);
 TPS_PUBLIC int tus_db_init(char **errorMsg);
-TPS_PUBLIC char *get_token_userid(char *cn);
 TPS_PUBLIC void tus_db_end();
 TPS_PUBLIC void tus_db_cleanup();
 TPS_PUBLIC void tus_print_as_hex(char *out, SECItem *data);

@@ -1357,11 +1357,6 @@ TPS_PUBLIC int RA::ra_get_number_of_entries(LDAPMessage *ldapResult) {
     return get_number_of_entries(ldapResult);
 }
 
-TPS_PUBLIC char *RA::ra_get_token_userid(char *cuid)
-{
-    return get_token_userid(cuid);
-}
-
 TPS_PUBLIC void RA::ra_tus_print_integer(char *out, SECItem *data)
 {
     tus_print_integer(out, data);

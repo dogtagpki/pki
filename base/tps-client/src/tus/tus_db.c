@@ -3497,37 +3497,6 @@ int get_number_of_recoveries(LDAPMessage *entry)
     return get_cert_attr_byname_int(entry, TOKEN_RECOVERIES);
 }
 
-TPS_PUBLIC char *get_token_userid(char *cn)
-{
-    LDAPMessage *result = NULL;
-    LDAPMessage *e = NULL;
-    struct berval **v = NULL;
-    char *ret = NULL;
-    int rc = -1;
-
-    if (cn != NULL && PL_strlen(cn) > 0) {
-        if ((rc = find_tus_db_entry (cn, 0, &result)) == LDAP_SUCCESS) {
-            e = get_first_entry (result);
-            if (e != NULL) {
-                if ((v = ldap_get_values_len(ld, e, TOKEN_USER)) != NULL) {
-                    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
-                            ret = PL_strdup(v[0]->bv_val);
-                    }
-                    if( v != NULL ) {
-                        ldap_value_free_len( v );
-                        v = NULL;
-                    }
-                }
-            }
-            if( result != NULL ) {
-                free_results( result );
-                result = NULL;
-            }
-        }
-    }
-    return ret;
-}
-
 TPS_PUBLIC int allow_token_enroll_policy(char *cn, const char *policy)
 {
     LDAPMessage *result = NULL;
