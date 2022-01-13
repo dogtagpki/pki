@@ -141,7 +141,6 @@ class RA
 	  TPS_PUBLIC static void Error(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Debug(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  static void DebugBuffer(RA_Log_Level level, const char *func_name, const char *prefix, Buffer *buf);
-          TPS_PUBLIC static void SignAuditLog(NSSUTF8 *msg);
           TPS_PUBLIC static char *GetAuditSigningMessage(const NSSUTF8 *msg);
   private:
 	  static void ErrorThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);

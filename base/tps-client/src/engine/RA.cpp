@@ -1319,37 +1319,6 @@ void RA::DebugThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	PR_Unlock(m_debug_log_lock);
 }
 
-TPS_PUBLIC void RA::SignAuditLog(NSSUTF8 * audit_msg)
-{
-    char *audit_sig_msg = NULL;
-    char sig[4096];
-    int status;
-
-    if (!m_audit_enabled) return;
-
-    PR_EnterMonitor(m_audit_log_monitor);
-    audit_sig_msg = GetAuditSigningMessage(audit_msg);
-    
-    if (audit_sig_msg != NULL) {
-        PR_snprintf(sig, 4096, "%s\n", audit_sig_msg);
-        status = m_audit_log->write(sig); 
-        if (status != PR_SUCCESS) {
-            m_audit_log->get_context()->LogError( "RA::SignAuditLog",
-                  __LINE__,
-                  "SignAuditLog: Failure to write to the audit log.  Shutting down ..");
-            _exit(APEXIT_CHILDFATAL);
-        }
-        if (m_last_audit_signature != NULL) {
-            PR_Free( m_last_audit_signature );
-        }
-        m_last_audit_signature = PL_strdup(audit_sig_msg);
-        m_audit_log->setSigned(true);
-        
-        PR_Free(audit_sig_msg);
-    }
-    PR_ExitMonitor(m_audit_log_monitor);
-}
-
 TPS_PUBLIC void RA::ra_free_values(struct berval **values) 
 {
     free_values(values, 1);
