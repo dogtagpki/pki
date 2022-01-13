@@ -1319,64 +1319,6 @@ void RA::DebugThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	PR_Unlock(m_debug_log_lock);
 }
 
-void RA::AuditThis (RA_Log_Level level, const char *func_name, const char *fmt, va_list ap)
-{ 
-	PRTime now;
-        const char* time_fmt = "%Y-%m-%d %H:%M:%S";
-        char datetime[1024]; 
-        PRExplodedTime time;
-	PRThread *ct;
-        char *message_p1 = NULL;
-        char *message_p2 = NULL;
-        int nbytes;
-        int status;
-
-        if (!m_audit_enabled) return;
- 
-        if ((m_audit_log == NULL) || (!m_audit_log->isOpen()) || (m_audit_log_buffer == NULL))
-		return;
-	if ((int) level >= m_audit_log_level)
-		return;
-
-	PR_EnterMonitor(m_audit_log_monitor);
-	now = PR_Now();
-        PR_ExplodeTime(now, PR_LocalTimeParameters, &time);
-	PR_FormatTimeUSEnglish(datetime, 1024, time_fmt, &time);
-	ct = PR_GetCurrentThread();
-
-        message_p1 = PR_smprintf("[%s] %x [AuditEvent=%s]", datetime, ct, func_name);
-	message_p2 = PR_vsmprintf(fmt, ap); 
-
-        /* write out the message first */
-        NSSUTF8 *audit_msg = PR_smprintf("%s%s\n", message_p1, message_p2);
-        nbytes = (unsigned) PL_strlen((const char*) audit_msg);
-        if ((m_bytes_unflushed + nbytes) >= m_buffer_size) {
-            FlushAuditLogBuffer();
-            status = m_audit_log->write(audit_msg); 
-            if (status != PR_SUCCESS) {
-                m_audit_log->get_context()->LogError( "RA::AuditThis",
-                      __LINE__,
-                      "AuditThis: Failure to write to the audit log.  Shutting down ..."); 
-                _exit(APEXIT_CHILDFATAL);
-            }
-            m_audit_log->setSigned(false);
-
-            if (m_audit_signed) SignAuditLog(audit_msg);
-        } else {
-            PL_strcat(m_audit_log_buffer, audit_msg);
-            m_bytes_unflushed += nbytes; 
-        }
-
-        PR_Free(message_p1);
-        PR_Free(message_p2);
-
-        if (audit_msg)
-            PR_Free(audit_msg);
-
-        PR_ExitMonitor(m_audit_log_monitor);
-
-}
-
 TPS_PUBLIC void RA::FlushAuditLogBuffer()
 {
     int status;
