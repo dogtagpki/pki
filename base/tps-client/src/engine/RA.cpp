@@ -1319,31 +1319,6 @@ void RA::DebugThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	PR_Unlock(m_debug_log_lock);
 }
 
-TPS_PUBLIC void RA::FlushAuditLogBuffer()
-{
-    int status;
-
-    if (!m_audit_enabled) return;
-
-    PR_EnterMonitor(m_audit_log_monitor);
-    if ((m_bytes_unflushed > 0) && (m_audit_log_buffer != NULL) && (m_audit_log != NULL)) { 
-        status = m_audit_log->write(m_audit_log_buffer);
-        if (status != PR_SUCCESS) {
-            m_audit_log->get_context()->LogError( "RA::FlushAuditLogBuffer",
-                  __LINE__,
-                  "RA::FlushAuditLogBuffer: Failure to write to the audit log.  Shutting down ...");
-            _exit(APEXIT_CHILDFATAL);
-        }
-        m_audit_log->setSigned(false);
-        if (m_audit_signed) {
-            SignAuditLog((NSSUTF8 *) m_audit_log_buffer);
-        }
-        m_bytes_unflushed=0;
-        PR_snprintf((char *) m_audit_log_buffer, m_buffer_size, "");
-    }
-    PR_ExitMonitor(m_audit_log_monitor);
-}
-
 TPS_PUBLIC void RA::SignAuditLog(NSSUTF8 * audit_msg)
 {
     char *audit_sig_msg = NULL;
