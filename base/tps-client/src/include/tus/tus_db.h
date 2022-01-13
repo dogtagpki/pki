@@ -173,8 +173,6 @@ TPS_PUBLIC int update_tus_db_entry_with_mods (const char *agentid, const char *c
 TPS_PUBLIC int check_and_modify_tus_db_entry (char *userid, char *cn, char *check, LDAPMod **mods);
 TPS_PUBLIC int modify_tus_db_entry (char *userid, char *cn, LDAPMod **mods);
 TPS_PUBLIC int add_activity (const char *ip, const char *id, const char *op, const char *result, const char *msg, const char *userid, const char *token_type);
-TPS_PUBLIC int find_tus_certificate_entries_by_order_no_vlv (char *filter,
-  LDAPMessage **result, int order);
 TPS_PUBLIC int find_tus_certificate_entries_by_order (char *filter, int max,
   LDAPMessage **result, int order);
 TPS_PUBLIC int add_certificate (char *tokenid, char *origin, char *tokenType, char *userid, CERTCertificate *certificate, char *ktype, const char *status);
