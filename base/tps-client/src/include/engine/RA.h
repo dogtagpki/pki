@@ -169,7 +169,6 @@ class RA
       TPS_PUBLIC static int ra_find_tus_certificate_entries_by_order_no_vlv(
         char *filter, LDAPMessage **msg, int order);
       TPS_PUBLIC static void ra_tus_print_integer(char *out, SECItem *data);
-	  static int testTokendb();
   public:
           static HttpConnection *GetCAConn(const char *id);
           static void ReturnCAConn(HttpConnection *conn);

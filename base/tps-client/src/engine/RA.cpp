@@ -216,24 +216,6 @@ void RA::do_free(char *p)
     }
 }
 
-int RA::testTokendb() {
-    // try to see if we can talk to the database
-    int st = 0;
-    LDAPMessage  *ldapResult = NULL;
-    const char * filter = "(cn=0000000000080000*)";
-
-    if ((st = find_tus_db_entries(filter, 0, &ldapResult)) != LDAP_SUCCESS) {
-        RA::Debug("RA::testing", "response from token DB failed");
-    } else {
-        RA::Debug("RA::testing", "response from token DB succeeded");
-    }
-    if (ldapResult != NULL) {
-        ldap_msgfree(ldapResult);
-    }
-
-    return st;
-}
-
 /*
  * returns true if item is a value in the comma separated list
  * used by audit logging functions and profile selection functions
