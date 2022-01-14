@@ -205,7 +205,6 @@ TPS_PUBLIC char *get_dn(LDAPMessage *entry);
 TPS_PUBLIC LDAPMod **allocate_modifications(int size);
 TPS_PUBLIC void free_modifications(LDAPMod **mods, int ldapValues);
 TPS_PUBLIC char **allocate_values(int size, int extra);
-TPS_PUBLIC char **create_modification_date_change();
 TPS_PUBLIC int base64_decode(char *src, unsigned char *dst);
 
 TPS_PUBLIC int delete_profile_from_user(const char *agentid, char *userid, const char *profile);

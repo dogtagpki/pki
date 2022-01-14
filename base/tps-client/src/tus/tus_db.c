@@ -1556,26 +1556,6 @@ TPS_PUBLIC char **allocate_values(int size, int extra)
     return values;
 }
 
-TPS_PUBLIC char **create_modification_date_change()
-{
-    PRExplodedTime time;
-    PRTime now;
-    char **v = NULL;
-
-    if ((v = allocate_values(1, 16)) == NULL) {
-        return NULL;
-    }
-
-    now = PR_Now();
-    PR_ExplodeTime(now, PR_LocalTimeParameters, &time);
-
-    PR_snprintf(v[0], 16, "%04d%02d%02d%02d%02d%02dZ",
-                time.tm_year, (time.tm_month + 1), time.tm_mday,
-                time.tm_hour, time.tm_min, time.tm_sec);
-
-    return v;
-}
-
 /**
  * Reads password.conf file
  */
