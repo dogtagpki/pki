@@ -889,28 +889,6 @@ int delete_tus_general_db_entry (char *dn)
     return rc;
 }
 
-/**
- * delete_user_db_entry
- * Deletes user entry
- * params: agentid - user performing this change
- *         uid - user to be deleted
- * returns: LDAP return code
- */
-TPS_PUBLIC int delete_user_db_entry(const char *agentid, char *uid)
-{
-    char dn[256];
-    int rc =0;
-    if (PR_snprintf(dn, 255, "uid=%s,ou=People,%s", uid, userBaseDN) < 0)
-        return -1;
-    rc = delete_tus_general_db_entry(dn);
-    
-    if (rc == LDAP_SUCCESS) {
-        audit_log("delete user", agentid, uid);
-    }
-
-    return rc;
-}
-
 static int sort_cmp(const char *v1, const char *v2)
 {
   return PL_strcasecmp(v1, v2);
