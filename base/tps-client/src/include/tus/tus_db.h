@@ -224,7 +224,6 @@ TPS_PUBLIC int find_tus_user_entries_no_vlv(char *filter, LDAPMessage **result, 
 TPS_PUBLIC int delete_profile_from_user(const char *agentid, char *userid, const char *profile);
 TPS_PUBLIC int delete_user_from_role_db_entry(const char *agentid, char *userid, const char *role);
 TPS_PUBLIC int find_tus_user_role_entries( const char*uid, LDAPMessage **result);
-TPS_PUBLIC char *get_authorized_profiles(const char *userid, int is_admin);
 TPS_PUBLIC int delete_user_db_entry(const char *agentid, char *uid);
 TPS_PUBLIC int delete_all_profiles_from_user(const char *agentid, char *userid);
 #endif /* TUS_DB_H */
