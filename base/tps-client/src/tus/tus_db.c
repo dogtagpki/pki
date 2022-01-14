@@ -1612,52 +1612,6 @@ TPS_PUBLIC int delete_user_db_entry(const char *agentid, char *uid)
     return rc;
 }
 
-
-TPS_PUBLIC int find_tus_db_entry (char *cn, int max, LDAPMessage **result)
-{
-    char dn[256];
-    int  rc = 0, tries = 0;
-
-    tus_check_conn();
-    if (ld == NULL)
-      return -1;
-
-    if (PR_snprintf(dn, 255, "cn=%s,%s", cn, baseDN) < 0)
-        return -1;
-
-    if (debug_fd)
-      PR_fprintf(debug_fd, "find_tus_db_entry: looking for :%s\n",dn);
-
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if (debug_fd)
-            PR_fprintf(debug_fd, "find_tus_db_entry: tries = %d\n",tries);
-        if ((rc = ldap_search_ext_s (ld, dn, LDAP_SCOPE_BASE, "(objectclass=*)",
-                       NULL, 0, NULL, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
-	  if (debug_fd)
-	      PR_fprintf(debug_fd, "find_tus_db_entry: found it\n");
-
-          break;
-        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-	  if (debug_fd)
-	    PR_fprintf(debug_fd, "find_tus_db_entry: server down or connect error\n");
-            struct berval credential;
-            credential.bv_val = bindPass;
-            credential.bv_len= strlen(bindPass);
-            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-            if (rc != LDAP_SUCCESS) {
-                bindStatus = rc;
-                break;
-            }
-        } else {/* can't find?*/
-	  if (debug_fd)
-	    PR_fprintf(debug_fd, "find_tus_db_entry: can't find\n");
-	  break;
-	}
-    }
-
-    return rc;
-}
-
 static int sort_cmp(const char *v1, const char *v2)
 {
   return PL_strcasecmp(v1, v2);
