@@ -227,7 +227,6 @@ TPS_PUBLIC char **allocate_values(int size, int extra);
 TPS_PUBLIC char **create_modification_date_change();
 TPS_PUBLIC int base64_decode(char *src, unsigned char *dst);
 
-TPS_PUBLIC int add_user_db_entry(const char *agentid, char *userid, char *userPassword, char *sn, char *givenName, char *cn, char * userCert);
 TPS_PUBLIC int find_tus_user_entries_no_vlv(char *filter, LDAPMessage **result, int order);
 TPS_PUBLIC int update_user_db_entry(const char *agentid, char *uid, char *lastName, char *givenName, char *userCN, char *userCert);
 TPS_PUBLIC int add_profile_to_user(const char *agentid, char *userid, const char *profile);
