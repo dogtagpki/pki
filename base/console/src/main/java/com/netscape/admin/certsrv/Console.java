@@ -56,6 +56,9 @@ import org.dogtagpki.common.InfoClient;
 import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.Level;
 
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.AlreadyInitializedException;
+
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.management.client.Framework;
@@ -72,6 +75,7 @@ import com.netscape.management.client.console.ConsoleInfo;
 import com.netscape.management.client.console.LoginDialog;
 import com.netscape.management.client.console.VersionInfo;
 import com.netscape.management.client.preferences.FilePreferences;
+import com.netscape.management.client.preferences.FilePreferenceManager;
 import com.netscape.management.client.preferences.PreferenceManager;
 import com.netscape.management.client.preferences.Preferences;
 import com.netscape.management.client.topology.IServerObject;
@@ -1581,6 +1585,9 @@ public class Console implements CommClient {
         System.out.println();
         System.out.println(" -f <file>      Capture stderr and stdout to file.");
         System.out.println(" -D <options>   Debug options.");
+        String default_nssdb_path = FilePreferenceManager.getHomePath();
+        System.out.println(" -d <nssdb path>   path to nssdb (default: " +
+                default_nssdb_path + ")");
         System.out.println(" -x <options>   Extra options (javalaf, nowinpos, nologo).");
         System.out.println(" -v,--verbose   Run in verbose mode.");
         System.out.println(" -h,--help      Show help message.");
@@ -1604,6 +1611,10 @@ public class Console implements CommClient {
         options.addOption(option);
 
         option = new Option("D", true, "Debug options.");
+        option.setArgName("options");
+        options.addOption(option);
+
+        option = new Option("d", true, "path to nssdb.");
         option.setArgName("options");
         options.addOption(option);
 
@@ -1766,6 +1777,19 @@ public class Console implements CommClient {
         */
         }
 
+        CryptoManager manager = null;
+        String default_nssdb_path = FilePreferenceManager.getHomePath();
+	String nssdb_path = cmd.getOptionValue("d", default_nssdb_path);
+	logger.info("NSS database: " + nssdb_path);
+        try {
+            CryptoManager.initialize(nssdb_path);
+        } catch (AlreadyInitializedException e) {
+            // it is ok if it is already initialized
+            System.out.println("  CryptoManager.initialize AlreadyInitializedException");
+        } catch (Exception e) {
+            System.err.println("  CryptoManager INITIALIZATION ERROR: " + e.toString());
+            System.exit(1);
+        }
         UtilConsoleGlobals.initJSS();
 
         ClientConfig config = new ClientConfig();
