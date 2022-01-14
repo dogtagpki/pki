@@ -84,7 +84,6 @@ PRLock *RA::m_verify_lock = NULL;
 PRLock *RA::m_debug_log_lock = NULL;
 PRLock *RA::m_error_log_lock = NULL;
 PRLock *RA::m_config_lock = NULL;
-SecurityLevel RA::m_global_security_level;
 
 PRThread *RA::m_flush_thread = (PRThread *) NULL;
 size_t RA::m_bytes_unflushed =0;
@@ -346,11 +345,6 @@ int RA::GetCurrentIndex(HttpConnection *conn) {
     PR_Unlock(lock);
     return index;
 }
-
-SecurityLevel RA::GetGlobalSecurityLevel() {
-    return m_global_security_level;
-}
-
 
 /*
  * recovers user encryption key that was previously archived.

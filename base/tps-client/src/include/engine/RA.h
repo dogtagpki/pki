@@ -166,7 +166,6 @@ class RA
           static void SetPodIndex(int index);
           static int GetPodIndex();
      
-	  static SecurityLevel GetGlobalSecurityLevel();
   public: /* default values */
 	  static const char *CFG_DEF_CARDMGR_INSTANCE_AID;
 	  static const char *CFG_DEF_NETKEY_INSTANCE_AID;
@@ -244,7 +243,6 @@ class RA
       static HttpConnection* m_tksConnection[];
       static int m_caConns_len;
       static int m_tksConns_len;
-	  static SecurityLevel m_global_security_level;
       static void SetCurrentIndex(HttpConnection *&conn, int index);
 
           static RA_Context *m_ctx;
