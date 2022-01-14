@@ -191,7 +191,6 @@ TPS_PUBLIC char *get_creation_date(LDAPMessage *entry);
 TPS_PUBLIC char *get_modification_date(LDAPMessage *entry);
 TPS_PUBLIC char *get_policy_name();
 TPS_PUBLIC char *get_reason_name();
-int find_tus_certificate_entries (char *filter, int max, LDAPMessage **result);
 TPS_PUBLIC char **get_certificate_attributes();
 
 TPS_PUBLIC int get_number_of_modifications(LDAPMessage *entry);
