@@ -1329,10 +1329,6 @@ TPS_PUBLIC char *RA::ra_get_cert_attr_byname(LDAPMessage *entry, const char *nam
     return get_cert_attr_byname(entry, name);
 }
 
-TPS_PUBLIC int RA::ra_get_number_of_entries(LDAPMessage *ldapResult) {
-    return get_number_of_entries(ldapResult);
-}
-
 TPS_PUBLIC void RA::ra_tus_print_integer(char *out, SECItem *data)
 {
     tus_print_integer(out, data);

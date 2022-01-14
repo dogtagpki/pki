@@ -3122,29 +3122,6 @@ TPS_PUBLIC int find_tus_activity_entries_pcontrol_1(char *filter, int max, int t
     return rc;
 }
 
-int get_number_of_entries (LDAPMessage *result)
-{
-    int  n = 0, rc = 0, tries = 0;
-
-    tus_check_conn();
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((n = ldap_count_entries (ld, result)) >= 0) {
-            break;
-        } else {
-            struct berval credential;
-            credential.bv_val = bindPass;
-            credential.bv_len= strlen(bindPass);
-            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-            if (rc != LDAP_SUCCESS) {
-                bindStatus = rc;
-                break;
-            }
-        }
-    }
-
-    return n;
-}
-
 int free_results (LDAPMessage *results)
 {
     return ldap_msgfree (results);

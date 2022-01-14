@@ -175,7 +175,6 @@ TPS_PUBLIC int add_new_tus_db_entry (const char *userid, char *cn, const char *u
 TPS_PUBLIC int find_tus_activity_entries (char *filter, int max, LDAPMessage **result);
 TPS_PUBLIC int find_tus_activity_entries_pcontrol_1 (char *filter, int max, int time_limit, int size_limit, LDAPMessage **result);
 TPS_PUBLIC int find_tus_activity_entries_no_vlv (char *filter, LDAPMessage **result, int order);
-TPS_PUBLIC int get_number_of_entries (LDAPMessage *result);
 TPS_PUBLIC int free_results (LDAPMessage *results);
 
 TPS_PUBLIC LDAPMessage *get_first_entry (LDAPMessage *result);
