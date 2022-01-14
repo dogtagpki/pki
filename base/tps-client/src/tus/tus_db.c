@@ -1967,41 +1967,6 @@ TPS_PUBLIC int delete_all_profiles_from_user(const char *agentid, char *userid) 
     return rc;
 }
 
-
-/**
- * add_profile_to_user
- * summary: adds attribute profileID=profile to user entry
- * params: agentid -user who is performing this change
- *       : userid - userid of user to be modified
- *       : profile - profile (tokenType) to be added
- * returns: LDAP return code
- */
-TPS_PUBLIC int add_profile_to_user(const char *agentid, char *userid, const char *profile) {
-    LDAPMod  a01;
-    LDAPMod  *mods[2];
-    int  rc = 0;
-    char dn[256];
-    char msg[256];
-    char *profileid_values[2] = {(char *) profile, NULL};
-
-    if (PR_snprintf(dn, 255, "uid=%s, ou=People, %s", userid, userBaseDN) < 0)
-         return -1;
-
-    a01.mod_op = LDAP_MOD_ADD;
-    a01.mod_type = PROFILE_ID;
-    a01.mod_values = profileid_values;
-    mods[0]  = &a01;
-    mods[1]  = NULL;
-
-    rc = update_tus_general_db_entry(agentid, dn, mods);
-    if (rc == LDAP_SUCCESS) {
-        PR_snprintf(msg, 256, "Added profile %s to user %s", profile, userid); 
-        audit_log("add_profile_to_user", agentid, msg);
-    }
-
-    return rc;
-}
-
 int delete_tus_db_entry (char *userid, char *cn)
 {
     char dn[256];
