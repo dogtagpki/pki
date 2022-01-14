@@ -166,7 +166,6 @@ class RA
           static void SetPodIndex(int index);
           static int GetPodIndex();
      
-	  static void SetGlobalSecurityLevel(SecurityLevel sl);
 	  static SecurityLevel GetGlobalSecurityLevel();
   public: /* default values */
 	  static const char *CFG_DEF_CARDMGR_INSTANCE_AID;

@@ -347,12 +347,6 @@ int RA::GetCurrentIndex(HttpConnection *conn) {
     return index;
 }
 
-void RA::SetGlobalSecurityLevel(SecurityLevel sl) {
-    m_global_security_level = sl;
-    RA::Debug(" RA::SetGlobalSecurityLevel", "global security level set to %d", (int) sl);
-
-}
-
 SecurityLevel RA::GetGlobalSecurityLevel() {
     return m_global_security_level;
 }
