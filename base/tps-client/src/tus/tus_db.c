@@ -1658,56 +1658,6 @@ TPS_PUBLIC int find_tus_db_entry (char *cn, int max, LDAPMessage **result)
     return rc;
 }
 
-TPS_PUBLIC int find_tus_db_entries (const char *filter, int max, LDAPMessage **result)
-{
-    int  rc = LDAP_OTHER, tries = 0;
-
-    LDAPSortKey **sortKeyList;
-    LDAPControl *controls[3];
-    LDAPVLVInfo vlv_data;
-
-    tus_check_conn();
-    controls[0] = NULL;
-    controls[1] = NULL;
-    controls[2] = NULL;
-
-    vlv_data.ldvlv_before_count = 0;
-    vlv_data.ldvlv_after_count = max - 1;
-    vlv_data.ldvlv_attrvalue = NULL;
-    vlv_data.ldvlv_count = max;
-    vlv_data.ldvlv_offset = 0;
-    vlv_data.ldvlv_version = 1; 
-    vlv_data.ldvlv_context = NULL;
-    vlv_data.ldvlv_extradata = NULL;
-    ldap_create_vlv_control(ld, &vlv_data, &controls[0]);
-   
-    ldap_create_sort_keylist(&sortKeyList, "-dateOfModify");
-    ldap_create_sort_control(ld, sortKeyList, 1 /* non-critical */, 
-        &controls[1]);
-
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_search_ext_s (ld, baseDN, LDAP_SCOPE_SUBTREE, filter,
-                       NULL, 0, controls, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
-            break;
-        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            struct berval credential;
-            credential.bv_val = bindPass;
-            credential.bv_len= strlen(bindPass);
-            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-            if (rc != LDAP_SUCCESS) {
-                bindStatus = rc;
-                break;
-            }
-        }
-    }
-
-    ldap_free_sort_keylist(sortKeyList);
-    ldap_control_free(controls[0]);
-    ldap_control_free(controls[1]);
-
-    return rc;
-}
-
 static int sort_cmp(const char *v1, const char *v2)
 {
   return PL_strcasecmp(v1, v2);
