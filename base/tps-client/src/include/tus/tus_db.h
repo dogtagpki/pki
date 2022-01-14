@@ -161,10 +161,6 @@ TPS_PUBLIC int find_tus_db_entry (char *cn, int max, LDAPMessage **result);
 TPS_PUBLIC int find_tus_db_entries (const char *filter, int max, LDAPMessage **result);
 TPS_PUBLIC int find_tus_db_entries_pcontrol_1 (const char *filter, int max, int time_limit, int size_limit, LDAPMessage **result);
 
-TPS_PUBLIC int update_tus_db_entry (const char *agentid,
-                        char *cn, const char *uid, char *keyInfo,
-                        const char *status,
-                        char *applet_version, const char *reason, const char* token_type);
 TPS_PUBLIC int add_activity (const char *ip, const char *id, const char *op, const char *result, const char *msg, const char *userid, const char *token_type);
 TPS_PUBLIC int add_certificate (char *tokenid, char *origin, char *tokenType, char *userid, CERTCertificate *certificate, char *ktype, const char *status);
 TPS_PUBLIC int add_tus_db_entry (char *cn, LDAPMod **mods);
