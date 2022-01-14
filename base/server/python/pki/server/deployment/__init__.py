@@ -693,6 +693,12 @@ class PKIDeployer:
             config.str2bool(self.mdict['pki_existing'])
         standalone = config.str2bool(self.mdict['pki_standalone'])
 
+        # For external/standalone KRA/OCSP/TKS/TPS case, all system certs will be provided.
+        # No system certs will be generated including the SSL server cert.
+
+        if subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS'] and (external or standalone):
+            return
+
         request = pki.system.CertificateSetupRequest()
         request.tag = tag
         request.pin = self.mdict['pki_one_time_pin']
@@ -747,11 +753,7 @@ class PKIDeployer:
         # For external/existing CA case, some/all system certs may be provided.
         # The SSL server cert will always be generated for the current host.
 
-        # For external/standalone KRA/OCSP/TKS/TPS case, all system certs will be provided.
-        # No system certs will be generated including the SSL server cert.
-
-        if subsystem.type == 'CA' and external and tag != 'sslserver' and cert_info or \
-                subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS'] and (external or standalone):
+        if subsystem.type == 'CA' and external and tag != 'sslserver' and cert_info:
 
             logger.info('Importing %s certificate', tag)
             logger.debug('- cert: %s', system_cert['data'])
