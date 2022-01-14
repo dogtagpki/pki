@@ -58,6 +58,7 @@ import org.dogtagpki.util.logging.PKILogger.Level;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
+import org.mozilla.jss.InitializationValues;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -1773,12 +1774,15 @@ public class Console implements CommClient {
         */
         }
 
-        CryptoManager manager = null;
         String default_nssdb_path = FilePreferenceManager.getHomePath();
-	String nssdb_path = cmd.getOptionValue("d", default_nssdb_path);
-	logger.info("NSS database: " + nssdb_path);
+        String nssdb_path = cmd.getOptionValue("d", default_nssdb_path);
+        logger.info("NSS database: " + nssdb_path);
+        InitializationValues vals = new InitializationValues(nssdb_path, "", "", "secmod.db");
+        vals.removeSunProvider = false;
+        vals.installJSSProvider = true;
         try {
-            CryptoManager.initialize(nssdb_path);
+            CryptoManager.initialize(vals);
+            logger.info("  NSS database: initialized");
         } catch (AlreadyInitializedException e) {
             // it is ok if it is already initialized
             System.out.println("  CryptoManager.initialize AlreadyInitializedException");
@@ -1787,6 +1791,7 @@ public class Console implements CommClient {
             System.exit(1);
         }
         UtilConsoleGlobals.initJSS();
+        logger.info("  UtilConsoleGlobals.initJSS() returned");
 
         ClientConfig config = new ClientConfig();
         config.setServerURL(protocol, hostName, portNumber);
