@@ -833,30 +833,6 @@ int update_tus_general_db_entry(const char *agentid, const char *dn, LDAPMod **m
     return rc;
 }
 
-int delete_tus_general_db_entry (char *dn)
-{
-    int  rc = 0, tries = 0;
-
-    tus_check_conn();
-
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_delete_ext_s(ld, dn, NULL, NULL)) == LDAP_SUCCESS) {
-            break;
-        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            struct berval credential;
-            credential.bv_val = bindPass;
-            credential.bv_len= strlen(bindPass);
-            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-            if (rc != LDAP_SUCCESS) {
-                bindStatus = rc;
-                break;
-            }
-        }
-    }
-
-    return rc;
-}
-
 static int sort_cmp(const char *v1, const char *v2)
 {
   return PL_strcasecmp(v1, v2);
