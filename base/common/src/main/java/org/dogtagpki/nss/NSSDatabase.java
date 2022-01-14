@@ -931,10 +931,7 @@ public class NSSDatabase {
 
         logger.info("NSSDatabase: Creating certificate signing request for " + subject);
 
-        if (tokenName != null) {
-            logger.info("NSSDatabase: - token: " + tokenName);
-        }
-
+        logger.info("NSSDatabase: - token: " + tokenName);
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
         KeyPair keyPair = null;
@@ -944,6 +941,11 @@ public class NSSDatabase {
 
             byte[] id = CryptoUtil.hexString2Bytes(keyID);
             PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKeyFromID(id);
+
+            logger.info("NSSDatabase: - class: " + privateKey.getClass().getName());
+            logger.info("NSSDatabase: - algorithm: " + privateKey.getAlgorithm());
+            logger.info("NSSDatabase: - format: " + privateKey.getFormat());
+
             PK11PubKey publicKey = privateKey.getPublicKey();
 
             keyType = privateKey.getType().toString();
