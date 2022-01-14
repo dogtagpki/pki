@@ -1160,51 +1160,6 @@ TPS_PUBLIC int update_tus_db_entry (const char *agentid, char *cn, const char *u
     return rc;
 }
 
-int modify_tus_db_entry (char *userid, char *cn, LDAPMod **mods)
-{
-    char dn[256];
-    int  rc = 0, tries = 0;
-
-    tus_check_conn();
-    if (ld == NULL) {
-      if (debug_fd)
-	PR_fprintf(debug_fd, "tus_db mod: ld null...no ldap");
-      return -1;
-    }
-    if (mods == NULL) {
-      if (debug_fd)
-	PR_fprintf(debug_fd, "tus_db mod: mods null, can't modify");
-      return -1;
-    }
-    if (PR_snprintf(dn, 255, "cn=%s,%s", cn, baseDN) < 0)
-        return -1;
-    if (debug_fd)
-      PR_fprintf(debug_fd, "tus_db mod: modifying :%s\n",dn);
-
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-    if (debug_fd)
-      PR_fprintf(debug_fd, "tus_db mod: tries=%d\n",tries);
-        if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
-            break;
-        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            struct berval credential;
-            credential.bv_val = bindPass;
-            credential.bv_len= strlen(bindPass);
-            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-            if (rc != LDAP_SUCCESS) {
-                bindStatus = rc;
-                break;
-            }
-        }
-    }
-
-    if (rc == LDAP_SUCCESS) {
-      audit_log("modify_token", userid, cn);
-    }
-
-    return rc;
-}
-
 int add_certificate (char *tokenid, char *origin, char *tokenType, char *userid, CERTCertificate *certificate, char *ktype, const char *status)
 {
     PRExplodedTime time;
