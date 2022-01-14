@@ -75,19 +75,6 @@ public class CAConfigurator extends Configurator {
         logger.info("CAConfigurator: - subject DN: " + cert.getSubjectDN());
         logger.info("CAConfigurator: - issuer DN: " + cert.getIssuerDN());
 
-        CryptoManager cm = CryptoManager.getInstance();
-
-        String caSigningNickname = cs.getString("ca.signing.nickname");
-        org.mozilla.jss.crypto.X509Certificate caSigningCert = cm.findCertByNickname(caSigningNickname);
-        Principal caSigningDN = caSigningCert.getSubjectDN();
-
-        logger.info("CAConfigurator: - CA signing DN: " + caSigningDN);
-
-        if (!cert.getIssuerDN().equals(caSigningDN)) {
-            logger.info("CAConfigurator: Cert issued by external CA, don't import");
-            return;
-        }
-
         // When importing existing self-signed CA certificate, create a
         // certificate record to reserve the serial number. Otherwise it
         // might conflict with system certificates to be created later.
@@ -314,15 +301,29 @@ public class CAConfigurator extends Configurator {
         X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
         X509CertImpl certImpl = new X509CertImpl(binCert);
 
-        importCert(
-                x509key,
-                certImpl,
-                profileID,
-                dnsNames,
-                installAdjustValidity,
-                certRequestType,
-                binCertRequest,
-                subjectName);
+        CryptoManager cm = CryptoManager.getInstance();
+
+        String caSigningNickname = cs.getString("ca.signing.nickname");
+        X509Certificate caSigningCert = cm.findCertByNickname(caSigningNickname);
+
+        Principal caSigningSubjectDN = caSigningCert.getSubjectDN();
+        logger.info("CAConfigurator: CA signing subject DN: " + caSigningSubjectDN);
+
+        if (certImpl.getIssuerDN().equals(caSigningSubjectDN)) {
+            logger.info("CAConfigurator: " + tag + " cert issued by this CA, import into database");
+            importCert(
+                    x509key,
+                    certImpl,
+                    profileID,
+                    dnsNames,
+                    installAdjustValidity,
+                    certRequestType,
+                    binCertRequest,
+                    subjectName);
+
+        } else {
+            logger.info("CAConfigurator: " + tag + " cert issued by external CA, don't import into database");
+        }
 
         if (type.equals("CA") && tag.equals("signing")) {
             logger.info("CAConfigurator: Initializing CA with existing signing cert");
