@@ -42,7 +42,6 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -161,9 +160,6 @@ public class PolicyAdminServlet extends AdminServlet {
                                               + "master policy switch called '"
                                               + policyStatus + "'");
                 }
-            } else if (mAuthority instanceof IRegistrationAuthority) {
-                // this refers to the legacy RA (pre-CMS 7.0)
-                mProcessor = ((IRegistrationAuthority) mAuthority).getPolicyProcessor();
             } else if (mAuthority instanceof IKeyRecoveryAuthority) {
                 mProcessor = ((IKeyRecoveryAuthority) mAuthority).getPolicyProcessor();
                 try {

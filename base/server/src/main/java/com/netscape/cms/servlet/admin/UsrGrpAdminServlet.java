@@ -55,7 +55,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.password.IPasswordCheck;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cmscore.apps.CMS;
@@ -190,9 +189,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
             ISubsystem subsystem = engine.getSubsystem(ICertificateAuthority.ID);
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_CA_GROUP;
-            subsystem = engine.getSubsystem(IRegistrationAuthority.ID);
-            if (subsystem != null)
-                AUTHZ_RES_NAME = RES_RA_GROUP;
             subsystem = engine.getSubsystem(IKeyRecoveryAuthority.ID);
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_KRA_GROUP;

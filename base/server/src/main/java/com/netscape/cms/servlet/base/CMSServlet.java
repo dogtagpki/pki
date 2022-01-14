@@ -76,7 +76,6 @@ import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -324,8 +323,6 @@ public abstract class CMSServlet extends HttpServlet {
         } else {
             if (mAuthority instanceof ICertificateAuthority)
                 mLogCategory = ILogger.S_CA;
-            else if (mAuthority instanceof IRegistrationAuthority)
-                mLogCategory = ILogger.S_RA;
             else if (mAuthority instanceof IKeyRecoveryAuthority)
                 mLogCategory = ILogger.S_KRA;
             else
@@ -1449,8 +1446,6 @@ public abstract class CMSServlet extends HttpServlet {
     protected String getRelPath(IAuthority authority) {
         if (authority instanceof ICertificateAuthority)
             return "ca/";
-        else if (authority instanceof IRegistrationAuthority)
-            return "ra/";
         else if (authority instanceof IKeyRecoveryAuthority)
             return "kra/";
         else

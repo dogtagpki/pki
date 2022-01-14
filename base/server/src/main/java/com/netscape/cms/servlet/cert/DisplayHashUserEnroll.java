@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
@@ -27,14 +26,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authorization.AuthzToken;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
-import com.netscape.cms.authentication.HashAuthentication;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -43,7 +39,6 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -117,71 +112,9 @@ public class DisplayHashUserEnroll extends CMSServlet {
 
         String reqHost = httpReq.getRemoteHost();
 
-        if (!(mAuthority instanceof IRegistrationAuthority)) {
-            logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE"));
-            cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
-            cmsReq.setStatus(ICMSRequest.ERROR);
-            return;
-        }
-
-        ArgBlock header = new ArgBlock();
-        ArgBlock fixed = new ArgBlock();
-        CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
-
-        String val = configStore.getString("hashDirEnrollment.name");
-        AuthSubsystem authSS = engine.getAuthSubsystem();
-        AuthManager authMgr = authSS.get(val);
-        HashAuthentication mgr = (HashAuthentication) authMgr;
-        boolean isEnable = mgr.isEnable(reqHost);
-
-        if (!isEnable) {
-            printError(cmsReq, "0");
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
-            return;
-        }
-
-        Date date = new Date();
-        long currTime = date.getTime();
-        long timeout = mgr.getTimeout(reqHost);
-        long lastlogin = mgr.getLastLogin(reqHost);
-        long diff = currTime - lastlogin;
-
-        if (lastlogin == 0)
-            mgr.setLastLogin(reqHost, currTime);
-        else if (diff > timeout) {
-            mgr.disable(reqHost);
-            printError(cmsReq, "2");
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
-            return;
-        }
-
-        mgr.setLastLogin(reqHost, currTime);
-
-        CMSTemplate form = null;
-        Locale[] locale = new Locale[1];
-
-        try {
-            form = getTemplate(mFormPath, httpReq, locale);
-        } catch (IOException e) {
-            logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
-            cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e));
-            cmsReq.setStatus(ICMSRequest.ERROR);
-            return;
-        }
-
-        try {
-            ServletOutputStream out = httpResp.getOutputStream();
-
-            httpResp.setContentType("text/html");
-            form.renderOutput(out, argSet);
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
-        } catch (IOException e) {
-            logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()), e);
-            cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e));
-            cmsReq.setStatus(ICMSRequest.ERROR);
-        }
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
-        return;
+        logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE"));
+        cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
+        cmsReq.setStatus(ICMSRequest.ERROR);
     }
 
     private void printError(CMSRequest cmsReq, String errorCode)

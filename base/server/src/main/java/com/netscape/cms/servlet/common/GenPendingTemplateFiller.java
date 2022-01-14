@@ -52,7 +52,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.base.ArgBlock;
@@ -187,8 +186,6 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
 
                 if (authority instanceof ICertificateAuthority) {
                     x509cert = ((ICertificateAuthority) authority).getCaX509Cert();
-                } else if (authority instanceof IRegistrationAuthority) {
-                    x509cert = ((IRegistrationAuthority) authority).getRACert();
                 }
                 if (x509cert == null)
                     return params;

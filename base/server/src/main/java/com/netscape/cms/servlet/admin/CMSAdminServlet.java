@@ -64,7 +64,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigTrustedPublicKeyEvent;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
@@ -345,9 +344,6 @@ public class CMSAdminServlet extends AdminServlet {
             if ((sys instanceof IKeyRecoveryAuthority) &&
                     subsystem.equals("kra"))
                 return true;
-            else if ((sys instanceof IRegistrationAuthority) &&
-                    subsystem.equals("ra"))
-                return true;
             else if ((sys instanceof IOCSPAuthority) &&
                     subsystem.equals("ocsp"))
                 return true;
@@ -365,7 +361,6 @@ public class CMSAdminServlet extends AdminServlet {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        boolean isRAInstalled = false;
         boolean isKRAInstalled = false;
 
         for (ISubsystem sys : engine.getSubsystems()) {
@@ -373,8 +368,6 @@ public class CMSAdminServlet extends AdminServlet {
             //get subsystem type
             if (sys instanceof IKeyRecoveryAuthority)
                 isKRAInstalled = true;
-            else if (sys instanceof IRegistrationAuthority)
-                isRAInstalled = true;
         }
 
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
@@ -407,13 +400,6 @@ public class CMSAdminServlet extends AdminServlet {
         params.put(Constants.PR_TOKEN_LIST, tokenNewList);
 
         readEncryption(params);
-
-        if (isRAInstalled) {
-            IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
-            String raNickname = ra.getNickname();
-
-            params.put(Constants.PR_CERT_RA, getCertNickname(raNickname));
-        }
 
         if (isKRAInstalled) {
             IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
@@ -498,7 +484,6 @@ public class CMSAdminServlet extends AdminServlet {
             JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             jssSubsystem.getInternalTokenName();
 
-            boolean isRAInstalled = false;
             boolean isKRAInstalled = false;
 
             for (ISubsystem sys : engine.getSubsystems()) {
@@ -506,15 +491,9 @@ public class CMSAdminServlet extends AdminServlet {
                 //get subsystem type
                 if (sys instanceof IKeyRecoveryAuthority)
                     isKRAInstalled = true;
-                else if (sys instanceof IRegistrationAuthority)
-                    isRAInstalled = true;
             }
 
-            IRegistrationAuthority ra = null;
             IKeyRecoveryAuthority kra = null;
-
-            if (isRAInstalled)
-                ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
             if (isKRAInstalled)
                 kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
 
@@ -528,12 +507,6 @@ public class CMSAdminServlet extends AdminServlet {
                     if ((val != null) && (!val.equals(""))) {
                         modifyCACert(req, val);
                     }
-                } else if (name.equals(Constants.PR_CERT_RA)) {
-                    if ((val != null) && (!val.equals(""))) {
-                        String nickName = getCertConfigNickname(val);
-
-                        ra.setNickname(nickName);
-                    }
                 } else if (name.equals(Constants.PR_CERT_TRANS)) {
                     if ((val != null) && (!val.equals(""))) {
                         String nickName = getCertConfigNickname(val);
@@ -546,8 +519,6 @@ public class CMSAdminServlet extends AdminServlet {
 
                         modifyRADMCert(nickName);
                         modifyAgentGatewayCert(nickName);
-                        if (isRAInstalled)
-                            modifyEEGatewayCert(ra, nickName);
                         modifyServerCert(nickName);
                     }
                 }
@@ -640,17 +611,6 @@ public class CMSAdminServlet extends AdminServlet {
          */
     }
 
-    public void modifyEEGatewayCert(IRegistrationAuthority ra, String nickName) {
-        CMSEngine engine = CMS.getCMSEngine();
-        engine.setServerCertNickname(nickName);
-
-        /*
-         HTTPSubsystem eeGateway = ra.getHTTPSubsystem();
-         HTTPService httpsService = eeGateway.getHttpsService();
-         httpsService.setNickName(nickName);
-         */
-    }
-
     public void modifyCAGatewayCert(ICertificateAuthority ca, String nickName) {
         CMSEngine engine = CMS.getCMSEngine();
         engine.setServerCertNickname(nickName);
@@ -708,8 +668,6 @@ public class CMSAdminServlet extends AdminServlet {
             //get subsystem type
             if (sys instanceof IKeyRecoveryAuthority)
                 type = Constants.PR_KRA_INSTANCE;
-            if (sys instanceof IRegistrationAuthority)
-                type = Constants.PR_RA_INSTANCE;
             if (sys instanceof ICertificateAuthority)
                 type = Constants.PR_CA_INSTANCE;
             if (sys instanceof IOCSPAuthority)
@@ -1108,10 +1066,6 @@ public class CMSAdminServlet extends AdminServlet {
                 pathname = pathname + File.separator + "cacsr.txt";
                 if (!keyType.equals(""))
                     setCANewnickname(tokenName, nicknameWithoutTokenName);
-            } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)) {
-                pathname = pathname + File.separator + "racsr.txt";
-                if (!keyType.equals(""))
-                    setRANewnickname(tokenName, nicknameWithoutTokenName);
             } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
                 pathname = pathname + File.separator + "ocspcsr.txt";
                 if (!keyType.equals(""))
@@ -1212,29 +1166,6 @@ public class CMSAdminServlet extends AdminServlet {
         SigningUnit signingUnit = ca.getSigningUnit();
 
         return signingUnit.getNewNickName();
-    }
-
-    private void setRANewnickname(String tokenName, String nickname)
-            throws EBaseException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
-
-        if (CryptoUtil.isInternalToken(tokenName))
-            ra.setNewNickName(nickname);
-        else {
-            if (tokenName.equals("") && nickname.equals(""))
-                ra.setNewNickName("");
-            else
-                ra.setNewNickName(tokenName + ":" + nickname);
-        }
-    }
-
-    private String getRANewnickname() throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
-        IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
-
-        return ra.getNewNickName();
     }
 
     public void setOCSPNewnickname(String tokenName, String nickname)
@@ -1625,11 +1556,6 @@ public class CMSAdminServlet extends AdminServlet {
             if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
                 installCASigningCert(nickname, nicknameWithoutTokenName, tokenname1);
 
-            } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)) {
-                setRANewnickname("", "");
-                IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
-
-                ra.setNickname(nickname);
             } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
                 IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
 
@@ -1655,11 +1581,6 @@ public class CMSAdminServlet extends AdminServlet {
                 setAgentNewnickname("", "");
                 //modifyRADMCert(nickname);
                 modifyAgentGatewayCert(nickname);
-                if (isSubsystemInstalled("ra")) {
-                    IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
-
-                    modifyEEGatewayCert(ra, nickname);
-                }
                 if (isSubsystemInstalled("ca")) {
                     ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
@@ -1946,10 +1867,6 @@ public class CMSAdminServlet extends AdminServlet {
 
                 nickname = signingUnit.getNickname();
             }
-        } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)) {
-            IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
-
-            nickname = ra.getNickname();
         } else if (certType.equals(Constants.PR_KRA_TRANSPORT_CERT)) {
             IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
 
@@ -2030,8 +1947,6 @@ public class CMSAdminServlet extends AdminServlet {
 
         if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
             nickname = getCANewnickname();
-        } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)) {
-            nickname = getRANewnickname();
         } else if (certType.equals(Constants.PR_KRA_TRANSPORT_CERT)) {
             nickname = getKRANewnickname();
         } else if (certType.equals(Constants.PR_SERVER_CERT)) {

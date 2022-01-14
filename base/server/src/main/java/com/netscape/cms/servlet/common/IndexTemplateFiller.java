@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -63,7 +62,6 @@ public class IndexTemplateFiller implements ICMSTemplateFiller {
 
         CMSEngine engine = CMS.getCMSEngine();
         ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
-        ISubsystem ra = engine.getSubsystem(IRegistrationAuthority.ID);
         ISubsystem kra = engine.getSubsystem(IKeyRecoveryAuthority.ID);
         ISubsystem ocsp = engine.getSubsystem(IOCSPAuthority.ID);
         ISubsystem tks = engine.getSubsystem(ITKSAuthority.ID);
@@ -75,13 +73,6 @@ public class IndexTemplateFiller implements ICMSTemplateFiller {
             rarg = new ArgBlock();
             rarg.addStringValue(OUT_TYPE, "CertificateAuthority");
             rarg.addStringValue(OUT_ID, "ca");
-            params.addRepeatRecord(rarg);
-            count++;
-        }
-        if (ra != null) {
-            rarg = new ArgBlock();
-            rarg.addStringValue(OUT_TYPE, "RegistrationAuthority");
-            rarg.addStringValue(OUT_ID, "ra");
             params.addRepeatRecord(rarg);
             count++;
         }

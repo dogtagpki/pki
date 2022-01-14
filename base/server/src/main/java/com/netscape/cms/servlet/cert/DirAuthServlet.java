@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
@@ -27,24 +26,15 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authentication.AuthManager;
-import org.dogtagpki.server.authorization.AuthzToken;
-
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
-import com.netscape.cms.authentication.HashAuthentication;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -101,101 +91,9 @@ public class DirAuthServlet extends CMSServlet {
         // Construct an ArgBlock
         IArgBlock args = cmsReq.getHttpParams();
 
-        if (!(mAuthority instanceof IRegistrationAuthority)) {
-            logger.error(CMS.getLogMessage("ADMIN_SRVLT_CA_FROM_RA_NOT_IMP"));
-            cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_NOT_YET_IMPLEMENTED")));
-            cmsReq.setStatus(ICMSRequest.ERROR);
-            return;
-        }
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig configStore = engine.getConfig();
-
-        CMSTemplate form = null;
-        Locale[] locale = new Locale[1];
-
-        try {
-            form = getTemplate(mFormPath, httpReq, locale);
-        } catch (IOException e) {
-            logger.error(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
-            cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e));
-            cmsReq.setStatus(ICMSRequest.ERROR);
-            return;
-        }
-
-        ArgBlock header = new ArgBlock();
-        ArgBlock fixed = new ArgBlock();
-
-        CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
-        IAuthToken authToken = authenticate(cmsReq);
-
-        AuthzToken authzToken = null;
-
-        try {
-            authzToken = authorize(mAclMethod, authToken,
-                        mAuthzResourceName, "submit");
-        } catch (Exception e) {
-            // do nothing for now
-        }
-
-        if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
-            return;
-        }
-
-        String val = configStore.getString("hashDirEnrollment.name");
-        AuthSubsystem authSS = engine.getAuthSubsystem();
-        AuthManager authMgr = authSS.get(val);
-        HashAuthentication mgr = (HashAuthentication) authMgr;
-
-        Date date = new Date();
-        long currTime = date.getTime();
-        long timeout = mgr.getTimeout(reqHost);
-        long lastlogin = mgr.getLastLogin(reqHost);
-        long diff = currTime - lastlogin;
-
-        boolean enable = mgr.isEnable(reqHost);
-
-        if (!enable) {
-            printError(cmsReq, "0");
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
-            return;
-        }
-        if (lastlogin == 0)
-            mgr.setLastLogin(reqHost, currTime);
-        else if (diff > timeout) {
-            mgr.disable(reqHost);
-            printError(cmsReq, "2");
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
-            return;
-        }
-
-        mgr.setLastLogin(reqHost, currTime);
-
-        String uid = args.getValueAsString("uid");
-        long pageid = mgr.getPageID();
-        String pageID = pageid + "";
-
-        mgr.addAuthToken(pageID, authToken);
-
-        header.addStringValue("pageID", pageID);
-        header.addStringValue("uid", uid);
-        header.addStringValue("fingerprint", mgr.hashFingerprint(reqHost, pageID, uid));
-        header.addStringValue("hostname", reqHost);
-
-        try {
-            ServletOutputStream out = httpResp.getOutputStream();
-
-            httpResp.setContentType("text/html");
-            form.renderOutput(out, argSet);
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
-        } catch (IOException e) {
-            logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()), e);
-            cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e));
-            cmsReq.setStatus(ICMSRequest.ERROR);
-        }
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
-        return;
+        logger.error(CMS.getLogMessage("ADMIN_SRVLT_CA_FROM_RA_NOT_IMP"));
+        cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_NOT_YET_IMPLEMENTED")));
+        cmsReq.setStatus(ICMSRequest.ERROR);
     }
 
     private void printError(CMSRequest cmsReq, String errorCode)
