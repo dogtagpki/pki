@@ -19,10 +19,7 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -41,7 +38,6 @@ import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -56,9 +52,7 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -462,89 +456,6 @@ public class DoRevoke extends CMSServlet {
 
                     argSet.addRepeatRecord(rarg);
                 }
-
-            } else if (mAuthority instanceof IRegistrationAuthority) {
-                String reqIdStr = req.getParameter("requestId");
-                Collection<CertId> certSerialNumbers = new ArrayList<>();
-
-                if (revokeAll != null && revokeAll.length() > 0) {
-                    for (int i = revokeAll.indexOf('='); i > -1; i = revokeAll.indexOf('=', i)) {
-                        i++;
-                        // skip spaces
-                        while (i < revokeAll.length() && revokeAll.charAt(i) == ' ') {
-                            i++;
-                        }
-                        // xxxx decimal serial number?
-                        String legalDigits = "0123456789";
-                        int j = i;
-
-                        // find legal digits
-                        while (j < revokeAll.length() && legalDigits.indexOf(revokeAll.charAt(j)) != -1) {
-                            j++;
-                        }
-                        if (j > i) {
-                            certSerialNumbers.add(new CertId(revokeAll.substring(i, j)));
-                        }
-                    }
-                }
-
-                if (reqIdStr != null && reqIdStr.length() > 0 && certSerialNumbers.size() > 0) {
-                    IRequest certReq = requestRepository.readRequest(new RequestId(reqIdStr));
-                    X509CertImpl[] certs = certReq.getExtDataInCertArray(IRequest.OLD_CERTS);
-                    boolean authorized = false;
-
-                    for (int i = 0; i < certs.length; i++) {
-                        boolean addToList = false;
-
-                        for (CertId certSerialNumber : certSerialNumbers) {
-                            //xxxxx serial number in decimal?
-                            if (certs[i].getSerialNumber().equals(certSerialNumber.toBigInteger()) &&
-                                    eeSubjectDN != null && eeSubjectDN.equals(certs[i].getSubjectDN().toString())) {
-                                addToList = true;
-                                break;
-                            }
-                        }
-
-                        if (eeSerialNumber != null && eeSerialNumber.equals(certs[i].getSerialNumber())) {
-                            authorized = true;
-                        }
-
-                        if (addToList) {
-                            ArgBlock rarg = new ArgBlock();
-
-                            rarg.addStringValue("serialNumber", certs[i].getSerialNumber().toString(16));
-
-                            processor.addCertificateToRevoke(certs[i]);
-
-                            rarg.addStringValue("error", null);
-                            argSet.addRepeatRecord(rarg);
-                        }
-                    }
-
-                    if (!authorized) {
-                        String message = CMS.getLogMessage("CMSGW_REQ_AUTH_REVOKED_CERT");
-                        logger.error(message);
-                        throw new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
-                    }
-
-                } else {
-                    String b64eCert = req.getParameter("b64eCertificate");
-
-                    if (b64eCert != null) {
-                        //  BASE64Decoder decoder = new BASE64Decoder();
-                        //  byte[] certBytes = decoder.decodeBuffer(b64eCert);
-                        byte[] certBytes = Utils.base64decode(b64eCert);
-                        X509CertImpl cert = new X509CertImpl(certBytes);
-                        ArgBlock rarg = new ArgBlock();
-
-                        rarg.addStringValue("serialNumber", cert.getSerialNumber().toString(16));
-
-                        processor.addCertificateToRevoke(cert);
-
-                        rarg.addStringValue("error", null);
-                        argSet.addRepeatRecord(rarg);
-                    }
-                }
             }
 
             int count = processor.getCertificates().size();
@@ -562,14 +473,6 @@ public class DoRevoke extends CMSServlet {
         } catch (ForbiddenException e) {
             logger.warn("Unable to pre-process revocation request: " + e.getMessage());
             throw new EAuthzException(CMS.getUserMessage(locale, "CMS_AUTHORIZATION_ERROR"));
-
-        } catch (CertificateException e) {
-            logger.error("Unable to pre-process revocation request: " + e.getMessage(), e);
-            processor.auditChangeRequest(ILogger.FAILURE);
-
-            // TODO: throw exception or return?
-            // throw new EBaseException(e.getMessage());
-            return;
 
         } catch (EBaseException e) {
             logger.error("Unable to pre-process revocation request: " + e.getMessage(), e);

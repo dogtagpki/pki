@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
@@ -38,16 +37,12 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -56,9 +51,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
-import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -232,38 +225,6 @@ public class RevocationServlet extends CMSServlet {
             certsToRevoke = cr.getX509Certificates(
                         old_cert.getSubjectDN().toString(),
                         CertificateRepository.ALL_UNREVOKED_CERTS);
-
-        } else if (mAuthority instanceof IRegistrationAuthority) {
-            CertRequestRepository requestRepository = engine.getCertRequestRepository();
-            IRequest req = requestRepository.createRequest(IRequest.GETCERTS_REQUEST);
-            String filter = "(&(" + CertRecord.ATTR_X509CERT + "." +
-                    X509CertInfo.SUBJECT + "=" +
-                    old_cert.getSubjectDN().toString() + ")(|(" +
-                    CertRecord.ATTR_CERT_STATUS + "=" +
-                    CertRecord.STATUS_VALID + ")(" +
-                    CertRecord.ATTR_CERT_STATUS + "=" +
-                    CertRecord.STATUS_EXPIRED + ")))";
-
-            req.setExtData(IRequest.CERT_FILTER, filter);
-            mRequestQueue.processRequest(req);
-            RequestStatus status = req.getRequestStatus();
-
-            if (status == RequestStatus.COMPLETE) {
-                header.addStringValue("request", req.getRequestId().toString());
-                Enumeration<String> enum1 = req.getExtDataKeys();
-
-                while (enum1.hasMoreElements()) {
-                    String name = enum1.nextElement();
-
-                    if (name.equals(IRequest.OLD_CERTS)) {
-                        X509CertImpl[] certs = req.getExtDataInCertArray(IRequest.OLD_CERTS);
-
-                        certsToRevoke = certs;
-                    }
-                }
-            } else {
-                noInfo = true;
-            }
         }
 
         boolean authorized = false;

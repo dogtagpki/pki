@@ -17,34 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Locale;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authorization.AuthzToken;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
-import com.netscape.cms.authentication.HashAuthentication;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cms.servlet.common.CMSTemplate;
-import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.authentication.AuthSubsystem;
-import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Servlet to get the enrollment status, enable or disable.
@@ -116,58 +104,9 @@ public class GetEnableStatus extends CMSServlet {
 
         String reqHost = httpReq.getRemoteHost();
 
-        if (!(mAuthority instanceof IRegistrationAuthority)) {
-            logger.error(CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
-            cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
-            cmsReq.setStatus(ICMSRequest.ERROR);
-            return;
-        }
-
-        CMSTemplate form = null;
-        Locale[] locale = new Locale[1];
-
-        try {
-            form = getTemplate(mFormPath, httpReq, locale);
-        } catch (IOException e) {
-            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
-            cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e));
-            cmsReq.setStatus(ICMSRequest.ERROR);
-            return;
-        }
-
-        ArgBlock header = new ArgBlock();
-        ArgBlock fixed = new ArgBlock();
-
-        CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
-
-        String val = configStore.getString("hashDirEnrollment.name");
-        AuthSubsystem authSS = engine.getAuthSubsystem();
-        AuthManager authMgr = authSS.get(val);
-        HashAuthentication mgr = (HashAuthentication) authMgr;
-        long timeout = HashAuthentication.DEFAULT_TIMEOUT / 1000;
-
-        header.addStringValue("timeout", "" + timeout);
-        header.addStringValue("reqHost", reqHost);
-
-        for (Enumeration<String> hosts = mgr.getHosts(); hosts.hasMoreElements();) {
-            ArgBlock rarg = new ArgBlock();
-
-            rarg.addStringValue("hosts", hosts.nextElement());
-            argSet.addRepeatRecord(rarg);
-        }
-
-        try {
-            ServletOutputStream out = httpResp.getOutputStream();
-
-            httpResp.setContentType("text/html");
-            form.renderOutput(out, argSet);
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
-        } catch (IOException e) {
-            logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
-            cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e));
-            cmsReq.setStatus(ICMSRequest.ERROR);
-        }
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
+        logger.error(CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
+        cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
+        cmsReq.setStatus(ICMSRequest.ERROR);
         return;
     }
 

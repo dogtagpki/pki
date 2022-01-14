@@ -44,7 +44,6 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigTrustedPublicKeyEvent;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.apps.CMS;
@@ -463,11 +462,6 @@ public class CACMSAdminServlet extends CMSAdminServlet {
                     // setRADMNewnickname("", "");
                     // modifyRADMCert(nickname);
                     modifyAgentGatewayCert(nickname);
-
-                    if (isSubsystemInstalled("ra")) {
-                        IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
-                        modifyEEGatewayCert(ra, nickname);
-                    }
 
                     if (isSubsystemInstalled("ca")) {
                         modifyCAGatewayCert(ca, nickname);

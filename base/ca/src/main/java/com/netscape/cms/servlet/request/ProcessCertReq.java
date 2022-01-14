@@ -68,7 +68,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -1165,8 +1164,6 @@ public class ProcessCertReq extends CMSServlet {
                 header.addStringValue("localkra", "yes");
             if (engine.getSubsystem(ICertificateAuthority.ID) != null)
                 header.addStringValue("localca", "yes");
-            if (engine.getSubsystem(IRegistrationAuthority.ID) != null)
-                header.addStringValue("localra", "yes");
 
             header.addBigIntegerValue("seqNum", seqNum, 10);
             mParser.fillRequestIntoArg(locale, r, argSet, header);

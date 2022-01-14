@@ -39,7 +39,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -105,10 +104,7 @@ public class GetCertFromRequest extends CMSServlet {
                 defTemplate = GET_CERT_FROM_REQUEST_TEMPLATE;
             else
                 defTemplate = DISPLAY_CERT_FROM_REQUEST_TEMPLATE;
-            if (mAuthority instanceof IRegistrationAuthority)
-                defTemplate = "/ra/" + defTemplate;
-            else
-                defTemplate = "/ca/" + defTemplate;
+            defTemplate = "/ca/" + defTemplate;
             mCertFrReqSuccessTemplate = sc.getInitParameter(
                         PROP_SUCCESS_TEMPLATE);
             if (mCertFrReqSuccessTemplate == null)

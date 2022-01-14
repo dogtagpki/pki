@@ -19,7 +19,6 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -36,7 +35,6 @@ import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
 import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
@@ -49,9 +47,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -218,23 +214,6 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 for (int i = 0; i < serialNoArray.length; i++) {
                     certs[i] = cr.getX509Certificate(serialNoArray[i]);
                 }
-
-            } else if (mAuthority instanceof IRegistrationAuthority) {
-                IRequest getCertsChallengeReq = null;
-
-                CertRequestRepository requestRepository = engine.getCertRequestRepository();
-                getCertsChallengeReq = requestRepository.createRequest(GETCERTS_FOR_CHALLENGE_REQUEST);
-                getCertsChallengeReq.setExtData(SERIALNO_ARRAY, serialNoArray);
-                mQueue.processRequest(getCertsChallengeReq);
-                RequestStatus status = getCertsChallengeReq.getRequestStatus();
-
-                if (status == RequestStatus.COMPLETE) {
-                    certs = getCertsChallengeReq.getExtDataInCertArray(IRequest.OLD_CERTS);
-                    header.addStringValue("request", getCertsChallengeReq.getRequestId().toString());
-                    mRequestID = getCertsChallengeReq.getRequestId().toString();
-                } else {
-                    logger.warn(CMS.getLogMessage("ADMIN_SRVLT_FAIL_GET_CERT_CHALL_PWRD"));
-                }
             }
 
             header.addIntegerValue("totalRecordCount", serialNoArray.length);
@@ -363,88 +342,6 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                         rarg.addStringValue("error", null);
                     }
                     argSet.addRepeatRecord(rarg);
-                }
-
-            } else if (mAuthority instanceof IRegistrationAuthority) {
-                String reqIdStr = null;
-
-                if (mRequestID != null && mRequestID.length() > 0)
-                    reqIdStr = mRequestID;
-                Vector<String> serialNumbers = new Vector<>();
-
-                if (revokeAll != null && revokeAll.length() > 0) {
-                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1;
-                            i = revokeAll.indexOf('=', i)) {
-                        if (i > -1) {
-                            i++;
-                            while (i < revokeAll.length() && revokeAll.charAt(i) == ' ') {
-                                i++;
-                            }
-                            String legalDigits = "0123456789";
-                            int j = i;
-
-                            while (j < revokeAll.length() &&
-                                    legalDigits.indexOf(revokeAll.charAt(j)) != -1) {
-                                j++;
-                            }
-                            if (j > i) {
-                                serialNumbers.addElement(revokeAll.substring(i, j));
-                            }
-                        }
-                    }
-                }
-                if (reqIdStr != null && reqIdStr.length() > 0 && serialNumbers.size() > 0) {
-                    IRequest certReq = requestRepository.readRequest(new RequestId(reqIdStr));
-                    X509CertImpl[] certs = certReq.getExtDataInCertArray(IRequest.OLD_CERTS);
-
-                    for (int i = 0; i < certs.length; i++) {
-                        boolean addToList = false;
-
-                        for (int j = 0; j < serialNumbers.size(); j++) {
-                            if (certs[i].getSerialNumber().toString().equals(
-                                    serialNumbers.elementAt(j))) {
-                                addToList = true;
-                                break;
-                            }
-                        }
-                        if (addToList) {
-                            ArgBlock rarg = new ArgBlock();
-
-                            rarg.addBigIntegerValue("serialNumber",
-                                    certs[i].getSerialNumber(), 16);
-                            oldCertsV.addElement(certs[i]);
-
-                            RevokedCertImpl revCertImpl =
-                                    new RevokedCertImpl(certs[i].getSerialNumber(),
-                                            new Date(), entryExtn);
-
-                            revCertImplsV.addElement(revCertImpl);
-                            count++;
-                            rarg.addStringValue("error", null);
-                            argSet.addRepeatRecord(rarg);
-                        }
-                    }
-                } else {
-                    String b64eCert = req.getParameter("b64eCertificate");
-
-                    if (b64eCert != null) {
-                        byte[] certBytes = Utils.base64decode(b64eCert);
-                        X509CertImpl cert = new X509CertImpl(certBytes);
-                        ArgBlock rarg = new ArgBlock();
-
-                        rarg.addBigIntegerValue("serialNumber",
-                                cert.getSerialNumber(), 16);
-                        oldCertsV.addElement(cert);
-
-                        RevokedCertImpl revCertImpl =
-                                new RevokedCertImpl(cert.getSerialNumber(),
-                                        new Date(), entryExtn);
-
-                        revCertImplsV.addElement(revCertImpl);
-                        count++;
-                        rarg.addStringValue("error", null);
-                        argSet.addRepeatRecord(rarg);
-                    }
                 }
             }
 
@@ -686,8 +583,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                     }
                 }
             }
-        } catch (CertificateException e) {
-            logger.warn("ChallengeRevocationServlet1: " + e.getMessage(), e);
+
         } catch (EBaseException e) {
             logger.error("ChallengeRevocationServlet1: " + e.getMessage(), e);
             throw e;

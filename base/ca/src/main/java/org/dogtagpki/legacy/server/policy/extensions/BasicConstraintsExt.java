@@ -40,7 +40,6 @@ import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -116,20 +115,19 @@ public class BasicConstraintsExt extends APolicyRule
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
                         "Cannot find the Certificate Manager or Registration Manager"));
         }
-        if (certAuthority instanceof IRegistrationAuthority) {
-            logger.warn("default basic constraints extension path len to -1.");
-            mCAPathLen = -1;
-        } else {
-            CertificateChain caChain = certAuthority.getCACertChain();
-            CAEngine engine = CAEngine.getInstance();
-            if (caChain == null || engine.isPreOpMode()) {
-                logger.warn("BasicConstraintsExt.init(): Abort due to missing CA certificate chain or in pre-op-mode");
-                return;
-            }
-            X509Certificate caCert = caChain.getFirstCertificate();
 
-            mCAPathLen = caCert.getBasicConstraints();
+        CertificateChain caChain = certAuthority.getCACertChain();
+        CAEngine engine = CAEngine.getInstance();
+
+        if (caChain == null || engine.isPreOpMode()) {
+            logger.warn("BasicConstraintsExt.init(): Abort due to missing CA certificate chain or in pre-op-mode");
+            return;
         }
+
+        X509Certificate caCert = caChain.getFirstCertificate();
+
+        mCAPathLen = caCert.getBasicConstraints();
+
         // set default to one less than the CA's pathlen or 0 if CA's
         // pathlen is 0.
         // If it's unlimited default the max pathlen also to unlimited.
