@@ -801,38 +801,6 @@ char **parse_number_change(int n)
     return v;
 }
 
-/****
- * update_tus_general_db_entry
- * summary: internal function to modify a general db entry using ldap_modify_ext_s
- * params: agentid - who is doing this modification (for audit logging)
- *         dn - dn to modify
- *         mods - NULL terminated list of modifications to apply
- **/
-int update_tus_general_db_entry(const char *agentid, const char *dn, LDAPMod **mods)
-{
-    int  tries;
-    int  rc = -1;
-
-    tus_check_conn();
-
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-            if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
-                break;
-            } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-                struct berval credential;
-                credential.bv_val = bindPass;
-                credential.bv_len= strlen(bindPass);
-                rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-                if (rc != LDAP_SUCCESS) {
-                    bindStatus = rc;
-                    break;
-                }
-            }
-    }
-
-    return rc;
-}
-
 static int sort_cmp(const char *v1, const char *v2)
 {
   return PL_strcasecmp(v1, v2);
