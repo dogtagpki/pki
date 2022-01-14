@@ -916,39 +916,6 @@ char **parse_number_change(int n)
     return v;
 }
 
-TPS_PUBLIC int update_tus_db_entry_with_mods (const char *agentid, const char *cn, LDAPMod **mods)
-{
-    char dn[256];
-    int  tries;
-    int  rc = -1;
-
-    tus_check_conn();
-    if (PR_snprintf(dn, 255, "cn=%s,%s", cn, baseDN) < 0)
-        return -1;
-
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-            if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
-                break;
-            } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-                struct berval credential;
-                credential.bv_val = bindPass;
-                credential.bv_len= strlen(bindPass);
-                rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-                if (rc != LDAP_SUCCESS) {
-                    bindStatus = rc;
-                    break;
-                }
-            }
-    }
-
-    if( mods != NULL ) {
-            free_modifications( mods, 0 );
-            mods = NULL;
-    }
-
-    return rc;
-}
-
 /****
  * update_tus_general_db_entry
  * summary: internal function to modify a general db entry using ldap_modify_ext_s
