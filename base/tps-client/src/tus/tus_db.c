@@ -1955,43 +1955,6 @@ TPS_PUBLIC int find_tus_user_entries_no_vlv(char *filter, LDAPMessage **result, 
     return rc;
 }
 
-/**
- * find_tus_user_role_entries
- * summary: return the dns for the groups to which the user belongs
- *        (TUS Administrators, Agents, Operator)
- * params: uid - userid
- *         result - hash of LDAPResults
- */
-TPS_PUBLIC int find_tus_user_role_entries( const char*uid, LDAPMessage **result) 
-{
-    int rc = LDAP_OTHER, tries = 0;
-    char groupBaseDN[256];
-    char filter[256];
-    char *subgroup_attrs[] = {SUBGROUP_ID, NULL};
- 
-    PR_snprintf(groupBaseDN, 256, "ou=Groups,%s", userBaseDN);
-    PR_snprintf(filter, 256, "member=uid=%s,ou=People,%s", uid, userBaseDN);
-
-    tus_check_conn();
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_search_ext_s (ld, groupBaseDN, LDAP_SCOPE_SUBTREE, filter,
-            subgroup_attrs, 0, NULL, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
-            break;
-        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            struct berval credential;
-            credential.bv_val = bindPass;
-            credential.bv_len= strlen(bindPass);
-            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-            if (rc != LDAP_SUCCESS) {
-                bindStatus = rc;
-                break;
-            }
-        }
-    }
-
-    return rc;
-}
-
 TPS_PUBLIC int find_tus_activity_entries_no_vlv(char *filter, LDAPMessage **result, int order)
 {
     int rc = LDAP_OTHER, tries = 0;
