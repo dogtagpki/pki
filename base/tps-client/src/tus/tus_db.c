@@ -1221,33 +1221,6 @@ int add_tus_general_db_entry (char *dn, LDAPMod **mods)
     return rc;
 }
 
-int add_tus_db_entry (char *cn, LDAPMod **mods)
-{
-    char dn[256];
-    int  rc = 0, tries = 0;
-
-    tus_check_conn();
-    if (PR_snprintf(dn, 255, "cn=%s,%s", cn, baseDN) < 0)
-        return -1;
-
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_add_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
-            break;
-        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            struct berval credential;
-            credential.bv_val = bindPass;
-            credential.bv_len= strlen(bindPass);
-            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-            if (rc != LDAP_SUCCESS) {
-                bindStatus = rc;
-                break;
-            }
-        }
-    }
-
-    return rc;
-}
-
 /**
  * delete_user_to_role_db_entry
  * summary: removes user from role group (administrators, agents, operators)

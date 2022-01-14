@@ -159,7 +159,6 @@ TPS_PUBLIC int delete_tus_general_db_entry (char *dn);
 
 TPS_PUBLIC int add_activity (const char *ip, const char *id, const char *op, const char *result, const char *msg, const char *userid, const char *token_type);
 TPS_PUBLIC int add_certificate (char *tokenid, char *origin, char *tokenType, char *userid, CERTCertificate *certificate, char *ktype, const char *status);
-TPS_PUBLIC int add_tus_db_entry (char *cn, LDAPMod **mods);
 TPS_PUBLIC int free_results (LDAPMessage *results);
 
 TPS_PUBLIC LDAPMessage *get_first_entry (LDAPMessage *result);
