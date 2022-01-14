@@ -154,7 +154,6 @@ TPS_PUBLIC void tus_db_end();
 TPS_PUBLIC void tus_db_cleanup();
 TPS_PUBLIC void tus_print_as_hex(char *out, SECItem *data);
 TPS_PUBLIC void tus_print_integer(char *out, SECItem *data);
-TPS_PUBLIC int delete_tus_db_entry (char *userid, char *cn);
 TPS_PUBLIC int delete_tus_general_db_entry (char *dn);
 
 TPS_PUBLIC int free_results (LDAPMessage *results);
