@@ -207,7 +207,6 @@ TPS_PUBLIC void free_modifications(LDAPMod **mods, int ldapValues);
 TPS_PUBLIC char **allocate_values(int size, int extra);
 TPS_PUBLIC int base64_decode(char *src, unsigned char *dst);
 
-TPS_PUBLIC int delete_profile_from_user(const char *agentid, char *userid, const char *profile);
 TPS_PUBLIC int delete_user_from_role_db_entry(const char *agentid, char *userid, const char *role);
 TPS_PUBLIC int delete_user_db_entry(const char *agentid, char *uid);
 #endif /* TUS_DB_H */
