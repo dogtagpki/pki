@@ -1160,67 +1160,6 @@ TPS_PUBLIC int update_tus_db_entry (const char *agentid, char *cn, const char *u
     return rc;
 }
 
-int check_and_modify_tus_db_entry (char *userid, char *cn, char *check, LDAPMod **mods)
-{
-    char dn[256];
-    int  rc = 0, tries = 0;
-
-    if (check == NULL) { 
-        return -1;
-    }
-
-    struct berval check_ber;
-    check_ber.bv_val = check;
-    check_ber.bv_len = strlen(check);
-
-    tus_check_conn();
-    if (PR_snprintf(dn, 255, "cn=%s,%s", cn, baseDN) < 0)
-        return -1;
-
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_compare_ext_s(ld, dn, get_number_of_modifications_name(), &check_ber, NULL, NULL))
-            == LDAP_COMPARE_TRUE) {
-            break;
-        } else {
-            if (rc != LDAP_SERVER_DOWN && rc != LDAP_CONNECT_ERROR) {
-                return rc;
-            }
-            struct berval credential;
-            credential.bv_val = bindPass;
-            credential.bv_len= strlen(bindPass);
-            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-            if (rc != LDAP_SUCCESS) {
-                bindStatus = rc;
-                return rc;
-            }
-        }
-    }
-    if (tries >= MAX_RETRIES)
-        return rc;
-
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
-            break;
-        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            struct berval credential;
-            credential.bv_val = bindPass;
-            credential.bv_len= strlen(bindPass);
-            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-            if (rc != LDAP_SUCCESS) {
-                bindStatus = rc;
-                break;
-            }
-        }
-    }
-
-    /* audit log */
-    if (rc == LDAP_SUCCESS) {
-      audit_log("check_and_modify_token", userid, cn);
-    }
-
-    return rc;
-}
-
 int modify_tus_db_entry (char *userid, char *cn, LDAPMod **mods)
 {
     char dn[256];
