@@ -1859,47 +1859,6 @@ TPS_PUBLIC int add_default_tus_db_entry (const char *uid, const char *agentid, c
 }
 
 /**
- * add_user_to_role_db_entry
- * summary: adds user to be member of group (administrators, agents, operators)
- * params: agentid -user who is performing this change
- *       : userid - userid of user to be added to role
- *       : role - Operators, Agents or Administrators
- * returns: LDAP return code
- */
-TPS_PUBLIC int add_user_to_role_db_entry(const char *agentid, char *userid, const char *role) {
-    LDAPMod  a01;
-    LDAPMod  *mods[2];
-    int  rc = 0;
-    char dn[256];
-    char userdn[256];
-    char msg[256];
-    char *userid_values[2]; 
-
-    if (PR_snprintf(userdn, 255, "uid=%s, ou=People, %s", userid, userBaseDN) < 0)
-         return -1;
-
-    userid_values[0] = userdn;
-    userid_values[1] = NULL;
-
-    a01.mod_op = LDAP_MOD_ADD;
-    a01.mod_type = GROUP_MEMBER;
-    a01.mod_values = userid_values;
-    mods[0]  = &a01;
-    mods[1]  = NULL;
-
-    if (PR_snprintf(dn, 255, "cn=TUS %s,ou=groups, %s", role, userBaseDN) < 0)
-            return -1;
-
-    rc = update_tus_general_db_entry(agentid, dn, mods);
-
-    if (rc == LDAP_SUCCESS) {
-        PR_snprintf(msg, 256, "Added role %s to user %s", role, userid); 
-        audit_log("add_user_to_role", agentid, msg);
-    }
-    return rc;
-}
-
-/**
  * delete_user_to_role_db_entry
  * summary: removes user from role group (administrators, agents, operators)
  * params: agentid -user who is performing this change
