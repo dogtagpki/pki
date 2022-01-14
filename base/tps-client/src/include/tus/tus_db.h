@@ -226,7 +226,6 @@ TPS_PUBLIC void free_modifications(LDAPMod **mods, int ldapValues);
 TPS_PUBLIC char **allocate_values(int size, int extra);
 TPS_PUBLIC char **create_modification_date_change();
 TPS_PUBLIC int base64_decode(char *src, unsigned char *dst);
-TPS_PUBLIC int tus_authorize(const char *group, const char *userid);
 TPS_PUBLIC int update_token_status_reason(char *userid, char *cuid, 
   const char *tokenStatus, const char *reason);
 

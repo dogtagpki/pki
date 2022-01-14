@@ -595,62 +595,6 @@ TPS_PUBLIC int get_tus_db_config(char *cfg_name)
     return 1;
 }
 
-/*********
- * tus_authorize
- * parameters passed in: 
- *   char * group ("TUS Agents", "TUS Operators", "TUS Administrators") 
- *   const char* userid
- * returns : 1 if userid is member of that group
- *           0 otherwise
- **/                    
-
-TPS_PUBLIC int tus_authorize(const char *group, const char *userid)
-{
-    int rc;
-    char filter[4096];
-	int tries;
-    LDAPMessage *result = NULL;
-
-    PR_snprintf(filter, 4096, 
-          "(&(cn=%s)(member=uid=%s,*))", group ,userid);
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-        if ((rc = ldap_search_ext_s(ld, userBaseDN, LDAP_SCOPE_SUBTREE, 
-               filter, NULL, 0, NULL, NULL, NULL, 0, &result))  == LDAP_SUCCESS )  
-		{
-            break;
-        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            struct berval credential;
-            credential.bv_val = bindPass;
-            credential.bv_len= strlen(bindPass);
-            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-            if (rc != LDAP_SUCCESS) {
-                bindStatus = rc;
-                break;
-            }
-		}
-	}
-
-    if (rc != LDAP_SUCCESS) {
-      if (result != NULL) {
-        free_results(result);
-        result = NULL;
-      }
-      return 0;
-    }
-    if (ldap_count_entries (ld, result) <= 0) {
-      if (result != NULL) {
-        free_results(result);
-        result = NULL;
-      }
-      return 0;
-    }
-    if (result != NULL) {
-        free_results(result);
-        result = NULL;
-    }
-    return 1;
-}
-
 /******
  * get_authorized_profiles()
  * params: userid 
