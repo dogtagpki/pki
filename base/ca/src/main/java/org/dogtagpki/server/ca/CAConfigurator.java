@@ -61,7 +61,6 @@ public class CAConfigurator extends Configurator {
         super(engine);
     }
 
-    @Override
     public void importCert(
             X509Key x509key,
             X509CertImpl cert,
@@ -85,7 +84,7 @@ public class CAConfigurator extends Configurator {
         logger.info("CAConfigurator: - CA signing DN: " + caSigningDN);
 
         if (!cert.getIssuerDN().equals(caSigningDN)) {
-            logger.info("Configurator: Cert issued by external CA, don't import");
+            logger.info("CAConfigurator: Cert issued by external CA, don't import");
             return;
         }
 
@@ -298,7 +297,32 @@ public class CAConfigurator extends Configurator {
             String profileID,
             String[] dnsNames) throws Exception {
 
-        super.loadCert(type, tag, x509Cert, profileID, dnsNames);
+        logger.info("CAConfigurator: Loading existing " + tag + " cert request");
+
+        String certreq = cs.getString(type.toLowerCase() + "." + tag + ".certreq");
+        logger.debug("CAConfigurator: request: " + certreq);
+        byte[] binCertRequest = CryptoUtil.base64Decode(certreq);
+
+        logger.info("CAConfigurator: Loading existing " + tag + " certificate");
+        byte[] binCert = x509Cert.getEncoded();
+
+        boolean installAdjustValidity = !tag.equals("signing");
+        String certRequestType = "pkcs10";
+        X500Name subjectName = null;
+
+        PKCS10 pkcs10 = new PKCS10(binCertRequest);
+        X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
+        X509CertImpl certImpl = new X509CertImpl(binCert);
+
+        importCert(
+                x509key,
+                certImpl,
+                profileID,
+                dnsNames,
+                installAdjustValidity,
+                certRequestType,
+                binCertRequest,
+                subjectName);
 
         if (type.equals("CA") && tag.equals("signing")) {
             logger.info("CAConfigurator: Initializing CA with existing signing cert");

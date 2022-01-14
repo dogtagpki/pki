@@ -522,50 +522,12 @@ public class Configurator {
         }
     }
 
-    public void importCert(
-            X509Key x509key,
-            X509CertImpl certImpl,
-            String profileID,
-            String[] dnsNames,
-            boolean installAdjustValidity,
-            String certRequestType,
-            byte[] certRequest,
-            X500Name subjectName) throws Exception {
-    }
-
     public void loadCert(
             String type,
             String tag,
             X509Certificate x509Cert,
             String profileID,
             String[] dnsNames) throws Exception {
-
-        logger.info("Configurator: Loading existing " + tag + " cert request");
-
-        String certreq = cs.getString(type.toLowerCase() + "." + tag + ".certreq");
-        logger.debug("Configurator: request: " + certreq);
-        byte[] binCertRequest = CryptoUtil.base64Decode(certreq);
-
-        logger.info("Configurator: Loading existing " + tag + " certificate");
-        byte[] binCert = x509Cert.getEncoded();
-
-        boolean installAdjustValidity = !tag.equals("signing");
-        String certRequestType = "pkcs10";
-        X500Name subjectName = null;
-
-        PKCS10 pkcs10 = new PKCS10(binCertRequest);
-        X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
-        X509CertImpl certImpl = new X509CertImpl(binCert);
-
-        importCert(
-                x509key,
-                certImpl,
-                profileID,
-                dnsNames,
-                installAdjustValidity,
-                certRequestType,
-                binCertRequest,
-                subjectName);
     }
 
     public Cert setupCert(CertificateSetupRequest request) throws Exception {
