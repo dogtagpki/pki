@@ -908,40 +908,6 @@ TPS_PUBLIC int delete_profile_from_user(const char *agentid, char *userid, const
     return rc;
 }
 
-/**
- * delete_all_profiles_from_user
- * summary: removes all attributes profileID from user entry 
- *          same as above, but passing NULL for mod_values
- * params: agentid -user who is performing this change
- *       : userid - userid of user to be modified
- *       : profile - profile to be deleted
- * returns: LDAP return code
- */
-TPS_PUBLIC int delete_all_profiles_from_user(const char *agentid, char *userid) {
-    LDAPMod  a01;
-    LDAPMod  *mods[2];
-    int  rc = 0;
-    char dn[256];
-    char msg[256];
-
-    if (PR_snprintf(dn, 255, "uid=%s, ou=People, %s", userid, userBaseDN) < 0)
-         return -1;
-
-    a01.mod_op = LDAP_MOD_DELETE;
-    a01.mod_type = PROFILE_ID;
-    a01.mod_values = NULL;  /* NULL will remove all values */
-    mods[0]  = &a01;
-    mods[1]  = NULL;
-
-    rc = update_tus_general_db_entry(agentid, dn, mods);
-    if (rc == LDAP_SUCCESS) {
-        PR_snprintf(msg, 256, "Deleted all profiles from user %s", userid); 
-        audit_log("delete_all_profiles_from_user", agentid, msg);
-    }
-
-    return rc;
-}
-
 int delete_tus_db_entry (char *userid, char *cn)
 {
     char dn[256];
