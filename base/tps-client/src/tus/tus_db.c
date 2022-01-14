@@ -1708,61 +1708,6 @@ TPS_PUBLIC int find_tus_db_entries (const char *filter, int max, LDAPMessage **r
     return rc;
 }
 
-TPS_PUBLIC int find_tus_db_entries_pcontrol_1(const char *filter, int max, int time_limit, int size_limit, LDAPMessage **result)
-{
-    int  rc = LDAP_OTHER, tries = 0;
-
-    LDAPSortKey **sortKeyList;
-    LDAPControl *controls[3];
-    struct berval *cookie=NULL;
-    struct timeval timeout;
-
-    timeout.tv_sec = time_limit;
-    timeout.tv_usec = 0;
-
-    tus_check_conn();
-    controls[0] = NULL;
-    controls[1] = NULL;
-    controls[2] = NULL;
-
-    rc = ldap_create_page_control(ld, max, cookie, 0, &controls[0]);
-
-    ldap_create_sort_keylist(&sortKeyList, "-dateOfModify");
-    ldap_create_sort_control(ld, sortKeyList, 1 /* non-critical */,
-        &controls[1]);
-
-    for (tries = 0; tries < MAX_RETRIES; tries++) {
-        rc = ldap_search_ext_s (ld, baseDN, LDAP_SCOPE_SUBTREE, filter,
-                 NULL, 0, controls, NULL, 
-                 time_limit >0 ? &timeout : NULL, 
-                 size_limit, result);
-        if ((rc == LDAP_SUCCESS) || (rc == LDAP_PARTIAL_RESULTS)) {
-            break;
-        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-            struct berval credential;
-            credential.bv_val = bindPass;
-            credential.bv_len= strlen(bindPass);
-            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-            if (rc != LDAP_SUCCESS) {
-                bindStatus = rc;
-                break;
-            }
-        }
-    }
-
-    if (cookie != NULL) {
-        ber_bvfree(cookie);
-        cookie = NULL;
-    }
-
-    ldap_free_sort_keylist(sortKeyList);
-    
-    ldap_control_free(controls[0]);
-    ldap_control_free(controls[1]);
-
-    return rc;
-}
-
 static int sort_cmp(const char *v1, const char *v2)
 {
   return PL_strcasecmp(v1, v2);
