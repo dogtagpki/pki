@@ -141,12 +141,6 @@
 #define NO_PROFILES         "NO_PROFILES"
 #define NO_TOKEN_TYPE       "no_token_type"
 
-TPS_PUBLIC void set_tus_db_port(int number);
-TPS_PUBLIC void set_tus_db_host(char *name);
-TPS_PUBLIC void set_tus_db_baseDN(char *dn);
-TPS_PUBLIC void set_tus_db_bindDN(char *dn);
-TPS_PUBLIC void set_tus_db_bindPass(char *p);
-
 TPS_PUBLIC int is_tus_db_initialized();
 TPS_PUBLIC int tus_db_init(char **errorMsg);
 TPS_PUBLIC void tus_db_end();
