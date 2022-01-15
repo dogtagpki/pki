@@ -147,7 +147,6 @@ static PRFileDesc *audit_fd  = NULL;
 extern void audit_log(const char *func_name, const char *userid, const char *msg);
 
 char *get_pwd_from_conf(char *filepath, char *name);
-static int tus_check_conn();
 
 TPS_PUBLIC int valid_berval(struct berval **b)
 {
@@ -159,56 +158,6 @@ TPS_PUBLIC int valid_berval(struct berval **b)
 TPS_PUBLIC int is_tus_db_initialized()
 {
     return ((ld != NULL && bindStatus == LDAP_SUCCESS)? 1: 0);
-}
-
-static int tus_check_conn()
-{
-    int  version = LDAP_VERSION3;
-    int  status  = -1;
-    char ldapuri[1024];
-
-/* for production, make sure this variable is not defined.
- * Leaving it defined results in weird Apache SSL timeout errors */
-/*#define DEBUG_TOKENDB*/
-
-#ifdef DEBUG_TOKENDB
-    debug_fd = PR_Open("/tmp/debugTUSdb.log",
-           PR_RDWR | PR_CREATE_FILE | PR_APPEND,
-                   400 | 200);
-#endif
-    if (ld == NULL) {
-        if (ssl != NULL && strcmp(ssl, "true") == 0) {
-          /* enabling SSL */
-          snprintf(ldapuri, 1024, "ldaps://%s:%i", host, port);
-        } else {
-          snprintf(ldapuri, 1024, "ldap://%s:%i", host, port);
-        }
-        status = ldap_initialize(&ld, ldapuri);
-        if (ld == NULL) {
-            return status;
-        }
-
-        // This option was supported by mozldap but is not supported by openldap. 
-        // Code to provide this functionality needs to be written - FIXME
-        /*if ((status = ldap_set_option (ld, LDAP_OPT_RECONNECT, LDAP_OPT_ON)) != LDAP_SUCCESS) {
-            return status;
-        }*/
-
-        if ((status = ldap_set_option (ld, LDAP_OPT_PROTOCOL_VERSION, &version)) != LDAP_SUCCESS) {
-            return status;
-        }
-    }
-    if (ld != NULL && bindStatus != LDAP_SUCCESS) {
-        struct berval credential;
-        credential.bv_val = bindPass;
-        credential.bv_len= strlen(bindPass);
-        bindStatus = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-        if (bindStatus != LDAP_SUCCESS) {
-            return bindStatus;
-        }
-    }
-
-    return LDAP_SUCCESS;
 }
 
 TPS_PUBLIC int tus_db_init(char **errorMsg)
