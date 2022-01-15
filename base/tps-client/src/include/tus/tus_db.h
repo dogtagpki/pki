@@ -179,12 +179,6 @@ TPS_PUBLIC char *get_policy_name();
 TPS_PUBLIC char *get_reason_name();
 TPS_PUBLIC char **get_certificate_attributes();
 
-TPS_PUBLIC int get_number_of_modifications(LDAPMessage *entry);
-TPS_PUBLIC int get_number_of_resets(LDAPMessage *entry);
-TPS_PUBLIC int get_number_of_enrollments(LDAPMessage *entry);
-TPS_PUBLIC int get_number_of_renewals(LDAPMessage *entry);
-TPS_PUBLIC int get_number_of_recoveries(LDAPMessage *entry);
-
 TPS_PUBLIC char *get_token_users_name();
 TPS_PUBLIC char *get_token_id_name();
 TPS_PUBLIC char *get_token_status_name();
@@ -192,11 +186,6 @@ TPS_PUBLIC char *get_applet_id_name();
 TPS_PUBLIC char *get_key_info_name();
 TPS_PUBLIC char *get_creation_date_name();
 TPS_PUBLIC char *get_modification_date_name();
-TPS_PUBLIC char *get_number_of_modifications_name();
-TPS_PUBLIC char *get_number_of_resets_name();
-TPS_PUBLIC char *get_number_of_enrollments_name();
-TPS_PUBLIC char *get_number_of_renewals_name();
-TPS_PUBLIC char *get_number_of_recoveries_name();
 TPS_PUBLIC char *get_dn(LDAPMessage *entry);
 
 TPS_PUBLIC LDAPMod **allocate_modifications(int size);

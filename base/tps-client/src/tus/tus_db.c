@@ -1140,16 +1140,6 @@ char *get_modification_date(LDAPMessage *entry)
     return get_cert_attr_byname(entry, TOKEN_M_DATE);
 }
 
-char *get_number_of_modifications_name()
-{
-    return tokenAttributes[I_TOKEN_MODS];
-}
-
-int get_number_of_modifications(LDAPMessage *entry)
-{
-    return get_cert_attr_byname_int(entry, TOKEN_MODS);
-}
-
 TPS_PUBLIC char *get_dn(LDAPMessage *entry)
 {
     char *ret = NULL;
@@ -1159,46 +1149,6 @@ TPS_PUBLIC char *get_dn(LDAPMessage *entry)
         ldap_memfree(dn);
     }
     return ret;
-}
-
-char *get_number_of_resets_name()
-{
-    return tokenAttributes[I_TOKEN_RESETS];
-}
-
-int get_number_of_resets(LDAPMessage *entry)
-{
-    return get_cert_attr_byname_int(entry, TOKEN_RESETS);
-}
-
-char *get_number_of_enrollments_name()
-{
-    return tokenAttributes[I_TOKEN_ENROLLMENTS];
-}
-
-int get_number_of_enrollments(LDAPMessage *entry)
-{
-    return get_cert_attr_byname_int(entry, TOKEN_ENROLLMENTS);
-}
-
-char *get_number_of_renewals_name()
-{
-    return tokenAttributes[I_TOKEN_RENEWALS];
-}
-
-int get_number_of_renewals(LDAPMessage *entry)
-{
-    return get_cert_attr_byname_int(entry, TOKEN_RENEWALS);
-}
-
-char *get_number_of_recoveries_name()
-{
-    return tokenAttributes[I_TOKEN_RECOVERIES];
-}
-
-int get_number_of_recoveries(LDAPMessage *entry)
-{
-    return get_cert_attr_byname_int(entry, TOKEN_RECOVERIES);
 }
 
 TPS_PUBLIC LDAPMod **allocate_modifications(int size)
