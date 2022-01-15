@@ -165,7 +165,6 @@ TPS_PUBLIC char **get_token_attributes();
 TPS_PUBLIC char **get_activity_attributes();
 TPS_PUBLIC char **get_user_attributes();
 TPS_PUBLIC char **get_view_user_attributes();
-TPS_PUBLIC struct berval **get_attribute_values(LDAPMessage *entry, const char *attribute);
 TPS_PUBLIC void free_values(struct berval **values, int ldapValues);
 TPS_PUBLIC struct berval **get_token_users(LDAPMessage *entry);
 TPS_PUBLIC char *get_token_id(LDAPMessage *entry);

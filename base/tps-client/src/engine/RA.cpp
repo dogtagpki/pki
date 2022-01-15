@@ -1309,10 +1309,6 @@ TPS_PUBLIC LDAPMessage *RA::ra_get_next_entry(LDAPMessage *e) {
     return get_next_entry(e);
 }
 
-TPS_PUBLIC struct berval **RA::ra_get_attribute_values(LDAPMessage *e, const char *p) {
-    return get_attribute_values(e, p);
-}
-
 TPS_PUBLIC char *RA::ra_get_cert_attr_byname(LDAPMessage *entry, const char *name) {
     return get_cert_attr_byname(entry, name);
 }

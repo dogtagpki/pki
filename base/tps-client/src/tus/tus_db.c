@@ -999,60 +999,6 @@ TPS_PUBLIC char **get_view_user_attributes()
     return viewUserAttributes;
 }
 
-struct berval **get_attribute_values(LDAPMessage *entry, const char *attribute)
-{
-    int i;
-    unsigned int j;
-    struct berval **bvals = NULL;
-    char buffer[2048];
-    int c = 0;
-    struct berval **ret = NULL;
-
-    tus_check_conn();
-    if (PL_strcasecmp(attribute, "userCertificate") == 0) {
-        bvals = ldap_get_values_len(ld, entry, attribute);
-        if (bvals == NULL)
-            return NULL;
-        for (i = 0; bvals[i] != NULL; i++ ) {
-	    c++;
-        }  
-
-        ret = (struct berval **) calloc (sizeof (struct berval *), (c + 1));
-        for (i=0; i< c; i++) {
-            ret[i] = (struct berval *) malloc(sizeof(struct berval));
-        }
-        ret[c] = NULL;
-        c = 0;
-        for (i = 0; bvals[i] != NULL; i++ ) {
-            char *tmp = BTOA_DataToAscii((unsigned char *)bvals[i]->bv_val,
-                                         (int)bvals[i]->bv_len);
-            snprintf(buffer, 2048, "%s", tmp); 
-            PORT_Free(tmp);
-
-            /* remove \r\n that javascript does not like */
-            for (j = 0; j < strlen(buffer); j++) {
-                if (buffer[j] == '\r') {
-                    buffer[j] = '.';
-                }
-                if (buffer[j] == '\n') {
-                    buffer[j] = '.';
-                }
-            }
-	    ret[c]->bv_val = PL_strdup(buffer);
-            ret[c]->bv_len = PL_strlen(buffer);
-	    c++;
-        }  
-        if (bvals != NULL) {
-            ldap_value_free_len(bvals);
-            bvals = NULL;
-        }
-
-        return ret;
-    } else {
-        return ldap_get_values_len(ld, entry, attribute);
-    }
-}
-
 void free_values(struct berval **values, int ldapValues)
 {
     if (ldapValues != 0) {

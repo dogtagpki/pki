@@ -147,7 +147,6 @@ class RA
           static PRLock *GetConfigLock();
           TPS_PUBLIC static LDAPMessage *ra_get_first_entry(LDAPMessage *e);
           TPS_PUBLIC static LDAPMessage *ra_get_next_entry(LDAPMessage *e);
-          TPS_PUBLIC static struct berval **ra_get_attribute_values(LDAPMessage *e, const char *p);
           TPS_PUBLIC static void ra_free_values(struct berval **values);
           TPS_PUBLIC static char *ra_get_cert_attr_byname(LDAPMessage *e, const char *name);
       TPS_PUBLIC static void ra_tus_print_integer(char *out, SECItem *data);
