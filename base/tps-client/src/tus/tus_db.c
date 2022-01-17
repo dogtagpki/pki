@@ -198,11 +198,6 @@ TPS_PUBLIC char *get_token_users_name()
     return tokenAttributes[I_TOKEN_USER];
 }
 
-struct berval **get_token_users(LDAPMessage *entry)
-{
-    return ldap_get_values_len(ld, entry, TOKEN_USER);
-}
-
 char *get_token_id_name()
 {
     return tokenAttributes[I_TOKEN_ID];
@@ -248,17 +243,6 @@ int get_cert_attr_byname_int(LDAPMessage *entry, const char *name)
     return n;
 }
 
-
-char *get_token_id(LDAPMessage *entry)
-{
-    return get_cert_attr_byname(entry, TOKEN_ID);
-}
-
-char *get_cert_tokenType(LDAPMessage *entry)
-{
-    return get_cert_attr_byname(entry, "tokenType");
-}
-
 char *get_token_status_name()
 {
     return tokenAttributes[I_TOKEN_STATUS];
@@ -274,19 +258,9 @@ TPS_PUBLIC char *get_policy_name()
     return tokenAttributes[I_TOKEN_POLICY];
 }
 
-char *get_token_status(LDAPMessage *entry)
-{
-    return get_cert_attr_byname(entry, TOKEN_STATUS);
-}
-
 char *get_applet_id_name()
 {
     return tokenAttributes[I_TOKEN_APPLET];
-}
-
-char *get_applet_id(LDAPMessage *entry)
-{
-    return get_cert_attr_byname(entry, TOKEN_APPLET);
 }
 
 char *get_key_info_name()
@@ -294,38 +268,12 @@ char *get_key_info_name()
     return tokenAttributes[I_TOKEN_KEY_INFO];
 }
 
-char *get_key_info(LDAPMessage *entry)
-{
-    return get_cert_attr_byname(entry, TOKEN_KEY_INFO);
-}
-
 char *get_creation_date_name()
 {
     return tokenAttributes[I_TOKEN_C_DATE];
 }
 
-char *get_creation_date(LDAPMessage *entry)
-{
-    return get_cert_attr_byname(entry, TOKEN_C_DATE);
-}
-
 char *get_modification_date_name()
 {
     return tokenAttributes[I_TOKEN_M_DATE];
-}
-
-char *get_modification_date(LDAPMessage *entry)
-{
-    return get_cert_attr_byname(entry, TOKEN_M_DATE);
-}
-
-TPS_PUBLIC char *get_dn(LDAPMessage *entry)
-{
-    char *ret = NULL;
-    char *dn = NULL;
-    if ((dn = ldap_get_dn( ld, entry )) != NULL) {
-        ret = PL_strdup(dn);
-        ldap_memfree(dn);
-    }
-    return ret;
 }
