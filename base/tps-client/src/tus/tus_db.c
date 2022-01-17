@@ -203,46 +203,6 @@ char *get_token_id_name()
     return tokenAttributes[I_TOKEN_ID];
 }
 
-char *get_cert_attr_byname(LDAPMessage *entry, const char *name)
-{
-    struct berval **v = NULL;
-    char *value = NULL;
-
-    if (entry == NULL) return NULL;
-
-    v = ldap_get_values_len(ld, entry, name);
-    if (v == NULL) return NULL;
-    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
-        value = PL_strdup(v[0]->bv_val);
-    }
-    if( v != NULL ) {
-        ldap_value_free_len( v );
-        v = NULL;
-    }
-
-    return value;
-}
-
-int get_cert_attr_byname_int(LDAPMessage *entry, const char *name)
-{
-    struct berval **v = NULL;
-    int  n = 0;
-
-    if (entry == NULL) return 0;
-
-    v = ldap_get_values_len(ld, entry, name);
-    if (v == NULL) return 0;
-    if ((valid_berval(v)) && (PL_strlen(v[0]->bv_val) > 0)) {
-        n = atoi(v[0]->bv_val);
-    }
-    if( v != NULL ) {
-        ldap_value_free_len( v );
-        v = NULL;
-    }
-
-    return n;
-}
-
 char *get_token_status_name()
 {
     return tokenAttributes[I_TOKEN_STATUS];

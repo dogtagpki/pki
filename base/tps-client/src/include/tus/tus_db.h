@@ -151,7 +151,6 @@ TPS_PUBLIC char **get_token_attributes();
 TPS_PUBLIC char **get_activity_attributes();
 TPS_PUBLIC char **get_user_attributes();
 TPS_PUBLIC char **get_view_user_attributes();
-TPS_PUBLIC char *get_cert_attr_byname(LDAPMessage *entry, const char *name);
 TPS_PUBLIC char *get_policy_name();
 TPS_PUBLIC char *get_reason_name();
 TPS_PUBLIC char **get_certificate_attributes();

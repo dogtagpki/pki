@@ -1304,10 +1304,6 @@ TPS_PUBLIC LDAPMessage *RA::ra_get_next_entry(LDAPMessage *e) {
     return get_next_entry(e);
 }
 
-TPS_PUBLIC char *RA::ra_get_cert_attr_byname(LDAPMessage *entry, const char *name) {
-    return get_cert_attr_byname(entry, name);
-}
-
 int RA::Failover(HttpConnection *&conn, int len) {
     int rc = 0;
     if (m_pod_enable) {
