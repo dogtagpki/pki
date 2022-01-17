@@ -148,58 +148,6 @@ TPS_PUBLIC int valid_berval(struct berval **b)
     return 0;
 }
 
-static int sort_cmp(const char *v1, const char *v2)
-{
-  return PL_strcasecmp(v1, v2);
-}
-
-static int reverse_sort_cmp(const char *v1, const char *v2)
-{
-  return PL_strcasecmp(v2, v1);
-}
-
-typedef int (LDAP_SORT_AD_CMP_PROC) (const char * left, const char *right);
-static LDAP_SORT_AD_CMP_PROC *et_cmp_fn;
-
-struct entrything {
-    char **et_vals;
-    LDAPMessage *et_msg;
-};
-
-static int et_cmp(const void  *aa, const void  *bb)
-{
-    int i, rc;
-
-    struct entrything *a = (struct entrything *)aa;
-    struct entrything *b = (struct entrything *)bb;
-
-    if ((a == NULL) && (b == NULL))
-        return 0;
-    if (a == NULL)
-        return -1;
-    if (b == NULL)
-        return 1;
-
-    if ((a->et_vals == NULL) && (b->et_vals == NULL))
-        return 0;
-    if (a->et_vals == NULL)
-        return -1;
-    if (b->et_vals == NULL)
-        return 1;
-
-    for ( i = 0; a->et_vals[i] && b->et_vals[i]; i++ ) {
-        if ( (rc = (*et_cmp_fn)( a->et_vals[i], b->et_vals[i] )) != 0) {
-            return rc;
-        }
-    }
-
-    if ((a->et_vals[i] == NULL) && (b->et_vals[i] == NULL))
-        return 0;
-    if (a->et_vals[i] == NULL)
-        return -1;
-    return 1;
-}
-
 int free_results (LDAPMessage *results)
 {
     return ldap_msgfree (results);
