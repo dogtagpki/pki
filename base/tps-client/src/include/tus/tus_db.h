@@ -172,7 +172,4 @@ TPS_PUBLIC char *get_key_info_name();
 TPS_PUBLIC char *get_creation_date_name();
 TPS_PUBLIC char *get_modification_date_name();
 TPS_PUBLIC char *get_dn(LDAPMessage *entry);
-
-TPS_PUBLIC LDAPMod **allocate_modifications(int size);
-TPS_PUBLIC void free_modifications(LDAPMod **mods, int ldapValues);
 #endif /* TUS_DB_H */
