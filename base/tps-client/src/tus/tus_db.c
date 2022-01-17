@@ -193,21 +193,6 @@ TPS_PUBLIC char **get_view_user_attributes()
     return viewUserAttributes;
 }
 
-void free_values(struct berval **values, int ldapValues)
-{
-    if (ldapValues != 0) {
-        if( values != NULL ) {
-            ldap_value_free_len( values );
-            values = NULL;
-        }
-    } else {
-        if( values != NULL ) {
-            PR_Free( values );
-            values = NULL;
-        }
-    }
-}
-
 TPS_PUBLIC char *get_token_users_name()
 {
     return tokenAttributes[I_TOKEN_USER];
@@ -400,29 +385,4 @@ void free_modifications(LDAPMod **mods, int ldapValues)
         PR_Free( mods );
         mods = NULL;
     }
-}
-
-TPS_PUBLIC char **allocate_values(int size, int extra)
-{
-    int  n;
-    char **values = NULL;
-    char *s;
-
-    n = (size + 1) * sizeof(char *);
-    if (extra > 0) {
-        n += extra * sizeof(char);
-    }
-    s = (char *) PR_Malloc(n);
-    if (s == NULL)
-        return NULL;
-    memset(s, 0, n);
-
-    values = (char **)s;
-
-    if (extra > 0) {
-        s += ((size + 1) * sizeof(char *));
-        values[0] = s;
-    }
-
-    return values;
 }

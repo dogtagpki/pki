@@ -151,7 +151,6 @@ TPS_PUBLIC char **get_token_attributes();
 TPS_PUBLIC char **get_activity_attributes();
 TPS_PUBLIC char **get_user_attributes();
 TPS_PUBLIC char **get_view_user_attributes();
-TPS_PUBLIC void free_values(struct berval **values, int ldapValues);
 TPS_PUBLIC struct berval **get_token_users(LDAPMessage *entry);
 TPS_PUBLIC char *get_token_id(LDAPMessage *entry);
 TPS_PUBLIC char *get_cert_tokenType(LDAPMessage *entry);
@@ -176,5 +175,4 @@ TPS_PUBLIC char *get_dn(LDAPMessage *entry);
 
 TPS_PUBLIC LDAPMod **allocate_modifications(int size);
 TPS_PUBLIC void free_modifications(LDAPMod **mods, int ldapValues);
-TPS_PUBLIC char **allocate_values(int size, int extra);
 #endif /* TUS_DB_H */

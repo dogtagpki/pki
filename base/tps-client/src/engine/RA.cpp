@@ -1251,11 +1251,6 @@ void RA::DebugThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	PR_Unlock(m_debug_log_lock);
 }
 
-TPS_PUBLIC void RA::ra_free_values(struct berval **values) 
-{
-    free_values(values, 1);
-}
-     
 TPS_PUBLIC void RA::Error (const char *func_name, const char *fmt, ...)
 { 
 	va_list ap; 
