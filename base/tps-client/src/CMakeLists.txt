@@ -2,8 +2,6 @@ project(tps_library CXX)
 
 set(TPS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_subdirectory(tus)
-
 set(TPS_PUBLIC_INCLUDE_DIRS
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}

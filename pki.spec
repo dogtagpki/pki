@@ -1251,7 +1251,6 @@ fi
 
 %{_bindir}/tpsclient
 %{_libdir}/tps/libtps.so
-%{_libdir}/tps/libtokendb.so
 
 # with tps
 %endif
