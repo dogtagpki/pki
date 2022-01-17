@@ -699,8 +699,13 @@ class PKIDeployer:
         if not request.systemCert.token:
             request.systemCert.token = subsystem.config['preop.module.token']
 
-        request.systemCert.profile = subsystem.config['preop.cert.%s.profile' % tag]
+        # cert type: selfsign, local, or remote
         request.systemCert.type = subsystem.config['preop.cert.%s.type' % tag]
+
+        # key type: rsa or ecc
+        request.systemCert.keyType = subsystem.config['preop.cert.%s.keytype' % tag]
+
+        request.systemCert.profile = subsystem.config['preop.cert.%s.profile' % tag]
 
         inject_san = subsystem.config.get('service.injectSAN')
         if tag == 'sslserver' and inject_san == 'true':

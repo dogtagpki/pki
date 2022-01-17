@@ -44,6 +44,7 @@ public class SystemCertData implements JSONSerializer {
 
     protected String type;
 
+    protected String keyType;
     protected String keySize;
 
     protected String keyCurveName;
@@ -121,6 +122,14 @@ public class SystemCertData implements JSONSerializer {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getKeyType() {
+        return keyType;
+    }
+
+    public void setKeyType(String keyType) {
+        this.keyType = keyType;
     }
 
     /**
@@ -230,6 +239,7 @@ public class SystemCertData implements JSONSerializer {
             + ", token=" + token
             + ", profile=" + profile
             + ", type=" + type
+            + ", keyType=" + keyType
             + ", keySize=" + keySize
             + ", keyCurveName=" + keyCurveName
             + ", request=" + request
@@ -247,7 +257,11 @@ public class SystemCertData implements JSONSerializer {
         final int prime = 31;
         int result = 1;
         result = prime * result + Arrays.hashCode(dnsNames);
-        result = prime * result + Objects.hash(cert, keyCurveName, keySize, nickname, profile, req_ext_critical,
+        result = prime * result + Objects.hash(cert,
+                keyType,
+                keySize,
+                keyCurveName,
+                nickname, profile, req_ext_critical,
                 req_ext_data, req_ext_oid, request, subjectDN, tag, token, type);
         return result;
     }
@@ -262,7 +276,9 @@ public class SystemCertData implements JSONSerializer {
             return false;
         SystemCertData other = (SystemCertData) obj;
         return Objects.equals(cert, other.cert) && Arrays.equals(dnsNames, other.dnsNames)
-                && Objects.equals(keyCurveName, other.keyCurveName) && Objects.equals(keySize, other.keySize)
+                && Objects.equals(keyType, other.keyType)
+                && Objects.equals(keySize, other.keySize)
+                && Objects.equals(keyCurveName, other.keyCurveName)
                 && Objects.equals(nickname, other.nickname) && Objects.equals(profile, other.profile)
                 && Objects.equals(req_ext_critical, other.req_ext_critical)
                 && Objects.equals(req_ext_data, other.req_ext_data) && Objects.equals(req_ext_oid, other.req_ext_oid)

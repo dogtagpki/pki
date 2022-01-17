@@ -585,7 +585,7 @@ public class Configurator {
             logger.info("Configurator: " + tag + " cert not found: " + fullName);
             x509Cert = null;
 
-            String keyType = preopConfig.getString("cert." + tag + ".keytype");
+            String keyType = certData.getKeyType();
             String keySize = certData.getKeySize();
 
             if (keyType.equals("ecc")) {
