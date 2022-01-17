@@ -2680,15 +2680,6 @@ class ConfigClient:
                     # PKI CA, Subordinate CA, or External CA
                     cert1 = self.create_system_cert("ca_signing")
 
-                    # generic extension support in CSR - for external CA
-                    if self.add_req_ext:
-                        cert1.req_ext_oid = \
-                            self.mdict['pki_req_ext_oid']
-                        cert1.req_ext_critical = \
-                            self.mdict['pki_req_ext_critical']
-                        cert1.req_ext_data = \
-                            self.mdict['pki_req_ext_data']
-
                 if self.external and self.external_step_two:
 
                     # external/existing CA step 2

@@ -713,6 +713,11 @@ class PKIDeployer:
 
         request.systemCert.profile = subsystem.config['preop.cert.%s.profile' % tag]
 
+        request.systemCert.req_ext_oid = subsystem.config.get('preop.cert.%s.ext.oid' % tag)
+        request.systemCert.req_ext_data = subsystem.config.get('preop.cert.%s.ext.data' % tag)
+        request.systemCert.req_ext_critical = subsystem.config.get(
+            'preop.cert.%s.ext.critical' % tag)
+
         inject_san = subsystem.config.get('service.injectSAN')
         if tag == 'sslserver' and inject_san == 'true':
             logger.info('SAN extension:')

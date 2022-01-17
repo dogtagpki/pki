@@ -600,9 +600,9 @@ public class Configurator {
         String subjectDN = certData.getSubjectDN();
         String keyAlgorithm = certData.getKeyAlgorithm();
 
-        String extOID = preopConfig.getString("cert." + tag + ".ext.oid", null);
-        String extData = preopConfig.getString("cert." + tag + ".ext.data", null);
-        boolean extCritical = preopConfig.getBoolean("cert." + tag + ".ext.critical", false);
+        String extOID = certData.getReqExtOID();
+        String extData = certData.getReqExtData();
+        boolean extCritical = certData.getReqExtCritical();
 
         Boolean clone = request.isClone();
         URL masterURL = request.getMasterURL();
