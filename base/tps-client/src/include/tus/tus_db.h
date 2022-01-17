@@ -141,9 +141,6 @@
 #define NO_PROFILES         "NO_PROFILES"
 #define NO_TOKEN_TYPE       "no_token_type"
 
-TPS_PUBLIC void tus_db_end();
-TPS_PUBLIC void tus_db_cleanup();
-
 TPS_PUBLIC int free_results (LDAPMessage *results);
 
 TPS_PUBLIC LDAPMessage *get_first_entry (LDAPMessage *result);

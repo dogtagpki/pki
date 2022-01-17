@@ -155,64 +155,6 @@ TPS_PUBLIC int valid_berval(struct berval **b)
     return 0;
 }
 
-TPS_PUBLIC void tus_db_end()
-{
-    if (ld != NULL) {
-        if (ldap_unbind_ext_s(ld, NULL, NULL) == LDAP_SUCCESS) {
-            ld = NULL;
-            bindStatus = -1;
-        }
-    }
-}
-
-TPS_PUBLIC void tus_db_cleanup()
-{
-    if (ssl != NULL) {
-        PL_strfree(ssl);
-        ssl = NULL;
-    }
-    if (host != NULL) { 
-        PL_strfree(host);
-        host = NULL;
-    }
-    if (userBaseDN != NULL) {
-        PL_strfree(userBaseDN);
-        userBaseDN = NULL;
-    }
-    if (baseDN != NULL) {
-        PL_strfree(baseDN);
-        baseDN = NULL;
-    }
-    if (activityBaseDN != NULL) {
-        PL_strfree(activityBaseDN);
-        activityBaseDN = NULL;
-    }
-    if(certBaseDN != NULL) { 
-        PL_strfree(certBaseDN);
-        certBaseDN = NULL;
-    }
-    if(bindDN != NULL) {
-        PL_strfree(bindDN);
-        bindDN = NULL;
-    }
-    if(bindPass != NULL) { 
-        PL_strfree(bindPass);
-        bindPass = NULL;
-    }
-    if(defaultPolicy != NULL) { 
-        PL_strfree(defaultPolicy);
-        defaultPolicy = NULL;
-    }
-    if (debug_fd != NULL) { 
-        PR_Close(debug_fd);
-        debug_fd = NULL;
-    }
-    if (audit_fd != NULL) {
-        PR_Close(audit_fd);
-        audit_fd = NULL;
-    }
-}
-
 static int sort_cmp(const char *v1, const char *v2)
 {
   return PL_strcasecmp(v1, v2);
