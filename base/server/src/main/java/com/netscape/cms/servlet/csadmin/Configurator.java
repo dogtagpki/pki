@@ -598,7 +598,8 @@ public class Configurator {
         }
 
         String subjectDN = certData.getSubjectDN();
-        String keyAlgorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
+        String keyAlgorithm = certData.getKeyAlgorithm();
+
         String extOID = preopConfig.getString("cert." + tag + ".ext.oid", null);
         String extData = preopConfig.getString("cert." + tag + ".ext.data", null);
         boolean extCritical = preopConfig.getBoolean("cert." + tag + ".ext.critical", false);

@@ -709,6 +709,8 @@ class PKIDeployer:
         # Note: IE only supports ECDHE, but ECDH is more efficient.
         request.systemCert.ecType = subsystem.config.get('preop.cert.%s.ec.type' % tag, 'ECDHE')
 
+        request.systemCert.keyAlgorithm = subsystem.config['preop.cert.%s.keyalgorithm' % tag]
+
         request.systemCert.profile = subsystem.config['preop.cert.%s.profile' % tag]
 
         inject_san = subsystem.config.get('service.injectSAN')

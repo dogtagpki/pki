@@ -50,6 +50,8 @@ public class SystemCertData implements JSONSerializer {
     protected String keyCurveName;
     protected String ecType;
 
+    protected String keyAlgorithm;
+
     protected String request;
 
     protected String subjectDN;
@@ -169,6 +171,14 @@ public class SystemCertData implements JSONSerializer {
         this.ecType = ecType;
     }
 
+    public String getKeyAlgorithm() {
+        return keyAlgorithm;
+    }
+
+    public void setKeyAlgorithm(String keyAlgorithm) {
+        this.keyAlgorithm = keyAlgorithm;
+    }
+
     /**
      * @return the request
      */
@@ -252,6 +262,7 @@ public class SystemCertData implements JSONSerializer {
             + ", keySize=" + keySize
             + ", keyCurveName=" + keyCurveName
             + ", ecType=" + ecType
+            + ", keyAlgorithm=" + keyAlgorithm
             + ", request=" + request
             + ", subjectDN=" + subjectDN
             + ", cert=" + cert
@@ -272,6 +283,7 @@ public class SystemCertData implements JSONSerializer {
                 keySize,
                 keyCurveName,
                 ecType,
+                keyAlgorithm,
                 nickname, profile, req_ext_critical,
                 req_ext_data, req_ext_oid, request, subjectDN, tag, token, type);
         return result;
@@ -291,6 +303,7 @@ public class SystemCertData implements JSONSerializer {
                 && Objects.equals(keySize, other.keySize)
                 && Objects.equals(keyCurveName, other.keyCurveName)
                 && Objects.equals(ecType, other.ecType)
+                && Objects.equals(keyAlgorithm, other.keyAlgorithm)
                 && Objects.equals(nickname, other.nickname) && Objects.equals(profile, other.profile)
                 && Objects.equals(req_ext_critical, other.req_ext_critical)
                 && Objects.equals(req_ext_data, other.req_ext_data) && Objects.equals(req_ext_oid, other.req_ext_oid)
