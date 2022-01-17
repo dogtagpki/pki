@@ -146,8 +146,6 @@ static PRFileDesc *audit_fd  = NULL;
 
 extern void audit_log(const char *func_name, const char *userid, const char *msg);
 
-char *get_pwd_from_conf(char *filepath, char *name);
-
 TPS_PUBLIC int valid_berval(struct berval **b)
 {
     if ((b != NULL) && (b[0] != NULL) && (b[0]->bv_val != NULL))
@@ -484,89 +482,6 @@ TPS_PUBLIC char **allocate_values(int size, int extra)
     }
 
     return values;
-}
-
-/**
- * Reads password.conf file
- */
-static int ReadLine(PRFileDesc *f, char *buf, int buf_len, int *removed_return)
-{
-       char *cur = buf;
-       int sum = 0;
-       PRInt32 rc;
-
-       *removed_return = 0;
-       while (1) {
-         rc = PR_Read(f, cur, 1);
-         if (rc == -1 || rc == 0)
-             break;
-         if (*cur == '\r') {
-             continue;
-         }
-         if (*cur == '\n') {
-             *cur = '\0';
-             *removed_return = 1;
-             break;
-         }
-         sum++;
-         cur++;
-       }
-       return sum;
-}
-
-#define MAX_CFG_LINE_LEN 4096
-/*
- * Search for password name "name" in the password file "filepath"
- */
-char *get_pwd_from_conf(char *filepath, char *name)
-{
-    PRFileDesc *fd;
-    char line[MAX_CFG_LINE_LEN];
-    int removed_return;
-    char *val= NULL;
-
-    if (debug_fd)
-	    PR_fprintf(debug_fd, "get_pwd_from_conf looking for %s\n", name);
-    fd= PR_Open(filepath, PR_RDONLY, 400);
-    if (fd == NULL) {
-        return NULL;
-    }
-    if (debug_fd)
-	    PR_fprintf(debug_fd, "get_pwd_from_conf opened %s\n", filepath);
-
-    while (1) {
-        int n = ReadLine(fd, line, MAX_CFG_LINE_LEN, &removed_return);
-        if (n > 0) {
-            /* handle comment line */
-            if (line[0] == '#')
-                continue;
-            int c = 0;
-            while ((c < n) && (line[c] != ':')) {
-                c++;
-            }
-            if (c < n) {
-                line[c] = '\0';
-            } else {
-                continue; /* no ':', skip this line */
-            }
-            if (!PL_strcmp (line, name)) {
-                if (debug_fd)
-	              PR_fprintf(debug_fd, "get_pwd_from_conf found %s is %s\n", line, &line[c+1]);
-                val =  PL_strdup(&line[c+1]);
-                break;
-            }
-        } else if (n == 0 && removed_return == 1) {
-            continue; /* skip empty line */
-        } else {
-            break;
-        }
-    }
-    if( fd != NULL ) {
-        PR_Close( fd );
-        fd = NULL;
-    }
-    return val;
-
 }
 
 void audit_log(const char *func_name, const char *userid, const char *msg)
