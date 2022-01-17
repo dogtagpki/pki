@@ -39,6 +39,7 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.CertificateSetupRequest;
@@ -66,6 +67,13 @@ public class CAConfigurator extends Configurator {
         CAEngine engine = CAEngine.getInstance();
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         return requestRepository.createRequestID();
+    }
+
+    public CertId createCertID() throws Exception {
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+        BigInteger serialNumber = certificateRepository.getNextSerialNumber();
+        return new CertId(serialNumber);
     }
 
     public void importCert(
@@ -151,9 +159,8 @@ public class CAConfigurator extends Configurator {
         Date date = new Date();
         CAEngine engine = CAEngine.getInstance();
 
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-        BigInteger serialNumber = certificateRepository.getNextSerialNumber();
-        logger.info("CAConfigurator: - serial number: 0x" + serialNumber.toString(16));
+        CertId certID = createCertID();
+        logger.info("CAConfigurator: - serial number: " + certID.toHexString());
 
         CertificateIssuerName certIssuerName;
         if (issuerName != null) {
@@ -175,7 +182,7 @@ public class CAConfigurator extends Configurator {
 
         X509CertInfo info = CryptoUtil.createX509CertInfo(
                 x509key,
-                serialNumber,
+                certID.toBigInteger(),
                 certIssuerName,
                 subjectName,
                 date,
@@ -219,6 +226,7 @@ public class CAConfigurator extends Configurator {
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(request);
 
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
         CertRecord certRecord = certificateRepository.createCertRecord(
                 request.getRequestId(),
                 profile.getProfileIDMapping(),
