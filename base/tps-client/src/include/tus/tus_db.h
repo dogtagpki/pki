@@ -145,7 +145,6 @@ TPS_PUBLIC int is_tus_db_initialized();
 TPS_PUBLIC int tus_db_init(char **errorMsg);
 TPS_PUBLIC void tus_db_end();
 TPS_PUBLIC void tus_db_cleanup();
-TPS_PUBLIC void tus_print_as_hex(char *out, SECItem *data);
 
 TPS_PUBLIC int free_results (LDAPMessage *results);
 

@@ -223,64 +223,6 @@ TPS_PUBLIC void tus_db_cleanup()
     }
 }
 
-/***
- * tus_print_as_hex
- * summary: prints serial number as a hex string, needed
- *          because DER_GetInteger only works for small numbers
- *          modeled on SECU_PrintAsHex
- * params:  out - output hexidecimal string
- *          data - serial number as SECItem
- */
-TPS_PUBLIC void tus_print_as_hex(char *out, SECItem *data)
-{
-    unsigned i;
-    int isString = 1;
-    char tmp[32];
-
-    PR_snprintf(out, 2, "");
-
-    /* take a pass to see if it's all printable. */
-    for (i = 0; i < data->len; i++) {
-        unsigned char val = data->data[i];
-        if (!val || !isprint(val)) {
-            isString = 0;
-            break;
-        }
-    }
-
-    if (!isString) {
-        for (i = 0; i < data->len; i++) {
-            PR_snprintf(tmp, 32, "%02x", data->data[i]);
-            PL_strcat(out, tmp);
-        }
-    } else {
-        for (i = 0; i < data->len; i++) {
-            unsigned char val = data->data[i];
-
-            PR_snprintf(tmp, 32, "%c", val);
-            PL_strcat(out, tmp);
-        }
-    }
-    PL_strcat(out, '\0');
-}
-
-char **parse_number_change(int n)
-{
-    char tmp[32];
-    int  l;
-    char **v  = NULL;
-
-    PR_snprintf(tmp, 32, "%d", n);
-    l = PL_strlen(tmp);
-
-    if ((v = allocate_values(1, l+1)) == NULL) {
-        return NULL;
-    }
-    PL_strcpy(v[0], tmp);
-
-    return v;
-}
-
 static int sort_cmp(const char *v1, const char *v2)
 {
   return PL_strcasecmp(v1, v2);
