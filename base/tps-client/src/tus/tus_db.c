@@ -141,11 +141,6 @@ static int  ccBindPass    = 0;
 static LDAP *ld           = NULL;
 static int  bindStatus    = -1;
 
-static PRFileDesc *debug_fd  = NULL;
-static PRFileDesc *audit_fd  = NULL;
-
-extern void audit_log(const char *func_name, const char *userid, const char *msg);
-
 TPS_PUBLIC int valid_berval(struct berval **b)
 {
     if ((b != NULL) && (b[0] != NULL) && (b[0]->bv_val != NULL))
@@ -482,25 +477,4 @@ TPS_PUBLIC char **allocate_values(int size, int extra)
     }
 
     return values;
-}
-
-void audit_log(const char *func_name, const char *userid, const char *msg)
-{
-    const char* time_fmt = "%Y-%m-%d %H:%M:%S";
-    char datetime[1024];
-    PRTime now;
-    PRExplodedTime time;
-    PRThread *ct;
-
-    if (audit_fd == NULL)
-        return;
-
-    now = PR_Now();
-    PR_ExplodeTime(now, PR_LocalTimeParameters, &time);
-    PR_FormatTimeUSEnglish(datetime, 1024, time_fmt, &time);
-    ct = PR_GetCurrentThread();
-    PR_fprintf(audit_fd, "[%s] t=%x uid=%s op=%s - ", 
-	datetime, ct, userid, func_name);
-    PR_fprintf(audit_fd, "%s", msg);
-    PR_fprintf(audit_fd, "\n");
 }
