@@ -43,7 +43,6 @@
 #define TPS_PUBLIC
 #endif /* !XP_WIN32 */
 
-#include "ldap.h"
 #include "lber.h"
 #include "pk11func.h"
 #include "cryptohi.h"
@@ -140,11 +139,6 @@
 #define ALL_PROFILES        "All Profiles"
 #define NO_PROFILES         "NO_PROFILES"
 #define NO_TOKEN_TYPE       "no_token_type"
-
-TPS_PUBLIC int free_results (LDAPMessage *results);
-
-TPS_PUBLIC LDAPMessage *get_first_entry (LDAPMessage *result);
-TPS_PUBLIC LDAPMessage *get_next_entry (LDAPMessage *entry);
 
 TPS_PUBLIC char **get_token_states();
 TPS_PUBLIC char **get_token_attributes();

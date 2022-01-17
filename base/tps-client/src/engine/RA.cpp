@@ -1296,14 +1296,6 @@ void RA::ErrorThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	PR_Unlock(m_error_log_lock);
 }
 
-TPS_PUBLIC LDAPMessage *RA::ra_get_first_entry(LDAPMessage *e) {
-    return get_first_entry(e);
-}
-
-TPS_PUBLIC LDAPMessage *RA::ra_get_next_entry(LDAPMessage *e) {
-    return get_next_entry(e);
-}
-
 int RA::Failover(HttpConnection *&conn, int len) {
     int rc = 0;
     if (m_pod_enable) {

@@ -37,7 +37,6 @@
 #endif /* HAVE_CONFIG_H */
 
 #include "pk11func.h"
-#include "ldap.h"
 #include "lber.h"
 #include "main/Base.h"
 #include "main/ConfigStore.h"
@@ -145,8 +144,6 @@ class RA
   public:
           static PRLock *GetVerifyLock();
           static PRLock *GetConfigLock();
-          TPS_PUBLIC static LDAPMessage *ra_get_first_entry(LDAPMessage *e);
-          TPS_PUBLIC static LDAPMessage *ra_get_next_entry(LDAPMessage *e);
   public:
           static HttpConnection *GetCAConn(const char *id);
           static void ReturnCAConn(HttpConnection *conn);

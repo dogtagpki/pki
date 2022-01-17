@@ -122,45 +122,11 @@ static char *tokenStates[] = { STATE_UNINITIALIZED,
 }
 #endif
 
-static char *ssl     = NULL; /* true or false */
-static char *host     = NULL;
-static int  port      = 0;
-static char *userBaseDN   = NULL;
-static char *baseDN   = NULL;
-static char *activityBaseDN   = NULL;
-static char *certBaseDN   = NULL;
-static char *bindDN   = NULL;
-static char *bindPass = NULL;
-static char *defaultPolicy = NULL;
-
-static int  ccHost        = 0;
-static int  ccBaseDN      = 0;
-static int  ccBindDN      = 0;
-static int  ccBindPass    = 0;
-
-static LDAP *ld           = NULL;
-static int  bindStatus    = -1;
-
 TPS_PUBLIC int valid_berval(struct berval **b)
 {
     if ((b != NULL) && (b[0] != NULL) && (b[0]->bv_val != NULL))
         return 1;
     return 0;
-}
-
-int free_results (LDAPMessage *results)
-{
-    return ldap_msgfree (results);
-}
-
-LDAPMessage *get_first_entry (LDAPMessage *result)
-{
-    return ldap_first_entry (ld, result);
-}
-
-LDAPMessage *get_next_entry (LDAPMessage *entry)
-{
-    return ldap_next_entry (ld, entry);
 }
 
 TPS_PUBLIC char **get_token_states()
