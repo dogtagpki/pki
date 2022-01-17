@@ -122,13 +122,6 @@ static char *tokenStates[] = { STATE_UNINITIALIZED,
 }
 #endif
 
-TPS_PUBLIC int valid_berval(struct berval **b)
-{
-    if ((b != NULL) && (b[0] != NULL) && (b[0]->bv_val != NULL))
-        return 1;
-    return 0;
-}
-
 TPS_PUBLIC char **get_token_states()
 {
     return tokenStates;

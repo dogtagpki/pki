@@ -43,7 +43,6 @@
 #define TPS_PUBLIC
 #endif /* !XP_WIN32 */
 
-#include "lber.h"
 #include "pk11func.h"
 #include "cryptohi.h"
 #include "keyhi.h"

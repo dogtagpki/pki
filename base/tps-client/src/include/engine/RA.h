@@ -37,7 +37,6 @@
 #endif /* HAVE_CONFIG_H */
 
 #include "pk11func.h"
-#include "lber.h"
 #include "main/Base.h"
 #include "main/ConfigStore.h"
 #include "main/Buffer.h"
