@@ -50,7 +50,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.account.AccountClient;
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
@@ -419,20 +418,6 @@ public class Configurator {
                 dnsNames,
                 requestor,
                 sessionID);
-    }
-
-    public String getNickname(String certTag) throws EBaseException {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        String instanceID = cs.getInstanceID();
-
-        String nickname = certTag + "Cert cert-" + instanceID;
-        String preferredNickname = preopConfig.getString("cert." + certTag + ".nickname", null);
-
-        if (preferredNickname != null) {
-            return preferredNickname;
-        }
-        return nickname;
     }
 
     public byte[] createCertRequest(
