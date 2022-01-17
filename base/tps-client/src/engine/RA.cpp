@@ -1313,11 +1313,6 @@ TPS_PUBLIC char *RA::ra_get_cert_attr_byname(LDAPMessage *entry, const char *nam
     return get_cert_attr_byname(entry, name);
 }
 
-TPS_PUBLIC void RA::ra_tus_print_integer(char *out, SECItem *data)
-{
-    tus_print_integer(out, data);
-}
-
 int RA::Failover(HttpConnection *&conn, int len) {
     int rc = 0;
     if (m_pod_enable) {

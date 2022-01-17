@@ -223,41 +223,6 @@ TPS_PUBLIC void tus_db_cleanup()
     }
 }
 
-/*****
- * tus_print_integer
- * summary: prints serial number as hex string
- *          modeled on SECU_PrintInteger.  The length
- *          4 below is arbitrary - but works!
- *  params: out - output hexidecimal string
- *          data - serial number as SECItem 
- */
-TPS_PUBLIC void tus_print_integer(char *out, SECItem *i)
-{
-    int iv;
-
-    if (!i || !i->len || !i->data) {
-        sprintf(out, "(null)");
-    } else if (i->len > 4) {
-        tus_print_as_hex(out, i);
-    } else {
-        if (i->type == siUnsignedInteger && *i->data & 0x80) {
-            /* Make sure i->data has zero in the highest byte
-             * if i->data is an unsigned integer */
-            SECItem tmpI;
-            char data[] = {0, 0, 0, 0, 0};
-
-            PORT_Memcpy(data + 1, i->data, i->len);
-            tmpI.len = i->len + 1;
-            tmpI.data = (void*)data;
-
-            iv = DER_GetInteger(&tmpI);
-        } else {
-            iv = DER_GetInteger(i);
-        }
-        sprintf(out, "%x", iv);
-    }
-}
-
 /***
  * tus_print_as_hex
  * summary: prints serial number as a hex string, needed

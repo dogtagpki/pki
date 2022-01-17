@@ -149,7 +149,6 @@ class RA
           TPS_PUBLIC static LDAPMessage *ra_get_next_entry(LDAPMessage *e);
           TPS_PUBLIC static void ra_free_values(struct berval **values);
           TPS_PUBLIC static char *ra_get_cert_attr_byname(LDAPMessage *e, const char *name);
-      TPS_PUBLIC static void ra_tus_print_integer(char *out, SECItem *data);
   public:
           static HttpConnection *GetCAConn(const char *id);
           static void ReturnCAConn(HttpConnection *conn);
