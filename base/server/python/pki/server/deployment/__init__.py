@@ -684,20 +684,7 @@ class PKIDeployer:
 
         self.get_install_token()
 
-    def setup_cert(self, subsystem, client, tag, system_cert):
-
-        logger.debug('PKIDeployer.setup_cert()')
-
-        # Process existing CA installation like external CA
-        external = config.str2bool(self.mdict['pki_external']) or \
-            config.str2bool(self.mdict['pki_existing'])
-        standalone = config.str2bool(self.mdict['pki_standalone'])
-
-        # For external/standalone KRA/OCSP/TKS/TPS case, all system certs will be provided.
-        # No system certs will be generated including the SSL server cert.
-
-        if subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS'] and (external or standalone):
-            return
+    def create_cert_setup_request(self, subsystem, tag):
 
         request = pki.system.CertificateSetupRequest()
         request.tag = tag
@@ -722,6 +709,25 @@ class PKIDeployer:
             for dns_name in dns_names:
                 logger.info('- %s', dns_name)
             request.systemCert.dnsNames = dns_names
+
+        return request
+
+    def setup_cert(self, subsystem, client, tag, system_cert):
+
+        logger.debug('PKIDeployer.setup_cert()')
+
+        # Process existing CA installation like external CA
+        external = config.str2bool(self.mdict['pki_external']) or \
+            config.str2bool(self.mdict['pki_existing'])
+        standalone = config.str2bool(self.mdict['pki_standalone'])
+
+        # For external/standalone KRA/OCSP/TKS/TPS case, all system certs will be provided.
+        # No system certs will be generated including the SSL server cert.
+
+        if subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS'] and (external or standalone):
+            return
+
+        request = self.create_cert_setup_request(subsystem, tag)
 
         nssdb = subsystem.instance.open_nssdb()
         cert_info = None
