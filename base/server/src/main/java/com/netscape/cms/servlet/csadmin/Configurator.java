@@ -589,11 +589,7 @@ public class Configurator {
             String keySize = certData.getKeySize();
 
             if (keyType.equals("ecc")) {
-
-                // Default ssl server cert to ECDHE unless stated otherwise.
-                // Note: IE only supports "ECDHE", but "ECDH" is more efficient.
-                String ecType = preopConfig.getString("cert." + tag + ".ec.type", "ECDHE");
-
+                String ecType = certData.getEcType();
                 keyPair = createECCKeyPair(tag, token, keySize, ecType);
 
             } else {

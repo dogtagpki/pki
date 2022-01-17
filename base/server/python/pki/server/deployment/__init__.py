@@ -705,6 +705,10 @@ class PKIDeployer:
         # key type: rsa or ecc
         request.systemCert.keyType = subsystem.config['preop.cert.%s.keytype' % tag]
 
+        # Default SSL server cert to ECDHE unless stated otherwise.
+        # Note: IE only supports ECDHE, but ECDH is more efficient.
+        request.systemCert.ecType = subsystem.config.get('preop.cert.%s.ec.type' % tag, 'ECDHE')
+
         request.systemCert.profile = subsystem.config['preop.cert.%s.profile' % tag]
 
         inject_san = subsystem.config.get('service.injectSAN')
