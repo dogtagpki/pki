@@ -155,16 +155,6 @@ TPS_PUBLIC int valid_berval(struct berval **b)
     return 0;
 }
 
-TPS_PUBLIC int is_tus_db_initialized()
-{
-    return ((ld != NULL && bindStatus == LDAP_SUCCESS)? 1: 0);
-}
-
-TPS_PUBLIC int tus_db_init(char **errorMsg)
-{
-    return LDAP_SUCCESS;
-}
-
 TPS_PUBLIC void tus_db_end()
 {
     if (ld != NULL) {

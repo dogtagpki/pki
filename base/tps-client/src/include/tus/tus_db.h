@@ -141,8 +141,6 @@
 #define NO_PROFILES         "NO_PROFILES"
 #define NO_TOKEN_TYPE       "no_token_type"
 
-TPS_PUBLIC int is_tus_db_initialized();
-TPS_PUBLIC int tus_db_init(char **errorMsg);
 TPS_PUBLIC void tus_db_end();
 TPS_PUBLIC void tus_db_cleanup();
 
