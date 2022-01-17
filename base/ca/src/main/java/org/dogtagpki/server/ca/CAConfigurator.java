@@ -40,6 +40,7 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SystemCertData;
@@ -59,6 +60,12 @@ public class CAConfigurator extends Configurator {
 
     public CAConfigurator(CMSEngine engine) {
         super(engine);
+    }
+
+    public RequestId createRequestID() throws Exception {
+        CAEngine engine = CAEngine.getInstance();
+        CertRequestRepository requestRepository = engine.getCertRequestRepository();
+        return requestRepository.createRequestID();
     }
 
     public void importCert(
@@ -91,8 +98,11 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
+        RequestId requestID = createRequestID();
+        logger.info("CAConfigurator: Creating cert request " + requestID);
+
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        IRequest request = requestRepository.createRequest("enrollment");
+        IRequest request = requestRepository.createRequest(requestID, "enrollment");
 
         CertificateExtensions extensions = new CertificateExtensions();
 
@@ -181,8 +191,11 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
+        RequestId requestID = createRequestID();
+        logger.info("CAConfigurator: Creating cert request " + requestID);
+
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        IRequest request = requestRepository.createRequest("enrollment");
+        IRequest request = requestRepository.createRequest(requestID, "enrollment");
 
         requestRepository.initRequest(
                 request,
