@@ -56,11 +56,8 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
-import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
-import com.netscape.certsrv.system.SecurityDomainHost;
-import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -208,25 +205,6 @@ public class Configurator {
                 }
             }
         }
-        return null;
-    }
-
-    public SecurityDomainHost getHostInfo(
-            DomainInfo domainInfo,
-            String csType,
-            String hostname,
-            int securePort) throws Exception {
-
-        SecurityDomainSubsystem subsystem = domainInfo.getSubsystem(csType);
-
-        for (SecurityDomainHost host : subsystem.getHostArray()) {
-
-            if (!host.getHostname().equals(hostname)) continue;
-            if (!host.getSecurePort().equals(securePort + "")) continue;
-
-            return host;
-        }
-
         return null;
     }
 
