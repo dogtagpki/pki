@@ -594,58 +594,20 @@ public class Configurator {
 
         cert.setRequest(binCertRequest);
 
-        X509CertImpl certImpl;
-
-        if (type.equals("CA")
-                && !(clone && tag.equals("sslserver"))
-                && (certType.equals("selfsign") || certType.equals("local"))) {
-
-            boolean installAdjustValidity = !tag.equals("signing");
-
-            X500Name issuerName;
-            PrivateKey signingPrivateKey;
-            String signingAlgorithm;
-
-            if (certType.equals("selfsign")) {
-                issuerName = subjectName;
-                signingPrivateKey = keyPair.getPrivate();
-                signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-            } else { //local
-                issuerName = null;
-                signingPrivateKey = null;
-                signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
-            }
-
-            certImpl = createLocalCert(
-                    keyAlgorithm,
-                    x509key,
-                    profileID,
-                    dnsNames,
-                    installAdjustValidity,
-                    signingPrivateKey,
-                    signingAlgorithm,
-                    certRequestType,
-                    binCertRequest,
-                    issuerName,
-                    subjectName);
-
-        } else {
-
-            certImpl = createCert(
-                    tag,
-                    keyPair,
-                    x509key,
-                    keyAlgorithm,
-                    certRequestType,
-                    binCertRequest,
-                    certType,
-                    subjectName,
-                    profileID,
-                    dnsNames,
-                    clone,
-                    masterURL,
-                    installToken);
-        }
+        X509CertImpl certImpl = createCert(
+                tag,
+                keyPair,
+                x509key,
+                keyAlgorithm,
+                certRequestType,
+                binCertRequest,
+                certType,
+                subjectName,
+                profileID,
+                dnsNames,
+                clone,
+                masterURL,
+                installToken);
 
         byte[] binCert = certImpl.getEncoded();
         cert.setCert(binCert);
