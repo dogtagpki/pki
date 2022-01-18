@@ -301,19 +301,6 @@ void RA::ReturnDRMConn(HttpConnection *conn) {
     // do nothing for now
 }
 
-int RA::GetPodIndex() {
-    PR_Lock(m_pod_lock);
-    int index = m_pod_curr;
-    PR_Unlock(m_pod_lock);
-    return index;
-}
-
-void RA::SetPodIndex(int index) {
-    PR_Lock(m_pod_lock);
-    m_pod_curr = index;
-    PR_Unlock(m_pod_lock);
-}
-
 void RA::SetCurrentIndex(HttpConnection *&conn, int index) {
     PRLock *lock = conn->GetLock();
     PR_Lock(lock);

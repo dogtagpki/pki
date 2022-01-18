@@ -150,12 +150,6 @@ class RA
           static HttpConnection *GetDRMConn(const char *id);
           static void ReturnDRMConn(HttpConnection *conn);
           static int GetCurrentIndex(HttpConnection *conn);
-
-  public:
-
-          static void SetPodIndex(int index);
-          static int GetPodIndex();
-     
   public: /* default values */
 	  static const char *CFG_DEF_CARDMGR_INSTANCE_AID;
 	  static const char *CFG_DEF_NETKEY_INSTANCE_AID;
