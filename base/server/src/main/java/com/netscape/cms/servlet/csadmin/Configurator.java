@@ -321,9 +321,12 @@ public class Configurator {
     public X509CertImpl createCert(
             String tag,
             KeyPair keyPair,
+            X509Key x509key,
+            String keyAlgorithm,
             String certRequestType,
-            byte[] certreq,
+            byte[] binCertRequest,
             String certType,
+            X500Name subjectName,
             String profileID,
             String[] dnsNames,
             Boolean clone,
@@ -344,7 +347,14 @@ public class Configurator {
             port = preopConfig.getInteger("ca.httpsport", -1);
         }
 
-        return createRemoteCert(hostname, port, profileID, certRequestType, certreq, dnsNames, installToken);
+        return createRemoteCert(
+                hostname,
+                port,
+                profileID,
+                certRequestType,
+                binCertRequest,
+                dnsNames,
+                installToken);
     }
 
     public X509CertImpl createRemoteCert(
@@ -624,9 +634,12 @@ public class Configurator {
             certImpl = createCert(
                     tag,
                     keyPair,
+                    x509key,
+                    keyAlgorithm,
                     certRequestType,
                     binCertRequest,
                     certType,
+                    subjectName,
                     profileID,
                     dnsNames,
                     clone,
