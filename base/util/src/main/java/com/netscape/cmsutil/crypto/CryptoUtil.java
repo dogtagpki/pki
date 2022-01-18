@@ -1191,7 +1191,7 @@ public class CryptoUtil {
             X509Key x509key,
             BigInteger serialno,
             CertificateIssuerName issuerName,
-            String subjname,
+            X500Name subjectName,
             Date notBefore,
             Date notAfter,
             String alg,
@@ -1209,7 +1209,7 @@ public class CryptoUtil {
             info.set(X509CertInfo.ISSUER, issuerName);
         }
 
-        info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(new X500Name(subjname)));
+        info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(subjectName));
         info.set(X509CertInfo.VALIDITY, new CertificateValidity(notBefore, notAfter));
         info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get(alg)));
         info.set(X509CertInfo.KEY, new CertificateX509Key(x509key));

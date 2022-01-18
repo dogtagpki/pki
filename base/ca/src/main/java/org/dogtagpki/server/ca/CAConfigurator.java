@@ -168,7 +168,7 @@ public class CAConfigurator extends Configurator {
                 x509key,
                 serialNumber,
                 issuerName,
-                subjectDN,
+                subjectName,
                 date,
                 date,
                 keyAlgorithm,

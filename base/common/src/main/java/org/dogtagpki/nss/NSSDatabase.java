@@ -1049,8 +1049,7 @@ public class NSSDatabase {
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
         X500Name subjectName = pkcs10.getSubjectName();
-        String subjectDN = subjectName.toString();
-        logger.info("NSSDatabase: - subject: " + subjectDN);
+        logger.info("NSSDatabase: - subject: " + subjectName);
 
         X500Name issuerName;
         if (issuer == null) {
@@ -1058,8 +1057,9 @@ public class NSSDatabase {
         } else {
             issuerName = new X500Name(issuer.getSubjectDN().toString());
         }
-        CertificateIssuerName issuerDN = new CertificateIssuerName(issuerName);
-        logger.info("NSSDatabase: - issuer: " + issuerDN);
+
+        CertificateIssuerName certIssuerName = new CertificateIssuerName(issuerName);
+        logger.info("NSSDatabase: - issuer: " + certIssuerName);
 
         X509Key x509Key = pkcs10.getSubjectPublicKeyInfo();
         logger.info("NSSDatabase: - public key algorithm: " + x509Key.getAlgorithm());
@@ -1106,8 +1106,8 @@ public class NSSDatabase {
         X509CertInfo info = CryptoUtil.createX509CertInfo(
                 x509Key,
                 serialNo,
-                issuerDN,
-                subjectDN,
+                certIssuerName,
+                subjectName,
                 notBeforeDate,
                 notAfterDate,
                 keyAlgorithm,
