@@ -105,6 +105,9 @@ public class SystemConfigService extends PKIService {
             String tokenName = certData.getToken();
             logger.info("SystemConfigService: - token: " + tokenName);
 
+            String certRequestType = certData.getRequestType();
+            logger.info("SystemConfigService: - request type: " + certRequestType);
+
             String profileID = certData.getProfile();
             logger.info("SystemConfigService: - profile: " + profileID);
 
@@ -127,6 +130,7 @@ public class SystemConfigService extends PKIService {
             configurator.loadCert(
                     type,
                     tag,
+                    certRequestType,
                     x509Cert,
                     profileID,
                     dnsNames);

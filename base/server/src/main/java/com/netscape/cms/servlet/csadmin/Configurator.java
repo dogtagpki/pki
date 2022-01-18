@@ -323,6 +323,7 @@ public class Configurator {
     public X509CertImpl createCert(
             String tag,
             KeyPair keyPair,
+            String certRequestType,
             byte[] certreq,
             String certType,
             String profileID,
@@ -345,13 +346,14 @@ public class Configurator {
             port = preopConfig.getInteger("ca.httpsport", -1);
         }
 
-        return createRemoteCert(hostname, port, profileID, certreq, dnsNames, installToken);
+        return createRemoteCert(hostname, port, profileID, certRequestType, certreq, dnsNames, installToken);
     }
 
     public X509CertImpl createRemoteCert(
             String hostname,
             int port,
             String profileID,
+            String certRequestType,
             byte[] request,
             String[] dnsNames,
             InstallToken installToken)
@@ -360,7 +362,6 @@ public class Configurator {
         String serverURL = "https://" + hostname + ":" + port;
         logger.info("Configurator: Submitting cert request to " + serverURL);
 
-        String certRequestType = "pkcs10";
         String certRequest = CryptoUtil.base64Encode(request);
 
         String sysType = cs.getType();
@@ -474,6 +475,7 @@ public class Configurator {
     public void loadCert(
             String type,
             String tag,
+            String certRequestType,
             X509Certificate x509Cert,
             String profileID,
             String[] dnsNames) throws Exception {
@@ -495,6 +497,9 @@ public class Configurator {
 
         String tokenName = certData.getToken();
         logger.info("Configurator: - token: " + tokenName);
+
+        String certRequestType = certData.getRequestType();
+        logger.info("Configurator: - request type: " + certRequestType);
 
         String profileID = certData.getProfile();
         logger.info("Configurator: - profile: " + profileID);
@@ -574,7 +579,6 @@ public class Configurator {
                 && !(clone && tag.equals("sslserver"))
                 && (certType.equals("selfsign") || certType.equals("local"))) {
 
-            String certRequestType = "pkcs10";
             X500Name subjectName = null;
             X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
 
@@ -614,6 +618,7 @@ public class Configurator {
             certImpl = createCert(
                     tag,
                     keyPair,
+                    certRequestType,
                     binCertRequest,
                     certType,
                     profileID,

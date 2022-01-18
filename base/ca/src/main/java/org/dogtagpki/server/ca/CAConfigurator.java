@@ -220,6 +220,7 @@ public class CAConfigurator extends Configurator {
     public X509CertImpl createCert(
             String tag,
             KeyPair keyPair,
+            String certRequestType,
             byte[] certreq,
             String certType,
             String profileID,
@@ -237,7 +238,7 @@ public class CAConfigurator extends Configurator {
             String hostname = masterURL.getHost();
             int port = masterURL.getPort();
 
-            return createRemoteCert(hostname, port, profileID, certreq, dnsNames, installToken);
+            return createRemoteCert(hostname, port, profileID, certRequestType, certreq, dnsNames, installToken);
 
         } else { // certType == "remote"
 
@@ -245,6 +246,7 @@ public class CAConfigurator extends Configurator {
             return super.createCert(
                     tag,
                     keyPair,
+                    certRequestType,
                     certreq,
                     certType,
                     profileID,
@@ -280,6 +282,7 @@ public class CAConfigurator extends Configurator {
     public void loadCert(
             String type,
             String tag,
+            String certRequestType,
             X509Certificate x509Cert,
             String profileID,
             String[] dnsNames) throws Exception {
@@ -294,7 +297,6 @@ public class CAConfigurator extends Configurator {
         byte[] binCert = x509Cert.getEncoded();
 
         boolean installAdjustValidity = !tag.equals("signing");
-        String certRequestType = "pkcs10";
         X500Name subjectName = null;
 
         PKCS10 pkcs10 = new PKCS10(binCertRequest);

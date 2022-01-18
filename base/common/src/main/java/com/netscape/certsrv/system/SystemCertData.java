@@ -52,6 +52,7 @@ public class SystemCertData implements JSONSerializer {
 
     protected String keyAlgorithm;
 
+    protected String requestType;
     protected String request;
 
     protected String subjectDN;
@@ -179,6 +180,14 @@ public class SystemCertData implements JSONSerializer {
         this.keyAlgorithm = keyAlgorithm;
     }
 
+    public String getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(String requestType) {
+        this.requestType = requestType;
+    }
+
     /**
      * @return the request
      */
@@ -263,6 +272,7 @@ public class SystemCertData implements JSONSerializer {
             + ", keyCurveName=" + keyCurveName
             + ", ecType=" + ecType
             + ", keyAlgorithm=" + keyAlgorithm
+            + ", requestType=" + requestType
             + ", request=" + request
             + ", subjectDN=" + subjectDN
             + ", cert=" + cert
@@ -285,7 +295,10 @@ public class SystemCertData implements JSONSerializer {
                 ecType,
                 keyAlgorithm,
                 nickname, profile, req_ext_critical,
-                req_ext_data, req_ext_oid, request, subjectDN, tag, token, type);
+                req_ext_data, req_ext_oid,
+                requestType,
+                request,
+                subjectDN, tag, token, type);
         return result;
     }
 
@@ -307,7 +320,9 @@ public class SystemCertData implements JSONSerializer {
                 && Objects.equals(nickname, other.nickname) && Objects.equals(profile, other.profile)
                 && Objects.equals(req_ext_critical, other.req_ext_critical)
                 && Objects.equals(req_ext_data, other.req_ext_data) && Objects.equals(req_ext_oid, other.req_ext_oid)
-                && Objects.equals(request, other.request) && Objects.equals(subjectDN, other.subjectDN)
+                && Objects.equals(requestType, other.requestType)
+                && Objects.equals(request, other.request)
+                && Objects.equals(subjectDN, other.subjectDN)
                 && Objects.equals(tag, other.tag) && Objects.equals(token, other.token)
                 && Objects.equals(type, other.type);
     }
