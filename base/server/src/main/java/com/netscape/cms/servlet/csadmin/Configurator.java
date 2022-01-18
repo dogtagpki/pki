@@ -384,17 +384,17 @@ public class Configurator {
                 sessionID);
     }
 
-    public byte[] createCertRequest(
+    public PKCS10 createPKCS10Request(
             String tag,
             KeyPair keyPair,
-            String dn,
+            String subjectDN,
             String algorithm,
             String extOID,
             String extData,
             boolean extCritical) throws Exception {
 
         logger.info("Configurator: Creating request for " + tag + " certificate");
-        logger.info("Configurator: - subject: " + dn);
+        logger.info("Configurator: - subject: " + subjectDN);
         logger.info("Configurator: - algorithm: " + algorithm);
 
         Extensions exts = new Extensions();
@@ -413,13 +413,11 @@ public class Configurator {
         }
 
         logger.debug("Configurator: Generating PKCS #10 request");
-        PKCS10 certReq = CryptoUtil.createCertificationRequest(
-                dn,
+        return CryptoUtil.createCertificationRequest(
+                subjectDN,
                 keyPair,
                 algorithm,
                 exts);
-
-        return certReq.toByteArray();
     }
 
     /*
@@ -561,14 +559,24 @@ public class Configurator {
         URL masterURL = request.getMasterURL();
         InstallToken installToken = request.getInstallToken();
 
-        byte[] binCertRequest = createCertRequest(
-                tag,
-                keyPair,
-                subjectDN,
-                keyAlgorithm,
-                extOID,
-                extData,
-                extCritical);
+        byte[] binCertRequest;
+
+        if (certRequestType.equals("pkcs10")) {
+
+            PKCS10 pkcs10 = createPKCS10Request(
+                    tag,
+                    keyPair,
+                    subjectDN,
+                    keyAlgorithm,
+                    extOID,
+                    extData,
+                    extCritical);
+
+            binCertRequest = pkcs10.toByteArray();
+
+        } else {
+            throw new Exception("Certificate request type not supported: " + certRequestType);
+        }
 
         cert.setRequest(binCertRequest);
 
