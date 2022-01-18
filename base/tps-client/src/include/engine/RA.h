@@ -144,8 +144,6 @@ class RA
           static PRLock *GetVerifyLock();
           static PRLock *GetConfigLock();
   public:
-          static HttpConnection *GetCAConn(const char *id);
-          static void ReturnCAConn(HttpConnection *conn);
           static HttpConnection *GetTKSConn(const char *id);
           static void ReturnTKSConn(HttpConnection *conn);
 

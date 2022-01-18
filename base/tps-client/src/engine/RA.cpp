@@ -301,23 +301,6 @@ void RA::ReturnDRMConn(HttpConnection *conn) {
     // do nothing for now
 }
 
-HttpConnection *RA::GetCAConn(const char *id) {
-    HttpConnection *caconn = NULL;
-    if (id == NULL)
-      return NULL;
-    for (int i=0; i<m_caConns_len; i++) {
-        if (strcmp(m_caConnection[i]->GetId(), id) == 0) {
-            caconn = m_caConnection[i];
-            break;
-        }
-    }
-    return caconn;
-}
-
-void RA::ReturnCAConn(HttpConnection *conn) {
-    // do nothing for now
-}
-
 int RA::GetPodIndex() {
     PR_Lock(m_pod_lock);
     int index = m_pod_curr;
