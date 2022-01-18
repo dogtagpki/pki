@@ -37,7 +37,6 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
@@ -303,17 +302,16 @@ public class Configurator {
     }
 
     public X509CertImpl createLocalCert(
-            String subjectDN,
             String keyAlgorithm,
             X509Key x509key,
             String profileID,
             String[] dnsNames,
             boolean installAdjustValidity,
-            String issuerDN,
             PrivateKey signingPrivateKey,
             String signingAlgorithm,
             String certRequestType,
             byte[] certRequest,
+            X500Name issuerName,
             X500Name subjectName) throws Exception {
 
         return null;
@@ -560,6 +558,8 @@ public class Configurator {
         InstallToken installToken = request.getInstallToken();
 
         byte[] binCertRequest;
+        X500Name subjectName;
+        X509Key x509key;
 
         if (certRequestType.equals("pkcs10")) {
 
@@ -571,6 +571,9 @@ public class Configurator {
                     extOID,
                     extData,
                     extCritical);
+
+            subjectName = pkcs10.getSubjectName();
+            x509key = pkcs10.getSubjectPublicKeyInfo();
 
             binCertRequest = pkcs10.toByteArray();
 
@@ -586,38 +589,33 @@ public class Configurator {
                 && !(clone && tag.equals("sslserver"))
                 && (certType.equals("selfsign") || certType.equals("local"))) {
 
-            X500Name subjectName = null;
-            X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
-
             boolean installAdjustValidity = !tag.equals("signing");
 
-            String issuerDN;
-            CertificateIssuerName issuerName;
+            X500Name issuerName;
             PrivateKey signingPrivateKey;
             String signingAlgorithm;
 
             if (certType.equals("selfsign")) {
-                issuerDN = subjectDN;
+                issuerName = subjectName;
                 signingPrivateKey = keyPair.getPrivate();
                 signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
             } else { //local
-                issuerDN = null;
+                issuerName = null;
                 signingPrivateKey = null;
                 signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
             }
 
             certImpl = createLocalCert(
-                    subjectDN,
                     keyAlgorithm,
                     x509key,
                     profileID,
                     dnsNames,
                     installAdjustValidity,
-                    issuerDN,
                     signingPrivateKey,
                     signingAlgorithm,
                     certRequestType,
                     binCertRequest,
+                    issuerName,
                     subjectName);
 
         } else {

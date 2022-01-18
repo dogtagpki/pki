@@ -124,17 +124,16 @@ public class CAConfigurator extends Configurator {
 
     @Override
     public X509CertImpl createLocalCert(
-            String subjectDN,
             String keyAlgorithm,
             X509Key x509key,
             String profileID,
             String[] dnsNames,
             boolean installAdjustValidity,
-            String issuerDN,
             PrivateKey signingPrivateKey,
             String signingAlgorithm,
             String certRequestType,
             byte[] certRequest,
+            X500Name issuerName,
             X500Name subjectName) throws Exception {
 
         logger.info("CAConfigurator: Creating local certificate");
@@ -146,28 +145,28 @@ public class CAConfigurator extends Configurator {
         BigInteger serialNumber = certificateRepository.getNextSerialNumber();
         logger.info("CAConfigurator: - serial number: 0x" + serialNumber.toString(16));
 
-        CertificateIssuerName issuerName;
-        if (issuerDN != null) {
+        CertificateIssuerName certIssuerName;
+        if (issuerName != null) {
             // create new issuer object
-            issuerName = new CertificateIssuerName(new X500Name(issuerDN));
+            certIssuerName = new CertificateIssuerName(issuerName);
             // signingPrivateKey should be provided by caller
 
         } else {
             // use CA's issuer object to preserve DN encoding
             CertificateAuthority ca = engine.getCA();
-            issuerName = ca.getIssuerObj();
+            certIssuerName = ca.getIssuerObj();
             signingPrivateKey = ca.getSigningUnit().getPrivateKey();
         }
 
-        logger.info("CAConfigurator: - subject DN: " + subjectDN);
-        logger.info("CAConfigurator: - issuer DN: " + issuerName);
+        logger.info("CAConfigurator: - subject: " + subjectName);
+        logger.info("CAConfigurator: - issuer: " + certIssuerName);
 
         CertificateExtensions extensions = new CertificateExtensions();
 
         X509CertInfo info = CryptoUtil.createX509CertInfo(
                 x509key,
                 serialNumber,
-                issuerName,
+                certIssuerName,
                 subjectName,
                 date,
                 date,
@@ -371,18 +370,18 @@ public class CAConfigurator extends Configurator {
 
         KeyPair keyPair = null;
         String certRequest = certData.getRequest();
-        byte[] binRequest = Utils.base64decode(certRequest);
+        byte[] binCertRequest = Utils.base64decode(certRequest);
 
         X500Name subjectName;
         X509Key x509key;
 
         if (certRequestType.equals("crmf")) {
-            SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binRequest);
+            SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binCertRequest);
             subjectName = CryptoUtil.getSubjectName(crmfMsgs);
             x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
 
         } else if (certRequestType.equals("pkcs10")) {
-            PKCS10 pkcs10 = new PKCS10(binRequest);
+            PKCS10 pkcs10 = new PKCS10(binCertRequest);
             subjectName = pkcs10.getSubjectName();
             x509key = pkcs10.getSubjectPublicKeyInfo();
 
@@ -398,32 +397,31 @@ public class CAConfigurator extends Configurator {
         String[] dnsNames = null;
         boolean installAdjustValidity = false;
 
-        String issuerDN;
+        X500Name issuerName;
         PrivateKey signingPrivateKey;
         String signingAlgorithm;
 
         if (certType.equals("selfsign")) {
-            issuerDN = subjectDN;
+            issuerName = subjectName;
             signingPrivateKey = keyPair.getPrivate();
             signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
         } else { // local
-            issuerDN = null;
+            issuerName = null;
             signingPrivateKey = null;
             signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
         }
 
         return createLocalCert(
-                subjectDN,
                 keyAlgorithm,
                 x509key,
                 profileID,
                 dnsNames,
                 installAdjustValidity,
-                issuerDN,
                 signingPrivateKey,
                 signingAlgorithm,
                 certRequestType,
-                binRequest,
+                binCertRequest,
+                issuerName,
                 subjectName);
     }
 }
