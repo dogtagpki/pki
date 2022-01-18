@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.File;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.KeyPair;
@@ -229,19 +228,6 @@ public class Configurator {
         }
 
         return null;
-    }
-
-    public boolean deleteDir(File dir) {
-        if (dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-        return dir.delete();
     }
 
     public KeyPair loadKeyPair(X509Certificate cert) throws Exception {
