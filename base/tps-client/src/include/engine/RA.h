@@ -142,7 +142,6 @@ class RA
           static void do_free(char *s);
   public:
           static PRLock *GetVerifyLock();
-          static PRLock *GetConfigLock();
   public:
           static HttpConnection *GetTKSConn(const char *id);
           static void ReturnTKSConn(HttpConnection *conn);
@@ -215,7 +214,6 @@ class RA
           static PRLock *m_pod_lock;
           static PRLock *m_error_log_lock;
           static PRLock *m_debug_log_lock;
-          static PRLock *m_config_lock;
           static int m_debug_log_level;
           static int m_error_log_level;
           static PRThread *m_flush_thread;

@@ -83,7 +83,6 @@ PRLock *RA::m_pod_lock = NULL;
 PRLock *RA::m_verify_lock = NULL;
 PRLock *RA::m_debug_log_lock = NULL;
 PRLock *RA::m_error_log_lock = NULL;
-PRLock *RA::m_config_lock = NULL;
 
 PRThread *RA::m_flush_thread = (PRThread *) NULL;
 size_t RA::m_bytes_unflushed =0;
@@ -200,11 +199,6 @@ TPS_PUBLIC ConfigStore *RA::GetConfigStore()
 PRLock *RA::GetVerifyLock()
 {
   return m_verify_lock;
-}
-
-PRLock *RA::GetConfigLock()
-{
-  return m_config_lock;
 }
 
 void RA::do_free(char *p)
