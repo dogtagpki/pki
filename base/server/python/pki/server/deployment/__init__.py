@@ -1042,7 +1042,7 @@ class PKIDeployer:
         request.systemCert.request = csr
 
         response = client.setupAdmin(request)
-        return response['adminCert']['cert']
+        return response['cert']
 
     def get_admin_cert(self, subsystem, client):
 

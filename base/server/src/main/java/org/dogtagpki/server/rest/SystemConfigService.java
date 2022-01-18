@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.base.PKIService;
@@ -173,7 +172,7 @@ public class SystemConfigService extends PKIService {
 
     @POST
     @Path("setupAdmin")
-    public AdminSetupResponse setupAdmin(CertificateSetupRequest request) throws Exception {
+    public SystemCertData setupAdmin(CertificateSetupRequest request) throws Exception {
 
         logger.info("SystemConfigService: setting up admin");
 
@@ -189,11 +188,10 @@ public class SystemConfigService extends PKIService {
             String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
             logger.debug("SystemConfigService: admin cert: " + b64cert);
 
-            AdminSetupResponse response = new AdminSetupResponse();
-            SystemCertData adminCert = response.getAdminCert();
+            SystemCertData adminCert = new SystemCertData();
             adminCert.setCert(b64cert);
 
-            return response;
+            return adminCert;
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());

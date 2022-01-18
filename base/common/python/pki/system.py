@@ -413,7 +413,7 @@ class SystemConfigClient(object):
 
         :param request: Admin setup request
         :type request: CertificateSetupRequest
-        :return: AdminSetupResponse
+        :return: SystemCertData
         """
         data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
