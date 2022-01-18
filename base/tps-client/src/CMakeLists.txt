@@ -69,7 +69,6 @@ set(tps_library_SRCS
     httpClient/nscperror.cpp
     cms/HttpConnection.cpp
     cms/ConnectionInfo.cpp
-    cms/CertEnroll.cpp
     apdu/APDU.cpp
     apdu/Unblock_Pin_APDU.cpp
     apdu/Create_Object_APDU.cpp

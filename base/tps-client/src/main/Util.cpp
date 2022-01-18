@@ -301,7 +301,7 @@ TPS_PUBLIC char * Util::URLEncode1(const char *str)
 
     // DONT print, some of the sensitive information get printed.
     /*
-    RA::Debug(LL_PER_PDU, "CertEnroll::urlEncode",
+    RA::Debug(LL_PER_PDU, "Util::URLEncode1",
           "URL-encoded encoded_str =%s",encoded_str);
     */
 
@@ -392,7 +392,7 @@ TPS_PUBLIC char * Util::URLEncode(const char *str)
 
     // DONT print, some of the sensitive information get printed.
     /*
-    RA::Debug(LL_PER_PDU, "CertEnroll::urlEncode",
+    RA::Debug(LL_PER_PDU, "Util::URLEncode",
           "URL-encoded encoded_str =%s",encoded_str);
     */
 
