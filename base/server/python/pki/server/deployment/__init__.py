@@ -1027,16 +1027,19 @@ class PKIDeployer:
 
         return b64csr
 
-    def create_admin_cert(self, client, csr):
+    def create_admin_cert(self, subsystem, csr, client):
 
-        request = pki.system.AdminSetupRequest()
+        request = pki.system.CertificateSetupRequest()
         request.pin = self.mdict['pki_one_time_pin']
         request.installToken = self.install_token
-        request.adminKeyType = self.mdict['pki_admin_key_type']
-        request.adminProfileID = self.mdict['pki_admin_profile_id']
-        request.adminSubjectDN = self.mdict['pki_admin_subject_dn']
-        request.adminCertRequestType = self.mdict['pki_admin_cert_request_type']
-        request.adminCertRequest = csr
+
+        request.systemCert = pki.system.SystemCertData()
+        request.systemCert.type = subsystem.config.get('preop.cert.admin.type', 'local')
+        request.systemCert.keyType = self.mdict['pki_admin_key_type']
+        request.systemCert.profile = subsystem.config['preop.cert.admin.profile']
+        request.systemCert.subjectDN = self.mdict['pki_admin_subject_dn']
+        request.systemCert.requestType = self.mdict['pki_admin_cert_request_type']
+        request.systemCert.request = csr
 
         response = client.setupAdmin(request)
         return response['adminCert']['cert']
@@ -1057,7 +1060,7 @@ class PKIDeployer:
             else:
                 b64csr = self.create_admin_csr()
                 if subsystem.type == 'CA':
-                    b64cert = self.create_admin_cert(client, b64csr)
+                    b64cert = self.create_admin_cert(subsystem, b64csr, client)
                 else:
                     b64cert = self.request_admin_cert(subsystem, b64csr)
 

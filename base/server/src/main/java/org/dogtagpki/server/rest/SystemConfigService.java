@@ -20,7 +20,6 @@ package org.dogtagpki.server.rest;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -30,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
@@ -175,7 +173,7 @@ public class SystemConfigService extends PKIService {
 
     @POST
     @Path("setupAdmin")
-    public AdminSetupResponse setupAdmin(AdminSetupRequest request) throws Exception {
+    public AdminSetupResponse setupAdmin(CertificateSetupRequest request) throws Exception {
 
         logger.info("SystemConfigService: setting up admin");
 
@@ -184,18 +182,6 @@ public class SystemConfigService extends PKIService {
 
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
-            }
-
-            if (StringUtils.isEmpty(request.getAdminCertRequest())) {
-                throw new BadRequestException("Missing admin certificate request");
-            }
-
-            if (StringUtils.isEmpty(request.getAdminCertRequestType())) {
-                throw new BadRequestException("Missing admin certificate request type");
-            }
-
-            if (StringUtils.isEmpty(request.getAdminSubjectDN())) {
-                throw new BadRequestException("Missing admin subject DN");
             }
 
             X509CertImpl cert = configurator.createAdminCertificate(request);

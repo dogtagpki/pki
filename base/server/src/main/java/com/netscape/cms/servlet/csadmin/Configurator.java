@@ -54,7 +54,6 @@ import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
@@ -647,7 +646,7 @@ public class Configurator {
         return cert;
     }
 
-    public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
+    public X509CertImpl createAdminCertificate(CertificateSetupRequest request) throws Exception {
         return null;
     }
 }

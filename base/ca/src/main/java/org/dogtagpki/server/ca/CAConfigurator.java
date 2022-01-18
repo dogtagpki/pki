@@ -40,9 +40,9 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.InstallToken;
+import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.csadmin.BootstrapProfile;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.Configurator;
@@ -340,14 +340,26 @@ public class CAConfigurator extends Configurator {
     }
 
     @Override
-    public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
+    public X509CertImpl createAdminCertificate(CertificateSetupRequest request) throws Exception {
 
         logger.info("CAConfigurator: Generating admin cert");
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        String certType = preopConfig.getString("cert.admin.type", "local");
-        String subjectDN = request.getAdminSubjectDN();
+        SystemCertData certData = request.getSystemCert();
+
+        String certRequestType = certData.getRequestType();
+        logger.info("CAConfigurator: - request type: " + certRequestType);
+
+        String profileID = certData.getProfile();
+        logger.info("CAConfigurator: - profile: " + profileID);
+
+        // cert type is selfsign, local, or remote
+        String certType = certData.getType();
+        logger.info("CAConfigurator: - cert type: " + certType);
+
+        String subjectDN = certData.getSubjectDN();
+        logger.info("CAConfigurator: - subject: " + subjectDN);
 
         String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
         String profileFile = cs.getString("profile.caAdminCert.config");
@@ -358,10 +370,9 @@ public class CAConfigurator extends Configurator {
                 caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
 
         KeyPair keyPair = null;
-        String certRequest = request.getAdminCertRequest();
+        String certRequest = certData.getRequest();
         byte[] binRequest = Utils.base64decode(certRequest);
 
-        String certRequestType = request.getAdminCertRequestType();
         X500Name subjectName;
         X509Key x509key;
 
@@ -383,9 +394,6 @@ public class CAConfigurator extends Configurator {
             logger.error("CAConfigurator: Missing certificate public key");
             throw new IOException("Missing certificate public key");
         }
-
-        String profileID = preopConfig.getString("cert.admin.profile");
-        logger.debug("CertUtil: profile: " + profileID);
 
         String[] dnsNames = null;
         boolean installAdjustValidity = false;
