@@ -83,6 +83,7 @@ public class CertificateRepository extends Repository {
 
     private boolean mConsistencyCheck = false;
 
+    private boolean mEnableRandomSerialNumbers;
     private int mBitLength = 0;
     private BigInteger mRangeSize = null;
     private int mMinRandomBitLength = 4;
@@ -344,6 +345,30 @@ public class CertificateRepository extends Repository {
         }
 
         return nextSerialNumber;
+    }
+
+    public BigInteger getRangeLength() {
+        if (dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
+            return mMaxSerialNo.subtract(mMinSerialNo).add(BigInteger.ONE);
+        } else {
+            return null;
+        }
+    }
+
+    public BigInteger getRandomLimit(BigInteger rangeLength) {
+        if (dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
+            return rangeLength.subtract(mLowWaterMarkNo.shiftRight(1));
+        } else {
+            return null;
+        }
+    }
+
+    public BigInteger getNumbersInRange() {
+        if (dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
+            return mMaxSerialNo.subtract(mMinSerialNo).subtract(mCounter);
+        } else {
+            return super.getNumbersInRange();
+        }
     }
 
     public void updateCounter() {
