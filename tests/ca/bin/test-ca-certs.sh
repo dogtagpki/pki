@@ -1,7 +1,7 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 # list certs in CA
-pki ca-cert-find > /tmp/certs.txt
+pki ca-cert-find | tee /tmp/certs.txt
 
 # get the number of certs returned
 sed -n "s/^\(\S*\) entries found$/\1/p" /tmp/certs.txt > /tmp/certs.count

@@ -186,6 +186,10 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
+      - name: Check cert requests in CA
+        run: |
+          docker exec pki pki -n caadmin ca-cert-request-find
+
       - name: Test CA agent
         run: |
           docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-create.sh
@@ -333,6 +337,10 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
+      - name: Check cert requests in CA
+        run: |
+          docker exec pki pki -n caadmin ca-cert-request-find
+
       - name: Gather artifacts
         if: always()
         run: |
@@ -478,6 +486,10 @@ jobs:
               --pkcs12-password Secret.123
           docker exec subordinate pki -n caadmin ca-user-show caadmin
 
+      - name: Check cert requests in subordinate CA
+        run: |
+          docker exec subordinate pki -n caadmin ca-cert-request-find
+
       - name: Gather artifacts from root containers
         if: always()
         run: |
@@ -588,6 +600,10 @@ jobs:
               --pkcs12-password Secret.123
           docker exec root pki -n caadmin ca-user-show caadmin
 
+      - name: Check cert requests in root CA
+        run: |
+          docker exec root pki -n caadmin ca-cert-request-find
+
       - name: Set up subordinate DS container
         run: |
           tests/bin/ds-container-create.sh subds
@@ -693,6 +709,10 @@ jobs:
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec subordinate pki -n caadmin ca-user-show caadmin
+
+      - name: Check cert requests in subordinate CA
+        run: |
+          docker exec subordinate pki -n caadmin ca-cert-request-find
 
       - name: Gather artifacts from root containers
         if: always()
@@ -841,6 +861,10 @@ jobs:
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check cert requests in CA
+        run: |
+          docker exec pki pki -n caadmin ca-cert-request-find
 
       - name: Gather artifacts
         if: always()
@@ -1006,6 +1030,10 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
+      - name: Check cert requests in CA
+        run: |
+          docker exec pki pki -n caadmin ca-cert-request-find
+
       - name: Gather artifacts
         if: always()
         run: |
@@ -1090,6 +1118,10 @@ jobs:
           docker exec primary pki -n caadmin ca-user-find
           docker exec primary pki securitydomain-host-find
 
+      - name: Check cert requests in primary CA
+        run: |
+          docker exec primary pki -n caadmin ca-cert-request-find
+
       - name: Set up secondary DS container
         run: |
           tests/bin/ds-container-create.sh secondaryds
@@ -1134,6 +1166,10 @@ jobs:
           docker exec secondary pki -n caadmin ca-user-find
           docker exec secondary pki securitydomain-host-find
 
+      - name: Check cert requests in secondary CA
+        run: |
+          docker exec secondary pki -n caadmin ca-cert-request-find
+
       - name: Set up tertiary DS container
         run: |
           tests/bin/ds-container-create.sh tertiaryds
@@ -1177,6 +1213,10 @@ jobs:
               --pkcs12-password Secret.123
           docker exec tertiary pki -n caadmin ca-user-find
           docker exec tertiary pki securitydomain-host-find
+
+      - name: Check cert requests in tertiary CA
+        run: |
+          docker exec tertiary pki -n caadmin ca-cert-request-find
 
       - name: Gather artifacts from primary containers
         if: always()
@@ -1373,6 +1413,10 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
+      - name: Check cert requests in CA
+        run: |
+          docker exec pki pki -n caadmin ca-cert-request-find
+
       - name: Gather artifacts
         if: always()
         run: |
@@ -1525,6 +1569,10 @@ jobs:
           docker exec primary pki -n caadmin ca-user-find
           docker exec primary pki securitydomain-host-find
 
+      - name: Check cert requests in primary CA
+        run: |
+          docker exec primary pki -n caadmin ca-cert-request-find
+
       - name: Set up secondary DS container
         run: |
           tests/bin/ds-container-create.sh secondaryds
@@ -1635,6 +1683,10 @@ jobs:
               --pkcs12-password Secret.123
           docker exec secondary pki -n caadmin ca-user-find
           docker exec secondary pki securitydomain-host-find
+
+      - name: Check cert requests in secondary CA
+        run: |
+          docker exec secondary pki -n caadmin ca-cert-request-find
 
       - name: Remove CA from secondary PKI container
         run: |
