@@ -256,7 +256,7 @@ public class Configurator {
             // try to locate the private key
             PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
             if (privk == null) {
-                logger.debug("Found bad ECC key id " + kid);
+                logger.debug("Bad ECC key ID: " + kid);
                 pair = null;
             }
         } while (pair == null);
@@ -267,15 +267,16 @@ public class Configurator {
     public KeyPair createRSAKeyPair(String tag, CryptoToken token, String keySize)
             throws Exception {
 
-        logger.debug("Configurator.createRSAKeyPair(" + token + ")");
+        logger.info("Configurator: Creating RSA keypair for " + tag);
+        logger.info("Configurator: - token: " + token);
 
         if (keySize == null) {
             keySize = cs.getString("keys.rsa.keysize.default");
         }
 
         int size = Integer.parseInt(keySize);
+        logger.info("Configurator: - size: " + size);
 
-        logger.error("Configurator.createRSAKeyPair: tag " + tag);
         KeyPair pair = null;
         do {
             if("transport".equals(tag) || "storage".equals(tag)) {
@@ -293,7 +294,7 @@ public class Configurator {
             PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
 
             if (privk == null) {
-                logger.debug("Found bad RSA key id " + kid);
+                logger.error("Bad RSA key ID: " + kid);
                 pair = null;
             }
         } while (pair == null);
