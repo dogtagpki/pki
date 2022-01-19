@@ -69,7 +69,6 @@ public abstract class Repository implements IRepository {
     protected String nextMaxSerialName;
     protected BigInteger mNextMaxSerialNo;
 
-    protected boolean mEnableRandomSerialNumbers = false;
     protected BigInteger mCounter = null;
 
     protected BigInteger mIncrementNo;
@@ -289,6 +288,14 @@ public abstract class Repository implements IRepository {
         return mLastSerialNo;
     }
 
+    public BigInteger getRangeLength() {
+        return null;
+    }
+
+    public BigInteger getRandomLimit(BigInteger rangeLength) {
+        return null;
+    }
+
     /**
      * Checks if the given number is in the current range.
      * If it does not exceed the current range, return cleanly.
@@ -309,17 +316,16 @@ public abstract class Repository implements IRepository {
     protected void checkRange() throws EBaseException
     {
         CMSEngine engine = CMS.getCMSEngine();
+
         // check if we have reached the end of the range
         // if so, move to next range
-        BigInteger randomLimit = null;
-        BigInteger rangeLength = null;
-        if ((this instanceof CertificateRepository) &&
-            dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
-            rangeLength = mMaxSerialNo.subtract(mMinSerialNo).add(BigInteger.ONE);
-            randomLimit = rangeLength.subtract(mLowWaterMarkNo.shiftRight(1));
-            logger.debug("Repository: checkRange  rangeLength=" + rangeLength);
-            logger.debug("Repository: checkRange  randomLimit=" + randomLimit);
-        }
+
+        BigInteger rangeLength = getRangeLength();
+        logger.debug("Repository: range length: " + rangeLength);
+
+        BigInteger randomLimit = getRandomLimit(rangeLength);
+        logger.debug("Repository: random limit: " + randomLimit);
+
         logger.debug("Repository: checkRange  mLastSerialNo="+mLastSerialNo);
         if (mLastSerialNo.compareTo( mMaxSerialNo ) > 0 ||
             ((!engine.isPreOpMode()) && randomLimit != null && mCounter.compareTo(randomLimit) > 0)) {
@@ -573,6 +579,10 @@ public abstract class Repository implements IRepository {
         return conflict;
     }
 
+    public BigInteger getNumbersInRange() {
+        return mMaxSerialNo.subtract(mLastSerialNo);
+    }
+
     /**
      * Checks to see if a new range is needed, or if we have reached the end of the
      * current range, or if a range conflict has occurred.
@@ -595,14 +605,7 @@ public abstract class Repository implements IRepository {
 
         initCache();
 
-        BigInteger numsInRange = null;
-        if ((this instanceof CertificateRepository) &&
-            dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
-            numsInRange = (mMaxSerialNo.subtract(mMinSerialNo)).subtract(mCounter);
-        } else {
-            numsInRange = mMaxSerialNo.subtract(mLastSerialNo);
-        }
-
+        BigInteger numsInRange = getNumbersInRange();
         logger.debug("Repository: Serial numbers left in range: " + numsInRange);
         logger.debug("Repository: Last serial number: " + mLastSerialNo);
 
