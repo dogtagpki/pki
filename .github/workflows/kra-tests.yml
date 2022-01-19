@@ -142,7 +142,7 @@ jobs:
           docker exec pki pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --debug
+        run: docker exec pki pki-healthcheck
 
       - name: Verify KRA admin
         run: |
@@ -275,7 +275,7 @@ jobs:
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec kra pki-healthcheck --debug
+      #   run: docker exec kra pki-healthcheck
 
       - name: Verify KRA admin
         run: |
@@ -506,7 +506,7 @@ jobs:
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec kra pki-healthcheck --debug
+      #   run: docker exec kra pki-healthcheck
 
       - name: Verify KRA admin
         run: |
@@ -837,7 +837,7 @@ jobs:
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec kra pki-healthcheck --debug
+      #   run: docker exec kra pki-healthcheck
 
       - name: Verify KRA admin
         run: |
@@ -1269,7 +1269,7 @@ jobs:
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec pki pki-healthcheck --debug
+      #   run: docker exec pki pki-healthcheck
 
       - name: Verify admin user
         run: |

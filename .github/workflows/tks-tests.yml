@@ -142,7 +142,7 @@ jobs:
           docker exec pki pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --debug
+        run: docker exec pki pki-healthcheck
 
       - name: Verify TKS admin
         run: |
@@ -267,7 +267,7 @@ jobs:
           docker exec tks pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec tks pki-healthcheck --debug
+        run: docker exec tks pki-healthcheck
 
       - name: Verify TKS admin
         run: |
@@ -472,7 +472,7 @@ jobs:
           docker exec tks pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec tks pki-healthcheck --debug
+        run: docker exec tks pki-healthcheck
 
       - name: Verify TKS admin
         run: |
