@@ -214,7 +214,7 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
 
     public void printKeyInfo(Key key) {
         if (key.getRequestId() != null)
-            System.out.println("  Recovery Request ID: " + key.getRequestId());
+            System.out.println("  Recovery Request ID: " + key.getRequestId().toHexString());
         if (key.getAlgorithm() != null)
             System.out.println("  Key Algorithm: " + key.getAlgorithm());
         if (key.getSize() != null)

@@ -58,6 +58,6 @@ public class TKSKeyCLI extends CLI {
         if (wrapAlgorithm != null) System.out.println("  Wrap Algorithm: " + wrapAlgorithm);
 
         RequestId requestID = data.getRequestID();
-        if (requestID != null) System.out.println("  Request ID: " + requestID);
+        if (requestID != null) System.out.println("  Request ID: " + requestID.toHexString());
     }
 }

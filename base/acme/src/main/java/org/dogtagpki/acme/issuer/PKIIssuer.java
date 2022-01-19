@@ -171,7 +171,7 @@ public class PKIIssuer extends ACMEIssuer {
 
             RequestId requestId = info.getRequestId();
 
-            logger.info("- Request ID: " + requestId);
+            logger.info("- Request ID: " + requestId.toHexString());
             logger.info("  Type: " + info.getRequestType());
             logger.info("  Request Status: " + info.getRequestStatus());
             logger.info("  Operation Result: " + info.getOperationResult());
