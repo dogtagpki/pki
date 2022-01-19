@@ -52,7 +52,7 @@ jobs:
           rm -f `find /var/cache/dnf -name '*.rpm' | grep '/var/cache/dnf/copr:'`
 
       - name: Build PKI packages
-        run: ./build.sh --with-pkgs=base,server,ca,kra --with-timestamp --work-dir=build rpm
+        run: ./build.sh --with-pkgs=base,server,ca,kra,tests --with-timestamp --work-dir=build rpm
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -158,6 +158,10 @@ jobs:
           docker exec pki bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${SHARED}/kraconnector.host"
           echo pki.example.com > kra.hostname
           diff kra.hostname kraconnector.host
+
+      - name: Verify cert key archival
+        run: |
+          docker exec pki /usr/share/pki/tests/kra/bin/test-cert-key-archival.sh
 
       - name: Gather artifacts
         if: always()

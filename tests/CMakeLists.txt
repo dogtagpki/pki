@@ -44,6 +44,17 @@ install(
 
 install(
     DIRECTORY
+        kra/bin/
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/tests/kra/bin
+    FILE_PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE
+)
+
+install(
+    DIRECTORY
         dogtag/pytest-ansible/pytest/performance_test/
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/tests/python/performance/
