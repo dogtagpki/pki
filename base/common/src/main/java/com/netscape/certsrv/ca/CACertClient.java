@@ -260,8 +260,8 @@ public class CACertClient extends Client {
             throw new IOException("Unable to generate certificate: " + error);
         }
 
-        String id = parser.getValue("Id");
-        logger.info("CACertClient: Request ID: " + id);
+        RequestId requestID = new RequestId(parser.getValue("Id"));
+        logger.info("CACertClient: Request ID: " + requestID.toHexString());
 
         String serial = parser.getValue("serialno");
         logger.info("CACertClient: Serial: " + serial);

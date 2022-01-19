@@ -108,7 +108,7 @@ public class CACertRequestCLI extends CLI {
     }
 
     public static void printCertRequestInfo(CertRequestInfo info) {
-        System.out.println("  Request ID: " + info.getRequestId());
+        System.out.println("  Request ID: " + info.getRequestId().toHexString());
         System.out.println("  Type: " + info.getRequestType());
         System.out.println("  Request Status: " + info.getRequestStatus());
         System.out.println("  Operation Result: " + info.getOperationResult());
@@ -125,7 +125,7 @@ public class CACertRequestCLI extends CLI {
 
     public static void printCertReviewResponse(CertReviewResponse response) {
 
-        System.out.println("  Request ID: " + response.getRequestId());
+        System.out.println("  Request ID: " + response.getRequestId().toHexString());
         System.out.println("  Profile: " + response.getProfileName());
         System.out.println("  Type: " + response.getRequestType());
         System.out.println("  Status: " + response.getRequestStatus());
