@@ -212,7 +212,7 @@ public class CertificateRepository extends Repository {
 
     private BigInteger getRandomNumber() throws EBaseException {
 
-        super.initCacheIfNeeded();
+        initCache();
 
         if (mRangeSize == null) {
             mRangeSize = (mMaxSerialNo.subtract(mMinSerialNo)).add(BigInteger.ONE);
@@ -308,7 +308,7 @@ public class CertificateRepository extends Repository {
         BigInteger nextSerialNumber = null;
         BigInteger randomNumber = null;
 
-        super.initCacheIfNeeded();
+        initCache();
         logger.debug("CertificateRepository: getNextSerialNumber  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
 
         if (mEnableRandomSerialNumbers) {
@@ -354,7 +354,7 @@ public class CertificateRepository extends Repository {
         EngineConfig cs = engine.getConfig();
 
         try {
-            super.initCacheIfNeeded();
+            initCache();
         } catch (Exception e) {
             logger.warn("CertificateRepository: updateCounter: " + e.getMessage(), e);
         }

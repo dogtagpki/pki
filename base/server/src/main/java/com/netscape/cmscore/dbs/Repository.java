@@ -167,9 +167,13 @@ public abstract class Repository implements IRepository {
     /**
      * init serial number cache
      */
-    private void initCache() throws EBaseException {
+    protected void initCache() throws EBaseException {
 
         logger.debug("Repository: in InitCache");
+
+        if (mLastSerialNo != null) {
+            return;
+        }
 
         logger.info("Repository: Getting last serial number in range " + mMinSerialNo + ".." + mMaxSerialNo);
         BigInteger theSerialNo = getLastSerialNumberInRange(mMinSerialNo, mMaxSerialNo);
@@ -201,11 +205,6 @@ public abstract class Repository implements IRepository {
         }
     }
 
-    protected void initCacheIfNeeded() throws EBaseException {
-        if (mLastSerialNo == null)
-            initCache();
-    }
-
     /**
      * Peek at the next serial number in cache (does not consume the
      * number).
@@ -221,8 +220,9 @@ public abstract class Repository implements IRepository {
     public synchronized BigInteger peekNextSerialNumber() throws EBaseException {
 
         logger.debug("Repository:In getTheSerialNumber ");
-        if (mLastSerialNo == null)
-            initCache();
+
+        initCache();
+
         BigInteger serial = mLastSerialNo.add(BigInteger.ONE);
 
         if (mMaxSerialNo != null && serial.compareTo(mMaxSerialNo) > 0)
@@ -241,8 +241,8 @@ public abstract class Repository implements IRepository {
         // mSerialNo is already set. But just in case
 
         logger.debug("Repository:In setTheSerialNumber " + num);
-        if (mLastSerialNo == null)
-            initCache();
+
+        initCache();
 
         if (num.compareTo(mSerialNo) <= 0) {
             throw new EDBException(CMS.getUserMessage("CMS_DBS_SETBACK_SERIAL",
@@ -268,9 +268,8 @@ public abstract class Repository implements IRepository {
 
         logger.debug("Repository: in getNextSerialNumber. ");
 
-        if (mLastSerialNo == null) {
-            initCache();
-        }
+        initCache();
+
         if (mLastSerialNo == null) {
             logger.error("Repository::getNextSerialNumber() " +
                        "- mLastSerialNo is null!");
@@ -594,8 +593,7 @@ public abstract class Repository implements IRepository {
             return;
         }
 
-        if (mLastSerialNo == null)
-            initCache();
+        initCache();
 
         BigInteger numsInRange = null;
         if ((this instanceof CertificateRepository) &&
