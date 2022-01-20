@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?eclipse-pydev version="1.0"?><pydev_project>
-<pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">Default</pydev_property>
-<pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 2.7</pydev_property>
-<pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
-<path>/pki/base/common/python/pki</path>
-<path>/pki/base/server/python/pki/server</path>
-<path>/pki/base/kra/functional</path>
-<path>/pki</path>
-</pydev_pathproperty>
+        
+    
+    <pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">Default</pydev_property>
+        
+    
+    <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 3.9</pydev_property>
+        
+    
+    <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
+                
+        <path>/${PROJECT_DIR_NAME}/base/common/python</path>
+                
+        <path>/${PROJECT_DIR_NAME}/base/server/python</path>
+            
+    </pydev_pathproperty>
+        
+
 </pydev_project>
