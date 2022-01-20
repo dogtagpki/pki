@@ -146,7 +146,7 @@ This property contains the shared secret key name.
 
 ```
 tps.connector.ca1.enable=true
-tps.connector.ca1.host=server.example.com
+tps.connector.ca1.host=pki.example.com
 tps.connector.ca1.port=8443
 tps.connector.ca1.minHttpConns=1
 tps.connector.ca1.maxHttpConns=15
@@ -165,7 +165,7 @@ tps.connector.ca1.caSKI=hAzNarQMlzit4BymAlbduZMwVCc
 tps.connector.ca2.<etc.>
 
 tps.connector.kra1.enable=true
-tps.connector.kra1.host=server.example.com
+tps.connector.kra1.host=pki.example.com
 tps.connector.kra1.port=8443
 tps.connector.kra1.minHttpConns=1
 tps.connector.kra1.maxHttpConns=15
@@ -175,7 +175,7 @@ tps.connector.kra1.uri.GenerateKeyPair=/kra/agent/kra/GenerateKeyPair
 tps.connector.kra1.uri.TokenKeyRecovery=/kra/agent/kra/TokenKeyRecovery
 
 tps.connector.tks1.enable=true
-tps.connector.tks1.host=server.example.com
+tps.connector.tks1.host=pki.example.com
 tps.connector.tks1.port=8443
 tps.connector.tks1.minHttpConns=1
 tps.connector.tks1.maxHttpConns=15

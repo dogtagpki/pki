@@ -42,7 +42,7 @@ pki_security_domain_password=Secret.123
 
 pki_ocsp_signing_nickname=ocsp_signing
 pki_audit_signing_nickname=ocsp_audit_signing
-pki_sslserver_nickname=sslserver/server.example.com
+pki_sslserver_nickname=sslserver/pki.example.com
 pki_subsystem_nickname=subsystem
 ```
 
@@ -82,7 +82,7 @@ Certificate Nickname                                         Trust Attributes
 token:ocsp_signing                                           u,u,u
 token:subsystem                                              u,u,u
 token:ocsp_audit_signing                                     u,u,Pu
-token:sslserver/server.example.com                           u,u,u
+token:sslserver/pki.example.com                              u,u,u
 ```
 
 Verifying Admin Certificate
@@ -127,7 +127,7 @@ Verifying OCSP Client
 
 Publish the CRL in CA to the directory server as follows:
 
-* Go to CA Agent UI (https://server.example.com:8443/ca/agent/ca/).
+* Go to CA Agent UI (https://pki.example.com:8443/ca/agent/ca/).
 * Click **Update Directory Server**.
 * Select **Update the certificate revocation list to the directory**.
 * Click **Update Directory**.
@@ -137,7 +137,7 @@ Verify that the OCSPClient can be used to validate a certificate:
 ```
 $ OCSPClient \
  -d /etc/pki/pki-tomcat/alias \
- -h server.example.com \
+ -h pki.example.com \
  -p 8080 \
  -t /ocsp/ee/ocsp \
  -c ca_signing \

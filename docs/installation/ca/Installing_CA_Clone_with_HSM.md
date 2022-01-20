@@ -38,7 +38,7 @@ pki_ds_base_dn=dc=ca,dc=pki,dc=example,dc=com
 pki_ds_database=ca
 pki_ds_password=Secret.123
 
-pki_security_domain_hostname=server.example.com
+pki_security_domain_hostname=pki.example.com
 pki_security_domain_https_port=8443
 pki_security_domain_user=caadmin
 pki_security_domain_password=Secret.123
@@ -51,7 +51,7 @@ pki_subsystem_nickname=subsystem
 
 pki_clone=True
 pki_clone_replicate_schema=True
-pki_clone_uri=https://server.example.com:8443
+pki_clone_uri=https://pki.example.com:8443
 ```
 
 Then execute the following command:

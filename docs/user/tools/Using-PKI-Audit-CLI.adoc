@@ -109,7 +109,7 @@ The audit configuration is stored in JSON format:
   },
   "link" : {
     "relationship" : "self",
-    "href" : "https://server.example.com:8443/tps/rest/audit"
+    "href" : "https://pki.example.com:8443/tps/rest/audit"
   }
 }
 ----

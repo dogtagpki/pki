@@ -38,7 +38,7 @@ pki_ds_base_dn=dc=kra,dc=pki,dc=example,dc=com
 pki_ds_database=kra
 pki_ds_password=Secret.123
 
-pki_security_domain_hostname=server.example.com
+pki_security_domain_hostname=pki.example.com
 pki_security_domain_https_port=8443
 pki_security_domain_user=caadmin
 pki_security_domain_password=Secret.123
@@ -51,7 +51,7 @@ pki_subsystem_nickname=subsystem
 
 pki_clone=True
 pki_clone_replicate_schema=True
-pki_clone_uri=https://server.example.com:8443
+pki_clone_uri=https://pki.example.com:8443
 ```
 
 Then execute the following command:
@@ -139,7 +139,7 @@ Verify that the KRA connector is configured in the CA subsystem:
 ```
 $ pki -c Secret.123 -n caadmin ca-kraconnector-show
 
-Host: server.example.com:8443
+Host: pki.example.com:8443
 Enabled: true
 Local: false
 Timeout: 30

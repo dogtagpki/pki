@@ -1346,7 +1346,7 @@ class NSSDatabase(object):
         # --extAIA
         aia_ext = {
             'ocsp': {
-                'uri': ['http://server.example.com:8080/ca/ocsp']
+                'uri': ['http://pki.example.com:8080/ca/ocsp']
             }
 
         }

@@ -14,7 +14,7 @@ To verify the current FQDN, execute the following command:
 
 ----
 $ python -c 'import socket; print(socket.getfqdn())'
-server.example.com
+pki.example.com
 ----
 
 == Configuring FQDN ==
@@ -22,6 +22,6 @@ server.example.com
 To configure the FQDN, specify the FQDN in `/etc/hosts`, for example:
 
 ----
-127.0.0.1 server.example.com
-::1 server.example.com
+127.0.0.1 pki.example.com
+::1 pki.example.com
 ----

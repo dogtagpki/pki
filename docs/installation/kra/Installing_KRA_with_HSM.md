@@ -43,7 +43,7 @@ pki_security_domain_password=Secret.123
 pki_storage_nickname=kra_storage
 pki_transport_nickname=kra_transport
 pki_audit_signing_nickname=kra_audit_signing
-pki_sslserver_nickname=sslserver/server.example.com
+pki_sslserver_nickname=sslserver/pki.example.com
 pki_subsystem_nickname=subsystem
 ```
 
@@ -84,7 +84,7 @@ token:kra_transport                                          u,u,u
 token:kra_storage                                            u,u,u
 token:subsystem                                              u,u,u
 token:kra_audit_signing                                      u,u,Pu
-token:sslserver/server.example.com                           u,u,u
+token:sslserver/pki.example.com                              u,u,u
 ```
 
 Verifying Admin Certificate
@@ -132,7 +132,7 @@ Verify that the KRA connector is configured in the CA subsystem:
 ```
 $ pki -c Secret.123 -n caadmin ca-kraconnector-show
 
-Host: server.example.com:8443
+Host: pki.example.com:8443
 Enabled: true
 Local: false
 Timeout: 30

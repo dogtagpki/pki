@@ -82,7 +82,7 @@ Verify that the TKS database is configured with a secure connection:
 
 ```
 $ pki-server tks-db-config-show
-  Hostname: server.example.com
+  Hostname: pki.example.com
   Port: 636
   Secure: true
   Authentication: BasicAuth

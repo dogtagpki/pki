@@ -93,7 +93,7 @@ Verify that the KRA connector is configured in the CA subsystem:
 ```
 $ pki -c Secret.123 -n caadmin ca-kraconnector-show
 
-Host: server.example.com:8443
+Host: pki.example.com:8443
 Enabled: true
 Local: false
 Timeout: 30

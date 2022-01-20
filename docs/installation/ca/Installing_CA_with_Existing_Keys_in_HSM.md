@@ -43,8 +43,8 @@ pki_security_domain_name=EXAMPLE
 pki_ca_signing_nickname=ca_signing
 pki_ocsp_signing_nickname=ca_ocsp_signing
 pki_audit_signing_nickname=ca_audit_signing
-pki_sslserver_nickname=sslserver/server.example.com
-pki_subsystem_nickname=subsystem/server.example.com
+pki_sslserver_nickname=sslserver/pki.example.com
+pki_subsystem_nickname=subsystem/pki.example.com
 
 pki_external=True
 pki_external_step_two=False
@@ -154,9 +154,9 @@ Certificate Nickname                                         Trust Attributes
 
 token:ca_signing                                             CTu,Cu,Cu
 token:ca_ocsp_signing                                        u,u,u
-token:subsystem/server.example.com                           u,u,u
+token:subsystem/pki.example.com                              u,u,u
 token:ca_audit_signing                                       u,u,Pu
-token:sslserver/server.example.com                           u,u,u
+token:sslserver/pki.example.com                              u,u,u
 ```
 
 Verifying Admin Certificate

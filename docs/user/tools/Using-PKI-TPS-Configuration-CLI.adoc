@@ -115,7 +115,7 @@ The configuration will be stored in JSON format:
   },
   "link" : {
     "relationship" : "self",
-    "href" : "https://server.example.com:8443/tps/rest/config"
+    "href" : "https://pki.example.com:8443/tps/rest/config"
   }
 }
 ----

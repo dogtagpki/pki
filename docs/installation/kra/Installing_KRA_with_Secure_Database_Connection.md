@@ -86,7 +86,7 @@ Verify that the KRA database is configured with a secure connection:
 
 ```
 $ pki-server kra-db-config-show
-  Hostname: server.example.com
+  Hostname: pki.example.com
   Port: 636
   Secure: true
   Authentication: BasicAuth
@@ -144,7 +144,7 @@ Verify that the KRA connector is configured in the CA subsystem:
 ```
 $ pki -c Secret.123 -n caadmin ca-kraconnector-show
 
-Host: server.example.com:8443
+Host: pki.example.com:8443
 Enabled: true
 Local: false
 Timeout: 30

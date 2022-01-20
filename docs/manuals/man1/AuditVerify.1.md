@@ -72,7 +72,7 @@ Use the certutil tool to create an empty set of certificate databases in the aud
 $ certutil -N -d $HOME/.dogtag/nssdb
 ```
 
-Download the CA certificate from the CA's Retrieval page at https://server.example.com:8443/ca/ee/ca.
+Download the CA certificate from the CA's Retrieval page at https://pki.example.com:8443/ca/ee/ca.
 The certificates can be obtained from the CA in ASCII format.
 
 Then import the CA certificate and log signing certificate into the databases and set trust of the certificates.

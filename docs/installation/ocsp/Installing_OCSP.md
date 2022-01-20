@@ -89,7 +89,7 @@ Verifying OCSP Client
 
 Publish the CRL in CA to the directory server as follows:
 
-* Go to CA Agent UI (https://server.example.com:8443/ca/agent/ca/).
+* Go to CA Agent UI (https://pki.example.com:8443/ca/agent/ca/).
 * Click **Update Directory Server**.
 * Select **Update the certificate revocation list to the directory**.
 * Click **Update Directory**.
@@ -99,7 +99,7 @@ Verify that the OCSPClient can be used to validate a certificate:
 ```
 $ OCSPClient \
  -d /etc/pki/pki-tomcat/alias \
- -h server.example.com \
+ -h pki.example.com \
  -p 8080 \
  -t /ocsp/ee/ocsp \
  -c ca_signing \

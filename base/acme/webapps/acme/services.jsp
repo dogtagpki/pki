@@ -38,7 +38,7 @@ $ certbot certonly \
     --server BASE_URL/directory \
     --standalone \
     --preferred-challenges http \
-    -d server.example.com
+    -d pki.example.com
 </pre>
 
 To request a certificate with manual dns-01 validation:
@@ -48,7 +48,7 @@ $ certbot certonly \
     --server BASE_URL/directory \
     --manual \
     --preferred-challenges dns \
-    -d server.example.com
+    -d pki.example.com
 </pre>
 
 <h2>Certificate Revocation</h2>
@@ -58,7 +58,7 @@ To revoke a certificate owned by the ACME account:
 <pre>
 $ certbot revoke \
     --server BASE_URL/directory \
-    --cert-path /etc/letsencrypt/live/server.example.com/fullchain.pem
+    --cert-path /etc/letsencrypt/live/pki.example.com/fullchain.pem
 </pre>
 
 To revoke a certificate associated with a private key:
@@ -66,8 +66,8 @@ To revoke a certificate associated with a private key:
 <pre>
 $ certbot revoke \
     --server BASE_URL/directory \
-    --cert-path /etc/letsencrypt/live/server.example.com/fullchain.pem \
-    --key-path /etc/letsencrypt/live/server.example.com/privkey.pem
+    --cert-path /etc/letsencrypt/live/pki.example.com/fullchain.pem \
+    --key-path /etc/letsencrypt/live/pki.example.com/privkey.pem
 </pre>
 
 <h2>See Also</h2>

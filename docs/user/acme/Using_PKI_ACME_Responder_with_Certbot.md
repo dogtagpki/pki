@@ -31,7 +31,7 @@ To enroll a certificate with automatic HTTP-01 validation, execute the following
 ```
 $ certbot certonly --standalone \
     --server http://$HOSTNAME:8080/acme/directory \
-    -d server.example.com \
+    -d pki.example.com \
     --preferred-challenges http
 ```
 
@@ -40,7 +40,7 @@ To enroll a certificate with manual HTTP-01 validation, execute the following co
 ```
 $ certbot certonly --manual \
     --server http://$HOSTNAME:8080/acme/directory \
-    -d server.example.com \
+    -d pki.example.com \
     --preferred-challenges http
 ```
 
@@ -48,7 +48,7 @@ Configure the challenge response on a web server as instructed by certbot,
 then check with the following command:
 
 ```
-$ curl http://server.example.com/.well-known/acme-challenge/<token>
+$ curl http://pki.example.com/.well-known/acme-challenge/<token>
 ```
 
 Once the challenge response is configured properly, complete the enrollment using certbot.
@@ -60,7 +60,7 @@ To enroll a certificate with manual DNS-01 validation, execute the following com
 ```
 $ certbot certonly --manual \
     --server http://$HOSTNAME:8080/acme/directory \
-    -d server.example.com \
+    -d pki.example.com \
     --preferred-challenges dns
 ```
 
@@ -89,7 +89,7 @@ To renew a certificate by the DNS name:
 ```
 $ certbot renew \
     --server http://$HOSTNAME:8080/acme/directory \
-    --cert-name server.example.com
+    --cert-name pki.example.com
 ```
 
 ## Certificate Revocation
@@ -99,7 +99,7 @@ To revoke a certificate by the DNS name:
 ```
 $ certbot revoke \
     --server http://$HOSTNAME:8080/acme/directory \
-    --cert-name server.example.com
+    --cert-name pki.example.com
 ```
 
 To revoke a certificate owned by the ACME account:
@@ -107,7 +107,7 @@ To revoke a certificate owned by the ACME account:
 ```
 $ certbot revoke \
     --server http://$HOSTNAME:8080/acme/directory \
-    --cert-path /etc/letsencrypt/live/server.example.com/cert.pem
+    --cert-path /etc/letsencrypt/live/pki.example.com/cert.pem
 ```
 
 To revoke a certificate owned by another ACME account:
@@ -115,8 +115,8 @@ To revoke a certificate owned by another ACME account:
 ```
 $ certbot revoke \
     --server http://$HOSTNAME:8080/acme/directory \
-    --cert-path /etc/letsencrypt/live/server.example.com/cert.pem \
-    --key-path /etc/letsencrypt/live/server.example.com/privkey.pem
+    --cert-path /etc/letsencrypt/live/pki.example.com/cert.pem \
+    --key-path /etc/letsencrypt/live/pki.example.com/privkey.pem
 ```
 
 ## Account Management
