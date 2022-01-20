@@ -88,7 +88,7 @@ class CertCLI(pki.cli.CLI):
 
         trust_flags = cert.get('trust_flags')
         if trust_flags:
-            print('  NSSDB Trust flag: %s' % trust_flags)
+            print('  Trust Flags: %s' % trust_flags)
 
         if show_all:
             print('  Certificate: %s' % cert['data'])

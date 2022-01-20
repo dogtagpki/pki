@@ -46,8 +46,8 @@ public class ClientCertModifyCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
-        Option option = new Option(null, "trust", true, "Trust attributes. Default: u,u,u.");
-        option.setArgName("trust attributes");
+        Option option = new Option(null, "trust", true, "Trust flags. Default: u,u,u.");
+        option.setArgName("trust flags");
         options.addOption(option);
     }
 
@@ -69,13 +69,13 @@ public class ClientCertModifyCLI extends CommandCLI {
         String nickname = cmdArgs[0];
 
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
-        String trustAttributes = cmd.getOptionValue("trust", "u,u,u");
+        String trustFlags = cmd.getOptionValue("trust", "u,u,u");
 
         String[] command = {
                 "/usr/bin/certutil", "-M",
                 "-d", nssdb.getPath().toString(),
                 "-n", nickname,
-                "-t", trustAttributes
+                "-t", trustFlags
         };
 
         try {

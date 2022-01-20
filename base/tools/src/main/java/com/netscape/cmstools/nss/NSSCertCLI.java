@@ -38,6 +38,6 @@ public class NSSCertCLI extends CLI {
         System.out.println("  Not Valid Before: " + pk11Cert.getNotBefore());
         System.out.println("  Not Valid After: " + pk11Cert.getNotAfter());
 
-        System.out.println("  Trust Attributes: " + pk11Cert.getTrustFlags());
+        System.out.println("  Trust Flags: " + pk11Cert.getTrustFlags());
     }
 }

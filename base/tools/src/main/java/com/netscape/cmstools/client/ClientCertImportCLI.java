@@ -93,8 +93,8 @@ public class ClientCertImportCLI extends CommandCLI {
         option.setArgName("serial number");
         options.addOption(option);
 
-        option = new Option(null, "trust", true, "Trust attributes.");
-        option.setArgName("trust attributes");
+        option = new Option(null, "trust", true, "Trust flags.");
+        option.setArgName("trust flags");
         options.addOption(option);
     }
 
@@ -135,7 +135,7 @@ public class ClientCertImportCLI extends CommandCLI {
         String pkcs12PasswordPath = cmd.getOptionValue("pkcs12-password-file");
         boolean importFromCAServer = cmd.hasOption("ca-server");
         String serialNumber = cmd.getOptionValue("serial");
-        String trustAttributes = cmd.getOptionValue("trust");
+        String trustFlags = cmd.getOptionValue("trust");
 
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
         File nssdbPasswordFile = null;
@@ -162,27 +162,27 @@ public class ClientCertImportCLI extends CommandCLI {
                 throw new Exception("Missing certificate nickname");
             }
 
-            if (trustAttributes == null)
-                trustAttributes = "u,u,u";
+            if (trustFlags == null)
+                trustFlags = "u,u,u";
 
-            nssdb.addPEMCertificate(nickname, certPath, trustAttributes);
+            nssdb.addPEMCertificate(nickname, certPath, trustFlags);
             System.out.println("Imported certificate \"" + nickname + "\"");
 
         } else if (caCertPath != null) {
 
             logger.info("Importing CA certificate from " + caCertPath);
 
-            if (trustAttributes == null)
-                trustAttributes = "CT,C,C";
+            if (trustFlags == null)
+                trustFlags = "CT,C,C";
 
             if (nickname != null) {
                 // import a single CA certificate with the provided nickname
-                nssdb.addPEMCertificate(nickname, caCertPath, trustAttributes);
+                nssdb.addPEMCertificate(nickname, caCertPath, trustFlags);
                 System.out.println("Imported certificate \"" + nickname + "\"");
                 return;
             }
 
-            org.mozilla.jss.crypto.X509Certificate cert = nssdb.addPEMCertificate(caCertPath, trustAttributes);
+            org.mozilla.jss.crypto.X509Certificate cert = nssdb.addPEMCertificate(caCertPath, trustFlags);
             System.out.println("Imported certificate \"" + cert.getNickname() + "\"");
 
         } else if (pkcs7Path != null) {
@@ -192,7 +192,7 @@ public class ClientCertImportCLI extends CommandCLI {
 
             logger.info("Importing certificates from " + pkcs7Path);
 
-            importPKCS7(pkcs7Path, nickname, trustAttributes);
+            importPKCS7(pkcs7Path, nickname, trustFlags);
 
         } else if (pkcs12Path != null) {
 
@@ -234,10 +234,10 @@ public class ClientCertImportCLI extends CommandCLI {
             CAClient caClient = new CAClient(client);
             PKCS7 chain = caClient.getCertChain();
 
-            if (trustAttributes == null)
-                trustAttributes = "CT,C,C";
+            if (trustFlags == null)
+                trustFlags = "CT,C,C";
 
-            CryptoUtil.importPKCS7(chain, nickname, trustAttributes);
+            CryptoUtil.importPKCS7(chain, nickname, trustFlags);
 
         } else if (serialNumber != null) {
 
@@ -268,10 +268,10 @@ public class ClientCertImportCLI extends CommandCLI {
                 throw new Exception("Missing certificate nickname");
             }
 
-            if (trustAttributes == null)
-                trustAttributes = "u,u,u";
+            if (trustFlags == null)
+                trustFlags = "u,u,u";
 
-            nssdb.addPEMCertificate(nickname, certFile.getAbsolutePath(), trustAttributes);
+            nssdb.addPEMCertificate(nickname, certFile.getAbsolutePath(), trustFlags);
             System.out.println("Imported certificate \"" + nickname + "\"");
 
         } else {
@@ -282,13 +282,13 @@ public class ClientCertImportCLI extends CommandCLI {
     public void importPKCS7(
             String pkcs7Path,
             String nickname,
-            String trustAttributes) throws Exception {
+            String trustFlags) throws Exception {
 
         logger.info("Loading PKCS #7 data from " + pkcs7Path);
         String str = new String(Files.readAllBytes(Paths.get(pkcs7Path))).trim();
 
         PKCS7 pkcs7 = new PKCS7(str);
-        CryptoUtil.importPKCS7(pkcs7, nickname, trustAttributes);
+        CryptoUtil.importPKCS7(pkcs7, nickname, trustFlags);
     }
 
     public void importPKCS12(

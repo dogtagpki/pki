@@ -42,8 +42,8 @@ public class NSSCertImportCLI extends CommandCLI {
         option.setArgName("format");
         options.addOption(option);
 
-        option = new Option(null, "trust", true, "Trust attributes");
-        option.setArgName("attributes");
+        option = new Option(null, "trust", true, "Trust flags");
+        option.setArgName("flags");
         options.addOption(option);
     }
 
@@ -59,10 +59,10 @@ public class NSSCertImportCLI extends CommandCLI {
 
         String filename = cmd.getOptionValue("cert");
         String format = cmd.getOptionValue("format");
-        String trustAttributes = cmd.getOptionValue("trust");
+        String trustFlags = cmd.getOptionValue("trust");
 
-        if (trustAttributes == null)
-            trustAttributes = ",,";
+        if (trustFlags == null)
+            trustFlags = ",,";
 
         byte[] bytes;
         if (filename == null) {
@@ -95,10 +95,10 @@ public class NSSCertImportCLI extends CommandCLI {
         String tokenName = clientConfig.getTokenName();
 
         if (nickname == null) {
-            nssdb.addCertificate(cert, trustAttributes);
+            nssdb.addCertificate(cert, trustFlags);
 
         } else {
-            nssdb.addCertificate(tokenName, nickname, cert, trustAttributes);
+            nssdb.addCertificate(tokenName, nickname, cert, trustFlags);
         }
     }
 }

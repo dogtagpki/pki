@@ -44,12 +44,12 @@ public class PKCS7ImportCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "trust", true, "Trust attributes");
-        option.setArgName("attributes");
+        option = new Option(null, "trust", true, "Trust flags");
+        option.setArgName("flags");
         options.addOption(option);
 
-        option = new Option(null, "trust-flags", true, "DEPRECATED: Trust attributes");
-        option.setArgName("attributes");
+        option = new Option(null, "trust-flags", true, "DEPRECATED: Trust flags");
+        option.setArgName("flags");
         options.addOption(option);
     }
 
@@ -73,10 +73,10 @@ public class PKCS7ImportCLI extends CommandCLI {
             }
         }
 
-        String trustAttributes = cmd.getOptionValue("trust");
-        if (trustAttributes == null) {
-            trustAttributes = cmd.getOptionValue("trust-flags");
-            if (trustAttributes != null) {
+        String trustFlags = cmd.getOptionValue("trust");
+        if (trustFlags == null) {
+            trustFlags = cmd.getOptionValue("trust-flags");
+            if (trustFlags != null) {
                 logger.warn("The --trust-flags has been deprecated. Use --trust instead.");
             }
         }
@@ -99,6 +99,6 @@ public class PKCS7ImportCLI extends CommandCLI {
             logger.info("- " + cert.getSubjectDN());
         }
 
-        CryptoUtil.importPKCS7(pkcs7, nickname, trustAttributes);
+        CryptoUtil.importPKCS7(pkcs7, nickname, trustFlags);
     }
 }

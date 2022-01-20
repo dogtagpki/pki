@@ -295,41 +295,41 @@ public class NSSDatabase {
 
     public org.mozilla.jss.crypto.X509Certificate addCertificate(
             X509Certificate cert,
-            String trustAttributes) throws Exception {
+            String trustFlags) throws Exception {
 
         byte[] bytes = cert.getEncoded();
         CryptoManager manager = CryptoManager.getInstance();
         org.mozilla.jss.crypto.X509Certificate jssCert = manager.importCACertPackage(bytes);
 
-        if (trustAttributes != null) CryptoUtil.setTrustFlags(jssCert, trustAttributes);
+        if (trustFlags != null) CryptoUtil.setTrustFlags(jssCert, trustFlags);
 
         return jssCert;
     }
 
     public org.mozilla.jss.crypto.X509Certificate addPEMCertificate(
             String filename,
-            String trustAttributes) throws Exception {
+            String trustFlags) throws Exception {
 
         String pemCert = new String(Files.readAllBytes(Paths.get(filename)));
         byte[] bytes = Cert.parseCertificate(pemCert);
         X509CertImpl cert = new X509CertImpl(bytes);
 
-        return addCertificate(cert, trustAttributes);
+        return addCertificate(cert, trustFlags);
     }
 
     public void addCertificate(
             String nickname,
             X509Certificate cert,
-            String trustAttributes) throws Exception {
+            String trustFlags) throws Exception {
 
-        addCertificate(null, nickname, cert, trustAttributes);
+        addCertificate(null, nickname, cert, trustFlags);
     }
 
     public void addCertificate(
             String tokenName,
             String nickname,
             X509Certificate cert,
-            String trustAttributes) throws Exception {
+            String trustFlags) throws Exception {
 
         byte[] bytes = CertUtil.toPEM(cert).getBytes();
         Path certPath = null;
@@ -338,7 +338,7 @@ public class NSSDatabase {
             certPath = Files.createTempFile("nss-cert-", ".crt", FILE_PERMISSIONS);
             Files.write(certPath, bytes);
 
-            addPEMCertificate(tokenName, nickname, certPath.toString(), trustAttributes);
+            addPEMCertificate(tokenName, nickname, certPath.toString(), trustFlags);
 
         } finally {
             if (certPath != null) Files.delete(certPath);
@@ -348,23 +348,23 @@ public class NSSDatabase {
     public void addPEMCertificate(
             String nickname,
             String filename,
-            String trustAttributes) throws Exception {
+            String trustFlags) throws Exception {
 
         addPEMCertificate(
                 null,
                 nickname,
                 filename,
-                trustAttributes);
+                trustFlags);
     }
 
     public void addPEMCertificate(
             String tokenName,
             String nickname,
             String filename,
-            String trustAttributes) throws Exception {
+            String trustFlags) throws Exception {
 
         Path passwordPath = null;
-        if (trustAttributes == null) trustAttributes = ",,";
+        if (trustFlags == null) trustFlags = ",,";
 
         try {
             List<String> cmd = new ArrayList<>();
@@ -401,7 +401,7 @@ public class NSSDatabase {
             cmd.add(nickname);
 
             cmd.add("-t");
-            cmd.add(trustAttributes);
+            cmd.add(trustFlags);
 
             cmd.add("-i");
             cmd.add(filename);

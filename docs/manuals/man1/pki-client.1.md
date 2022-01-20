@@ -113,11 +113,11 @@ $ pki -d <NSS database location> -c <NSS database password> client-cert-import <
     --ca-server
 ```
 
-To modify a certificate's trust attributes in the NSS database:
+To modify a certificate's trust flags in the NSS database:
 
 ```
 $ pki -d <NSS database location> -c <NSS database password> client-cert-mod <nickname> \
-    --trust <trust attributes>
+    --trust <trust flags>
 ```
 
 To display a certificate in the NSS database:
