@@ -42,9 +42,11 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SystemCertData;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.csadmin.BootstrapProfile;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.Configurator;
@@ -74,6 +76,99 @@ public class CAConfigurator extends Configurator {
         CertificateRepository certificateRepository = engine.getCertificateRepository();
         BigInteger serialNumber = certificateRepository.getNextSerialNumber();
         return new CertId(serialNumber);
+    }
+
+    public void initRequest(
+            IRequest request,
+            String certRequestType,
+            byte[] certRequest,
+            X500Name subjectName,
+            String profileID,
+            String profileIDMapping,
+            String profileSetIDMapping,
+            X509Key x509key,
+            String[] sanHostnames,
+            boolean installAdjustValidity,
+            CertificateExtensions extensions) throws Exception {
+
+        logger.info("CAConfigurator: Initialize cert request " + request.getRequestId());
+
+        request.setExtData("profile", "true");
+        request.setExtData("requestversion", "1.0.0");
+        request.setExtData("req_seq_num", "0");
+
+        request.setExtData(EnrollProfile.REQUEST_EXTENSIONS, extensions);
+
+        request.setExtData("requesttype", "enrollment");
+        request.setExtData("requestor_name", "");
+        request.setExtData("requestor_email", "");
+        request.setExtData("requestor_phone", "");
+        request.setExtData("profileRemoteHost", "");
+        request.setExtData("profileRemoteAddr", "");
+        request.setExtData("requestnotes", "");
+        request.setExtData("isencryptioncert", "false");
+        request.setExtData("profileapprovedby", "system");
+
+        logger.debug("CAConfigurator: - type: " + certRequestType);
+        request.setExtData("cert_request_type", certRequestType);
+
+        if (certRequest != null) {
+            String b64CertRequest = CryptoUtil.base64Encode(certRequest);
+            String pemCertRequest = CryptoUtil.reqFormat(b64CertRequest);
+            logger.debug("CAConfigurator: - request:\n" + pemCertRequest);
+            request.setExtData("cert_request", pemCertRequest);
+        }
+
+        if (subjectName != null) {
+            logger.debug("CAConfigurator: - subject: " + subjectName);
+            request.setExtData("subject", subjectName.toString());
+        }
+
+        if (sanHostnames != null) {
+
+            logger.info("CAConfigurator: Injecting SAN extension:");
+
+            // Dynamically inject the SubjectAlternativeName extension to a
+            // local/self-signed master CA's request for its SSL Server Certificate.
+            //
+            // Since this information may vary from instance to
+            // instance, obtain the necessary information from the
+            // 'service.sslserver.san' value(s) in the instance's
+            // CS.cfg, process these values converting each item into
+            // its individual SubjectAlternativeName components, and
+            // inject these values into the local request.
+
+            int i = 0;
+            for (String sanHostname : sanHostnames) {
+                logger.info("CAConfigurator: - " + sanHostname);
+                request.setExtData("req_san_pattern_" + i, sanHostname);
+                i++;
+            }
+        }
+
+        request.setExtData("req_key", x509key.toString());
+
+        String origProfileID = profileID;
+        int idx = origProfileID.lastIndexOf('.');
+        if (idx > 0) {
+            origProfileID = origProfileID.substring(0, idx);
+        }
+
+        // store original profile ID in cert request
+        request.setExtData("origprofileid", origProfileID);
+
+        // store mapped profile ID for renewal
+        request.setExtData("profileid", profileIDMapping);
+        request.setExtData("profilesetid", profileSetIDMapping);
+
+        if (installAdjustValidity) {
+            // (applies to non-CA-signing cert only)
+            // installAdjustValidity tells ValidityDefault to adjust the
+            // notAfter value to that of the CA's signing cert if needed
+            request.setExtData("installAdjustValidity", "true");
+        }
+
+        request.setRequestStatus(RequestStatus.COMPLETE);
     }
 
     public void importCert(
@@ -114,7 +209,7 @@ public class CAConfigurator extends Configurator {
 
         CertificateExtensions extensions = new CertificateExtensions();
 
-        requestRepository.initRequest(
+        initRequest(
                 request,
                 certRequestType,
                 certRequest,
@@ -204,7 +299,7 @@ public class CAConfigurator extends Configurator {
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         IRequest request = requestRepository.createRequest(requestID, "enrollment");
 
-        requestRepository.initRequest(
+        initRequest(
                 request,
                 certRequestType,
                 certRequest,
