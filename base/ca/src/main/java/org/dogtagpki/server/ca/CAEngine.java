@@ -803,6 +803,7 @@ public class CAEngine extends CMSEngine {
         logger.info("CAEngine: - scheduler: " + schedulerClass);
 
         requestRepository = new CertRequestRepository(dbSubsystem);
+        requestRepository.init();
 
         requestQueue = new RequestQueue(
                 dbSubsystem,
@@ -1609,6 +1610,7 @@ public class CAEngine extends CMSEngine {
         logger.info("CAEngine: - increment: " + increment);
 
         certificateRepository = new CertificateRepository(dbSubsystem);
+        certificateRepository.init();
     }
 
     public void initCrlDatabase() throws Exception {
@@ -1619,6 +1621,7 @@ public class CAEngine extends CMSEngine {
         int increment = caConfig.getInteger(CRLRepository.PROP_INCREMENT, 5);
 
         crlRepository = new CRLRepository(dbSubsystem);
+        crlRepository.init();
     }
 
     public void initReplicaIDRepository() throws Exception {
@@ -1626,6 +1629,7 @@ public class CAEngine extends CMSEngine {
         logger.info("CAEngine: Initializing replica ID repository");
 
         replicaIDRepository = new ReplicaIDRepository(dbSubsystem);
+        replicaIDRepository.init();
     }
 
     @Override

@@ -63,11 +63,12 @@ public class RequestRepository extends Repository {
      * @param dbSubsystem
      *            the LDAP database system.
      */
-    public RequestRepository(DBSubsystem dbSubsystem, String filter) throws EBaseException {
-
+    public RequestRepository(DBSubsystem dbSubsystem, String filter) {
         super(dbSubsystem, 10);
-
         this.filter = filter;
+    }
+
+    public void init() throws Exception {
 
         logger.info("RequestRepository: Initializing request repository");
         logger.info("RequestRepository: - filter: " + filter);
@@ -127,14 +128,8 @@ public class RequestRepository extends Repository {
         RequestRecord.register(dbSubsystem);
     }
 
-    public RequestRepository(
-            DBSubsystem dbSubsystem,
-            String filter,
-            Hashtable<String, String> repositoryConfig) throws EBaseException {
+    public void init(Hashtable<String, String> repositoryConfig) throws Exception {
 
-        super(dbSubsystem, 10);
-
-        this.filter = filter;
         this.repositoryConfig = repositoryConfig;
 
         // Let RequestRecord class register its

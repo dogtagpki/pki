@@ -17,14 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 public class KeyRequestRepository extends RequestRepository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRequestRepository.class);
 
-    public KeyRequestRepository(DBSubsystem dbSubsystem) throws EBaseException {
+    public KeyRequestRepository(DBSubsystem dbSubsystem) {
         super(dbSubsystem, "(&(requeststate=*)(!(realm=*)))");
     }
 }

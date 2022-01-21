@@ -37,9 +37,11 @@ public class ReplicaIDRepository extends Repository {
     /**
      * Constructs a certificate repository.
      */
-    public ReplicaIDRepository(DBSubsystem dbSubsystem) throws EBaseException {
-
+    public ReplicaIDRepository(DBSubsystem dbSubsystem) {
         super(dbSubsystem, 10);
+    }
+
+    public void init() throws Exception {
 
         logger.info("ReplicaIDRepository: Initializing replica ID repository");
 

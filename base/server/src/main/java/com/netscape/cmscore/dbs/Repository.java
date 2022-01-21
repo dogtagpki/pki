@@ -92,6 +92,9 @@ public abstract class Repository implements IRepository {
         this.mRadix = radix;
     }
 
+    public void init() throws Exception {
+    }
+
     /**
      * Get the LDAP base DN for this repository.
      *
