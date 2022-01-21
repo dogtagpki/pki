@@ -90,7 +90,7 @@ public class CAConfigurator extends Configurator {
             boolean installAdjustValidity,
             CertificateExtensions extensions) throws Exception {
 
-        logger.info("CAConfigurator: Initialize cert request " + request.getRequestId());
+        logger.info("CAConfigurator: Initialize cert request " + request.getRequestId().toHexString());
 
         request.setExtData("profile", "true");
         request.setExtData("requestversion", "1.0.0");
@@ -304,7 +304,7 @@ public class CAConfigurator extends Configurator {
         BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
         RequestId requestID = createRequestID();
-        logger.info("CAConfigurator: Creating cert request " + requestID);
+        logger.info("CAConfigurator: Creating cert request " + requestID.toHexString());
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         IRequest request = requestRepository.createRequest(requestID, "enrollment");

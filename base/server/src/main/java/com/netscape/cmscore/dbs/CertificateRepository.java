@@ -38,6 +38,7 @@ import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.certdb.RenewableCertificateCollection;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
@@ -653,7 +654,8 @@ public class CertificateRepository extends Repository {
             String profileIDMapping,
             X509CertImpl cert) throws Exception {
 
-        logger.info("CertificateRepository: Creating cert record " + cert.getSerialNumber() + ": " + cert.getSubjectDN());
+        CertId certID = new CertId(cert.getSerialNumber());
+        logger.info("CertificateRepository: Creating cert record " + certID.toHexString() + ": " + cert.getSubjectDN());
 
         MetaInfo meta = new MetaInfo();
         meta.set(CertRecord.META_REQUEST_ID, requestID.toString());
