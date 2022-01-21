@@ -1444,7 +1444,7 @@ public class CAEngine extends CMSEngine {
             entryUSNs.put(aid, newEntryUSN);
             nsUniqueIds.put(aid, nsUniqueId);
 
-        } catch (EBaseException e) {
+        } catch (Exception e) {
             logger.warn("CAEngine: Error initializing lightweight CA: " + e.getMessage(), e);
         }
     }

@@ -279,11 +279,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * <P>
      * @param config configuration store for this subsystem
      *
-     * @exception EBaseException failed to start subsystem
+     * @exception Exception failed to start subsystem
      */
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(IConfigStore config) throws Exception {
 
         logger.debug("KeyRecoveryAuthority init() begins");
 
@@ -310,7 +309,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         try {
             mTransportKeyUnit.init(mConfig.getSubStore(
                     PROP_TRANSPORT_KEY));
-        } catch (EBaseException e) {
+        } catch (Exception e) {
             logger.warn("KeyRecoveryAuthority: transport unit exception " + e.getMessage(), e);
             //XXX            throw e;
             return;

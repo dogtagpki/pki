@@ -48,10 +48,9 @@ public interface ISubsystem {
      * <P>
      * @param config configuration store
      *
-     * @exception EBaseException failed to initialize
+     * @exception Exception failed to initialize
      */
-    public void init(IConfigStore config)
-            throws EBaseException;
+    public void init(IConfigStore config) throws Exception;
 
     /**
      * Notifies this subsystem if owner is in running mode.
