@@ -17,12 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 public class CertRequestRepository extends RequestRepository {
@@ -31,16 +26,5 @@ public class CertRequestRepository extends RequestRepository {
 
     public CertRequestRepository(DBSubsystem dbSubsystem) throws EBaseException {
         super(dbSubsystem, "(requeststate=*)");
-    }
-
-    public void updateRequest(
-            IRequest request,
-            X509CertInfo info,
-            X509CertImpl cert) throws Exception {
-
-        logger.info("CertRequestRepository: Updating cert request " + request.getRequestId());
-
-        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
-        request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
     }
 }
