@@ -104,7 +104,6 @@ class RA
                                    char **wrappedPrivateKey_s,
                                    char **ivParam_s, const char *connId,
                                    bool archive, int keysize, bool isECC);
-          static PK11SymKey *FindSymKeyByName( PK11SlotInfo *slot, char *keyname);
   public:
 	  TPS_PUBLIC static ConfigStore *GetConfigStore();
   public:

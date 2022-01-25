@@ -649,61 +649,6 @@ int RA::Failover(HttpConnection *&conn, int len) {
     return rc;
 }
 
-PK11SymKey *RA::FindSymKeyByName( PK11SlotInfo *slot, char *keyname) {
-char       *name       = NULL;
-    PK11SymKey *foundSymKey= NULL;
-    PK11SymKey *firstSymKey= NULL;
-    PK11SymKey *sk  = NULL;
-    PK11SymKey *nextSymKey = NULL;
-    secuPWData  pwdata;
-
-    pwdata.source   = secuPWData::PW_NONE;
-    pwdata.data     = (char *) NULL;
-    if (keyname == NULL)
-    {
-        goto cleanup;
-    }
-    if (slot== NULL)
-    {
-        goto cleanup;
-    }
-    /* Initialize the symmetric key list. */
-    firstSymKey = PK11_ListFixedKeysInSlot( slot , NULL, ( void *) &pwdata );
-    /* scan through the symmetric key list for a key matching our nickname */
-    sk = firstSymKey;
-    while( sk != NULL )
-    {
-        /* get the nickname of this symkey */
-        name = PK11_GetSymKeyNickname( sk );
-
-        /* if the name matches, make a 'copy' of it */
-        if ( name != NULL && !strcmp( keyname, name ))
-        {
-            if (foundSymKey == NULL)
-            {
-                foundSymKey = PK11_ReferenceSymKey(sk);
-            }
-            PORT_Free(name);
-        }
-
-        sk = PK11_GetNextSymKey( sk );
-    }
-
-    /* We're done with the list now, let's free all the keys in it
-       It's okay to free our key, because we made a copy of it */
-
-    sk = firstSymKey;
-    while( sk != NULL )
-    {
-        nextSymKey = PK11_GetNextSymKey(sk);
-        PK11_FreeSymKey(sk);
-        sk = nextSymKey;
-    }
-
-    cleanup:
-    return foundSymKey;
-}
-
 bool RA::isAlgorithmECC(BYTE alg)
 {
     bool result = false;
