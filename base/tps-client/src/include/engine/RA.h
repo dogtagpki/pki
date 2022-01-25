@@ -97,14 +97,6 @@ class RA
 	  RA();
 	  ~RA();
   public:
-
-      static void ServerSideKeyGen(RA_Session *session, const char* cuid,
-                                   const char *userid, char* kekSessionKey_s,
-                                   char **publickey_s,
-                                   char **wrappedPrivateKey_s,
-                                   char **ivParam_s, const char *connId,
-                                   bool archive, int keysize, bool isECC);
-  public:
 	  TPS_PUBLIC static ConfigStore *GetConfigStore();
   public:
 	  TPS_PUBLIC static void Error(const char *func_name, const char *fmt, ...);
