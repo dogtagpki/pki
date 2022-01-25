@@ -201,14 +201,6 @@ PRLock *RA::GetVerifyLock()
   return m_verify_lock;
 }
 
-void RA::do_free(char *p)
-{
-    if (p != NULL) {
-        PR_Free(p);
-        p = NULL;
-    }
-}
-
 HttpConnection *RA::GetTKSConn(const char *id) {
     HttpConnection *tksconn = NULL;
     for (int i=0; i<m_tksConns_len; i++) {

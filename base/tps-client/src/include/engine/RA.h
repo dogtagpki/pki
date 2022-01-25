@@ -137,7 +137,6 @@ class RA
   private:
 	  static void ErrorThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
 	  static void DebugThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
-          static void do_free(char *s);
   public:
           static PRLock *GetVerifyLock();
   public:
