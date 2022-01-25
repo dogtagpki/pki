@@ -109,8 +109,6 @@ class RA
                              char *cert_s, char **publickey_s,
                              char **wrappedPrivateKey_s, const char *connId,  char **ivParam_s);
 
-	  static Buffer *ComputeHostCryptogram(Buffer &card_challenge, Buffer &host_challenge);
-
           static PK11SymKey *FindSymKeyByName( PK11SlotInfo *slot, char *keyname);
   public:
 	  TPS_PUBLIC static ConfigStore *GetConfigStore();

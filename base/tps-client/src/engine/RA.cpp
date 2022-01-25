@@ -708,41 +708,6 @@ void RA::ServerSideKeyGen(RA_Session *session, const char* cuid,
 #define DES2_WORKAROUND
 #define MAX_BODY_LEN 4096
 
-Buffer *RA::ComputeHostCryptogram(Buffer &card_challenge, 
-		Buffer &host_challenge)
-{ 
-	/* hardcoded enc auth key */
-	BYTE enc_auth_key[16] = {
-		0x40, 0x41, 0x42, 0x43, 
-		0x44, 0x45, 0x46, 0x47, 
-		0x48, 0x49, 0x4a, 0x4b, 
-		0x4c, 0x4d, 0x4e, 0x4f 
-	};
-	Buffer input = Buffer(16, (BYTE)0);
-	int i;
-	Buffer icv = Buffer(8, (BYTE)0);
-	Buffer *output = new Buffer(8, (BYTE)0);
-	BYTE *cc = (BYTE*)card_challenge;
-	int cc_len = card_challenge.size();
-	BYTE *hc = (BYTE*)host_challenge;
-	int hc_len = host_challenge.size();
-
-	/* copy card and host challenge into input buffer */
-	for (i = 0; i < 8; i++) {
-		((BYTE*)input)[i] = cc[i];
-	}
-	for (i = 0; i < 8; i++) {
-		((BYTE*)input)[8+i] = hc[i];
-	}
-
-	PK11SymKey *key = Util::DeriveKey(
-		Buffer(enc_auth_key, 16), Buffer(hc, hc_len), 
-		Buffer(cc, cc_len));
-	Util::ComputeMAC(key, input, icv, *output);
-
-	return output;
-}
-
 TPS_PUBLIC void RA::DebugBuffer(const char *func_name, const char *prefix, Buffer *buf)
 {
 	RA::DebugBuffer(LL_PER_CONNECTION, func_name, prefix, buf);
