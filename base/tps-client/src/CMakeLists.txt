@@ -66,7 +66,6 @@ set(tps_library_SRCS
     httpClient/response.cpp
     httpClient/request.cpp
     httpClient/nscperror.cpp
-    cms/HttpConnection.cpp
     cms/ConnectionInfo.cpp
     apdu/APDU.cpp
     apdu/Unblock_Pin_APDU.cpp

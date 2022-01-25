@@ -44,7 +44,6 @@
 #include "apdu/APDU.h"
 #include "main/RA_Context.h"
 #include "channel/Secure_Channel.h"
-#include "cms/HttpConnection.h"
 #include "cms/ConnectionInfo.h"
 
 /*

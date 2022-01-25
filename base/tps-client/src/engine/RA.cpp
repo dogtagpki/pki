@@ -55,7 +55,6 @@ extern "C"
 #include "channel/Secure_Channel.h"
 #include "engine/RA.h"
 #include "main/Util.h"
-#include "cms/HttpConnection.h"
 #include "main/RA_pblock.h"
 #include "main/LogFile.h"
 
