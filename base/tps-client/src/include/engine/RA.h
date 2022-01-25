@@ -112,7 +112,6 @@ class RA
 	  static Buffer *ComputeHostCryptogram(Buffer &card_challenge, Buffer &host_challenge);
 
           static PK11SymKey *FindSymKeyByName( PK11SlotInfo *slot, char *keyname);
-          static PK11SymKey *CreateDesKey24Byte(PK11SlotInfo *slot, PK11SymKey *origKey);
   public:
 	  TPS_PUBLIC static ConfigStore *GetConfigStore();
   public:
