@@ -98,18 +98,6 @@ class RA
 	  ~RA();
   public:
 
- 	  static PK11SymKey *ComputeSessionKey(RA_Session *session,
-                                           Buffer &CUID,
-                                           Buffer &keyinfo,
-                                           Buffer &card_challenge,
-                                           Buffer &host_challenge,
-                                           Buffer **host_cryptogram,
-                                           Buffer &card_cryptogram,
-                                           PK11SymKey **encSymKey,
-                                           char** drm_kekSessionKey_s,
-                                           char** kek_kekSessionKey_s,
-                                           char **keycheck_s,
-                                           const char *connId);
       static void ServerSideKeyGen(RA_Session *session, const char* cuid,
                                    const char *userid, char* kekSessionKey_s,
                                    char **publickey_s,
