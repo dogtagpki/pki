@@ -88,13 +88,10 @@ int RA::m_flush_interval = 5;
 
 int RA::m_debug_log_level = (int) LL_PER_SERVER;
 int RA::m_error_log_level = (int) LL_PER_SERVER;
-int RA::m_caConns_len = 0;
 
 #define MAX_BODY_LEN 4096
 
-#define MAX_CA_CONNECTIONS 20
 #define MAX_AUTH_LIST_MEMBERS 20
-HttpConnection* RA::m_caConnection[MAX_CA_CONNECTIONS];
 
 const char *RA::CFG_DEBUG_ENABLE = "logging.debug.enable"; 
 const char *RA::CFG_DEBUG_FILENAME = "logging.debug.filename"; 

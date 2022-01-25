@@ -157,8 +157,6 @@ class RA
       static const char *CFG_OPERATIONS_ALLOWED_TRANSITIONS;
 
   public:
-          static int m_used_ca_conn;
-
           static PRLock *m_verify_lock;
           static PRLock *m_error_log_lock;
           static PRLock *m_debug_log_lock;
@@ -169,8 +167,6 @@ class RA
           static size_t m_buffer_size;
           static int m_flush_interval;
 
-      static HttpConnection* m_caConnection[];
-      static int m_caConns_len;
       static void SetCurrentIndex(HttpConnection *&conn, int index);
 
           static RA_Context *m_ctx;
