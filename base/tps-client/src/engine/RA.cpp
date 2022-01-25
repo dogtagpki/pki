@@ -210,34 +210,6 @@ void RA::do_free(char *p)
 }
 
 /*
- * returns true if item is a value in the comma separated list
- * used by audit logging functions and profile selection functions
- */
-TPS_PUBLIC bool RA::match_comma_list(const char* item, char *list)
-{
-    char *pList = PL_strdup(list);
-    char *sresult = NULL;
-    char *lasts = NULL;
-
-    sresult = PL_strtok_r(pList, ",", &lasts);
-    while (sresult != NULL) {
-        if (PL_strcmp(sresult, item) == 0) {
-            if (pList != NULL) {
-                PR_Free(pList);
-                pList = NULL;
-            }
-            return true;
-        }
-        sresult = PL_strtok_r(NULL, ",", &lasts);
-    }
-    if (pList != NULL) {
-        PR_Free(pList);
-        pList = NULL;
-    }
-    return false;
-}
-
-/*
  * return comma separated list with all instances of item removed
  * must be freed by caller
  */
