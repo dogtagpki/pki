@@ -89,23 +89,12 @@ int RA::m_flush_interval = 5;
 int RA::m_debug_log_level = (int) LL_PER_SERVER;
 int RA::m_error_log_level = (int) LL_PER_SERVER;
 int RA::m_caConns_len = 0;
-int RA::m_tksConns_len = 0;
 
 #define MAX_BODY_LEN 4096
 
 #define MAX_CA_CONNECTIONS 20
-#define MAX_TKS_CONNECTIONS 20
 #define MAX_AUTH_LIST_MEMBERS 20
 HttpConnection* RA::m_caConnection[MAX_CA_CONNECTIONS];
-HttpConnection* RA::m_tksConnection[MAX_TKS_CONNECTIONS];
-
-/* TKS response parameters */
-const char *RA::TKS_RESPONSE_STATUS = "status";
-const char *RA::TKS_RESPONSE_SessionKey = "sessionKey";
-const char *RA::TKS_RESPONSE_EncSessionKey = "encSessionKey";
-const char *RA::TKS_RESPONSE_KEK_DesKey = "kek_wrapped_desKey";
-const char *RA::TKS_RESPONSE_DRM_Trans_DesKey = "drm_trans_wrapped_desKey";
-const char *RA::TKS_RESPONSE_HostCryptogram = "hostCryptogram";
 
 const char *RA::CFG_DEBUG_ENABLE = "logging.debug.enable"; 
 const char *RA::CFG_DEBUG_FILENAME = "logging.debug.filename"; 
@@ -193,21 +182,6 @@ TPS_PUBLIC ConfigStore *RA::GetConfigStore()
 PRLock *RA::GetVerifyLock()
 {
   return m_verify_lock;
-}
-
-HttpConnection *RA::GetTKSConn(const char *id) {
-    HttpConnection *tksconn = NULL;
-    for (int i=0; i<m_tksConns_len; i++) {
-        if (strcmp(m_tksConnection[i]->GetId(), id) == 0) {
-            tksconn = m_tksConnection[i];   
-            break;
-        }
-    }
-    return tksconn; 
-}
-
-void RA::ReturnTKSConn(HttpConnection *conn) {
-    // do nothing for now
 }
 
 void RA::SetCurrentIndex(HttpConnection *&conn, int index) {

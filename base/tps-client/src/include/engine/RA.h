@@ -111,8 +111,6 @@ class RA
   public:
           static PRLock *GetVerifyLock();
   public:
-          static HttpConnection *GetTKSConn(const char *id);
-          static void ReturnTKSConn(HttpConnection *conn);
           static int GetCurrentIndex(HttpConnection *conn);
   public: /* default values */
 	  static const char *CFG_DEF_CARDMGR_INSTANCE_AID;
@@ -159,15 +157,6 @@ class RA
       static const char *CFG_OPERATIONS_ALLOWED_TRANSITIONS;
 
   public:
-	  static const char *TKS_RESPONSE_STATUS;
-	  static const char *TKS_RESPONSE_SessionKey;
-	  static const char *TKS_RESPONSE_EncSessionKey;
-	  static const char *TKS_RESPONSE_KEK_DesKey;
-	  static const char *TKS_RESPONSE_DRM_Trans_DesKey;
-	  static const char *TKS_RESPONSE_HostCryptogram;
-
-  public:
-          static int m_used_tks_conn;
           static int m_used_ca_conn;
 
           static PRLock *m_verify_lock;
@@ -181,9 +170,7 @@ class RA
           static int m_flush_interval;
 
       static HttpConnection* m_caConnection[];
-      static HttpConnection* m_tksConnection[];
       static int m_caConns_len;
-      static int m_tksConns_len;
       static void SetCurrentIndex(HttpConnection *&conn, int index);
 
           static RA_Context *m_ctx;
