@@ -142,7 +142,7 @@ jobs:
           docker exec pki pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify OCSP admin
         run: |
@@ -267,7 +267,7 @@ jobs:
           docker exec ocsp pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec ocsp pki-healthcheck
+        run: docker exec ocsp pki-healthcheck --failures-only
 
       - name: Verify OCSP admin
         run: |
@@ -476,7 +476,7 @@ jobs:
           docker exec ocsp pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec ocsp pki-healthcheck
+        run: docker exec ocsp pki-healthcheck --failures-only
 
       - name: Verify OCSP admin
         run: |
@@ -773,7 +773,7 @@ jobs:
           docker exec ocsp pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec ocsp pki-healthcheck
+        run: docker exec ocsp pki-healthcheck --failures-only
 
       - name: Verify OCSP admin
         run: |
@@ -993,6 +993,15 @@ jobs:
 
           docker exec tertiary pki-server cert-find
 
+      - name: Run PKI healthcheck in primary container
+        run: docker exec primary pki-healthcheck --failures-only
+
+      - name: Run PKI healthcheck in secondary container
+        run: docker exec secondary pki-healthcheck --failures-only
+
+      - name: Run PKI healthcheck in tertiary container
+        run: docker exec tertiary pki-healthcheck --failures-only
+
       - name: Verify OCSP admin in tertiary PKI container
         run: |
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
@@ -1195,7 +1204,7 @@ jobs:
 
       # TODO: Fix DogtagOCSPConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec pki pki-healthcheck
+      #   run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify admin user
         run: |

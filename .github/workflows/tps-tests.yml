@@ -166,7 +166,7 @@ jobs:
           docker exec pki pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify TPS admin
         run: |
@@ -426,7 +426,7 @@ jobs:
           docker exec tps pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec tps pki-healthcheck
+        run: docker exec tps pki-healthcheck --failures-only
 
       - name: Verify TPS admin
         run: |
@@ -748,7 +748,7 @@ jobs:
           docker exec tps pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec tps pki-healthcheck
+        run: docker exec tps pki-healthcheck --failures-only
 
       - name: Verify TPS admin
         run: |
@@ -1001,6 +1001,12 @@ jobs:
               -v
 
           docker exec secondary pki-server cert-find
+
+      - name: Run PKI healthcheck in primary container
+        run: docker exec primary pki-healthcheck --failures-only
+
+      - name: Run PKI healthcheck in secondary container
+        run: docker exec secondary pki-healthcheck --failures-only
 
       - name: Verify admin user
         run: |
