@@ -46,93 +46,83 @@ class ClonesConnectivyAndDataCheck(ClonesPlugin):
 
     def check_kra_clones(self):
         for host in self.clone_kras:
-            cur_clone_msg = ' Host: ' + host.Hostname + ' Port: ' + host.SecurePort
-            # Reach out and get some keys or requests , to serve as a data and connectivity check
+
+            url = 'https://' + host.Hostname + ':' + host.SecurePort
+
             try:
-                client_nick = self.security_domain.config.get('ca.connector.KRA.nickName')
+                status = self.get_status(
+                    host.Hostname,
+                    host.SecurePort,
+                    '/kra/admin/kra/getStatus')
 
-                output = self.contact_subsystem_using_pki(
-                    host.SecurePort, host.Hostname, client_nick,
-                    self.passwd, self.db_dir, 'kra-key-show', ['0x01'])
+                logger.info('KRA at %s is %s', url, status)
 
-                # check to see if we either got a key or a key not found exception
-                # of which either will imply a successful connection
-                if output is not None:
-                    key_found = output.find('Key ID:')
-                    key_not_found = output.find('KeyNotFoundException:')
-                    if key_found >= 0:
-                        logger.info('Key material found from kra clone.')
+                if status != 'running':
+                    raise Exception('KRA at %s is %s' % (url, status))
 
-                    if key_not_found >= 0:
-                        logger.info('key not found, possibly empty kra')
-
-                    if key_not_found == -1 and key_found == -1:
-                        logger.info('Failure to get key material from kra')
-                        raise BaseException('KRA clone problem detected ' + cur_clone_msg)
-                else:
-                    raise BaseException('No data obtained from KRA clone.' + cur_clone_msg)
-
-            except BaseException as e:
-                logger.error("Internal error testing KRA clone. %s", e)
-                raise BaseException('Internal error testing KRA clone.' + cur_clone_msg)
-
-        return
+            except Exception as e:
+                logger.error('Unable to reach KRA at %s: %s', url, e)
+                raise Exception('Unable to reach KRA at %s: %s' % (url, e))
 
     def check_ocsp_clones(self):
         for host in self.clone_ocsps:
-            cur_clone_msg = ' Host: ' + host.Hostname + ' Port: ' + host.SecurePort
-            # Reach out to the ocsp clones
+
+            url = 'https://' + host.Hostname + ':' + host.SecurePort
+
             try:
-                output = self.contact_subsystem_using_sslget(
-                    host.SecurePort, host.Hostname, None,
-                    self.passwd, self.db_dir, None, '/ocsp/admin/ocsp/getStatus')
+                status = self.get_status(
+                    host.Hostname,
+                    host.SecurePort,
+                    '/ocsp/admin/ocsp/getStatus')
 
-                good_status = output.find('<State>1</State>')
-                if good_status == -1:
-                    raise BaseException('OCSP clone problem detected.' + cur_clone_msg)
-                logger.info('good_status %s ', good_status)
-            except BaseException as e:
-                logger.error("Internal error testing OCSP clone.  %s", e)
-                raise BaseException('Internal error testing OCSP clone.' + cur_clone_msg)
+                logger.info('OCSP at %s is %s', url, status)
 
-        return
+                if status != 'running':
+                    raise Exception('OCSP at %s is %s' % (url, status))
+
+            except Exception as e:
+                logger.error('Unable to reach OCSP at %s: %s', url, e)
+                raise Exception('Unable to reach OCSP at %s: %s' % (url, e))
 
     def check_tks_clones(self):
         for host in self.clone_tkss:
-            cur_clone_msg = ' Host: ' + host.Hostname + ' Port: ' + host.SecurePort
-            # Reach out to the tks clones
+
+            url = 'https://' + host.Hostname + ':' + host.SecurePort
+
             try:
-                output = self.contact_subsystem_using_sslget(
-                    host.SecurePort, host.Hostname, None,
-                    self.passwd, self.db_dir, None, '/tks/admin/tks/getStatus')
+                status = self.get_status(
+                    host.Hostname,
+                    host.SecurePort,
+                    '/tks/admin/tks/getStatus')
 
-                good_status = output.find('<State>1</State>')
-                if good_status == -1:
-                    raise BaseException('TKS clone problem detected.' + cur_clone_msg)
-                logger.info('good_status %s ', good_status)
-            except BaseException as e:
-                logger.error("Internal error testing TKS clone. %s", e)
-                raise BaseException('Internal error testing TKS clone.' + cur_clone_msg)
+                logger.info('TKS at %s is %s', url, status)
 
-        return
+                if status != 'running':
+                    raise Exception('TKS at %s is %s' % (url, status))
+
+            except Exception as e:
+                logger.error('Unable to reach TKS at %s: %s', url, e)
+                raise Exception('Unable to reach TKS at %s: %s' % (url, e))
 
     def check_tps_clones(self):
         for host in self.clone_tpss:
-            cur_clone_msg = ' Host: ' + host.Hostname + ' Port: ' + host.SecurePort
-            # Reach out to the tps clones
-            try:
-                output = self.contact_subsystem_using_sslget(
-                    host.SecurePort, host.Hostname, None,
-                    self.passwd, self.db_dir, None, '/tps/admin/tps/getStatus')
 
-                good_status = output.find('<State>1</State>')
-                if good_status == -1:
-                    raise BaseException('TPS clone problem detected.' + cur_clone_msg)
-                logger.info('good_status  %s ', good_status)
-            except BaseException as e:
-                logger.error("Internal error testing TPS clone. %s", e)
-                raise BaseException('Internal error testing TPS clone.' + cur_clone_msg)
-        return
+            url = 'https://' + host.Hostname + ':' + host.SecurePort
+
+            try:
+                status = self.get_status(
+                    host.Hostname,
+                    host.SecurePort,
+                    '/tps/admin/tps/getStatus')
+
+                logger.info('TPS at %s is %s', url, status)
+
+                if status != 'running':
+                    raise Exception('TPS at %s is %s' % (url, status))
+
+            except Exception as e:
+                logger.error('Unable to reach TPS at %s: %s', url, e)
+                raise Exception('Unable to reach TPS at %s: %s' % (url, e))
 
     @duration
     def check(self):

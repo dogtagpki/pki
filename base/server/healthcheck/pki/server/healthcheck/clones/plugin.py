@@ -6,15 +6,16 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+import json
+import logging
+import xml.etree.ElementTree as ET
+
 from ipahealthcheck.core.plugin import Plugin, Registry
 from pki.server.instance import PKIInstance
 from pki.client import PKIConnection
 from pki.system import SecurityDomainClient
 
 from pki.server.healthcheck.core.main import merge_dogtag_config
-
-import logging
-import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -46,60 +47,36 @@ class ClonesPlugin(Plugin):
 
         self.instance = PKIInstance(self.config.instance_name)
 
-    def contact_subsystem_using_pki(
-            self, subport, subhost, subsystemnick,
-            token_pwd, db_path, cmd, exts=None):
-        command = ["/usr/bin/pki",
-                   "-p", str(subport),
-                   "-h", subhost,
-                   "-n", subsystemnick,
-                   "-P", "https",
-                   "-d", db_path,
-                   "-c", token_pwd,
-                   cmd]
+    def get_status(self, host, port, path):
 
-        if exts is not None:
-            command.extend(exts)
+        self.instance.export_ca_cert()
 
-        output = None
-        try:
-            output = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as e:
-            output = e.output.decode('utf-8')
-            return output
+        connection = PKIConnection(
+            protocol='https',
+            hostname=host,
+            port=port,
+            cert_paths=self.instance.ca_cert)
 
-        output = output.decode('utf-8')
+        response = connection.get(path)
 
-        return output
+        content_type = response.headers['Content-Type']
+        content = response.text
+        logger.info('Content:\n%s', content)
 
-    def contact_subsystem_using_sslget(
-            self, port, host, subsystemnick,
-            token_pwd, db_path, params, url):
+        # https://github.com/dogtagpki/pki/wiki/GetStatus-Service
+        if content_type == 'application/json':
+            json_response = json.loads(content)
+            status = json_response['Response']['Status']
 
-        command = ["/usr/bin/sslget"]
+        elif content_type == 'application/xml':
+            root = ET.fromstring(content)
+            status = root.findtext('Status')
 
-        if subsystemnick is not None:
-            command.extend(["-n", subsystemnick])
+        else:
+            raise Exception('Unsupported content-type: %s' % content_type)
 
-        command.extend(["-p", token_pwd, "-d", db_path])
-
-        if params is not None:
-            command.extend(["-e", params])
-
-        command.extend([
-            "-r", url, host + ":" + port])
-
-        logger.info(' command : %s ', command)
-        output = None
-        try:
-            output = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as e:
-            output = e.output.decode('utf-8')
-            return output
-
-        output = output.decode('utf-8')
-
-        return output
+        logger.info('Status: %s', status)
+        return status
 
     def get_security_domain_data(self, host, port):
         domain_data = None
