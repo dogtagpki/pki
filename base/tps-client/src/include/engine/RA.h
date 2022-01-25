@@ -127,7 +127,6 @@ class RA
           static PK11SymKey *CreateDesKey24Byte(PK11SlotInfo *slot, PK11SymKey *origKey);
   public:
 	  TPS_PUBLIC static ConfigStore *GetConfigStore();
-          TPS_PUBLIC static char* remove_from_comma_list(const char*item, char *list);
   public:
 	  TPS_PUBLIC static void Error(const char *func_name, const char *fmt, ...);
           TPS_PUBLIC static void Debug(const char *func_name, const char *fmt, ...);

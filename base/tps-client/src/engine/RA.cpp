@@ -209,34 +209,6 @@ void RA::do_free(char *p)
     }
 }
 
-/*
- * return comma separated list with all instances of item removed
- * must be freed by caller
- */
-TPS_PUBLIC char* RA::remove_from_comma_list(const char*item, char *list)
-{
-    int len = PL_strlen(list);
-    char *pList=PL_strdup(list);
-    char *ret = (char *) PR_Malloc(len);
-    char  *sresult = NULL;
-    char *lasts = NULL;
-    
-
-    PR_snprintf(ret, len, "");
-    sresult = PL_strtok_r(pList, ",", &lasts);
-    while (sresult != NULL) {
-        if (PL_strcmp(sresult, item) != 0) {
-            PR_snprintf(ret, len, "%s%s%s", ret, (PL_strlen(ret)>0)? "," : "", sresult);
-        }
-        sresult = PL_strtok_r(NULL, ",",&lasts);
-    }
-    if (pList != NULL) {
-        PR_Free(pList);
-        pList = NULL;
-    }
-    return ret;
-}
-
 HttpConnection *RA::GetTKSConn(const char *id) {
     HttpConnection *tksconn = NULL;
     for (int i=0; i<m_tksConns_len; i++) {
