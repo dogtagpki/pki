@@ -181,21 +181,6 @@ PRLock *RA::GetVerifyLock()
   return m_verify_lock;
 }
 
-void RA::SetCurrentIndex(HttpConnection *&conn, int index) {
-    PRLock *lock = conn->GetLock();
-    PR_Lock(lock);
-    conn->SetCurrentIndex(index);
-    PR_Unlock(lock);
-}
-
-int RA::GetCurrentIndex(HttpConnection *conn) {
-    PRLock *lock = conn->GetLock();
-    PR_Lock(lock);
-    int index = conn->GetCurrentIndex();
-    PR_Unlock(lock);
-    return index;
-}
-
 #define DES2_WORKAROUND
 #define MAX_BODY_LEN 4096
 

@@ -110,8 +110,6 @@ class RA
 	  static void DebugThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
   public:
           static PRLock *GetVerifyLock();
-  public:
-          static int GetCurrentIndex(HttpConnection *conn);
   public: /* default values */
 	  static const char *CFG_DEF_CARDMGR_INSTANCE_AID;
 	  static const char *CFG_DEF_NETKEY_INSTANCE_AID;
@@ -166,9 +164,6 @@ class RA
           static size_t m_bytes_unflushed;
           static size_t m_buffer_size;
           static int m_flush_interval;
-
-      static void SetCurrentIndex(HttpConnection *&conn, int index);
-
           static RA_Context *m_ctx;
           static bool isAlgorithmECC(BYTE algorithm);
 };
