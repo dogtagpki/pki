@@ -60,7 +60,6 @@ set(tps_library_SRCS
     main/ObjectSpec.cpp
     main/PKCS11Obj.cpp
     main/LogFile.cpp
-    httpClient/httpClient.cpp
     httpClient/Cache.cpp
     httpClient/engine.cpp
     httpClient/http.cpp
