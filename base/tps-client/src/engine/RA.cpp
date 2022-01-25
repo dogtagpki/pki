@@ -90,17 +90,14 @@ int RA::m_debug_log_level = (int) LL_PER_SERVER;
 int RA::m_error_log_level = (int) LL_PER_SERVER;
 int RA::m_caConns_len = 0;
 int RA::m_tksConns_len = 0;
-int RA::m_drmConns_len = 0;
 
 #define MAX_BODY_LEN 4096
 
 #define MAX_CA_CONNECTIONS 20
 #define MAX_TKS_CONNECTIONS 20
-#define MAX_DRM_CONNECTIONS 20
 #define MAX_AUTH_LIST_MEMBERS 20
 HttpConnection* RA::m_caConnection[MAX_CA_CONNECTIONS];
 HttpConnection* RA::m_tksConnection[MAX_TKS_CONNECTIONS];
-HttpConnection* RA::m_drmConnection[MAX_DRM_CONNECTIONS];
 
 /* TKS response parameters */
 const char *RA::TKS_RESPONSE_STATUS = "status";
@@ -209,22 +206,7 @@ HttpConnection *RA::GetTKSConn(const char *id) {
     return tksconn; 
 }
 
-HttpConnection *RA::GetDRMConn(const char *id) {
-    HttpConnection *drmconn = NULL;
-    for (int i=0; i<m_drmConns_len; i++) {
-        if (strcmp(m_drmConnection[i]->GetId(), id) == 0) {
-            drmconn = m_drmConnection[i];   
-            break;
-        }
-    }
-    return drmconn; 
-}
-
 void RA::ReturnTKSConn(HttpConnection *conn) {
-    // do nothing for now
-}
-
-void RA::ReturnDRMConn(HttpConnection *conn) {
     // do nothing for now
 }
 

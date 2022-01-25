@@ -113,9 +113,6 @@ class RA
   public:
           static HttpConnection *GetTKSConn(const char *id);
           static void ReturnTKSConn(HttpConnection *conn);
-
-          static HttpConnection *GetDRMConn(const char *id);
-          static void ReturnDRMConn(HttpConnection *conn);
           static int GetCurrentIndex(HttpConnection *conn);
   public: /* default values */
 	  static const char *CFG_DEF_CARDMGR_INSTANCE_AID;
@@ -173,9 +170,6 @@ class RA
           static int m_used_tks_conn;
           static int m_used_ca_conn;
 
-          static int m_used_drm_conn;
-          static HttpConnection* m_drmConnection[];
-          static int m_drmConns_len;
           static PRLock *m_verify_lock;
           static PRLock *m_error_log_lock;
           static PRLock *m_debug_log_lock;
