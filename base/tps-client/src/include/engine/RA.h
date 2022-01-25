@@ -176,10 +176,7 @@ class RA
           static int m_used_drm_conn;
           static HttpConnection* m_drmConnection[];
           static int m_drmConns_len;
-          static int m_pod_curr;
-          static bool m_pod_enable;
           static PRLock *m_verify_lock;
-          static PRLock *m_pod_lock;
           static PRLock *m_error_log_lock;
           static PRLock *m_debug_log_lock;
           static int m_debug_log_level;
@@ -196,9 +193,6 @@ class RA
       static void SetCurrentIndex(HttpConnection *&conn, int index);
 
           static RA_Context *m_ctx;
-
-        static int Failover(HttpConnection *&conn, int len);   
-
           static bool isAlgorithmECC(BYTE algorithm);
 };
 

@@ -77,9 +77,6 @@ static LogFile* m_debug_log = (LogFile *)NULL;
 static LogFile* m_error_log = (LogFile *)NULL; 
 
 RA_Context *RA::m_ctx = NULL;
-bool RA::m_pod_enable=false;
-int RA::m_pod_curr = 0;
-PRLock *RA::m_pod_lock = NULL;
 PRLock *RA::m_verify_lock = NULL;
 PRLock *RA::m_debug_log_lock = NULL;
 PRLock *RA::m_error_log_lock = NULL;
@@ -375,34 +372,6 @@ void RA::ErrorThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	m_error_log->vfprintf(fmt, ap); 
 	m_error_log->write("\n");
 	PR_Unlock(m_error_log_lock);
-}
-
-int RA::Failover(HttpConnection *&conn, int len) {
-    int rc = 0;
-    if (m_pod_enable) {
-        PR_Lock(m_pod_lock);
-        if (++m_pod_curr >= len) 
-            m_pod_curr = 0;
-        HttpConnection *conn = NULL;
-        for (int i=0; i<m_caConns_len; i++) {
-            conn = m_caConnection[i];
-            RA::SetCurrentIndex(conn, m_pod_curr);
-            conn = m_drmConnection[i];
-            RA::SetCurrentIndex(conn, m_pod_curr);
-            conn = m_tksConnection[i];
-            RA::SetCurrentIndex(conn, m_pod_curr);
-        }
-        PR_Unlock(m_pod_lock);
-    } else {
-        if (conn != NULL) {
-            int curr = RA::GetCurrentIndex(conn);
-            if (++curr >= len)
-                curr = 0;
-            RA::SetCurrentIndex(conn, curr);
-        } else
-            rc = -1;
-    }
-    return rc;
 }
 
 bool RA::isAlgorithmECC(BYTE alg)
