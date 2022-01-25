@@ -241,6 +241,10 @@ class PKIServer(object):
     def jss_conf(self):
         return os.path.join(self.conf_dir, 'jss.conf')
 
+    @property
+    def ca_cert(self):
+        return os.path.join(self.nssdb_dir, 'ca.crt')
+
     def is_valid(self):
         return self.exists()
 
@@ -259,8 +263,6 @@ class PKIServer(object):
 
     def export_ca_cert(self):
 
-        ca_path = os.path.join(self.nssdb_dir, 'ca.crt')
-
         token = pki.nssdb.INTERNAL_TOKEN_NAME
         nickname = self.get_sslserver_cert_nickname()
 
@@ -275,7 +277,7 @@ class PKIServer(object):
         nssdb = self.open_nssdb(token=token)
 
         try:
-            nssdb.extract_ca_cert(ca_path, nickname)
+            nssdb.extract_ca_cert(self.ca_cert, nickname)
         finally:
             nssdb.close()
 
