@@ -165,7 +165,7 @@ jobs:
           docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Initialize PKI client
         run: |
@@ -326,7 +326,7 @@ jobs:
           diff expected actual
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify CA admin
         run: |
@@ -476,7 +476,7 @@ jobs:
           docker exec subordinate openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
       - name: Run PKI healthcheck
-        run: docker exec subordinate pki-healthcheck
+        run: docker exec subordinate pki-healthcheck --failures-only
 
       - name: Verify CA admin
         run: |
@@ -700,7 +700,7 @@ jobs:
           docker exec subordinate openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
       - name: Run PKI healthcheck
-        run: docker exec subordinate pki-healthcheck
+        run: docker exec subordinate pki-healthcheck --failures-only
 
       - name: Verify subordinate CA admin cert
         run: |
@@ -852,7 +852,7 @@ jobs:
           docker exec pki /usr/share/pki/tests/ca/bin/test-subca-signing-cert-ext.sh ca_signing.crt
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify CA admin
         run: |
@@ -1009,7 +1009,7 @@ jobs:
           docker exec pki pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify CA keys
         run: |
@@ -1388,7 +1388,7 @@ jobs:
           docker exec pki pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify DS connection
         run: |
@@ -1542,9 +1542,6 @@ jobs:
 
           docker exec primary pki-server cert-find
 
-      - name: Run PKI healthcheck in primary PKI container
-        run: docker exec primary pki-healthcheck
-
       - name: Verify DS connection in primary PKI container
         run: |
           docker exec primary pki-server ca-db-config-show > output
@@ -1656,8 +1653,11 @@ jobs:
 
           docker exec secondary pki-server cert-find
 
+      - name: Run PKI healthcheck in primary PKI container
+        run: docker exec primary pki-healthcheck --failures-only
+
       - name: Run PKI healthcheck in secondary PKI container
-        run: docker exec secondary pki-healthcheck
+        run: docker exec secondary pki-healthcheck --failures-only
 
       - name: Verify DS connection in secondary PKI container
         run: |
@@ -1802,7 +1802,7 @@ jobs:
               -v
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Initialize PKI client
         run: |
@@ -1960,7 +1960,7 @@ jobs:
           docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Initialize PKI client
         run: |

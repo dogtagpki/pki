@@ -122,6 +122,9 @@ jobs:
           docker exec ipa bash -c "echo Secret.123 | kinit admin"
           docker exec ipa ipa ping
 
+      - name: Run PKI healthcheck
+        run: docker exec ipa pki-healthcheck --failures-only
+
       - name: Configure test environment
         run: |
           docker exec ipa bash -c "cp -r /etc/ipa/* ~/.ipa"
@@ -424,6 +427,15 @@ jobs:
               --no-host-dns \
               --setup-ca \
               --setup-kra
+
+      # TODO: Enable the following tests after the following issue is fixed:
+      # https://pagure.io/freeipa/issue/9099
+      #
+      # - name: Run PKI healthcheck in primary container
+      #   run: docker exec primary pki-healthcheck --failures-only
+      #
+      # - name: Run PKI healthcheck in secondary container
+      #   run: docker exec secondary pki-healthcheck --failures-only
 
       - name: Verify CA admin
         run: |

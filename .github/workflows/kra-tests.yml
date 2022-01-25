@@ -142,7 +142,7 @@ jobs:
           docker exec pki pki-server cert-find
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify KRA admin
         run: |
@@ -279,7 +279,7 @@ jobs:
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec kra pki-healthcheck
+      #   run: docker exec kra pki-healthcheck --failures-only
 
       - name: Verify KRA admin
         run: |
@@ -510,7 +510,7 @@ jobs:
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec kra pki-healthcheck
+      #   run: docker exec kra pki-healthcheck --failures-only
 
       - name: Verify KRA admin
         run: |
@@ -841,7 +841,7 @@ jobs:
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec kra pki-healthcheck
+      #   run: docker exec kra pki-healthcheck --failures-only
 
       - name: Verify KRA admin
         run: |
@@ -1069,6 +1069,15 @@ jobs:
               --pkcs12-password Secret.123
           docker exec tertiary pki -n caadmin kra-user-show kraadmin
 
+      - name: Run PKI healthcheck in primary container
+        run: docker exec primary pki-healthcheck --failures-only
+
+      - name: Run PKI healthcheck in secondary container
+        run: docker exec secondary pki-healthcheck --failures-only
+
+      - name: Run PKI healthcheck in tertiary container
+        run: docker exec tertiary pki-healthcheck --failures-only
+
       - name: Gather artifacts from primary containers
         if: always()
         run: |
@@ -1273,7 +1282,7 @@ jobs:
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec pki pki-healthcheck
+      #   run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify admin user
         run: |

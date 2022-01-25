@@ -177,7 +177,7 @@ jobs:
           docker exec pki pki-server acme-deploy --wait
 
       - name: Run PKI healthcheck in PKI container
-        run: docker exec pki pki-healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify admin user in PKI container
         run: |
