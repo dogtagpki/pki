@@ -52,8 +52,6 @@ set(tps_library_SRCS
     main/Memory.cpp
     main/AuthParams.cpp
     main/LogFile.cpp
-    httpClient/Cache.cpp
-    httpClient/nscperror.cpp
     apdu/APDU.cpp
     apdu/Unblock_Pin_APDU.cpp
     apdu/Create_Object_APDU.cpp
