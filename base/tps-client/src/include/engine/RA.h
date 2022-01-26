@@ -163,7 +163,6 @@ class RA
           static size_t m_buffer_size;
           static int m_flush_interval;
           static RA_Context *m_ctx;
-          static bool isAlgorithmECC(BYTE algorithm);
 };
 
 #endif /* RA_H */

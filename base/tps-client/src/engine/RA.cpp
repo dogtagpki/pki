@@ -309,15 +309,3 @@ void RA::ErrorThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	m_error_log->write("\n");
 	PR_Unlock(m_error_log_lock);
 }
-
-bool RA::isAlgorithmECC(BYTE alg)
-{
-    bool result = false;
-
-    if (alg == ALG_EC_F2M || alg == ALG_EC_FP)
-       result = true;
-
-    RA::Debug(LL_PER_SERVER, "RA::isAlgorithmECC", " alg: %d result: %d", alg, result);
-
-    return result;
-}
