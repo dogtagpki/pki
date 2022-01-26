@@ -46,13 +46,6 @@ class __EXPORT Engine {
         Engine() {};
         ~Engine() {};
 
-        PRFileDesc *_doConnect(PRNetAddr *addr, PRBool SSLOn = PR_FALSE,
-							   const PRInt32* cipherSuite = NULL, 
-                               PRInt32 count = 0, const char* nickname = NULL,
-							   PRBool handshake = PR_FALSE,
-                               /*const SecurityProtocols& secprots = SecurityProtocols() ,*/
-							   const char *serverName ="localhost",
-                               PRIntervalTime iv = PR_SecondsToInterval(30));
         static PRIntervalTime globaltimeout;
 };
 
@@ -61,10 +54,6 @@ class __EXPORT HttpEngine: public Engine {
     public:
         HttpEngine() {};
         ~HttpEngine() {};
-
-        PSHttpResponse *makeRequest( PSHttpRequest &request,
-			 const PSHttpServer& server,
-			 int timeout = 30, PRBool expectChunked = PR_FALSE);
 };
 
 PRBool __EXPORT InitSecurity(char* dbpath, char* certname, char* certpassword,
