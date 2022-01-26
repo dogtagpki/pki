@@ -104,9 +104,6 @@ class RA
 	  static void ErrorThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
 	  static void DebugThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
   public:
-          static PRLock *GetVerifyLock();
-  public:
-          static PRLock *m_verify_lock;
           static PRLock *m_error_log_lock;
           static PRLock *m_debug_log_lock;
           static int m_debug_log_level;

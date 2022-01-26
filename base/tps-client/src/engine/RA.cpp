@@ -72,7 +72,6 @@ static LogFile* m_debug_log = (LogFile *)NULL;
 static LogFile* m_error_log = (LogFile *)NULL; 
 
 RA_Context *RA::m_ctx = NULL;
-PRLock *RA::m_verify_lock = NULL;
 PRLock *RA::m_debug_log_lock = NULL;
 PRLock *RA::m_error_log_lock = NULL;
 
@@ -123,11 +122,6 @@ RA::RA ()
  */
 RA::~RA ()
 {
-}
-
-PRLock *RA::GetVerifyLock()
-{
-  return m_verify_lock;
 }
 
 #define DES2_WORKAROUND
