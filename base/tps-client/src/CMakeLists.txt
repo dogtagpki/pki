@@ -114,7 +114,6 @@ set(tps_library_SRCS
     msg/RA_Extended_Login_Request_Msg.cpp
     msg/RA_Extended_Login_Response_Msg.cpp
     channel/Channel.cpp
-    channel/Secure_Channel.cpp
     engine/RA.cpp
 )
 
