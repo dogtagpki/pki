@@ -46,7 +46,6 @@ set(TPS_LINK_LIBRARIES
 set(tps_library_SRCS
     main/Buffer.cpp
     main/NameValueSet.cpp
-    main/ConfigStore.cpp
     main/Util.cpp
     main/RA_Msg.cpp
     main/RA_pblock.cpp

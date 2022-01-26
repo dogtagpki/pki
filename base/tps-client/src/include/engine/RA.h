@@ -38,7 +38,6 @@
 
 #include "pk11func.h"
 #include "main/Base.h"
-#include "main/ConfigStore.h"
 #include "main/Buffer.h"
 #include "main/LogFile.h"
 #include "apdu/APDU.h"

@@ -45,7 +45,6 @@ extern "C"
 }   
 #endif
 
-#include "main/ConfigStore.h"
 #include "engine/RA.h"
 #include "main/LogFile.h"
 #include "main/RA_Context.h"
