@@ -48,7 +48,6 @@ set(tps_library_SRCS
     main/NameValueSet.cpp
     main/Util.cpp
     main/RA_Msg.cpp
-    main/RA_pblock.cpp
     main/RA_Context.cpp
     main/Memory.cpp
     main/AuthParams.cpp
