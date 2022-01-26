@@ -72,15 +72,10 @@ public:
     void setSSL(PRBool SSLstate);
     PRBool isSSL() const;
 
-    // put a file on the server of size bytes
-    PRBool putFile(const char *uri, int size) const;
-    PRBool putFile(const char* uri, const char* localFile) const;
-
 private:
     char *_addr;
     PRNetAddr _netAddr;
     PRBool SSLOn;
-    PRBool _putFile(PSHttpRequest& rq) const;
 };
 
 typedef __EXPORT enum HttpProtocol_e { HTTPNA    = 0x0, 
