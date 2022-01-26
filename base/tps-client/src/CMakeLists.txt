@@ -113,7 +113,6 @@ set(tps_library_SRCS
     msg/RA_Status_Update_Response_Msg.cpp
     msg/RA_Extended_Login_Request_Msg.cpp
     msg/RA_Extended_Login_Response_Msg.cpp
-    channel/Channel.cpp
     engine/RA.cpp
 )
 
