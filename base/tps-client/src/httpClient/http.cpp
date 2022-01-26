@@ -23,7 +23,6 @@
 
 #include "httpClient/httpc/http.h"
 #include "httpClient/httpc/engine.h"
-#include "httpClient/httpc/request.h"
 //-- #include "httpClient/httpc/DebugLogger.h"
 //-- #include "httpClient/httpc/ErrorLogger.h"
 #include "httpClient/httpc/PSPRUtil.h"
@@ -189,7 +188,7 @@ const char *HttpProtocolToString(HttpProtocol proto) {
 }
 
 /**
-* Constructor for HttpMessage. This is a base class for PSHttpRequest
+* Constructor for HttpMessage.
 */
 HttpMessage :: HttpMessage(long len, const char* buf) {
     firstline = NULL;
