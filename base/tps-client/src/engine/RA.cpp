@@ -69,11 +69,9 @@ typedef struct
 
 
 static LogFile* m_debug_log = (LogFile *)NULL; 
-static LogFile* m_error_log = (LogFile *)NULL; 
 
 RA_Context *RA::m_ctx = NULL;
 PRLock *RA::m_debug_log_lock = NULL;
-PRLock *RA::m_error_log_lock = NULL;
 
 PRThread *RA::m_flush_thread = (PRThread *) NULL;
 size_t RA::m_bytes_unflushed =0;
@@ -81,7 +79,6 @@ size_t RA::m_buffer_size = 512;
 int RA::m_flush_interval = 5;
 
 int RA::m_debug_log_level = (int) LL_PER_SERVER;
-int RA::m_error_log_level = (int) LL_PER_SERVER;
 
 #define MAX_BODY_LEN 4096
 
@@ -208,49 +205,4 @@ void RA::DebugThis (RA_Log_Level level, const char *func_name, const char *fmt, 
 	m_debug_log->vfprintf(fmt, ap); 
 	m_debug_log->write("\n");
 	PR_Unlock(m_debug_log_lock);
-}
-
-TPS_PUBLIC void RA::Error (const char *func_name, const char *fmt, ...)
-{ 
-	va_list ap; 
-	va_start(ap, fmt); 
-	RA::ErrorThis(LL_PER_SERVER, func_name, fmt, ap);
-	va_end(ap); 
-	va_start(ap, fmt); 
-	RA::DebugThis(LL_PER_SERVER, func_name, fmt, ap);
-	va_end(ap); 
-}
-
-TPS_PUBLIC void RA::Error (RA_Log_Level level, const char *func_name, const char *fmt, ...)
-{ 
-	va_list ap; 
-	va_start(ap, fmt); 
-	RA::ErrorThis(level, func_name, fmt, ap);
-	va_end(ap); 
-	va_start(ap, fmt); 
-	RA::DebugThis(level, func_name, fmt, ap);
-	va_end(ap); 
-}
-
-void RA::ErrorThis (RA_Log_Level level, const char *func_name, const char *fmt, va_list ap)
-{ 
-	PRTime now;
-        const char* time_fmt = "%Y-%m-%d %H:%M:%S";
-        char datetime[1024]; 
-        PRExplodedTime time;
-	PRThread *ct;
-
- 	if ((m_error_log == NULL) || (!m_error_log->isOpen()))
-		return;
-	if ((int) level >= m_error_log_level)
-		return;
-	PR_Lock(m_error_log_lock);
-	now = PR_Now();
-	ct = PR_GetCurrentThread();
-        PR_ExplodeTime(now, PR_LocalTimeParameters, &time);
-	PR_FormatTimeUSEnglish(datetime, 1024, time_fmt, &time);
-	m_error_log->printf("[%s] %x %s - ", datetime, ct, func_name);
-	m_error_log->vfprintf(fmt, ap); 
-	m_error_log->write("\n");
-	PR_Unlock(m_error_log_lock);
 }

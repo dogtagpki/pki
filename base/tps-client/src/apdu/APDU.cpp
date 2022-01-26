@@ -284,7 +284,7 @@ TPS_PUBLIC PRStatus APDU::SecureMessage(PK11SymKey *encSessionKey)
     // now, encrypt "data_to_enc"
     rv = Util::EncryptData(encSessionKey, data_to_enc, data_encrypted);
     if (rv == PR_FAILURE) {
- //     RA::Error("APDU::SecureMessage", "encryption failed");
+ //     Error("APDU::SecureMessage", "encryption failed");
       goto done;
     } else {
  //     RA::Debug(LL_PER_PDU, "APDU::SecureMessage", "encryption succeeded");

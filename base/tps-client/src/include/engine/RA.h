@@ -94,20 +94,15 @@ class RA
 	  RA();
 	  ~RA();
   public:
-	  TPS_PUBLIC static void Error(const char *func_name, const char *fmt, ...);
           TPS_PUBLIC static void Debug(const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void DebugBuffer(const char *func_name, const char *prefix, Buffer *buf);
-	  TPS_PUBLIC static void Error(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void Debug(RA_Log_Level level, const char *func_name, const char *fmt, ...);
 	  static void DebugBuffer(RA_Log_Level level, const char *func_name, const char *prefix, Buffer *buf);
   private:
-	  static void ErrorThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
 	  static void DebugThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
   public:
-          static PRLock *m_error_log_lock;
           static PRLock *m_debug_log_lock;
           static int m_debug_log_level;
-          static int m_error_log_level;
           static PRThread *m_flush_thread;
           static size_t m_bytes_unflushed;
           static size_t m_buffer_size;
