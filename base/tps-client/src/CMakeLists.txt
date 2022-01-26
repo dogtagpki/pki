@@ -55,7 +55,6 @@ set(tps_library_SRCS
     httpClient/Cache.cpp
     httpClient/engine.cpp
     httpClient/http.cpp
-    httpClient/response.cpp
     httpClient/request.cpp
     httpClient/nscperror.cpp
     apdu/APDU.cpp

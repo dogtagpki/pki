@@ -38,7 +38,6 @@
 #endif /* HAVE_CONFIG_H */
 
 #include "httpClient/httpc/http.h"
-#include "httpClient/httpc/response.h"
 #include "httpClient/httpc/request.h"
 
 class __EXPORT Engine {
