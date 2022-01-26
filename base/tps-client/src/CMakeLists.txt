@@ -56,7 +56,6 @@ set(tps_library_SRCS
     main/Memory.cpp
     main/AuthParams.cpp
     main/AttributeSpec.cpp
-    main/ObjectSpec.cpp
     main/LogFile.cpp
     httpClient/Cache.cpp
     httpClient/engine.cpp
