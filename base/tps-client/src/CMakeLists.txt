@@ -51,7 +51,6 @@ set(tps_library_SRCS
     main/RA_pblock.cpp
     main/RA_Session.cpp
     main/RA_Context.cpp
-    main/SecureId.cpp
     main/Memory.cpp
     main/AuthParams.cpp
     main/LogFile.cpp
