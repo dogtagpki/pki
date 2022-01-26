@@ -53,7 +53,6 @@ set(tps_library_SRCS
     main/AuthParams.cpp
     main/LogFile.cpp
     httpClient/Cache.cpp
-    httpClient/engine.cpp
     httpClient/http.cpp
     httpClient/nscperror.cpp
     apdu/APDU.cpp
