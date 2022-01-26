@@ -1081,7 +1081,7 @@ RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
   PK11SlotInfo *slot = PK11_GetInternalKeySlot ();
   int publicExponent = 0x010001;
   int buffer_size;
-  // RA::Debug( LL_PER_PDU,
+  // Debug( LL_PER_PDU,
   //            "RA_Token::ProcessGenerateKey: ",
   //            "=====ProcessGenerateKey():in ProcessGenerateKey====" );
 
@@ -1183,16 +1183,16 @@ RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
 	  siProof.len = proof.size ();
 
 	  //    int size = data_blob.size();
-	  // RA::Debug( LL_PER_PDU,
+	  // Debug( LL_PER_PDU,
 	  //            "RA_Token::ProcessGenerateKey: ",
 	  //            "==== proof size =%d, data_blob size=%d",
 	  //            siProof.len,
 	  //            data_blob.size() );
-	  // RA::Debug( LL_PER_PDU,
+	  // Debug( LL_PER_PDU,
 	  //            "RA_Token::ProcessGenerateKey: ",
 	  //            "==== === printing blob. size=%d",
 	  //            size );
-	  // RA::Debug( LL_PER_PDU,
+	  // Debug( LL_PER_PDU,
 	  //            "RA_Token::ProcessGenerateKey: ",
 	  //            "pubKey->u.rsa.publicExponent.data[37] =%d",
 	  //            pubKey->u.rsa.publicExponent.data[37] );

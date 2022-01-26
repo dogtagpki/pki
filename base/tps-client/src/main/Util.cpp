@@ -301,7 +301,7 @@ TPS_PUBLIC char * Util::URLEncode1(const char *str)
 
     // DONT print, some of the sensitive information get printed.
     /*
-    RA::Debug(LL_PER_PDU, "Util::URLEncode1",
+    Debug(LL_PER_PDU, "Util::URLEncode1",
           "URL-encoded encoded_str =%s",encoded_str);
     */
 
@@ -392,7 +392,7 @@ TPS_PUBLIC char * Util::URLEncode(const char *str)
 
     // DONT print, some of the sensitive information get printed.
     /*
-    RA::Debug(LL_PER_PDU, "Util::URLEncode",
+    Debug(LL_PER_PDU, "Util::URLEncode",
           "URL-encoded encoded_str =%s",encoded_str);
     */
 
@@ -957,19 +957,19 @@ TPS_PUBLIC PRStatus Util::EncryptData(PK11SymKey *encSessionKey,
     }
 
     rv = PR_SUCCESS;
-//    RA::Debug("Util::EncryptData", "success");
+//    Debug("Util::EncryptData", "success");
 done:
 
     //#define VRFY_ENC_SESSION_KEY
     // fix this to use CBC mode later
 #ifdef VRFY_ENC_SESSION_KEY
     Buffer enc_key_buffer = Buffer((BYTE *) PK11_GetKeyData(encSessionKey)->data, PK11_GetKeyData(encSessionKey)->len);
-        RA::DebugBuffer("Util::EncryptData", "Verifying Encrypted Data",
-		&output);
+        // DebugBuffer("Util::EncryptData", "Verifying Encrypted Data",
+		// &output);
         Buffer out1 = Buffer(16, (BYTE)0);
 	PRStatus status = Util::DecryptData(enc_key_buffer, output, out1);
-        RA::DebugBuffer("Util::EncryptData", "Decrypted Data",
-		&out1);
+        // DebugBuffer("Util::EncryptData", "Decrypted Data",
+		// &out1);
 #endif
 
 

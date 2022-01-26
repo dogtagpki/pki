@@ -236,15 +236,15 @@ TPS_PUBLIC PRStatus APDU::SecureMessage(PK11SymKey *encSessionKey)
 #ifdef ENC_DEBUG
     m_plainText = m_data;
     // developer debugging only, not for production
-//    RA::DebugBuffer("APDU::SecureMessage", "plaintext (pre padding) = ", &m_plainText);
+//    DebugBuffer("APDU::SecureMessage", "plaintext (pre padding) = ", &m_plainText);
 #endif
 
     if (encSessionKey == NULL) {
- //     RA::Debug("APDU::SecureMessage", "no encryption session key");
+ //     Debug("APDU::SecureMessage", "no encryption session key");
       rv = PR_FAILURE;
       goto done;
     }
-//    RA::Debug(LL_ALL_DATA_IN_PDU, "APDU::SecureMessage", "plaintext data length = %d", m_data.size());
+//    Debug(LL_ALL_DATA_IN_PDU, "APDU::SecureMessage", "plaintext data length = %d", m_data.size());
 
     data_to_enc +=  (BYTE)m_data.size();
     data_to_enc += m_data;
@@ -257,12 +257,12 @@ TPS_PUBLIC PRStatus APDU::SecureMessage(PK11SymKey *encSessionKey)
       pad_needed = 8 - (data_to_enc.size() % 8);
     }
     if (pad_needed) {
-//      RA::Debug(LL_ALL_DATA_IN_PDU, "APDU::SecureMessage", "padding needed =%d", pad_needed);
+//      Debug(LL_ALL_DATA_IN_PDU, "APDU::SecureMessage", "padding needed =%d", pad_needed);
       data_to_enc += Buffer(1, 0x80);
       pad_needed --;
 
       if (pad_needed) {
-//	RA::Debug(LL_ALL_DATA_IN_PDU, "APDU::SecureMessage", "padding needed =%d", pad_needed);
+//	Debug(LL_ALL_DATA_IN_PDU, "APDU::SecureMessage", "padding needed =%d", pad_needed);
 	padding = Buffer(pad_needed, (BYTE)0);
 	for (int i = 0; i < pad_needed; i++) {
 	    ((BYTE*)padding)[i] = 0x00;
@@ -270,7 +270,7 @@ TPS_PUBLIC PRStatus APDU::SecureMessage(PK11SymKey *encSessionKey)
       } // pad needed
 
     } else {
- //     RA::Debug(LL_ALL_DATA_IN_PDU, "APDU::SecureMessage", "padding not needed");
+ //     Debug(LL_ALL_DATA_IN_PDU, "APDU::SecureMessage", "padding not needed");
     }
 
     if (padding.size() > 0) {
@@ -278,7 +278,7 @@ TPS_PUBLIC PRStatus APDU::SecureMessage(PK11SymKey *encSessionKey)
     }
 
 #ifdef ENC_DEBUG
-//    RA::DebugBuffer("APDU::SecureMessage", "data to encrypt (post padding)= ",&data_to_enc);
+//    DebugBuffer("APDU::SecureMessage", "data to encrypt (post padding)= ",&data_to_enc);
 #endif
 
     // now, encrypt "data_to_enc"
@@ -287,8 +287,8 @@ TPS_PUBLIC PRStatus APDU::SecureMessage(PK11SymKey *encSessionKey)
  //     Error("APDU::SecureMessage", "encryption failed");
       goto done;
     } else {
- //     RA::Debug(LL_PER_PDU, "APDU::SecureMessage", "encryption succeeded");
- //      RA::Debug(LL_PER_PDU, "APDU::SecureMessage", "encrypted data length = %d",
+ //     Debug(LL_PER_PDU, "APDU::SecureMessage", "encryption succeeded");
+ //      Debug(LL_PER_PDU, "APDU::SecureMessage", "encrypted data length = %d",
 //	      data_encrypted.size());
       // set "m_data"
       m_data = data_encrypted;

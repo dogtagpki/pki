@@ -68,17 +68,12 @@ typedef struct
 } secuPWData;
 
 
-static LogFile* m_debug_log = (LogFile *)NULL; 
-
 RA_Context *RA::m_ctx = NULL;
-PRLock *RA::m_debug_log_lock = NULL;
 
 PRThread *RA::m_flush_thread = (PRThread *) NULL;
 size_t RA::m_bytes_unflushed =0;
 size_t RA::m_buffer_size = 512;
 int RA::m_flush_interval = 5;
-
-int RA::m_debug_log_level = (int) LL_PER_SERVER;
 
 #define MAX_BODY_LEN 4096
 
@@ -123,86 +118,3 @@ RA::~RA ()
 
 #define DES2_WORKAROUND
 #define MAX_BODY_LEN 4096
-
-TPS_PUBLIC void RA::DebugBuffer(const char *func_name, const char *prefix, Buffer *buf)
-{
-	RA::DebugBuffer(LL_PER_CONNECTION, func_name, prefix, buf);
-}
-
-void RA::DebugBuffer(RA_Log_Level level, const char *func_name, const char *prefix, Buffer *buf)
-{
-    int i;
-    PRTime now;
-    const char* time_fmt = "%Y-%m-%d %H:%M:%S";
-    char datetime[1024]; 
-    PRExplodedTime time;
-    BYTE *data = *buf;
-    int sum = 0;
-	PRThread *ct;
-
-    if ((m_debug_log == NULL) || (!m_debug_log->isOpen())) 
-        return;
-    if ((int) level >= m_debug_log_level)
-		return;
-    PR_Lock(m_debug_log_lock);
-    now = PR_Now();
-    PR_ExplodeTime(now, PR_LocalTimeParameters, &time);
-    PR_FormatTimeUSEnglish(datetime, 1024, time_fmt, &time);
-    ct = PR_GetCurrentThread();
-    m_debug_log->printf("[%s] %x %s - ", datetime, ct, func_name);
-    m_debug_log->printf("%s (length='%d')", prefix, buf->size());
-    m_debug_log->printf("\n");
-    m_debug_log->printf("[%s] %x %s - ", datetime, ct, func_name);
-    for (i=0; i<(int)buf->size(); i++) {
-        m_debug_log->printf("%02x ", (unsigned char)data[i]);
-        sum++; 
-	if (sum == 10) {
-    		m_debug_log->printf("\n");
-                m_debug_log->printf("[%s] %x %s - ", datetime, ct, func_name);
-                sum = 0;
-	}
-    }
-    m_debug_log->write("\n");
-    PR_Unlock(m_debug_log_lock);
-}
-
-TPS_PUBLIC void RA::Debug (const char *func_name, const char *fmt, ...)
-{ 
-	va_list ap; 
-	va_start(ap, fmt); 
-	RA::DebugThis(LL_PER_SERVER, func_name, fmt, ap);
-	va_end(ap); 
-}
-
-TPS_PUBLIC void RA::Debug (RA_Log_Level level, const char *func_name, const char *fmt, ...)
-{ 
-	va_list ap; 
-	va_start(ap, fmt); 
-	RA::DebugThis(level, func_name, fmt, ap);
-	va_end(ap); 
-}
-
-
-
-void RA::DebugThis (RA_Log_Level level, const char *func_name, const char *fmt, va_list ap)
-{ 
-	PRTime now;
-        const char* time_fmt = "%Y-%m-%d %H:%M:%S";
-        char datetime[1024]; 
-        PRExplodedTime time;
-	PRThread *ct;
-
- 	if ((m_debug_log == NULL) || (!m_debug_log->isOpen())) 
-		return;
-	if ((int) level >= m_debug_log_level)
-		return;
-	PR_Lock(m_debug_log_lock);
-	now = PR_Now();
-	ct = PR_GetCurrentThread();
-        PR_ExplodeTime(now, PR_LocalTimeParameters, &time);
-	PR_FormatTimeUSEnglish(datetime, 1024, time_fmt, &time);
-	m_debug_log->printf("[%s] %x %s - ", datetime, ct, func_name);
-	m_debug_log->vfprintf(fmt, ap); 
-	m_debug_log->write("\n");
-	PR_Unlock(m_debug_log_lock);
-}

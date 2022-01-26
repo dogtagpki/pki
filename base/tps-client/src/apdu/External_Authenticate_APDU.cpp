@@ -44,15 +44,15 @@ TPS_PUBLIC External_Authenticate_APDU::External_Authenticate_APDU (Buffer &data,
 
     if (sl == SECURE_MSG_MAC_ENC) {
       SetP1(0x03);
-//     RA::Debug("External_Authenticate_APDU::External_Authenticate_APDU",
+//     Debug("External_Authenticate_APDU::External_Authenticate_APDU",
 	//	"Security level set to 3 - attempted =%d", (int)sl);
     } else if (sl == SECURE_MSG_NONE) {
       SetP1(0x00);
-//     RA::Debug("External_Authenticate_APDU::External_Authenticate_APDU",
+//     Debug("External_Authenticate_APDU::External_Authenticate_APDU",
 //		"Security level set to 0 - attempted =%d", (int)sl);
     } else { // default
       SetP1(0x01);
- //    RA::Debug("External_Authenticate_APDU::External_Authenticate_APDU",
+ //    Debug("External_Authenticate_APDU::External_Authenticate_APDU",
 //		"Security level set to 1 - attempted =%d", (int)sl);
     }
 
