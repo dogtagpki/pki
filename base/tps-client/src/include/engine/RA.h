@@ -95,8 +95,6 @@ class RA
 	  RA();
 	  ~RA();
   public:
-	  TPS_PUBLIC static ConfigStore *GetConfigStore();
-  public:
 	  TPS_PUBLIC static void Error(const char *func_name, const char *fmt, ...);
           TPS_PUBLIC static void Debug(const char *func_name, const char *fmt, ...);
 	  TPS_PUBLIC static void DebugBuffer(const char *func_name, const char *prefix, Buffer *buf);
@@ -108,50 +106,6 @@ class RA
 	  static void DebugThis(RA_Log_Level level, const char *func_name, const char *fmt, va_list ap);
   public:
           static PRLock *GetVerifyLock();
-  public: /* default values */
-	  static const char *CFG_DEF_CARDMGR_INSTANCE_AID;
-	  static const char *CFG_DEF_NETKEY_INSTANCE_AID;
-	  static const char *CFG_DEF_NETKEY_FILE_AID;
-	  static const char *CFG_DEF_NETKEY_OLD_INSTANCE_AID;
-	  static const char *CFG_DEF_NETKEY_OLD_FILE_AID;
-	  static const char *CFG_DEF_APPLET_SO_PIN;
-  public:
-	  static const char *CFG_APPLET_DELETE_NETKEY_OLD;
-	  static const char *CFG_APPLET_CARDMGR_INSTANCE_AID;
-	  static const char *CFG_APPLET_NETKEY_INSTANCE_AID;
-	  static const char *CFG_APPLET_NETKEY_FILE_AID;
-	  static const char *CFG_APPLET_NETKEY_OLD_INSTANCE_AID;
-	  static const char *CFG_APPLET_NETKEY_OLD_FILE_AID;
-	  static const char *CFG_APPLET_SO_PIN;
-	  static const char *CFG_DEBUG_ENABLE;
-	  static const char *CFG_DEBUG_FILENAME;
-          static const char *CFG_DEBUG_LEVEL;
-          static const char *CFG_ERROR_LEVEL;
-	  static const char *CFG_ERROR_ENABLE;
-	  static const char *CFG_ERROR_FILENAME;
-	  static const char *CFG_SELFTEST_LEVEL;
-	  static const char *CFG_SELFTEST_ENABLE;
-	  static const char *CFG_SELFTEST_FILENAME;
-	  static const char *CFG_CHANNEL_SEC_LEVEL;
-	  static const char *CFG_CHANNEL_ENCRYPTION;
-          static const char *CFG_DEBUG_FILE_TYPE;
-          static const char *CFG_ERROR_FILE_TYPE;
-          static const char *CFG_SELFTEST_FILE_TYPE;
-          static const char *CFG_DEBUG_PREFIX;
-          static const char *CFG_ERROR_PREFIX;
-          static const char *CFG_SELFTEST_PREFIX;
-
-
-      static const char *CFG_AUTHS_ENABLE;
-      static const char *CFG_AUTHS_CURRENTIMPL;
-      static const char *CFG_AUTHS_PLUGINS_NUM;
-      static const char *CFG_AUTHS_PLUGIN_NAME;
-
-      static const char *CFG_IPUBLISHER_LIB;
-      static const char *CFG_IPUBLISHER_FACTORY;
-      static const char *CFG_TOKENDB_ALLOWED_TRANSITIONS;
-      static const char *CFG_OPERATIONS_ALLOWED_TRANSITIONS;
-
   public:
           static PRLock *m_verify_lock;
           static PRLock *m_error_log_lock;

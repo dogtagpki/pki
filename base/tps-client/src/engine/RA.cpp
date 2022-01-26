@@ -70,7 +70,6 @@ typedef struct
 } secuPWData;
 
 
-static ConfigStore *m_cfg = NULL;
 static LogFile* m_debug_log = (LogFile *)NULL; 
 static LogFile* m_error_log = (LogFile *)NULL; 
 
@@ -90,43 +89,6 @@ int RA::m_error_log_level = (int) LL_PER_SERVER;
 #define MAX_BODY_LEN 4096
 
 #define MAX_AUTH_LIST_MEMBERS 20
-
-const char *RA::CFG_DEBUG_ENABLE = "logging.debug.enable"; 
-const char *RA::CFG_DEBUG_FILENAME = "logging.debug.filename"; 
-const char *RA::CFG_DEBUG_LEVEL = "logging.debug.level";
-const char *RA::CFG_ERROR_ENABLE = "logging.error.enable"; 
-const char *RA::CFG_ERROR_FILENAME = "logging.error.filename"; 
-const char *RA::CFG_ERROR_LEVEL = "logging.error.level";
-const char *RA::CFG_SELFTEST_ENABLE = "selftests.container.logger.enable";
-const char *RA::CFG_SELFTEST_FILENAME = "selftests.container.logger.fileName";
-const char *RA::CFG_SELFTEST_LEVEL = "selftests.container.logger.level";
-const char *RA::CFG_CHANNEL_SEC_LEVEL = "channel.securityLevel"; 
-const char *RA::CFG_CHANNEL_ENCRYPTION = "channel.encryption";
-const char *RA::CFG_APPLET_CARDMGR_INSTANCE_AID = "applet.aid.cardmgr_instance"; 
-const char *RA::CFG_APPLET_NETKEY_INSTANCE_AID = "applet.aid.netkey_instance"; 
-const char *RA::CFG_APPLET_NETKEY_FILE_AID = "applet.aid.netkey_file"; 
-const char *RA::CFG_APPLET_NETKEY_OLD_INSTANCE_AID = "applet.aid.netkey_old_instance"; 
-const char *RA::CFG_APPLET_NETKEY_OLD_FILE_AID = "applet.aid.netkey_old_file"; 
-const char *RA::CFG_APPLET_SO_PIN = "applet.so_pin"; 
-const char *RA::CFG_APPLET_DELETE_NETKEY_OLD = "applet.delete_old"; 
-const char *RA::CFG_DEBUG_FILE_TYPE = "logging.debug.file.type";
-const char *RA::CFG_ERROR_FILE_TYPE = "logging.error.file.type";
-const char *RA::CFG_SELFTEST_FILE_TYPE = "selftests.container.logger.file.type";
-const char *RA::CFG_ERROR_PREFIX = "logging.error";
-const char *RA::CFG_DEBUG_PREFIX = "logging.debug";
-const char *RA::CFG_SELFTEST_PREFIX = "selftests.container.logger";
-const char *RA::CFG_TOKENDB_ALLOWED_TRANSITIONS = "tokendb.allowedTransitions";
-const char *RA::CFG_OPERATIONS_ALLOWED_TRANSITIONS = "tps.operations.allowedTransitions";
-
-const char *RA::CFG_AUTHS_ENABLE="auth.enable";
-
-/* default values */
-const char *RA::CFG_DEF_CARDMGR_INSTANCE_AID = "A0000000030000"; 
-const char *RA::CFG_DEF_NETKEY_INSTANCE_AID = "627601FF000000"; 
-const char *RA::CFG_DEF_NETKEY_FILE_AID = "627601FF0000"; 
-const char *RA::CFG_DEF_NETKEY_OLD_INSTANCE_AID = "A00000000101"; 
-const char *RA::CFG_DEF_NETKEY_OLD_FILE_AID = "A000000001"; 
-const char *RA::CFG_DEF_APPLET_SO_PIN = "000000000000"; 
 
 extern void BuildHostPortLists(char *host, char *port, char **hostList, 
   char **portList, int len);
@@ -163,15 +125,6 @@ RA::RA ()
  */
 RA::~RA ()
 {
-    if (m_cfg != NULL) {
-        delete m_cfg;
-        m_cfg = NULL;
-    }
-}
-
-TPS_PUBLIC ConfigStore *RA::GetConfigStore()
-{
-	return m_cfg;
 }
 
 PRLock *RA::GetVerifyLock()
