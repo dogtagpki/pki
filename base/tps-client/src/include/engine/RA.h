@@ -39,7 +39,6 @@
 #include "pk11func.h"
 #include "main/Base.h"
 #include "main/Buffer.h"
-#include "main/LogFile.h"
 #include "apdu/APDU.h"
 #include "main/RA_Context.h"
 #include "channel/Secure_Channel.h"

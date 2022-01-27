@@ -53,7 +53,6 @@ extern "C"
 #include "main/RA_Context.h"
 #include "engine/RA.h"
 #include "main/Util.h"
-#include "main/LogFile.h"
 
 typedef struct
 {

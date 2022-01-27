@@ -51,7 +51,6 @@ set(tps_library_SRCS
     main/RA_Context.cpp
     main/Memory.cpp
     main/AuthParams.cpp
-    main/LogFile.cpp
     apdu/APDU.cpp
     apdu/Unblock_Pin_APDU.cpp
     apdu/Create_Object_APDU.cpp
