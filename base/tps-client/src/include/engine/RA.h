@@ -40,7 +40,6 @@
 #include "main/Base.h"
 #include "main/Buffer.h"
 #include "apdu/APDU.h"
-#include "main/RA_Context.h"
 #include "channel/Secure_Channel.h"
 
 /*
@@ -97,7 +96,6 @@ class RA
           static size_t m_bytes_unflushed;
           static size_t m_buffer_size;
           static int m_flush_interval;
-          static RA_Context *m_ctx;
 };
 
 #endif /* RA_H */

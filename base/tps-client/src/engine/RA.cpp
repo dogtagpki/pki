@@ -50,7 +50,6 @@ extern "C"
 #endif
 
 #include "main/Memory.h"
-#include "main/RA_Context.h"
 #include "engine/RA.h"
 #include "main/Util.h"
 
@@ -66,8 +65,6 @@ typedef struct
     char *data;
 } secuPWData;
 
-
-RA_Context *RA::m_ctx = NULL;
 
 PRThread *RA::m_flush_thread = (PRThread *) NULL;
 size_t RA::m_bytes_unflushed =0;
