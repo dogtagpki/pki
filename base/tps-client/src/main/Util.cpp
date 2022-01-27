@@ -24,7 +24,6 @@
 #include "pk11func.h"
 #include "main/Util.h"
 #include "main/Buffer.h"
-#include "engine/RA.h"
 #include "main/Memory.h"
 
 #ifdef XP_WIN32

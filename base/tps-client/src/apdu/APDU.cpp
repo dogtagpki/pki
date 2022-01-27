@@ -20,7 +20,6 @@
 
 #include <stdio.h>
 #include "apdu/APDU.h"
-#include "engine/RA.h"
 #include "main/Util.h"
 #include "main/Memory.h"
 

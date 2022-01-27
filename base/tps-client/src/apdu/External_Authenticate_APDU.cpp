@@ -22,7 +22,6 @@
 #include "apdu/APDU.h"
 #include "apdu/External_Authenticate_APDU.h"
 #include "channel/Secure_Channel.h"
-#include "engine/RA.h"
 #include "main/Memory.h"
 
 #ifdef XP_WIN32

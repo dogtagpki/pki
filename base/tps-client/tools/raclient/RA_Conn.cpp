@@ -72,7 +72,6 @@
 #include "msg/RA_ASQ_Response_Msg.h"
 #include "msg/RA_New_Pin_Response_Msg.h"
 #include "msg/RA_Token_PDU_Response_Msg.h"
-#include "engine/RA.h"
 
 /**
  * http parameters used in the protocol 

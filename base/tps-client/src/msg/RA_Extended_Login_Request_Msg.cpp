@@ -22,7 +22,6 @@
 #include "plstr.h"
 #include "main/Base.h"
 #include "msg/RA_Extended_Login_Request_Msg.h"
-#include "engine/RA.h"
 #include "main/Memory.h"
 
 #ifdef XP_WIN32
