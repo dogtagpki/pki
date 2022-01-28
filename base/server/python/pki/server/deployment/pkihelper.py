@@ -50,8 +50,8 @@ from . import pkimanifest as manifest
 from . import pkimessages as log
 from .pkiparser import PKIConfigParser
 
-import pki
 import pki.nssdb
+import pki.server
 import pki.util
 
 # special care for SELinux

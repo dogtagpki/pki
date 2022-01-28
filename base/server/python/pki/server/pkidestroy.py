@@ -27,8 +27,7 @@ import signal
 import subprocess
 import traceback
 
-import pki
-import pki.server
+import pki.server.deployment
 import pki.server.instance
 
 from pki.server.deployment import pkiconfig as config
