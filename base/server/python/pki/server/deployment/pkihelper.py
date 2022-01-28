@@ -36,6 +36,7 @@ import re
 import requests
 import shutil
 import subprocess
+import urllib.parse
 from grp import getgrgid
 from grp import getgrnam
 from pwd import getpwnam
@@ -2247,23 +2248,17 @@ class SecurityDomain:
         # assign key name/value pairs
         machinename = cs_cfg.get('service.machineName')
         sport = cs_cfg.get('service.securityDomainPort')
-        ncsport = cs_cfg.get('service.non_clientauth_securePort', '')
         sechost = cs_cfg.get('securitydomain.host')
         seceeport = cs_cfg.get('securitydomain.httpseeport')
         secagentport = cs_cfg.get('securitydomain.httpsagentport')
         secadminport = cs_cfg.get('securitydomain.httpsadminport')
         secname = cs_cfg.get('securitydomain.name', 'unknown')
-        adminsport = cs_cfg.get('pkicreate.admin_secure_port', '')
         typeval = cs_cfg.get('cs.type', '')
-        agentsport = cs_cfg.get('pkicreate.agent_secure_port', '')
 
         # fix ports for proxy settings
         proxy_secure_port = cs_cfg.get('proxy.securePort', '')
         if proxy_secure_port != '':
-            adminsport = proxy_secure_port
-            agentsport = proxy_secure_port
             sport = proxy_secure_port
-            ncsport = proxy_secure_port
 
         # NOTE:  Don't check for the existence of 'httpport', as this will
         #        be undefined for a Security Domain that has been migrated!
@@ -2286,18 +2281,15 @@ class SecurityDomain:
             typeval,
             secname)
 
-        listval = typeval.lower() + "List"
         update_url = "/ca/agent/ca/updateDomainXML"
 
-        params = "name=" + "\"" + self.mdict['pki_instance_path'] + "\"" + \
-                 "&type=" + str(typeval) + \
-                 "&list=" + str(listval) + \
-                 "&host=" + str(machinename) + \
-                 "&sport=" + str(sport) + \
-                 "&ncsport=" + str(ncsport) + \
-                 "&adminsport=" + str(adminsport) + \
-                 "&agentsport=" + str(agentsport) + \
-                 "&operation=remove"
+        params = urllib.parse.urlencode({
+            'name': '%s %s %s' % (typeval, machinename, sport),
+            'type': str(typeval),
+            'host': str(machinename),
+            'sport': str(sport),
+            'operation': 'remove'
+        })
 
         output = self.update_domain_using_agent_port(
             typeval, secname, params, update_url, sechost, secagentport,
