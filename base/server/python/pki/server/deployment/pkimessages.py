@@ -225,8 +225,6 @@ PKIHELPER_JAR_XF_C_2 = "jar -xf %s -C %s"
 PKIHELPER_KRACONNECTOR_UPDATE_FAILURE = "Failed to update KRA connector on CA"
 PKIHELPER_KRACONNECTOR_UPDATE_FAILURE_2 = \
     "Failed to update KRA connector for %s:%s"
-PKIHELPER_KRACONNECTOR_DEREGISTER_FAILURE_4 = \
-    "Failed to deregister KRA connector %s:%s from CA %s:%s"
 PKIHELPER_LINK_S_2 = "ln -s %s %s"
 PKIHELPER_MKDIR_1 = "mkdir -p %s"
 PKIHELPER_MODUTIL_MISSING_LIBFILE = \
