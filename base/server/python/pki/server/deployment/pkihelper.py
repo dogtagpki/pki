@@ -2002,7 +2002,7 @@ class KRAConnector:
             if self.mdict['pki_subsystem_type'] != "kra":
                 return
 
-            logger.info('Removing KRA connector from CA subsystem')
+            logger.info('Removing KRA connector from all CAs subsystems')
 
             cs_cfg = PKIConfigParser.read_simple_configuration_file(
                 self.mdict['pki_target_cs_cfg'])
@@ -2062,6 +2062,8 @@ class KRAConnector:
             sechost = cs_cfg.get('securitydomain.host')
             secport = cs_cfg.get('securitydomain.httpsadminport')
 
+            logger.info('Getting security domain info from https://%s:%s', sechost, secport)
+
             try:
                 ca_list = self.get_ca_list_from_security_domain(
                     sechost, secport, self.ca_cert)
@@ -2075,27 +2077,35 @@ class KRAConnector:
                 ca_host = ca.Hostname
                 ca_port = ca.SecurePort
 
+                ca_url = 'https://%s:%s' % (ca_host, ca_port)
+                logger.info('Removing KRA connector from CA at %s', ca_url)
+
                 # catching all exceptions because we do not want to break if
                 # the auth is not successful or servers are down.  In the
                 # worst case, we will time out anyways.
                 # noinspection PyBroadException
                 # pylint: disable=W0703
                 try:
-                    self.execute_using_pki(
-                        ca_port, ca_host, subsystemnick,
+                    result = self.execute_using_pki(
+                        ca_url, subsystemnick,
                         token_pwd, krahost, kraport)
-                except Exception:
+                    logger.debug('Output:\n%s', result.stdout.strip())
+                except subprocess.CalledProcessError as e:
                     # ignore exceptions
+                    logger.warning('Unable to remove KRA connector: %s', e.stderr.strip())
+                    logger.warning('To remove KRA connector manually:')
                     logger.warning(
-                        log.PKIHELPER_KRACONNECTOR_DEREGISTER_FAILURE_4,
-                        str(krahost), str(kraport), str(ca_host), str(ca_port))
+                        '$ pki -U %s -n <admin> ca-kraconnector-del --host %s --port %s',
+                        ca_url,
+                        krahost,
+                        kraport)
 
-        except subprocess.CalledProcessError as exc:
-            logger.warning(
+        except Exception:
+            logger.error(
                 log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE_2,
                 str(krahost),
-                str(kraport))
-            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
+                str(kraport),
+                exc_info=True)
             if critical_failure:
                 raise
         return
@@ -2118,11 +2128,10 @@ class KRAConnector:
         return list(info.subsystems['CA'].hosts.values())
 
     def execute_using_pki(
-            self, caport, cahost, subsystemnick,
-            token_pwd, krahost, kraport, critical_failure=False):
+            self, ca_url, subsystemnick,
+            token_pwd, krahost, kraport):
         command = ["/usr/bin/pki",
-                   "-p", str(caport),
-                   "-h", cahost,
+                   "-U", ca_url,
                    "-n", subsystemnick,
                    "-P", "https",
                    "-d", self.mdict['pki_server_database_path'],
@@ -2131,18 +2140,7 @@ class KRAConnector:
                    "--host", krahost,
                    "--port", str(kraport)]
 
-        output = subprocess.check_output(command,
-                                         stderr=subprocess.STDOUT)
-        output = output.decode('utf-8')
-        error = re.findall("ClientResponseFailure:(.*?)", output)
-        if error:
-            logger.warning(
-                log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE_2,
-                str(krahost),
-                str(kraport))
-            logger.error(log.PKI_SUBPROCESS_ERROR_1, output)
-        if critical_failure:
-            raise Exception(log.PKI_SUBPROCESS_ERROR_1 % output)
+        return subprocess.run(command, capture_output=True, check=True, text=True)
 
 
 class TPSConnector:
