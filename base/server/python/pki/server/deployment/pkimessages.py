@@ -281,8 +281,6 @@ PKIHELPER_SECURITY_DOMAIN_UNDEFINED = \
     "Otherwise, manually delete the entry from the security domain master."
 PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1 = \
     "security domain '%s' may be offline or unreachable!"
-PKIHELPER_SECURITY_DOMAIN_UNREGISTERED_2 = \
-    "this '%s' entry may not be registered with security domain '%s'!"
 PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2 = \
     "this '%s' entry will NOT be deleted from security domain '%s'!"
 PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3 = \
@@ -290,12 +288,6 @@ PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3 = \
     "security domain '%s': '%s'"
 PKIHELPER_SELINUX_DISABLED = "Selinux is disabled.  Not checking port contexts"
 PKIHELPER_SET_MODE_1 = "Setting up ownerships, permissions, and ACLs on %s"
-PKIHELPER_SSLGET_OUTPUT_1 = '''
-    Dump of 'sslget' output:
-    =====================================================
-    %s
-    =====================================================
-'''
 PKIHELPER_SYSTEMD_COMMAND_1 = "executing '%s'"
 PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2 = \
     "instance '%s' contains '%d' Tomcat PKI subsystems"

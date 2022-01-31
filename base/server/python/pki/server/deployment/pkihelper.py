@@ -2281,17 +2281,36 @@ class SecurityDomain:
 
         update_url = "/ca/agent/ca/updateDomainXML"
 
-        params = urllib.parse.urlencode({
+        params = {
             'name': '%s %s %s' % (typeval, machinename, sport),
             'type': str(typeval),
             'host': str(machinename),
             'sport': str(sport),
             'operation': 'remove'
-        })
+        }
 
-        output = self.update_domain_using_agent_port(
-            typeval, secname, params, update_url, sechost, secagentport,
-            critical_failure)
+        try:
+            result = self.update_domain_using_agent_port(
+                typeval, secname, params, update_url, sechost, secagentport,
+                critical_failure)
+            output = result.stdout.strip()
+
+        except subprocess.CalledProcessError as e:
+            logger.warning(
+                'Unable to unregister %s subsystem from security domain: %s',
+                typeval,
+                e.stderr.strip())
+            logger.warning('To unregister manually:')
+            logger.warning(
+                '$ pki -U %s -n <admin> securitydomain-host-del "%s"',
+                'https://%s:%s' % (sechost, secagentport),
+                params['name'])
+            if critical_failure:
+                raise Exception("Cannot update domain using agent port")
+            else:
+                return
+
+        logger.debug('Output:\n%s', output)
 
         if not output:
             if critical_failure:
@@ -2299,37 +2318,44 @@ class SecurityDomain:
             else:
                 return
 
-        logger.debug(
-            log.PKIHELPER_SSLGET_OUTPUT_1,
-            output)
         # Search the output for Status
-        status = re.findall('<Status>(.*?)</Status>', output)
-        if not status:
+        status_match = re.search('<Status>(.*?)</Status>', output)
+
+        if not status_match:
             logger.warning(
                 log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
                 secname)
             if critical_failure:
                 raise Exception(
                     log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1 % secname)
-        elif status[0] != "0":
-            error = re.findall('<Error>(.*?)</Error>', output)
-            if not error:
+
+        status = status_match.group(1)
+        logger.debug('Status: %s', status)
+
+        if status != "0":
+            error_match = re.search('<Error>(.*?)</Error>', output)
+
+            if error_match:
+                error = error_match.group(1)
+            else:
                 error = ""
+            logger.debug('Error: %s', error)
+
             logger.warning(
-                log.PKIHELPER_SECURITY_DOMAIN_UNREGISTERED_2,
+                'Unable to unregister %s subsystem from security domain: %s',
                 typeval,
-                secname)
-            logger.error(
-                log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3,
-                typeval,
-                secname,
                 error)
+            logger.warning('To unregister manually:')
+            logger.warning(
+                '$ pki -U %s -n <admin> securitydomain-host-del "%s"',
+                'https://%s:%s' % (sechost, secagentport),
+                params['name'])
             if critical_failure:
                 raise Exception(log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3
                                 %
                                 (typeval, secname, error))
         else:
-            logger.debug(
+            logger.info(
                 'Unregistered %s subsystem from %s security domain',
                 typeval,
                 secname)
@@ -2379,27 +2405,11 @@ class SecurityDomain:
                    "-n", subsystemnick,
                    "-p", token_pwd,
                    "-d", self.mdict['pki_server_database_path'],
-                   "-e", params,
+                   "-e", urllib.parse.urlencode(params),
                    "-v",
                    "-r", update_url, sechost + ":" + str(secagentport)]
-        try:
-            output = subprocess.check_output(command,
-                                             stderr=subprocess.STDOUT)
-            output = output.decode('utf-8')
-            return output
-        except subprocess.CalledProcessError as exc:
-            logger.warning(
-                log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2,
-                typeval,
-                secname)
-            logger.warning(
-                log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
-                secname)
-            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
-            if critical_failure:
-                raise
 
-        return None
+        return subprocess.run(command, capture_output=True, check=True, text=True)
 
 
 class Systemd(object):

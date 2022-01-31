@@ -89,12 +89,12 @@ public class UpdateDomainXML extends CMSServlet {
             authToken = authenticate(cmsReq);
         } catch (Exception e) {
             logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()), e);
-            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated", null);
+            outputError(httpResp, AUTH_FAILURE, "Not authenticated", null);
             return;
         }
         if (authToken == null) {
             logger.error("UpdateDomainXML process: authToken is null");
-            outputError(httpResp, AUTH_FAILURE, "Error: not authenticated", null);
+            outputError(httpResp, AUTH_FAILURE, "Not authenticated", null);
             return;
         }
         logger.debug("UpdateDomainXML process: authentication done");
@@ -106,16 +106,16 @@ public class UpdateDomainXML extends CMSServlet {
                     "modify");
         } catch (EAuthzAccessDenied e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
-            outputError(httpResp, "Error: Not authorized");
+            outputError(httpResp, "Not authorized");
             return;
         } catch (Exception e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
-            outputError(httpResp, "Error: Encountered problem during authorization.");
+            outputError(httpResp, "Encountered problem during authorization.");
             return;
         }
         if (authzToken == null) {
             logger.error("UpdateDomainXML process: authorization error");
-            outputError(httpResp, "Error: Not authorized");
+            outputError(httpResp, "Not authorized");
             return;
         }
 
@@ -152,10 +152,8 @@ public class UpdateDomainXML extends CMSServlet {
         }
 
         if (!missing.equals("")) {
-            logger.error("UpdateDomainXML process: required parameters:" + missing +
-                      "not provided in request");
-            outputError(httpResp, "Error: required parameters: " + missing +
-                        "not provided in request");
+            logger.error("UpdateDomainXML: Missing required parameters: " + missing);
+            outputError(httpResp, "Missing required parameters: " + missing);
             return;
         }
 
