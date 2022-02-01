@@ -58,7 +58,7 @@ while getopts v-: arg ; do
     esac
 done
 
-PYTHONPATH=`python3 -Ic "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`
+PYTHONPATH=`python3 -Ic "import sysconfig; print(sysconfig.get_path('purelib'))"`
 
 SOURCES="`find $PYTHONPATH/pki -name "*.py"`"
 SOURCES="$SOURCES `find /usr/share/pki/upgrade -name "*.py"`"

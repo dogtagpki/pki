@@ -4,7 +4,7 @@ function(find_site_packages pythonexecutable targetname)
     execute_process(
         COMMAND
             ${pythonexecutable} -c
-            "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
+            "import sysconfig; print(sysconfig.get_path('purelib'))"
         OUTPUT_VARIABLE
             out
         ERROR_VARIABLE
