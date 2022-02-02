@@ -95,7 +95,7 @@ jobs:
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ocsp.cfg -s OCSP -v
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --debug
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify OCSP admin
         run: |
@@ -247,7 +247,7 @@ jobs:
           docker exec ocsp pkispawn -f /usr/share/pki/server/examples/installation/ocsp-external-certs-step2.cfg -s OCSP -v
 
       - name: Run PKI healthcheck
-        run: docker exec ocsp pki-healthcheck --debug
+        run: docker exec ocsp pki-healthcheck --failures-only
 
       - name: Verify OCSP admin
         run: |
@@ -617,7 +617,7 @@ jobs:
 
       # TODO: Fix DogtagOCSPConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec pki pki-healthcheck --debug
+      #   run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify admin user
         run: |

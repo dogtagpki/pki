@@ -95,7 +95,7 @@ jobs:
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/kra.cfg -s KRA -v
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --debug
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify KRA admin
         run: |
@@ -205,7 +205,7 @@ jobs:
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec kra pki-healthcheck --debug
+      #   run: docker exec kra pki-healthcheck --failures-only
 
       - name: Verify KRA admin
         run: |
@@ -403,7 +403,7 @@ jobs:
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec kra pki-healthcheck --debug
+      #   run: docker exec kra pki-healthcheck --failures-only
 
       - name: Verify KRA admin
         run: |
@@ -584,6 +584,15 @@ jobs:
           docker exec secondary pki-server kra-clone-prepare --pkcs12-file ${PKIDIR}/kra-certs.p12 --pkcs12-password Secret.123
           docker exec tertiary cp ${PKIDIR}/kra-certs.p12 .
           docker exec tertiary pkispawn -f /usr/share/pki/server/examples/installation/kra-clone-of-clone.cfg -s KRA -v
+
+      - name: Run PKI healthcheck in primary container
+        run: docker exec primary pki-healthcheck --failures-only
+
+      - name: Run PKI healthcheck in secondary container
+        run: docker exec secondary pki-healthcheck --failures-only
+
+      - name: Run PKI healthcheck in tertiary container
+        run: docker exec tertiary pki-healthcheck --failures-only
 
       - name: Verify KRA admin in tertiary container
         run: |
@@ -788,7 +797,7 @@ jobs:
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec pki pki-healthcheck --debug
+      #   run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify admin user
         run: |
