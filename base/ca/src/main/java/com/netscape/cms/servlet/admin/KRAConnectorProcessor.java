@@ -44,9 +44,8 @@ public class KRAConnectorProcessor extends CAProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAConnectorProcessor.class);
 
-    private boolean connectorExists = false;
+    private boolean connectorExists;
 
-    // Connector constants
     public final static String PREFIX = "ca.connector.KRA";
 
     public KRAConnectorProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
@@ -56,71 +55,93 @@ public class KRAConnectorProcessor extends CAProcessor {
         CertificateAuthority ca = engine.getCA();
 
         ICAService caService = (ICAService)ca.getCAService();
-        connectorExists = (caService.getKRAConnector() != null)? true:false;
+        connectorExists = caService.getKRAConnector() != null;
     }
 
     public void removeConnector(String newHost, String newPort) throws EPropertyNotFound, EBaseException {
-        if (! connectorExists) {
-            logger.debug("removeConnector: no KRA connector exists, returning success");
-            return;
-        }
 
         if ((newHost == null) || (newPort == null)) {
-            logger.error("removeConnector: malformed request.  newHost or newPort is null");
-            throw new BadRequestException("Bad Request: KRA Host or Port not defined");
+            logger.error("KRAConnectorProcessor: Invalid request: Missing KRA host or port");
+            throw new BadRequestException("Invalid request: Missing KRA host or port");
+        }
+
+        String hostport = newHost + ":" + newPort;
+        logger.info("KRAConnectorProcessor: Removing KRA connector " + hostport);
+
+        if (!connectorExists) {
+            logger.info("KRAConnectorProcessor: No KRA connectors");
+            return;
         }
 
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         String host = cs.getString(PREFIX + ".host");
+        logger.info("KRAConnectorProcessor: KRA connector host: " + host);
+
         String port = cs.getString(PREFIX + ".port");
+        logger.info("KRAConnectorProcessor: KRA connector port: " + port);
 
         if ((host == null) || (port == null)) {
-            logger.error("removeConnector: bad connector configuration - host or port are null");
-            throw new PKIException("Bad Connector configuration on this CA");
+            logger.error("KRAConnectorProcessor: Invalid KRA connector configuration: Missing KRA host or port");
+            throw new PKIException("Invalid KRA connector configuration: Missing KRA host or port");
         }
 
-        String hostport = newHost + ":" + newPort;
         if ((host.equals(newHost)) && port.equals(newPort)) {
-            logger.debug("removeConnector: Removing " + PREFIX + " substore");
+            logger.info("KRAConnectorProcessor: Removing the last KRA connector");
             cs.removeSubStore(PREFIX);
             cs.commit(true);
             deleteConnector();
-        } else if (host.indexOf(' ') != -1) { // host is a list
-            String[] hostList = host.trim().split(" ");
-            ArrayList<String> finalList = new ArrayList<>();
-            for (String h : hostList) {
-                if (! h.equals(hostport)) {
-                    finalList.add(h);
-                }
-            }
-            if (finalList.size() == hostList.length) {
-                logger.debug("removeConnector: no connector for " + hostport + " exists. Returning success");
-                return;
-            }
-
-            logger.debug("removeConnector: Removing " + hostport + " from " + PREFIX);
-
-            if (finalList.size() == 0) {
-                logger.debug("removeConnector: Removing " + PREFIX + " substore");
-                cs.removeSubStore(PREFIX);
-                cs.commit(true);
-                deleteConnector();
-            } else if (finalList.size() == 1) {
-                cs.putString(PREFIX + ".host", finalList.get(0).split(":")[0]);
-                cs.putString(PREFIX + ".port", finalList.get(0).split(":")[1]);
-                cs.commit(true);
-                replaceConnector();
-            } else {
-                String finalString = StringUtils.join(finalList, " ");
-                cs.putString(PREFIX + ".host", finalString.trim());
-                cs.commit(true);
-                replaceConnector();
-            }
-        } else {
-            logger.debug("removeConnector: no connector for " + hostport + " exists. Returning success");
+            return;
         }
+
+        if (host.indexOf(' ') < 0) { // host is not a list
+            logger.info("KRAConnectorProcessor: KRA connector " + hostport + " not found");
+            return;
+        }
+
+        // host is a list
+        String[] hostList = host.trim().split(" ");
+        ArrayList<String> finalList = new ArrayList<>();
+        for (String h : hostList) {
+            if (! h.equals(hostport)) {
+                finalList.add(h);
+            }
+        }
+
+        if (finalList.size() == hostList.length) {
+            logger.info("KRAConnectorProcessor: KRA connector " + hostport + " not found");
+            return;
+        }
+
+        if (finalList.size() == 0) {
+            logger.info("KRAConnectorProcessor: Removing the last KRA connector");
+            cs.removeSubStore(PREFIX);
+            cs.commit(true);
+            deleteConnector();
+            return;
+        }
+
+        if (finalList.size() == 1) {
+
+            host = finalList.get(0).split(":")[0];
+            logger.info("KRAConnectorProcessor: KRA connector host: " + host);
+
+            port = finalList.get(0).split(":")[1];
+            logger.info("KRAConnectorProcessor: KRA connector port: " + port);
+
+            cs.putString(PREFIX + ".host", host);
+            cs.putString(PREFIX + ".port", port);
+            cs.commit(true);
+            replaceConnector();
+            return;
+        }
+
+        String finalString = StringUtils.join(finalList, " ");
+        logger.info("KRAConnectorProcessor: KRA connector host: " + finalString);
+        cs.putString(PREFIX + ".host", finalString.trim());
+        cs.commit(true);
+        replaceConnector();
     }
 
     public void stopConnector() {
@@ -175,7 +196,7 @@ public class KRAConnectorProcessor extends CAProcessor {
 
     public void addConnector(KRAConnectorInfo info) throws EPropertyNotFound, EBaseException {
 
-        logger.info("KRAConnectorProcessor: Updating KRA connector:");
+        logger.info("KRAConnectorProcessor: Adding KRA connector:");
         logger.info("KRAConnectorProcessor: - host: " + info.getHost());
         logger.info("KRAConnectorProcessor: - port: " + info.getPort());
         logger.info("KRAConnectorProcessor: - path: " + info.getUri());
@@ -189,8 +210,8 @@ public class KRAConnectorProcessor extends CAProcessor {
         String newTransportCert = info.getTransportCert();
 
         if ((newHost == null) || (newPort == null) || (newTransportCert == null)) {
-            logger.error("addConnector: malformed request.  newHost, newPort or transport cert is null");
-            throw new BadRequestException("Bad Request: KRA host, port or transport cert not defined");
+            logger.error("KRAConnectorProcessor: Missing KRA connector host, port, or transport certificate");
+            throw new BadRequestException("Missing KRA connector host, port, or transport certificate");
         }
 
         if (connectorExists) {
@@ -203,8 +224,8 @@ public class KRAConnectorProcessor extends CAProcessor {
                 // check transport cert
                 String transportCert = cs.getString(PREFIX + ".transportCert");
                 if (!transportCert.equals(newTransportCert)) {
-                    logger.error("addConnector: Connector is already defined");
-                    throw new BadRequestException("KRA connector has already been defined for this CA");
+                    logger.error("KRAConnectorProcessor: KRA connector already exists");
+                    throw new BadRequestException("KRA connector already exists");
                 }
 
                 addHostPortToConnector(cs, newHost, newPort, currentHost, currentPort);
@@ -213,6 +234,8 @@ public class KRAConnectorProcessor extends CAProcessor {
         }
 
         // connector does not exist, or existing connector is the same host/port and we are replacing it
+        logger.info("KRAConnectorProcessor: Storing KRA connector");
+
         cs.putString(PREFIX + ".host", info.getHost());
         cs.putString(PREFIX + ".port", info.getPort());
         cs.putString(PREFIX + ".enable", info.getEnable() != null ? info.getEnable() : "true");
@@ -234,8 +257,8 @@ public class KRAConnectorProcessor extends CAProcessor {
     public KRAConnectorInfo getConnectorInfo() throws EPropertyNotFound, EBaseException {
 
         if (!connectorExists) {
-            logger.error("getConnectorInfo: no KRA connector exists.");
-            throw new ConnectorNotFoundException("No KRAConnector has been configured.");
+            logger.error("KRAConnectorProcessor: No KRA connectors");
+            throw new ConnectorNotFoundException("No KRA connectors");
         }
 
         CAEngine engine = CAEngine.getInstance();
@@ -258,8 +281,8 @@ public class KRAConnectorProcessor extends CAProcessor {
         EngineConfig cs = engine.getConfig();
 
         if ((newHost == null) || (newPort == null)) {
-            logger.error("addHost: malformed request.  newHost, newPort or transport cert is null");
-            throw new BadRequestException("Bad Request: KRA host or port not defined");
+            logger.error("KRAConnectorProcessor: Missing KRA connector host, port, or transport certificate");
+            throw new BadRequestException("Missing KRA connector host, port, or transport certificate");
         }
 
         if (connectorExists) {
@@ -270,34 +293,37 @@ public class KRAConnectorProcessor extends CAProcessor {
                 addHostPortToConnector(cs, newHost, newPort, currentHost, currentPort);
             }
         } else {
-            throw new BadRequestException(
-                    "Cannot add host:port to existing connector.  Connector does not exit");
+            throw new BadRequestException("No KRA connectors");
         }
     }
 
-    private void addHostPortToConnector(IConfigStore cs, String newHost, String newPort, String currentHost,
+    private void addHostPortToConnector(
+            IConfigStore cs,
+            String newHost,
+            String newPort,
+            String currentHost,
             String currentPort) throws EBaseException {
+
         String hostport = newHost + ":" + newPort;
+        logger.info("KRAConnectorProcessor: Adding KRA connector " + hostport);
+
         if (currentHost.indexOf(' ') != -1) {
             // host is a list
             String[] hostList = currentHost.trim().split(" ");
             for (String h : hostList) {
                 if (h.equals(hostport)) {
-                    logger.debug("addHost: connector for " + hostport +
-                            " is already present.  Returning success");
+                    logger.info("KRAConnectorProcessor: KRA connector for " + hostport + " already exists");
                     return;
                 }
             }
 
-            logger.debug("addHostPort: adding " + hostport + " to KRA connector host list");
             cs.putString(PREFIX + ".host", currentHost + " " + hostport);
         } else {
             // host is not a list, turn it into one
-            logger.debug("addHostPort: adding " + hostport + " to KRA connector");
             cs.putString(PREFIX + ".host", currentHost + ":" + currentPort + " " + hostport);
         }
+
         cs.commit(true);
         replaceConnector();
     }
-
 }
