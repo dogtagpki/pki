@@ -118,7 +118,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         CMSEngine engine = CMS.getCMSEngine();
         String auditSubjectID = auditSubjectID();
 
-        logger.debug("SubsystemGroupUpdater update starts");
+        logger.info("SubsystemGroupUpdater: Updating Subsystem Group");
         if (status != req.getRequestStatus()) {
             return;
         }
@@ -132,8 +132,8 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         String requestor_name = "subsystem";
         try {
             requestor_name = req.getExtDataInString("requestor_name");
-        } catch (Exception e1) {
-            // ignore
+        } catch (Exception e) {
+            logger.warn("SubsystemGroupUpdater: Unable to get requestor name: " + e.getMessage(), e);
         }
 
         // i.e. tps-1.2.3.4-4
@@ -145,28 +145,41 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                              "+state;;1" +
                              "+userType;;agentType+email;;<null>+password;;<null>+phone;;<null>";
 
-        User user = null;
-        logger.debug("SubsystemGroupUpdater adduser");
+        logger.info("SubsystemGroupUpdater: Adding user " + id);
+
         try {
-            user = system.createUser(id);
+            User user = system.createUser(id);
             user.setFullName(id);
             user.setEmail("");
             user.setPassword("");
             user.setUserType("agentType");
             user.setState("1");
             user.setPhone("");
-            X509CertImpl[] certs = new X509CertImpl[1];
-            certs[0] = cert;
-            user.setX509Certificates(certs);
 
             system.addUser(user);
-            logger.debug("SubsystemGroupUpdater update: successfully add the user");
 
             signedAuditLogger.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams));
 
+        } catch (ConflictingOperationException e) {
+            logger.warn("UpdateSubsystemGroup: User already exists: " + e.getMessage(), e);
+
+        } catch (Exception e) {
+            logger.error("UpdateSubsystemGroup: Unable to add user: " + e.getMessage(), e);
+
+            signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.FAILURE,
+                               auditParams));
+
+            throw new EProfileException("Unable to add user: " + e.getMessage(), e);
+        }
+
+        logger.info("SubsystemGroupUpdater: Adding certificate for user " + id);
+
+        try {
             String b64 = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
             try {
                 byte[] certEncoded = cert.getEncoded();
@@ -175,8 +188,8 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                 // concatenate lines
                 b64 = b64.replace("\r", "").replace("\n", "");
 
-            } catch (Exception ence) {
-                logger.warn("SubsystemGroupUpdater update: user cert encoding failed: " + ence.getMessage(), ence);
+            } catch (Exception e) {
+                logger.warn("SubsystemGroupUpdater: Unable to encode certificate: " + e.getMessage(), e);
             }
 
             auditParams = "Scope;;certs+Operation;;OP_ADD+source;;SubsystemGroupUpdater" +
@@ -184,7 +197,6 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                              "+cert;;" + b64;
 
             system.addUserCert(id, cert);
-            logger.debug("SubsystemGroupUpdater update: successfully add the user certificate");
 
             signedAuditLogger.log(new ConfigRoleEvent(
                                auditSubjectID,
@@ -192,27 +204,27 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                                auditParams));
 
         } catch (ConflictingOperationException e) {
-            logger.warn("UpdateSubsystemGroup: update " + e.getMessage(), e);
-            // ignore
+            logger.warn("UpdateSubsystemGroup: Certificate already exists: " + e.getMessage(), e);
 
         } catch (Exception e) {
-            logger.error("UpdateSubsystemGroup: update addUser " + e.getMessage(), e);
+            logger.error("UpdateSubsystemGroup: Unable to add certificate for user " + id + ": " + e.getMessage(), e);
 
             signedAuditLogger.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams));
 
-            throw new EProfileException(e.toString());
+            throw new EProfileException("Unable to add certificate: " + e.getMessage(), e);
         }
 
-        Group group = null;
         String groupName = "Subsystem Group";
+        logger.info("SubsystemGroupUpdater: Adding user " + id + " into group " + groupName);
+
         auditParams = "Scope;;groups+Operation;;OP_MODIFY+source;;SubsystemGroupUpdater" +
                       "+Resource;;" + groupName;
 
         try {
-            group = system.getGroupFromName(groupName);
+            Group group = system.getGroupFromName(groupName);
 
             auditParams += "+user;;";
             Enumeration<String> members = group.getMemberNames();
@@ -224,6 +236,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
             }
 
             if (!group.isMember(id)) {
+
                 auditParams += "," + id;
                 group.addMemberName(id);
                 system.modifyGroup(group);
@@ -233,12 +246,12 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                                ILogger.SUCCESS,
                                auditParams));
 
-                logger.debug("UpdateSubsystemGroup: update: successfully added the user to the group.");
             } else {
-                logger.debug("UpdateSubsystemGroup: update: user already a member of the group");
+                logger.info("SubsystemGroupUpdater: User " + id + " already in group " + groupName);
             }
+
         } catch (Exception e) {
-            logger.warn("UpdateSubsystemGroup update: modifyGroup " + e.getMessage(), e);
+            logger.warn("SubsystemGroupUpdater: Unable to add user " + id + " into group " + groupName + ": " + e.getMessage(), e);
 
             signedAuditLogger.log(new ConfigRoleEvent(
                                auditSubjectID,
