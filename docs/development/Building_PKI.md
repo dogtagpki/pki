@@ -37,7 +37,7 @@ During development PKI may require dependencies that are only available in [PKI 
 To enable PKI COPR repository:
 
 <pre>
-$ dnf copr -y enable @pki/&lt;major&gt;.&lt;minor&gt;
+$ dnf copr -y enable @pki/&lt;version&gt;
 </pre>
 
 To install PKI dependencies:
