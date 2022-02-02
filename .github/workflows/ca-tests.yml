@@ -96,7 +96,7 @@ jobs:
           docker exec pki pki-server restart --wait
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --debug
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify CA admin
         run: |
@@ -176,7 +176,7 @@ jobs:
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-ecc.cfg -s CA -v
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --debug
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify system keys
         run: |
@@ -290,7 +290,7 @@ jobs:
           docker exec subordinate pkispawn -f /usr/share/pki/server/examples/installation/subca.cfg -s CA -v
 
       - name: Run PKI healthcheck
-        run: docker exec subordinate pki-healthcheck --debug
+        run: docker exec subordinate pki-healthcheck --failures-only
 
       - name: Verify CA admin
         run: |
@@ -410,7 +410,7 @@ jobs:
           docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg -s CA -v
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --debug
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify CA admin
         run: |
@@ -543,7 +543,7 @@ jobs:
           docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-existing-certs-step2.cfg -s CA -v
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --debug
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify CA keys
         run: |
@@ -862,7 +862,7 @@ jobs:
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-secure-ds.cfg -s CA -v
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --debug
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify DS connection
         run: |
@@ -1010,7 +1010,7 @@ jobs:
         run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/ca-secure-ds-primary.cfg -s CA -v
 
       - name: Run PKI healthcheck in primary container
-        run: docker exec primary pki-healthcheck --debug
+        run: docker exec primary pki-healthcheck --failures-only
 
       - name: Verify DS connection in primary container
         run: |
@@ -1110,7 +1110,7 @@ jobs:
           docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg -s CA -v
 
       - name: Run PKI healthcheck in secondary container
-        run: docker exec secondary pki-healthcheck --debug
+        run: docker exec secondary pki-healthcheck --failures-only
 
       - name: Verify DS connection in secondary container
         run: |
