@@ -101,7 +101,7 @@ jobs:
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/tps.cfg -s TPS -v
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --debug
+        run: docker exec pki pki-healthcheck --failures-only
 
       - name: Verify TPS admin
         run: |
