@@ -69,7 +69,7 @@ class ClonesPlugin(Plugin):
             status = json_response['Response']['Status']
 
         elif content_type == 'application/xml':
-            root = ET.fromstring(response)
+            root = ET.fromstring(content)
             status = root.findtext('Status')
 
         else:
