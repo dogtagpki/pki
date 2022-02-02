@@ -1781,23 +1781,23 @@ class PKIDeployer:
             if not clone and not standalone and ca_host:
                 ca_port = subsystem.config.get('preop.ca.httpsadminport')
                 ca_url = 'https://%s:%s' % (ca_host, ca_port)
-                uid = 'CA-%s-%s' % (ca_host, ca_port)
+                ca_uid = 'CA-%s-%s' % (ca_host, ca_port)
 
-                logger.info('Adding %s', uid)
+                logger.info('Adding %s', ca_uid)
                 subsystem.add_user(
-                    uid,
-                    full_name=uid,
+                    ca_uid,
+                    full_name=ca_uid,
                     user_type='agentType',
                     state='1')
 
                 logger.info('Getting subsystem certificate from %s', ca_url)
                 subsystem_cert_data = self.get_ca_subsystem_cert(instance, ca_url)
 
-                logger.info('Adding subsystem certificate into %s', uid)
-                subsystem.add_user_cert(uid, cert_data=subsystem_cert_data, cert_format='PEM')
+                logger.info('Adding subsystem certificate into %s', ca_uid)
+                subsystem.add_user_cert(ca_uid, cert_data=subsystem_cert_data, cert_format='PEM')
 
-                logger.info('Adding %s into Trusted Managers', uid)
-                subsystem.add_group_member('Trusted Managers', uid)
+                logger.info('Adding %s into Trusted Managers', ca_uid)
+                subsystem.add_group_member('Trusted Managers', ca_uid)
 
             ca_url = subsystem.config.get('preop.ca.url')
 
@@ -1820,23 +1820,23 @@ class PKIDeployer:
             if not clone and not standalone and ca_host:
                 ca_port = subsystem.config.get('preop.ca.httpsadminport')
                 ca_url = 'https://%s:%s' % (ca_host, ca_port)
-                uid = 'CA-%s-%s' % (ca_host, ca_port)
+                ca_uid = 'CA-%s-%s' % (ca_host, ca_port)
 
-                logger.info('Adding %s', uid)
+                logger.info('Adding %s', ca_uid)
                 subsystem.add_user(
-                    uid,
-                    full_name=uid,
+                    ca_uid,
+                    full_name=ca_uid,
                     user_type='agentType',
                     state='1')
 
                 logger.info('Getting subsystem certificate from %s', ca_url)
                 subsystem_cert_data = self.get_ca_subsystem_cert(instance, ca_url)
 
-                logger.info('Adding subsystem certificate into %s', uid)
-                subsystem.add_user_cert(uid, cert_data=subsystem_cert_data, cert_format='PEM')
+                logger.info('Adding subsystem certificate into %s', ca_uid)
+                subsystem.add_user_cert(ca_uid, cert_data=subsystem_cert_data, cert_format='PEM')
 
-                logger.info('Adding %s into Trusted Managers', uid)
-                subsystem.add_group_member('Trusted Managers', uid)
+                logger.info('Adding %s into Trusted Managers', ca_uid)
+                subsystem.add_group_member('Trusted Managers', ca_uid)
 
                 logger.info('Adding OCSP publisher in CA')
                 # For now don't register publishing with the CA for a clone,
@@ -1847,7 +1847,7 @@ class PKIDeployer:
 
         if subsystem.type == 'TPS':
 
-            uid = 'TPS-%s-%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
+            tps_uid = 'TPS-%s-%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
             full_name = subsystem.config['preop.subsystem.name']
             subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
 
@@ -1856,7 +1856,7 @@ class PKIDeployer:
                 instance,
                 'ca',
                 self.mdict['pki_ca_uri'],
-                uid,
+                tps_uid,
                 full_name,
                 cert=subsystem_cert,
                 session=self.install_token.token)
@@ -1866,7 +1866,7 @@ class PKIDeployer:
                 instance,
                 'tks',
                 self.mdict['pki_tks_uri'],
-                uid,
+                tps_uid,
                 full_name,
                 cert=subsystem_cert,
                 session=self.install_token.token)
@@ -1879,7 +1879,7 @@ class PKIDeployer:
                     instance,
                     'kra',
                     self.mdict['pki_kra_uri'],
-                    uid,
+                    tps_uid,
                     full_name,
                     cert=subsystem_cert,
                     session=self.install_token.token)
