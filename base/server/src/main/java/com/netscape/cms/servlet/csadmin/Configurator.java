@@ -628,6 +628,9 @@ public class Configurator {
         return cert;
     }
 
+    public void initSubsystem() throws Exception {
+    }
+
     public X509CertImpl createAdminCertificate(CertificateSetupRequest request) throws Exception {
         return null;
     }

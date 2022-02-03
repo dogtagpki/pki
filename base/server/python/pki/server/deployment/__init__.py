@@ -783,20 +783,25 @@ class PKIDeployer:
             logger.debug('- request: %s', system_cert['request'])
 
             client.loadCert(request)
-            return
 
-        logger.info('Creating %s certificate', tag)
-        cert = client.setupCert(request)
+        else:
 
-        logger.info('Storing %s certificate', tag)
-        logger.debug('- cert: %s', cert['cert'])
-        logger.debug('- request: %s', cert['request'])
+            logger.info('Creating %s certificate', tag)
+            cert = client.setupCert(request)
 
-        system_cert['data'] = cert['cert']
-        system_cert['request'] = cert['request']
-        system_cert['token'] = cert['token']
+            logger.info('Storing %s certificate', tag)
+            logger.debug('- cert: %s', cert['cert'])
+            logger.debug('- request: %s', cert['request'])
 
-        subsystem.update_system_cert(system_cert)
+            system_cert['data'] = cert['cert']
+            system_cert['request'] = cert['request']
+            system_cert['token'] = cert['token']
+
+            subsystem.update_system_cert(system_cert)
+
+        if subsystem.type == 'CA' and tag == 'signing':
+            logger.info('Initializing subsystem')
+            client.initSubsystem(request)
 
     def setup_system_certs(self, subsystem, client):
 

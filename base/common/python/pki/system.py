@@ -355,6 +355,7 @@ class SystemConfigClient(object):
 
         self.load_cert_url = '/rest/installer/loadCert'
         self.setup_cert_url = '/rest/installer/setupCert'
+        self.init_subsystem_url = '/rest/installer/initSubsystem'
         self.setup_admin_url = '/rest/installer/setupAdmin'
         self.backup_keys_url = '/rest/installer/backupKeys'
         self.setup_security_domain_url = '/rest/installer/setupSecurityDomain'
@@ -366,6 +367,7 @@ class SystemConfigClient(object):
 
             self.load_cert_url = '/' + subsystem + self.load_cert_url
             self.setup_cert_url = '/' + subsystem + self.setup_cert_url
+            self.init_subsystem_url = '/' + subsystem + self.init_subsystem_url
             self.setup_admin_url = '/' + subsystem + self.setup_admin_url
             self.backup_keys_url = '/' + subsystem + self.backup_keys_url
             self.setup_security_domain_url = '/' + subsystem + self.setup_security_domain_url
@@ -406,6 +408,21 @@ class SystemConfigClient(object):
             return None
 
         return response.json()
+
+    def initSubsystem(self, request):
+        """
+        Initialize subsystem.
+
+        :param request: Certificate setup request
+        :type request: CertificateSetupRequest
+        """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
+        headers = {'Content-type': 'application/json'}
+
+        self.connection.post(
+            self.init_subsystem_url,
+            data,
+            headers)
 
     def setupAdmin(self, request):
         """

@@ -171,6 +171,31 @@ public class SystemConfigService extends PKIService {
     }
 
     @POST
+    @Path("initSubsystem")
+    public void initSubsystem(CertificateSetupRequest request) throws Exception {
+
+        logger.info("SystemConfigService: Initializing subsystem");
+
+        try {
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            configurator.initSubsystem();
+
+        } catch (PKIException e) { // normal response
+            logger.error("Configuration failed: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Configuration failed: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @POST
     @Path("setupAdmin")
     public SystemCertData setupAdmin(CertificateSetupRequest request) throws Exception {
 

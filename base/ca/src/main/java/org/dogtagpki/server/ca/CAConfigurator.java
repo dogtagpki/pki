@@ -48,7 +48,6 @@ import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.csadmin.BootstrapProfile;
-import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
@@ -431,24 +430,14 @@ public class CAConfigurator extends Configurator {
     }
 
     @Override
-    public Cert setupCert(CertificateSetupRequest request) throws Exception {
-        Cert cert = super.setupCert(request);
+    public void initSubsystem() throws Exception {
 
-        String type = cs.getType();
-        String tag = request.getTag();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig engineConfig = engine.getConfig();
 
-        if (type.equals("CA") && tag.equals("signing")) {
-            logger.info("CAConfigurator: Initializing CA with signing cert");
-
-            CAEngine engine = CAEngine.getInstance();
-            CAEngineConfig engineConfig = engine.getConfig();
-
-            CertificateAuthority ca = engine.getCA();
-            ca.setConfig(engineConfig.getCAConfig());
-            ca.initCertSigningUnit();
-        }
-
-        return cert;
+        CertificateAuthority ca = engine.getCA();
+        ca.setConfig(engineConfig.getCAConfig());
+        ca.initCertSigningUnit();
     }
 
     @Override
@@ -498,17 +487,6 @@ public class CAConfigurator extends Configurator {
 
         } else {
             logger.info("CAConfigurator: " + tag + " cert issued by external CA, don't import into database");
-        }
-
-        if (type.equals("CA") && tag.equals("signing")) {
-            logger.info("CAConfigurator: Initializing CA with existing signing cert");
-
-            CAEngine engine = CAEngine.getInstance();
-            CAEngineConfig engineConfig = engine.getConfig();
-
-            CertificateAuthority ca = engine.getCA();
-            ca.setConfig(engineConfig.getCAConfig());
-            ca.initCertSigningUnit();
         }
     }
 
