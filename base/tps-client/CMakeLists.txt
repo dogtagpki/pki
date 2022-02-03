@@ -39,9 +39,18 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 add_subdirectory(src)
 add_subdirectory(tools)
 
+add_custom_target(tpsclient-man ALL
+    COMMENT "Creating PKI server manuals")
+
+add_custom_command(
+    TARGET tpsclient-man
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/man/man1
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/tpsclient.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/tpsclient.1
+)
+
 install(
     DIRECTORY
-        man/
+        ${CMAKE_CURRENT_BINARY_DIR}/man/
     DESTINATION
         ${MAN_INSTALL_DIR}
     FILE_PERMISSIONS

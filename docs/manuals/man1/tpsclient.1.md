@@ -1,52 +1,42 @@
-.\" First parameter, NAME, should be all caps
-.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
-.\" other parameters are allowed: see man(7), man(1)
-.TH tpsclient 1 "Jul 8, 2015" "version 10.2" "PKI TPS tpsclient test program" Dogtag Team
-.\" Please adjust this date whenever revising the man page.
-.\"
-.\" Some roff macros, for reference:
-.\" .nh        disable hyphenation
-.\" .hy        enable hyphenation
-.\" .ad l      left justify
-.\" .ad b      justify to both left and right margins
-.\" .nf        disable filling
-.\" .fi        enable filling
-.\" .br        insert line break
-.\" .sp <n>    insert n+1 empty lines
-.\" for man page specific macros, see man(7)
-.SH NAME
-\fBtpsclient\fR \- TPS testing tool to exercise TPS server functionality, simulating a smart card
+# tpsclient 1 "Jul 8, 2015" PKI "PKI TPS tpsclient test program"
 
-.SH SYNOPSIS
-.nf
-\fBtpsclient\fR < <script-file-name>\fR
-\fBtpsclient\fR
+# NAME
 
-Note this tool currently works to simulate Secure Channel Protocol 01 , GP201 tokens. Support for SCP02/GP211 is planned in future versions.
+**tpsclient** - TPS testing tool to exercise TPS server functionality, simulating a smart card.
 
-.fi
+# SYNOPSIS
 
-.SH DESCRIPTION
-.PP
-The \fBtpsclient\fR command provides a way to exercise the TPS server without a hardware token, through the use of a simple script file containing commands to the \fBtpsclient\fR engine.
-.PP
+**tpsclient** < *script-file*  
+**tpsclient**
 
-.SH OPTIONS
-The only option is whether or not to provide a script file. Not providing the script argument will launch the program in interactive mode, though this is not recommended. The best way to interact with the TPS server is to provide a simple script file to \fBtpsclient\fR.
+Note this tool currently works to simulate Secure Channel Protocol 01, GP201 tokens.
+Support for SCP02/GP211 is planned in future versions.
 
-.SH OPERATIONS
-The Operations are contained within the \fBtpsclient\fR script file. Some sample scripts are provided below.
+# DESCRIPTION
 
-.SH EXAMPLES
-\fBtpsclient\fR
+The **tpsclient** command provides a way to exercise the TPS server without a hardware token,
+through the use of a simple script file containing commands to the **tpsclient** engine.
 
-This command will simply run the program in interactive mode. Commands will have to be issued manually with this mode one by one, and thus is not recommended.
+# OPTIONS
 
+The only option is whether or not to provide a script file.
+Not providing the script argument will launch the program in interactive mode, though this is not recommended.
+The best way to interact with the TPS server is to provide a simple script file to **tpsclient**.
+
+# OPERATIONS
+
+The Operations are contained within the **tpsclient** script file. Some sample scripts are provided below.
+
+# EXAMPLES
+
+**tpsclient**
+
+This command will simply run the program in interactive mode.
+Commands will have to be issued manually with this mode one by one, and thus is not recommended.
 
 List of commands inside interactive mode:
 
-.nf
-
+```
 Output> Available Operations:
 Output> op=debug filename=<filename> - enable debugging
 Output> op=help
@@ -58,17 +48,16 @@ Output> op=token_status - Print Token Status
 Output> op=var_get name=<name> - Get Value of Variable
 Output> op=var_list - List All Variables
 Output> op=var_set name=<name> value=<value> - Set Value to Variable
+```
 
-.fi
 
+**tpsclient** < format.txt
 
-\fBtpsclient\fR < format.txt
+**tpsclient** < enroll.txt
 
-\fBtpsclient\fR < enroll.txt
+`format.txt` contents:
 
-.SH format.txt contents:
-.nf
-
+```
 # Set the host name of the TPS server
 op=var_set name=ra_host value=localhost.localdomain
 
@@ -100,13 +89,11 @@ op=ra_format uid=user1 pwd=secret123 new_pin=secret123 num_threads=1  extensions
 # Exit the operation and leave the program
 
 op=exit
+```
 
-.fi
+`enroll.txt` contents:
 
-.SH enroll.txt contents:
-
-.nf
-
+```
 # Set the host name of the TPS server
 op=var_set name=ra_host value=localhost.localdomain
 
@@ -134,7 +121,10 @@ op=token_set kek_key=404142434445464748494a4b4c4d4e4f
 # The TPS uses the type to control the flow of the operation.
 
 op=ra_enroll uid=user1 pwd=secret123 new_pin=secret123 num_threads=1  extensions=tokenType=userKey
-.fi
+```
 
-.SH COPYRIGHT
-Copyright (c) 2014 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+# COPYRIGHT
+
+Copyright (c) 2014 Red Hat, Inc.
+This is licensed under the GNU General Public License, version 2 (GPLv2).
+A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
