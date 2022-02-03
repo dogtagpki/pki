@@ -7,7 +7,7 @@
 
 ARG VENDOR="Dogtag"
 ARG MAINTAINER="Dogtag PKI Team <devel@lists.dogtagpki.org>"
-ARG COMPONENT="pki-core"
+ARG COMPONENT="dogtag-pki"
 ARG LICENSE="GPLv2 and LGPLv2"
 ARG ARCH="x86_64"
 ARG VERSION="0"
