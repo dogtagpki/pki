@@ -133,16 +133,20 @@ jobs:
               --trust CT,C,C \
               ca_signing
 
-          # verify trust flags
-          certutil -L -d /root/.dogtag/nssdb
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' > actual
+      - name: Verify trust flags
+        run: |
           echo "CTu,Cu,Cu" > expected
+
+          certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          # verify key type
-          certutil -K -d /root/.dogtag/nssdb
-          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:ca_signing$/\1/p' > actual
+      - name: Verify key type
+        run: |
           echo rsa > expected
+
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:ca_signing$/\1/p' output > actual
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
@@ -171,20 +175,25 @@ jobs:
               --cert sslserver.crt \
               sslserver
 
-          # verify trust flags
-          certutil -L -d /root/.dogtag/nssdb
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' > actual
-          echo "u,u,u" > expected
-          diff actual expected
-
-          # verify key type
-          certutil -K -d /root/.dogtag/nssdb
-          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:sslserver$/\1/p' > actual
-          echo rsa > expected
-          diff actual expected
-
           # get key ID
-          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:sslserver$/\1/p' > sslserver_key_id
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:sslserver$/\1/p' output > sslserver_key_id
+
+      - name: Verify trust flags
+        run: |
+          echo "u,u,u" > expected
+
+          certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+      - name: Verify key type
+        run: |
+          echo rsa > expected
+
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:sslserver$/\1/p' output > actual
+          diff actual expected
 
       - name: Delete SSL server cert
         run: |
@@ -216,20 +225,25 @@ jobs:
               --cert new_sslserver.crt \
               new_sslserver
 
-          # verify trust flags
-          certutil -L -d /root/.dogtag/nssdb
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^new_sslserver\s*\(\S\+\)\s*$/\1/p' > actual
+      - name: Verify trust flags
+        run: |
           echo "u,u,u" > expected
+
+          certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^new_sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          # verify key type
-          certutil -K -d /root/.dogtag/nssdb
-          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:new_sslserver$/\1/p' > actual
+      - name: Verify key type
+        run: |
           echo rsa > expected
+
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:new_sslserver$/\1/p' output > actual
           diff actual expected
 
           # verify key ID
-          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:new_sslserver$/\1/p' > new_sslserver_key_id
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:new_sslserver$/\1/p' output > new_sslserver_key_id
           diff sslserver_key_id new_sslserver_key_id
 
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
@@ -280,16 +294,20 @@ jobs:
               --trust CT,C,C \
               ca_signing
 
-          # verify trust flags
-          certutil -L -d /root/.dogtag/nssdb
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' > actual
+      - name: Verify trust flags
+        run: |
           echo "CTu,Cu,Cu" > expected
+
+          certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          # verify key type
-          certutil -K -d /root/.dogtag/nssdb
-          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:ca_signing$/\1/p' > actual
+      - name: Verify key type
+        run: |
           echo ec > expected
+
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:ca_signing$/\1/p' output > actual
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
@@ -319,20 +337,25 @@ jobs:
               --cert sslserver.crt \
               sslserver
 
-          # verify trust flags
-          certutil -L -d /root/.dogtag/nssdb
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' > actual
-          echo "u,u,u" > expected
-          diff actual expected
-
-          # verify key type
-          certutil -K -d /root/.dogtag/nssdb
-          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:sslserver$/\1/p' > actual
-          echo ec > expected
-          diff actual expected
-
           # get key ID
-          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:sslserver$/\1/p' > sslserver_key_id
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:sslserver$/\1/p' output > sslserver_key_id
+
+      - name: Verify trust flags
+        run: |
+          echo "u,u,u" > expected
+
+          certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+      - name: Verify key type
+        run: |
+          echo ec > expected
+
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:sslserver$/\1/p' output > actual
+          diff actual expected
 
       - name: Delete SSL server cert
         run: |
@@ -364,20 +387,26 @@ jobs:
               --cert new_sslserver.crt \
               new_sslserver
 
-          # verify trust flags
-          certutil -L -d /root/.dogtag/nssdb
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^new_sslserver\s*\(\S\+\)\s*$/\1/p' > actual
+      - name: Verify trust flags
+        run: |
           echo "u,u,u" > expected
+
+          certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^new_sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          # verify key type
-          certutil -K -d /root/.dogtag/nssdb
-          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:new_sslserver$/\1/p' > actual
+      - name: Verify key type
+        run: |
           echo ec > expected
+
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:new_sslserver$/\1/p' output > actual
           diff actual expected
 
-          # verify key ID
-          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:new_sslserver$/\1/p' > new_sslserver_key_id
+      - name: Verify key ID
+        run: |
+          certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:new_sslserver$/\1/p' output > new_sslserver_key_id
           diff sslserver_key_id new_sslserver_key_id
 
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
@@ -442,16 +471,20 @@ jobs:
               --trust CT,C,C \
               ca_signing
 
-          # verify CA signing cert trust flags in internal token
+      - name: Verify cert in internal token
+        run: |
+          echo "CT,C,C" > expected
+
           certutil -L -d /root/.dogtag/nssdb | tee output
           sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
-          echo "CT,C,C" > expected
           diff actual expected
 
-          # verify CA signing cert trust flags in HSM
+      - name: Verify cert in HSM
+        run: |
+          echo "CTu,Cu,Cu" > expected
+
           certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
           sed -n 's/^HSM:ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
-          echo "CTu,Cu,Cu" > expected
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
