@@ -61,11 +61,12 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          file: tests/ipa/Dockerfile
           build-args: |
             OS_VERSION=${{ matrix.os }}
             COPR_REPO=${{ needs.init.outputs.repo }}
-          tags: pki-runner
-          target: pki-runner
+          tags: ipa-runner
+          target: ipa-runner
           outputs: type=docker,dest=/tmp/ipa-runner.tar
 
       - name: Upload runner image
@@ -99,13 +100,8 @@ jobs:
         run: |
           tests/bin/runner-init.sh ipa
         env:
+          IMAGE: ipa-runner
           HOSTNAME: ipa.example.com
-
-      - name: Install IPA packages
-        run: |
-          docker exec ipa dnf copr enable -y @freeipa/freeipa-master-nightly
-          docker exec ipa dnf install -y freeipa-server freeipa-server-dns \
-              python3-ipatests freeipa-healthcheck
 
       - name: Install IPA server
         run: |
@@ -208,15 +204,11 @@ jobs:
         run: |
           tests/bin/runner-init.sh ipa
         env:
+          IMAGE: ipa-runner
           HOSTNAME: ipa.example.com
 
       - name: Connect IPA container to network
         run: docker network connect example ipa --alias ipa.example.com --alias ipa-ca.example.com
-
-      - name: Install IPA packages in IPA container
-        run: |
-          docker exec ipa dnf copr enable -y @freeipa/freeipa-master-nightly
-          docker exec ipa dnf install -y freeipa-server freeipa-server-dns
 
       - name: Install IPA server in IPA container
         run: |
@@ -259,16 +251,11 @@ jobs:
               --privileged \
               --tmpfs /tmp \
               --tmpfs /run \
-              pki-runner \
+              ipa-runner \
               /usr/sbin/init
 
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com
-
-      - name: Install dependencies in client container
-        run: |
-          docker exec client dnf copr enable -y @freeipa/freeipa-master-nightly
-          docker exec client dnf install -y freeipa-client certbot
 
       - name: Install IPA client in client container
         run: |
@@ -368,15 +355,11 @@ jobs:
         run: |
           tests/bin/runner-init.sh primary
         env:
+          IMAGE: ipa-runner
           HOSTNAME: primary.example.com
 
       - name: Connect primary container to network
         run: docker network connect example primary --alias primary.example.com
-
-      - name: Install IPA packages in primary container
-        run: |
-          docker exec primary dnf copr enable -y @freeipa/freeipa-master-nightly
-          docker exec primary dnf install -y freeipa-server freeipa-server-dns
 
       - name: Install IPA server in primary container
         run: |
@@ -397,15 +380,11 @@ jobs:
         run: |
           tests/bin/runner-init.sh secondary
         env:
+          IMAGE: ipa-runner
           HOSTNAME: secondary.example.com
 
       - name: Connect secondary container to network
         run: docker network connect example secondary --alias secondary.example.com
-
-      - name: Install IPA packages in secondary container
-        run: |
-          docker exec secondary dnf copr enable -y @freeipa/freeipa-master-nightly
-          docker exec secondary dnf install -y freeipa-server freeipa-server-dns
 
       - name: Install IPA client in secondary container
         run: |
