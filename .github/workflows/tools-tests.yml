@@ -141,6 +141,10 @@ jobs:
           sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
+          pki nss-cert-show ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
       - name: Verify key type
         run: |
           echo rsa > expected
@@ -187,6 +191,10 @@ jobs:
           sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
+          pki nss-cert-show sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
       - name: Verify key type
         run: |
           echo rsa > expected
@@ -231,6 +239,10 @@ jobs:
 
           certutil -L -d /root/.dogtag/nssdb | tee output
           sed -n 's/^new_sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+          pki nss-cert-show new_sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
       - name: Verify key type
@@ -302,6 +314,10 @@ jobs:
           sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
+          pki nss-cert-show ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
       - name: Verify key type
         run: |
           echo ec > expected
@@ -349,6 +365,10 @@ jobs:
           sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
+          pki nss-cert-show sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
       - name: Verify key type
         run: |
           echo ec > expected
@@ -393,6 +413,10 @@ jobs:
 
           certutil -L -d /root/.dogtag/nssdb | tee output
           sed -n 's/^new_sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+          pki nss-cert-show new_sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
       - name: Verify key type
@@ -479,12 +503,20 @@ jobs:
           sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
+          pki nss-cert-show ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
       - name: Verify cert in HSM
         run: |
           echo "CTu,Cu,Cu" > expected
 
           certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
           sed -n 's/^HSM:ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+          pki --token HSM -f password.conf nss-cert-show HSM:ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
