@@ -1,3 +1,0 @@
-#!/bin/sh
-
-../build.sh --name=pki-core --with-pkgs=base,server,ca,kra,ocsp,tks,tps,javadoc,console,debug "$@"

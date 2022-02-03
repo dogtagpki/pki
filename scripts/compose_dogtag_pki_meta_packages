@@ -1,3 +1,0 @@
-#!/bin/sh
-
-../build.sh --name=dogtag-pki --with-pkgs=theme,meta,debug "$@"
