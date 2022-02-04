@@ -252,7 +252,8 @@ public class CAConfigurator extends Configurator {
             String certRequestType,
             byte[] certRequest,
             X500Name issuerName,
-            X500Name subjectName) throws Exception {
+            X500Name subjectName,
+            RequestId requestID) throws Exception {
 
         logger.info("CAConfigurator: Creating local certificate");
 
@@ -298,7 +299,6 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
-        RequestId requestID = createRequestID();
         logger.info("CAConfigurator: Creating cert request " + requestID.toHexString());
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
@@ -457,6 +457,8 @@ public class CAConfigurator extends Configurator {
             signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
         }
 
+        RequestId requestID = createRequestID();
+
         return createLocalCert(
                 keyAlgorithm,
                 x509key,
@@ -468,6 +470,7 @@ public class CAConfigurator extends Configurator {
                 certRequestType,
                 binCertRequest,
                 issuerName,
-                subjectName);
+                subjectName,
+                requestID);
     }
 }

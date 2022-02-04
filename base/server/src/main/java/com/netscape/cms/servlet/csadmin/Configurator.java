@@ -53,6 +53,7 @@ import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
@@ -206,6 +207,10 @@ public class Configurator {
         return null;
     }
 
+    public RequestId createRequestID() throws Exception {
+        return null;
+    }
+
     public KeyPair loadKeyPair(X509Certificate cert) throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
@@ -313,7 +318,8 @@ public class Configurator {
             String certRequestType,
             byte[] certRequest,
             X500Name issuerName,
-            X500Name subjectName) throws Exception {
+            X500Name subjectName,
+            RequestId requestID) throws Exception {
 
         return null;
     }
@@ -620,6 +626,8 @@ public class Configurator {
                 signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
             }
 
+            RequestId requestID = createRequestID();
+
             certImpl = createLocalCert(
                     keyAlgorithm,
                     x509key,
@@ -631,7 +639,8 @@ public class Configurator {
                     certRequestType,
                     binCertRequest,
                     issuerName,
-                    subjectName);
+                    subjectName,
+                    requestID);
         }
 
         byte[] binCert = certImpl.getEncoded();
