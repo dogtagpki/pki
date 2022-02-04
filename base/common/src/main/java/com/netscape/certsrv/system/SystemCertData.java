@@ -24,6 +24,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -54,6 +55,7 @@ public class SystemCertData implements JSONSerializer {
 
     protected String requestType;
     protected String request;
+    protected RequestId requestID;
 
     protected String subjectDN;
 
@@ -202,6 +204,14 @@ public class SystemCertData implements JSONSerializer {
         this.request = request;
     }
 
+    public RequestId getRequestID() {
+        return requestID;
+    }
+
+    public void setRequestID(RequestId requestID) {
+        this.requestID = requestID;
+    }
+
     /**
      * @return the subjectDN
      */
@@ -274,6 +284,7 @@ public class SystemCertData implements JSONSerializer {
             + ", keyAlgorithm=" + keyAlgorithm
             + ", requestType=" + requestType
             + ", request=" + request
+            + ", requestID=" + requestID
             + ", subjectDN=" + subjectDN
             + ", cert=" + cert
             + ", req_ext_oid=" + req_ext_oid
@@ -298,6 +309,7 @@ public class SystemCertData implements JSONSerializer {
                 req_ext_data, req_ext_oid,
                 requestType,
                 request,
+                requestID,
                 subjectDN, tag, token, type);
         return result;
     }
@@ -322,6 +334,7 @@ public class SystemCertData implements JSONSerializer {
                 && Objects.equals(req_ext_data, other.req_ext_data) && Objects.equals(req_ext_oid, other.req_ext_oid)
                 && Objects.equals(requestType, other.requestType)
                 && Objects.equals(request, other.request)
+                && Objects.equals(requestID, other.requestID)
                 && Objects.equals(subjectDN, other.subjectDN)
                 && Objects.equals(tag, other.tag) && Objects.equals(token, other.token)
                 && Objects.equals(type, other.type);
