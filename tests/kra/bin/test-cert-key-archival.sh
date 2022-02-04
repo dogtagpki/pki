@@ -17,7 +17,7 @@ REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)\s*$/\1/p" output)
 echo "Request ID: $REQUEST_ID"
 
 # https://github.com/dogtagpki/pki/wiki/Handling-Certificate-Request
-pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+pki -u caadmin -w Secret.123 ca-cert-request-approve $REQUEST_ID --force | tee output
 
 CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)\s*$/\1/p" output)
 echo "Cert ID: $CERT_ID"
@@ -38,7 +38,7 @@ diff expected actual
 # Currently there's no mechanism in KRA to find the key that corresponds to
 # a cert so the test will try to find all keys in KRA instead.
 # TODO: add mechanism to find the cert's exact key
-pki -n caadmin kra-key-find | tee output
+pki -u kraadmin -w Secret.123 kra-key-find | tee output
 
 KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output)
 echo "Key ID: $KEY_ID"
