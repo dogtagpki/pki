@@ -378,14 +378,18 @@ class SystemConfigClient(object):
 
         :param request: Certificate setup request
         :type request: CertificateSetupRequest
+        :return: SystemCertData
         """
         data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
-        headers = {'Content-type': 'application/json'}
+        headers = {'Content-type': 'application/json',
+                   'Accept': 'application/json'}
 
-        self.connection.post(
+        response = self.connection.post(
             self.load_cert_url,
             data,
             headers)
+
+        return response.json()
 
     def setupCert(self, request):
         """
@@ -403,9 +407,6 @@ class SystemConfigClient(object):
             self.setup_cert_url,
             data,
             headers)
-
-        if not response.content:
-            return None
 
         return response.json()
 

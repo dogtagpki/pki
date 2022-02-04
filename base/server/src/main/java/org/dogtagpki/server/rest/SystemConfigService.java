@@ -82,7 +82,7 @@ public class SystemConfigService extends PKIService {
 
     @POST
     @Path("loadCert")
-    public void loadCert(CertificateSetupRequest request) throws Exception {
+    public SystemCertData loadCert(CertificateSetupRequest request) throws Exception {
 
         String tag = request.getTag();
         logger.info("SystemConfigService: Loading existing " + tag + " certificate");
@@ -138,7 +138,7 @@ public class SystemConfigService extends PKIService {
 
             if (!issuerDN.equals(caSigningSubjectDN)) {
                 logger.info("SystemConfigService: " + tag + " cert issued by external CA, don't import into database");
-                return;
+                return certData;
             }
 
             configurator.loadCert(
@@ -149,6 +149,8 @@ public class SystemConfigService extends PKIService {
                     certImpl,
                     profileID,
                     dnsNames);
+
+            return certData;
 
         } catch (PKIException e) { // normal response
             logger.error("Unable to load " + tag + " certificate: " + e.getMessage());

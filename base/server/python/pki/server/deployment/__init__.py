@@ -782,7 +782,7 @@ class PKIDeployer:
             logger.debug('- cert: %s', system_cert['data'])
             logger.debug('- request: %s', system_cert['request'])
 
-            client.loadCert(request)
+            cert = client.loadCert(request)
 
         else:
 
@@ -798,6 +798,9 @@ class PKIDeployer:
             system_cert['token'] = cert['token']
 
             subsystem.update_system_cert(system_cert)
+
+        request_id = cert.get('requestID')
+        logger.info('Request ID: %s', request_id)
 
         if subsystem.type == 'CA' and tag == 'signing':
             logger.info('Initializing subsystem')
