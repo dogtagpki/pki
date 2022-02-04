@@ -189,7 +189,8 @@ public class CAConfigurator extends Configurator {
             boolean installAdjustValidity,
             String certRequestType,
             byte[] certRequest,
-            X500Name subjectName) throws Exception {
+            X500Name subjectName,
+            RequestId requestID) throws Exception {
 
         logger.info("CAConfigurator: Importing certificate and request into database");
         logger.info("CAConfigurator: - subject DN: " + cert.getSubjectDN());
@@ -211,7 +212,6 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
-        RequestId requestID = createRequestID();
         logger.info("CAConfigurator: Creating cert request " + requestID);
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
@@ -473,21 +473,23 @@ public class CAConfigurator extends Configurator {
         Principal caSigningSubjectDN = caSigningCert.getSubjectDN();
         logger.info("CAConfigurator: CA signing subject DN: " + caSigningSubjectDN);
 
-        if (certImpl.getIssuerDN().equals(caSigningSubjectDN)) {
-            logger.info("CAConfigurator: " + tag + " cert issued by this CA, import into database");
-            importCert(
-                    x509key,
-                    certImpl,
-                    profileID,
-                    dnsNames,
-                    installAdjustValidity,
-                    certRequestType,
-                    binCertRequest,
-                    subjectName);
-
-        } else {
+        if (!certImpl.getIssuerDN().equals(caSigningSubjectDN)) {
             logger.info("CAConfigurator: " + tag + " cert issued by external CA, don't import into database");
+            return;
         }
+
+        RequestId requestID = createRequestID();
+
+        importCert(
+                x509key,
+                certImpl,
+                profileID,
+                dnsNames,
+                installAdjustValidity,
+                certRequestType,
+                binCertRequest,
+                subjectName,
+                requestID);
     }
 
     @Override
