@@ -455,7 +455,7 @@ public class Configurator {
             String[] dnsNames) throws Exception {
     }
 
-    public Cert setupCert(CertificateSetupRequest request) throws Exception {
+    public SystemCertData setupCert(CertificateSetupRequest request) throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -496,7 +496,6 @@ public class Configurator {
         }
 
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-        Cert cert = new Cert(tokenName, nickname, tag);
 
         X509Certificate x509Cert;
         KeyPair keyPair;
@@ -560,7 +559,7 @@ public class Configurator {
             throw new Exception("Certificate request type not supported: " + certRequestType);
         }
 
-        cert.setRequest(binCertRequest);
+        certData.setRequest(CryptoUtil.base64Encode(binCertRequest));
 
         X509CertImpl certImpl;
 
@@ -627,6 +626,7 @@ public class Configurator {
             }
 
             RequestId requestID = createRequestID();
+            certData.setRequestID(requestID);
 
             certImpl = createLocalCert(
                     keyAlgorithm,
@@ -644,11 +644,11 @@ public class Configurator {
         }
 
         byte[] binCert = certImpl.getEncoded();
-        cert.setCert(binCert);
+        certData.setCert(CryptoUtil.base64Encode(binCert));
 
         if (tag.equals("sslserver")) {
             logger.info("Configurator: temporary SSL server cert will be replaced on restart");
-            return cert;
+            return certData;
         }
 
         if (x509Cert != null) {
@@ -659,7 +659,7 @@ public class Configurator {
         logger.debug("Configurator: importing " + tag + " cert");
         x509Cert = CryptoUtil.importUserCertificate(binCert, nickname);
 
-        return cert;
+        return certData;
     }
 
     public void initSubsystem() throws Exception {

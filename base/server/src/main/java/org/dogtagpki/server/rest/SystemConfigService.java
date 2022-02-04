@@ -34,9 +34,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.Configurator;
-import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -176,9 +174,7 @@ public class SystemConfigService extends PKIService {
                 throw new BadRequestException("System already configured");
             }
 
-            Cert cert = configurator.setupCert(request);
-
-            return SystemCertDataFactory.create(cert);
+            return configurator.setupCert(request);
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
