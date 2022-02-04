@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 # revoke the cert
-pki -n caadmin ca-cert-hold `cat /tmp/cert_id` --force
+pki -u caadmin -w Secret.123 ca-cert-hold `cat /tmp/cert_id` --force
 
 set +e
 
