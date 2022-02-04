@@ -318,21 +318,6 @@ public class Configurator {
         return null;
     }
 
-    public X509CertImpl createCert(
-            String tag,
-            KeyPair keyPair,
-            X509Key x509key,
-            String keyAlgorithm,
-            String certRequestType,
-            byte[] binCertRequest,
-            String certType,
-            X500Name subjectName,
-            String profileID,
-            String[] dnsNames) throws Exception {
-
-        return null;
-    }
-
     public X509CertImpl createRemoteCert(
             String hostname,
             int port,
@@ -618,17 +603,35 @@ public class Configurator {
 
         } else { // certType == "selfsign" || certType == "local"
 
-            certImpl = createCert(
-                    tag,
-                    keyPair,
-                    x509key,
+            boolean installAdjustValidity = !tag.equals("signing");
+
+            X500Name issuerName;
+            PrivateKey signingPrivateKey;
+            String signingAlgorithm;
+
+            if (certType.equals("selfsign")) {
+                issuerName = subjectName;
+                signingPrivateKey = keyPair.getPrivate();
+                signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
+
+            } else { // certType == local
+                issuerName = null;
+                signingPrivateKey = null;
+                signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
+            }
+
+            certImpl = createLocalCert(
                     keyAlgorithm,
+                    x509key,
+                    profileID,
+                    dnsNames,
+                    installAdjustValidity,
+                    signingPrivateKey,
+                    signingAlgorithm,
                     certRequestType,
                     binCertRequest,
-                    certType,
-                    subjectName,
-                    profileID,
-                    dnsNames);
+                    issuerName,
+                    subjectName);
         }
 
         byte[] binCert = certImpl.getEncoded();

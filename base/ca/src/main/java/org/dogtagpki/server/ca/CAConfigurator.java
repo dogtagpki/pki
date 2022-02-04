@@ -40,7 +40,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.system.CertificateSetupRequest;
-import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.csadmin.BootstrapProfile;
@@ -335,52 +334,6 @@ public class CAConfigurator extends Configurator {
         certificateRepository.addCertificateRecord(certRecord);
 
         return cert;
-    }
-
-    @Override
-    public X509CertImpl createCert(
-            String tag,
-            KeyPair keyPair,
-            X509Key x509key,
-            String keyAlgorithm,
-            String certRequestType,
-            byte[] binCertRequest,
-            String certType,
-            X500Name subjectName,
-            String profileID,
-            String[] dnsNames) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        boolean installAdjustValidity = !tag.equals("signing");
-
-        X500Name issuerName;
-        PrivateKey signingPrivateKey;
-        String signingAlgorithm;
-
-        if (certType.equals("selfsign")) {
-            issuerName = subjectName;
-            signingPrivateKey = keyPair.getPrivate();
-            signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-
-        } else { // certType == local
-            issuerName = null;
-            signingPrivateKey = null;
-            signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
-        }
-
-        return createLocalCert(
-                keyAlgorithm,
-                x509key,
-                profileID,
-                dnsNames,
-                installAdjustValidity,
-                signingPrivateKey,
-                signingAlgorithm,
-                certRequestType,
-                binCertRequest,
-                issuerName,
-                subjectName);
     }
 
     @Override
