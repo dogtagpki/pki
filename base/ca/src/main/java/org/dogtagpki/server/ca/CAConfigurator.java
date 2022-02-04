@@ -19,7 +19,6 @@ package org.dogtagpki.server.ca;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.URL;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.util.Date;
@@ -350,29 +349,9 @@ public class CAConfigurator extends Configurator {
             X500Name subjectName,
             String profileID,
             String[] dnsNames,
-            Boolean clone,
-            URL masterURL,
             InstallToken installToken) throws Exception {
 
-        if (clone && tag.equals("sslserver")) {
-
-            // For Cloned CA always use its Master CA to generate the
-            // sslserver certificate to avoid any changes which may have
-            // been made to the X500Name directory string encoding order.
-
-            String hostname = masterURL.getHost();
-            int port = masterURL.getPort();
-
-            return createRemoteCert(
-                    hostname,
-                    port,
-                    profileID,
-                    certRequestType,
-                    binCertRequest,
-                    dnsNames,
-                    installToken);
-
-        } else if (certType.equals("selfsign") || certType.equals("local")) {
+        if (certType.equals("selfsign") || certType.equals("local")) {
 
             PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -420,8 +399,6 @@ public class CAConfigurator extends Configurator {
                     subjectName,
                     profileID,
                     dnsNames,
-                    clone,
-                    masterURL,
                     installToken);
         }
     }

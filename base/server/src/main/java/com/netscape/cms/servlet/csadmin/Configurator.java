@@ -329,8 +329,6 @@ public class Configurator {
             X500Name subjectName,
             String profileID,
             String[] dnsNames,
-            Boolean clone,
-            URL masterURL,
             InstallToken installToken) throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -595,20 +593,41 @@ public class Configurator {
 
         cert.setRequest(binCertRequest);
 
-        X509CertImpl certImpl = createCert(
-                tag,
-                keyPair,
-                x509key,
-                keyAlgorithm,
-                certRequestType,
-                binCertRequest,
-                certType,
-                subjectName,
-                profileID,
-                dnsNames,
-                clone,
-                masterURL,
-                installToken);
+        X509CertImpl certImpl;
+
+        if (type.equals("CA") && clone && tag.equals("sslserver")) {
+
+            // For CA clone always use the master CA to generate the SSL
+            // server certificate to avoid any changes which may have
+            // been made to the X500Name directory string encoding order.
+
+            String hostname = masterURL.getHost();
+            int port = masterURL.getPort();
+
+            certImpl = createRemoteCert(
+                    hostname,
+                    port,
+                    profileID,
+                    certRequestType,
+                    binCertRequest,
+                    dnsNames,
+                    installToken);
+
+        } else {
+
+            certImpl = createCert(
+                    tag,
+                    keyPair,
+                    x509key,
+                    keyAlgorithm,
+                    certRequestType,
+                    binCertRequest,
+                    certType,
+                    subjectName,
+                    profileID,
+                    dnsNames,
+                    installToken);
+        }
 
         byte[] binCert = certImpl.getEncoded();
         cert.setCert(binCert);
