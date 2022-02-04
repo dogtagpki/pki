@@ -479,10 +479,11 @@ public class Configurator {
     }
 
     public void loadCert(
+            SystemCertData certData,
             String type,
             String tag,
             String certRequestType,
-            X509Certificate x509Cert,
+            X509CertImpl certImpl,
             String profileID,
             String[] dnsNames) throws Exception {
     }

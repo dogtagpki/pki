@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.rest;
 
+import java.security.Principal;
+
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
@@ -122,13 +124,29 @@ public class SystemConfigService extends PKIService {
             }
 
             CryptoManager cm = CryptoManager.getInstance();
+
             X509Certificate x509Cert = cm.findCertByNickname(fullName);
+            byte[] binCert = x509Cert.getEncoded();
+            X509CertImpl certImpl = new X509CertImpl(binCert);
+            Principal issuerDN = certImpl.getIssuerDN();
+            logger.info("SystemConfigService: issuer DN: " + issuerDN);
+
+            String caSigningNickname = cs.getString("ca.signing.nickname");
+            X509Certificate caSigningCert = cm.findCertByNickname(caSigningNickname);
+            Principal caSigningSubjectDN = caSigningCert.getSubjectDN();
+            logger.info("SystemConfigService: CA signing subject DN: " + caSigningSubjectDN);
+
+            if (!issuerDN.equals(caSigningSubjectDN)) {
+                logger.info("SystemConfigService: " + tag + " cert issued by external CA, don't import into database");
+                return;
+            }
 
             configurator.loadCert(
+                    certData,
                     type,
                     tag,
                     certRequestType,
-                    x509Cert,
+                    certImpl,
                     profileID,
                     dnsNames);
 

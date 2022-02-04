@@ -21,13 +21,10 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.KeyPair;
-import java.security.Principal;
 import java.security.PrivateKey;
 import java.util.Date;
 
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -442,10 +439,11 @@ public class CAConfigurator extends Configurator {
 
     @Override
     public void loadCert(
+            SystemCertData certData,
             String type,
             String tag,
             String certRequestType,
-            X509Certificate x509Cert,
+            X509CertImpl certImpl,
             String profileID,
             String[] dnsNames) throws Exception {
 
@@ -455,30 +453,14 @@ public class CAConfigurator extends Configurator {
         logger.debug("CAConfigurator: request: " + certreq);
         byte[] binCertRequest = CryptoUtil.base64Decode(certreq);
 
-        logger.info("CAConfigurator: Loading existing " + tag + " certificate");
-        byte[] binCert = x509Cert.getEncoded();
-
         boolean installAdjustValidity = !tag.equals("signing");
         X500Name subjectName = null;
 
         PKCS10 pkcs10 = new PKCS10(binCertRequest);
         X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
-        X509CertImpl certImpl = new X509CertImpl(binCert);
-
-        CryptoManager cm = CryptoManager.getInstance();
-
-        String caSigningNickname = cs.getString("ca.signing.nickname");
-        X509Certificate caSigningCert = cm.findCertByNickname(caSigningNickname);
-
-        Principal caSigningSubjectDN = caSigningCert.getSubjectDN();
-        logger.info("CAConfigurator: CA signing subject DN: " + caSigningSubjectDN);
-
-        if (!certImpl.getIssuerDN().equals(caSigningSubjectDN)) {
-            logger.info("CAConfigurator: " + tag + " cert issued by external CA, don't import into database");
-            return;
-        }
 
         RequestId requestID = createRequestID();
+        certData.setRequestID(requestID);
 
         importCert(
                 x509key,
