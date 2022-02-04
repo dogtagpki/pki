@@ -328,31 +328,9 @@ public class Configurator {
             String certType,
             X500Name subjectName,
             String profileID,
-            String[] dnsNames,
-            InstallToken installToken) throws Exception {
+            String[] dnsNames) throws Exception {
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String hostname;
-        int port;
-
-        if (tag.equals("subsystem")) {
-            hostname = cs.getString("securitydomain.host", "");
-            port = cs.getInteger("securitydomain.httpseeport", -1);
-
-        } else {
-            hostname = preopConfig.getString("ca.hostname", "");
-            port = preopConfig.getInteger("ca.httpsport", -1);
-        }
-
-        return createRemoteCert(
-                hostname,
-                port,
-                profileID,
-                certRequestType,
-                binCertRequest,
-                dnsNames,
-                installToken);
+        return null;
     }
 
     public X509CertImpl createRemoteCert(
@@ -613,7 +591,32 @@ public class Configurator {
                     dnsNames,
                     installToken);
 
-        } else {
+        } else if (certType.equals("remote")) {
+
+            // Issue subordinate CA signing cert using remote CA signing cert.
+
+            String hostname;
+            int port;
+
+            if (tag.equals("subsystem")) {
+                hostname = cs.getString("securitydomain.host", "");
+                port = cs.getInteger("securitydomain.httpseeport", -1);
+
+            } else {
+                hostname = preopConfig.getString("ca.hostname", "");
+                port = preopConfig.getInteger("ca.httpsport", -1);
+            }
+
+            certImpl = createRemoteCert(
+                    hostname,
+                    port,
+                    profileID,
+                    certRequestType,
+                    binCertRequest,
+                    dnsNames,
+                    installToken);
+
+        } else { // certType == "selfsign" || certType == "local"
 
             certImpl = createCert(
                     tag,
@@ -625,8 +628,7 @@ public class Configurator {
                     certType,
                     subjectName,
                     profileID,
-                    dnsNames,
-                    installToken);
+                    dnsNames);
         }
 
         byte[] binCert = certImpl.getEncoded();

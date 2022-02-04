@@ -348,59 +348,39 @@ public class CAConfigurator extends Configurator {
             String certType,
             X500Name subjectName,
             String profileID,
-            String[] dnsNames,
-            InstallToken installToken) throws Exception {
+            String[] dnsNames) throws Exception {
 
-        if (certType.equals("selfsign") || certType.equals("local")) {
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
-            PreOpConfig preopConfig = cs.getPreOpConfig();
+        boolean installAdjustValidity = !tag.equals("signing");
 
-            boolean installAdjustValidity = !tag.equals("signing");
+        X500Name issuerName;
+        PrivateKey signingPrivateKey;
+        String signingAlgorithm;
 
-            X500Name issuerName;
-            PrivateKey signingPrivateKey;
-            String signingAlgorithm;
+        if (certType.equals("selfsign")) {
+            issuerName = subjectName;
+            signingPrivateKey = keyPair.getPrivate();
+            signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
 
-            if (certType.equals("selfsign")) {
-                issuerName = subjectName;
-                signingPrivateKey = keyPair.getPrivate();
-                signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-
-            } else { // certType == local
-                issuerName = null;
-                signingPrivateKey = null;
-                signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
-            }
-
-            return createLocalCert(
-                    keyAlgorithm,
-                    x509key,
-                    profileID,
-                    dnsNames,
-                    installAdjustValidity,
-                    signingPrivateKey,
-                    signingAlgorithm,
-                    certRequestType,
-                    binCertRequest,
-                    issuerName,
-                    subjectName);
-
-        } else { // certType == "remote"
-
-            // issue subordinate CA signing cert using remote CA signing cert
-            return super.createCert(
-                    tag,
-                    keyPair,
-                    x509key,
-                    keyAlgorithm,
-                    certRequestType,
-                    binCertRequest,
-                    certType,
-                    subjectName,
-                    profileID,
-                    dnsNames,
-                    installToken);
+        } else { // certType == local
+            issuerName = null;
+            signingPrivateKey = null;
+            signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
         }
+
+        return createLocalCert(
+                keyAlgorithm,
+                x509key,
+                profileID,
+                dnsNames,
+                installAdjustValidity,
+                signingPrivateKey,
+                signingAlgorithm,
+                certRequestType,
+                binCertRequest,
+                issuerName,
+                subjectName);
     }
 
     @Override
