@@ -20,7 +20,6 @@ package com.netscape.cms.logging;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.logging.ILogEvent;
-import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogEvent;
@@ -38,7 +37,7 @@ import com.netscape.certsrv.logging.LogSource;
 public class Logger implements ILogger {
 
     protected static Logger mLogger = new Logger();
-    protected ILogQueue mLogQueue = LogQueue.getLogQueue();
+    protected LogQueue mLogQueue = LogQueue.getLogQueue();
     protected static Hashtable<LogCategory, LogFactory> mFactories = new Hashtable<>();
 
     static {
@@ -88,7 +87,7 @@ public class Logger implements ILogger {
      * Retrieves the associated log queue.
      */
     @Override
-    public ILogQueue getLogQueue() {
+    public LogQueue getLogQueue() {
         return mLogQueue;
     }
 

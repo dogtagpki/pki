@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEventListener;
-import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.LogPlugin;
 import com.netscape.cms.logging.LogQueue;
@@ -50,7 +49,7 @@ public class LogSubsystem implements ILogSubsystem {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogSubsystem.class);
 
     private static LogSubsystem mInstance = new LogSubsystem();
-    private static ILogQueue mLogQueue = LogQueue.getLogQueue();
+    private static LogQueue mLogQueue = LogQueue.getLogQueue();
     private IConfigStore mConfig = null;
 
     public static final String PROP_LOGGING = "log";

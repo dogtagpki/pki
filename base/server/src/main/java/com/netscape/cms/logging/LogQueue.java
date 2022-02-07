@@ -21,18 +21,18 @@ import java.util.Vector;
 
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventListener;
-import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.cmscore.apps.CMS;
 
 /**
- * A class represents a log queue.
- * <P>
+ * A class represents a log queue. A log queue
+ * is a queue of pending log events to be dispatched
+ * to a set of registered ILogEventListeners.
  *
  * @author mzhao
  * @version $Revision$, $Date$
  */
-public class LogQueue implements ILogQueue {
+public class LogQueue {
 
     private static LogQueue mLogQueue = new LogQueue();
     protected Vector<ILogEventListener> mListeners = new Vector<>();
@@ -43,26 +43,21 @@ public class LogQueue implements ILogQueue {
     public LogQueue() {
     }
 
-    public static ILogQueue getLogQueue() {
+    public static LogQueue getLogQueue() {
         return mLogQueue;
     }
 
     /**
      * Initializes the log queue.
-     * <P>
-     *
      */
-    @Override
     public void init() {
         mListeners.clear();
 
     }
 
     /**
-     * Stops this log queue: shuts down all registered listeners
-     * <P>
+     * Stops this log queue: shuts down all registered listeners.
      */
-    @Override
     public void shutdown() {
         for (int i = 0; i < mListeners.size(); i++) {
             ILogEventListener listener = mListeners.elementAt(i);
@@ -71,11 +66,11 @@ public class LogQueue implements ILogQueue {
     }
 
     /**
-     * Adds an event listener.
+     * Registers an event listener.
      *
-     * @param listener the log event listener
+     * @param listener The log event listener to be registered
+     *            to this queue.
      */
-    @Override
     public void addLogEventListener(ILogEventListener listener) {
         //Make sure we don't have duplicated listener
         if (!mListeners.contains(listener)) {
@@ -86,19 +81,17 @@ public class LogQueue implements ILogQueue {
     /**
      * Removes an event listener.
      *
-     * @param listener the log event listener
+     * @param listener The log event listener to be removed from this queue.
      */
-    @Override
     public void removeLogEventListener(ILogEventListener listener) {
         mListeners.removeElement(listener);
     }
 
     /**
-     * Logs an event, and notifies logger to reuse the event.
+     * Dispatch the log event to all registered log event listeners.
      *
      * @param event the log event
      */
-    @Override
     public void log(ILogEvent event) {
         for (int i = 0; i < mListeners.size(); i++) {
 
@@ -119,9 +112,9 @@ public class LogQueue implements ILogQueue {
     }
 
     /**
-     * Flushes the log buffers (if any)
+     * Flushes log queue, flushes all registered listeners.
+     * Messages should be written to their destination.
      */
-    @Override
     public void flush() {
         for (int i = 0; i < mListeners.size(); i++) {
             mListeners.elementAt(i).flush();

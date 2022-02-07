@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
+import com.netscape.cms.logging.LogQueue;
+
 /**
  * An interface represents a logger for certificate server. This object is used to
  * issue log messages for the various types of logging event types. A log message results
@@ -358,5 +360,5 @@ public interface ILogger {
      * Retrieves the associated log queue. The log queue is where issued log events
      * are collected for later processing.
      */
-    public ILogQueue getLogQueue();
+    public LogQueue getLogQueue();
 }
