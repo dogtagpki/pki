@@ -176,6 +176,7 @@ public class CAConfigurator extends Configurator {
         request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
     }
 
+    @Override
     public void importCert(
             X509Key x509key,
             X509CertImpl cert,
@@ -186,10 +187,6 @@ public class CAConfigurator extends Configurator {
             byte[] certRequest,
             X500Name subjectName,
             RequestId requestID) throws Exception {
-
-        logger.info("CAConfigurator: Importing certificate and request into database");
-        logger.info("CAConfigurator: - subject DN: " + cert.getSubjectDN());
-        logger.info("CAConfigurator: - issuer DN: " + cert.getIssuerDN());
 
         // When importing existing self-signed CA certificate, create a
         // certificate record to reserve the serial number. Otherwise it
@@ -231,6 +228,11 @@ public class CAConfigurator extends Configurator {
 
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(request);
+
+        logger.info("CAConfigurator: Importing certificate into database:");
+        logger.info("CAConfigurator: - serial number: 0x" + cert.getSerialNumber().toString(16));
+        logger.info("CAConfigurator: - subject: " + cert.getSubjectDN());
+        logger.info("CAConfigurator: - issuer: " + cert.getIssuerDN());
 
         CertificateRepository certificateRepository = engine.getCertificateRepository();
         CertRecord certRecord = certificateRepository.createCertRecord(
@@ -345,43 +347,6 @@ public class CAConfigurator extends Configurator {
         CertificateAuthority ca = engine.getCA();
         ca.setConfig(engineConfig.getCAConfig());
         ca.initCertSigningUnit();
-    }
-
-    @Override
-    public void loadCert(
-            SystemCertData certData,
-            String type,
-            String tag,
-            String certRequestType,
-            X509CertImpl certImpl,
-            String profileID,
-            String[] dnsNames) throws Exception {
-
-        logger.info("CAConfigurator: Loading existing " + tag + " cert request");
-
-        String certreq = cs.getString(type.toLowerCase() + "." + tag + ".certreq");
-        logger.debug("CAConfigurator: request: " + certreq);
-        byte[] binCertRequest = CryptoUtil.base64Decode(certreq);
-
-        boolean installAdjustValidity = !tag.equals("signing");
-        X500Name subjectName = null;
-
-        PKCS10 pkcs10 = new PKCS10(binCertRequest);
-        X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
-
-        RequestId requestID = createRequestID();
-        certData.setRequestID(requestID);
-
-        importCert(
-                x509key,
-                certImpl,
-                profileID,
-                dnsNames,
-                installAdjustValidity,
-                certRequestType,
-                binCertRequest,
-                subjectName,
-                requestID);
     }
 
     @Override

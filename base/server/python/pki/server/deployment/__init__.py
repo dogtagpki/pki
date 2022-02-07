@@ -712,6 +712,10 @@ class PKIDeployer:
         request.systemCert.keyAlgorithm = subsystem.config['preop.cert.%s.keyalgorithm' % tag]
 
         request.systemCert.requestType = 'pkcs10'
+        b64csr = subsystem.config.get('%s.%s.certreq' % (subsystem.name, tag))
+        if b64csr:
+            request.systemCert.request = b64csr
+
         request.systemCert.profile = subsystem.config['preop.cert.%s.profile' % tag]
 
         request.systemCert.req_ext_oid = subsystem.config.get('preop.cert.%s.ext.oid' % tag)

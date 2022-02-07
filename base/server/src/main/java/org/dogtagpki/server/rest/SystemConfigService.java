@@ -24,13 +24,17 @@ import javax.ws.rs.Path;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.base.PKIService;
@@ -92,8 +96,6 @@ public class SystemConfigService extends PKIService {
                 throw new BadRequestException("System already configured");
             }
 
-            String type = cs.getType();
-
             SystemCertData certData = request.getSystemCert();
 
             String nickname = certData.getNickname();
@@ -101,6 +103,29 @@ public class SystemConfigService extends PKIService {
 
             String tokenName = certData.getToken();
             logger.info("SystemConfigService: - token: " + tokenName);
+
+            String fullName = nickname;
+            if (!CryptoUtil.isInternalToken(tokenName)) {
+                fullName = tokenName + ":" + nickname;
+            }
+
+            CryptoManager cm = CryptoManager.getInstance();
+
+            X509Certificate x509Cert = cm.findCertByNickname(fullName);
+            byte[] binCert = x509Cert.getEncoded();
+            X509CertImpl certImpl = new X509CertImpl(binCert);
+            Principal issuerDN = certImpl.getIssuerDN();
+            logger.info("SystemConfigService: - issuer DN: " + issuerDN);
+
+            String caSigningNickname = cs.getString("ca.signing.nickname");
+            X509Certificate caSigningCert = cm.findCertByNickname(caSigningNickname);
+            Principal caSigningSubjectDN = caSigningCert.getSubjectDN();
+            logger.info("SystemConfigService: - signing subject DN: " + caSigningSubjectDN);
+
+            if (!issuerDN.equals(caSigningSubjectDN)) {
+                logger.info("SystemConfigService: " + tag + " cert issued by external CA, don't import into database");
+                return certData;
+            }
 
             String certRequestType = certData.getRequestType();
             logger.info("SystemConfigService: - request type: " + certRequestType);
@@ -116,37 +141,27 @@ public class SystemConfigService extends PKIService {
                 }
             }
 
-            String fullName = nickname;
-            if (!CryptoUtil.isInternalToken(tokenName)) {
-                fullName = tokenName + ":" + nickname;
-            }
+            String certRequest = certData.getRequest();
+            byte[] binCertRequest = Utils.base64decode(certRequest);
+            PKCS10 pkcs10 = new PKCS10(binCertRequest);
+            X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
 
-            CryptoManager cm = CryptoManager.getInstance();
+            boolean installAdjustValidity = !tag.equals("signing");
+            X500Name subjectName = null;
 
-            X509Certificate x509Cert = cm.findCertByNickname(fullName);
-            byte[] binCert = x509Cert.getEncoded();
-            X509CertImpl certImpl = new X509CertImpl(binCert);
-            Principal issuerDN = certImpl.getIssuerDN();
-            logger.info("SystemConfigService: issuer DN: " + issuerDN);
+            RequestId requestID = configurator.createRequestID();
+            certData.setRequestID(requestID);
 
-            String caSigningNickname = cs.getString("ca.signing.nickname");
-            X509Certificate caSigningCert = cm.findCertByNickname(caSigningNickname);
-            Principal caSigningSubjectDN = caSigningCert.getSubjectDN();
-            logger.info("SystemConfigService: CA signing subject DN: " + caSigningSubjectDN);
-
-            if (!issuerDN.equals(caSigningSubjectDN)) {
-                logger.info("SystemConfigService: " + tag + " cert issued by external CA, don't import into database");
-                return certData;
-            }
-
-            configurator.loadCert(
-                    certData,
-                    type,
-                    tag,
-                    certRequestType,
+            configurator.importCert(
+                    x509key,
                     certImpl,
                     profileID,
-                    dnsNames);
+                    dnsNames,
+                    installAdjustValidity,
+                    certRequestType,
+                    binCertRequest,
+                    subjectName,
+                    requestID);
 
             return certData;
 

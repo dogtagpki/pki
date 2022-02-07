@@ -445,14 +445,16 @@ public class Configurator {
         }
     }
 
-    public void loadCert(
-            SystemCertData certData,
-            String type,
-            String tag,
-            String certRequestType,
-            X509CertImpl certImpl,
+    public void importCert(
+            X509Key x509key,
+            X509CertImpl cert,
             String profileID,
-            String[] dnsNames) throws Exception {
+            String[] dnsNames,
+            boolean installAdjustValidity,
+            String certRequestType,
+            byte[] certRequest,
+            X500Name subjectName,
+            RequestId requestID) throws Exception {
     }
 
     public SystemCertData setupCert(CertificateSetupRequest request) throws Exception {
