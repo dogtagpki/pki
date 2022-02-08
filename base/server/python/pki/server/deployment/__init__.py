@@ -684,7 +684,7 @@ class PKIDeployer:
 
         self.get_install_token()
 
-    def create_cert_setup_request(self, subsystem, tag):
+    def create_cert_setup_request(self, subsystem, tag, cert):
 
         request = pki.system.CertificateSetupRequest()
         request.tag = tag
@@ -715,6 +715,8 @@ class PKIDeployer:
         b64csr = subsystem.config.get('%s.%s.certreq' % (subsystem.name, tag))
         if b64csr:
             request.systemCert.request = b64csr
+
+        request.systemCert.cert = cert.get('data')
 
         request.systemCert.profile = subsystem.config['preop.cert.%s.profile' % tag]
 
@@ -748,7 +750,7 @@ class PKIDeployer:
         if subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS'] and (external or standalone):
             return
 
-        request = self.create_cert_setup_request(subsystem, tag)
+        request = self.create_cert_setup_request(subsystem, tag, system_cert)
 
         nssdb = subsystem.instance.open_nssdb()
         cert_info = None

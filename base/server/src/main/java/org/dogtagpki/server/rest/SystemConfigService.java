@@ -111,8 +111,8 @@ public class SystemConfigService extends PKIService {
 
             CryptoManager cm = CryptoManager.getInstance();
 
-            X509Certificate x509Cert = cm.findCertByNickname(fullName);
-            byte[] binCert = x509Cert.getEncoded();
+            String cert = certData.getCert();
+            byte[] binCert = Utils.base64decode(cert);
             X509CertImpl certImpl = new X509CertImpl(binCert);
             Principal issuerDN = certImpl.getIssuerDN();
             logger.info("SystemConfigService: - issuer DN: " + issuerDN);
