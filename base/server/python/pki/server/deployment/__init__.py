@@ -754,25 +754,23 @@ class PKIDeployer:
 
         nssdb = subsystem.instance.open_nssdb()
         cert_info = None
+        signing_cert_info = None
 
         try:
             cert_info = nssdb.get_cert_info(
                 nickname=request.systemCert.nickname,
                 token=request.systemCert.token)
+
+            if subsystem.type == 'CA':
+                signing_cert_info = nssdb.get_cert_info(
+                    nickname=subsystem.config["ca.signing.nickname"])
+
         finally:
             nssdb.close()
 
         if cert_info:
             logger.info('%s cert already exists', tag)
-
-            token = pki.nssdb.normalize_token(request.systemCert.token)
-            if token:
-                fullname = token + ':' + request.systemCert.nickname
-            else:
-                fullname = request.systemCert.nickname
-
-            logger.info('- serial: %s', cert_info['serial_number'])
-            logger.info('- nickname: %s', fullname)
+            logger.info('- serial: %s', hex(cert_info['serial_number']))
             logger.info('- subject: %s', cert_info['subject'])
             logger.info('- issuer: %s', cert_info['issuer'])
             logger.info('- trust flags: %s', cert_info['trust_flags'])
@@ -784,21 +782,26 @@ class PKIDeployer:
 
         if subsystem.type == 'CA' and external and tag != 'sslserver' and cert_info:
 
-            logger.info('Importing %s certificate', tag)
-            logger.debug('- cert: %s', system_cert['data'])
-            logger.debug('- request: %s', system_cert['request'])
+            logger.info('CA subject: %s', signing_cert_info['subject'])
+            if cert_info['object'].issuer == signing_cert_info['object'].subject:
 
-            cert = client.loadCert(request)
+                logger.info('Import cert and request into database: %s', tag)
+                logger.debug('- cert: %s', system_cert['data'])
+                logger.debug('- request: %s', system_cert['request'])
+                cert = client.loadCert(request)
+
+            else:
+                logger.info('Do not import external cert and request into database: %s', tag)
+                cert = system_cert
 
         else:
 
-            logger.info('Creating %s certificate', tag)
+            logger.info('Creating cert and request for %s', tag)
             cert = client.setupCert(request)
 
-            logger.info('Storing %s certificate', tag)
+            logger.info('Storing cert and request for %s', tag)
             logger.debug('- cert: %s', cert['cert'])
             logger.debug('- request: %s', cert['request'])
-
             system_cert['data'] = cert['cert']
             system_cert['request'] = cert['request']
             system_cert['token'] = cert['token']

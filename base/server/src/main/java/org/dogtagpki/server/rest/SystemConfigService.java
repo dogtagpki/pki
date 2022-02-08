@@ -17,13 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.rest;
 
-import java.security.Principal;
-
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -43,7 +39,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author alee
@@ -98,34 +93,9 @@ public class SystemConfigService extends PKIService {
 
             SystemCertData certData = request.getSystemCert();
 
-            String nickname = certData.getNickname();
-            logger.info("SystemConfigService: - nickname: " + nickname);
-
-            String tokenName = certData.getToken();
-            logger.info("SystemConfigService: - token: " + tokenName);
-
-            String fullName = nickname;
-            if (!CryptoUtil.isInternalToken(tokenName)) {
-                fullName = tokenName + ":" + nickname;
-            }
-
-            CryptoManager cm = CryptoManager.getInstance();
-
             String cert = certData.getCert();
             byte[] binCert = Utils.base64decode(cert);
             X509CertImpl certImpl = new X509CertImpl(binCert);
-            Principal issuerDN = certImpl.getIssuerDN();
-            logger.info("SystemConfigService: - issuer DN: " + issuerDN);
-
-            String caSigningNickname = cs.getString("ca.signing.nickname");
-            X509Certificate caSigningCert = cm.findCertByNickname(caSigningNickname);
-            Principal caSigningSubjectDN = caSigningCert.getSubjectDN();
-            logger.info("SystemConfigService: - signing subject DN: " + caSigningSubjectDN);
-
-            if (!issuerDN.equals(caSigningSubjectDN)) {
-                logger.info("SystemConfigService: " + tag + " cert issued by external CA, don't import into database");
-                return certData;
-            }
 
             String certRequestType = certData.getRequestType();
             logger.info("SystemConfigService: - request type: " + certRequestType);
