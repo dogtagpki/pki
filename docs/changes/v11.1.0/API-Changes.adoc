@@ -4,3 +4,7 @@
 
 The `com.netscape.symkey.SessionKey` class has been removed.
 Use `org.mozilla.jss.symkey.SessionKey` from JSS instead.
+
+== com.netscape.cmscore.request.CertRequestConstants has been removed ==
+The `com.netscape.cmscore.request.CertRequestConstants` class has been removed.
+Use `com.netscape.certsrv.request.IRequest` constants instead.
