@@ -161,8 +161,6 @@ public class CAConfigurator extends Configurator {
             // notAfter value to that of the CA's signing cert if needed
             request.setExtData("installAdjustValidity", "true");
         }
-
-        request.setRequestStatus(RequestStatus.COMPLETE);
     }
 
     public void updateRequest(
@@ -171,6 +169,8 @@ public class CAConfigurator extends Configurator {
 
         request.setExtData(EnrollProfile.REQUEST_CERTINFO, cert.getInfo());
         request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
+
+        request.setRequestStatus(RequestStatus.COMPLETE);
     }
 
     @Override
@@ -195,18 +195,16 @@ public class CAConfigurator extends Configurator {
         X509CertInfo info = cert.getInfo();
         logger.info("CAConfigurator: Cert info:\n" + info);
 
+        CertificateExtensions extensions = new CertificateExtensions();
+
         String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
 
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
-        logger.info("CAConfigurator: Creating cert request " + requestID);
-
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         IRequest request = requestRepository.createRequest(requestID, "enrollment");
-
-        CertificateExtensions extensions = new CertificateExtensions();
 
         initRequest(
                 request,
@@ -221,13 +219,15 @@ public class CAConfigurator extends Configurator {
                 installAdjustValidity,
                 extensions);
 
+        logger.info("CAConfigurator: Creating request record " + requestID.toHexString());
+        logger.info("CAConfigurator: - cert serial number: 0x" + cert.getSerialNumber().toString(16));
+
         updateRequest(request, cert);
 
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(request);
 
-        logger.info("CAConfigurator: Importing certificate into database:");
-        logger.info("CAConfigurator: - serial number: 0x" + cert.getSerialNumber().toString(16));
+        logger.info("CAConfigurator: Creating cert record 0x" + cert.getSerialNumber().toString(16));
         logger.info("CAConfigurator: - subject: " + cert.getSubjectDN());
         logger.info("CAConfigurator: - issuer: " + cert.getIssuerDN());
 
@@ -298,8 +298,6 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
-        logger.info("CAConfigurator: Creating cert request " + requestID.toHexString());
-
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         IRequest request = requestRepository.createRequest(requestID, "enrollment");
 
@@ -316,14 +314,22 @@ public class CAConfigurator extends Configurator {
                 installAdjustValidity,
                 extensions);
 
-        profile.populate(request, info);
+        logger.info("CAConfigurator: Creating cert " + certID.toHexString());
 
+        profile.populate(request, info);
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
+
+        logger.info("CAConfigurator: Creating request record " + requestID.toHexString());
+        logger.info("CAConfigurator: - cert serial number: 0x" + cert.getSerialNumber().toString(16));
 
         updateRequest(request, cert);
 
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(request);
+
+        logger.info("CAConfigurator: Creating cert record 0x" + cert.getSerialNumber().toString(16));
+        logger.info("CAConfigurator: - subject: " + cert.getSubjectDN());
+        logger.info("CAConfigurator: - issuer: " + cert.getIssuerDN());
 
         CertificateRepository certificateRepository = engine.getCertificateRepository();
         CertRecord certRecord = certificateRepository.createCertRecord(

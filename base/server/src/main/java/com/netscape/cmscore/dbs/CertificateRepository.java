@@ -655,7 +655,6 @@ public class CertificateRepository extends Repository {
             X509CertImpl cert) throws Exception {
 
         CertId certID = new CertId(cert.getSerialNumber());
-        logger.info("CertificateRepository: Creating cert record " + certID.toHexString() + ": " + cert.getSubjectDN());
 
         MetaInfo meta = new MetaInfo();
         meta.set(CertRecord.META_REQUEST_ID, requestID.toString());
