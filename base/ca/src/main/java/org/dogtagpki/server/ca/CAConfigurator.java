@@ -201,7 +201,6 @@ public class CAConfigurator extends Configurator {
         String configurationRoot = cs.getString("configurationRoot");
 
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
-        BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         IRequest request = requestRepository.createRequest(requestID, "enrollment");
@@ -211,9 +210,9 @@ public class CAConfigurator extends Configurator {
                 certRequestType,
                 certRequest,
                 subjectName,
-                profile.getID(),
-                profile.getProfileIDMapping(),
-                profile.getProfileSetIDMapping(),
+                profileConfig.getString("id"),
+                profileConfig.getString("profileIDMapping"),
+                profileConfig.getString("profileSetIDMapping"),
                 x509key,
                 dnsNames,
                 installAdjustValidity,
@@ -234,7 +233,7 @@ public class CAConfigurator extends Configurator {
         CertificateRepository certificateRepository = engine.getCertificateRepository();
         CertRecord certRecord = certificateRepository.createCertRecord(
                 request.getRequestId(),
-                profile.getProfileIDMapping(),
+                profileConfig.getString("profileIDMapping"),
                 cert);
         certificateRepository.addCertificateRecord(certRecord);
     }
@@ -296,7 +295,6 @@ public class CAConfigurator extends Configurator {
         String configurationRoot = cs.getString("configurationRoot");
 
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
-        BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         IRequest request = requestRepository.createRequest(requestID, "enrollment");
@@ -306,9 +304,9 @@ public class CAConfigurator extends Configurator {
                 certRequestType,
                 certRequest,
                 subjectName,
-                profile.getID(),
-                profile.getProfileIDMapping(),
-                profile.getProfileSetIDMapping(),
+                profileConfig.getString("id"),
+                profileConfig.getString("profileIDMapping"),
+                profileConfig.getString("profileSetIDMapping"),
                 x509key,
                 dnsNames,
                 installAdjustValidity,
@@ -316,6 +314,7 @@ public class CAConfigurator extends Configurator {
 
         logger.info("CAConfigurator: Creating cert " + certID.toHexString());
 
+        BootstrapProfile profile = new BootstrapProfile(profileConfig);
         profile.populate(request, info);
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
 
@@ -334,7 +333,7 @@ public class CAConfigurator extends Configurator {
         CertificateRepository certificateRepository = engine.getCertificateRepository();
         CertRecord certRecord = certificateRepository.createCertRecord(
                 request.getRequestId(),
-                profile.getProfileIDMapping(),
+                profileConfig.getString("profileIDMapping"),
                 cert);
         certificateRepository.addCertificateRecord(certRecord);
 
