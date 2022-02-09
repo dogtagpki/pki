@@ -167,12 +167,9 @@ public class CAConfigurator extends Configurator {
 
     public void updateRequest(
             IRequest request,
-            X509CertInfo info,
             X509CertImpl cert) throws Exception {
 
-        logger.info("CAConfigurator: Updating cert request " + request.getRequestId());
-
-        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
+        request.setExtData(EnrollProfile.REQUEST_CERTINFO, cert.getInfo());
         request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
     }
 
@@ -224,7 +221,7 @@ public class CAConfigurator extends Configurator {
                 installAdjustValidity,
                 extensions);
 
-        updateRequest(request, info, cert);
+        updateRequest(request, cert);
 
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(request);
@@ -323,7 +320,7 @@ public class CAConfigurator extends Configurator {
 
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
 
-        updateRequest(request, info, cert);
+        updateRequest(request, cert);
 
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(request);
