@@ -735,9 +735,9 @@ class PKIDeployer:
 
         return request
 
-    def setup_cert(self, subsystem, client, tag, system_cert):
+    def setup_system_cert(self, subsystem, nssdb, client, tag, system_cert):
 
-        logger.debug('PKIDeployer.setup_cert()')
+        logger.debug('PKIDeployer.setup_system_cert()')
 
         # Process existing CA installation like external CA
         external = config.str2bool(self.mdict['pki_external']) or \
@@ -752,21 +752,13 @@ class PKIDeployer:
 
         request = self.create_cert_setup_request(subsystem, tag, system_cert)
 
-        nssdb = subsystem.instance.open_nssdb()
-        cert_info = None
-        signing_cert_info = None
+        cert_info = nssdb.get_cert_info(
+            nickname=request.systemCert.nickname,
+            token=request.systemCert.token)
 
-        try:
-            cert_info = nssdb.get_cert_info(
-                nickname=request.systemCert.nickname,
-                token=request.systemCert.token)
-
-            if subsystem.type == 'CA':
-                signing_cert_info = nssdb.get_cert_info(
-                    nickname=subsystem.config["ca.signing.nickname"])
-
-        finally:
-            nssdb.close()
+        if subsystem.type == 'CA':
+            signing_cert_info = nssdb.get_cert_info(
+                nickname=subsystem.config["ca.signing.nickname"])
 
         if cert_info:
             logger.info('%s cert already exists', tag)
@@ -827,27 +819,27 @@ class PKIDeployer:
         clone = self.configuration_file.clone
         tomcat_instance_subsystems = len(self.instance.tomcat_instance_subsystems())
 
-        for tag in subsystem.config['preop.cert.list'].split(','):
-
-            if tag != 'sslserver' and clone:
-                logger.info('%s certificate is already set up', tag)
-                continue
-
-            if tag == 'sslserver' and tomcat_instance_subsystems > 1:
-                logger.info('sslserver certificate is already set up')
-                continue
-
-            if tag == 'subsystem' and tomcat_instance_subsystems > 1:
-                logger.info('subsystem certificate is already set up')
-                continue
-
-            self.setup_cert(subsystem, client, tag, system_certs[tag])
-
-        logger.info('Setting up certificate trust flags')
-
         nssdb = subsystem.instance.open_nssdb()
 
         try:
+            for tag in subsystem.config['preop.cert.list'].split(','):
+
+                if tag != 'sslserver' and clone:
+                    logger.info('%s certificate is already set up', tag)
+                    continue
+
+                if tag == 'sslserver' and tomcat_instance_subsystems > 1:
+                    logger.info('sslserver certificate is already set up')
+                    continue
+
+                if tag == 'subsystem' and tomcat_instance_subsystems > 1:
+                    logger.info('subsystem certificate is already set up')
+                    continue
+
+                self.setup_system_cert(subsystem, nssdb, client, tag, system_certs[tag])
+
+                logger.info('Setting up certificate trust flags')
+
             if subsystem.type == 'CA':
                 nssdb.modify_cert(
                     nickname=self.mdict['pki_ca_signing_nickname'],
