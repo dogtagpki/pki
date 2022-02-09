@@ -28,7 +28,6 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -647,19 +646,6 @@ public class Configurator {
 
         byte[] binCert = certImpl.getEncoded();
         certData.setCert(CryptoUtil.base64Encode(binCert));
-
-        if (tag.equals("sslserver")) {
-            logger.info("Configurator: temporary SSL server cert will be replaced on restart");
-            return certData;
-        }
-
-        if (x509Cert != null) {
-            logger.debug("Configurator: deleting existing " + tag + " cert");
-            CertUtil.deleteCert(tokenName, x509Cert);
-        }
-
-        logger.debug("Configurator: importing " + tag + " cert");
-        x509Cert = CryptoUtil.importUserCertificate(binCert, nickname);
 
         return certData;
     }

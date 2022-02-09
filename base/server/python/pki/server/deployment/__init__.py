@@ -791,6 +791,24 @@ class PKIDeployer:
             logger.info('Creating cert and request for %s', tag)
             cert = client.setupCert(request)
 
+            if tag != 'sslserver':
+
+                logger.info('Importing %s cert into NSS database', tag)
+                # the temporary SSL server cert will be replaced later on restart
+
+                if cert_info:
+                    # remove the existing cert (if any) but keep the key
+                    nssdb.remove_cert(
+                        nickname=request.systemCert.nickname,
+                        token=request.systemCert.token)
+
+                nssdb.add_cert(
+                    nickname=request.systemCert.nickname,
+                    cert_data=cert['cert'],
+                    cert_format='base64',
+                    token=request.systemCert.token,
+                    use_jss=True)
+
             logger.info('Storing cert and request for %s', tag)
             logger.debug('- cert: %s', cert['cert'])
             logger.debug('- request: %s', cert['request'])
