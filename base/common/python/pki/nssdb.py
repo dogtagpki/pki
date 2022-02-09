@@ -453,7 +453,9 @@ class NSSDatabase(object):
     def add_cert(
             self,
             nickname,
-            cert_file,
+            cert_file=None,
+            cert_data=None,
+            cert_format='pem',
             token=None,
             trust_attributes=None,
             use_jss=False):
@@ -463,13 +465,21 @@ class NSSDatabase(object):
         if use_jss:
             self.__add_cert(
                 nickname,
-                cert_file,
+                cert_file=cert_file,
+                cert_data=cert_data,
+                cert_format=cert_format,
                 token=token,
                 trust_attributes=trust_attributes)
             return
 
         tmpdir = tempfile.mkdtemp()
         try:
+            if cert_data and not cert_file:
+                cert_data = convert_cert(cert_data, cert_format, 'pem')
+                cert_file = os.path.join(tmpdir, 'cert.crt')
+                with open(cert_file, 'w') as f:
+                    f.write(cert_data)
+
             token = self.get_effective_token(token)
             password_file = self.get_password_file(tmpdir, token)
 
@@ -532,7 +542,9 @@ class NSSDatabase(object):
     def __add_cert(
             self,
             nickname,
-            cert_file,
+            cert_file=None,
+            cert_data=None,
+            cert_format='pem',
             token=None,
             trust_attributes=None):
         '''
@@ -556,7 +568,13 @@ class NSSDatabase(object):
             cmd.extend(['--token', token])
 
         cmd.extend(['nss-cert-import'])
-        cmd.extend(['--cert', cert_file])
+
+        if cert_file:
+            cmd.extend(['--cert', cert_file])
+
+        if cert_data:
+            cert_data = convert_cert(cert_data, cert_format, 'pem')
+            cmd.extend(['--format', 'PEM'])
 
         if trust_attributes:
             cmd.extend(['--trust', trust_attributes])
@@ -570,7 +588,7 @@ class NSSDatabase(object):
         cmd.append(nickname)
 
         logger.debug('Command: %s', ' '.join(map(str, cmd)))
-        subprocess.check_call(cmd)
+        subprocess.run(cmd, input=cert_data, text=True, check=True)
 
     def add_ca_cert(self, cert_file, trust_attributes='CT,C,C'):
 
