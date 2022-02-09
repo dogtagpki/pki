@@ -209,15 +209,10 @@ public class SystemConfigService extends PKIService {
                 throw new BadRequestException("System already configured");
             }
 
-            X509CertImpl cert = configurator.createAdminCertificate(request);
+            SystemCertData certData = request.getSystemCert();
+            configurator.createAdminCertificate(certData);
 
-            String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
-            logger.debug("SystemConfigService: admin cert: " + b64cert);
-
-            SystemCertData adminCert = new SystemCertData();
-            adminCert.setCert(b64cert);
-
-            return adminCert;
+            return certData;
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());

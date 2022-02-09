@@ -39,7 +39,6 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.csadmin.BootstrapProfile;
@@ -352,13 +351,11 @@ public class CAConfigurator extends Configurator {
     }
 
     @Override
-    public X509CertImpl createAdminCertificate(CertificateSetupRequest request) throws Exception {
+    public void createAdminCertificate(SystemCertData certData) throws Exception {
 
         logger.info("CAConfigurator: Generating admin cert");
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        SystemCertData certData = request.getSystemCert();
 
         String certRequestType = certData.getRequestType();
         logger.info("CAConfigurator: - request type: " + certRequestType);
@@ -425,8 +422,9 @@ public class CAConfigurator extends Configurator {
         }
 
         RequestId requestID = createRequestID();
+        certData.setRequestID(requestID);
 
-        return createLocalCert(
+        X509CertImpl certImpl = createLocalCert(
                 keyAlgorithm,
                 x509key,
                 profileID,
@@ -439,5 +437,8 @@ public class CAConfigurator extends Configurator {
                 issuerName,
                 subjectName,
                 requestID);
+
+        byte[] binCert = certImpl.getEncoded();
+        certData.setCert(CryptoUtil.base64Encode(binCert));
     }
 }

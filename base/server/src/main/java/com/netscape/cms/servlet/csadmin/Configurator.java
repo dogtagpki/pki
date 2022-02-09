@@ -667,7 +667,6 @@ public class Configurator {
     public void initSubsystem() throws Exception {
     }
 
-    public X509CertImpl createAdminCertificate(CertificateSetupRequest request) throws Exception {
-        return null;
+    public void createAdminCertificate(SystemCertData certData) throws Exception {
     }
 }
