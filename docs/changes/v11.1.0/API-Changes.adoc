@@ -8,3 +8,6 @@ Use `org.mozilla.jss.symkey.SessionKey` from JSS instead.
 == com.netscape.cmscore.request.CertRequestConstants has been removed ==
 The `com.netscape.cmscore.request.CertRequestConstants` class has been removed.
 Use `com.netscape.certsrv.request.IRequest` constants instead.
+
+== CACertRequest files loaded via the CLI must now be JSON format ==
+The use of `XML` is deprecated since `v11.0` and in many cases the XML support has been dropped already.
