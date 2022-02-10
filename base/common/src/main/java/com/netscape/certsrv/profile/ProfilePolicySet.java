@@ -20,17 +20,14 @@ package com.netscape.certsrv.profile;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.netscape.certsrv.util.JSONSerializer;
 
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ProfilePolicySet {
+public class ProfilePolicySet implements JSONSerializer {
 
     protected List<ProfilePolicy> policies = new ArrayList<>();
 
@@ -50,31 +47,4 @@ public class ProfilePolicySet {
         policies.remove(policy);
     }
 
-    public Element toDOM(Document document) {
-
-        Element element = document.createElement("ProfilePolicySet");
-
-        for (ProfilePolicy profilePolicy : policies) {
-            Element policyElement = document.createElement("policies");
-            profilePolicy.toDOM(document, policyElement);
-            element.appendChild(policyElement);
-        }
-
-        return element;
-    }
-
-    public static ProfilePolicySet fromDOM(Element element) {
-
-        ProfilePolicySet set = new ProfilePolicySet();
-
-        NodeList policiesList = element.getElementsByTagName("policies");
-        int policiesCount = policiesList.getLength();
-        for (int i=0; i<policiesCount; i++) {
-           Element policyElement = (Element) policiesList.item(i);
-           ProfilePolicy policy = ProfilePolicy.fromDOM(policyElement);
-           set.addPolicy(policy);
-        }
-
-        return set;
-    }
 }
