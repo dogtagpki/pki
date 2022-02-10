@@ -70,6 +70,10 @@ public class KRAConnectorAddCLI extends CommandCLI {
         option.setArgName("URL");
         options.addOption(option);
 
+        option = new Option(null, "subsystem-cert", true, "Subsystem certificate path");
+        option.setArgName("path");
+        options.addOption(option);
+
         option = new Option(null, "transport-cert", true, "Transport certificate path");
         option.setArgName("path");
         options.addOption(option);
@@ -183,6 +187,12 @@ public class KRAConnectorAddCLI extends CommandCLI {
             info.setHost(url.getHost());
             info.setPort(url.getPort() + "");
             info.setUri(url.getPath());
+        }
+
+        String subsystemCertPath = cmd.getOptionValue("subsystem-cert");
+        if (subsystemCertPath != null) {
+            String subsystemCert = new String(Files.readAllBytes(Paths.get(subsystemCertPath)));
+            info.setSubsystemCert(subsystemCert);
         }
 
         String transportCertPath = cmd.getOptionValue("transport-cert");
