@@ -1385,12 +1385,17 @@ class PKIDeployer:
         ca_url = self.mdict['pki_issuing_ca']
         kra_url = 'https://%s:%s/kra/agent/kra/connector' % (hostname, securePort)
 
+        subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
         transport_cert = subsystem.config.get('kra.transport.cert')
         transport_nickname = subsystem.config.get('kra.cert.transport.nickname')
 
         tmpdir = tempfile.mkdtemp()
         try:
-            transport_cert_file = os.path.join(tmpdir, 'kra_transport.crt')
+            subsystem_cert_file = os.path.join(tmpdir, 'subsystem.crt')
+            with open(subsystem_cert_file, 'w') as f:
+                f.write(subsystem_cert)
+
+            transport_cert_file = os.path.join(tmpdir, 'transport.crt')
             with open(transport_cert_file, 'w') as f:
                 f.write(transport_cert)
 
@@ -1405,6 +1410,7 @@ class PKIDeployer:
                 '-U', ca_url,
                 'ca-kraconnector-add',
                 '--url', kra_url,
+                '--subsystem-cert', subsystem_cert_file,
                 '--transport-cert', transport_cert_file,
                 '--transport-nickname', transport_nickname,
                 '--install-token', install_token

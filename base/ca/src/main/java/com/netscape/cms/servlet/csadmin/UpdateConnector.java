@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
@@ -26,13 +27,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.jboss.resteasy.spi.BadRequestException;
+import org.dogtagpki.server.ca.CAEngine;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -40,8 +45,20 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.usrgrp.Group;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.json.JSONObject;
 
+/**
+ * This servlet creates a KRA connector and also a subsystem user for KRA.
+ *
+ * The user needs to be added in this servlet since KRA installation with
+ * external certs (including CMC) will not use caInternalAuthSubsystemCert
+ * or caECInternalAuthSubsystemCert profiles.
+ *
+ * See also SubsystemGroupUpdater.
+ */
 public class UpdateConnector extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateConnector.class);
@@ -72,6 +89,7 @@ public class UpdateConnector extends CMSServlet {
         info.setHost(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".host"));
         info.setPort(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".port"));
         info.setTimeout(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".timeout"));
+        info.setSubsystemCert(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".subsystemCert"));
         info.setTransportCert(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".transportCert"));
         info.setTransportCertNickname(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".transportCertNickname"));
         info.setUri(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".uri"));
@@ -132,12 +150,149 @@ public class UpdateConnector extends CMSServlet {
         String error = "";
         KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(httpReq));
         KRAConnectorInfo info = createConnectorInfo(httpReq);
+
+        String url = "https://" + info.getHost() + ":" + info.getPort();
+        logger.info("UpdateConnector: Adding KRA connector for " + url);
+
         try {
             processor.addConnector(info);
-        } catch (BadRequestException | PKIException e) {
-            status = FAILED;
-            error = e.getMessage();
+
+        } catch (Exception e) {
+            String message = "Unable to add KRA connector for " + url + ": " + e.getMessage();
+            logger.error("UpdateConnector: " + message, e);
+            sendResponse(httpResp, FAILED, message);
+            return;
         }
+
+        CAEngine engine = CAEngine.getInstance();
+        UGSubsystem ugSubsystem = engine.getUGSubsystem();
+
+        String uid = "KRA-" + info.getHost() + "-" + info.getPort();
+        String fullName = "KRA " + info.getHost() + " " + info.getPort();
+        logger.info("UpdateConnector: UpdateConnector: Adding " + uid + " user");
+
+        String auditSubjectID = auditSubjectID();
+        String auditParams = "Scope;;users+Operation;;OP_ADD+source;;UpdateConnector" +
+                "+Resource;;" + uid +
+                "+fullname;;" + fullName +
+                "+state;;1" +
+                "+userType;;agentType+email;;<null>+password;;<null>+phone;;<null>";
+
+        try {
+            User user = ugSubsystem.createUser(uid);
+            user.setFullName(fullName);
+            user.setEmail("");
+            user.setPassword("");
+            user.setUserType("agentType");
+            user.setState("1");
+            user.setPhone("");
+
+            ugSubsystem.addUser(user);
+
+            signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.SUCCESS,
+                               auditParams));
+
+        } catch (ConflictingOperationException e) {
+            logger.info("UpdateConnector: User " + uid + " already exists");
+
+        } catch (Exception e) {
+            String message = "Unable to add " + uid + " user: " + e.getMessage();
+            logger.error("UpdateConnector: " + message, e);
+
+            signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.FAILURE,
+                               auditParams));
+
+            sendResponse(httpResp, FAILED, message);
+            return;
+        }
+
+        String cert = info.getSubsystemCert();
+        logger.info("UpdateConnector: Adding cert for " + uid + " user");
+
+        auditParams = "Scope;;certs+Operation;;OP_ADD+source;;UpdateConnector" +
+                "+Resource;;" + uid +
+                "+cert;;" + cert;
+
+        try {
+            byte[] binCert = Utils.base64decode(cert);
+            X509CertImpl certImpl = new X509CertImpl(binCert);
+            ugSubsystem.addUserCert(uid, certImpl);
+
+            signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.SUCCESS,
+                               auditParams));
+
+        } catch (ConflictingOperationException e) {
+            logger.info("UpdateConnector: Certificate for " + uid + " already exists: " + e.getMessage(), e);
+
+        } catch (Exception e) {
+            String message = "Unable to add cert for " + uid + " user: " + e.getMessage();
+            logger.error("UpdateConnector: " + message, e);
+
+            signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.FAILURE,
+                               auditParams));
+
+            sendResponse(httpResp, FAILED, message);
+            return;
+        }
+
+        String groupName = "Subsystem Group";
+        logger.info("UpdateConnector: Adding " + uid + " user into " + groupName);
+
+        auditParams = "Scope;;groups+Operation;;OP_MODIFY+source;;UpdateConnector" +
+                "+Resource;;" + groupName;
+
+        try {
+            Group group = ugSubsystem.getGroupFromName(groupName);
+
+            auditParams += "+user;;";
+            Enumeration<String> members = group.getMemberNames();
+            while (members.hasMoreElements()) {
+                auditParams += members.nextElement();
+                if (members.hasMoreElements()) {
+                    auditParams += ",";
+                }
+            }
+
+            if (!group.isMember(uid)) {
+
+                auditParams += "," + uid;
+                group.addMemberName(uid);
+                ugSubsystem.modifyGroup(group);
+
+                signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.SUCCESS,
+                               auditParams));
+
+            } else {
+                logger.info("UpdateConnector: User " + uid + " already in " + groupName);
+            }
+
+        } catch (Exception e) {
+            String message = "Unable to add " + uid + " user into " + groupName + ": " + e.getMessage();
+            logger.error("UpdateConnector: " + message, e);
+
+            signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.FAILURE,
+                               auditParams));
+
+            sendResponse(httpResp, FAILED, message);
+            return;
+        }
+
+        sendResponse(httpResp, SUCCESS, null);
+    }
+
+    public void sendResponse(HttpServletResponse httpResp, String status, String error) {
 
         // send success status back to the requestor
         try {

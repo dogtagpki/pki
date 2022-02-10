@@ -49,7 +49,10 @@ import com.netscape.cmscore.usrgrp.User;
  * This updater class will create the new user to the subsystem group and
  * then add the subsystem certificate to the user.
  *
- * @version $Revision$, $Date$
+ * This code is used in caInternalAuthSubsystemCert and
+ * caECInternalAuthSubsystemCert profiles.
+ *
+ * See also UpdateConnector.
  */
 public class SubsystemGroupUpdater implements IProfileUpdater {
 

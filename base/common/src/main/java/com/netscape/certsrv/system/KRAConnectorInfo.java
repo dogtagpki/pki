@@ -35,25 +35,20 @@ public class KRAConnectorInfo implements JSONSerializer {
     private static final String PORT = "port";
     private static final String TRANSPORT_CERT= "transportCert";
     private static final String TRANSPORT_CERT_NICKNAME = "transportCertNickname";
+    private static final String SUBSYSTEM_CERT= "subsystemCert";
     private static final String URI = "uri";
     private static final String TIMEOUT = "timeout";
     private static final String LOCAL = "local";
     private static final String ENABLE = "enable";
 
     String host;
-
     String port;
-
     String transportCert;
-
     String transportCertNickname;
-
+    String subsystemCert;
     String uri;
-
     String timeout;
-
     String local;
-
     String enable;
 
     public KRAConnectorInfo() {
@@ -62,6 +57,7 @@ public class KRAConnectorInfo implements JSONSerializer {
     public KRAConnectorInfo(MultivaluedMap<String, String> form) {
         host = form.getFirst(HOST);
         port = form.getFirst(PORT);
+        subsystemCert = form.getFirst(SUBSYSTEM_CERT);
         transportCert = form.getFirst(TRANSPORT_CERT);
         uri = form.getFirst(URI);
         timeout = form.getFirst(TIMEOUT);
@@ -84,6 +80,14 @@ public class KRAConnectorInfo implements JSONSerializer {
 
     public void setPort(String port) {
         this.port = port;
+    }
+
+    public String getSubsystemCert() {
+        return subsystemCert;
+    }
+
+    public void setSubsystemCert(String subsystemCert) {
+        this.subsystemCert = subsystemCert;
     }
 
     public String getTransportCert() {
@@ -143,6 +147,7 @@ public class KRAConnectorInfo implements JSONSerializer {
         result = prime * result + ((local == null) ? 0 : local.hashCode());
         result = prime * result + ((port == null) ? 0 : port.hashCode());
         result = prime * result + ((timeout == null) ? 0 : timeout.hashCode());
+        result = prime * result + ((subsystemCert == null) ? 0 : subsystemCert.hashCode());
         result = prime * result + ((transportCert == null) ? 0 : transportCert.hashCode());
         result = prime * result + ((transportCertNickname == null) ? 0 : transportCertNickname.hashCode());
         result = prime * result + ((uri == null) ? 0 : uri.hashCode());
@@ -182,6 +187,11 @@ public class KRAConnectorInfo implements JSONSerializer {
             if (other.timeout != null)
                 return false;
         } else if (!timeout.equals(other.timeout))
+            return false;
+        if (subsystemCert == null) {
+            if (other.subsystemCert != null)
+                return false;
+        } else if (!subsystemCert.equals(other.subsystemCert))
             return false;
         if (transportCert == null) {
             if (other.transportCert != null)

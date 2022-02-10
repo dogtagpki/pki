@@ -98,6 +98,7 @@ public class CAClient extends SubsystemClient {
         content.putSingle("ca.connector.KRA.uri", info.getUri());
         content.putSingle("ca.connector.KRA.host", info.getHost());
         content.putSingle("ca.connector.KRA.port", info.getPort());
+        content.putSingle("ca.connector.KRA.subsystemCert", info.getSubsystemCert());
         content.putSingle("ca.connector.KRA.transportCert", info.getTransportCert());
         content.putSingle("ca.connector.KRA.transportCertNickname", info.getTransportCertNickname());
         content.putSingle("sessionID", sessionID);
