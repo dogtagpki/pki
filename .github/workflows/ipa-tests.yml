@@ -424,6 +424,12 @@ jobs:
           docker exec secondary pki client-cert-import --pkcs12 ${SHARED}/ca-agent.p12 --pkcs12-password Secret.123
           docker exec secondary pki -n ipa-ca-agent ca-user-show admin
 
+      - name: Remove IPA server from secondary container
+        run: docker exec secondary ipa-server-install --uninstall -U
+
+      - name: Remove IPA server from primary container
+        run: docker exec primary ipa-server-install --uninstall -U
+
       - name: Gather artifacts from primary container
         if: always()
         run: |
