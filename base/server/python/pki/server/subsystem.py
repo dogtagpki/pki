@@ -1173,20 +1173,33 @@ class PKISubsystem(object):
 
     def request_ranges(self, master_url, session_id=None, install_token=None):
 
-        logger.info('Requesting request ID range')
+        # request cert/key request ID range if it uses legacy generator
+        if self.type in ['CA', 'KRA'] and \
+                self.config.get('dbs.request.id.generator', 'legacy') == 'legacy':
 
-        request_range = self.request_range(
-            master_url, 'request', session_id=session_id, install_token=install_token)
-        self.config['dbs.beginRequestNumber'] = request_range['begin']
-        self.config['dbs.endRequestNumber'] = request_range['end']
+            logger.info('Requesting request ID range')
 
-        logger.info('Requesting serial number range')
+            request_range = self.request_range(
+                master_url, 'request', session_id=session_id, install_token=install_token)
 
-        serial_range = self.request_range(
-            master_url, 'serialNo', session_id=session_id, install_token=install_token)
-        self.config['dbs.beginSerialNumber'] = serial_range['begin']
-        self.config['dbs.endSerialNumber'] = serial_range['end']
+            self.config['dbs.beginRequestNumber'] = request_range['begin']
+            self.config['dbs.endRequestNumber'] = request_range['end']
 
+        # request cert/key ID range if it uses legacy generator
+        if self.type == 'CA' and \
+                self.config.get('dbs.cert.id.generator', 'legacy') == 'legacy' or \
+                self.type == 'KRA' \
+                and self.config.get('dbs.key.id.generator', 'legacy') == 'legacy':
+
+            logger.info('Requesting serial number range')
+
+            serial_range = self.request_range(
+                master_url, 'serialNo', session_id=session_id, install_token=install_token)
+
+            self.config['dbs.beginSerialNumber'] = serial_range['begin']
+            self.config['dbs.endSerialNumber'] = serial_range['end']
+
+        # always request replica ID range since it doesn't support random generator
         logger.info('Requesting replica ID range')
 
         replica_range = self.request_range(
