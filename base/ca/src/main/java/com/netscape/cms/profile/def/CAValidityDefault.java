@@ -345,14 +345,14 @@ public class CAValidityDefault extends EnrollDefault {
     @Override
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
-
+        String method = "CAValidityDefault: populate: ";
         // always + 60 seconds
         String startTimeStr = getConfig(CONFIG_START_TIME);
-        logger.debug("CAValidityDefault: start time: " + startTimeStr);
+        logger.debug(method + " start time: " + startTimeStr);
         try {
             startTimeStr = mapPattern(request, startTimeStr);
         } catch (IOException e) {
-            logger.warn("CAValidityDefault: populate " + e.getMessage(), e);
+            logger.warn(method + " populate " + e.getMessage(), e);
         }
 
         if (startTimeStr == null || startTimeStr.equals("")) {
@@ -361,29 +361,29 @@ public class CAValidityDefault extends EnrollDefault {
         long startTime = Long.parseLong(startTimeStr);
 
         Date notBefore = new Date(new Date().getTime() + (1000 * startTime));
-        logger.debug("CAValidityDefault: not before: " + notBefore);
+        logger.debug(method + " not before: " + notBefore);
 
         String rangeStr = getConfig(CONFIG_RANGE, "7305");
-        logger.debug("CAValidityDefault: range: " + rangeStr);
+        logger.debug(method + " range: " + rangeStr);
 
         int range;
         try {
             rangeStr = mapPattern(request, rangeStr);
             range = Integer.parseInt(rangeStr);
         } catch (IOException e) {
-            logger.error("CAValidityDefault: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_INVALID_PROPERTY", CONFIG_RANGE));
         }
 
         String rangeUnitStr = getConfig(CONFIG_RANGE_UNIT, "day");
-        logger.debug("CAValidityDefault: range unit: " + rangeUnitStr);
+        logger.debug(method + " range unit: " + rangeUnitStr);
 
         int rangeUnit;
         try {
             rangeUnit = convertRangeUnit(rangeUnitStr);
         } catch (Exception e) {
-            logger.error("CAValidityDefault: " + e.getMessage(), e);
+            logger.error(method + e.getMessage(), e);
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_INVALID_PROPERTY", CONFIG_RANGE_UNIT));
         }
@@ -394,8 +394,37 @@ public class CAValidityDefault extends EnrollDefault {
         date.add(rangeUnit, range);
 
         Date notAfter = date.getTime();
-        logger.debug("CAValidityDefault: not after: " + notAfter);
+        logger.debug(method + " not after: " + notAfter);
 
+        /*
+         * by default, bypassCAvalidity is false, meaning that if the
+         * notAfter date passes the CA's notAfter date, then it will be
+         * auto-adjusted to match that of the CA's notAfter date
+         *
+         * On the other hand, if bypassCAvalidity is set to true, then
+         * the notAfter date will be set according to the 'range' setting.
+         * If the notAfter date passes that of the CA's then it's up to
+         * the validity constraint set by the profile
+         */
+        boolean bypassCAvalidity = getConfigBoolean(CONFIG_BYPASS_CA_NOTAFTER);
+        logger.debug(method + " populate: bypassCAvalidity=" + bypassCAvalidity);
+        // not to exceed CA's expiration
+        Date caNotAfter = null;
+        if (mCA.getSigningUnit() == null) {
+            // in case of root ca, bypass validity check
+        } else {
+            caNotAfter =
+                mCA.getSigningUnit().getCertImpl().getNotAfter();
+        }
+
+        if (caNotAfter!= null && notAfter.after(caNotAfter)) {
+            if (bypassCAvalidity == false) {
+                notAfter = caNotAfter;
+                logger.debug(method + " populate: bypassCAvalidity off. reset notAfter to caNotAfter. reset ");
+            } else {
+                logger.debug(method + " populate: bypassCAvalidity on.  notAfter is after caNotAfter. no reset");
+            }
+        }
         CertificateValidity validity =
                 new CertificateValidity(notBefore, notAfter);
 
@@ -403,7 +432,7 @@ public class CAValidityDefault extends EnrollDefault {
             info.set(X509CertInfo.VALIDITY, validity);
         } catch (Exception e) {
             // failed to insert subject name
-            logger.error("CAValidityDefault: populate " + e.getMessage(), e);
+            logger.error(method + " populate " + e.getMessage(), e);
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_INVALID_PROPERTY", X509CertInfo.VALIDITY));
         }
