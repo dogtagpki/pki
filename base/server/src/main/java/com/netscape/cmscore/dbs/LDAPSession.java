@@ -105,7 +105,7 @@ public class LDAPSession extends DBSSession {
     @Override
     public void add(String name, IDBObj obj) throws EBaseException {
 
-        logger.info("LDAPSession: Adding LDAP entry " + name);
+        logger.info("LDAPSession: Adding " + name);
 
         try {
             LDAPAttributeSet attrs = dbSubsystem.getRegistry().createLDAPAttributeSet(obj);
@@ -164,7 +164,7 @@ public class LDAPSession extends DBSSession {
                         ).getLDAPAttributes(attrs);
             }
 
-            logger.info("LDAPSession: reading " + name);
+            logger.info("LDAPSession: Retrieving " + name);
 
             /*LogDoc
              *
@@ -206,7 +206,7 @@ public class LDAPSession extends DBSSession {
     @Override
     public void delete(String name) throws EBaseException {
 
-        logger.debug("LDAPSession: delete(" + name + ")");
+        logger.info("LDAPSession: Deleting " + name);
 
         try {
             mConn.delete(name);
@@ -224,7 +224,7 @@ public class LDAPSession extends DBSSession {
     @Override
     public void modify(String name, ModificationSet mods) throws EBaseException {
 
-        logger.info("LDAPSession: Modifying LDAP entry " + name);
+        logger.info("LDAPSession: Modifying " + name);
 
         try {
             LDAPModificationSet ldapMods = new LDAPModificationSet();
@@ -238,7 +238,22 @@ public class LDAPSession extends DBSSession {
                 Enumeration<LDAPAttribute> e0 = attrs.getAttributes();
 
                 while (e0.hasMoreElements()) {
-                    ldapMods.add(toLdapModOp(mod.getOp()), e0.nextElement());
+                    int op = toLdapModOp(mod.getOp());
+                    LDAPAttribute attr = e0.nextElement();
+
+                    switch (op) {
+                    case LDAPModification.ADD:
+                        logger.debug("LDAPSession: - add: " + attr.getName());
+                        break;
+                    case LDAPModification.DELETE:
+                        logger.debug("LDAPSession: - delete: " + attr.getName());
+                        break;
+                    case LDAPModification.REPLACE:
+                        logger.debug("LDAPSession: - replace: " + attr.getName());
+                        break;
+                    }
+
+                    ldapMods.add(op, attr);
                 }
             }
 
@@ -292,7 +307,7 @@ public class LDAPSession extends DBSSession {
     public IDBSearchResults search(String base, String filter, int maxSize)
             throws EBaseException {
 
-        logger.debug("LDAPSession: search(" + base+ ", " + filter + ")");
+        logger.info("LDAPSession: Searching " + base + " for " + filter);
 
         try {
             String ldapattrs[] = null;
@@ -322,7 +337,7 @@ public class LDAPSession extends DBSSession {
     public IDBSearchResults search(String base, String filter, int maxSize,String sortAttribute)
             throws EBaseException {
 
-        logger.debug("LDAPSession: search(" + base + ", " + filter + ")");
+        logger.info("LDAPSession: Searching " + base + " for " + filter);
 
         try {
             String ldapattrs[] = null;
@@ -358,7 +373,7 @@ public class LDAPSession extends DBSSession {
     public IDBSearchResults search(String base, String filter, int maxSize, int timeLimit)
             throws EBaseException {
 
-        logger.debug("LDAPSession: search(" + base + ", " + filter + ")");
+        logger.info("LDAPSession: Searching " + base + " for " + filter);
 
         try {
             String ldapattrs[] = null;
@@ -389,7 +404,7 @@ public class LDAPSession extends DBSSession {
     public IDBSearchResults search(String base, String filter, int maxSize,
             int timeLimit, String sortAttribute) throws EBaseException {
 
-        logger.debug("LDAPSession: search(" + base + ", " + filter + ")");
+        logger.info("LDAPSession: Searching " + base + " for " + filter);
 
         try {
             String ldapattrs[] = null;
@@ -431,7 +446,7 @@ public class LDAPSession extends DBSSession {
     public IDBSearchResults search(String base, String filter,
             String attrs[]) throws EBaseException {
 
-        logger.debug("LDAPSession: search(" + base + ", " + filter + ")");
+        logger.info("LDAPSession: Searching " + base + " for " + filter);
 
         try {
             String ldapattrs[] = null;
@@ -471,7 +486,7 @@ public class LDAPSession extends DBSSession {
     public LDAPSearchResults persistentSearch(String base, String filter, String attrs[])
             throws EBaseException {
 
-        logger.debug("LDAPSession: persistentSearch(" + base + ", " + filter + ")");
+        logger.info("LDAPSession: Searching " + base + " for " + filter);
 
         try {
             String ldapattrs[] = null;
