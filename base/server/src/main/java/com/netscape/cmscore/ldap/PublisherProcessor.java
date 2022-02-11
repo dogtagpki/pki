@@ -502,7 +502,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
             return getRules(publishingType);
         }
 
-        logger.info("PublisherProcessor: Getting " + publishingType + " publishing rules for request " + req.getRequestId());
+        logger.info("PublisherProcessor: Getting " + publishingType + " publishing rules for request " + req.getRequestId().toHexString());
 
         Vector<LdapRule> rules = new Vector<>();
         Enumeration<LdapRule> e = mRuleInsts.elements();

@@ -58,14 +58,14 @@ public class LdapUnrevocationListener implements IRequestListener {
     @Override
     public void accept(IRequest r) {
 
-        logger.info("LdapUnrevocationListener: Handling unrevoke request " + r.getRequestId());
+        logger.info("LdapUnrevocationListener: Handling unrevoke request " + r.getRequestId().toHexString());
 
         // get fields in request.
         Certificate[] certs = r.getExtDataInCertArray(IRequest.OLD_CERTS);
 
         if (certs == null || certs.length == 0 || certs[0] == null) {
             // no certs in unrevoke.
-            logger.warn("Nothing to publish for unrevocation request " + r.getRequestId());
+            logger.warn("Nothing to publish for unrevocation request " + r.getRequestId().toHexString());
             return;
         }
 

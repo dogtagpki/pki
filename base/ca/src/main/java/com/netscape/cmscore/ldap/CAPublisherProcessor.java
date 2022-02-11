@@ -450,7 +450,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
      */
     public void unpublishCert(X509Certificate cert, IRequest req) throws ELdapException {
 
-        logger.info("CAPublisherProcessor: Unpublishing cert " + cert.getSerialNumber());
+        logger.info("CAPublisherProcessor: Unpublishing cert 0x" + cert.getSerialNumber().toString(16));
 
         if (!isCertPublishingEnabled()) {
             logger.info("CAPublisherProcessor: Cert publishing disabled");
@@ -464,7 +464,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         Enumeration<LdapRule> rules = getRules("certs", req);
 
         if (rules == null || !rules.hasMoreElements()) {
-            logger.error("CAPublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND_FOR_REQUEST", "certs", req.getRequestId().toString()));
+            logger.error("CAPublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND_FOR_REQUEST", "certs", req.getRequestId().toHexString()));
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", req.getRequestId().toString()));
         }
 
