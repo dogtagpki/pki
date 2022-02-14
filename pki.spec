@@ -14,8 +14,8 @@ License:          GPLv2 and LGPLv2
 # For development (i.e. unsupported) releases, use x.y.z-0.n.<phase>.
 # For official (i.e. supported) releases, use x.y.z-r where r >=1.
 Version:          11.1.0
-Release:          0.1.alpha2%{?_timestamp}%{?_commit_id}%{?dist}
-%global           _phase -alpha2
+Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
+#global           _phase -alpha2
 
 # To create a tarball from a version tag:
 # $ git archive \
@@ -189,8 +189,8 @@ BuildRequires:    python3-six
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 5.1.0
-BuildRequires:    tomcatjss >= 8.0.0
-BuildRequires:    ldapjdk >= 5.0.0
+BuildRequires:    tomcatjss >= 8.1.0
+BuildRequires:    ldapjdk >= 5.1.0
 
 BuildRequires:    systemd-units
 
