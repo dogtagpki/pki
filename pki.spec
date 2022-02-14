@@ -417,6 +417,9 @@ Requires:         openssl
 This package provides tools that can be used to help make
 %{product_name} into a more complete and robust PKI solution.
 
+The utility "tpsclient" is a test tool that interacts with TPS.
+This tool is useful to test TPS server without risking an actual smart card.
+
 # with base
 %endif
 
@@ -648,6 +651,7 @@ behind the firewall with restricted access.
 ################################################################################
 
 Summary:          %{product_name} TPS Package
+BuildArch:        noarch
 
 Obsoletes:        pki-tps < %{version}-%{release}
 Provides:         pki-tps = %{version}-%{release}
@@ -677,10 +681,6 @@ Token Key Service (TKS)) to fulfill the user's requests.
 
 TPS also interacts with the token database, an LDAP server that stores
 information about individual tokens.
-
-The utility "tpsclient" is a test tool that interacts with TPS.  This
-tool is useful to test TPS server configs without risking an actual
-smart card.
 
 # with tps
 %endif
@@ -1046,14 +1046,15 @@ fi
 
 %license base/tools/LICENSE
 %doc base/tools/doc/README
-%{_bindir}/p7tool
 %{_bindir}/p12tool
+%{_bindir}/p7tool
 %{_bindir}/pistool
 %{_bindir}/pki
 %{_bindir}/revoker
 %{_bindir}/setpin
 %{_bindir}/sslget
 %{_bindir}/tkstool
+%{_bindir}/tpsclient
 %{_bindir}/AtoB
 %{_bindir}/AuditVerify
 %{_bindir}/BtoA
@@ -1080,6 +1081,7 @@ fi
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/tools/
 %{_datadir}/pki/lib/p11-kit-trust.so
+%{_libdir}/tps/libtps.so
 %{_mandir}/man1/AtoB.1.gz
 %{_mandir}/man1/AuditVerify.1.gz
 %{_mandir}/man1/BtoA.1.gz
@@ -1110,6 +1112,7 @@ fi
 %{_mandir}/man1/pki-user-membership.1.gz
 %{_mandir}/man1/PKCS10Client.1.gz
 %{_mandir}/man1/PKICertImport.1.gz
+%{_mandir}/man1/tpsclient.1.gz
 
 # with base
 %endif
@@ -1244,13 +1247,6 @@ fi
 %{_datadir}/pki/tps/
 %{_mandir}/man5/pki-tps-connector.5.gz
 %{_mandir}/man5/pki-tps-profile.5.gz
-%{_mandir}/man1/tpsclient.1.gz
-
-# files for native 'tpsclient'
-# REMINDER:  Remove this comment once 'tpsclient' is rewritten as a Java app
-
-%{_bindir}/tpsclient
-%{_libdir}/tps/libtps.so
 
 # with tps
 %endif

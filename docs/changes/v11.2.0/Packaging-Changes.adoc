@@ -1,0 +1,5 @@
+= Packaging Changes =
+
+== TPS Package Changes ==
+
+The `tpscllient` has been moved from `dogtag-pki-tps` to `dogtag-pki-tools`.

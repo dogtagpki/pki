@@ -376,7 +376,6 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
 
     if(WITH_TPS)
         add_subdirectory(tps)
-        add_subdirectory(tps-client)
         list(APPEND PKI_JAVADOC_DEPENDS pki-tps-jar)
     endif(WITH_TPS)
 
