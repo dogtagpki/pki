@@ -20,11 +20,8 @@ package org.dogtagpki.server.rest;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,26 +92,13 @@ public class SystemConfigService extends PKIService {
 
             String cert = certData.getCert();
             byte[] binCert = Utils.base64decode(cert);
-            X509CertImpl certImpl = new X509CertImpl(binCert);
-
-            String certRequestType = certData.getRequestType();
-            logger.info("SystemConfigService: - request type: " + certRequestType);
 
             String profileID = certData.getProfile();
-            logger.info("SystemConfigService: - profile: " + profileID);
-
             String[] dnsNames = certData.getDNSNames();
-            if (dnsNames != null) {
-                logger.info("SystemConfigService: - SAN extension: ");
-                for (String dnsName : dnsNames) {
-                    logger.info("SystemConfigService:   - " + dnsName);
-                }
-            }
 
+            String certRequestType = certData.getRequestType();
             String certRequest = certData.getRequest();
             byte[] binCertRequest = Utils.base64decode(certRequest);
-            PKCS10 pkcs10 = new PKCS10(binCertRequest);
-            X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
 
             boolean installAdjustValidity = !tag.equals("signing");
             X500Name subjectName = null;
@@ -123,8 +107,7 @@ public class SystemConfigService extends PKIService {
             certData.setRequestID(requestID);
 
             configurator.importCert(
-                    x509key,
-                    certImpl,
+                    binCert,
                     profileID,
                     dnsNames,
                     installAdjustValidity,

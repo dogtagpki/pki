@@ -445,8 +445,7 @@ public class Configurator {
     }
 
     public void importCert(
-            X509Key x509key,
-            X509CertImpl cert,
+            byte[] cert,
             String profileID,
             String[] dnsNames,
             boolean installAdjustValidity,

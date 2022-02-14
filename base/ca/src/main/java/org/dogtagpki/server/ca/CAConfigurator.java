@@ -25,9 +25,15 @@ import java.util.Date;
 
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
+import org.mozilla.jss.netscape.security.pkcs.PKCS9Attribute;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
+import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -174,13 +180,12 @@ public class CAConfigurator extends Configurator {
 
     @Override
     public void importCert(
-            X509Key x509key,
-            X509CertImpl cert,
+            byte[] binCert,
             String profileID,
             String[] dnsNames,
             boolean installAdjustValidity,
             String certRequestType,
-            byte[] certRequest,
+            byte[] binCertRequest,
             X500Name subjectName,
             RequestId requestID) throws Exception {
 
@@ -189,17 +194,48 @@ public class CAConfigurator extends Configurator {
         // might conflict with system certificates to be created later.
         // Also create the certificate request record for renewals.
 
-        CAEngine engine = CAEngine.getInstance();
+        logger.info("CAConfigurator: Parsing " + certRequestType + " request");
 
+        PKCS10 pkcs10 = new PKCS10(binCertRequest);
+        X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
+        PKCS10Attributes attrs = pkcs10.getAttributes();
+        PKCS10Attribute extsAttr = attrs.getAttribute(CertificateExtensions.NAME);
+
+        CertificateExtensions extensions;
+
+        if (extsAttr != null && extsAttr.getAttributeId().equals(PKCS9Attribute.EXTENSION_REQUEST_OID)) {
+
+            Extensions exts = (Extensions) extsAttr.getAttributeValue();
+
+            // convert Extensions into CertificateExtensions
+            DerOutputStream os = new DerOutputStream();
+            exts.encode(os);
+            DerInputStream is = new DerInputStream(os.toByteArray());
+
+            extensions = new CertificateExtensions(is);
+
+        } else {
+            extensions = new CertificateExtensions();
+        }
+
+        X509CertImpl cert = new X509CertImpl(binCert);
         X509CertInfo info = cert.getInfo();
         logger.info("CAConfigurator: Cert info:\n" + info);
 
-        CertificateExtensions extensions = new CertificateExtensions();
+        if (dnsNames != null) {
+            logger.info("CAConfigurator: SAN extension: ");
+            for (String dnsName : dnsNames) {
+                logger.info("CAConfigurator: - " + dnsName);
+            }
+        }
 
         String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
+        String profilePath = instanceRoot + configurationRoot + profileID;
+        logger.info("CAConfigurator: Loading " + profilePath);
 
-        IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
+        CAEngine engine = CAEngine.getInstance();
+        IConfigStore profileConfig = engine.createFileConfigStore(profilePath);
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         IRequest request = requestRepository.createRequest(requestID, "enrollment");
@@ -207,7 +243,7 @@ public class CAConfigurator extends Configurator {
         initRequest(
                 request,
                 certRequestType,
-                certRequest,
+                binCertRequest,
                 subjectName,
                 profileConfig.getString("id"),
                 profileConfig.getString("profileIDMapping"),
