@@ -381,7 +381,7 @@ Requires:         slf4j
 Requires:         slf4j-jdk14
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 5.1.0
-Requires:         ldapjdk >= 5.0.0
+Requires:         ldapjdk >= 5.1.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
 %if 0%{?rhel} && 0%{?rhel} <= 8
@@ -459,7 +459,7 @@ Requires:         systemd
 Requires(post):   systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
-Requires:         tomcatjss >= 8.0.0
+Requires:         tomcatjss >= 8.1.0
 
 # pki-healthcheck depends on the following library
 %if 0%{?rhel}
