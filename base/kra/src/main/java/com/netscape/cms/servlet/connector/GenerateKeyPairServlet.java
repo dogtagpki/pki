@@ -200,7 +200,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
         if (!missingParam) {
             thisreq = requestRepository.createRequest(Request.NETKEY_KEYGEN_REQUEST);
 
-            thisreq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_NETKEY_RA);
+            thisreq.setExtData(Request.REQUESTOR_TYPE, Request.REQUESTOR_NETKEY_RA);
             thisreq.setExtData(Request.NETKEY_ATTR_CUID, rCUID);
             thisreq.setExtData(Request.NETKEY_ATTR_USERID, rUserid);
             thisreq.setExtData(Request.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);

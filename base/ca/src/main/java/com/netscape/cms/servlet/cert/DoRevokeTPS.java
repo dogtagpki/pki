@@ -506,9 +506,9 @@ public class DoRevokeTPS extends CMSServlet {
             revReq.setExtData(Request.CERT_INFO, revCertImpls);
             revReq.setExtData(Request.REQ_TYPE, Request.REVOCATION_REQUEST);
             if (initiative.equals(AuditFormat.FROMUSER)) {
-                revReq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_EE);
+                revReq.setExtData(Request.REQUESTOR_TYPE, Request.REQUESTOR_EE);
             } else {
-                revReq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
+                revReq.setExtData(Request.REQUESTOR_TYPE, Request.REQUESTOR_AGENT);
             }
             revReq.setExtData(Request.OLD_CERTS, oldCerts);
             if (comments != null) {

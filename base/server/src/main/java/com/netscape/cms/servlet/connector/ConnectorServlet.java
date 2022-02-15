@@ -611,7 +611,7 @@ public class ConnectorServlet extends CMSServlet {
             // setting requestor type must come after copy contents. because
             // requestor is a regular attribute.
             thisreq.setExtData(Request.REQUESTOR_TYPE,
-                    IRequest.REQUESTOR_RA);
+                    Request.REQUESTOR_RA);
             logger.info("ConnectorServlet: Processing remote request " + srcid);
 
             // Set this so that request's updateBy is recorded

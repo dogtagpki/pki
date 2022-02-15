@@ -43,13 +43,6 @@ import com.netscape.certsrv.base.IAttrSet;
  */
 public interface IRequest extends Serializable {
 
-    // requestor type values.
-    public static final String REQUESTOR_EE = "EE";
-    public static final String REQUESTOR_RA = "RA";
-    public static final String REQUESTOR_NETKEY_RA = "NETKEY_RA";
-    public static final String REQUESTOR_KRA = "KRA";
-    public static final String REQUESTOR_AGENT = "Agent";
-
     // others  (internally set)
     public final static String CACERTCHAIN = "CACertChain";
     public final static String CRL = "CRL";

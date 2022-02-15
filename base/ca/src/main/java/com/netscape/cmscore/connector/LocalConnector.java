@@ -80,7 +80,7 @@ public class LocalConnector implements IConnector {
         transferRequest(r, destreq);
         // XXX requestor type is not transferred on return.
         destreq.setExtData(Request.REQUESTOR_TYPE,
-                IRequest.REQUESTOR_RA);
+                Request.REQUESTOR_RA);
         logger.debug("connector dest " + mDest.getId() +
                 " processing " + destreq.getRequestId());
 

@@ -220,6 +220,13 @@ public class Request implements IRequest {
     public static final String SSK_STAGE_KEYGEN = "serverSideKeygenStage_keygen";
     public static final String SSK_STAGE_KEY_RETRIEVE = "serverSideKeygenStage_key_retrieve";
 
+    // requestor type values
+    public static final String REQUESTOR_EE = "EE";
+    public static final String REQUESTOR_RA = "RA";
+    public static final String REQUESTOR_NETKEY_RA = "NETKEY_RA";
+    public static final String REQUESTOR_KRA = "KRA";
+    public static final String REQUESTOR_AGENT = "Agent";
+
     protected RequestId mRequestId;
     protected RequestStatus mRequestStatus;
     protected String mSourceId;

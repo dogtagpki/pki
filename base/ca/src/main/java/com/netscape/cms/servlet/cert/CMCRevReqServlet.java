@@ -453,7 +453,7 @@ public class CMCRevReqServlet extends CMSServlet {
                         auditSerialNumber,
                         auditRequestType));
 
-            revReq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
+            revReq.setExtData(Request.REQUESTOR_TYPE, Request.REQUESTOR_AGENT);
             if (revReason != null && revReason == RevocationReason.REMOVE_FROM_CRL) {
                 revReq.setExtData(Request.REQ_TYPE, Request.UNREVOCATION_REQUEST);
                 revReq.setExtData(Request.OLD_SERIALS, certSerialNumbers);

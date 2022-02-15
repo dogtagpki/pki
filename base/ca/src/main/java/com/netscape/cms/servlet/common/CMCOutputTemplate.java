@@ -1355,7 +1355,7 @@ public class CMCOutputTemplate {
                     UTF8String utfstr = revRequest.getComment();
                     if (utfstr != null)
                         revReq.setExtData(Request.REQUESTOR_COMMENTS, utfstr.toString());
-                    revReq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
+                    revReq.setExtData(Request.REQUESTOR_TYPE, Request.REQUESTOR_AGENT);
                     RequestQueue queue = engine.getRequestQueue();
                     queue.processRequest(revReq);
                     RequestStatus stat = revReq.getRequestStatus();
