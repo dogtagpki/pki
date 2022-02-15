@@ -402,7 +402,7 @@ public class RevocationProcessor extends CertProcessor {
             Integer result = request.getExtDataInInteger(Request.RESULT);
 
             if (result.equals(Request.RES_ERROR)) {
-                String error = request.getExtDataInString(IRequest.ERROR);
+                String error = request.getExtDataInString(Request.ERROR);
                 logger.debug("RevocationProcessor: - error: " + error);
             }
         }

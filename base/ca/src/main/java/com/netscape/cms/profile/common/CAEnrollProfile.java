@@ -127,7 +127,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
         // prepare for auditing
         CertificateSubjectName reqSubj =
-                request.getExtDataInCertSubjectName(IRequest.REQUEST_SUBJECT_NAME);
+                request.getExtDataInCertSubjectName(Request.REQUEST_SUBJECT_NAME);
         String clientId = "unknown serverKeyGenUser";
         if (reqSubj != null) {
             X500Name xN = reqSubj.getX500Name();
@@ -137,7 +137,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
         // if PKI Archive Option present, send this request
         // to DRM
-        byte optionsData[] = request.getExtDataInByteArray(IRequest.REQUEST_ARCHIVE_OPTIONS);
+        byte optionsData[] = request.getExtDataInByteArray(Request.REQUEST_ARCHIVE_OPTIONS);
 
         byte[] transWrappedSessionKey = null;
         byte[] sessionWrappedPassphrase = null;

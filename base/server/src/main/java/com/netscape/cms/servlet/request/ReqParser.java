@@ -25,6 +25,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
+import com.netscape.cmscore.request.Request;
 
 /**
  * A class representing a request parser.
@@ -61,7 +62,7 @@ public class ReqParser implements IReqParser {
                 req.getCreationTime().getTime() / 1000);
         arg.addLongValue(UPDATE_ON,
                 req.getModificationTime().getTime() / 1000);
-        String updatedBy = req.getExtDataInString(IRequest.UPDATED_BY);
+        String updatedBy = req.getExtDataInString(Request.UPDATED_BY);
 
         if (updatedBy == null)
             updatedBy = "";

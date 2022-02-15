@@ -40,7 +40,7 @@ public class RequestTransfer {
             Request.CRL,
             Request.ERRORS,
             Request.RESULT,
-            IRequest.ERROR,
+            Request.ERROR,
             Request.SVCERRORS,
             Request.REMOTE_STATUS,
             Request.REMOTE_REQID,

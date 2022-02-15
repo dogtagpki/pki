@@ -105,7 +105,7 @@ public class SymKeyGenService implements IService {
         logger.debug("SymKeyGenService: request ID: " + id);
         logger.debug("SymKeyGenService: algorithm: " + algorithm);
 
-        String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
+        String owner = request.getExtDataInString(Request.ATTR_REQUEST_OWNER);
         String auditSubjectID = owner;
 
         //Check here even though restful layer checks for this.

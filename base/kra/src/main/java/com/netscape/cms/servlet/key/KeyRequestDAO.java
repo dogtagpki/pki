@@ -94,11 +94,11 @@ public class KeyRequestDAO extends CMSRequestDAO {
         ASYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DSA_ALGORITHM, KeyPairAlgorithm.DSA);
     }
 
-    private static String REQUEST_ARCHIVE_OPTIONS = IRequest.REQUEST_ARCHIVE_OPTIONS;
-    private static String REQUEST_SECURITY_DATA = IRequest.REQUEST_SECURITY_DATA;
-    private static String REQUEST_SESSION_KEY = IRequest.REQUEST_SESSION_KEY;
-    private static String REQUEST_ALGORITHM_OID = IRequest.REQUEST_ALGORITHM_OID;
-    private static String REQUEST_ALGORITHM_PARAMS = IRequest.REQUEST_ALGORITHM_PARAMS;
+    private static String REQUEST_ARCHIVE_OPTIONS = Request.REQUEST_ARCHIVE_OPTIONS;
+    private static String REQUEST_SECURITY_DATA = Request.REQUEST_SECURITY_DATA;
+    private static String REQUEST_SESSION_KEY = Request.REQUEST_SESSION_KEY;
+    private static String REQUEST_ALGORITHM_OID = Request.REQUEST_ALGORITHM_OID;
+    private static String REQUEST_ALGORITHM_PARAMS = Request.REQUEST_ALGORITHM_PARAMS;
 
     public static final String ATTR_SERIALNO = "serialNumber";
 
@@ -170,7 +170,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             return null;
         }
 
-        authz.checkRealm(request.getRealm(), authToken, request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
+        authz.checkRealm(request.getRealm(), authToken, request.getExtDataInString(Request.ATTR_REQUEST_OWNER),
                 "certServer.kra.request", "read");
 
         KeyRequestInfo info = createKeyRequestInfo(request, uriInfo);
@@ -228,7 +228,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             request.setExtData(Request.SECURITY_DATA_ALGORITHM, keyAlgorithm);
         }
 
-        request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
+        request.setExtData(Request.ATTR_REQUEST_OWNER, owner);
 
         if (realm != null) {
             request.setRealm(realm);
@@ -287,8 +287,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         request.setExtData(ATTR_SERIALNO, keyId.toString());
-        request.setExtData(IRequest.ATTR_REQUEST_OWNER, requestor);
-        request.setExtData(IRequest.ATTR_APPROVE_AGENTS, requestor);
+        request.setExtData(Request.ATTR_REQUEST_OWNER, requestor);
+        request.setExtData(Request.ATTR_APPROVE_AGENTS, requestor);
 
         String encryptOID = data.getPaylodEncryptionOID();
         if (encryptOID != null)
@@ -459,7 +459,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         request.setExtData(Request.KEY_GEN_USAGES, StringUtils.join(usages, ","));
         request.setExtData(Request.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
-        request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
+        request.setExtData(Request.ATTR_REQUEST_OWNER, owner);
 
         if (transWrappedSessionKey != null) {
             request.setExtData(Request.KEY_GEN_TRANS_WRAPPED_SESSION_KEY,
@@ -549,7 +549,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         request.setExtData(Request.KEY_GEN_USAGES, StringUtils.join(usages, ","));
         request.setExtData(Request.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
-        request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
+        request.setExtData(Request.ATTR_REQUEST_OWNER, owner);
 
         if (realm != null) {
             request.setRealm(realm);
@@ -570,7 +570,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throws EBaseException {
         IRequest request = requestRepository.readRequest(id);
         authz.checkRealm(request.getRealm(), authToken,
-                request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
+                request.getExtDataInString(Request.ATTR_REQUEST_OWNER),
                 "certServer.kra.requests", "execute");
 
         service.addAgentAsyncKeyRecovery(id.toString(), requestor);
@@ -580,7 +580,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         IRequest request = requestRepository.readRequest(id);
         String realm = request.getRealm();
         authz.checkRealm(realm, authToken,
-                request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
+                request.getExtDataInString(Request.ATTR_REQUEST_OWNER),
                 "certServer.kra.requests", "execute");
         request.setRequestStatus(RequestStatus.REJECTED);
         queue.updateRequest(request);
@@ -590,7 +590,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         IRequest request = requestRepository.readRequest(id);
         String realm = request.getRealm();
         authz.checkRealm(realm, authToken,
-                request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
+                request.getExtDataInString(Request.ATTR_REQUEST_OWNER),
                 "certServer.kra.requests", "execute");
         request.setRequestStatus(RequestStatus.CANCELED);
         queue.updateRequest(request);

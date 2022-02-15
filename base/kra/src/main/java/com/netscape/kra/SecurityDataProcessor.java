@@ -87,13 +87,13 @@ public class SecurityDataProcessor {
         String clientKeyId = request.getExtDataInString(Request.SECURITY_DATA_CLIENT_KEY_ID);
 
         // one way to get data - unexploded pkiArchiveOptions
-        String pkiArchiveOptions = request.getExtDataInString(IRequest.REQUEST_ARCHIVE_OPTIONS);
+        String pkiArchiveOptions = request.getExtDataInString(Request.REQUEST_ARCHIVE_OPTIONS);
 
         // another way - exploded pkiArchiveOptions
-        String transWrappedSessionKey = request.getExtDataInString(IRequest.REQUEST_SESSION_KEY);
-        String wrappedSecurityData = request.getExtDataInString(IRequest.REQUEST_SECURITY_DATA);
-        String algParams = request.getExtDataInString(IRequest.REQUEST_ALGORITHM_PARAMS);
-        String algStr = request.getExtDataInString(IRequest.REQUEST_ALGORITHM_OID);
+        String transWrappedSessionKey = request.getExtDataInString(Request.REQUEST_SESSION_KEY);
+        String wrappedSecurityData = request.getExtDataInString(Request.REQUEST_SECURITY_DATA);
+        String algParams = request.getExtDataInString(Request.REQUEST_ALGORITHM_PARAMS);
+        String algStr = request.getExtDataInString(Request.REQUEST_ALGORITHM_OID);
 
         // parameters if the secret is a symmetric key
         String dataType = request.getExtDataInString(Request.SECURITY_DATA_TYPE);
@@ -120,7 +120,7 @@ public class SecurityDataProcessor {
         }
 
 
-        String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
+        String owner = request.getExtDataInString(Request.ATTR_REQUEST_OWNER);
         String auditSubjectID = owner;
 
         //Check here even though restful layer checks for this.

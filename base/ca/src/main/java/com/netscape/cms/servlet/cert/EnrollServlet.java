@@ -624,7 +624,7 @@ public class EnrollServlet extends CMSServlet {
         if (result.equals(Request.RES_ERROR)) {
 
             cmsReq.setStatus(ICMSRequest.ERROR);
-            cmsReq.setError(req.getExtDataInString(IRequest.ERROR));
+            cmsReq.setError(req.getExtDataInString(Request.ERROR));
             String[] svcErrors =
                     req.getExtDataInStringArray(Request.SVCERRORS);
 

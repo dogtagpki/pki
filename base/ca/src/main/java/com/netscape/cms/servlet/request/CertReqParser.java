@@ -308,7 +308,7 @@ public class CertReqParser extends ReqParser {
                     arg.addStringValue(Request.ERRORS, errInfo.toString());
                 }
             }
-            if (name.equalsIgnoreCase(IRequest.ERROR)) {
+            if (name.equalsIgnoreCase(Request.ERROR)) {
                 arg.addStringValue(Request.ERRORS, req.getExtDataInString(name));
             }
 
@@ -709,7 +709,7 @@ public class CertReqParser extends ReqParser {
 
         arg.addStringValue("certExtsEnabled", "yes");
         String profile = req.getExtDataInString("profile");
-        String reqType = req.getExtDataInString(IRequest.ATTR_REQUEST_TYPE);
+        String reqType = req.getExtDataInString(Request.ATTR_REQUEST_TYPE);
 
         //logger.debug("CertReqParser: profile=" + profile);
         //profile null can mean either recovery case or TMS reqs
@@ -873,7 +873,7 @@ public class CertReqParser extends ReqParser {
                     arg.addStringValue(Request.ERRORS, errInfo.toString());
                 }
             }
-            if (name.equalsIgnoreCase(IRequest.ERROR)) {
+            if (name.equalsIgnoreCase(Request.ERROR)) {
                 arg.addStringValue(Request.ERRORS, req.getExtDataInString(name));
             }
 

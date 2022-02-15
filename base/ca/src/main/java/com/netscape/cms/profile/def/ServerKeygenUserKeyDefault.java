@@ -357,7 +357,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                 logger.debug(method + " transWrappedSessionKey.length =" +transWrappedSessionKey.length);
 
                 CertificateSubjectName reqSubj =
-                        request.getExtDataInCertSubjectName(IRequest.REQUEST_SUBJECT_NAME);
+                        request.getExtDataInCertSubjectName(Request.REQUEST_SUBJECT_NAME);
                 String subj = "unknown serverKeyGenUser";
                 if (reqSubj != null) {
                     X500Name xN = reqSubj.getX500Name();

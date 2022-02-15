@@ -239,6 +239,87 @@ public class Request implements IRequest {
     public static final String OBJECT_SIGNING = "ObjectSigning";
     public static final String SSL_CLIENT = "SSLClient";
 
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * Subject Name.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateSubjectName
+     */
+    public static final String REQUEST_SUBJECT_NAME = "req_subject_name";
+
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * Key.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateX509Key
+     */
+    public static final String REQUEST_KEY = "req_key";
+
+    /**
+     * Name of request attribute that stores the transport certificate.
+     * <p>
+     * The value is of type String including base64 encoded certificate.
+     */
+    public static final String REQUEST_TRANSPORT_CERT = "req_transport_cert";
+
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * PKI Archive Option extension. This extension is extracted
+     * from a CRMF request that has the user-provided private key.
+     * <p>
+     * The value is of type byte []
+     */
+    public static final String REQUEST_ARCHIVE_OPTIONS = "req_archive_options";
+
+    /**
+     * Transport Key wrapped session key passed into DRM archival service.
+     */
+    public static final String REQUEST_SESSION_KEY = "req_session_key";
+
+    /**
+     * Session wrapped security data passed in to the DRM archival service
+     */
+    public static final String REQUEST_SECURITY_DATA = "req_security_data";
+
+    /**
+     * Symmetric key algorithm params passed into DRM archival service
+     */
+    public static final String REQUEST_ALGORITHM_PARAMS = "req_algorithm_params";
+
+    /**
+     * Symmetric Key algorithm OID passed into DRM archival service
+     */
+    public static final String REQUEST_ALGORITHM_OID = "req_algorithm_oid";
+
+    /**
+     * Name of request attribute that stores the User
+     * Supplied Certificate Request.
+     */
+    public static final String CTX_CERT_REQUEST = "cert_request";
+
+    // attribute names for performing searches
+    public final static String ATTR_REQUEST_OWNER = "requestOwner";
+    public final static String ATTR_REQUEST_STATUS = "requestStatus";
+    public final static String ATTR_SOURCE_ID = "requestSourceId";
+    public final static String ATTR_REQUEST_TYPE = "requestType";
+
+    // for async recovery
+    public final static String ATTR_APPROVE_AGENTS = "approvingAgents";
+
+    /**
+     * Other attributes stored in the attribute set
+     */
+    public final static String UPDATED_BY = "updatedBy";
+
+    // error message
+    public static final String ERROR = "Error";
+
+    // request error code
+    public static final String ERROR_CODE = "errorCode";
+
+    // authentication realm
+    public static final String REALM = "realm";
+
     protected RequestId mRequestId;
     protected RequestStatus mRequestStatus;
     protected String mSourceId;
@@ -285,12 +366,12 @@ public class Request implements IRequest {
 
     @Override
     public String getError(Locale locale) {
-        return getExtDataInString(IRequest.ERROR);
+        return getExtDataInString(Request.ERROR);
     }
 
     @Override
     public String getErrorCode(Locale locale) {
-        return getExtDataInString(IRequest.ERROR_CODE);
+        return getExtDataInString(Request.ERROR_CODE);
     }
 
     // IRequest.getSourceId

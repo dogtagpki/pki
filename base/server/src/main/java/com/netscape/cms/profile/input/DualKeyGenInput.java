@@ -34,6 +34,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements the dual key generation input.
@@ -54,7 +55,7 @@ public class DualKeyGenInput extends EnrollInput {
     public static final String VAL_KEYGEN_REQUEST_TYPE =
             EnrollProfile.CTX_CERT_REQUEST_TYPE;
     public static final String VAL_KEYGEN_REQUEST =
-            IRequest.CTX_CERT_REQUEST;
+            Request.CTX_CERT_REQUEST;
 
     public EnrollProfile mEnrollProfile = null;
 

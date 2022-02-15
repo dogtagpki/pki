@@ -44,64 +44,6 @@ import com.netscape.certsrv.base.IAttrSet;
 public interface IRequest extends Serializable {
 
     /**
-     * Name of request attribute that stores the End-User Supplied
-     * Subject Name.
-     * <p>
-     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateSubjectName
-     */
-    String REQUEST_SUBJECT_NAME = "req_subject_name";
-
-    /**
-     * Name of request attribute that stores the End-User Supplied
-     * Key.
-     * <p>
-     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateX509Key
-     */
-    String REQUEST_KEY = "req_key";
-
-    /**
-     * Name of request attribute that stores the transport certificate.
-     * <p>
-     * The value is of type String including base64 encoded certificate.
-     */
-    String REQUEST_TRANSPORT_CERT = "req_transport_cert";
-
-    /**
-     * Name of request attribute that stores the End-User Supplied
-     * PKI Archive Option extension. This extension is extracted
-     * from a CRMF request that has the user-provided private key.
-     * <p>
-     * The value is of type byte []
-     */
-    String REQUEST_ARCHIVE_OPTIONS = "req_archive_options";
-
-    /**
-     * Transport Key wrapped session key passed into DRM archival service.
-     */
-    String REQUEST_SESSION_KEY = "req_session_key";
-
-    /**
-     * Session wrapped security data passed in to the DRM archival service
-     */
-    String REQUEST_SECURITY_DATA = "req_security_data";
-
-    /**
-     * Symmetric key algorithm params passed into DRM archival service
-     */
-    String REQUEST_ALGORITHM_PARAMS = "req_algorithm_params";
-
-    /**
-     * Symmetric Key algorithm OID passed into DRM archival service
-     */
-    String REQUEST_ALGORITHM_OID = "req_algorithm_oid";
-
-    /**
-     * Name of request attribute that stores the User
-     * Supplied Certificate Request.
-     */
-    String CTX_CERT_REQUEST = "cert_request";
-
-    /**
      * Gets the primary identifier for this request.
      *
      * @return request id
@@ -194,30 +136,6 @@ public interface IRequest extends Serializable {
     Date getModificationTime();
 
     void setModificationTime(Date date);
-
-    /*
-     * Attribute names for performing searches.
-     */
-    public final static String ATTR_REQUEST_OWNER = "requestOwner";
-    public final static String ATTR_REQUEST_STATUS = "requestStatus";
-    public final static String ATTR_SOURCE_ID = "requestSourceId";
-    public final static String ATTR_REQUEST_TYPE = "requestType";
-
-    /* for async recovery */
-    public final static String ATTR_APPROVE_AGENTS = "approvingAgents";
-
-    /*
-     * Other attributes stored in the attribute set
-     */
-    public final static String UPDATED_BY = "updatedBy";
-    // String error messages
-    public static final String ERROR = "Error";
-
-    // Request Error code
-    public static final String ERROR_CODE = "errorCode";
-
-    // authentication realm
-    public static final String REALM = "realm";
 
     /**
      * Copies meta attributes (excluding request Id, etc.) of another request

@@ -330,7 +330,7 @@ public class RenewalServlet extends CMSServlet {
             logger.debug("RenewalServlet: Result for request " + req.getRequestId() + " is error.");
 
             cmsReq.setStatus(ICMSRequest.ERROR);
-            cmsReq.setError(req.getExtDataInString(IRequest.ERROR));
+            cmsReq.setError(req.getExtDataInString(Request.ERROR));
             String[] svcErrors =
                     req.getExtDataInStringArray(Request.SVCERRORS);
 

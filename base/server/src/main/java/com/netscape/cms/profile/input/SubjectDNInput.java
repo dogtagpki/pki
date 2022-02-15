@@ -34,6 +34,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This plugin accepts subject DN from end user.
@@ -141,7 +142,7 @@ public class SubjectDNInput extends EnrollInput {
     protected void parseSubjectName(X500Name subj, X509CertInfo info, IRequest req)
             throws EProfileException {
         try {
-            req.setExtData(IRequest.REQUEST_SUBJECT_NAME,
+            req.setExtData(Request.REQUEST_SUBJECT_NAME,
                     new CertificateSubjectName(subj));
         } catch (Exception e) {
             logger.warn("SubjectNameInput: parseSubject Name " + e.getMessage(), e);

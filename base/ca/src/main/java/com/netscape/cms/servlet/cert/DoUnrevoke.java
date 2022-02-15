@@ -300,7 +300,7 @@ public class DoUnrevoke extends CMSServlet {
 
                 } else {
                     header.addStringValue("unrevoked", "no");
-                    String error = unrevReq.getExtDataInString(IRequest.ERROR);
+                    String error = unrevReq.getExtDataInString(Request.ERROR);
 
                     if (error != null) {
                         header.addStringValue("error", error);

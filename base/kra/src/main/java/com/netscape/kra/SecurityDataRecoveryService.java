@@ -31,6 +31,7 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This implementation services SecurityData Recovery requests.
@@ -70,11 +71,11 @@ public class SecurityDataRecoveryService implements IService {
         logger.debug("SecurityDataRecoveryService.serviceRequest()");
 
         // parameters for auditing
-        String auditSubjectID = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
+        String auditSubjectID = request.getExtDataInString(Request.ATTR_REQUEST_OWNER);
         BigInteger serialNumber = request.getExtDataInBigInteger("serialNumber");
         KeyId keyId = serialNumber != null ? new KeyId(serialNumber): null;
         RequestId requestID = request.getRequestId();
-        String approvers = request.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
+        String approvers = request.getExtDataInString(Request.ATTR_APPROVE_AGENTS);
 
         KRAEngine engine = KRAEngine.getInstance();
 

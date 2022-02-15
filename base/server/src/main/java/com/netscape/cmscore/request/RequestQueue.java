@@ -116,7 +116,7 @@ public class RequestQueue extends ARequestQueue {
 
         String name = getUserIdentity();
         if (name != null) {
-            request.setExtData(IRequest.UPDATED_BY, name);
+            request.setExtData(Request.UPDATED_BY, name);
         }
 
         String delayLDAPCommit = request.getExtDataInString("delayLDAPCommit");

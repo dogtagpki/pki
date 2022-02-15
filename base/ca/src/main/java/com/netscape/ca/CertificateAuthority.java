@@ -1955,7 +1955,7 @@ public class CertificateAuthority
             // incorrect in the request (e.g. profile constraint
             // violated).
             String msg = "Unable to generate signing certificate: " + requestStatus;
-            String errorMsg = request.getExtDataInString(IRequest.ERROR);
+            String errorMsg = request.getExtDataInString(com.netscape.cmscore.request.Request.ERROR);
             if (errorMsg != null) {
                 msg += ": " + errorMsg;
             }

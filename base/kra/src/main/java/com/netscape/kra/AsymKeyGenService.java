@@ -78,7 +78,7 @@ public class AsymKeyGenService implements IService {
         KRAEngine engine = KRAEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
-        String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
+        String owner = request.getExtDataInString(Request.ATTR_REQUEST_OWNER);
         String auditSubjectID = owner;
         boolean isSSKeygen = false;
         String isSSKeygenStr = request.getExtDataInString("isServerSideKeygen");

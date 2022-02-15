@@ -85,7 +85,7 @@ public class KRAService implements IService {
 
         if (s == null) {
             r.setExtData(Request.RESULT, Request.RES_ERROR);
-            r.setExtData(IRequest.ERROR, new EBaseException(
+            r.setExtData(Request.ERROR, new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INVALID_OPERATION")));
             return true;
         }
@@ -93,7 +93,7 @@ public class KRAService implements IService {
             return s.serviceRequest(r);
         } catch (EBaseException e) {
             r.setExtData(Request.RESULT, Request.RES_ERROR);
-            r.setExtData(IRequest.ERROR, e);
+            r.setExtData(Request.ERROR, e);
             logger.error("KRAService serviceRequest " + e, e);
             if ((e.getMessage()).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
                 r.setRequestStatus(RequestStatus.REJECTED);

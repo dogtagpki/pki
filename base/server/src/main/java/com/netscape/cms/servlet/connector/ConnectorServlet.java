@@ -320,14 +320,14 @@ public class ConnectorServlet extends CMSServlet {
             if (certKey != null) {
                 byteStream = new ByteArrayOutputStream();
                 certKey.encode(byteStream);
-                request.setExtData(IRequest.REQUEST_KEY,
+                request.setExtData(Request.REQUEST_KEY,
                         byteStream.toByteArray());
             }
 
             CertificateSubjectName certSubject = (CertificateSubjectName)
                     info.get(X509CertInfo.SUBJECT);
             if (certSubject != null) {
-                request.setExtData(IRequest.REQUEST_SUBJECT_NAME,
+                request.setExtData(Request.REQUEST_SUBJECT_NAME,
                         certSubject);
             }
 

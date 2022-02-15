@@ -271,7 +271,7 @@ public abstract class EnrollProfile extends Profile {
 
         // determine how many requests should be created
         String cert_request_type = ctx.get(CTX_CERT_REQUEST_TYPE);
-        String cert_request = ctx.get(IRequest.CTX_CERT_REQUEST);
+        String cert_request = ctx.get(Request.CTX_CERT_REQUEST);
         String is_renewal = ctx.get(CTX_RENEWAL);
         Integer renewal_seq_num = 0;
 
@@ -356,7 +356,7 @@ public abstract class EnrollProfile extends Profile {
                 if (cmc_msgs != null && cmc_msgs[i] != null) {
                     logger.debug(method + "setting cmc TaggedRequest in request");
                     result[i].setExtData(
-                            IRequest.CTX_CERT_REQUEST,
+                            Request.CTX_CERT_REQUEST,
                             ASN1Util.encode(cmc_msgs[i]));
                 }
             }
@@ -520,7 +520,7 @@ public abstract class EnrollProfile extends Profile {
 
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        byte[] req_key_data = req.getExtDataInByteArray(IRequest.REQUEST_KEY);
+        byte[] req_key_data = req.getExtDataInByteArray(Request.REQUEST_KEY);
         if (req_key_data == null) {
             logger.error(method + " public key not found in request");
             throw new EBaseException(method + " public key not found in request");
@@ -1331,7 +1331,7 @@ public abstract class EnrollProfile extends Profile {
             return null;
         }
 
-        byte[] cmc_msg = req.getExtDataInByteArray(IRequest.CTX_CERT_REQUEST);
+        byte[] cmc_msg = req.getExtDataInByteArray(Request.CTX_CERT_REQUEST);
         if (cmc_msg == null) {
             msg = method +
                     "cmc_msg not found in request:" +
@@ -2274,11 +2274,11 @@ public abstract class EnrollProfile extends Profile {
                     PKIArchiveOptions opt = getPKIArchiveOptions(ava);
 
                     //req.set(REQUEST_ARCHIVE_OPTIONS, opt);
-                    req.setExtData(IRequest.REQUEST_ARCHIVE_OPTIONS,
+                    req.setExtData(Request.REQUEST_ARCHIVE_OPTIONS,
                             toByteArray(opt));
                     try {
                         String transportCert = cs.getString("ca.connector.KRA.transportCert", "");
-                        req.setExtData(IRequest.REQUEST_TRANSPORT_CERT, transportCert);
+                        req.setExtData(Request.REQUEST_TRANSPORT_CERT, transportCert);
                     } catch (EBaseException ee) {
                         logger.warn("EnrollProfile: fillCertReqMsg - Exception reading transportCert: " + ee.getMessage(), ee);
                     }
@@ -2303,7 +2303,7 @@ public abstract class EnrollProfile extends Profile {
             CertificateX509Key certKey = new CertificateX509Key(key);
             ByteArrayOutputStream certKeyOut = new ByteArrayOutputStream();
             certKey.encode(certKeyOut);
-            req.setExtData(IRequest.REQUEST_KEY, certKeyOut.toByteArray());
+            req.setExtData(Request.REQUEST_KEY, certKeyOut.toByteArray());
 
             // parse validity
             if (certTemplate.getNotBefore() != null ||
@@ -2334,23 +2334,23 @@ public abstract class EnrollProfile extends Profile {
                 //info.set(X509CertInfo.SUBJECT,
                 //  new CertificateSubjectName(subject));
 
-                req.setExtData(IRequest.REQUEST_SUBJECT_NAME,
+                req.setExtData(Request.REQUEST_SUBJECT_NAME,
                         new CertificateSubjectName(subject));
                 try {
                     String subjectCN = subject.getCommonName();
                     if (subjectCN == null)
                         subjectCN = "";
-                    req.setExtData(IRequest.REQUEST_SUBJECT_NAME + ".cn", subjectCN);
+                    req.setExtData(Request.REQUEST_SUBJECT_NAME + ".cn", subjectCN);
                 } catch (Exception ee) {
-                    req.setExtData(IRequest.REQUEST_SUBJECT_NAME + ".cn", "");
+                    req.setExtData(Request.REQUEST_SUBJECT_NAME + ".cn", "");
                 }
                 try {
                     String subjectUID = subject.getUserID();
                     if (subjectUID == null)
                         subjectUID = "";
-                    req.setExtData(IRequest.REQUEST_SUBJECT_NAME + ".uid", subjectUID);
+                    req.setExtData(Request.REQUEST_SUBJECT_NAME + ".uid", subjectUID);
                 } catch (Exception ee) {
-                    req.setExtData(IRequest.REQUEST_SUBJECT_NAME + ".uid", "");
+                    req.setExtData(Request.REQUEST_SUBJECT_NAME + ".uid", "");
                 }
             }
 
@@ -2445,12 +2445,12 @@ public abstract class EnrollProfile extends Profile {
 
             ByteArrayOutputStream certKeyOut = new ByteArrayOutputStream();
             certKey.encode(certKeyOut);
-            req.setExtData(IRequest.REQUEST_KEY, certKeyOut.toByteArray());
+            req.setExtData(Request.REQUEST_KEY, certKeyOut.toByteArray());
 
             X500Name subjectName = pkcs10.getSubjectName();
             logger.info("EnrollProfile: - subject: " + subjectName);
 
-            req.setExtData(IRequest.REQUEST_SUBJECT_NAME, new CertificateSubjectName(subjectName));
+            req.setExtData(Request.REQUEST_SUBJECT_NAME, new CertificateSubjectName(subjectName));
 
             String subjectCN;
             try {
@@ -2463,7 +2463,7 @@ public abstract class EnrollProfile extends Profile {
             }
 
             logger.info("EnrollProfile: - subject CN: " + subjectCN);
-            req.setExtData(IRequest.REQUEST_SUBJECT_NAME + ".cn", subjectCN);
+            req.setExtData(Request.REQUEST_SUBJECT_NAME + ".cn", subjectCN);
 
             String subjectUID;
             try {
@@ -2476,7 +2476,7 @@ public abstract class EnrollProfile extends Profile {
             }
 
             logger.info("EnrollProfile: - subject UID: " + subjectUID);
-            req.setExtData(IRequest.REQUEST_SUBJECT_NAME + ".uid", subjectUID);
+            req.setExtData(Request.REQUEST_SUBJECT_NAME + ".uid", subjectUID);
 
             info.set(X509CertInfo.KEY, certKey);
 
@@ -2613,7 +2613,7 @@ public abstract class EnrollProfile extends Profile {
             CertificateX509Key certKey = new CertificateX509Key(mSPKI);
             ByteArrayOutputStream certKeyOut = new ByteArrayOutputStream();
             certKey.encode(certKeyOut);
-            req.setExtData(IRequest.REQUEST_KEY, certKeyOut.toByteArray());
+            req.setExtData(Request.REQUEST_KEY, certKeyOut.toByteArray());
             info.set(X509CertInfo.KEY, certKey);
 
         } catch (IOException e) {

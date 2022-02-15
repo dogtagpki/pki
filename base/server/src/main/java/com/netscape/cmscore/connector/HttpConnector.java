@@ -219,7 +219,7 @@ public class HttpConnector implements IConnector {
                                 " was rejected or cancelled.");
                 r.setExtData(Request.REMOTE_STATUS, replyStatus.toString());
                 r.setExtData(Request.RESULT, Request.RES_ERROR);
-                r.setExtData(IRequest.ERROR,
+                r.setExtData(Request.ERROR,
                         new EBaseException(CMS.getUserMessage("CMS_BASE_REMOTE_AUTHORITY_ERROR")));
                 // XXX overload svcerrors for now.
                 Vector<String> policyErrors = r.getExtDataInStringVector(Request.ERRORS);

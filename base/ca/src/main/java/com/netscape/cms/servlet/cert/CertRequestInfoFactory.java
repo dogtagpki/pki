@@ -64,7 +64,7 @@ public class CertRequestInfoFactory {
             info.setOperationResult(CertRequestInfo.RES_ERROR);
         }
 
-        String error = request.getExtDataInString(IRequest.ERROR);
+        String error = request.getExtDataInString(Request.ERROR);
         info.setErrorMessage(error);
 
         if (requestType == null || requestStatus != RequestStatus.COMPLETE)

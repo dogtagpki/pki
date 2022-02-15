@@ -36,6 +36,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -227,7 +228,7 @@ public class UserKeyDefault extends EnrollDefault {
         // authenticate the certificate key, and move
         // the key from request into x509 certinfo
         try {
-            byte[] certKeyData = request.getExtDataInByteArray(IRequest.REQUEST_KEY);
+            byte[] certKeyData = request.getExtDataInByteArray(Request.REQUEST_KEY);
             if (certKeyData != null) {
                 certKey = new CertificateX509Key(
                         new ByteArrayInputStream(certKeyData));

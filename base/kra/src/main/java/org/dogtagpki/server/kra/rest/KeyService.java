@@ -292,7 +292,7 @@ public class KeyService extends SubsystemService implements KeyResource {
             throw new HTTPGoneException("No key record.");
         }
 
-        approvers = request.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
+        approvers = request.getExtDataInString(Request.ATTR_APPROVE_AGENTS);
         auditRecoveryRequestProcessed(ILogger.SUCCESS, null);
 
         logger.info("KeyService: Response:\n" + keyData.toJSON());
@@ -449,7 +449,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
         //confirm that retriever is originator of request, else throw 401
         String retriever = servletRequest.getUserPrincipal().getName();
-        String originator = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
+        String originator = request.getExtDataInString(Request.ATTR_REQUEST_OWNER);
         if (! originator.equals(retriever)) {
             throw new UnauthorizedException("Data can only be retrieved by the originators of the request");
         }

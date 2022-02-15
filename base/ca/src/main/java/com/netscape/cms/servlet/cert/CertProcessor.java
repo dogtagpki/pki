@@ -278,7 +278,7 @@ public class CertProcessor extends CAProcessor {
                 }
 
                 errorCode = "2";
-                req.setExtData(IRequest.ERROR_CODE, errorCode);
+                req.setExtData(Request.ERROR_CODE, errorCode);
 
                 // do NOT store a message in the signed audit log file
                 // as this errorCode indicates that a process has been
@@ -291,8 +291,8 @@ public class CertProcessor extends CAProcessor {
                 req.setRequestStatus(RequestStatus.REJECTED);
 
                 errorCode = "3";
-                req.setExtData(IRequest.ERROR, e.toString());
-                req.setExtData(IRequest.ERROR_CODE, errorCode);
+                req.setExtData(Request.ERROR, e.toString());
+                req.setExtData(Request.ERROR_CODE, errorCode);
 
                 signedAuditLogger.log(CertRequestProcessedEvent.createFailureEvent(
                         auditSubjectID,
@@ -306,8 +306,8 @@ public class CertProcessor extends CAProcessor {
 
                 errorCode = "1";
                 errorReason = codeToReason(locale, errorCode, null, req.getRequestId());
-                req.setExtData(IRequest.ERROR, errorReason);
-                req.setExtData(IRequest.ERROR_CODE, errorCode);
+                req.setExtData(Request.ERROR, errorReason);
+                req.setExtData(Request.ERROR_CODE, errorCode);
 
                 signedAuditLogger.log(CertRequestProcessedEvent.createFailureEvent(
                         auditSubjectID,

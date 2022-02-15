@@ -892,7 +892,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             r.setExtData(RecoveryService.ATTR_SERIALNO, kid);
             r.setExtData(RecoveryService.ATTR_USER_CERT, cert);
             // first one in the "approvingAgents" list is the initiating agent
-            r.setExtData(IRequest.ATTR_APPROVE_AGENTS, agent);
+            r.setExtData(Request.ATTR_APPROVE_AGENTS, agent);
             r.setRequestStatus(RequestStatus.PENDING);
             r.setRealm(realm);
             RequestQueue queue = engine.getRequestQueue();
@@ -948,7 +948,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         IRequest r = requestRepository.readRequest(new RequestId(reqID));
 
-        String agents = r.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
+        String agents = r.getExtDataInString(Request.ATTR_APPROVE_AGENTS);
         if (agents == null) { // no approvingAgents existing, can't be async recovery
             logger.debug("getInitAgentAsyncKeyRecovery: no approvingAgents in request");
         } else {
@@ -985,7 +985,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         RequestQueue queue = engine.getRequestQueue();
         IRequest r = requestRepository.readRequest(new RequestId(reqID));
 
-        String agents = r.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
+        String agents = r.getExtDataInString(Request.ATTR_APPROVE_AGENTS);
         if (agents != null) {
             int count = 0;
             StringTokenizer st = new StringTokenizer(agents, ",");
@@ -1006,7 +1006,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             // note: if count==1 and required agents is 1, it's good to add
             // and it'd look like "agent1,agent1" - that's the only duplicate allowed
             if (count <= agentsRequired) { //all good, add it
-                r.setExtData(IRequest.ATTR_APPROVE_AGENTS,
+                r.setExtData(Request.ATTR_APPROVE_AGENTS,
                         agents + "," + agentID);
                 if (count == agentsRequired) {
                     r.setRequestStatus(RequestStatus.APPROVED);
@@ -1083,7 +1083,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 }
             }
             // for both sync and async recovery
-            r.setExtData(IRequest.ATTR_APPROVE_AGENTS, agent);
+            r.setExtData(Request.ATTR_APPROVE_AGENTS, agent);
 
             // store a message in the signed audit log file
             audit(new SecurityDataRecoveryEvent(
@@ -1110,7 +1110,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             RequestQueue queue = engine.getRequestQueue();
             queue.processRequest(r);
 
-            if (r.getExtDataInString(IRequest.ERROR) == null) {
+            if (r.getExtDataInString(Request.ERROR) == null) {
                 byte pkcs12[] = (byte[]) params.get(
                         RecoveryService.ATTR_PKCS12);
 
@@ -1133,10 +1133,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                         ILogger.FAILURE,
                         auditRecoveryID,
                         new KeyId(kid),
-                        r.getExtDataInString(IRequest.ERROR),
+                        r.getExtDataInString(Request.ERROR),
                         auditAgents));
 
-            throw new EBaseException(r.getExtDataInString(IRequest.ERROR));
+            throw new EBaseException(r.getExtDataInString(Request.ERROR));
         } catch (EBaseException eAudit1) {
             audit(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,
@@ -1187,7 +1187,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         logger.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery()");
         r = requestRepository.readRequest(new RequestId(reqID));
 
-        auditAgents = r.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
+        auditAgents = r.getExtDataInString(Request.ATTR_APPROVE_AGENTS);
         BigInteger serialNumber = r.getExtDataInBigInteger("serialNumber");
         keyID = serialNumber != null? new KeyId(serialNumber) : null;
 
@@ -1204,7 +1204,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             r.setRequestStatus(RequestStatus.BEGIN);
             queue.processRequest(r);
 
-            if (r.getExtDataInString(IRequest.ERROR) == null) {
+            if (r.getExtDataInString(Request.ERROR) == null) {
                 byte pkcs12[] = (byte[]) params.get(
                         RecoveryService.ATTR_PKCS12);
 
@@ -1225,10 +1225,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                     ILogger.FAILURE,
                     auditRecoveryID,
                     keyID,
-                    r.getExtDataInString(IRequest.ERROR),
+                    r.getExtDataInString(Request.ERROR),
                     auditAgents));
 
-            throw new EBaseException(r.getExtDataInString(IRequest.ERROR));
+            throw new EBaseException(r.getExtDataInString(Request.ERROR));
         } catch (EBaseException eAudit1) {
             audit(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,

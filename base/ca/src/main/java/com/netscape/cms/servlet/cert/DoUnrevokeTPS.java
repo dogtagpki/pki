@@ -315,7 +315,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                         );
                     }
                 } else {
-                    String error = unrevReq.getExtDataInString(IRequest.ERROR);
+                    String error = unrevReq.getExtDataInString(Request.ERROR);
 
                     if (error != null) {
                         o_status = "status=3";
