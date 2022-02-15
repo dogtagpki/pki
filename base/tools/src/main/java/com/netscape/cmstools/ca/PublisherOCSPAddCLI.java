@@ -38,6 +38,10 @@ public class PublisherOCSPAddCLI extends CommandCLI {
         option.setArgName("URL");
         options.addOption(option);
 
+        option = new Option(null, "subsystem-cert", true, "Subsystem certificate path");
+        option.setArgName("path");
+        options.addOption(option);
+
         option = new Option(null, "session", true, "Session ID");
         option.setArgName("ID");
         options.addOption(option);
@@ -59,6 +63,13 @@ public class PublisherOCSPAddCLI extends CommandCLI {
 
         URL url = new URL(publisherURL);
 
+        String subsystemCertPath = cmd.getOptionValue("subsystem-cert");
+        if (subsystemCertPath == null) {
+            throw new Exception("Missing subsystem certificate");
+        }
+
+        String subsystemCert = new String(Files.readAllBytes(Paths.get(subsystemCertPath)));
+
         String installToken = cmd.getOptionValue("install-token");
         String sessionID;
 
@@ -78,6 +89,6 @@ public class PublisherOCSPAddCLI extends CommandCLI {
         PKIClient client = mainCLI.getClient();
         CAClient caClient = new CAClient(client);
 
-        caClient.addOCSPPublisher(url, sessionID);
+        caClient.addOCSPPublisher(url, subsystemCert, sessionID);
     }
 }

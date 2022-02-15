@@ -132,12 +132,13 @@ public class CAClient extends SubsystemClient {
         }
     }
 
-    public void addOCSPPublisher(URL url, String sessionID) throws Exception {
+    public void addOCSPPublisher(URL url, String subsystemCert, String sessionID) throws Exception {
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
         content.putSingle("xmlOutput", "true");
         content.putSingle("ocsp_host", url.getHost());
         content.putSingle("ocsp_port", url.getPort() + "");
+        content.putSingle("subsystemCert", subsystemCert);
         content.putSingle("sessionID", sessionID);
         logger.debug("CAClient: content: " + content);
 

@@ -1428,7 +1428,7 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
-    def add_ocsp_publisher(self, instance):
+    def add_ocsp_publisher(self, instance, subsystem):
 
         server_config = instance.get_server_config()
         hostname = self.mdict['pki_hostname']
@@ -1437,8 +1437,14 @@ class PKIDeployer:
         ca_url = self.mdict['pki_issuing_ca']
         ocsp_url = 'https://%s:%s' % (hostname, securePort)
 
+        subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
+
         tmpdir = tempfile.mkdtemp()
         try:
+            subsystem_cert_file = os.path.join(tmpdir, 'subsystem.crt')
+            with open(subsystem_cert_file, 'w') as f:
+                f.write(subsystem_cert)
+
             install_token = os.path.join(tmpdir, 'install-token')
             with open(install_token, 'w') as f:
                 f.write(self.install_token.token)
@@ -1450,6 +1456,7 @@ class PKIDeployer:
                 '-U', ca_url,
                 'ca-publisher-ocsp-add',
                 '--url', ocsp_url,
+                '--subsystem-cert', subsystem_cert_file,
                 '--install-token', install_token
             ]
 
@@ -1876,7 +1883,7 @@ class PKIDeployer:
                 # preserving existing functionality.
                 # Next we need to treat the publishing of clones as a group,
                 # and fail over amongst them.
-                self.add_ocsp_publisher(instance)
+                self.add_ocsp_publisher(instance, subsystem)
 
         if subsystem.type == 'TPS':
 

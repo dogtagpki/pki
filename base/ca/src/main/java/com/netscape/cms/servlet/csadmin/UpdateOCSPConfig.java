@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
@@ -28,16 +29,24 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.usrgrp.Group;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.json.JSONObject;
 
@@ -47,6 +56,7 @@ public class UpdateOCSPConfig extends CMSServlet {
 
     private static final long serialVersionUID = 42812270761684404L;
     private final static String SUCCESS = "0";
+    private final static String FAILED = "1";
     private final static String AUTH_FAILURE = "2";
 
     public UpdateOCSPConfig() {
@@ -121,6 +131,10 @@ public class UpdateOCSPConfig extends CMSServlet {
         String ocspname = ocsphost.replace('.', '-')+"-"+ocspport;
         String publisherPrefix = "ca.publish.publisher.instance.OCSPPublisher-"+ocspname;
         String rulePrefix = "ca.publish.rule.instance.ocsprule-"+ocspname;
+
+        String url = "https://" + ocsphost + ":" + ocspport;
+        logger.info("UpdateOCSPConfig: Adding OCSP publisher for " + url);
+
         try {
             cs.putString("ca.publish.enable", "true");
             cs.putString(publisherPrefix+".host", ocsphost);
@@ -135,20 +149,159 @@ public class UpdateOCSPConfig extends CMSServlet {
             cs.putString(rulePrefix+".publisher", "OCSPPublisher-"+ocspname);
             cs.putString(rulePrefix+".type", "crl");
             cs.commit(false);
-            // insert info
-            logger.debug("UpdateOCSPConfig: Sending response");
 
-            // send success status back to the requestor
+        } catch (Exception e) {
+            String message = "Unable to add OCSP publisher for " + url + ": " + e.getMessage();
+            logger.error("UpdateOCSPConfig: " + message, e);
+            sendResponse(httpResp, FAILED, message);
+            return;
+        }
+
+        UGSubsystem ugSubsystem = engine.getUGSubsystem();
+
+        String uid = "OCSP-" + ocsphost + "-" + ocspport;
+        String fullName = "OCSP " + ocsphost + " " + ocspport;
+        logger.info("UpdateOCSPConfig: Adding " + uid + " user");
+
+        String auditSubjectID = auditSubjectID();
+        String auditParams = "Scope;;users+Operation;;OP_ADD+source;;UpdateOCSPConfig" +
+                "+Resource;;" + uid +
+                "+fullname;;" + fullName +
+                "+state;;1" +
+                "+userType;;agentType+email;;<null>+password;;<null>+phone;;<null>";
+
+        try {
+            User user = ugSubsystem.createUser(uid);
+            user.setFullName(fullName);
+            user.setEmail("");
+            user.setPassword("");
+            user.setUserType("agentType");
+            user.setState("1");
+            user.setPhone("");
+
+            ugSubsystem.addUser(user);
+
+            signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.SUCCESS,
+                               auditParams));
+
+        } catch (ConflictingOperationException e) {
+            logger.info("UpdateOCSPConfig: User " + uid + " already exists");
+
+        } catch (Exception e) {
+            String message = "Unable to add " + uid + " user: " + e.getMessage();
+            logger.error("UpdateOCSPConfig: " + message, e);
+
+            signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.FAILURE,
+                               auditParams));
+
+            sendResponse(httpResp, FAILED, message);
+            return;
+        }
+
+        String cert = httpReq.getParameter("subsystemCert");
+        logger.info("UpdateOCSPConfig: Adding cert for " + uid + " user");
+
+        auditParams = "Scope;;certs+Operation;;OP_ADD+source;;UpdateOCSPConfig" +
+                "+Resource;;" + uid +
+                "+cert;;" + cert;
+
+        try {
+            byte[] binCert = Utils.base64decode(cert);
+            X509CertImpl certImpl = new X509CertImpl(binCert);
+            ugSubsystem.addUserCert(uid, certImpl);
+
+            signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.SUCCESS,
+                               auditParams));
+
+        } catch (ConflictingOperationException e) {
+            logger.info("UpdateOCSPConfig: Certificate for " + uid + " already exists: " + e.getMessage(), e);
+
+        } catch (Exception e) {
+            String message = "Unable to add cert for " + uid + " user: " + e.getMessage();
+            logger.error("UpdateOCSPConfig: " + message, e);
+
+            signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.FAILURE,
+                               auditParams));
+
+            sendResponse(httpResp, FAILED, message);
+            return;
+        }
+
+        String groupName = "Subsystem Group";
+        logger.info("UpdateOCSPConfig: Adding " + uid + " user into " + groupName);
+
+        auditParams = "Scope;;groups+Operation;;OP_MODIFY+source;;UpdateOCSPConfig" +
+                "+Resource;;" + groupName;
+
+        try {
+            Group group = ugSubsystem.getGroupFromName(groupName);
+
+            auditParams += "+user;;";
+            Enumeration<String> members = group.getMemberNames();
+            while (members.hasMoreElements()) {
+                auditParams += members.nextElement();
+                if (members.hasMoreElements()) {
+                    auditParams += ",";
+                }
+            }
+
+            if (!group.isMember(uid)) {
+
+                auditParams += "," + uid;
+                group.addMemberName(uid);
+                ugSubsystem.modifyGroup(group);
+
+                signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.SUCCESS,
+                               auditParams));
+
+            } else {
+                logger.info("UpdateOCSPConfig: User " + uid + " already in " + groupName);
+            }
+
+        } catch (Exception e) {
+            String message = "Unable to add " + uid + " user into " + groupName + ": " + e.getMessage();
+            logger.error("UpdateOCSPConfig: " + message, e);
+
+            signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.FAILURE,
+                               auditParams));
+
+            sendResponse(httpResp, FAILED, message);
+            return;
+        }
+
+        sendResponse(httpResp, SUCCESS, null);
+    }
+
+    public void sendResponse(HttpServletResponse httpResp, String status, String error) {
+
+        // send success status back to the requestor
+        try {
+            logger.debug("UpdateOCSPConfig: Sending response");
             JSONObject jsonObj = new JSONObject();
 
             ObjectNode responseNode = jsonObj.getMapper().createObjectNode();
-            responseNode.put("Status", SUCCESS);
+            if (status.equals(SUCCESS)) {
+                responseNode.put("Status", SUCCESS);
+            } else {
+                responseNode.put("Status", FAILED);
+                responseNode.put("Error", error);
+            }
             jsonObj.getRootNode().set("Response", responseNode);
-
             outputResult(httpResp, "application/json", jsonObj.toByteArray());
         } catch (Exception e) {
-            logger.warn("UpdateOCSPConfig: Failed to update OCSP configuration: " + e.getMessage(), e);
-            outputError(httpResp, "Error: Failed to update OCSP configuration.");
+            logger.error("UpdateOCSPConfig: Failed to update OCSP configuration: " + e.getMessage(), e);
         }
     }
 
