@@ -36,6 +36,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * RenewalValidityConstraints is a default rule for Certificate
@@ -192,7 +193,7 @@ public class RenewalValidityConstraints extends APolicyRule
         try {
             // Get the certificate info from the request
             X509CertInfo certInfo[] =
-                    req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                    req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
             // Get the certificates being renwed.
             X509CertImpl currentCerts[] =
@@ -323,11 +324,11 @@ public class RenewalValidityConstraints extends APolicyRule
         sb.append("Validity: " + cert.getNotBefore().toString() +
                 " - " + cert.getNotAfter().toString());
         sb.append("\n");
-        String certType = req.getExtDataInString(IRequest.CERT_TYPE);
+        String certType = req.getExtDataInString(Request.CERT_TYPE);
 
         if (certType == null)
-            certType = IRequest.SERVER_CERT;
-        if (certType.equals(IRequest.CLIENT_CERT)) {
+            certType = Request.SERVER_CERT;
+        if (certType.equals(Request.CLIENT_CERT)) {
 
             /***
              * Take this our - URL formulation hard to do here.

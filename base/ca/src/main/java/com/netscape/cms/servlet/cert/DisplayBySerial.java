@@ -323,9 +323,9 @@ public class DisplayBySerial extends CMSServlet {
 
                     if (rid != null && mAuthority instanceof ICertificateAuthority) {
                         IRequest r = requestRepository.readRequest(new RequestId(rid));
-                        String certType = r.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
+                        String certType = r.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
 
-                        if (certType != null && certType.equals(IRequest.CLIENT_CERT)) {
+                        if (certType != null && certType.equals(Request.CLIENT_CERT)) {
                             noCertImport = false;
                         }
                         header.addStringValue("reqId", rid);

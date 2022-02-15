@@ -1349,7 +1349,7 @@ public class CMCOutputTemplate {
                     CertRequestRepository requestRepository = engine.getCertRequestRepository();
                     IRequest revReq = requestRepository.createRequest(Request.REVOCATION_REQUEST);
                     auditReqID = revReq.getRequestId().toString();
-                    revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
+                    revReq.setExtData(Request.CERT_INFO, revCertImpls);
                     revReq.setExtData(IRequest.REVOKED_REASON,
                             Integer.valueOf(reason.getCode()));
                     UTF8String utfstr = revRequest.getComment();

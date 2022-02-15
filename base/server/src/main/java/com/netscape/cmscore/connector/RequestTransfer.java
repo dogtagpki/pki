@@ -31,8 +31,8 @@ public class RequestTransfer {
     private static String[] transferAttributes = {
             Request.HTTP_PARAMS,
             Request.AGENT_PARAMS,
-            IRequest.CERT_INFO,
-            IRequest.ISSUED_CERTS,
+            Request.CERT_INFO,
+            Request.ISSUED_CERTS,
             IRequest.OLD_CERTS,
             IRequest.OLD_SERIALS,
             IRequest.REVOKED_CERTS,

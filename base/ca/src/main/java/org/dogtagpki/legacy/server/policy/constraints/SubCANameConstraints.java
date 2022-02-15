@@ -38,6 +38,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This simple policy checks the subordinate CA CSR to see
@@ -135,7 +136,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
 
             // Get the certificate templates
             X509CertInfo[] certInfos = req.getExtDataInCertInfoArray(
-                    IRequest.CERT_INFO);
+                    Request.CERT_INFO);
 
             if (certInfos == null) {
                 logger.warn(CMS.getLogMessage("POLICY_NO_CERT_INFO", getInstanceName()));

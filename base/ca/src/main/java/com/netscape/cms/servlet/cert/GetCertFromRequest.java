@@ -222,7 +222,7 @@ public class GetCertFromRequest extends CMSServlet {
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_REQUEST_HAD_ERROR", requestId));
         }
-        Object o = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+        Object o = r.getExtDataInCertArray(Request.ISSUED_CERTS);
 
         if (r.getExtDataInString("profile") != null) {
             // handle profile-based request
@@ -288,14 +288,14 @@ class CertFrRequestFiller extends ImportCertsTemplateFiller {
             IRequest r = engine.getRequestRepository().readRequest(new RequestId(reqId));
             if (r != null) {
                 boolean noCertImport = true;
-                String certType = r.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
+                String certType = r.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
 
-                if (certType != null && certType.equals(IRequest.CLIENT_CERT)) {
+                if (certType != null && certType.equals(Request.CLIENT_CERT)) {
                     noCertImport = false;
                 }
                 tparams.getHeader().addBooleanValue("noCertImport", noCertImport);
 
-                X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                X509CertImpl[] certs = r.getExtDataInCertArray(Request.ISSUED_CERTS);
 
                 if (certs != null) {
                     X509CertInfo info = (X509CertInfo) certs[0].get(X509CertImpl.NAME + "." + X509CertImpl.INFO);

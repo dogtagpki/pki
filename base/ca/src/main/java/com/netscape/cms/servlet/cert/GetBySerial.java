@@ -57,6 +57,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -255,7 +256,7 @@ public class GetBySerial extends CMSServlet {
             if (metai != null) {
                 crmfReqId = (String) metai.get(CertRecord.META_CRMF_REQID);
                 if (crmfReqId != null)
-                    cmsReq.setResult(IRequest.CRMF_REQID, crmfReqId);
+                    cmsReq.setResult(Request.CRMF_REQID, crmfReqId);
             }
 
             if (crmfReqId == null && checkImportCertToNav(

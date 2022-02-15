@@ -44,6 +44,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Private Integer extension policy.
@@ -353,7 +354,7 @@ public class GenericASN1Ext extends APolicyRule implements
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
         X509CertInfo certInfo;
-        X509CertInfo[] ci = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo[] ci = req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
         if (ci == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);

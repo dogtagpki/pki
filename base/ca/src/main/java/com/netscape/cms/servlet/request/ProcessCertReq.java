@@ -499,7 +499,7 @@ public class ProcessCertReq extends CMSServlet {
                 String initiative = AuditFormat.FROMAGENT + " agentID: " + agentID;
 
                 // Get the certificate info from the request
-                X509CertInfo certInfo[] = r.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                X509CertInfo certInfo[] = r.getExtDataInCertInfoArray(Request.CERT_INFO);
 
                 header.addStringValue("toDo", toDo);
                 if (toDo.equals("accept")) {
@@ -868,7 +868,7 @@ public class ProcessCertReq extends CMSServlet {
                         // XXX make the repeat record.
                         // Get the certificate(s) from the request
                         X509CertImpl issuedCerts[] =
-                                r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                                r.getExtDataInCertArray(Request.ISSUED_CERTS);
 
                         // return potentially more than one certificates.
                         if (issuedCerts != null) {

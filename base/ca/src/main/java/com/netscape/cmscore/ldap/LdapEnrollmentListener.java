@@ -75,7 +75,7 @@ public class LdapEnrollmentListener implements IRequestListener {
         Certificate[] certs = null;
 
         if (profileId == null) {
-            certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+            certs = r.getExtDataInCertArray(Request.ISSUED_CERTS);
         } else {
             certs = new Certificate[1];
             certs[0] = r.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);

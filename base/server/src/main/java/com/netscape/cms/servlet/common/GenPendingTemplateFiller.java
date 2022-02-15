@@ -55,6 +55,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.request.Request;
 
 /**
  * default Pending template filler
@@ -112,7 +113,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                         OtherInfo(OtherInfo.PEND, null, pendInfo);
                 SEQUENCE bpids = new SEQUENCE();
                 String[] reqIdArray =
-                        req.getExtDataInStringArray(IRequest.CMC_REQIDS);
+                        req.getExtDataInStringArray(Request.CMC_REQIDS);
 
                 for (int i = 0; i < reqIdArray.length; i++) {
                     bpids.addElement(new INTEGER(reqIdArray[i]));
@@ -130,7 +131,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                 // create recipientNonce
                 // create responseInfo if regInfo exist
                 String[] transIds =
-                        req.getExtDataInStringArray(IRequest.CMC_TRANSID);
+                        req.getExtDataInStringArray(Request.CMC_TRANSID);
                 SET ids = new SET();
 
                 for (int i = 0; i < transIds.length; i++) {
@@ -142,7 +143,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                             ids);
                 controlSeq.addElement(ta);
 
-                String[] senderNonce = req.getExtDataInStringArray(IRequest.CMC_SENDERNONCE);
+                String[] senderNonce = req.getExtDataInStringArray(Request.CMC_SENDERNONCE);
                 SET nonces = new SET();
 
                 for (int i = 0; i < senderNonce.length; i++) {
@@ -153,7 +154,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                             OBJECT_IDENTIFIER.id_cmc_recipientNonce,
                             nonces);
                 controlSeq.addElement(ta);
-                req.setExtData(IRequest.CMC_RECIPIENTNONCE, senderNonce);
+                req.setExtData(Request.CMC_RECIPIENTNONCE, senderNonce);
 
                 Date date = new Date();
                 String salt = "lala123" + date.toString();
@@ -174,7 +175,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                             OBJECT_IDENTIFIER.id_cmc_senderNonce,
                             new OCTET_STRING(newNonce[0].getBytes()));
                 controlSeq.addElement(ta);
-                req.setExtData(IRequest.CMC_SENDERNONCE, newNonce);
+                req.setExtData(Request.CMC_SENDERNONCE, newNonce);
 
                 ResponseBody rb = new ResponseBody(controlSeq, new
                         SEQUENCE(), new

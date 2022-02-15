@@ -544,7 +544,7 @@ class HandleEnrollment implements IRequestListener {
         logger.debug("Checking publishing for request " +
                 r.getRequestId());
         // check if issued certs is set.
-        X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+        X509CertImpl[] certs = r.getExtDataInCertArray(Request.ISSUED_CERTS);
 
         if (certs == null || certs.length == 0 || certs[0] == null) {
             logger.debug("No certs to publish for request id " + r.getRequestId());
@@ -605,7 +605,7 @@ class HandleRenewal implements IRequestListener {
     @Override
     public void accept(IRequest r) {
         // Note we do not remove old certs from directory during renewal
-        X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+        X509CertImpl[] certs = r.getExtDataInCertArray(Request.ISSUED_CERTS);
 
         if (certs == null || certs.length == 0) {
             logger.debug("no certs to publish for renewal " +

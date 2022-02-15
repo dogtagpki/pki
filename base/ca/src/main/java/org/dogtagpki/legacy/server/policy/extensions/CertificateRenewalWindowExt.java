@@ -37,6 +37,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Certificate Renewal Window Extension Policy
@@ -97,7 +98,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
 
         // get cert info.
         X509CertInfo[] ci =
-                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);

@@ -164,7 +164,7 @@ public class NSCertTypeExt extends APolicyRule
         logger.debug("NSCertTypeExt: Impl: " + NAME + ", Instance: " + getInstanceName() + "::apply()");
 
         X509CertInfo[] ci =
-                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
@@ -183,7 +183,7 @@ public class NSCertTypeExt extends APolicyRule
     public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
         try {
             String certType =
-                    req.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
+                    req.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
             CertificateExtensions extensions = (CertificateExtensions)
                     certInfo.get(X509CertInfo.EXTENSIONS);
             NSCertTypeExtension nsCertTypeExt = null;
@@ -302,7 +302,7 @@ public class NSCertTypeExt extends APolicyRule
         } else {
             // check for min bits, set default if not there.
             String certType = req.getExtDataInString(Request.HTTP_PARAMS,
-                    IRequest.CERT_TYPE);
+                    Request.CERT_TYPE);
 
             if ((certType != null) && certType.equals("ocspResponder")) {
                 return false;
@@ -311,7 +311,7 @@ public class NSCertTypeExt extends APolicyRule
                 // if don't know cert type let agent override anything.
                 return true;
             }
-            if (certType.equals(IRequest.CA_CERT)) {
+            if (certType.equals(Request.CA_CERT)) {
                 if (!nsCertTypeExt.isSet(NSCertTypeExtension.SSL_CA_BIT) &&
                         !nsCertTypeExt.isSet(NSCertTypeExtension.EMAIL_CA_BIT) &&
                         !nsCertTypeExt.isSet(
@@ -328,7 +328,7 @@ public class NSCertTypeExt extends APolicyRule
                             Boolean.valueOf(true));
                 }
                 return true;
-            } else if (certType.equals(IRequest.CLIENT_CERT)) {
+            } else if (certType.equals(Request.CLIENT_CERT)) {
                 if (!nsCertTypeExt.isSet(NSCertTypeExtension.SSL_CLIENT_BIT) &&
                         !nsCertTypeExt.isSet(NSCertTypeExtension.EMAIL_BIT) &&
                         !nsCertTypeExt.isSet(NSCertTypeExtension.SSL_SERVER_BIT) &&
@@ -342,7 +342,7 @@ public class NSCertTypeExt extends APolicyRule
                     nsCertTypeExt.set(NSCertTypeExtension.OBJECT_SIGNING, Boolean.valueOf(true));
                 }
                 return true;
-            } else if (certType.equals(IRequest.SERVER_CERT)) {
+            } else if (certType.equals(Request.SERVER_CERT)) {
                 // this bit must be true.
                 nsCertTypeExt.set(NSCertTypeExtension.SSL_SERVER_BIT, true);
                 return true;
@@ -434,7 +434,7 @@ public class NSCertTypeExt extends APolicyRule
      */
     protected boolean[] getCertTypeBits(IRequest req) {
         String certType =
-                req.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
+                req.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
 
         if (certType == null || certType.length() == 0)
             return null;
@@ -444,22 +444,22 @@ public class NSCertTypeExt extends APolicyRule
         for (int i = bits.length - 1; i >= 0; i--)
             bits[i] = false;
 
-        if (certType.equals(IRequest.CLIENT_CERT)) {
+        if (certType.equals(Request.CLIENT_CERT)) {
             logger.debug("NSCertTypeExt: setting bits for client cert");
             // we can only guess here when it's client.
             // sets all client bit for default.
             bits[NSCertTypeExtension.SSL_CLIENT_BIT] = true;
             bits[NSCertTypeExtension.EMAIL_BIT] = true;
             //bits[NSCertTypeExtension.OBJECT_SIGNING_BIT] = true;
-        } else if (certType.equals(IRequest.SERVER_CERT)) {
+        } else if (certType.equals(Request.SERVER_CERT)) {
             logger.debug("NSCertTypeExt: setting bits for server cert");
             bits[NSCertTypeExtension.SSL_SERVER_BIT] = true;
-        } else if (certType.equals(IRequest.CA_CERT)) {
+        } else if (certType.equals(Request.CA_CERT)) {
             logger.debug("NSCertType: setting bits for ca cert");
             bits[NSCertTypeExtension.SSL_CA_BIT] = true;
             bits[NSCertTypeExtension.EMAIL_CA_BIT] = true;
             bits[NSCertTypeExtension.OBJECT_SIGNING_CA_BIT] = true;
-        } else if (certType.equals(IRequest.RA_CERT)) {
+        } else if (certType.equals(Request.RA_CERT)) {
             logger.debug("NSCertType: setting bits for ra cert");
             bits[NSCertTypeExtension.SSL_CLIENT_BIT] = true;
         } else {

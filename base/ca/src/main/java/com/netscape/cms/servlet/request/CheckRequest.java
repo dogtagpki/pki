@@ -339,7 +339,7 @@ public class CheckRequest extends CMSServlet {
                 type.equals(Request.RENEWAL_REQUEST)) && (status != null) &&
                 status.equals(RequestStatus.COMPLETE) && (result != null) &&
                 result.equals(Request.RES_SUCCESS)) {
-            Object o = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+            Object o = r.getExtDataInCertArray(Request.ISSUED_CERTS);
 
             if (profileId != null) {
                 X509CertImpl impl[] = new X509CertImpl[1];

@@ -1278,7 +1278,7 @@ public class EnrollServlet extends CMSServlet {
                 logger.warn("ErrorServlet: Failed to set signing alg to certinfo: " + e.getMessage(), e);
             }
 
-            req.setExtData(IRequest.CERT_INFO, certInfoArray);
+            req.setExtData(Request.CERT_INFO, certInfoArray);
 
             if (challengePassword != null && !challengePassword.equals("")) {
                 String pwd = hashPassword(challengePassword);
@@ -1337,7 +1337,7 @@ public class EnrollServlet extends CMSServlet {
 
                     issuedCerts =
                             cmsReq.getIRequest().getExtDataInCertArray(
-                                    IRequest.ISSUED_CERTS);
+                                    Request.ISSUED_CERTS);
 
                     for (int i = 0; i < issuedCerts.length; i++) {
                         // (automated "agent" cert request processed
@@ -1379,7 +1379,7 @@ public class EnrollServlet extends CMSServlet {
 
             // service success
             cmsReq.setStatus(ICMSRequest.SUCCESS);
-            issuedCerts = req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+            issuedCerts = req.getExtDataInCertArray(Request.ISSUED_CERTS);
 
             String initiative = null;
             String agentID;
@@ -1556,7 +1556,7 @@ public class EnrollServlet extends CMSServlet {
             out.println("<P>");
             out.println("<PRE>");
             X509CertImpl certs[] =
-                    cmsReq.getIRequest().getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                    cmsReq.getIRequest().getExtDataInCertArray(Request.ISSUED_CERTS);
 
             out.println(CertUtil.toPEM(certs[0]));
             out.println("</PRE>");

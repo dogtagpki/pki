@@ -27,6 +27,7 @@ import org.dogtagpki.legacy.policy.IPolicySet;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Implements a policy set per IPolicySet interface. This class
@@ -275,7 +276,7 @@ public class PolicySet implements IPolicySet {
 
     boolean typeMatched(IPolicyRule rule, IRequest req) {
 
-        if (req.getExtDataInCertInfoArray(IRequest.CERT_INFO) != null) {
+        if (req.getExtDataInCertInfoArray(Request.CERT_INFO) != null) {
             return true;
         }
 

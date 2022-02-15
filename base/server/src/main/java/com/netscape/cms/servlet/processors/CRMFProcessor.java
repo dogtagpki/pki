@@ -56,6 +56,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Process CRMF requests, according to RFC 2511
@@ -346,7 +347,7 @@ public class CRMFProcessor extends PKIProcessor {
                 INTEGER certReqId = certReq.getCertReqId();
                 int srcId = certReqId.intValue();
 
-                req.setExtData(IRequest.CRMF_REQID, String.valueOf(srcId));
+                req.setExtData(Request.CRMF_REQID, String.valueOf(srcId));
 
                 certInfoArray[i] = processIndividualRequest(certReqMsg, authToken, httpParams);
 

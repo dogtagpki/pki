@@ -54,7 +54,7 @@ public class LdapRenewalListener implements IRequestListener {
         logger.info("LdapRenewalListener: Handling renewal request " + r.getRequestId());
 
         // Note we do not remove old certs from directory during renewal
-        Certificate[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+        Certificate[] certs = r.getExtDataInCertArray(Request.ISSUED_CERTS);
 
         if (certs == null || certs.length == 0) {
             logger.warn("LdapRenewalListener: No certs to publish for renewal request " + r.getRequestId());

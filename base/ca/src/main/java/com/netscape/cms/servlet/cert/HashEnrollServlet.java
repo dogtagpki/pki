@@ -584,7 +584,7 @@ public class HashEnrollServlet extends CMSServlet {
                     "CMS_GW_MISSING_KEYGEN_INFO"));
         }
 
-        req.setExtData(IRequest.CERT_INFO, certInfoArray);
+        req.setExtData(Request.CERT_INFO, certInfoArray);
 
         if (challengePassword != null && !challengePassword.equals("")) {
             String pwd = hashPassword(challengePassword);
@@ -726,7 +726,7 @@ public class HashEnrollServlet extends CMSServlet {
         // service success
         cmsReq.setStatus(ICMSRequest.SUCCESS);
         X509CertImpl[] issuedCerts =
-                req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                req.getExtDataInCertArray(Request.ISSUED_CERTS);
 
         // audit log the success.
         logger.info(
@@ -881,7 +881,7 @@ public class HashEnrollServlet extends CMSServlet {
                 INTEGER certReqId = certReq.getCertReqId();
                 int srcId = certReqId.intValue();
 
-                req.setExtData(IRequest.CRMF_REQID, String.valueOf(srcId));
+                req.setExtData(Request.CRMF_REQID, String.valueOf(srcId));
 
                 CertTemplate certTemplate = certReq.getCertTemplate();
                 X509CertInfo certInfo = new CertInfo();
@@ -1055,7 +1055,7 @@ public class HashEnrollServlet extends CMSServlet {
             out.println("<P>");
             out.println("<PRE>");
             X509CertImpl certs[] =
-                    cmsReq.getIRequest().getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                    cmsReq.getIRequest().getExtDataInCertArray(Request.ISSUED_CERTS);
 
             out.println(CertUtil.toPEM(certs[0]));
             out.println("</PRE>");

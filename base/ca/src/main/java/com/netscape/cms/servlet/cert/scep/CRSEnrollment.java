@@ -1581,7 +1581,7 @@ public class CRSEnrollment extends HttpServlet {
 
     private boolean areFingerprintsEqual(IRequest req, Hashtable<String, byte[]> fingerprints) {
 
-        Hashtable<String, String> old_fprints = req.getExtDataInHashtable(IRequest.FINGERPRINTS);
+        Hashtable<String, String> old_fprints = req.getExtDataInHashtable(Request.FINGERPRINTS);
         if (old_fprints == null) {
             return false;
         }
@@ -1804,9 +1804,9 @@ public class CRSEnrollment extends HttpServlet {
             pkiReq.setExtData(Request.AUTH_TOKEN, token);
         }
 
-        pkiReq.setExtData(Request.HTTP_PARAMS, IRequest.CERT_TYPE, IRequest.CEP_CERT);
+        pkiReq.setExtData(Request.HTTP_PARAMS, Request.CERT_TYPE, Request.CEP_CERT);
         X509CertInfo certInfo = (X509CertInfo) req.get(CERTINFO);
-        pkiReq.setExtData(IRequest.CERT_INFO, new X509CertInfo[] { certInfo });
+        pkiReq.setExtData(Request.CERT_INFO, new X509CertInfo[] { certInfo });
         pkiReq.setExtData("cepsubstore", mSubstoreName);
 
         try {
@@ -1818,7 +1818,7 @@ public class CRSEnrollment extends HttpServlet {
         } catch (Exception pwex) {
         }
 
-        Hashtable<?, ?> fingerprints = (Hashtable<?, ?>) req.get(IRequest.FINGERPRINTS);
+        Hashtable<?, ?> fingerprints = (Hashtable<?, ?>) req.get(Request.FINGERPRINTS);
         if (fingerprints.size() > 0) {
             Hashtable<String, String> encodedPrints = new Hashtable<>(fingerprints.size());
             Enumeration<?> e = fingerprints.keys();
@@ -1827,7 +1827,7 @@ public class CRSEnrollment extends HttpServlet {
                 byte[] value = (byte[]) fingerprints.get(key);
                 encodedPrints.put(key, Utils.base64encode(value, true));
             }
-            pkiReq.setExtData(IRequest.FINGERPRINTS, encodedPrints);
+            pkiReq.setExtData(Request.FINGERPRINTS, encodedPrints);
         }
 
         pkiReq.setSourceId(req.getTransactionID());
@@ -1867,7 +1867,7 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         if (fingerprints != null) {
-            req.put(IRequest.FINGERPRINTS, fingerprints);
+            req.put(Request.FINGERPRINTS, fingerprints);
         }
         return fingerprints;
     }
@@ -1902,7 +1902,7 @@ public class CRSEnrollment extends HttpServlet {
             if (success.equals(Request.RES_SUCCESS)) {
                 // The cert was issued, lets send it back to the router
                 X509CertImpl[] issuedCertBuf =
-                        pkiReq.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                        pkiReq.getExtDataInCertArray(Request.ISSUED_CERTS);
                 if (issuedCertBuf == null || issuedCertBuf.length == 0) {
                     //  writeError("Internal Error: Bad operation",httpReq,httpResp);
                     logger.error("CRSEnrollment::makeResponseFromRequest() - " +

@@ -829,7 +829,7 @@ public class EnrollmentService implements IService {
 
         // retrieve x509 Key from request
         X509CertInfo certInfo[] =
-                request.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                request.getExtDataInCertInfoArray(Request.CERT_INFO);
         CertificateX509Key pX509Key = null;
         if (certInfo == null) {
             throw new EBaseException(CMS.getLogMessage("CMS_BASE_CERT_NOT_FOUND"));
@@ -886,7 +886,7 @@ public class EnrollmentService implements IService {
         }
 
         X509CertInfo certInfo[] =
-                request.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                request.getExtDataInCertInfoArray(Request.CERT_INFO);
         if (certInfo == null) {
             throw new EBaseException(CMS.getLogMessage("CMS_BASE_CERT_NOT_FOUND"));
         }

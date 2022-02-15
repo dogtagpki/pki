@@ -359,7 +359,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             CertRequestRepository requestRepository = engine.getCertRequestRepository();
             IRequest revReq = requestRepository.createRequest(Request.REVOCATION_REQUEST);
 
-            revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
+            revReq.setExtData(Request.CERT_INFO, revCertImpls);
             revReq.setExtData(Request.REQ_TYPE, Request.REVOCATION_REQUEST);
             revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
 

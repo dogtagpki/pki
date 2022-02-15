@@ -701,7 +701,7 @@ public class ConnectorServlet extends CMSServlet {
             }
 
             // Get the certificate info from the request
-            X509CertInfo x509Info[] = thisreq.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+            X509CertInfo x509Info[] = thisreq.getExtDataInCertInfoArray(Request.CERT_INFO);
 
             try {
                 if (!thisreq.getRequestStatus().equals(RequestStatus.COMPLETE)) {
@@ -736,7 +736,7 @@ public class ConnectorServlet extends CMSServlet {
 
                         if (x509Info != null)
                             x509Certs =
-                                    thisreq.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                                    thisreq.getExtDataInCertArray(Request.ISSUED_CERTS);
 
                         // return potentially more than one certificates.
                         if (x509Certs != null) {
@@ -768,7 +768,7 @@ public class ConnectorServlet extends CMSServlet {
                                 thisreq.getExtDataInCertArray(IRequest.OLD_CERTS);
                         X509CertImpl old_cert = certs[0];
 
-                        certs = thisreq.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                        certs = thisreq.getExtDataInCertArray(Request.ISSUED_CERTS);
                         X509CertImpl renewed_cert = certs[0];
 
                         if (old_cert != null && renewed_cert != null) {

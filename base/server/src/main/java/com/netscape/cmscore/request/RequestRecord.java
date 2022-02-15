@@ -302,7 +302,7 @@ public class RequestRecord implements IDBObj {
                     // if already there, skip it
                     String subjectName = r.getExtDataInString("req_subject_name");
                     if (subjectName == null || subjectName.equals("")) {
-                        X509CertInfo info = r.getExtDataInCertInfo(IRequest.CERT_INFO);
+                        X509CertInfo info = r.getExtDataInCertInfo(Request.CERT_INFO);
                         logger.debug("RequestRecord.loadExtDataFromRequest: missing subject name. Processing extracting subjectName from req_x509info");
                         try {
                             CertificateSubjectName subjName = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);

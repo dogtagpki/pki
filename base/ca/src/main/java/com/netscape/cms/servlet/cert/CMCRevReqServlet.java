@@ -458,7 +458,7 @@ public class CMCRevReqServlet extends CMSServlet {
                 revReq.setExtData(Request.REQ_TYPE, Request.UNREVOCATION_REQUEST);
                 revReq.setExtData(IRequest.OLD_SERIALS, certSerialNumbers);
             } else {
-                revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
+                revReq.setExtData(Request.CERT_INFO, revCertImpls);
                 revReq.setExtData(Request.REQ_TYPE, Request.REVOCATION_REQUEST);
                 revReq.setExtData(IRequest.REVOKED_REASON, reason);
                 revReq.setExtData(IRequest.OLD_CERTS, oldCerts);

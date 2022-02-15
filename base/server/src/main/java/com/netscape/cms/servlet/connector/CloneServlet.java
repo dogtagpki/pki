@@ -368,7 +368,7 @@ public class CloneServlet extends CMSServlet {
         }
 
         // Get the certificate info from the request
-        X509CertInfo certInfo[] = thisreq.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo certInfo[] = thisreq.getExtDataInCertInfoArray(Request.CERT_INFO);
 
         try {
             if (!thisreq.getRequestStatus().equals(RequestStatus.COMPLETE)) {

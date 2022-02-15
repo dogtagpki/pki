@@ -68,6 +68,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Process CMC messages according to RFC 2797
@@ -349,7 +350,7 @@ public class CMCProcessor extends PKIProcessor {
                         }
                     }
                     if (vals != null)
-                        req.setExtData(IRequest.CMC_TRANSID, vals);
+                        req.setExtData(Request.CMC_TRANSID, vals);
                 } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_senderNonce)) {
                     String[] vals = null;
 
@@ -366,7 +367,7 @@ public class CMCProcessor extends PKIProcessor {
                         }
                     }
                     if (vals != null)
-                        req.setExtData(IRequest.CMC_SENDERNONCE, vals);
+                        req.setExtData(Request.CMC_SENDERNONCE, vals);
 
                 } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_regInfo)) {
                     // what can we do here
@@ -380,7 +381,7 @@ public class CMCProcessor extends PKIProcessor {
                 }
             }
 
-            req.setExtData(IRequest.CMC_REQIDS, reqIdArray);
+            req.setExtData(Request.CMC_REQIDS, reqIdArray);
             return certInfoArray;
         } catch (CertificateException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()), e);

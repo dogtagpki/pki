@@ -32,6 +32,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * IssuerConstraints is a rule for restricting the issuers of the
@@ -137,7 +138,7 @@ public class IssuerConstraints extends APolicyRule
 
                 // Get the certificate info from the request
                 X509CertInfo certInfo[] =
-                        req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                        req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
                 if (certInfo == null) {
                     logger.warn(NAME + ": apply() - missing certInfo");

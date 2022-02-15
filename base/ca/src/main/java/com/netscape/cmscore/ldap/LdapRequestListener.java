@@ -82,7 +82,7 @@ public class LdapRequestListener implements IRequestListener {
             }
             logger.debug("Checking publishing for request " + r.getRequestId());
             // check if issued certs is set.
-            X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+            X509CertImpl[] certs = r.getExtDataInCertArray(Request.ISSUED_CERTS);
 
             if (certs == null || certs.length == 0 || certs[0] == null) {
                 logger.warn("No certs to publish for request id " + r.getRequestId());
@@ -92,7 +92,7 @@ public class LdapRequestListener implements IRequestListener {
             return obj;
         } else if (type.equals(Request.RENEWAL_REQUEST)) {
             // Note we do not remove old certs from directory during renewal
-            X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+            X509CertImpl[] certs = r.getExtDataInCertArray(Request.ISSUED_CERTS);
 
             if (certs == null || certs.length == 0) {
                 logger.warn("no certs to publish for renewal " +

@@ -207,7 +207,7 @@ public class CertificateRevokedListener implements IRequestListener {
             //X509CertImpl issuedCert[] =
             //    (X509CertImpl[])
             RevokedCertImpl crlentries[] =
-                    r.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
+                    r.getExtDataInRevokedCertArray(Request.CERT_INFO);
 
             if (crlentries != null) {
                 logger.debug("CertificateRevokedListener: Sending email notification..");

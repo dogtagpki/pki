@@ -236,7 +236,7 @@ public class RenewalServlet extends CMSServlet {
             }
             new_certInfo.set(X509CertInfo.VALIDITY,
                     new CertificateValidity(notBefore, notAfter));
-            req.setExtData(IRequest.CERT_INFO, new X509CertInfo[] { new_certInfo }
+            req.setExtData(Request.CERT_INFO, new X509CertInfo[] { new_certInfo }
                     );
         } catch (CertificateException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERROR_SETTING_RENEWAL_VALIDITY_1", e.toString()), e);
@@ -361,7 +361,7 @@ public class RenewalServlet extends CMSServlet {
         }
 
         // success.
-        X509CertImpl[] certs = req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+        X509CertImpl[] certs = req.getExtDataInCertArray(Request.ISSUED_CERTS);
 
         renewed_cert = certs[0];
         respondSuccess(cmsReq, renewed_cert);

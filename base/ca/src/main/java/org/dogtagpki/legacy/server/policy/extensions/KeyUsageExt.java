@@ -161,7 +161,7 @@ public class KeyUsageExt extends APolicyRule
     public PolicyResult apply(IRequest req) {
 
         X509CertInfo[] ci =
-                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);

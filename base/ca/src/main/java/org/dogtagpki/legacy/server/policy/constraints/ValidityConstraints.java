@@ -33,6 +33,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * ValidityConstraints is a default rule for Enrollment and
@@ -185,7 +186,7 @@ public class ValidityConstraints extends APolicyRule
             // Get the certificate info from the request
             //X509CertInfo certInfo[] = (X509CertInfo[])
             //    req.get(IRequest.CERT_INFO);
-            X509CertInfo certInfo[] = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+            X509CertInfo certInfo[] = req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
             // There should be a certificate info set.
             if (certInfo == null) {

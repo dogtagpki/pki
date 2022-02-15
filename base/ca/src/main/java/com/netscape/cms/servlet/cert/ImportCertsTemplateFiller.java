@@ -59,6 +59,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Set up HTTP response to import certificate into browsers
@@ -182,11 +183,11 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
         X509CertImpl[] certs = (X509CertImpl[]) cmsReq.getResult();
 
         // expose CRMF request id
-        String crmfReqId = cmsReq.getExtData(IRequest.CRMF_REQID);
+        String crmfReqId = cmsReq.getExtData(Request.CRMF_REQID);
 
         if (crmfReqId == null) {
             crmfReqId = (String) cmsReq.getResult(
-                        IRequest.CRMF_REQID);
+                        Request.CRMF_REQID);
         }
         if (crmfReqId != null) {
             fixed.set(CRMF_REQID, crmfReqId);

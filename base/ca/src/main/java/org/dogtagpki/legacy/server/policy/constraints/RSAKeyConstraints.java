@@ -39,6 +39,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * RSAKeyConstraints policy enforces min and max size of the key.
@@ -174,7 +175,7 @@ public class RSAKeyConstraints extends APolicyRule
         try {
             // Get the certificate info from the request
             X509CertInfo certInfo[] =
-                    req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                    req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
             // There should be a certificate info set.
             if (certInfo == null) {

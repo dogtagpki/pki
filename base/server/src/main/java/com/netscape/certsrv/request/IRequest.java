@@ -43,35 +43,6 @@ import com.netscape.certsrv.base.IAttrSet;
  */
 public interface IRequest extends Serializable {
 
-    // enrollment request attributes (from http request)
-    public static final String CERT_TYPE = "certType";
-    public static final String CRMF_REQID = "crmfReqId";
-    public static final String PKCS10_REQID = "pkcs10ReqId";
-    // CMC request attributes
-    public static final String CMC_REQIDS = "cmcReqIds";
-    public static final String CMC_TRANSID = "transactionId";
-    public static final String CMC_SENDERNONCE = "senderNonce";
-    public static final String CMC_RECIPIENTNONCE = "recipientNonce";
-    public static final String CMC_REGINFO = "regInfo";
-
-    // enrollment request attributes (generated internally)
-    // also used for renewal
-    public static final String CERT_INFO = "CERT_INFO";
-    public static final String ISSUED_CERTS = "issuedCerts";
-    public static final String REQUEST_TRUSTEDMGR_PRIVILEGE = "requestTrustedManagerPrivilege";
-    public static final String FINGERPRINTS = "fingerprints";
-
-    // enrollment request values
-    public static final String SERVER_CERT = "server";
-    public static final String CLIENT_CERT = "client";
-    public static final String CA_CERT = "ca";
-    public static final String RA_CERT = "ra";
-    public static final String OCSP_CERT = "ocsp";
-    public static final String OBJECT_SIGNING_CERT = "objSignClient";
-    public static final String OTHER_CERT = "other";
-    public static final String ROUTER_CERT = "router"; // deprecated
-    public static final String CEP_CERT = "CEP-Request";
-
     // renewal request attributes. (internally set)
     // also used for revocation
     public static final String OLD_CERTS = "OLD_CERTS";

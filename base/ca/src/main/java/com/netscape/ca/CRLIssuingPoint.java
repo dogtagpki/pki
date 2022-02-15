@@ -2228,7 +2228,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                                 "  type=" + request.getRequestType());
                 if (Request.REVOCATION_REQUEST.equals(request.getRequestType())) {
                     RevokedCertImpl revokedCert[] =
-                            request.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
+                            request.getExtDataInRevokedCertArray(Request.CERT_INFO);
                     if (revokedCert != null) {
                         for (int j = 0; j < revokedCert.length; j++) {
                             logger.debug("recoverCRLCache R j=" + j + "  length=" + revokedCert.length +

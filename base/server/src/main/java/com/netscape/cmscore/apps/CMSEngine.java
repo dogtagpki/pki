@@ -1612,7 +1612,7 @@ public class CMSEngine implements ServletContextListener {
                     agentCerts[i] = (X509CertImpl) certificates[i];
                 }
 
-                checkRevReq.setExtData(IRequest.ISSUED_CERTS, agentCerts);
+                checkRevReq.setExtData(Request.ISSUED_CERTS, agentCerts);
 
                 requestQueue.processRequest(checkRevReq);
 

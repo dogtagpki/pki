@@ -297,7 +297,7 @@ public class RevocationProcessor extends CertProcessor {
         request.setExtData(Request.REQ_TYPE, Request.REVOCATION_REQUEST);
 
         request.setExtData(IRequest.OLD_CERTS, certificates.toArray(new X509CertImpl[certificates.size()]));
-        request.setExtData(IRequest.CERT_INFO, revCertImpls.toArray(new RevokedCertImpl[revCertImpls.size()]));
+        request.setExtData(Request.CERT_INFO, revCertImpls.toArray(new RevokedCertImpl[revCertImpls.size()]));
 
         if (AuditFormat.FROMUSER.equals(initiative)) {
             request.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_EE);

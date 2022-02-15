@@ -42,6 +42,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Authority Public Key Extension Policy
@@ -200,7 +201,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
     public PolicyResult apply(IRequest req) {
         // get certInfo from request.
         X509CertInfo[] ci =
-                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO", NAME), "");

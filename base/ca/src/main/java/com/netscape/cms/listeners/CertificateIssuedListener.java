@@ -216,7 +216,7 @@ public class CertificateIssuedListener implements IRequestListener {
 
             // handle profile-based enrollment's notification
             if (profileId == null) {
-                issuedCert = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                issuedCert = r.getExtDataInCertArray(Request.ISSUED_CERTS);
             } else {
                 issuedCert = new X509CertImpl[1];
                 issuedCert[0] =

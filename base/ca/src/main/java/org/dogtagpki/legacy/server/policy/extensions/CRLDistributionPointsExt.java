@@ -47,6 +47,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * The type of the distribution point or issuer name. The name is expressed
@@ -408,7 +409,7 @@ public class CRLDistributionPointsExt extends APolicyRule
             return PolicyResult.ACCEPTED;
         }
 
-        X509CertInfo[] ci = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo[] ci = req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);

@@ -150,7 +150,7 @@ public class SubjAltNameExt extends APolicyRule
 
         // Find the X509CertInfo object in the request
         X509CertInfo[] ci =
-                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
@@ -197,10 +197,10 @@ public class SubjAltNameExt extends APolicyRule
             // non-client certs, and implement client certs directly here.
             //
             String certType =
-                    req.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
+                    req.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
 
             if (certType == null ||
-                    !certType.equals(IRequest.CLIENT_CERT) ||
+                    !certType.equals(Request.CLIENT_CERT) ||
                     !req.getExtDataInBoolean(IRequest.SMIME, false)) {
                 break apply;
             }

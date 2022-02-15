@@ -40,6 +40,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Checks the uniqueness of the subject name. This policy
@@ -162,7 +163,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
 
             // Get the certificate templates
             X509CertInfo[] certInfos = req.getExtDataInCertInfoArray(
-                    IRequest.CERT_INFO);
+                    Request.CERT_INFO);
 
             if (certInfos == null) {
                 setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO",

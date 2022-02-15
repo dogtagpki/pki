@@ -234,7 +234,7 @@ public abstract class AJobBase implements IJob, Runnable {
             mItemParams.put(IEmailFormProcessor.TOKEN_REQUESTOR_EMAIL, re);
         }
 
-        String ct = r.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
+        String ct = r.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
 
         if (ct != null) {
             mItemParams.put(IEmailFormProcessor.TOKEN_CERT_TYPE, ct);

@@ -212,7 +212,7 @@ public class RequestInQListener implements IRequestListener {
                     val);
 
         if (profileId == null) {
-            val = r.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
+            val = r.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
         } else {
             val = profileId;
         }

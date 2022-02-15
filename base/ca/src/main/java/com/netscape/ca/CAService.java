@@ -1307,7 +1307,7 @@ class serviceIssue implements IServant {
         // request types, not policy.
         // XXX how do we know what to look for in request ?
 
-        boolean requestContentsAreNull = request.getExtDataInCertInfoArray(IRequest.CERT_INFO) == null;
+        boolean requestContentsAreNull = request.getExtDataInCertInfoArray(Request.CERT_INFO) == null;
         return !requestContentsAreNull && serviceX509(request);
     }
 
@@ -1317,7 +1317,7 @@ class serviceIssue implements IServant {
         // request types, not policy.
         // XXX how do we know what to look for in request ?
         X509CertInfo certinfos[] =
-                request.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                request.getExtDataInCertInfoArray(Request.CERT_INFO);
 
         if (certinfos == null || certinfos[0] == null) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_REQUEST_NOT_FOUND", request.getRequestId().toString()));
@@ -1342,7 +1342,7 @@ class serviceIssue implements IServant {
                 throw e;
             }
         }
-        String crmfReqId = request.getExtDataInString(IRequest.CRMF_REQID);
+        String crmfReqId = request.getExtDataInString(Request.CRMF_REQID);
         EBaseException ex = null;
 
         for (i = 0; i < certs.length; i++) {
@@ -1371,7 +1371,7 @@ class serviceIssue implements IServant {
             throw ex;
         }
 
-        request.setExtData(IRequest.ISSUED_CERTS, certs);
+        request.setExtData(Request.ISSUED_CERTS, certs);
 
         return true;
     }
@@ -1392,7 +1392,7 @@ class serviceRenewal implements IServant {
             throws EBaseException {
         // XXX if one fails should all fail ? - can't backtrack.
         X509CertInfo certinfos[] =
-                request.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                request.getExtDataInCertInfoArray(Request.CERT_INFO);
 
         if (certinfos == null || certinfos[0] == null) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_REQUEST_NOT_FOUND", request.getRequestId().toString()));
@@ -1529,7 +1529,7 @@ class serviceRenewal implements IServant {
         }
 
         // always set issued certs regardless of error.
-        request.setExtData(IRequest.ISSUED_CERTS, issuedCerts);
+        request.setExtData(Request.ISSUED_CERTS, issuedCerts);
 
         // set and throw error if any.
         int l;
@@ -1752,7 +1752,7 @@ class serviceRevoke implements IServant {
         // XXX Need to think passing as array.
         // XXX every implemented according to servlet.
         RevokedCertImpl crlentries[] =
-                request.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
+                request.getExtDataInRevokedCertArray(Request.CERT_INFO);
 
         if (crlentries == null ||
                 crlentries.length == 0 ||
@@ -1793,7 +1793,7 @@ class serviceRevoke implements IServant {
             for (int i = 0; i < revokedCerts.length; i++) {
                 revokedCertIds[i] = revokedCerts[i].getSerialNumber();
             }
-            request.deleteExtData(IRequest.CERT_INFO);
+            request.deleteExtData(Request.CERT_INFO);
             request.deleteExtData(IRequest.OLD_CERTS);
             request.setExtData(IRequest.REVOKED_CERT_RECORDS, revokedCertIds);
 
@@ -1998,9 +1998,9 @@ class serviceGetRevocationInfo implements IServant {
         while (enum1.hasMoreElements()) {
             String name = enum1.nextElement();
             RevocationInfo info = null;
-            if (name.equals(IRequest.ISSUED_CERTS)) {
+            if (name.equals(Request.ISSUED_CERTS)) {
                 X509CertImpl certsToCheck[] =
-                        request.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                        request.getExtDataInCertArray(Request.ISSUED_CERTS);
                 if (certsToCheck != null) {
                     info = certDB.isCertificateRevoked(certsToCheck[0]);
                 }
