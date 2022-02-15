@@ -450,19 +450,19 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         KRAEngine engine = KRAEngine.getInstance();
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
-        IRequest request = requestRepository.createRequest(IRequest.SYMKEY_GENERATION_REQUEST);
+        IRequest request = requestRepository.createRequest(Request.SYMKEY_GENERATION_REQUEST);
 
-        request.setExtData(IRequest.KEY_GEN_ALGORITHM, algName);
-        request.setExtData(IRequest.KEY_GEN_SIZE, keySize);
+        request.setExtData(Request.KEY_GEN_ALGORITHM, algName);
+        request.setExtData(Request.KEY_GEN_SIZE, keySize);
         request.setExtData(Request.SECURITY_DATA_STRENGTH, keySize);
         request.setExtData(Request.SECURITY_DATA_ALGORITHM, algName);
 
-        request.setExtData(IRequest.KEY_GEN_USAGES, StringUtils.join(usages, ","));
+        request.setExtData(Request.KEY_GEN_USAGES, StringUtils.join(usages, ","));
         request.setExtData(Request.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
         request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
 
         if (transWrappedSessionKey != null) {
-            request.setExtData(IRequest.KEY_GEN_TRANS_WRAPPED_SESSION_KEY,
+            request.setExtData(Request.KEY_GEN_TRANS_WRAPPED_SESSION_KEY,
                     transWrappedSessionKey);
         }
 
@@ -540,14 +540,14 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
-        IRequest request = requestRepository.createRequest(IRequest.ASYMKEY_GENERATION_REQUEST);
+        IRequest request = requestRepository.createRequest(Request.ASYMKEY_GENERATION_REQUEST);
 
-        request.setExtData(IRequest.KEY_GEN_ALGORITHM, algName);
-        request.setExtData(IRequest.KEY_GEN_SIZE, keySize);
+        request.setExtData(Request.KEY_GEN_ALGORITHM, algName);
+        request.setExtData(Request.KEY_GEN_SIZE, keySize);
         request.setExtData(Request.SECURITY_DATA_STRENGTH, keySize);
         request.setExtData(Request.SECURITY_DATA_ALGORITHM, algName);
 
-        request.setExtData(IRequest.KEY_GEN_USAGES, StringUtils.join(usages, ","));
+        request.setExtData(Request.KEY_GEN_USAGES, StringUtils.join(usages, ","));
         request.setExtData(Request.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
         request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
 
@@ -556,7 +556,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         if (transWrappedSessionKey != null) {
-            request.setExtData(IRequest.KEY_GEN_TRANS_WRAPPED_SESSION_KEY,
+            request.setExtData(Request.KEY_GEN_TRANS_WRAPPED_SESSION_KEY,
                     transWrappedSessionKey);
         }
 

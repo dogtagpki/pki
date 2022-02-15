@@ -95,9 +95,9 @@ public class AsymKeyGenService implements IService {
         else
             logger.debug(method + "clientKeyId not found");
 
-        String algorithm = request.getExtDataInString(IRequest.KEY_GEN_ALGORITHM);
+        String algorithm = request.getExtDataInString(Request.KEY_GEN_ALGORITHM);
 
-        String keySizeStr = request.getExtDataInString(IRequest.KEY_GEN_SIZE);
+        String keySizeStr = request.getExtDataInString(Request.KEY_GEN_SIZE);
         int keySize = 2048;
         boolean isEC = false;
         String errmsg ="";
@@ -134,7 +134,7 @@ public class AsymKeyGenService implements IService {
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 
         KeyPairGeneratorSpi.Usage[] usageList = null;
-        String usageStr = request.getExtDataInString(IRequest.KEY_GEN_USAGES);
+        String usageStr = request.getExtDataInString(Request.KEY_GEN_USAGES);
         if (usageStr != null) {
             String[] usages = usageStr.split(",");
 

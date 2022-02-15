@@ -205,6 +205,14 @@ public class Request implements IRequest {
     public static final String SECURITY_DATA_PL_WRAPPING_NAME = "payloadWrappingName";
     public static final String SECURITY_DATA_PL_WRAPPED = "payloadWrapped";
 
+    // key generation request attributes
+    public static final String ASYMKEY_GENERATION_REQUEST = "asymkeyGenRequest";
+    public static final String SYMKEY_GENERATION_REQUEST = "symkeyGenRequest";
+    public static final String KEY_GEN_ALGORITHM = "keyGenAlgorithm";
+    public static final String KEY_GEN_SIZE = "keyGenSize";
+    public static final String KEY_GEN_USAGES = "keyGenUsages";
+    public static final String KEY_GEN_TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
+
     protected RequestId mRequestId;
     protected RequestStatus mRequestStatus;
     protected String mSourceId;

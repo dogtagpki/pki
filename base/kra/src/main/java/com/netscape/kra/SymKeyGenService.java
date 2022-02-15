@@ -92,14 +92,14 @@ public class SymKeyGenService implements IService {
             throws EBaseException {
         String id = request.getRequestId().toString();
         String clientKeyId = request.getExtDataInString(Request.SECURITY_DATA_CLIENT_KEY_ID);
-        String algorithm = request.getExtDataInString(IRequest.KEY_GEN_ALGORITHM);
+        String algorithm = request.getExtDataInString(Request.KEY_GEN_ALGORITHM);
         String realm = request.getRealm();
 
-        String usageStr = request.getExtDataInString(IRequest.KEY_GEN_USAGES);
+        String usageStr = request.getExtDataInString(Request.KEY_GEN_USAGES);
         List<String> usages = new ArrayList<>(
                 Arrays.asList(StringUtils.split(usageStr, ",")));
 
-        String keySizeStr = request.getExtDataInString(IRequest.KEY_GEN_SIZE);
+        String keySizeStr = request.getExtDataInString(Request.KEY_GEN_SIZE);
         int keySize = Integer.parseInt(keySizeStr);
 
         logger.debug("SymKeyGenService: request ID: " + id);

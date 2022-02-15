@@ -421,13 +421,13 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             } else {
                 throw new Exception("Unsupported keyType: " + keyType);
             }
-            request.setExtData(IRequest.KEY_GEN_ALGORITHM, keyType);
+            request.setExtData(Request.KEY_GEN_ALGORITHM, keyType);
             if(keyType.contentEquals("RSA")) {
-                request.setExtData(IRequest.KEY_GEN_SIZE, keySize);
+                request.setExtData(Request.KEY_GEN_SIZE, keySize);
             }
             else if (keyType.contentEquals("EC")) {
                 // TODO: Check whether IRequest.KEY_GEN_SIZE can accept string value
-                request.setExtData(IRequest.KEY_GEN_SIZE, curveName);
+                request.setExtData(Request.KEY_GEN_SIZE, curveName);
             }
 
             /*

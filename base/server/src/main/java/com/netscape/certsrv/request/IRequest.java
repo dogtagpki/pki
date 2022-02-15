@@ -43,15 +43,6 @@ import com.netscape.certsrv.base.IAttrSet;
  */
 public interface IRequest extends Serializable {
 
-    // key generation request attributes
-    public static final String ASYMKEY_GENERATION_REQUEST = "asymkeyGenRequest";
-    public static final String SYMKEY_GENERATION_REQUEST = "symkeyGenRequest";
-
-    public static final String KEY_GEN_ALGORITHM = "keyGenAlgorithm";
-    public static final String KEY_GEN_SIZE = "keyGenSize";
-    public static final String KEY_GEN_USAGES = "keyGenUsages";
-    public static final String KEY_GEN_TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
-
     // Server-side Keygen enrollment
     //public static final String SERVER_SIDE_KEYGEN_ENROLL = "serverSideKeygenEnroll";
     public static final String SERVER_SIDE_KEYGEN_ENROLL_ENABLE_ARCHIVAL = "serverSideKeygenEnrollEnableArchival";
