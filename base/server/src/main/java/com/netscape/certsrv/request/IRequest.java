@@ -43,12 +43,6 @@ import com.netscape.certsrv.base.IAttrSet;
  */
 public interface IRequest extends Serializable {
 
-    public static final String REQ_VERSION = "requestVersion";
-
-    public static final String REQ_STATUS = "requestStatus";
-    public static final String REQ_TYPE = "requestType";
-    public static final String REQ_FORMAT = "requestFormat";
-
     // request type values.
     public static final String ENROLLMENT_REQUEST = "enrollment";
     public static final String RENEWAL_REQUEST = "renewal";

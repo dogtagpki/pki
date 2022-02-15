@@ -63,6 +63,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.CertRequestRepository;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Takes the certificate info (serial number) and optional challenge phrase, creates a
@@ -359,7 +360,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             IRequest revReq = requestRepository.createRequest(IRequest.REVOCATION_REQUEST);
 
             revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
-            revReq.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
+            revReq.setExtData(Request.REQ_TYPE, IRequest.REVOCATION_REQUEST);
             revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
 
             revReq.setExtData(IRequest.OLD_CERTS, oldCerts);

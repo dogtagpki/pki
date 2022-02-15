@@ -34,6 +34,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailTemplate;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This abstract class is a base job for real job extentions for the
@@ -239,7 +240,7 @@ public abstract class AJobBase implements IJob, Runnable {
             mItemParams.put(IEmailFormProcessor.TOKEN_CERT_TYPE, ct);
         }
 
-        String rt = r.getExtDataInString(IRequest.REQ_TYPE);
+        String rt = r.getExtDataInString(Request.REQ_TYPE);
 
         if (rt != null) {
             mItemParams.put(IEmailFormProcessor.TOKEN_REQUEST_TYPE, rt);

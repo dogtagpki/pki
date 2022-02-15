@@ -54,6 +54,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.CertRequestRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.usrgrp.User;
 
 /**
@@ -293,7 +294,7 @@ public class RevocationProcessor extends CertProcessor {
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         request = requestRepository.createRequest(IRequest.REVOCATION_REQUEST);
 
-        request.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
+        request.setExtData(Request.REQ_TYPE, IRequest.REVOCATION_REQUEST);
 
         request.setExtData(IRequest.OLD_CERTS, certificates.toArray(new X509CertImpl[certificates.size()]));
         request.setExtData(IRequest.CERT_INFO, revCertImpls.toArray(new RevokedCertImpl[revCertImpls.size()]));
@@ -366,7 +367,7 @@ public class RevocationProcessor extends CertProcessor {
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         request = requestRepository.createRequest(IRequest.UNREVOCATION_REQUEST);
 
-        request.setExtData(IRequest.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
+        request.setExtData(Request.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
 
         Collection<BigInteger> serialNumbers = new ArrayList<>();
         for (X509CertImpl cert : certificates) {

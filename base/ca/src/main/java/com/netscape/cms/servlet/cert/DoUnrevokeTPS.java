@@ -55,6 +55,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.CertRequestRepository;
+import com.netscape.cmscore.request.Request;
 
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
@@ -269,7 +270,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                         auditSerialNumber,
                         auditRequestType));
 
-            unrevReq.setExtData(IRequest.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
+            unrevReq.setExtData(Request.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
             unrevReq.setExtData(IRequest.OLD_SERIALS, serialNumbers);
             unrevReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
 

@@ -75,6 +75,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 
 /**
@@ -517,7 +518,7 @@ public class ConnectorServlet extends CMSServlet {
             // reset CA's request dbStatus and requestStatus got inadvertantly
             // transferred over
             thisreq.setExtData("dbStatus", "NOT_UPDATED");
-            thisreq.setExtData(IRequest.REQ_STATUS, "begin");
+            thisreq.setExtData(Request.REQ_STATUS, "begin");
 
             boolean isSSKeygen = false;
             String isSSKeygenStr = thisreq.getExtDataInString("isServerSideKeygen");

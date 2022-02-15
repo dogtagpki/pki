@@ -67,6 +67,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.CertRequestRepository;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Revoke a Certificate
@@ -503,7 +504,7 @@ public class DoRevokeTPS extends CMSServlet {
                         auditRequestType));
 
             revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
-            revReq.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
+            revReq.setExtData(Request.REQ_TYPE, IRequest.REVOCATION_REQUEST);
             if (initiative.equals(AuditFormat.FROMUSER)) {
                 revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_EE);
             } else {

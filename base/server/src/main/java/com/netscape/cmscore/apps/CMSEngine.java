@@ -85,6 +85,7 @@ import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
@@ -1603,7 +1604,7 @@ public class CMSEngine implements ServletContextListener {
 
             try {
                 checkRevReq = requestRepository.createRequest(IRequest.GETREVOCATIONINFO_REQUEST);
-                checkRevReq.setExtData(IRequest.REQ_TYPE, IRequest.GETREVOCATIONINFO_REQUEST);
+                checkRevReq.setExtData(Request.REQ_TYPE, IRequest.GETREVOCATIONINFO_REQUEST);
                 checkRevReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_RA);
 
                 X509CertImpl agentCerts[] = new X509CertImpl[certificates.length];

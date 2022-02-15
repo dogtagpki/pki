@@ -51,6 +51,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.updater.IProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -349,7 +350,7 @@ public class CAEnrollProfile extends EnrollProfile {
         if (isSSKeygen) {
             logger.debug(method + "onto SSK_STAGE_KEY_RETRIEVE");
             request.setExtData(IRequest.SSK_STAGE, IRequest.SSK_STAGE_KEY_RETRIEVE);
-            request.setExtData(IRequest.REQ_STATUS, "begin");
+            request.setExtData(Request.REQ_STATUS, "begin");
             request.setExtData("requestType", "recovery");
 
             // putting them back

@@ -168,7 +168,7 @@ public class RequestRepository extends Repository {
         // TODO: move this to the first update. This will require
         // some state information to track the current state.
         request.setRequestType(requestType);
-        request.setExtData(IRequest.REQ_VERSION, RequestQueue.REQUEST_VERSION);
+        request.setExtData(Request.REQ_VERSION, RequestQueue.REQUEST_VERSION);
 
         // NOT_UPDATED mean request is in memory and has not been serialized to database yet.
         // An add operation is required to serialize a NOT_UPDATED request.

@@ -67,6 +67,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.CertRequestRepository;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Revoke a certificate with a CMC-formatted revocation request
@@ -454,11 +455,11 @@ public class CMCRevReqServlet extends CMSServlet {
 
             revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
             if (revReason != null && revReason == RevocationReason.REMOVE_FROM_CRL) {
-                revReq.setExtData(IRequest.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
+                revReq.setExtData(Request.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
                 revReq.setExtData(IRequest.OLD_SERIALS, certSerialNumbers);
             } else {
                 revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
-                revReq.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
+                revReq.setExtData(Request.REQ_TYPE, IRequest.REVOCATION_REQUEST);
                 revReq.setExtData(IRequest.REVOKED_REASON, reason);
                 revReq.setExtData(IRequest.OLD_CERTS, oldCerts);
                 if (comments != null) {

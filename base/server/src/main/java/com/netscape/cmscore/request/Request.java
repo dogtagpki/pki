@@ -57,6 +57,12 @@ public class Request implements IRequest {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Request.class);
 
+    public static final String REQ_VERSION = "requestVersion";
+
+    public static final String REQ_STATUS = "requestStatus";
+    public static final String REQ_TYPE = "requestType";
+    public static final String REQ_FORMAT = "requestFormat";
+
     protected RequestId mRequestId;
     protected RequestStatus mRequestStatus;
     protected String mSourceId;
@@ -92,7 +98,7 @@ public class Request implements IRequest {
     public void setRequestStatus(RequestStatus s) {
         mRequestStatus = s;
         // expose request status so that we can do predicate upon it
-        setExtData(IRequest.REQ_STATUS, s.toString());
+        setExtData(Request.REQ_STATUS, s.toString());
     }
 
     @Override
@@ -145,13 +151,13 @@ public class Request implements IRequest {
     @Override
     public void setRequestType(String type) {
         mRequestType = type;
-        setExtData(IRequest.REQ_TYPE, type);
+        setExtData(Request.REQ_TYPE, type);
     }
 
     // IRequest.getRequestVersion
     @Override
     public String getRequestVersion() {
-        return getExtDataInString(IRequest.REQ_VERSION);
+        return getExtDataInString(Request.REQ_VERSION);
     }
 
     // IRequest.getCreationTime
