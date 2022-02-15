@@ -233,6 +233,12 @@ public class Request implements IRequest {
     public static final String DOGETCACHAIN = "doGetCAChain";
     public static final String CERT_FILTER = "certFilter";
 
+    // used by policy
+    public static final String ERRORS = "errors";
+    public static final String SMIME = "SMIME";
+    public static final String OBJECT_SIGNING = "ObjectSigning";
+    public static final String SSL_CLIENT = "SSLClient";
+
     protected RequestId mRequestId;
     protected RequestStatus mRequestStatus;
     protected String mSourceId;
@@ -371,7 +377,7 @@ public class Request implements IRequest {
         while (e.hasMoreElements()) {
             String key = e.nextElement();
             if (!key.equals(Request.ISSUED_CERTS) &&
-                    !key.equals(IRequest.ERRORS) &&
+                    !key.equals(Request.ERRORS) &&
                     !key.equals(Request.REMOTE_REQID)) {
                 if (req.isSimpleExtDataValue(key)) {
                     setExtData(key, req.getExtDataInString(key));

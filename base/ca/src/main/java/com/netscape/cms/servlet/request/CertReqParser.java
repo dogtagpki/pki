@@ -296,7 +296,7 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equalsIgnoreCase(IRequest.ERRORS)) {
+            if (name.equalsIgnoreCase(Request.ERRORS)) {
                 Vector<String> errorStrings = req.getExtDataInStringVector(name);
                 if (errorStrings != null) {
                     StringBuffer errInfo = new StringBuffer();
@@ -305,11 +305,11 @@ public class CertReqParser extends ReqParser {
                         errInfo.append(errorStrings.elementAt(i));
                         errInfo.append("\n");
                     }
-                    arg.addStringValue(IRequest.ERRORS, errInfo.toString());
+                    arg.addStringValue(Request.ERRORS, errInfo.toString());
                 }
             }
             if (name.equalsIgnoreCase(IRequest.ERROR)) {
-                arg.addStringValue(IRequest.ERRORS, req.getExtDataInString(name));
+                arg.addStringValue(Request.ERRORS, req.getExtDataInString(name));
             }
 
             if (name.equalsIgnoreCase(Request.CERT_INFO)) {
@@ -861,7 +861,7 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equalsIgnoreCase(IRequest.ERRORS)) {
+            if (name.equalsIgnoreCase(Request.ERRORS)) {
                 Vector<String> errorsVector = req.getExtDataInStringVector(name);
                 if (errorsVector != null) {
                     StringBuffer errInfo = new StringBuffer();
@@ -870,11 +870,11 @@ public class CertReqParser extends ReqParser {
                         errInfo.append(errorsVector.elementAt(i));
                         errInfo.append("\n");
                     }
-                    arg.addStringValue(IRequest.ERRORS, errInfo.toString());
+                    arg.addStringValue(Request.ERRORS, errInfo.toString());
                 }
             }
             if (name.equalsIgnoreCase(IRequest.ERROR)) {
-                arg.addStringValue(IRequest.ERRORS, req.getExtDataInString(name));
+                arg.addStringValue(Request.ERRORS, req.getExtDataInString(name));
             }
 
             if (name.equalsIgnoreCase(Request.CERT_INFO)) {

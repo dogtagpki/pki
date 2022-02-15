@@ -38,7 +38,7 @@ public class RequestTransfer {
             Request.REVOKED_CERTS,
             Request.CACERTCHAIN,
             Request.CRL,
-            IRequest.ERRORS,
+            Request.ERRORS,
             Request.RESULT,
             IRequest.ERROR,
             Request.SVCERRORS,

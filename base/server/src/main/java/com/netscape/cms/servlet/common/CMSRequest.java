@@ -32,6 +32,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This represents a user request.
@@ -247,7 +248,7 @@ public class CMSRequest implements ICMSRequest {
     // policy errors; set on rejection or possibly deferral.
     public Vector<String> getPolicyMessages() {
         if (mRequest != null) {
-            return mRequest.getExtDataInStringVector(IRequest.ERRORS);
+            return mRequest.getExtDataInStringVector(Request.ERRORS);
         }
         return null;
     }

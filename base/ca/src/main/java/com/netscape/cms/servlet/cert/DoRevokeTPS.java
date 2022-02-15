@@ -733,7 +733,7 @@ public class DoRevokeTPS extends CMSServlet {
                     o_status = "status=2";
                     errorString = "error=Undefined request status";
                 }
-                Vector<String> errors = revReq.getExtDataInStringVector(IRequest.ERRORS);
+                Vector<String> errors = revReq.getExtDataInStringVector(Request.ERRORS);
                 if (errors != null) {
                     StringBuffer errInfo = new StringBuffer();
 

@@ -629,7 +629,7 @@ public class HashEnrollServlet extends CMSServlet {
             // audit log the status
             try {
                 if (status == RequestStatus.REJECTED) {
-                    Vector<String> messages = req.getExtDataInStringVector(IRequest.ERRORS);
+                    Vector<String> messages = req.getExtDataInStringVector(Request.ERRORS);
 
                     if (messages != null) {
                         Enumeration<String> msgs = messages.elements();

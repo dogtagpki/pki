@@ -39,6 +39,7 @@ import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * The abstract policy rule that concrete implementations will
@@ -190,12 +191,12 @@ public abstract class APolicyRule implements IPolicyRule {
 
     @Override
     public void setPolicyException(IRequest req, EBaseException ex) {
-        Vector<String> ev = req.getExtDataInStringVector(IRequest.ERRORS);
+        Vector<String> ev = req.getExtDataInStringVector(Request.ERRORS);
         if (ev == null) {
             ev = new Vector<>();
         }
         ev.addElement(ex.toString());
-        req.setExtData(IRequest.ERRORS, ev);
+        req.setExtData(Request.ERRORS, ev);
 
     }
 
@@ -239,12 +240,12 @@ public abstract class APolicyRule implements IPolicyRule {
         else
             ex = new EPolicyException(format, params);
 
-        Vector<String> ev = req.getExtDataInStringVector(IRequest.ERRORS);
+        Vector<String> ev = req.getExtDataInStringVector(Request.ERRORS);
         if (ev == null) {
             ev = new Vector<>();
         }
         ev.addElement(ex.toString());
-        req.setExtData(IRequest.ERRORS, ev);
+        req.setExtData(Request.ERRORS, ev);
     }
 
     public static KeyIdentifier createKeyIdentifier(X509Key key)

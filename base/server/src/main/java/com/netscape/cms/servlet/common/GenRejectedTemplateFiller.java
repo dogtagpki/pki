@@ -24,6 +24,7 @@ import java.util.Vector;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.request.Request;
 
 /**
  * default Service Pending template filler
@@ -69,7 +70,7 @@ public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
             fixed.set(ICMSTemplateFiller.REQUEST_ID, req.getRequestId());
 
             // policy errors (rejection reasons)
-            Vector<String> messages = req.getExtDataInStringVector(IRequest.ERRORS);
+            Vector<String> messages = req.getExtDataInStringVector(Request.ERRORS);
 
             if (messages != null) {
                 Enumeration<String> msgs = messages.elements();

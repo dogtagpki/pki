@@ -43,12 +43,6 @@ import com.netscape.certsrv.base.IAttrSet;
  */
 public interface IRequest extends Serializable {
 
-    // used by policy
-    public static final String ERRORS = "errors";
-    public static final String SMIME = "SMIME";
-    public static final String OBJECT_SIGNING = "ObjectSigning";
-    public static final String SSL_CLIENT = "SSLClient";
-
     /**
      * Name of request attribute that stores the End-User Supplied
      * Subject Name.

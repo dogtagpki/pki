@@ -201,7 +201,7 @@ public class SubjAltNameExt extends APolicyRule
 
             if (certType == null ||
                     !certType.equals(Request.CLIENT_CERT) ||
-                    !req.getExtDataInBoolean(IRequest.SMIME, false)) {
+                    !req.getExtDataInBoolean(Request.SMIME, false)) {
                 break apply;
             }
 

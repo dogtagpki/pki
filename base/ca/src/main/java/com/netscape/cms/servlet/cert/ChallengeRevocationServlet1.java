@@ -559,7 +559,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 }
 
             } else {
-                Vector<String> errors = revReq.getExtDataInStringVector(IRequest.ERRORS);
+                Vector<String> errors = revReq.getExtDataInStringVector(Request.ERRORS);
                 StringBuffer errorStr = new StringBuffer();
 
                 if (errors != null && errors.size() > 0) {

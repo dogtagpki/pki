@@ -630,7 +630,7 @@ public class DoRevoke extends CMSServlet {
                     header.addStringValue("revoked", "no");
                 }
 
-                Vector<String> errors = revReq.getExtDataInStringVector(IRequest.ERRORS);
+                Vector<String> errors = revReq.getExtDataInStringVector(Request.ERRORS);
                 if (errors != null) {
                     StringBuilder errInfo = new StringBuilder();
                     for (int i = 0; i < errors.size(); i++) {
