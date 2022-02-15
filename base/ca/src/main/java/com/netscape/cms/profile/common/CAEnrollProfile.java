@@ -142,7 +142,7 @@ public class CAEnrollProfile extends EnrollProfile {
         byte[] transWrappedSessionKey = null;
         byte[] sessionWrappedPassphrase = null;
         if (isSSKeygen) { // Server-Side Keygen enrollment
-            request.setExtData(IRequest.SSK_STAGE, IRequest.SSK_STAGE_KEYGEN);
+            request.setExtData(Request.SSK_STAGE, Request.SSK_STAGE_KEYGEN);
 
             /*
              * temporarily remove the items not needed for SSK_STAGE_KEYGEN
@@ -349,7 +349,7 @@ public class CAEnrollProfile extends EnrollProfile {
         // cert issued, now retrieve p12
         if (isSSKeygen) {
             logger.debug(method + "onto SSK_STAGE_KEY_RETRIEVE");
-            request.setExtData(IRequest.SSK_STAGE, IRequest.SSK_STAGE_KEY_RETRIEVE);
+            request.setExtData(Request.SSK_STAGE, Request.SSK_STAGE_KEY_RETRIEVE);
             request.setExtData(Request.REQ_STATUS, "begin");
             request.setExtData("requestType", "recovery");
 

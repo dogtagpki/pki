@@ -468,8 +468,8 @@ public class ConnectorServlet extends CMSServlet {
                     // for Server-Side Keygen, it could be the 2nd trip
                     // where stage was Request.SSK_STAGE_KEYGEN going on
                     // IRequest.SSK_STAGE_KEY_RETRIEVE
-                    String sskKeygenStage = thisreq.getExtDataInString(IRequest.SSK_STAGE);
-                    if (sskKeygenStage!= null && sskKeygenStage.equalsIgnoreCase(IRequest.SSK_STAGE_KEYGEN)) {
+                    String sskKeygenStage = thisreq.getExtDataInString(Request.SSK_STAGE);
+                    if (sskKeygenStage!= null && sskKeygenStage.equalsIgnoreCase(Request.SSK_STAGE_KEYGEN)) {
                         logger.debug("ConnectorServlet:processRequest: Stage=" + sskKeygenStage);
                     } else {
 
@@ -525,11 +525,11 @@ public class ConnectorServlet extends CMSServlet {
             if ((isSSKeygenStr != null) && isSSKeygenStr.equalsIgnoreCase("true")) {
                 logger.debug("ConnectorServlet:isServerSideKeygen = true");
                 isSSKeygen = true;
-                String sskKeygenStage = thisreq.getExtDataInString(IRequest.SSK_STAGE);
-                if (sskKeygenStage!= null && sskKeygenStage.equalsIgnoreCase(IRequest.SSK_STAGE_KEYGEN)) {
+                String sskKeygenStage = thisreq.getExtDataInString(Request.SSK_STAGE);
+                if (sskKeygenStage!= null && sskKeygenStage.equalsIgnoreCase(Request.SSK_STAGE_KEYGEN)) {
                     logger.debug(method + "isServerSideKeygen Stage=" + sskKeygenStage);
                     thisreq.setRequestType("asymkeyGenRequest"); //IRequest.ASYMKEY_GENERATION_REQUEST
-                } else if (sskKeygenStage.equalsIgnoreCase(IRequest.SSK_STAGE_KEY_RETRIEVE)) {
+                } else if (sskKeygenStage.equalsIgnoreCase(Request.SSK_STAGE_KEY_RETRIEVE)) {
                     logger.debug(method + "isServerSideKeygen Stage=" + sskKeygenStage);
                     thisreq.setRequestType("recovery"); //IRequest.KEYRECOVERY_REQUEST
                 }

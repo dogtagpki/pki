@@ -43,13 +43,6 @@ import com.netscape.certsrv.base.IAttrSet;
  */
 public interface IRequest extends Serializable {
 
-    // Server-side Keygen enrollment
-    //public static final String SERVER_SIDE_KEYGEN_ENROLL = "serverSideKeygenEnroll";
-    public static final String SERVER_SIDE_KEYGEN_ENROLL_ENABLE_ARCHIVAL = "serverSideKeygenEnrollEnableArchival";
-    public static final String SSK_STAGE = "serverSideKeygenStage";
-    public static final String SSK_STAGE_KEYGEN = "serverSideKeygenStage_keygen";
-    public static final String SSK_STAGE_KEY_RETRIEVE = "serverSideKeygenStage_key_retrieve";
-
     // requestor type values.
     public static final String REQUESTOR_EE = "EE";
     public static final String REQUESTOR_RA = "RA";

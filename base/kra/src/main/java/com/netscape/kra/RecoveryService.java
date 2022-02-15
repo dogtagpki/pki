@@ -412,7 +412,7 @@ public class RecoveryService implements IService {
              * the profile, the default value to that is set to *false*
              * in the request in ServerKeygenUserKeyDefault
              */
-            boolean isArchival = request.getExtDataInBoolean(IRequest.SERVER_SIDE_KEYGEN_ENROLL_ENABLE_ARCHIVAL, true);
+            boolean isArchival = request.getExtDataInBoolean(Request.SERVER_SIDE_KEYGEN_ENROLL_ENABLE_ARCHIVAL, true);
             if (isArchival) {
                 logger.debug("RecoveryService: serviceRequest: Server-Side Keygen isArchival true, key record kept");
             } else

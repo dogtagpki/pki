@@ -489,7 +489,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             // to archive the keys or not; By default, it is *false*
             boolean enableArchival = getConfigBoolean(CONFIG_ENABLE_ARCHIVAL);
             //logger.debug(method + "archival enabled: " + enableArchival);
-            request.setExtData(IRequest.SERVER_SIDE_KEYGEN_ENROLL_ENABLE_ARCHIVAL, enableArchival? "true":"false");
+            request.setExtData(Request.SERVER_SIDE_KEYGEN_ENROLL_ENABLE_ARCHIVAL, enableArchival? "true":"false");
 
             info.set(X509CertInfo.KEY, certKey);
         } catch (Exception e) {
