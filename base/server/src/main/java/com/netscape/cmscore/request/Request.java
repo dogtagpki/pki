@@ -63,7 +63,7 @@ public class Request implements IRequest {
     public static final String REQ_TYPE = "requestType";
     public static final String REQ_FORMAT = "requestFormat";
 
-    // request type values.
+    // request type values
     public static final String ENROLLMENT_REQUEST = "enrollment";
     public static final String RENEWAL_REQUEST = "renewal";
     public static final String REVOCATION_REQUEST = "revocation";
@@ -84,6 +84,11 @@ public class Request implements IRequest {
     public static final String CLA_UNCERT4CRL_REQUEST = "uncert4crl";
     public static final String NETKEY_KEYGEN_REQUEST = "netkeyKeygen";
     public static final String NETKEY_KEYRECOVERY_REQUEST = "netkeyKeyRecovery";
+
+    public static final String REQUESTOR_NAME = "csrRequestorName";
+    public static final String REQUESTOR_PHONE = "csrRequestorPhone";
+    public static final String REQUESTOR_EMAIL = "csrRequestorEmail";
+    public static final String REQUESTOR_COMMENTS = "csrRequestorComments";
 
     protected RequestId mRequestId;
     protected RequestStatus mRequestStatus;

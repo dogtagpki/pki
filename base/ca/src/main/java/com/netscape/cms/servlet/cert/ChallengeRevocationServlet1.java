@@ -170,7 +170,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 httpParams.getValueAsInt(REASON_CODE, 0);
         //        header.addIntegerValue("reason", reasonCode);
 
-        String comments = req.getParameter(IRequest.REQUESTOR_COMMENTS);
+        String comments = req.getParameter(Request.REQUESTOR_COMMENTS);
         Date invalidityDate = null;
         String revokeAll = null;
         int totalRecordCount = (serialNoArray != null) ? serialNoArray.length : 0;
@@ -365,7 +365,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
             revReq.setExtData(IRequest.OLD_CERTS, oldCerts);
             if (comments != null) {
-                revReq.setExtData(IRequest.REQUESTOR_COMMENTS, comments);
+                revReq.setExtData(Request.REQUESTOR_COMMENTS, comments);
             }
 
             mQueue.processRequest(revReq);

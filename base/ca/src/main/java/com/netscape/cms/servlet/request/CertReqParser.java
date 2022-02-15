@@ -279,15 +279,15 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equalsIgnoreCase(IRequest.REQUESTOR_PHONE)
-                    || name.equalsIgnoreCase(IRequest.REQUESTOR_EMAIL)
-                    || name.equalsIgnoreCase(IRequest.REQUESTOR_COMMENTS)
+            if (name.equalsIgnoreCase(Request.REQUESTOR_PHONE)
+                    || name.equalsIgnoreCase(Request.REQUESTOR_EMAIL)
+                    || name.equalsIgnoreCase(Request.REQUESTOR_COMMENTS)
                     || name.equalsIgnoreCase(IRequest.RESULT)
                     || name.equalsIgnoreCase(IRequest.REQUEST_TRUSTEDMGR_PRIVILEGE)) {
                 arg.addStringValue(name, req.getExtDataInString(name));
             }
 
-            if (name.equalsIgnoreCase(IRequest.REQUESTOR_NAME)) {
+            if (name.equalsIgnoreCase(Request.REQUESTOR_NAME)) {
                 String requestorName = req.getExtDataInString(name);
 
                 requestorName = requestorName.trim();
@@ -844,15 +844,15 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equalsIgnoreCase(IRequest.REQUESTOR_PHONE)
-                    || name.equalsIgnoreCase(IRequest.REQUESTOR_EMAIL)
-                    || name.equalsIgnoreCase(IRequest.REQUESTOR_COMMENTS)
+            if (name.equalsIgnoreCase(Request.REQUESTOR_PHONE)
+                    || name.equalsIgnoreCase(Request.REQUESTOR_EMAIL)
+                    || name.equalsIgnoreCase(Request.REQUESTOR_COMMENTS)
                     || name.equalsIgnoreCase(IRequest.RESULT)
                     || name.equalsIgnoreCase(IRequest.REQUEST_TRUSTEDMGR_PRIVILEGE)) {
                 arg.addStringValue(name, req.getExtDataInString(name));
             }
 
-            if (name.equalsIgnoreCase(IRequest.REQUESTOR_NAME)) {
+            if (name.equalsIgnoreCase(Request.REQUESTOR_NAME)) {
                 String requestorName = req.getExtDataInString(name);
 
                 requestorName = requestorName.trim();

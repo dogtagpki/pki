@@ -512,7 +512,7 @@ public class DoRevokeTPS extends CMSServlet {
             }
             revReq.setExtData(IRequest.OLD_CERTS, oldCerts);
             if (comments != null) {
-                revReq.setExtData(IRequest.REQUESTOR_COMMENTS, comments);
+                revReq.setExtData(Request.REQUESTOR_COMMENTS, comments);
             }
             revReq.setExtData(IRequest.REVOKED_REASON,
                     Integer.valueOf(reason));

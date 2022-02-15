@@ -43,11 +43,6 @@ import com.netscape.certsrv.base.IAttrSet;
  */
 public interface IRequest extends Serializable {
 
-    public static final String REQUESTOR_NAME = "csrRequestorName";
-    public static final String REQUESTOR_PHONE = "csrRequestorPhone";
-    public static final String REQUESTOR_EMAIL = "csrRequestorEmail";
-    public static final String REQUESTOR_COMMENTS = "csrRequestorComments";
-
     // request attributes for all
     public static final String AUTH_TOKEN = "AUTH_TOKEN";
     public static final String HTTP_PARAMS = "HTTP_PARAMS";

@@ -40,6 +40,7 @@ import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.Request;
 
 /**
  * An email resolver that first checks the request email, if none,
@@ -78,7 +79,7 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
 
         if (req != null) {
             mEmail = req.getExtDataInString(IRequest.HTTP_PARAMS,
-                    IRequest.REQUESTOR_EMAIL);
+                    Request.REQUESTOR_EMAIL);
             if (mEmail == null) {
                 String mail = req.getExtDataInString("requestor_email");
                 logger.info("ReqCertSANameEmailResolver: REQUESTOR_EMAIL = " + mail);

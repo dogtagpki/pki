@@ -463,7 +463,7 @@ public class CMCRevReqServlet extends CMSServlet {
                 revReq.setExtData(IRequest.REVOKED_REASON, reason);
                 revReq.setExtData(IRequest.OLD_CERTS, oldCerts);
                 if (comments != null) {
-                    revReq.setExtData(IRequest.REQUESTOR_COMMENTS, comments);
+                    revReq.setExtData(Request.REQUESTOR_COMMENTS, comments);
                 }
             }
 

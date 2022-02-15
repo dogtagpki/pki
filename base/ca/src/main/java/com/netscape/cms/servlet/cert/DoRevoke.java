@@ -195,7 +195,7 @@ public class DoRevoke extends CMSServlet {
             }
             revokeAll = req.getParameter("revokeAll");
 
-            String comments = req.getParameter(IRequest.REQUESTOR_COMMENTS);
+            String comments = req.getParameter(Request.REQUESTOR_COMMENTS);
             String eeSubjectDN = null;
             String eeSerialNumber = null;
 

@@ -306,7 +306,7 @@ public class RevocationProcessor extends CertProcessor {
         }
 
         if (comments != null) {
-            request.setExtData(IRequest.REQUESTOR_COMMENTS, comments);
+            request.setExtData(Request.REQUESTOR_COMMENTS, comments);
         }
 
         request.setExtData(IRequest.REVOKED_REASON, revocationReason.getCode());
