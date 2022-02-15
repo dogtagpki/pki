@@ -285,7 +285,7 @@ public class AttributePresentConstraints extends APolicyRule
         if (requestType.equals(Request.ENROLLMENT_REQUEST) ||
                 requestType.equals(Request.RENEWAL_REQUEST)) {
 
-            String uid = r.getExtDataInString(IRequest.HTTP_PARAMS, "uid");
+            String uid = r.getExtDataInString(Request.HTTP_PARAMS, "uid");
 
             if (uid == null) {
                 logger.error("did not find UID parameter in request " + r.getRequestId());

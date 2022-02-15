@@ -373,11 +373,11 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
             if (stat == RequestStatus.COMPLETE) {
                 // audit log the error
-                Integer result = revReq.getExtDataInInteger(IRequest.RESULT);
+                Integer result = revReq.getExtDataInInteger(Request.RESULT);
 
-                if (result.equals(IRequest.RES_ERROR)) {
+                if (result.equals(Request.RES_ERROR)) {
                     String[] svcErrors =
-                            revReq.getExtDataInStringArray(IRequest.SVCERRORS);
+                            revReq.getExtDataInStringArray(Request.SVCERRORS);
 
                     if (svcErrors != null && svcErrors.length > 0) {
                         for (int i = 0; i < svcErrors.length; i++) {
@@ -426,7 +426,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                 if (updateCRLResult != null) {
                     header.addStringValue("updateCRL", "yes");
-                    if (updateCRLResult.equals(IRequest.RES_SUCCESS)) {
+                    if (updateCRLResult.equals(Request.RES_SUCCESS)) {
                         header.addStringValue("updateCRLSuccess", "yes");
                     } else {
                         header.addStringValue("updateCRLSuccess", "no");
@@ -442,7 +442,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                             revReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
-                        if (publishCRLResult.equals(IRequest.RES_SUCCESS)) {
+                        if (publishCRLResult.equals(Request.RES_SUCCESS)) {
                             header.addStringValue("publishCRLSuccess", "yes");
                         } else {
                             header.addStringValue("publishCRLSuccess", "no");
@@ -466,7 +466,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                         Integer updateResult = revReq.getExtDataInInteger(updateStatusStr);
 
                         if (updateResult != null) {
-                            if (updateResult.equals(IRequest.RES_SUCCESS)) {
+                            if (updateResult.equals(Request.RES_SUCCESS)) {
                                 logger.debug("ChallengeRevcationServlet1: "
                                         + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER",
                                                 updateStatusStr));
@@ -491,7 +491,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                             if (publishResult == null)
                                 continue;
-                            if (publishResult.equals(IRequest.RES_SUCCESS)) {
+                            if (publishResult.equals(Request.RES_SUCCESS)) {
                                 header.addStringValue(publishStatusStr, "yes");
                             } else {
                                 String publishErrorStr =
@@ -519,7 +519,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                     if (ldapPublishStatus != null) {
                         certsToUpdate = ldapPublishStatus.length;
                         for (int i = 0; i < certsToUpdate; i++) {
-                            if (ldapPublishStatus[i] == IRequest.RES_SUCCESS) {
+                            if (ldapPublishStatus[i] == Request.RES_SUCCESS) {
                                 certsUpdated++;
                             }
                         }

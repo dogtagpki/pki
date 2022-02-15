@@ -21,6 +21,7 @@ import org.dogtagpki.legacy.policy.IPolicyRule;
 
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.request.Request;
 
 public class JavaScriptRequestProxy {
     IRequest req;
@@ -30,7 +31,7 @@ public class JavaScriptRequestProxy {
     }
 
     public String getHTTP(String param) {
-        return req.getExtDataInString(IRequest.HTTP_PARAMS, param);
+        return req.getExtDataInString(Request.HTTP_PARAMS, param);
     }
 
     public String get(String param) {

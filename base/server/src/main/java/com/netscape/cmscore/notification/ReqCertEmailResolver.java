@@ -28,6 +28,7 @@ import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * An email resolver that first checks the request email, if none,
@@ -64,7 +65,7 @@ public class ReqCertEmailResolver implements IEmailResolver {
         String mEmail = null;
 
         if (req != null) {
-            mEmail = req.getExtDataInString(IRequest.HTTP_PARAMS,
+            mEmail = req.getExtDataInString(Request.HTTP_PARAMS,
                     "csrRequestorEmail");
             if (mEmail == null) {
                 String mail = req.getExtDataInString("requestor_email");

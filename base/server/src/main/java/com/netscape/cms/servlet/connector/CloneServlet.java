@@ -337,7 +337,7 @@ public class CloneServlet extends CMSServlet {
         thisreq = requestRepository.createRequest(msg.getReqType());
         thisreq.setSourceId(srcid);
         msg.toRequest(thisreq);
-        thisreq.setExtData(IRequest.AUTH_TOKEN, token);
+        thisreq.setExtData(Request.AUTH_TOKEN, token);
 
         // setting requestor type must come after copy contents. because
         // requestor is a regular attribute.
@@ -397,9 +397,9 @@ public class CloneServlet extends CMSServlet {
                 }
             } else {
                 if (thisreq.getRequestType().equals(Request.CLA_CERT4CRL_REQUEST)) {
-                    Integer result = thisreq.getExtDataInInteger(IRequest.RESULT);
+                    Integer result = thisreq.getExtDataInInteger(Request.RESULT);
 
-                    if (result.equals(IRequest.RES_ERROR)) {
+                    if (result.equals(Request.RES_ERROR)) {
                         logger.debug("CloneServlet: error in CLA_CERT4CRL_REQUEST");
                     } else {
                         // the success.

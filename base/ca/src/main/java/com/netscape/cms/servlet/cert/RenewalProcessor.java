@@ -59,6 +59,7 @@ import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.registry.PluginRegistry;
+import com.netscape.cmscore.request.Request;
 
 public class RenewalProcessor extends CertProcessor {
 
@@ -213,11 +214,11 @@ public class RenewalProcessor extends CertProcessor {
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
             }
 
-            String profileId = origReq.getExtDataInString(IRequest.PROFILE_ID);
+            String profileId = origReq.getExtDataInString(Request.PROFILE_ID);
             logger.debug("RenewalSubmitter: renewal original profileId=" + profileId);
 
             String aidString = origReq.getExtDataInString(
-                    IRequest.AUTHORITY_ID);
+                    Request.AUTHORITY_ID);
 
             Integer origSeqNum = origReq.getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
             Profile profile = ps.getProfile(profileId);

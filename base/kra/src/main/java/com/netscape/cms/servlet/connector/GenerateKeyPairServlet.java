@@ -210,7 +210,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
             thisreq.setExtData(IRequest.NETKEY_ATTR_KEY_EC_CURVE, rKeycurve);
 
             queue.processRequest(thisreq);
-            Integer result = thisreq.getExtDataInInteger(IRequest.RESULT);
+            Integer result = thisreq.getExtDataInInteger(Request.RESULT);
             if (result != null) {
                 // sighs!  tps thinks 0 is good, and DRM thinks 1 is good
                 if (result.intValue() == 1)

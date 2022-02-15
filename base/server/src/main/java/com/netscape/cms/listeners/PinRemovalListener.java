@@ -137,7 +137,7 @@ public class PinRemovalListener implements IRequestListener {
                 requestType.equals(Request.RENEWAL_REQUEST)) {
 
             String uid = r.getExtDataInString(
-                    IRequest.HTTP_PARAMS, "uid");
+                    Request.HTTP_PARAMS, "uid");
 
             if (uid == null) {
                 logger.warn("PinRemovalListener: did not find UID parameter in this request");

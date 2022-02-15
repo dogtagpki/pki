@@ -297,7 +297,7 @@ public class ConnectorServlet extends CMSServlet {
     }
 
     public static boolean isProfileRequest(IRequest request) {
-        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId == null || profileId.equals(""))
             return false;
@@ -602,7 +602,7 @@ public class ConnectorServlet extends CMSServlet {
                 }
             }
 
-            thisreq.setExtData(IRequest.AUTH_TOKEN, token);
+            thisreq.setExtData(Request.AUTH_TOKEN, token);
 
             if (StringUtils.isNotEmpty(msg.getReqRealm())) {
                 thisreq.setRealm(msg.getReqRealm());
@@ -815,11 +815,11 @@ public class ConnectorServlet extends CMSServlet {
                         }
 
                         int count = oldCerts.length;
-                        Integer result = thisreq.getExtDataInInteger(IRequest.RESULT);
+                        Integer result = thisreq.getExtDataInInteger(Request.RESULT);
 
-                        if (result.equals(IRequest.RES_ERROR)) {
+                        if (result.equals(Request.RES_ERROR)) {
                             String[] svcErrors =
-                                    thisreq.getExtDataInStringArray(IRequest.SVCERRORS);
+                                    thisreq.getExtDataInStringArray(Request.SVCERRORS);
 
                             if (svcErrors != null && svcErrors.length > 0) {
                                 for (int i = 0; i < svcErrors.length; i++) {

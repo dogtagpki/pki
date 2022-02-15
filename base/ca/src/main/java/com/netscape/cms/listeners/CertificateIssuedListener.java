@@ -193,13 +193,13 @@ public class CertificateIssuedListener implements IRequestListener {
         logger.debug("CertificateIssuedListener: accept check status ");
 
         // check if it is profile request
-        String profileId = r.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = r.getExtDataInString(Request.PROFILE_ID);
 
         // check if request failed.
         if (profileId == null) {
-            if (r.getExtDataInInteger(IRequest.RESULT) == null)
+            if (r.getExtDataInInteger(Request.RESULT) == null)
                 return;
-            if ((r.getExtDataInInteger(IRequest.RESULT)).equals(IRequest.RES_ERROR)) {
+            if ((r.getExtDataInInteger(Request.RESULT)).equals(Request.RES_ERROR)) {
                 logger.debug("CertificateIssuedListener: Request errored. " +
                         "No need to email notify for enrollment request id " +
                         mReqId);

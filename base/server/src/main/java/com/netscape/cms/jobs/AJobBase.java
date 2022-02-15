@@ -228,13 +228,13 @@ public abstract class AJobBase implements IJob, Runnable {
     }
 
     protected void buildItemParams(IRequest r) {
-        String re = r.getExtDataInString(IRequest.HTTP_PARAMS, "csrRequestorEmail");
+        String re = r.getExtDataInString(Request.HTTP_PARAMS, "csrRequestorEmail");
 
         if (re != null) {
             mItemParams.put(IEmailFormProcessor.TOKEN_REQUESTOR_EMAIL, re);
         }
 
-        String ct = r.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
+        String ct = r.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
 
         if (ct != null) {
             mItemParams.put(IEmailFormProcessor.TOKEN_CERT_TYPE, ct);

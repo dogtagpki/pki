@@ -215,9 +215,9 @@ public class GetCertFromRequest extends CMSServlet {
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_REQUEST_NOT_COMPLETED", requestId));
         }
-        Integer result = r.getExtDataInInteger(IRequest.RESULT);
+        Integer result = r.getExtDataInInteger(Request.RESULT);
 
-        if (result != null && !result.equals(IRequest.RES_SUCCESS)) {
+        if (result != null && !result.equals(Request.RES_SUCCESS)) {
             logger.error(CMS.getLogMessage("CMSGW_REQUEST_HAD_ERROR_1", requestId));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_REQUEST_HAD_ERROR", requestId));
@@ -288,7 +288,7 @@ class CertFrRequestFiller extends ImportCertsTemplateFiller {
             IRequest r = engine.getRequestRepository().readRequest(new RequestId(reqId));
             if (r != null) {
                 boolean noCertImport = true;
-                String certType = r.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
+                String certType = r.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
 
                 if (certType != null && certType.equals(IRequest.CLIENT_CERT)) {
                     noCertImport = false;

@@ -39,6 +39,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailTemplate;
+import com.netscape.cmscore.request.Request;
 
 /**
  * a listener for every request gets into the request queue.
@@ -193,10 +194,10 @@ public class RequestInQListener implements IRequestListener {
                 mConfig.getName());
         Object val = null;
 
-        String profileId = r.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = r.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId == null) {
-            val = r.getExtDataInString(IRequest.HTTP_PARAMS, "csrRequestorEmail");
+            val = r.getExtDataInString(Request.HTTP_PARAMS, "csrRequestorEmail");
         } else {
             // use the submitter info if available, otherwise, use the
             // subject name input email
@@ -211,7 +212,7 @@ public class RequestInQListener implements IRequestListener {
                     val);
 
         if (profileId == null) {
-            val = r.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
+            val = r.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
         } else {
             val = profileId;
         }

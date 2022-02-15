@@ -69,6 +69,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.Group;
@@ -542,7 +543,7 @@ public class CAProcessor extends Processor {
     public void saveAuthToken(IAuthToken token, IRequest request) {
 
         logger.info("CAProcessor: saving authentication token into request:");
-        request.setExtData(IRequest.AUTH_TOKEN, token);
+        request.setExtData(Request.AUTH_TOKEN, token);
 
         // # 56230 - expose auth token parameters to the policy predicate
         Enumeration<String> e = token.getElements();
@@ -555,14 +556,14 @@ public class CAProcessor extends Processor {
             if (values != null) {
                 for (int i = 0; i < values.length; i++) {
                     logger.debug("  - " + values[i]);
-                    request.setExtData(IRequest.AUTH_TOKEN + "-" + name + "(" + i + ")", values[i]);
+                    request.setExtData(Request.AUTH_TOKEN + "-" + name + "(" + i + ")", values[i]);
                 }
 
             } else {
                 String value = token.getInString(name);
                 if (value != null) {
                     logger.debug("  - " + value);
-                    request.setExtData(IRequest.AUTH_TOKEN + "-" + name, value);
+                    request.setExtData(Request.AUTH_TOKEN + "-" + name, value);
                 }
             }
         }

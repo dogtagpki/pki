@@ -188,7 +188,7 @@ public class SSLClientCertAuthentication implements AuthManager {
 
                 if (status == RequestStatus.COMPLETE) {
                     String certStatus =
-                            getCertStatusReq.getExtDataInString(IRequest.CERT_STATUS);
+                            getCertStatusReq.getExtDataInString(Request.CERT_STATUS);
 
                     if (certStatus == null) {
                         String[] params = { "null status" };

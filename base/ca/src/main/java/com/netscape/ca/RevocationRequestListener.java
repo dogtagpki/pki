@@ -85,28 +85,28 @@ public class RevocationRequestListener implements IRequestListener {
 
             try {
                 crlIssuingPoint.updateCRLNow();
-                r.setExtData(crlIssuingPoint.mCrlUpdateStatus, IRequest.RES_SUCCESS);
+                r.setExtData(crlIssuingPoint.mCrlUpdateStatus, Request.RES_SUCCESS);
                 if (crlIssuingPoint.mPublisherProcessor != null) {
-                    r.setExtData(crlIssuingPoint.mCrlPublishStatus, IRequest.RES_SUCCESS);
+                    r.setExtData(crlIssuingPoint.mCrlPublishStatus, Request.RES_SUCCESS);
                 }
 
             } catch (EErrorPublishCRL e) {
                 // error already logged in updateCRLNow();
-                r.setExtData(crlIssuingPoint.mCrlUpdateStatus, IRequest.RES_SUCCESS);
+                r.setExtData(crlIssuingPoint.mCrlUpdateStatus, Request.RES_SUCCESS);
                 if (crlIssuingPoint.mPublisherProcessor != null) {
-                    r.setExtData(crlIssuingPoint.mCrlPublishStatus, IRequest.RES_ERROR);
+                    r.setExtData(crlIssuingPoint.mCrlPublishStatus, Request.RES_ERROR);
                     r.setExtData(crlIssuingPoint.mCrlPublishError, e);
                 }
 
             } catch (EBaseException e) {
                 logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()), e);
-                r.setExtData(crlIssuingPoint.mCrlUpdateStatus, IRequest.RES_ERROR);
+                r.setExtData(crlIssuingPoint.mCrlUpdateStatus, Request.RES_ERROR);
                 r.setExtData(crlIssuingPoint.mCrlUpdateError, e);
 
             } catch (Exception e) {
                 String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString());
                 logger.warn(message, e);
-                r.setExtData(crlIssuingPoint.mCrlUpdateStatus, IRequest.RES_ERROR);
+                r.setExtData(crlIssuingPoint.mCrlUpdateStatus, Request.RES_ERROR);
                 r.setExtData(crlIssuingPoint.mCrlUpdateError,
                         new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString())));
             }

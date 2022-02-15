@@ -320,7 +320,7 @@ public class CheckRequest extends CMSServlet {
             header.addStringValue("requestNotes",CMSTemplate.escapeJavaScriptStringHTML(note));
 
         String type = r.getRequestType();
-        Integer result = r.getExtDataInInteger(IRequest.RESULT);
+        Integer result = r.getExtDataInInteger(Request.RESULT);
 
         /*        if (type.equals(IRequest.ENROLLMENT_REQUEST) && (r.get("profile") != null) && status.equals(RequestStatus.COMPLETE)) {
                     X509CertImpl cert = (X509CertImpl) r.get(IEnrollProfile.REQUEST_ISSUED_CERT);
@@ -331,14 +331,14 @@ public class CheckRequest extends CMSServlet {
                     argSet.addRepeatRecord(rarg);
                 }
         */
-        String profileId = r.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = r.getExtDataInString(Request.PROFILE_ID);
         if (profileId != null) {
-            result = IRequest.RES_SUCCESS;
+            result = Request.RES_SUCCESS;
         }
         if ((type != null) && (type.equals(Request.ENROLLMENT_REQUEST) ||
                 type.equals(Request.RENEWAL_REQUEST)) && (status != null) &&
                 status.equals(RequestStatus.COMPLETE) && (result != null) &&
-                result.equals(IRequest.RES_SUCCESS)) {
+                result.equals(Request.RES_SUCCESS)) {
             Object o = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
             if (profileId != null) {

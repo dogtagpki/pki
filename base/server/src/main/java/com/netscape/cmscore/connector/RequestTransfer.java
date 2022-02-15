@@ -22,14 +22,15 @@ import java.util.Vector;
 
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.authentication.ChallengePhraseAuthentication;
+import com.netscape.cmscore.request.Request;
 
 public class RequestTransfer {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestTransfer.class);
 
     private static String[] transferAttributes = {
-            IRequest.HTTP_PARAMS,
-            IRequest.AGENT_PARAMS,
+            Request.HTTP_PARAMS,
+            Request.AGENT_PARAMS,
             IRequest.CERT_INFO,
             IRequest.ISSUED_CERTS,
             IRequest.OLD_CERTS,
@@ -38,13 +39,13 @@ public class RequestTransfer {
             IRequest.CACERTCHAIN,
             IRequest.CRL,
             IRequest.ERRORS,
-            IRequest.RESULT,
+            Request.RESULT,
             IRequest.ERROR,
-            IRequest.SVCERRORS,
-            IRequest.REMOTE_STATUS,
-            IRequest.REMOTE_REQID,
+            Request.SVCERRORS,
+            Request.REMOTE_STATUS,
+            Request.REMOTE_REQID,
             IRequest.REVOKED_CERT_RECORDS,
-            IRequest.CERT_STATUS,
+            Request.CERT_STATUS,
             ChallengePhraseAuthentication.CHALLENGE_PHRASE,
             ChallengePhraseAuthentication.SUBJECTNAME,
             ChallengePhraseAuthentication.SERIALNUMBER,
@@ -56,7 +57,7 @@ public class RequestTransfer {
     };
 
     public static boolean isProfileRequest(IRequest request) {
-        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId == null || profileId.equals(""))
             return false;

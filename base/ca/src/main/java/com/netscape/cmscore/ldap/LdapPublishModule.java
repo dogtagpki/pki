@@ -531,11 +531,11 @@ class HandleEnrollment implements IRequestListener {
         logger.debug("handling publishing for enrollment request id " + r.getRequestId());
 
         // in case it's not meant for us
-        if (r.getExtDataInInteger(IRequest.RESULT) == null)
+        if (r.getExtDataInInteger(Request.RESULT) == null)
             return;
 
         // check if request failed.
-        if ((r.getExtDataInInteger(IRequest.RESULT)).equals(IRequest.RES_ERROR)) {
+        if ((r.getExtDataInInteger(Request.RESULT)).equals(Request.RES_ERROR)) {
             logger.debug("Request errored. " +
                     "Nothing to publish for enrollment request id " +
                     r.getRequestId());
@@ -570,14 +570,14 @@ class HandleEnrollment implements IRequestListener {
                     continue;
                 mModule.publish((ILdapMapper) mappers.mapper,
                         (ILdapPublisher) mappers.publisher, certs[i]);
-                results[i] = IRequest.RES_SUCCESS;
+                results[i] = Request.RES_SUCCESS;
                 logger.debug("Published cert serial no 0x" + certs[i].getSerialNumber().toString(16));
                 mModule.setPublishedFlag(certs[i].getSerialNumber(), true);
 
             } catch (ELdapException e) {
                 logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
                                 certs[i].getSerialNumber().toString(16), e.toString()), e);
-                results[i] = IRequest.RES_ERROR;
+                results[i] = Request.RES_ERROR;
             }
             r.setExtData("ldapPublishStatus", results);
         }
@@ -633,20 +633,20 @@ class HandleRenewal implements IRequestListener {
             try {
                 mModule.publish((ILdapMapper) mappers.mapper,
                         (ILdapPublisher) mappers.publisher, cert);
-                results[i] = IRequest.RES_SUCCESS;
+                results[i] = Request.RES_SUCCESS;
                 logger.info("Published cert serial no 0x" + cert.getSerialNumber().toString(16));
 
             } catch (ELdapException e) {
                 error = true;
                 logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
                                 cert.getSerialNumber().toString(16), e.getMessage()), e);
-                results[i] = IRequest.RES_ERROR;
+                results[i] = Request.RES_ERROR;
             }
         }
 
         r.setExtData("ldapPublishStatus", results);
         r.setExtData("ldapPublishOverAllStatus",
-                (error == true ? IRequest.RES_ERROR : IRequest.RES_SUCCESS));
+                (error == true ? Request.RES_ERROR : Request.RES_SUCCESS));
     }
 }
 
@@ -697,11 +697,11 @@ class HandleRevocation implements IRequestListener {
         for (int i = 0; i < revcerts.length; i++) {
             X509CertImpl cert = revcerts[i];
 
-            results[i] = IRequest.RES_ERROR;
+            results[i] = Request.RES_ERROR;
             try {
                 mModule.unpublish((ILdapMapper) mappers.mapper,
                         (ILdapPublisher) mappers.publisher, cert);
-                results[i] = IRequest.RES_SUCCESS;
+                results[i] = Request.RES_SUCCESS;
                 logger.debug("Unpublished cert serial no 0x" + cert.getSerialNumber().toString(16));
 
             } catch (ELdapException e) {
@@ -712,7 +712,7 @@ class HandleRevocation implements IRequestListener {
         }
         r.setExtData("ldapPublishStatus", results);
         r.setExtData("ldapPublishOverAllStatus",
-                (error == true ? IRequest.RES_ERROR : IRequest.RES_SUCCESS));
+                (error == true ? Request.RES_ERROR : Request.RES_SUCCESS));
     }
 }
 
@@ -761,11 +761,11 @@ class HandleUnrevocation implements IRequestListener {
         Integer results[] = new Integer[certs.length];
 
         for (int i = 0; i < certs.length; i++) {
-            results[i] = IRequest.RES_ERROR;
+            results[i] = Request.RES_ERROR;
             try {
                 mModule.publish((ILdapMapper) mappers.mapper,
                         (ILdapPublisher) mappers.publisher, certs[i]);
-                results[i] = IRequest.RES_SUCCESS;
+                results[i] = Request.RES_SUCCESS;
                 logger.debug("Unpublished cert serial no 0x" + certs[i].getSerialNumber().toString(16));
 
             } catch (ELdapException e) {
@@ -776,7 +776,7 @@ class HandleUnrevocation implements IRequestListener {
         }
         r.setExtData("ldapPublishStatus", results);
         r.setExtData("ldapPublishOverAllStatus",
-                (error == true ? IRequest.RES_ERROR : IRequest.RES_SUCCESS));
+                (error == true ? Request.RES_ERROR : Request.RES_SUCCESS));
     }
 
 }

@@ -293,9 +293,9 @@ public class DoUnrevoke extends CMSServlet {
             if (status == RequestStatus.COMPLETE
                     || status == RequestStatus.SVC_PENDING && type.equals(Request.CLA_UNCERT4CRL_REQUEST)) {
 
-                Integer result = unrevReq.getExtDataInInteger(IRequest.RESULT);
+                Integer result = unrevReq.getExtDataInInteger(Request.RESULT);
 
-                if (result != null && result.equals(IRequest.RES_SUCCESS)) {
+                if (result != null && result.equals(Request.RES_SUCCESS)) {
                     header.addStringValue("unrevoked", "yes");
 
                 } else {
@@ -315,7 +315,7 @@ public class DoUnrevoke extends CMSServlet {
                 if (updateCRLResult != null) {
                     header.addStringValue("updateCRL", "yes");
 
-                    if (updateCRLResult.equals(IRequest.RES_SUCCESS)) {
+                    if (updateCRLResult.equals(Request.RES_SUCCESS)) {
                         header.addStringValue("updateCRLSuccess", "yes");
 
                     } else {
@@ -330,7 +330,7 @@ public class DoUnrevoke extends CMSServlet {
                     Integer publishCRLResult = unrevReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
-                        if (publishCRLResult.equals(IRequest.RES_SUCCESS)) {
+                        if (publishCRLResult.equals(Request.RES_SUCCESS)) {
                             header.addStringValue("publishCRLSuccess", "yes");
 
                         } else {
@@ -354,7 +354,7 @@ public class DoUnrevoke extends CMSServlet {
                     Integer updateResult = unrevReq.getExtDataInInteger(updateStatusStr);
 
                     if (updateResult != null) {
-                        if (updateResult.equals(IRequest.RES_SUCCESS)) {
+                        if (updateResult.equals(Request.RES_SUCCESS)) {
                             logger.debug("DoUnrevoke: adding header " + updateStatusStr + " yes");
                             header.addStringValue(updateStatusStr, "yes");
 
@@ -375,7 +375,7 @@ public class DoUnrevoke extends CMSServlet {
                         if (publishResult == null)
                             continue;
 
-                        if (publishResult.equals(IRequest.RES_SUCCESS)) {
+                        if (publishResult.equals(Request.RES_SUCCESS)) {
                             header.addStringValue(publishStatusStr, "yes");
 
                         } else {
@@ -394,7 +394,7 @@ public class DoUnrevoke extends CMSServlet {
                     Integer[] ldapPublishStatus = unrevReq.getExtDataInIntegerArray("ldapPublishStatus");
 
                     if (ldapPublishStatus != null) {
-                        if (ldapPublishStatus[0] == IRequest.RES_SUCCESS) {
+                        if (ldapPublishStatus[0] == Request.RES_SUCCESS) {
                             header.addStringValue("dirUpdated", "yes");
                         } else {
                             header.addStringValue("dirUpdated", "no");

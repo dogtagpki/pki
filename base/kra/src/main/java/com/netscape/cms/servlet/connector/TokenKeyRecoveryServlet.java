@@ -212,7 +212,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             //	    IService svc = (IService) new TokenKeyRecoveryService(kra);
             //	    svc.serviceRequest(thisreq);
 
-            Integer result = thisreq.getExtDataInInteger(IRequest.RESULT);
+            Integer result = thisreq.getExtDataInInteger(Request.RESULT);
             if (result != null) {
                 // sighs!  tps thinks 0 is good, and drm thinks 1 is good
                 if (result.intValue() == 1)

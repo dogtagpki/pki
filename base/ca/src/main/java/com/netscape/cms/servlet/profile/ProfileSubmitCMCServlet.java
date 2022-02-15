@@ -82,6 +82,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This servlet submits end-user request into the profile framework.
@@ -716,7 +717,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     if (vals != null) {
                         for (int i = 0; i < vals.length; i++) {
                             reqs[k].setExtData(
-                                IRequest.AUTH_TOKEN_PREFIX
+                                Request.AUTH_TOKEN_PREFIX
                                     + "." + tokenName + "[" + i + "]",
                                 vals[i]);
                         }
@@ -724,7 +725,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                         String val = authToken.getInString(tokenName);
                         if (val != null) {
                             reqs[k].setExtData(
-                                IRequest.AUTH_TOKEN_PREFIX + "." + tokenName,
+                                Request.AUTH_TOKEN_PREFIX + "." + tokenName,
                                 val);
                         }
                     }

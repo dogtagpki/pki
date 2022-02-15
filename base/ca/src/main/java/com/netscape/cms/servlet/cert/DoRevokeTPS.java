@@ -562,11 +562,11 @@ public class DoRevokeTPS extends CMSServlet {
             if ((stat == RequestStatus.COMPLETE)
                     || ((type.equals(Request.CLA_CERT4CRL_REQUEST)) && (stat == RequestStatus.SVC_PENDING))) {
                 // audit log the error
-                Integer result = revReq.getExtDataInInteger(IRequest.RESULT);
+                Integer result = revReq.getExtDataInInteger(Request.RESULT);
 
-                if (result.equals(IRequest.RES_ERROR)) {
+                if (result.equals(Request.RES_ERROR)) {
                     String[] svcErrors =
-                            revReq.getExtDataInStringArray(IRequest.SVCERRORS);
+                            revReq.getExtDataInStringArray(Request.SVCERRORS);
 
                     if (svcErrors != null && svcErrors.length > 0) {
                         for (int i = 0; i < svcErrors.length; i++) {
@@ -639,7 +639,7 @@ public class DoRevokeTPS extends CMSServlet {
                         revReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
 
                 if (updateCRLResult != null) {
-                    if (!updateCRLResult.equals(IRequest.RES_SUCCESS)) {
+                    if (!updateCRLResult.equals(Request.RES_SUCCESS)) {
 
                         o_status = "status=3";
                         if (revReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR) != null) {
@@ -652,7 +652,7 @@ public class DoRevokeTPS extends CMSServlet {
                             revReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
-                        if (!publishCRLResult.equals(IRequest.RES_SUCCESS)) {
+                        if (!publishCRLResult.equals(Request.RES_SUCCESS)) {
                             String publError =
                                     revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
 
@@ -675,7 +675,7 @@ public class DoRevokeTPS extends CMSServlet {
                         Integer updateResult = revReq.getExtDataInInteger(updateStatusStr);
 
                         if (updateResult != null) {
-                            if (!updateResult.equals(IRequest.RES_SUCCESS)) {
+                            if (!updateResult.equals(Request.RES_SUCCESS)) {
                                 String updateErrorStr = crl.getCrlUpdateErrorStr();
 
                                 logger.debug("DoRevoke: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
@@ -694,7 +694,7 @@ public class DoRevokeTPS extends CMSServlet {
 
                             if (publishResult == null)
                                 continue;
-                            if (!publishResult.equals(IRequest.RES_SUCCESS)) {
+                            if (!publishResult.equals(Request.RES_SUCCESS)) {
                                 String publishErrorStr =
                                         crl.getCrlPublishErrorStr();
 

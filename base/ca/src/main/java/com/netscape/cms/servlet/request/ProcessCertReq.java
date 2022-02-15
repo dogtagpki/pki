@@ -81,6 +81,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
@@ -739,7 +740,7 @@ public class ProcessCertReq extends CMSServlet {
 
                                 if (mExtraAgentParams) {
                                     Enumeration<String> extraparams = req.getParameterNames();
-                                    int l = IRequest.AGENT_PARAMS.length() + 1;
+                                    int l = Request.AGENT_PARAMS.length() + 1;
                                     int ap_counter = 0;
                                     Hashtable<String, String> agentparamsargblock = new Hashtable<>();
 
@@ -747,7 +748,7 @@ public class ProcessCertReq extends CMSServlet {
                                         while (extraparams.hasMoreElements()) {
                                             String s = extraparams.nextElement();
 
-                                            if (s.startsWith(IRequest.AGENT_PARAMS)) {
+                                            if (s.startsWith(Request.AGENT_PARAMS)) {
                                                 String param_value = req.getParameter(s);
 
                                                 if (param_value != null) {
@@ -760,7 +761,7 @@ public class ProcessCertReq extends CMSServlet {
                                         }
                                     }
                                     if (ap_counter > 0) {
-                                        r.setExtData(IRequest.AGENT_PARAMS, agentparamsargblock);
+                                        r.setExtData(Request.AGENT_PARAMS, agentparamsargblock);
                                         alterationCounter++;
                                     }
                                 }
@@ -991,7 +992,7 @@ public class ProcessCertReq extends CMSServlet {
 
                             if (ldapPublishStatus != null) {
                                 for (int i = 0; i < ldapPublishStatus.length; i++) {
-                                    if (ldapPublishStatus[i] == IRequest.RES_SUCCESS) {
+                                    if (ldapPublishStatus[i] == Request.RES_SUCCESS) {
                                         certsUpdated++;
                                     }
                                 }
@@ -1167,7 +1168,7 @@ public class ProcessCertReq extends CMSServlet {
 
             header.addBigIntegerValue("seqNum", seqNum, 10);
             mParser.fillRequestIntoArg(locale, r, argSet, header);
-            String rid = r.getExtDataInString(IRequest.REMOTE_REQID);
+            String rid = r.getExtDataInString(Request.REMOTE_REQID);
 
             if (rid != null)
                 header.addStringValue("remoteReqID", rid);

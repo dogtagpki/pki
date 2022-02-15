@@ -51,6 +51,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -365,7 +366,7 @@ public class SecurityDataProcessor {
                 null));
 
         request.setExtData(ATTR_KEY_RECORD, serialNo);
-        request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+        request.setExtData(Request.RESULT, Request.RES_SUCCESS);
         return true;
     }
 
@@ -708,7 +709,7 @@ public class SecurityDataProcessor {
         jssSubsystem.obscureBytes(unwrappedSecData);
 
         params.put(IRequest.SECURITY_DATA_TYPE, dataType);
-        request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+        request.setExtData(Request.RESULT, Request.RES_SUCCESS);
 
         return false; //return true ? TODO
     }

@@ -57,8 +57,8 @@ public class CertRequestInfoFactory {
         reqBuilder.path(certRequestPath.value());
         info.setRequestURL(reqBuilder.build(requestId).toString());
 
-        Integer result = request.getExtDataInInteger(IRequest.RESULT);
-        if (result == null || result.equals(IRequest.RES_SUCCESS)) {
+        Integer result = request.getExtDataInInteger(Request.RESULT);
+        if (result == null || result.equals(Request.RES_SUCCESS)) {
             info.setOperationResult(CertRequestInfo.RES_SUCCESS);
         } else {
             info.setOperationResult(CertRequestInfo.RES_ERROR);

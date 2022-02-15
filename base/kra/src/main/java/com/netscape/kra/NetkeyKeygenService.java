@@ -66,6 +66,7 @@ import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -245,7 +246,7 @@ public class NetkeyKeygenService implements IService {
         CryptoToken keygenToken = mKRA.getKeygenToken();
         if (keygenToken == null) {
             logger.warn("NetkeyKeygenService: failed getting keygenToken");
-            request.setExtData(IRequest.RESULT, Integer.valueOf(10));
+            request.setExtData(Request.RESULT, Integer.valueOf(10));
             return false;
         } else
             logger.debug("NetkeyKeygenService: got keygenToken");
@@ -277,7 +278,7 @@ public class NetkeyKeygenService implements IService {
 
             if (keypair == null) {
                 logger.warn("NetkeyKeygenService: failed generating key pair for " + rCUID + ":" + rUserid);
-                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                request.setExtData(Request.RESULT, Integer.valueOf(4));
 
                 audit(new ServerSideKeyGenProcessedEvent(
                         agentId,
@@ -295,7 +296,7 @@ public class NetkeyKeygenService implements IService {
             try {
                 publicKeyData = keypair.getPublic().getEncoded();
                 if (publicKeyData == null) {
-                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    request.setExtData(Request.RESULT, Integer.valueOf(4));
                     logger.warn("NetkeyKeygenService: failed getting publickey encoded");
                     return false;
                 } else {
@@ -323,7 +324,7 @@ public class NetkeyKeygenService implements IService {
                 privKey = keypair.getPrivate();
 
                 if (privKey == null) {
-                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    request.setExtData(Request.RESULT, Integer.valueOf(4));
                     logger.warn("NetkeyKeygenService: failed getting private key");
                     return false;
                 } else {
@@ -337,7 +338,7 @@ public class NetkeyKeygenService implements IService {
                     logger.debug("NetkeyKeygenService: received DES key");
                 } catch (Exception e) {
                     logger.warn("NetkeyKeygenService: no DES key: " + e);
-                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    request.setExtData(Request.RESULT, Integer.valueOf(4));
                     return false;
                 }
 
@@ -370,7 +371,7 @@ public class NetkeyKeygenService implements IService {
                 String wrappedPrivKeyString = /*base64Encode(wrapped);*/
                 org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(wrapped);
                 if (wrappedPrivKeyString == null) {
-                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    request.setExtData(Request.RESULT, Integer.valueOf(4));
                     logger.warn("NetkeyKeygenService: failed generating wrapped private key");
                     audit(new SecurityDataExportEvent(
                             agentId,
@@ -398,7 +399,7 @@ public class NetkeyKeygenService implements IService {
 
             } catch (Exception e) {
                 logger.warn("NetkeyKeygenService: " + e.getMessage(), e);
-                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                request.setExtData(Request.RESULT, Integer.valueOf(4));
                 return false;
             }
 
@@ -437,7 +438,7 @@ public class NetkeyKeygenService implements IService {
                         privateKeyData = mStorageUnit.wrap((org.mozilla.jss.crypto.PrivateKey) privKey, params);
 
                     } catch (Exception e) {
-                        request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                        request.setExtData(Request.RESULT, Integer.valueOf(4));
                         throw new Exception("Unable to wrap private key with storage key", e);
                     }
 
@@ -457,7 +458,7 @@ public class NetkeyKeygenService implements IService {
                             rec.setKeySize(Integer.valueOf(rsaPublicKey.getKeySize()));
 
                         } catch (InvalidKeyException e) {
-                            request.setExtData(IRequest.RESULT, Integer.valueOf(11));
+                            request.setExtData(Request.RESULT, Integer.valueOf(11));
                             throw new Exception("Invalid RSA public key", e);
                         }
 
@@ -500,7 +501,7 @@ public class NetkeyKeygenService implements IService {
                     BigInteger serialNo = storage.getNextSerialNumber();
 
                     if (serialNo == null) {
-                        request.setExtData(IRequest.RESULT, Integer.valueOf(11));
+                        request.setExtData(Request.RESULT, Integer.valueOf(11));
                         throw new Exception("Unable to generate next serial number");
                     }
 
@@ -521,7 +522,7 @@ public class NetkeyKeygenService implements IService {
                             PubKey));
                 } //if archive
 
-                request.setExtData(IRequest.RESULT, Integer.valueOf(1));
+                request.setExtData(Request.RESULT, Integer.valueOf(1));
 
             } catch (Exception e) {
                 logger.warn("NetkeyKeygenService: " + e.getMessage(), e);
@@ -535,17 +536,17 @@ public class NetkeyKeygenService implements IService {
                         e.toString(),
                         PubKey));
 
-                Integer result = request.getExtDataInInteger(IRequest.RESULT);
+                Integer result = request.getExtDataInInteger(Request.RESULT);
                 if (result == null) {
                     // set default RESULT code
-                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    request.setExtData(Request.RESULT, Integer.valueOf(4));
                 }
 
                 return false;
             }
 
         } else
-            request.setExtData(IRequest.RESULT, Integer.valueOf(2));
+            request.setExtData(Request.RESULT, Integer.valueOf(2));
 
         return true;
     } //serviceRequest

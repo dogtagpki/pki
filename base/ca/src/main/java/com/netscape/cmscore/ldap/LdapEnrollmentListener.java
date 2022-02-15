@@ -29,6 +29,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 public class LdapEnrollmentListener implements IRequestListener {
 
@@ -53,16 +54,16 @@ public class LdapEnrollmentListener implements IRequestListener {
 
         logger.info("LdapEnrollmentListener: Handling enrollment request " + r.getRequestId());
 
-        String profileId = r.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = r.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId == null) {
             // in case it's not meant for us
-            if (r.getExtDataInInteger(IRequest.RESULT) == null) {
+            if (r.getExtDataInInteger(Request.RESULT) == null) {
                 return;
             }
 
             // check if request failed.
-            if ((r.getExtDataInInteger(IRequest.RESULT)).equals(IRequest.RES_ERROR)) {
+            if ((r.getExtDataInInteger(Request.RESULT)).equals(Request.RES_ERROR)) {
                 logger.warn("LdapEnrollmentListener: Nothing to publish for enrollment request " + r.getRequestId());
                 return;
             }
@@ -93,7 +94,7 @@ public class LdapEnrollmentListener implements IRequestListener {
     public void acceptX509(IRequest r, Certificate[] certs) {
 
         Integer[] results = new Integer[certs.length];
-        Integer status = IRequest.RES_SUCCESS;
+        Integer status = Request.RES_SUCCESS;
 
         for (int i = 0; i < certs.length; i++) {
 
@@ -105,15 +106,15 @@ public class LdapEnrollmentListener implements IRequestListener {
 
             try {
                 processor.publishCert(xcert, r);
-                results[i] = IRequest.RES_SUCCESS;
+                results[i] = Request.RES_SUCCESS;
 
                 logger.debug("LdapEnrollmentListener: Published cert 0x" + xcert.getSerialNumber().toString(16));
                 // processor.setPublishedFlag(xcert.getSerialNumber(), true);
 
             } catch (ELdapException e) {
                 logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH", xcert.getSerialNumber().toString(16), e.toString()), e);
-                results[i] = IRequest.RES_ERROR;
-                status = IRequest.RES_ERROR;
+                results[i] = Request.RES_ERROR;
+                status = Request.RES_ERROR;
             }
         }
 

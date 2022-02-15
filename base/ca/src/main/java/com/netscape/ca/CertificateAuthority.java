@@ -1944,8 +1944,8 @@ public class CertificateAuthority
         IRequest[] requests = (IRequest[]) resultMap.get(CAProcessor.ARG_REQUESTS);
         IRequest request = requests[0];
 
-        Integer result = request.getExtDataInInteger(IRequest.RESULT);
-        if (result != null && !result.equals(IRequest.RES_SUCCESS)) {
+        Integer result = request.getExtDataInInteger(com.netscape.cmscore.request.Request.RESULT);
+        if (result != null && !result.equals(com.netscape.cmscore.request.Request.RES_SUCCESS)) {
             throw new EBaseException("Unable to generate signing certificate: " + result);
         }
 
@@ -2005,8 +2005,8 @@ public class CertificateAuthority
             processor.processRenewal(req, httpReq, null);
         IRequest requests[] = (IRequest[]) resultMap.get(CAProcessor.ARG_REQUESTS);
         IRequest request = requests[0];
-        Integer result = request.getExtDataInInteger(IRequest.RESULT);
-        if (result != null && !result.equals(IRequest.RES_SUCCESS))
+        Integer result = request.getExtDataInInteger(com.netscape.cmscore.request.Request.RESULT);
+        if (result != null && !result.equals(com.netscape.cmscore.request.Request.RES_SUCCESS))
             throw new EBaseException("renewAuthority: certificate renewal submission resulted in error: " + result);
         RequestStatus requestStatus = request.getRequestStatus();
         if (requestStatus != RequestStatus.COMPLETE)

@@ -48,6 +48,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -247,7 +248,7 @@ public class SymKeyGenService implements IService {
         auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
                 clientKeyId, new KeyId(serialNo), "None");
 
-        request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+        request.setExtData(Request.RESULT, Request.RES_SUCCESS);
         engine.getRequestQueue().updateRequest(request);
 
         return true;

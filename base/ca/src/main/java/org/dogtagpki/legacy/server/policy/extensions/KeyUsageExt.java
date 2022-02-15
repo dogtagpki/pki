@@ -40,6 +40,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Policy to add Key Usage Extension.
@@ -355,7 +356,7 @@ public class KeyUsageExt extends APolicyRule
 
     private boolean getBit(String usage, String choice, IRequest req) {
         if (choice.equals(HTTP_INPUT)) {
-            choice = req.getExtDataInString(IRequest.HTTP_PARAMS, usage);
+            choice = req.getExtDataInString(Request.HTTP_PARAMS, usage);
             if (choice == null)
                 choice = "false";
         }

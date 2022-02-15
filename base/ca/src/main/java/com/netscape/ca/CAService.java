@@ -320,7 +320,7 @@ public class CAService implements ICAService, IService {
     }
 
     public boolean isProfileRequest(IRequest request) {
-        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = request.getExtDataInString(Request.PROFILE_ID);
         return !(profileId == null || profileId.equals(""));
     }
 
@@ -334,7 +334,7 @@ public class CAService implements ICAService, IService {
         logger.debug("CAService: serviceProfileRequest requestId=" +
                 request.getRequestId().toString());
 
-        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId == null || profileId.equals("")) {
             throw new EBaseException("profileId not found");
@@ -391,7 +391,7 @@ public class CAService implements ICAService, IService {
                 logger.debug("CAService: x0 requestStatus="
                         + request.getRequestStatus().toString() + " instance=" + request);
                 serviceProfileRequest(request);
-                request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+                request.setExtData(Request.RESULT, Request.RES_SUCCESS);
                 logger.debug("CAService: x1 requestStatus=" + request.getRequestStatus().toString());
 
                 return true;
@@ -399,7 +399,7 @@ public class CAService implements ICAService, IService {
                 logger.debug("CAService: x2 requestStatus=" + request.getRequestStatus().toString());
                 // need to put error into the request
                 logger.debug("CAService: serviceRequest " + e.toString());
-                request.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
+                request.setExtData(Request.RESULT, Request.RES_ERROR);
                 request.setExtData(IRequest.ERROR, e.toString());
 
                 // TODO(alee) New audit message needed here
@@ -413,7 +413,7 @@ public class CAService implements ICAService, IService {
 
         if (servant == null) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_INVALID_REQUEST_TYPE", type));
-            request.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
+            request.setExtData(Request.RESULT, Request.RES_ERROR);
             request.setExtData(IRequest.ERROR,
                     new ECAException(CMS.getUserMessage("CMS_CA_UNRECOGNIZED_REQUEST_TYPE", type)));
 
@@ -440,8 +440,8 @@ public class CAService implements ICAService, IService {
                 if (mArchivalRequired) {
                     if (!sendStatus) {
                         String message = CMS.getUserMessage("CMS_CA_SEND_KRA_REQUEST");
-                        request.setExtData(IRequest.RESULT,
-                                IRequest.RES_ERROR);
+                        request.setExtData(Request.RESULT,
+                                Request.RES_ERROR);
                         request.setExtData(IRequest.ERROR, new ECAException(message));
 
                         signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
@@ -454,7 +454,7 @@ public class CAService implements ICAService, IService {
                         return true;
                     }
                     if (request.getExtDataInString(IRequest.ERROR) != null) {
-                        request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+                        request.setExtData(Request.RESULT, Request.RES_SUCCESS);
                         request.deleteExtData(IRequest.ERROR);
                     }
 
@@ -476,9 +476,9 @@ public class CAService implements ICAService, IService {
             }
 
             completed = servant.service(request);
-            request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+            request.setExtData(Request.RESULT, Request.RES_SUCCESS);
         } catch (EBaseException e) {
-            request.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
+            request.setExtData(Request.RESULT, Request.RES_ERROR);
             request.setExtData(IRequest.ERROR, e);
 
             if (!(type.equals(Request.REVOCATION_REQUEST) ||
@@ -516,7 +516,7 @@ public class CAService implements ICAService, IService {
      */
     private boolean isPKIArchiveOptionPresent(IRequest request) {
         String crmfBlob = request.getExtDataInString(
-                IRequest.HTTP_PARAMS, CRMF_REQUEST);
+                Request.HTTP_PARAMS, CRMF_REQUEST);
 
         if (crmfBlob == null) {
             logger.debug("CRMF not found");
@@ -1537,7 +1537,7 @@ class serviceRenewal implements IServant {
         for (l = svcerrors.length - 1; l >= 0 && svcerrors[l] == null; l--)
             ;
         if (l >= 0) {
-            request.setExtData(IRequest.SVCERRORS, svcerrors);
+            request.setExtData(Request.SVCERRORS, svcerrors);
             logger.error(CMS.getLogMessage("CMSCORE_CA_NO_RENEW", request.getRequestId().toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_RENEW_FAILED"));
         }
@@ -1616,7 +1616,7 @@ class getCertStatus implements IServant {
             }
         }
 
-        request.setExtData(IRequest.CERT_STATUS, status);
+        request.setExtData(Request.CERT_STATUS, status);
         return true;
     }
 }
@@ -1802,11 +1802,11 @@ class serviceRevoke implements IServant {
             request.setRequestType(Request.CLA_CERT4CRL_REQUEST);
             sendStatus = CAService.mCLAConnector.send(request);
             if (sendStatus && request.getExtDataInString(IRequest.ERROR) != null) {
-                request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+                request.setExtData(Request.RESULT, Request.RES_SUCCESS);
                 request.deleteExtData(IRequest.ERROR);
             } else {
-                request.setExtData(IRequest.RESULT,
-                        IRequest.RES_ERROR);
+                request.setExtData(Request.RESULT,
+                        Request.RES_ERROR);
                 request.setExtData(IRequest.ERROR,
                         new ECAException(CMS.getUserMessage("CMS_CA_SEND_CLA_REQUEST")));
                 return sendStatus;
@@ -1817,7 +1817,7 @@ class serviceRevoke implements IServant {
         }
 
         if (svcerrors != null) {
-            request.setExtData(IRequest.SVCERRORS, svcerrors);
+            request.setExtData(Request.SVCERRORS, svcerrors);
             throw new ECAException(CMS.getUserMessage("CMS_CA_REVOKE_FAILED"));
         }
 
@@ -1890,11 +1890,11 @@ class serviceUnrevoke implements IServant {
             request.setRequestType(Request.CLA_UNCERT4CRL_REQUEST);
             sendStatus = CAService.mCLAConnector.send(request);
             if (sendStatus && request.getExtDataInString(IRequest.ERROR) != null) {
-                request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+                request.setExtData(Request.RESULT, Request.RES_SUCCESS);
                 request.deleteExtData(IRequest.ERROR);
             } else {
-                request.setExtData(IRequest.RESULT,
-                        IRequest.RES_ERROR);
+                request.setExtData(Request.RESULT,
+                        Request.RES_ERROR);
                 request.setExtData(IRequest.ERROR,
                         new ECAException(CMS.getUserMessage("CMS_CA_SEND_CLA_REQUEST")));
                 return sendStatus;
@@ -1907,7 +1907,7 @@ class serviceUnrevoke implements IServant {
         }
 
         if (svcerrors != null) {
-            request.setExtData(IRequest.SVCERRORS, svcerrors);
+            request.setExtData(Request.SVCERRORS, svcerrors);
             throw new ECAException(CMS.getUserMessage("CMS_CA_UNREVOKE_FAILED"));
         }
 
@@ -2123,7 +2123,7 @@ class serviceCert4Crl implements IServant {
         //need to record which gets recorded and which failed...cfu
         //		request.set(IRequest.REVOKED_CERTS, revokedCerts);
         if (svcerrors != null) {
-            request.setExtData(IRequest.SVCERRORS, svcerrors);
+            request.setExtData(Request.SVCERRORS, svcerrors);
             throw new ECAException(CMS.getUserMessage("CMS_CA_CERT4CRL_FAILED"));
         }
 
@@ -2177,7 +2177,7 @@ class serviceUnCert4Crl implements IServant {
         }
 
         if (svcerrors != null) {
-            request.setExtData(IRequest.SVCERRORS, svcerrors);
+            request.setExtData(Request.SVCERRORS, svcerrors);
             throw new ECAException(CMS.getUserMessage("CMS_CA_UNCERT4CRL_FAILED"));
         }
 

@@ -29,6 +29,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.Request;
 
 /**
  * XXX Just inherit 'GenericPolicyProcessor' (from RA) for now.
@@ -83,7 +84,7 @@ public class CAPolicy implements IPolicy {
     }
 
     public boolean isProfileRequest(IRequest request) {
-        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId == null || profileId.equals(""))
             return false;
@@ -113,7 +114,7 @@ public class CAPolicy implements IPolicy {
             logger.debug("CAPolicy: requestId=" +
                     r.getRequestId().toString());
 
-            String profileId = r.getExtDataInString(IRequest.PROFILE_ID);
+            String profileId = r.getExtDataInString(Request.PROFILE_ID);
 
             if (profileId == null || profileId.equals("")) {
                 return PolicyResult.REJECTED;

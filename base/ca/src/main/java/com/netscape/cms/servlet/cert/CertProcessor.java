@@ -53,6 +53,7 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.tomcat.ExternalPrincipal;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 public class CertProcessor extends CAProcessor {
@@ -135,7 +136,7 @@ public class CertProcessor extends CAProcessor {
             if (tokenVals != null) {
                 for (int i = 0; i < tokenVals.length; i++) {
                     req.setExtData(
-                        IRequest.AUTH_TOKEN_PREFIX
+                        Request.AUTH_TOKEN_PREFIX
                             + "." + tokenName + "[" + i + "]"
                         , tokenVals[i]);
                 }
@@ -143,7 +144,7 @@ public class CertProcessor extends CAProcessor {
                 String tokenVal = authToken.getInString(tokenName);
                 if (tokenVal != null) {
                     req.setExtData(
-                        IRequest.AUTH_TOKEN_PREFIX + "." + tokenName,
+                        Request.AUTH_TOKEN_PREFIX + "." + tokenName,
                         tokenVal);
                 }
             }
@@ -158,7 +159,7 @@ public class CertProcessor extends CAProcessor {
                     ((ExternalPrincipal) principal).getAttributes();
                 for (String k : m.keySet()) {
                     req.setExtData(
-                        IRequest.AUTH_TOKEN_PREFIX
+                        Request.AUTH_TOKEN_PREFIX
                             + "." + "PRINCIPAL"
                             + "." + k
                         , m.get(k).toString()
@@ -364,7 +365,7 @@ public class CertProcessor extends CAProcessor {
 
             // put profile framework parameters into the request
             req.setExtData(ARG_PROFILE, "true");
-            req.setExtData(IRequest.PROFILE_ID, profileId);
+            req.setExtData(Request.PROFILE_ID, profileId);
             if (isRenewal)
                 req.setExtData(ARG_RENEWAL_PROFILE_ID, data.getProfileId());
             req.setExtData(ARG_PROFILE_APPROVED_BY, profile.getApprovedBy());

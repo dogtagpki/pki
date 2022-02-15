@@ -23,6 +23,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.Request;
 
 /**
  * KRA connector servlet
@@ -41,7 +42,7 @@ public class KRAConnectorServlet extends ConnectorServlet {
         CAEngine engine = CAEngine.getInstance();
         ProfileSubsystem ps = engine.getProfileSubsystem();
 
-        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = request.getExtDataInString(Request.PROFILE_ID);
         EnrollProfile profile = null;
 
         try {

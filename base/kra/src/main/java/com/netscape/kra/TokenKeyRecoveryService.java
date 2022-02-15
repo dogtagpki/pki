@@ -64,6 +64,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -275,11 +276,11 @@ public class TokenKeyRecoveryService implements IService {
                 logger.debug("TokenKeyRecoveryService: received des key");
             } catch (Exception e) {
                 logger.debug("TokenKeyRecoveryService: no des key");
-                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                request.setExtData(Request.RESULT, Integer.valueOf(4));
             }
         } else {
             logger.warn("TokenKeyRecoveryService: not receive des key");
-            request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+            request.setExtData(Request.RESULT, Integer.valueOf(4));
             audit(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
@@ -298,7 +299,7 @@ public class TokenKeyRecoveryService implements IService {
         /* have to have at least one */
         if ((cert_s == null) && (keyid_s == null)) {
             logger.warn("TokenKeyRecoveryService: not receive cert or keyid");
-            request.setExtData(IRequest.RESULT, Integer.valueOf(3));
+            request.setExtData(Request.RESULT, Integer.valueOf(3));
             audit(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
@@ -318,7 +319,7 @@ public class TokenKeyRecoveryService implements IService {
                 x509cert = Cert.mapCert(cert);
                 if (x509cert == null) {
                     logger.warn("cert mapping failed");
-                    request.setExtData(IRequest.RESULT, Integer.valueOf(5));
+                    request.setExtData(Request.RESULT, Integer.valueOf(5));
                     audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
@@ -330,7 +331,7 @@ public class TokenKeyRecoveryService implements IService {
                 }
             } catch (IOException e) {
                 logger.warn("TokenKeyRecoveryService: mapCert failed");
-                request.setExtData(IRequest.RESULT, Integer.valueOf(6));
+                request.setExtData(Request.RESULT, Integer.valueOf(6));
                 audit(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
@@ -368,7 +369,7 @@ public class TokenKeyRecoveryService implements IService {
                     logger.debug("read key record");
                 else {
                     logger.warn("key record not found");
-                    request.setExtData(IRequest.RESULT, Integer.valueOf(8));
+                    request.setExtData(Request.RESULT, Integer.valueOf(8));
                     audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
@@ -380,7 +381,7 @@ public class TokenKeyRecoveryService implements IService {
                 }
             } catch (Exception e) {
                 logger.warn("TokenKeyRecoveryService: " + e.getMessage(), e);
-                request.setExtData(IRequest.RESULT, Integer.valueOf(9));
+                request.setExtData(Request.RESULT, Integer.valueOf(9));
                 audit(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
@@ -454,7 +455,7 @@ public class TokenKeyRecoveryService implements IService {
                 byte privateKeyData[] = null;
                 privateKeyData = recoverKey(params, keyRecord);
                 if (privateKeyData == null) {
-                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    request.setExtData(Request.RESULT, Integer.valueOf(4));
                     logger.warn("TokenKeyRecoveryService: failed getting private key");
                     audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
@@ -514,7 +515,7 @@ public class TokenKeyRecoveryService implements IService {
             } else { //encrypted == false
                 PrivateKey privKey = recoverKey(params, keyRecord, allowEncDecrypt_recovery);
                 if (privKey == null) {
-                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    request.setExtData(Request.RESULT, Integer.valueOf(4));
                     logger.warn("TokenKeyRecoveryService: failed getting private key");
                     audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
@@ -543,7 +544,7 @@ public class TokenKeyRecoveryService implements IService {
                 org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(wrapped);
 
             if (wrappedPrivKeyString == null) {
-                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                request.setExtData(Request.RESULT, Integer.valueOf(4));
                 logger.warn("TokenKeyRecoveryService: failed generating wrapped private key");
                 audit(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
@@ -557,7 +558,7 @@ public class TokenKeyRecoveryService implements IService {
                 logger.debug("TokenKeyRecoveryService: got private key data wrapped");
                 request.setExtData("wrappedUserPrivate",
                         wrappedPrivKeyString);
-                request.setExtData(IRequest.RESULT, Integer.valueOf(1));
+                request.setExtData(Request.RESULT, Integer.valueOf(1));
                 logger.debug("TokenKeyRecoveryService: key for " + rCUID + ":" + rUserid + " recovered");
             }
 
@@ -580,7 +581,7 @@ public class TokenKeyRecoveryService implements IService {
                     PubKey));
 
             if (PubKey == null) {
-                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                request.setExtData(Request.RESULT, Integer.valueOf(4));
                 logger.warn("TokenKeyRecoveryService: failed getting publickey encoded");
                 audit(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
@@ -608,7 +609,7 @@ public class TokenKeyRecoveryService implements IService {
 
         } catch (Exception e) {
             logger.warn("TokenKeyRecoveryService: " + e.getMessage(), e);
-            request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+            request.setExtData(Request.RESULT, Integer.valueOf(4));
         }
 
         return true;

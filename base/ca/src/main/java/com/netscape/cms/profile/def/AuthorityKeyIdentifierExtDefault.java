@@ -36,6 +36,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements an enrollment default policy
@@ -174,7 +175,7 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
         CertificateAuthority ca = engine.getCA();
 
         String aidString = request.getExtDataInString(
-                IRequest.AUTHORITY_ID);
+                Request.AUTHORITY_ID);
 
         if (aidString != null)
             ca = engine.getCA(new AuthorityID(aidString));

@@ -516,7 +516,7 @@ public class DoRevoke extends CMSServlet {
 
                 if (updateCRLResult != null) {
                     header.addStringValue("updateCRL", "yes");
-                    if (updateCRLResult.equals(IRequest.RES_SUCCESS)) {
+                    if (updateCRLResult.equals(Request.RES_SUCCESS)) {
                         header.addStringValue("updateCRLSuccess", "yes");
                     } else {
                         header.addStringValue("updateCRLSuccess", "no");
@@ -530,7 +530,7 @@ public class DoRevoke extends CMSServlet {
                     Integer publishCRLResult = revReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
-                        if (publishCRLResult.equals(IRequest.RES_SUCCESS)) {
+                        if (publishCRLResult.equals(Request.RES_SUCCESS)) {
                             header.addStringValue("publishCRLSuccess", "yes");
                         } else {
                             header.addStringValue("publishCRLSuccess", "no");
@@ -554,7 +554,7 @@ public class DoRevoke extends CMSServlet {
                         Integer updateResult = revReq.getExtDataInInteger(updateStatusStr);
 
                         if (updateResult != null) {
-                            if (updateResult.equals(IRequest.RES_SUCCESS)) {
+                            if (updateResult.equals(Request.RES_SUCCESS)) {
                                 logger.debug("DoRevoke: "
                                         + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER", updateStatusStr));
                                 header.addStringValue(updateStatusStr, "yes");
@@ -577,7 +577,7 @@ public class DoRevoke extends CMSServlet {
                             if (publishResult == null)
                                 continue;
 
-                            if (publishResult.equals(IRequest.RES_SUCCESS)) {
+                            if (publishResult.equals(Request.RES_SUCCESS)) {
                                 header.addStringValue(publishStatusStr, "yes");
 
                             } else {
@@ -601,7 +601,7 @@ public class DoRevoke extends CMSServlet {
                     if (ldapPublishStatus != null) {
                         certsToUpdate = ldapPublishStatus.length;
                         for (int i = 0; i < certsToUpdate; i++) {
-                            if (ldapPublishStatus[i] == IRequest.RES_SUCCESS) {
+                            if (ldapPublishStatus[i] == Request.RES_SUCCESS) {
                                 certsUpdated++;
                             }
                         }

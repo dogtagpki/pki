@@ -323,16 +323,16 @@ public class RenewalServlet extends CMSServlet {
         }
 
         // service error
-        Integer result = req.getExtDataInInteger(IRequest.RESULT);
+        Integer result = req.getExtDataInInteger(Request.RESULT);
 
         logger.debug("RenewalServlet: Result for request " + req.getRequestId() + " is " + result);
-        if (result.equals(IRequest.RES_ERROR)) {
+        if (result.equals(Request.RES_ERROR)) {
             logger.debug("RenewalServlet: Result for request " + req.getRequestId() + " is error.");
 
             cmsReq.setStatus(ICMSRequest.ERROR);
             cmsReq.setError(req.getExtDataInString(IRequest.ERROR));
             String[] svcErrors =
-                    req.getExtDataInStringArray(IRequest.SVCERRORS);
+                    req.getExtDataInStringArray(Request.SVCERRORS);
 
             if (svcErrors != null && svcErrors.length > 0) {
                 for (int i = 0; i < svcErrors.length; i++) {

@@ -104,6 +104,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.Group;
@@ -987,7 +988,7 @@ public abstract class CMSServlet extends HttpServlet {
                 headers.put(hdr, val);
             }
         }
-        req.setExtData(IRequest.HTTP_HEADERS, headers);
+        req.setExtData(Request.HTTP_HEADERS, headers);
     }
 
     /**
@@ -1021,7 +1022,7 @@ public abstract class CMSServlet extends HttpServlet {
                 saveParams.put(name, (String) httpParams.get(name));
             }
         }
-        req.setExtData(IRequest.HTTP_PARAMS, saveParams);
+        req.setExtData(Request.HTTP_PARAMS, saveParams);
     }
 
     /**
@@ -1406,7 +1407,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     protected static void saveAuthToken(IAuthToken token, IRequest req) {
         if (token != null && req != null)
-            req.setExtData(IRequest.AUTH_TOKEN, token);
+            req.setExtData(Request.AUTH_TOKEN, token);
 
         // # 56230 - expose auth token parameters to the policy predicate
         if (token != null && req != null) {
@@ -1416,16 +1417,16 @@ public abstract class CMSServlet extends HttpServlet {
                 String[] x1 = token.getInStringArray(n);
                 if (x1 != null) {
                     for (int i = 0; i < x1.length; i++) {
-                        logger.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n +
+                        logger.debug("Setting " + Request.AUTH_TOKEN + "-" + n +
                                 "(" + i + ")=" + x1[i]);
-                        req.setExtData(IRequest.AUTH_TOKEN + "-" + n + "(" + i + ")",
+                        req.setExtData(Request.AUTH_TOKEN + "-" + n + "(" + i + ")",
                                 x1[i]);
                     }
                 } else {
                     String x = token.getInString(n);
                     if (x != null) {
-                        logger.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n + "=" + x);
-                        req.setExtData(IRequest.AUTH_TOKEN + "-" + n, x);
+                        logger.debug("Setting " + Request.AUTH_TOKEN + "-" + n + "=" + x);
+                        req.setExtData(Request.AUTH_TOKEN + "-" + n, x);
                     }
                 }
             } // while
@@ -1433,7 +1434,7 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     protected IAuthToken getAuthToken(IRequest req) {
-        return req.getExtDataInAuthToken(IRequest.AUTH_TOKEN);
+        return req.getExtDataInAuthToken(Request.AUTH_TOKEN);
     }
 
     protected static boolean connectionIsSSL(HttpServletRequest httpReq) {

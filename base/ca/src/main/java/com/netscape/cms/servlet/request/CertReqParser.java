@@ -163,7 +163,7 @@ public class CertReqParser extends ReqParser {
 
             if (mDetails) {
                 // show all http parameters stored in request.
-                if (name.equalsIgnoreCase(IRequest.HTTP_PARAMS)) {
+                if (name.equalsIgnoreCase(Request.HTTP_PARAMS)) {
                     Hashtable<String, String> http_params = req.getExtDataInHashtable(name);
                     // show certType specially
                     String certType = http_params.get(IRequest.CERT_TYPE);
@@ -182,7 +182,7 @@ public class CertReqParser extends ReqParser {
 
                     while (elms.hasMoreElements()) {
                         String parami =
-                                IRequest.HTTP_PARAMS + LB + String.valueOf(counter++) + RB;
+                                Request.HTTP_PARAMS + LB + String.valueOf(counter++) + RB;
                         // hack
                         String n = elms.nextElement();
                         String rawJS = "new Object;\n\r" +
@@ -195,14 +195,14 @@ public class CertReqParser extends ReqParser {
                         arg.set(parami, new RawJS(rawJS));
                     }
                 } // show all http headers stored in request.
-                else if (name.equalsIgnoreCase(IRequest.HTTP_HEADERS)) {
+                else if (name.equalsIgnoreCase(Request.HTTP_HEADERS)) {
                     Hashtable<String, String> http_hdrs = req.getExtDataInHashtable(name);
                     Enumeration<String> elms = http_hdrs.keys();
                     int counter = 0;
 
                     while (elms.hasMoreElements()) {
                         String parami =
-                                IRequest.HTTP_HEADERS + LB + String.valueOf(counter++) + RB;
+                                Request.HTTP_HEADERS + LB + String.valueOf(counter++) + RB;
                         // hack
                         String n = elms.nextElement();
                         String rawJS = "new Object;\n\r" +
@@ -215,14 +215,14 @@ public class CertReqParser extends ReqParser {
                         arg.set(parami, new RawJS(rawJS));
                     }
                 } // show all auth token stored in request.
-                else if (name.equalsIgnoreCase(IRequest.AUTH_TOKEN)) {
+                else if (name.equalsIgnoreCase(Request.AUTH_TOKEN)) {
                     IAuthToken auth_token = req.getExtDataInAuthToken(name);
                     Enumeration<String> elms = auth_token.getElements();
                     int counter = 0;
 
                     while (elms.hasMoreElements()) {
                         String parami =
-                                IRequest.AUTH_TOKEN + LB + String.valueOf(counter++) + RB;
+                                Request.AUTH_TOKEN + LB + String.valueOf(counter++) + RB;
                         // hack
                         String n = elms.nextElement();
                         Object authTokenValue = auth_token.getInStringArray(n);
@@ -251,7 +251,7 @@ public class CertReqParser extends ReqParser {
                     String valstr = "";
                     // hack
                     String parami =
-                            IRequest.SERVER_ATTRS + LB + String.valueOf(saCounter++) + RB;
+                            Request.SERVER_ATTRS + LB + String.valueOf(saCounter++) + RB;
 
                     if (name.equalsIgnoreCase(IRequest.ISSUED_CERTS) && mDetails &&
                             (req.getRequestStatus() == RequestStatus.COMPLETE ||
@@ -282,7 +282,7 @@ public class CertReqParser extends ReqParser {
             if (name.equalsIgnoreCase(Request.REQUESTOR_PHONE)
                     || name.equalsIgnoreCase(Request.REQUESTOR_EMAIL)
                     || name.equalsIgnoreCase(Request.REQUESTOR_COMMENTS)
-                    || name.equalsIgnoreCase(IRequest.RESULT)
+                    || name.equalsIgnoreCase(Request.RESULT)
                     || name.equalsIgnoreCase(IRequest.REQUEST_TRUSTEDMGR_PRIVILEGE)) {
                 arg.addStringValue(name, req.getExtDataInString(name));
             }
@@ -752,7 +752,7 @@ public class CertReqParser extends ReqParser {
 
             if (mDetails) {
                 // show all http parameters stored in request.
-                if (name.equalsIgnoreCase(IRequest.HTTP_PARAMS)) {
+                if (name.equalsIgnoreCase(Request.HTTP_PARAMS)) {
                     Hashtable<String, String> http_params = req.getExtDataInHashtable(name);
                     // show certType specially
                     String certType = http_params.get(IRequest.CERT_TYPE);
@@ -766,7 +766,7 @@ public class CertReqParser extends ReqParser {
 
                     while (elms.hasMoreElements()) {
                         String parami =
-                                IRequest.HTTP_PARAMS + LB + String.valueOf(counter++) + RB;
+                                Request.HTTP_PARAMS + LB + String.valueOf(counter++) + RB;
                         // hack
                         String n = elms.nextElement();
                         String rawJS = "new Object;\n\r" +
@@ -779,14 +779,14 @@ public class CertReqParser extends ReqParser {
                         arg.set(parami, new RawJS(rawJS));
                     }
                 } // show all http headers stored in request.
-                else if (name.equalsIgnoreCase(IRequest.HTTP_HEADERS)) {
+                else if (name.equalsIgnoreCase(Request.HTTP_HEADERS)) {
                     Hashtable<String, String> http_hdrs = req.getExtDataInHashtable(name);
                     Enumeration<String> elms = http_hdrs.keys();
                     int counter = 0;
 
                     while (elms.hasMoreElements()) {
                         String parami =
-                                IRequest.HTTP_HEADERS + LB + String.valueOf(counter++) + RB;
+                                Request.HTTP_HEADERS + LB + String.valueOf(counter++) + RB;
                         // hack
                         String n = elms.nextElement();
                         String rawJS = "new Object;\n\r" +
@@ -799,14 +799,14 @@ public class CertReqParser extends ReqParser {
                         arg.set(parami, new RawJS(rawJS));
                     }
                 } // show all auth token stored in request.
-                else if (name.equalsIgnoreCase(IRequest.AUTH_TOKEN)) {
+                else if (name.equalsIgnoreCase(Request.AUTH_TOKEN)) {
                     IAuthToken auth_token = req.getExtDataInAuthToken(name);
                     Enumeration<String> elms = auth_token.getElements();
                     int counter = 0;
 
                     while (elms.hasMoreElements()) {
                         String parami =
-                                IRequest.AUTH_TOKEN + LB + String.valueOf(counter++) + RB;
+                                Request.AUTH_TOKEN + LB + String.valueOf(counter++) + RB;
                         // hack
                         String n = elms.nextElement();
                         String v =
@@ -832,7 +832,7 @@ public class CertReqParser extends ReqParser {
                     String valstr = "";
                     // hack
                     String parami =
-                            IRequest.SERVER_ATTRS + LB + String.valueOf(saCounter++) + RB;
+                            Request.SERVER_ATTRS + LB + String.valueOf(saCounter++) + RB;
 
                     valstr = expandValue(prefix + parami + ".value", val);
                     String rawJS = "new Object;\n\r" +
@@ -847,7 +847,7 @@ public class CertReqParser extends ReqParser {
             if (name.equalsIgnoreCase(Request.REQUESTOR_PHONE)
                     || name.equalsIgnoreCase(Request.REQUESTOR_EMAIL)
                     || name.equalsIgnoreCase(Request.REQUESTOR_COMMENTS)
-                    || name.equalsIgnoreCase(IRequest.RESULT)
+                    || name.equalsIgnoreCase(Request.RESULT)
                     || name.equalsIgnoreCase(IRequest.REQUEST_TRUSTEDMGR_PRIVILEGE)) {
                 arg.addStringValue(name, req.getExtDataInString(name));
             }

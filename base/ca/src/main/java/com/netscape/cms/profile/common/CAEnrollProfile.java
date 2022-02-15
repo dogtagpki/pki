@@ -331,7 +331,7 @@ public class CAEnrollProfile extends EnrollProfile {
         }
 
         AuthorityID aid = null;
-        String aidString = request.getExtDataInString(IRequest.AUTHORITY_ID);
+        String aidString = request.getExtDataInString(Request.AUTHORITY_ID);
         if (aidString != null)
             aid = new AuthorityID(aidString);
 

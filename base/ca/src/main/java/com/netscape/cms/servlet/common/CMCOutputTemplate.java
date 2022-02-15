@@ -1360,9 +1360,9 @@ public class CMCOutputTemplate {
                     queue.processRequest(revReq);
                     RequestStatus stat = revReq.getRequestStatus();
                     if (stat == RequestStatus.COMPLETE) {
-                        Integer result = revReq.getExtDataInInteger(IRequest.RESULT);
+                        Integer result = revReq.getExtDataInInteger(Request.RESULT);
                         logger.debug(method + " revReq result = " + result);
-                        if (result.equals(IRequest.RES_ERROR)) {
+                        if (result.equals(Request.RES_ERROR)) {
                             msg = " revReq exception: " +
                                     revReq.getExtDataInString(IRequest.ERROR);
                             logger.warn(method + msg);

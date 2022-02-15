@@ -36,6 +36,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.Request;
 
 public class LdapUnrevocationListener implements IRequestListener {
 
@@ -77,12 +78,12 @@ public class LdapUnrevocationListener implements IRequestListener {
         CAEngine engine = CAEngine.getInstance();
 
         Integer[] results = new Integer[certs.length];
-        Integer status = IRequest.RES_SUCCESS;
+        Integer status = Request.RES_SUCCESS;
 
         for (int i = 0; i < certs.length; i++) {
 
             X509CertImpl xcert = (X509CertImpl) certs[i];
-            results[i] = IRequest.RES_ERROR;
+            results[i] = Request.RES_ERROR;
 
             try {
                 // We need the enrollment request to sort out predicate
@@ -129,15 +130,15 @@ public class LdapUnrevocationListener implements IRequestListener {
 
                 processor.publishCert(xcert, req);
 
-                results[i] = IRequest.RES_SUCCESS;
+                results[i] = Request.RES_SUCCESS;
                 logger.debug("LdapUnrevocationListener: Published cert 0x" + xcert.getSerialNumber().toString(16));
 
             } catch (ELdapException e) {
-                status = IRequest.RES_ERROR;
+                status = Request.RES_ERROR;
                 logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH", xcert.getSerialNumber().toString(16), e.toString()), e);
 
             } catch (EBaseException e) {
-                status = IRequest.RES_ERROR;
+                status = Request.RES_ERROR;
                 logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_FIND", xcert.getSerialNumber().toString(16), e.toString()), e);
             }
         }

@@ -184,7 +184,7 @@ public class HttpConnector implements IConnector {
 
             replyRequestId = new RequestId(replymsg.reqId.substring(index + 1));
             logger.debug("reply request id " + replyRequestId);
-            r.setExtData(IRequest.REMOTE_REQID, replyRequestId.toString());
+            r.setExtData(Request.REMOTE_REQID, replyRequestId.toString());
 
             logger.debug("reply request type " + r.getRequestType());
             logger.debug("reply status " + replyStatus);
@@ -217,15 +217,15 @@ public class HttpConnector implements IConnector {
                 logger.debug(
                         "remote request id " + r.getRequestId() +
                                 " was rejected or cancelled.");
-                r.setExtData(IRequest.REMOTE_STATUS, replyStatus.toString());
-                r.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
+                r.setExtData(Request.REMOTE_STATUS, replyStatus.toString());
+                r.setExtData(Request.RESULT, Request.RES_ERROR);
                 r.setExtData(IRequest.ERROR,
                         new EBaseException(CMS.getUserMessage("CMS_BASE_REMOTE_AUTHORITY_ERROR")));
                 // XXX overload svcerrors for now.
                 Vector<String> policyErrors = r.getExtDataInStringVector(IRequest.ERRORS);
 
                 if (policyErrors != null && policyErrors.size() > 0) {
-                    r.setExtData(IRequest.SVCERRORS, policyErrors);
+                    r.setExtData(Request.SVCERRORS, policyErrors);
                 }
             }
 

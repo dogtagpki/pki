@@ -427,7 +427,7 @@ public class HashEnrollServlet extends CMSServlet {
             // some policies may rely on the fact that
             // CERT_TYPE is set. So for 3.5.1 or eariler
             // we need to set CERT_TYPE here.
-            req.setExtData(IRequest.HTTP_PARAMS, CERT_TYPE, certType);
+            req.setExtData(Request.HTTP_PARAMS, CERT_TYPE, certType);
         }
 
         String crmf =
@@ -681,14 +681,14 @@ public class HashEnrollServlet extends CMSServlet {
             return;
         }
         // if service error use standard error templates.
-        Integer result = req.getExtDataInInteger(IRequest.RESULT);
+        Integer result = req.getExtDataInInteger(Request.RESULT);
 
-        if (result.equals(IRequest.RES_ERROR)) {
+        if (result.equals(Request.RES_ERROR)) {
 
             cmsReq.setStatus(ICMSRequest.ERROR);
             cmsReq.setError(req.getExtDataInString(IRequest.ERROR));
             String[] svcErrors =
-                    req.getExtDataInStringArray(IRequest.SVCERRORS);
+                    req.getExtDataInStringArray(Request.SVCERRORS);
 
             if (svcErrors != null && svcErrors.length > 0) {
                 for (int i = 0; i < svcErrors.length; i++) {

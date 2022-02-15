@@ -39,6 +39,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  *
@@ -196,7 +197,7 @@ public class SubjAltNameExt extends APolicyRule
             // non-client certs, and implement client certs directly here.
             //
             String certType =
-                    req.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
+                    req.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
 
             if (certType == null ||
                     !certType.equals(IRequest.CLIENT_CERT) ||
@@ -248,7 +249,7 @@ public class SubjAltNameExt extends APolicyRule
     protected IAuthToken
             findAuthToken(IRequest req, String authMgrName) {
 
-        return req.getExtDataInAuthToken(IRequest.AUTH_TOKEN);
+        return req.getExtDataInAuthToken(Request.AUTH_TOKEN);
     }
 
     /**

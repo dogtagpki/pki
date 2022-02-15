@@ -28,6 +28,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 public class LdapRenewalListener implements IRequestListener {
 
@@ -66,7 +67,7 @@ public class LdapRenewalListener implements IRequestListener {
     public void acceptX509(IRequest r, Certificate[] certs) {
 
         Integer[] results = new Integer[certs.length];
-        Integer status = IRequest.RES_SUCCESS;
+        Integer status = Request.RES_SUCCESS;
 
         for (int i = 0; i < certs.length; i++) {
 
@@ -78,14 +79,14 @@ public class LdapRenewalListener implements IRequestListener {
 
             try {
                 processor.publishCert(cert, r);
-                results[i] = IRequest.RES_SUCCESS;
+                results[i] = Request.RES_SUCCESS;
 
                 logger.info("LdapRenewalListener: Published cert 0x" + cert.getSerialNumber().toString(16));
 
             } catch (ELdapException e) {
                 logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH", cert.getSerialNumber().toString(16), e.toString()), e);
-                results[i] = IRequest.RES_ERROR;
-                status = IRequest.RES_ERROR;
+                results[i] = Request.RES_ERROR;
+                status = Request.RES_ERROR;
             }
         }
         r.setExtData("ldapPublishStatus", results);

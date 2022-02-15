@@ -47,6 +47,7 @@ import com.netscape.cms.servlet.cert.RequestProcessor;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 
@@ -101,7 +102,7 @@ public class ProfileProcessServlet extends ProfileServlet {
             return;
         }
 
-        String profileId = req.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = req.getExtDataInString(Request.PROFILE_ID);
         if (profileId == null || profileId.equals("")) {
             logger.error("ProfileProcessServlet: Profile Id not found");
             setError(args, CMS.getUserMessage(locale, "CMS_PROFILE_ID_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)), request, response);

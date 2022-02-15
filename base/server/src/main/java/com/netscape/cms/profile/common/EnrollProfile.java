@@ -131,6 +131,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -364,7 +365,7 @@ public abstract class EnrollProfile extends Profile {
             }
 
             // set requested CA
-            result[i].setExtData(IRequest.AUTHORITY_ID, ctx.get(REQUEST_AUTHORITY_ID));
+            result[i].setExtData(Request.AUTHORITY_ID, ctx.get(REQUEST_AUTHORITY_ID));
         }
         return result;
     }

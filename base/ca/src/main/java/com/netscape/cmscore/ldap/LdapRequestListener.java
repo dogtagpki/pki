@@ -70,11 +70,11 @@ public class LdapRequestListener implements IRequestListener {
 
         if (type.equals(Request.ENROLLMENT_REQUEST)) {
             // in case it's not meant for us
-            if (r.getExtDataInInteger(IRequest.RESULT) == null)
+            if (r.getExtDataInInteger(Request.RESULT) == null)
                 return null;
 
             // check if request failed.
-            if ((r.getExtDataInInteger(IRequest.RESULT)).equals(IRequest.RES_ERROR)) {
+            if ((r.getExtDataInInteger(Request.RESULT)).equals(Request.RES_ERROR)) {
                 logger.warn("Request errored. " +
                         "Nothing to publish for enrollment request id " +
                         r.getRequestId());

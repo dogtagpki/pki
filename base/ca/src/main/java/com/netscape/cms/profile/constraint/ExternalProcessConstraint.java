@@ -36,6 +36,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.input.CertReqInput;
+import com.netscape.cmscore.request.Request;
 
 
 public class ExternalProcessConstraint extends EnrollConstraint {
@@ -58,10 +59,10 @@ public class ExternalProcessConstraint extends EnrollConstraint {
     static {
         envVars.put("DOGTAG_CERT_REQUEST", CertReqInput.VAL_CERT_REQUEST);
         envVars.put("DOGTAG_USER",
-            IRequest.AUTH_TOKEN_PREFIX + "." + IAuthToken.USER_ID);
-        envVars.put("DOGTAG_PROFILE_ID", IRequest.PROFILE_ID);
-        envVars.put("DOGTAG_AUTHORITY_ID", IRequest.AUTHORITY_ID);
-        envVars.put("DOGTAG_USER_DATA", IRequest.USER_DATA);
+            Request.AUTH_TOKEN_PREFIX + "." + IAuthToken.USER_ID);
+        envVars.put("DOGTAG_PROFILE_ID", Request.PROFILE_ID);
+        envVars.put("DOGTAG_AUTHORITY_ID", Request.AUTHORITY_ID);
+        envVars.put("DOGTAG_USER_DATA", Request.USER_DATA);
     }
 
     protected String executable;

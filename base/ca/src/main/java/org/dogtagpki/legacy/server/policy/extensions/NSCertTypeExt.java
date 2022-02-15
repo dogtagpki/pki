@@ -42,6 +42,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * NS Cert Type policy.
@@ -182,7 +183,7 @@ public class NSCertTypeExt extends APolicyRule
     public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
         try {
             String certType =
-                    req.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
+                    req.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
             CertificateExtensions extensions = (CertificateExtensions)
                     certInfo.get(X509CertInfo.EXTENSIONS);
             NSCertTypeExtension nsCertTypeExt = null;
@@ -285,7 +286,7 @@ public class NSCertTypeExt extends APolicyRule
 
         // must be agent approved or authenticated for allowing extensions
         // which is always the case if we get to this point.
-        IAuthToken token = req.getExtDataInAuthToken(IRequest.AUTH_TOKEN);
+        IAuthToken token = req.getExtDataInAuthToken(Request.AUTH_TOKEN);
 
         if (!agentApproved(req) && token == null) {
             // don't know where this came from.
@@ -300,7 +301,7 @@ public class NSCertTypeExt extends APolicyRule
             return false;
         } else {
             // check for min bits, set default if not there.
-            String certType = req.getExtDataInString(IRequest.HTTP_PARAMS,
+            String certType = req.getExtDataInString(Request.HTTP_PARAMS,
                     IRequest.CERT_TYPE);
 
             if ((certType != null) && certType.equals("ocspResponder")) {
@@ -382,33 +383,33 @@ public class NSCertTypeExt extends APolicyRule
 
         bits[NSCertTypeExtension.SSL_CLIENT_BIT] =
                 // XXX should change this to is ns cert type ssl_client defn.
-                req.getExtDataInBoolean(IRequest.HTTP_PARAMS,
+                req.getExtDataInBoolean(Request.HTTP_PARAMS,
                         NSCertTypeExtension.SSL_CLIENT, false);
 
         bits[NSCertTypeExtension.SSL_SERVER_BIT] =
-                req.getExtDataInBoolean(IRequest.HTTP_PARAMS,
+                req.getExtDataInBoolean(Request.HTTP_PARAMS,
                         NSCertTypeExtension.SSL_SERVER, false);
 
         bits[NSCertTypeExtension.EMAIL_BIT] =
                 // XXX should change this to is ns cert type ssl_client defn.
-                req.getExtDataInBoolean(IRequest.HTTP_PARAMS,
+                req.getExtDataInBoolean(Request.HTTP_PARAMS,
                         NSCertTypeExtension.EMAIL, false);
 
         bits[NSCertTypeExtension.OBJECT_SIGNING_BIT] =
                 // XXX should change this to is ns cert type ssl_client defn.
-                req.getExtDataInBoolean(IRequest.HTTP_PARAMS,
+                req.getExtDataInBoolean(Request.HTTP_PARAMS,
                         NSCertTypeExtension.OBJECT_SIGNING, false);
 
         bits[NSCertTypeExtension.SSL_CA_BIT] =
-                req.getExtDataInBoolean(IRequest.HTTP_PARAMS,
+                req.getExtDataInBoolean(Request.HTTP_PARAMS,
                         NSCertTypeExtension.SSL_CA, false);
 
         bits[NSCertTypeExtension.EMAIL_CA_BIT] =
-                req.getExtDataInBoolean(IRequest.HTTP_PARAMS,
+                req.getExtDataInBoolean(Request.HTTP_PARAMS,
                         NSCertTypeExtension.EMAIL_CA, false);
 
         bits[NSCertTypeExtension.OBJECT_SIGNING_CA_BIT] =
-                req.getExtDataInBoolean(IRequest.HTTP_PARAMS,
+                req.getExtDataInBoolean(Request.HTTP_PARAMS,
                         NSCertTypeExtension.OBJECT_SIGNING_CA, false);
 
         // if nothing set, return null.
@@ -433,7 +434,7 @@ public class NSCertTypeExt extends APolicyRule
      */
     protected boolean[] getCertTypeBits(IRequest req) {
         String certType =
-                req.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
+                req.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
 
         if (certType == null || certType.length() == 0)
             return null;

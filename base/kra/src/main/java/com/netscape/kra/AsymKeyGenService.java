@@ -42,6 +42,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -233,7 +234,7 @@ public class AsymKeyGenService implements IService {
             try {
                 publicKeyData = kp.getPublic().getEncoded();
                 if (publicKeyData == null) {
-                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    request.setExtData(Request.RESULT, Integer.valueOf(4));
                     errmsg = " failed getting publickey encoded";
                     logger.debug(method + errmsg);
                     signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
@@ -248,7 +249,7 @@ public class AsymKeyGenService implements IService {
                 request.setExtData("public_key", pubKeyStr);
             } catch (Exception e) {
                 logger.debug(method + e);
-                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                request.setExtData(Request.RESULT, Integer.valueOf(4));
                 signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
                         auditSubjectID,
                         "Failure",
@@ -357,7 +358,7 @@ public class AsymKeyGenService implements IService {
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
                     clientKeyId, new KeyId(serialNo), "None");
         }
-        request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+        request.setExtData(Request.RESULT, Request.RES_SUCCESS);
         engine.getRequestQueue().updateRequest(request);
         return true;
     }

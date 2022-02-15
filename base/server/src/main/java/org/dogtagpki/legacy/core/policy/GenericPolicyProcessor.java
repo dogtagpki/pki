@@ -363,7 +363,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     }
 
     public boolean isProfileRequest(IRequest request) {
-        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId == null || profileId.equals(""))
             return false;

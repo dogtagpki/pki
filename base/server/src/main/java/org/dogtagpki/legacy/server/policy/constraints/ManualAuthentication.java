@@ -28,6 +28,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.request.Request;
 
 /**
  * ManualAuthentication is an enrollment policy that queues
@@ -75,7 +76,7 @@ public class ManualAuthentication extends APolicyRule
      */
     @Override
     public PolicyResult apply(IRequest req) {
-        IAuthToken authToken = req.getExtDataInAuthToken(IRequest.AUTH_TOKEN);
+        IAuthToken authToken = req.getExtDataInAuthToken(Request.AUTH_TOKEN);
 
         if (authToken == null)
             return deferred(req);

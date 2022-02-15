@@ -51,6 +51,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.security.JssSubsystem;
 
@@ -207,7 +208,7 @@ public class ProfileReviewServlet extends ProfileServlet {
             return;
         }
 
-        String profileId = req.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = req.getExtDataInString(Request.PROFILE_ID);
 
         logger.debug("ProfileReviewServlet: requestId=" +
                 requestId + " profileId=" + profileId);

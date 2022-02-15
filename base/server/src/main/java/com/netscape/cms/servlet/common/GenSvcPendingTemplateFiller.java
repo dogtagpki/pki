@@ -22,6 +22,7 @@ import java.util.Locale;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.request.Request;
 
 /**
  * default Service Pending template filler
@@ -63,7 +64,7 @@ public class GenSvcPendingTemplateFiller implements ICMSTemplateFiller {
 
                 // remote authority we're waiting for
                 String remoteAuthority =
-                        req.getExtDataInString(IRequest.REMOTE_SERVICE_AUTHORITY);
+                        req.getExtDataInString(Request.REMOTE_SERVICE_AUTHORITY);
 
                 if (remoteAuthority != null)
                     fixed.set(REMOTE_AUTHORITY, remoteAuthority);

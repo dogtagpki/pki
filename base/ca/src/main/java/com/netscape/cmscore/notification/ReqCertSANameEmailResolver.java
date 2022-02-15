@@ -78,7 +78,7 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
         String mEmail = null;
 
         if (req != null) {
-            mEmail = req.getExtDataInString(IRequest.HTTP_PARAMS,
+            mEmail = req.getExtDataInString(Request.HTTP_PARAMS,
                     Request.REQUESTOR_EMAIL);
             if (mEmail == null) {
                 String mail = req.getExtDataInString("requestor_email");

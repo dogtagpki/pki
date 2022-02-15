@@ -54,6 +54,7 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -158,7 +159,7 @@ public class CertRequestDAO extends CMSRequestDAO {
             return null;
         }
 
-        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = request.getExtDataInString(Request.PROFILE_ID);
         Profile profile = ps.getProfile(profileId);
         CertReviewResponse info = CertReviewResponseFactory.create(request, profile, uriInfo, locale);
 

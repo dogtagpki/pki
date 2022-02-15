@@ -69,6 +69,7 @@ import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Display detailed information about a certificate
@@ -322,7 +323,7 @@ public class DisplayBySerial extends CMSServlet {
 
                     if (rid != null && mAuthority instanceof ICertificateAuthority) {
                         IRequest r = requestRepository.readRequest(new RequestId(rid));
-                        String certType = r.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
+                        String certType = r.getExtDataInString(Request.HTTP_PARAMS, IRequest.CERT_TYPE);
 
                         if (certType != null && certType.equals(IRequest.CLIENT_CERT)) {
                             noCertImport = false;

@@ -1749,7 +1749,7 @@ public class CRSEnrollment extends HttpServlet {
             // set transaction id
             reqs[0].setSourceId(req.getTransactionID());
             reqs[0].setExtData("profile", "true");
-            reqs[0].setExtData(IRequest.PROFILE_ID, mProfileId);
+            reqs[0].setExtData(Request.PROFILE_ID, mProfileId);
             reqs[0].setExtData(EnrollProfile.CTX_CERT_REQUEST_TYPE, EnrollProfile.REQ_TYPE_PKCS10);
             reqs[0].setExtData(IRequest.CTX_CERT_REQUEST, pkcs10blob);
             reqs[0].setExtData("requestor_name", "");
@@ -1801,10 +1801,10 @@ public class CRSEnrollment extends HttpServlet {
 
         AuthToken token = (AuthToken) req.get(AUTH_TOKEN);
         if (token != null) {
-            pkiReq.setExtData(IRequest.AUTH_TOKEN, token);
+            pkiReq.setExtData(Request.AUTH_TOKEN, token);
         }
 
-        pkiReq.setExtData(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE, IRequest.CEP_CERT);
+        pkiReq.setExtData(Request.HTTP_PARAMS, IRequest.CERT_TYPE, IRequest.CEP_CERT);
         X509CertInfo certInfo = (X509CertInfo) req.get(CERTINFO);
         pkiReq.setExtData(IRequest.CERT_INFO, new X509CertInfo[] { certInfo });
         pkiReq.setExtData("cepsubstore", mSubstoreName);
@@ -1882,7 +1882,7 @@ public class CRSEnrollment extends HttpServlet {
 
         RequestStatus status = pkiReq.getRequestStatus();
 
-        String profileId = pkiReq.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = pkiReq.getExtDataInString(Request.PROFILE_ID);
         if (profileId != null) {
             logger.debug("CRSEnrollment: Found profile request");
             X509CertImpl cert =
@@ -1897,9 +1897,9 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         if (status.equals(RequestStatus.COMPLETE)) {
-            Integer success = pkiReq.getExtDataInInteger(IRequest.RESULT);
+            Integer success = pkiReq.getExtDataInInteger(Request.RESULT);
 
-            if (success.equals(IRequest.RES_SUCCESS)) {
+            if (success.equals(Request.RES_SUCCESS)) {
                 // The cert was issued, lets send it back to the router
                 X509CertImpl[] issuedCertBuf =
                         pkiReq.getExtDataInCertArray(IRequest.ISSUED_CERTS);

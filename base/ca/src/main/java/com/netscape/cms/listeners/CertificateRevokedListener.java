@@ -191,10 +191,10 @@ public class CertificateRevokedListener implements IRequestListener {
         }
 
         // check if request failed.
-        if (r.getExtDataInInteger(IRequest.RESULT) == null)
+        if (r.getExtDataInInteger(Request.RESULT) == null)
             return;
 
-        if ((r.getExtDataInInteger(IRequest.RESULT)).equals(IRequest.RES_ERROR)) {
+        if ((r.getExtDataInInteger(Request.RESULT)).equals(Request.RES_ERROR)) {
             logger.warn("CertificateRevokedListener: Request errored. " +
                     "No need to email notify for enrollment request id " +
                     mReqId);

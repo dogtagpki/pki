@@ -197,12 +197,12 @@ public class EnrollmentService implements IService {
         byte tmp_unwrapped[] = null;
         PKIArchiveOptionsContainer aOpts[] = null;
 
-        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId == null || profileId.equals("")) {
             try {
                 aOpts = CRMFParser.getPKIArchiveOptions(
-                            request.getExtDataInString(IRequest.HTTP_PARAMS, CRMF_REQUEST));
+                            request.getExtDataInString(Request.HTTP_PARAMS, CRMF_REQUEST));
 
             } catch (IOException e) {
 
@@ -649,7 +649,7 @@ public class EnrollmentService implements IService {
          request.delete(IEnrollProfile.REQUEST_LOCALE);
          */
 
-        request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+        request.setExtData(Request.RESULT, Request.RES_SUCCESS);
 
         /* zero out the fields */
         request.setExtData(IRequest.CTX_CERT_REQUEST, "");
@@ -809,7 +809,7 @@ public class EnrollmentService implements IService {
      * @exception EBaseException failed to retrieve public key
      */
     private X509Key getPublicKey(IRequest request, int i) throws EBaseException {
-        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId != null && !profileId.equals("")) {
             byte[] certKeyData = request.getExtDataInByteArray(IRequest.REQUEST_KEY);
@@ -875,7 +875,7 @@ public class EnrollmentService implements IService {
     private String getOwnerName(IRequest request, int i)
             throws EBaseException {
 
-        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId != null && !profileId.equals("")) {
             CertificateSubjectName sub = request.getExtDataInCertSubjectName(

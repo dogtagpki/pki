@@ -61,6 +61,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.request.Request;
 
 public class RequestProcessor extends CertProcessor {
 
@@ -75,7 +76,7 @@ public class RequestProcessor extends CertProcessor {
         HttpServletRequest request = cmsReq.getHttpReq();
         IRequest ireq = cmsReq.getIRequest();
 
-        String profileId = ireq.getExtDataInString(IRequest.PROFILE_ID);
+        String profileId = ireq.getExtDataInString(Request.PROFILE_ID);
         Profile profile = ps.getProfile(profileId);
         CertReviewResponse data = CertReviewResponseFactory.create(
                 cmsReq, profile, authority.noncesEnabled(), locale);
@@ -142,7 +143,7 @@ public class RequestProcessor extends CertProcessor {
                 saveAuthToken(authToken, req);
             }
 
-            String profileId = req.getExtDataInString(IRequest.PROFILE_ID);
+            String profileId = req.getExtDataInString(Request.PROFILE_ID);
             if (profileId == null || profileId.equals("")) {
                 logger.error("RequestProcessor: Profile Id not found in request");
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_ID_NOT_FOUND"));
@@ -379,7 +380,7 @@ public class RequestProcessor extends CertProcessor {
         String auditRequesterID = auditRequesterID(req);
 
         // ensure target CA is enabled
-        String aidString = req.getExtDataInString(IRequest.AUTHORITY_ID);
+        String aidString = req.getExtDataInString(Request.AUTHORITY_ID);
         if (aidString != null)
             ensureCAEnabled(aidString);
 

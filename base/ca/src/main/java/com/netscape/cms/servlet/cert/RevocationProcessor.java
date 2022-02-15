@@ -341,10 +341,10 @@ public class RevocationProcessor extends CertProcessor {
                     && type.equals(Request.CLA_CERT4CRL_REQUEST)) {
 
             // audit log the error
-            Integer result = request.getExtDataInInteger(IRequest.RESULT);
+            Integer result = request.getExtDataInInteger(Request.RESULT);
 
-            if (result.equals(IRequest.RES_ERROR)) {
-                String[] svcErrors = request.getExtDataInStringArray(IRequest.SVCERRORS);
+            if (result.equals(Request.RES_ERROR)) {
+                String[] svcErrors = request.getExtDataInStringArray(Request.SVCERRORS);
 
                 if (svcErrors != null) {
                     for (String err : svcErrors) {
@@ -399,9 +399,9 @@ public class RevocationProcessor extends CertProcessor {
         if (requestStatus == RequestStatus.COMPLETE
                 || requestStatus == RequestStatus.SVC_PENDING && type.equals(Request.CLA_UNCERT4CRL_REQUEST)) {
 
-            Integer result = request.getExtDataInInteger(IRequest.RESULT);
+            Integer result = request.getExtDataInInteger(Request.RESULT);
 
-            if (result.equals(IRequest.RES_ERROR)) {
+            if (result.equals(Request.RES_ERROR)) {
                 String error = request.getExtDataInString(IRequest.ERROR);
                 logger.debug("RevocationProcessor: - error: " + error);
             }
