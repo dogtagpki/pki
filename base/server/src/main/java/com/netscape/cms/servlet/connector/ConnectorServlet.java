@@ -533,7 +533,7 @@ public class ConnectorServlet extends CMSServlet {
                     logger.debug(method + "isServerSideKeygen Stage=" + sskKeygenStage);
                     thisreq.setRequestType("recovery"); //IRequest.KEYRECOVERY_REQUEST
                 }
-                String clientKeyId = thisreq.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
+                String clientKeyId = thisreq.getExtDataInString(Request.SECURITY_DATA_CLIENT_KEY_ID);
                 if (clientKeyId != null)
                     logger.debug(method + "isServerSideKeygen clientKeyId = " + clientKeyId);
                 else

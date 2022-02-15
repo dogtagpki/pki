@@ -46,8 +46,8 @@ public class KRAService implements IService {
     public final static String RECOVERY = Request.KEYRECOVERY_REQUEST;
     public final static String NETKEY_KEYGEN = Request.NETKEY_KEYGEN_REQUEST;
     public final static String NETKEY_KEYRECOVERY = Request.NETKEY_KEYRECOVERY_REQUEST;
-    public final static String SECURITY_DATA_ENROLLMENT = IRequest.SECURITY_DATA_ENROLLMENT_REQUEST;
-    public final static String SECURITY_DATA_RECOVERY = IRequest.SECURITY_DATA_RECOVERY_REQUEST;
+    public final static String SECURITY_DATA_ENROLLMENT = Request.SECURITY_DATA_ENROLLMENT_REQUEST;
+    public final static String SECURITY_DATA_RECOVERY = Request.SECURITY_DATA_RECOVERY_REQUEST;
     public final static String SYMKEY_GENERATION = IRequest.SYMKEY_GENERATION_REQUEST;
     public final static String ASYMKEY_GENERATION = IRequest.ASYMKEY_GENERATION_REQUEST;
 

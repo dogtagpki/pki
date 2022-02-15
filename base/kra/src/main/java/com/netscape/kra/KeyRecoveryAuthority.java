@@ -86,6 +86,7 @@ import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.KeyStatusUpdateTask;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.request.KeyRequestRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
@@ -998,7 +999,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 count++;
             }
             int agentsRequired =
-                    (r.getRequestType().equals(IRequest.SECURITY_DATA_RECOVERY_REQUEST)) ?
+                    (r.getRequestType().equals(Request.SECURITY_DATA_RECOVERY_REQUEST)) ?
                             getNoOfRequiredSecurityDataRecoveryAgents() :
                             getNoOfRequiredAgents();
 
@@ -1281,10 +1282,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     public void processSynchronousRequest(IRequest request) throws EBaseException {
         SecurityDataProcessor processor = new SecurityDataProcessor(this);
         switch(request.getRequestType()){
-            case IRequest.SECURITY_DATA_ENROLLMENT_REQUEST:
+            case Request.SECURITY_DATA_ENROLLMENT_REQUEST:
                 processor.archive(request);
                 break;
-            case IRequest.SECURITY_DATA_RECOVERY_REQUEST:
+            case Request.SECURITY_DATA_RECOVERY_REQUEST:
                 processor.recover(request);
                 break;
             default:

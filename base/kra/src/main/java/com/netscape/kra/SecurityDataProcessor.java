@@ -84,7 +84,7 @@ public class SecurityDataProcessor {
     public boolean archive(IRequest request)
             throws EBaseException {
         RequestId requestId = request.getRequestId();
-        String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
+        String clientKeyId = request.getExtDataInString(Request.SECURITY_DATA_CLIENT_KEY_ID);
 
         // one way to get data - unexploded pkiArchiveOptions
         String pkiArchiveOptions = request.getExtDataInString(IRequest.REQUEST_ARCHIVE_OPTIONS);
@@ -96,9 +96,9 @@ public class SecurityDataProcessor {
         String algStr = request.getExtDataInString(IRequest.REQUEST_ALGORITHM_OID);
 
         // parameters if the secret is a symmetric key
-        String dataType = request.getExtDataInString(IRequest.SECURITY_DATA_TYPE);
-        String algorithm = request.getExtDataInString(IRequest.SECURITY_DATA_ALGORITHM);
-        int strength = request.getExtDataInInteger(IRequest.SECURITY_DATA_STRENGTH);
+        String dataType = request.getExtDataInString(Request.SECURITY_DATA_TYPE);
+        String algorithm = request.getExtDataInString(Request.SECURITY_DATA_ALGORITHM);
+        int strength = request.getExtDataInInteger(Request.SECURITY_DATA_STRENGTH);
 
         // parameter for realm
         String realm = request.getRealm();
@@ -398,13 +398,13 @@ public class SecurityDataProcessor {
             throw new EBaseException("Can't obtain volatile params!");
         }
 
-        String transWrappedSessKeyStr = (String) params.get(IRequest.SECURITY_DATA_TRANS_SESS_KEY);
+        String transWrappedSessKeyStr = (String) params.get(Request.SECURITY_DATA_TRANS_SESS_KEY);
         byte[] wrappedSessKey = null;
         if (transWrappedSessKeyStr != null) {
             wrappedSessKey = Utils.base64decode(transWrappedSessKeyStr);
         }
 
-        String sessWrappedPassPhraseStr = (String) params.get(IRequest.SECURITY_DATA_SESS_PASS_PHRASE);
+        String sessWrappedPassPhraseStr = (String) params.get(Request.SECURITY_DATA_SESS_PASS_PHRASE);
         byte[] wrappedPassPhrase = null;
         if (sessWrappedPassPhraseStr != null) {
             wrappedPassPhrase = Utils.base64decode(sessWrappedPassPhraseStr);
@@ -470,8 +470,8 @@ public class SecurityDataProcessor {
 
         CryptoToken ct = transportUnit.getToken();
 
-        String payloadEncryptOID = (String) params.get(IRequest.SECURITY_DATA_PL_ENCRYPTION_OID);
-        String payloadWrapName = (String) params.get(IRequest.SECURITY_DATA_PL_WRAPPING_NAME);
+        String payloadEncryptOID = (String) params.get(Request.SECURITY_DATA_PL_ENCRYPTION_OID);
+        String payloadWrapName = (String) params.get(Request.SECURITY_DATA_PL_WRAPPING_NAME);
         String transportKeyAlgo = transportUnit.getCertificate().getPublicKey().getAlgorithm();
 
         if (allowEncDecrypt_recovery) {
@@ -586,7 +586,7 @@ public class SecurityDataProcessor {
                     }
                 }
 
-                params.put(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA, pbeWrappedData);
+                params.put(Request.SECURITY_DATA_PASS_WRAPPED_DATA, pbeWrappedData);
 
             } catch (Exception e) {
                 throw new EBaseException("Cannot unwrap passphrase: " + e, e);
@@ -682,25 +682,25 @@ public class SecurityDataProcessor {
             }
 
             String wrappedKeyData = Utils.base64encode(key_data, false);
-            params.put(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA, wrappedKeyData);
+            params.put(Request.SECURITY_DATA_SESS_WRAPPED_DATA, wrappedKeyData);
         }
 
-        params.put(IRequest.SECURITY_DATA_PL_ENCRYPTION_OID,
+        params.put(Request.SECURITY_DATA_PL_ENCRYPTION_OID,
                 wrapParams.getPayloadEncryptionAlgorithmName());
 
-        params.put(IRequest.SECURITY_DATA_PL_WRAPPING_NAME,
+        params.put(Request.SECURITY_DATA_PL_WRAPPING_NAME,
                 wrapParams.getPayloadWrapAlgorithm().toString());
 
         if (encrypted || dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
-            params.put(IRequest.SECURITY_DATA_PL_WRAPPED, Boolean.toString(false));
+            params.put(Request.SECURITY_DATA_PL_WRAPPED, Boolean.toString(false));
             if (wrapParams.getPayloadEncryptionIV() != null) {
-                params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
+                params.put(Request.SECURITY_DATA_IV_STRING_OUT, ivStr);
             }
         } else {
             //secret has wrapped using a key wrapping algorithm
-            params.put(IRequest.SECURITY_DATA_PL_WRAPPED, Boolean.toString(true));
+            params.put(Request.SECURITY_DATA_PL_WRAPPED, Boolean.toString(true));
             if (wrapParams.getPayloadWrappingIV() != null) {
-                params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr_wrap);
+                params.put(Request.SECURITY_DATA_IV_STRING_OUT, ivStr_wrap);
             }
         }
 
@@ -708,7 +708,7 @@ public class SecurityDataProcessor {
         //If we made it this far, all is good, and clear out the unwrappedSecData before returning.
         jssSubsystem.obscureBytes(unwrappedSecData);
 
-        params.put(IRequest.SECURITY_DATA_TYPE, dataType);
+        params.put(Request.SECURITY_DATA_TYPE, dataType);
         request.setExtData(Request.RESULT, Request.RES_SUCCESS);
 
         return false; //return true ? TODO

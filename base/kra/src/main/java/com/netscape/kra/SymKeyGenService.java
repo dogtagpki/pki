@@ -91,7 +91,7 @@ public class SymKeyGenService implements IService {
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
         String id = request.getRequestId().toString();
-        String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
+        String clientKeyId = request.getExtDataInString(Request.SECURITY_DATA_CLIENT_KEY_ID);
         String algorithm = request.getExtDataInString(IRequest.KEY_GEN_ALGORITHM);
         String realm = request.getRealm();
 

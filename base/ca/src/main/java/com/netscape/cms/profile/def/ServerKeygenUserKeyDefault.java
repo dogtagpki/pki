@@ -49,6 +49,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -364,7 +365,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                     logger.debug(method + "subj = " + subj);
                 }
                 // store in request to pass to kra
-                request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID,
+                request.setExtData(Request.SECURITY_DATA_CLIENT_KEY_ID,
                         subj);
 
                 request.setExtData("serverSideKeygenP12PasswdEnc",

@@ -68,6 +68,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.KeyRequestRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -208,7 +209,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         boolean ephemeral = kra.isEphemeral(realm);
         RequestId requestID = requestRepository.createRequestID(ephemeral);
-        IRequest request = requestRepository.createRequest(requestID, IRequest.SECURITY_DATA_ENROLLMENT_REQUEST);
+        IRequest request = requestRepository.createRequest(requestID, Request.SECURITY_DATA_ENROLLMENT_REQUEST);
 
         if (pkiArchiveOptions != null) {
             request.setExtData(REQUEST_ARCHIVE_OPTIONS, pkiArchiveOptions);
@@ -218,13 +219,13 @@ public class KeyRequestDAO extends CMSRequestDAO {
             request.setExtData(REQUEST_ALGORITHM_PARAMS, symkeyParams);
             request.setExtData(REQUEST_ALGORITHM_OID, algorithmOID);
         }
-        request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
-        request.setExtData(IRequest.SECURITY_DATA_TYPE, dataType);
-        request.setExtData(IRequest.SECURITY_DATA_STRENGTH,
+        request.setExtData(Request.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
+        request.setExtData(Request.SECURITY_DATA_TYPE, dataType);
+        request.setExtData(Request.SECURITY_DATA_STRENGTH,
                 (keyStrength > 0) ? Integer.toString(keyStrength) : Integer.toString(0));
 
         if (keyAlgorithm != null) {
-            request.setExtData(IRequest.SECURITY_DATA_ALGORITHM, keyAlgorithm);
+            request.setExtData(Request.SECURITY_DATA_ALGORITHM, keyAlgorithm);
         }
 
         request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
@@ -279,7 +280,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
 
         RequestId requestID = requestRepository.createRequestID(ephemeral);
-        IRequest request = requestRepository.createRequest(requestID, IRequest.SECURITY_DATA_RECOVERY_REQUEST);
+        IRequest request = requestRepository.createRequest(requestID, Request.SECURITY_DATA_RECOVERY_REQUEST);
 
         if (rec.getRealm() != null) {
             request.setRealm(rec.getRealm());
@@ -291,11 +292,11 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         String encryptOID = data.getPaylodEncryptionOID();
         if (encryptOID != null)
-            request.setExtData(IRequest.SECURITY_DATA_PL_ENCRYPTION_OID, encryptOID);
+            request.setExtData(Request.SECURITY_DATA_PL_ENCRYPTION_OID, encryptOID);
 
         String wrapName = data.getPayloadWrappingName();
         if (wrapName != null)
-            request.setExtData(IRequest.SECURITY_DATA_PL_WRAPPING_NAME, wrapName);
+            request.setExtData(Request.SECURITY_DATA_PL_WRAPPING_NAME, wrapName);
 
         return request;
     }
@@ -311,23 +312,23 @@ public class KeyRequestDAO extends CMSRequestDAO {
         String wrapName = data.getPayloadWrappingName();
 
         if (wrappedPassPhraseStr != null) {
-            requestParams.put(IRequest.SECURITY_DATA_SESS_PASS_PHRASE, wrappedPassPhraseStr);
+            requestParams.put(Request.SECURITY_DATA_SESS_PASS_PHRASE, wrappedPassPhraseStr);
         }
 
         if (wrappedSessionKeyStr != null) {
-            requestParams.put(IRequest.SECURITY_DATA_TRANS_SESS_KEY, wrappedSessionKeyStr);
+            requestParams.put(Request.SECURITY_DATA_TRANS_SESS_KEY, wrappedSessionKeyStr);
         }
 
         if (nonceDataStr != null) {
-            requestParams.put(IRequest.SECURITY_DATA_IV_STRING_IN, nonceDataStr);
+            requestParams.put(Request.SECURITY_DATA_IV_STRING_IN, nonceDataStr);
         }
 
         if (encryptOID != null) {
-            requestParams.put(IRequest.SECURITY_DATA_PL_ENCRYPTION_OID, encryptOID);
+            requestParams.put(Request.SECURITY_DATA_PL_ENCRYPTION_OID, encryptOID);
         }
 
         if (wrapName != null) {
-            requestParams.put(IRequest.SECURITY_DATA_PL_WRAPPING_NAME, wrapName);
+            requestParams.put(Request.SECURITY_DATA_PL_WRAPPING_NAME, wrapName);
         }
     }
 
@@ -453,11 +454,11 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         request.setExtData(IRequest.KEY_GEN_ALGORITHM, algName);
         request.setExtData(IRequest.KEY_GEN_SIZE, keySize);
-        request.setExtData(IRequest.SECURITY_DATA_STRENGTH, keySize);
-        request.setExtData(IRequest.SECURITY_DATA_ALGORITHM, algName);
+        request.setExtData(Request.SECURITY_DATA_STRENGTH, keySize);
+        request.setExtData(Request.SECURITY_DATA_ALGORITHM, algName);
 
         request.setExtData(IRequest.KEY_GEN_USAGES, StringUtils.join(usages, ","));
-        request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
+        request.setExtData(Request.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
         request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
 
         if (transWrappedSessionKey != null) {
@@ -543,11 +544,11 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         request.setExtData(IRequest.KEY_GEN_ALGORITHM, algName);
         request.setExtData(IRequest.KEY_GEN_SIZE, keySize);
-        request.setExtData(IRequest.SECURITY_DATA_STRENGTH, keySize);
-        request.setExtData(IRequest.SECURITY_DATA_ALGORITHM, algName);
+        request.setExtData(Request.SECURITY_DATA_STRENGTH, keySize);
+        request.setExtData(Request.SECURITY_DATA_ALGORITHM, algName);
 
         request.setExtData(IRequest.KEY_GEN_USAGES, StringUtils.join(usages, ","));
-        request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
+        request.setExtData(Request.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
         request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
 
         if (realm != null) {

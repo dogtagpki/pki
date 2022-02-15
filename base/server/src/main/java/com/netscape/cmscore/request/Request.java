@@ -187,6 +187,24 @@ public class Request implements IRequest {
     public static final String NETKEY_ATTR_KEY_TYPE = "keytype";
     public static final String NETKEY_ATTR_KEY_EC_CURVE = "eckeycurve";
 
+    // security data request attributes
+    public static final String SECURITY_DATA_ENROLLMENT_REQUEST = "securityDataEnrollment";
+    public static final String SECURITY_DATA_RECOVERY_REQUEST = "securityDataRecovery";
+    public static final String SECURITY_DATA_CLIENT_KEY_ID = "clientKeyID";
+    public static final String SECURITY_DATA_STRENGTH = "strength";
+    public static final String SECURITY_DATA_ALGORITHM = "algorithm";
+    public static final String SECURITY_DATA_TYPE = "dataType";
+    public static final String SECURITY_DATA_STATUS = "status";
+    public static final String SECURITY_DATA_TRANS_SESS_KEY = "transWrappedSessionKey";
+    public static final String SECURITY_DATA_SESS_PASS_PHRASE = "sessionWrappedPassphrase";
+    public static final String SECURITY_DATA_IV_STRING_IN = "iv_in";
+    public static final String SECURITY_DATA_IV_STRING_OUT = "iv_out";
+    public static final String SECURITY_DATA_SESS_WRAPPED_DATA = "sessWrappedSecData";
+    public static final String SECURITY_DATA_PASS_WRAPPED_DATA = "passPhraseWrappedData";
+    public static final String SECURITY_DATA_PL_ENCRYPTION_OID = "payloadEncryptionOID";
+    public static final String SECURITY_DATA_PL_WRAPPING_NAME = "payloadWrappingName";
+    public static final String SECURITY_DATA_PL_WRAPPED = "payloadWrapped";
+
     protected RequestId mRequestId;
     protected RequestStatus mRequestStatus;
     protected String mSourceId;

@@ -270,7 +270,7 @@ public class KeyService extends SubsystemService implements KeyResource {
                     keyData = recoverKey(data);
                     break;
 
-                case IRequest.SECURITY_DATA_RECOVERY_REQUEST:
+                case Request.SECURITY_DATA_RECOVERY_REQUEST:
 
                     logger.info("KeyService: Processing security data recovery request");
                     if (synchronous)  request.setRequestStatus(RequestStatus.APPROVED);
@@ -342,9 +342,9 @@ public class KeyService extends SubsystemService implements KeyResource {
         // get data from IRequest
         Hashtable<String, Object> requestParams = dao.getTransientData(request);
 
-        String sessWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA);
-        String passWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA);
-        String nonceData = (String) requestParams.get(IRequest.SECURITY_DATA_IV_STRING_OUT);
+        String sessWrappedKeyData = (String) requestParams.get(Request.SECURITY_DATA_SESS_WRAPPED_DATA);
+        String passWrappedKeyData = (String) requestParams.get(Request.SECURITY_DATA_PASS_WRAPPED_DATA);
+        String nonceData = (String) requestParams.get(Request.SECURITY_DATA_IV_STRING_OUT);
 
         if (sessWrappedKeyData != null || passWrappedKeyData != null) {
             //The recovery process has already placed a valid recovery
@@ -373,9 +373,9 @@ public class KeyService extends SubsystemService implements KeyResource {
 
             // get the results of the operations
             keyData = new KeyData();
-            sessWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA);
-            passWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA);
-            nonceData = (String) requestParams.get(IRequest.SECURITY_DATA_IV_STRING_OUT);
+            sessWrappedKeyData = (String) requestParams.get(Request.SECURITY_DATA_SESS_WRAPPED_DATA);
+            passWrappedKeyData = (String) requestParams.get(Request.SECURITY_DATA_PASS_WRAPPED_DATA);
+            nonceData = (String) requestParams.get(Request.SECURITY_DATA_IV_STRING_OUT);
         }
 
         if (sessWrappedKeyData != null) {
@@ -388,17 +388,17 @@ public class KeyService extends SubsystemService implements KeyResource {
             keyData.setNonceData(nonceData);
         }
 
-        keyData.setType((String) requestParams.get(IRequest.SECURITY_DATA_TYPE));
+        keyData.setType((String) requestParams.get(Request.SECURITY_DATA_TYPE));
 
-        String payloadWrapped = (String) requestParams.get(IRequest.SECURITY_DATA_PL_WRAPPED);
+        String payloadWrapped = (String) requestParams.get(Request.SECURITY_DATA_PL_WRAPPED);
         // either wrapAlgorithm or encryptAlgorithm will be set.  This will tell the
         // client which mechanism was used to encrypt the secret
         if (payloadWrapped.equalsIgnoreCase("true")) {
             keyData.setWrapAlgorithm(
-                    (String) requestParams.get(IRequest.SECURITY_DATA_PL_WRAPPING_NAME));
+                    (String) requestParams.get(Request.SECURITY_DATA_PL_WRAPPING_NAME));
         } else {
             keyData.setEncryptAlgorithmOID(
-                    (String) requestParams.get(IRequest.SECURITY_DATA_PL_ENCRYPTION_OID));
+                    (String) requestParams.get(Request.SECURITY_DATA_PL_ENCRYPTION_OID));
         }
 
         String algorithm = rec.getAlgorithm();

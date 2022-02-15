@@ -89,7 +89,7 @@ public class AsymKeyGenService implements IService {
             logger.debug(method + "isServerSideKeygen = false");
         }
 
-        String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
+        String clientKeyId = request.getExtDataInString(Request.SECURITY_DATA_CLIENT_KEY_ID);
         if (clientKeyId != null)
             logger.debug(method + "clientKeyId = " + clientKeyId);
         else
