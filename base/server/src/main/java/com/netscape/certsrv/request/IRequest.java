@@ -43,12 +43,6 @@ import com.netscape.certsrv.base.IAttrSet;
  */
 public interface IRequest extends Serializable {
 
-    // others  (internally set)
-    public final static String CACERTCHAIN = "CACertChain";
-    public final static String CRL = "CRL";
-    public final static String DOGETCACHAIN = "doGetCAChain";
-    public final static String CERT_FILTER = "certFilter";
-
     // used by policy
     public static final String ERRORS = "errors";
     public static final String SMIME = "SMIME";

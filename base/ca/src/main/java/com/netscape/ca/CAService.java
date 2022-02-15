@@ -1937,7 +1937,7 @@ class serviceGetCAChain implements IServant {
             logger.error(e.toString(), e);
             throw new EBaseException(e.toString(), e);
         }
-        request.setExtData(IRequest.CACERTCHAIN, certChainOut.toByteArray());
+        request.setExtData(Request.CACERTCHAIN, certChainOut.toByteArray());
         return true;
     }
 }
@@ -1959,7 +1959,7 @@ class serviceGetCRL implements IServant {
             ICRLIssuingPointRecord crlRec = crlRepository.readCRLIssuingPointRecord(ICertificateAuthority.PROP_MASTER_CRL);
             X509CRLImpl crl = new X509CRLImpl(crlRec.getCRL());
 
-            request.setExtData(IRequest.CRL, crl.getEncoded());
+            request.setExtData(Request.CRL, crl.getEncoded());
 
         } catch (EBaseException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_GETCRL_FIND_CRL"), e);
@@ -2037,8 +2037,8 @@ class serviceGetCertificates implements IServant {
         while (enum1.hasMoreElements()) {
             String name = enum1.nextElement();
 
-            if (name.equals(IRequest.CERT_FILTER)) {
-                String filter = request.getExtDataInString(IRequest.CERT_FILTER);
+            if (name.equals(Request.CERT_FILTER)) {
+                String filter = request.getExtDataInString(Request.CERT_FILTER);
                 X509CertImpl[] certs = certDB.getX509Certificates(filter);
 
                 if (certs != null) {

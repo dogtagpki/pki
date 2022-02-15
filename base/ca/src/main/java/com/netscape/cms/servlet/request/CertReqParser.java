@@ -526,9 +526,9 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equalsIgnoreCase(IRequest.CACERTCHAIN) && mDetails) {
+            if (name.equalsIgnoreCase(Request.CACERTCHAIN) && mDetails) {
                 byte[] certChainData = req.getExtDataInByteArray(
-                        IRequest.CACERTCHAIN);
+                        Request.CACERTCHAIN);
                 if (certChainData != null) {
                     CertificateChain certChain = new CertificateChain();
                     try {

@@ -227,6 +227,12 @@ public class Request implements IRequest {
     public static final String REQUESTOR_KRA = "KRA";
     public static final String REQUESTOR_AGENT = "Agent";
 
+    // others  (internally set)
+    public static final String CACERTCHAIN = "CACertChain";
+    public static final String CRL = "CRL";
+    public static final String DOGETCACHAIN = "doGetCAChain";
+    public static final String CERT_FILTER = "certFilter";
+
     protected RequestId mRequestId;
     protected RequestStatus mRequestStatus;
     protected String mSourceId;
