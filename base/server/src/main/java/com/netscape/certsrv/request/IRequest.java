@@ -43,19 +43,6 @@ import com.netscape.certsrv.base.IAttrSet;
  */
 public interface IRequest extends Serializable {
 
-    // Netkey request attributes
-    public final static String NETKEY_ATTR_CUID = "CUID";
-    public final static String NETKEY_ATTR_USERID = "USERID";
-    public final static String NETKEY_ATTR_DRMTRANS_DES_KEY = "drm_trans_desKey";
-    public final static String NETKEY_ATTR_ARCHIVE_FLAG = "archive";
-    public final static String NETKEY_ATTR_SERVERSIDE_MUSCLE_FLAG = "serverSideMuscle";
-    public final static String NETKEY_ATTR_ENC_PRIVKEY_FLAG = "encryptPrivKey";
-    public final static String NETKEY_ATTR_USER_CERT = "cert";
-    public final static String NETKEY_ATTR_KEYID = "keyid";
-    public final static String NETKEY_ATTR_KEY_SIZE = "keysize";
-    public final static String NETKEY_ATTR_KEY_TYPE = "keytype";
-    public final static String NETKEY_ATTR_KEY_EC_CURVE = "eckeycurve";
-
     //Security Data request attributes
     public static final String SECURITY_DATA_ENROLLMENT_REQUEST = "securityDataEnrollment";
     public static final String SECURITY_DATA_RECOVERY_REQUEST = "securityDataRecovery";

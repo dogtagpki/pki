@@ -195,15 +195,15 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             thisreq = requestRepository.createRequest(Request.NETKEY_KEYRECOVERY_REQUEST);
 
             thisreq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_NETKEY_RA);
-            thisreq.setExtData(IRequest.NETKEY_ATTR_CUID, rCUID);
-            thisreq.setExtData(IRequest.NETKEY_ATTR_USERID, rUserid);
-            thisreq.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);
+            thisreq.setExtData(Request.NETKEY_ATTR_CUID, rCUID);
+            thisreq.setExtData(Request.NETKEY_ATTR_USERID, rUserid);
+            thisreq.setExtData(Request.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);
             if ((rCert != null) && (!rCert.equals(""))) {
-                thisreq.setExtData(IRequest.NETKEY_ATTR_USER_CERT, rCert);
+                thisreq.setExtData(Request.NETKEY_ATTR_USER_CERT, rCert);
                logger.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): received request parameter: cert");
             }
             if ((rKeyid != null) && (!rKeyid.equals(""))) {
-                thisreq.setExtData(IRequest.NETKEY_ATTR_KEYID, rKeyid);
+                thisreq.setExtData(Request.NETKEY_ATTR_KEYID, rKeyid);
                 logger.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): received request parameter: keyid");
             }
 
@@ -264,13 +264,13 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         thisreq.setExtData("wrappedUserPrivate", "");
         thisreq.setExtData("public_key", "");
         thisreq.setExtData("iv_s", "");
-        thisreq.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
+        thisreq.setExtData(Request.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
 
         /* delete the fields */
         thisreq.deleteExtData("wrappedUserPrivate");
         thisreq.deleteExtData("public_key");
         thisreq.deleteExtData("iv_s");
-        thisreq.deleteExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
+        thisreq.deleteExtData(Request.NETKEY_ATTR_DRMTRANS_DES_KEY);
 
         // now that fields are cleared, we can really write to ldap
         thisreq.setExtData("delayLDAPCommit", "false");

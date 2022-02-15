@@ -174,6 +174,19 @@ public class Request implements IRequest {
     public static final String CRL_PUBLISH_ERROR = "crlPublishError";
     public static final String REQUESTOR_TYPE = "requestorType";
 
+    // Netkey request attributes
+    public static final String NETKEY_ATTR_CUID = "CUID";
+    public static final String NETKEY_ATTR_USERID = "USERID";
+    public static final String NETKEY_ATTR_DRMTRANS_DES_KEY = "drm_trans_desKey";
+    public static final String NETKEY_ATTR_ARCHIVE_FLAG = "archive";
+    public static final String NETKEY_ATTR_SERVERSIDE_MUSCLE_FLAG = "serverSideMuscle";
+    public static final String NETKEY_ATTR_ENC_PRIVKEY_FLAG = "encryptPrivKey";
+    public static final String NETKEY_ATTR_USER_CERT = "cert";
+    public static final String NETKEY_ATTR_KEYID = "keyid";
+    public static final String NETKEY_ATTR_KEY_SIZE = "keysize";
+    public static final String NETKEY_ATTR_KEY_TYPE = "keytype";
+    public static final String NETKEY_ATTR_KEY_EC_CURVE = "eckeycurve";
+
     protected RequestId mRequestId;
     protected RequestStatus mRequestStatus;
     protected String mSourceId;

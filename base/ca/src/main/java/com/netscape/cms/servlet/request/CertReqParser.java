@@ -682,11 +682,11 @@ public class CertReqParser extends ReqParser {
         try {
             String kid = null;
 
-            String cid = request.getExtDataInString(IRequest.NETKEY_ATTR_CUID);
+            String cid = request.getExtDataInString(Request.NETKEY_ATTR_CUID);
             if (cid == null) {
                 cid = "";
             }
-            String uid = request.getExtDataInString(IRequest.NETKEY_ATTR_USERID);
+            String uid = request.getExtDataInString(Request.NETKEY_ATTR_USERID);
             if (uid == null) {
                 uid = "";
             }

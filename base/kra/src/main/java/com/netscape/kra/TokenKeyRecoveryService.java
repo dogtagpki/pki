@@ -242,14 +242,14 @@ public class TokenKeyRecoveryService implements IService {
 
         PK11SymKey sk = null;
 
-        String rCUID = request.getExtDataInString(IRequest.NETKEY_ATTR_CUID);
-        String rUserid = request.getExtDataInString(IRequest.NETKEY_ATTR_USERID);
-        String rWrappedDesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
+        String rCUID = request.getExtDataInString(Request.NETKEY_ATTR_CUID);
+        String rUserid = request.getExtDataInString(Request.NETKEY_ATTR_USERID);
+        String rWrappedDesKeyString = request.getExtDataInString(Request.NETKEY_ATTR_DRMTRANS_DES_KEY);
         // the request record field delayLDAPCommit == "true" will cause
         // updateRequest() to delay actual write to ldap
         request.setExtData("delayLDAPCommit", "true");
         // wrappedDesKey no longer needed. removing.
-        request.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
+        request.setExtData(Request.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
 
         auditSubjectID = rCUID + ":" + rUserid;
 
@@ -294,7 +294,7 @@ public class TokenKeyRecoveryService implements IService {
 
         // retrieve based on Certificate
         String cert_s = request.getExtDataInString(ATTR_USER_CERT);
-        String keyid_s = request.getExtDataInString(IRequest.NETKEY_ATTR_KEYID);
+        String keyid_s = request.getExtDataInString(Request.NETKEY_ATTR_KEYID);
         KeyId keyId = keyid_s != null ? new KeyId(keyid_s): null;
         /* have to have at least one */
         if ((cert_s == null) && (keyid_s == null)) {

@@ -182,7 +182,7 @@ public class NetkeyKeygenService implements IService {
         ;
         String PubKey = "";
 
-        String rArchive = request.getExtDataInString(IRequest.NETKEY_ATTR_ARCHIVE_FLAG);
+        String rArchive = request.getExtDataInString(Request.NETKEY_ATTR_ARCHIVE_FLAG);
         if (rArchive.equals("true")) {
             archive = true;
             logger.debug("NetkeyKeygenService: serviceRequest " + "archival requested for serverSideKeyGen");
@@ -191,9 +191,9 @@ public class NetkeyKeygenService implements IService {
             logger.debug("NetkeyKeygenService: serviceRequest " + "archival not requested for serverSideKeyGen");
         }
 
-        String rCUID = request.getExtDataInString(IRequest.NETKEY_ATTR_CUID);
-        String rUserid = request.getExtDataInString(IRequest.NETKEY_ATTR_USERID);
-        String rKeytype = request.getExtDataInString(IRequest.NETKEY_ATTR_KEY_TYPE);
+        String rCUID = request.getExtDataInString(Request.NETKEY_ATTR_CUID);
+        String rUserid = request.getExtDataInString(Request.NETKEY_ATTR_USERID);
+        String rKeytype = request.getExtDataInString(Request.NETKEY_ATTR_KEY_TYPE);
         RequestId requestId = request.getRequestId();
 
         auditSubjectID = rCUID + ":" + rUserid;
@@ -210,12 +210,12 @@ public class NetkeyKeygenService implements IService {
                 auditSubjectID,
                 requestId));
 
-        String rWrappedDesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
+        String rWrappedDesKeyString = request.getExtDataInString(Request.NETKEY_ATTR_DRMTRANS_DES_KEY);
         // the request reocrd field delayLDAPCommit == "true" will cause
         // updateRequest() to delay actual write to ldap
         request.setExtData("delayLDAPCommit", "true");
         // wrappedDesKey no longer needed. removing.
-        request.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
+        request.setExtData(Request.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
 
         //        logger.debug("NetkeyKeygenService: received DRM-trans-wrapped DES key ="+rWrappedDesKeyString);
         wrapped_des_key = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rWrappedDesKeyString);
@@ -233,12 +233,12 @@ public class NetkeyKeygenService implements IService {
         int keysize = 2048;
         String rKeycurve = "nistp256";
         if (rKeytype.equals("EC")) {
-            rKeycurve = request.getExtDataInString(IRequest.NETKEY_ATTR_KEY_EC_CURVE);
+            rKeycurve = request.getExtDataInString(Request.NETKEY_ATTR_KEY_EC_CURVE);
             if ((rKeycurve == null) || (rKeycurve.equals(""))) {
                 rKeycurve = "nistp256";
             }
         } else {
-            rKeysize = request.getExtDataInString(IRequest.NETKEY_ATTR_KEY_SIZE);
+            rKeysize = request.getExtDataInString(Request.NETKEY_ATTR_KEY_SIZE);
             keysize = Integer.parseInt(rKeysize);
         }
 
