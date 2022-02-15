@@ -494,7 +494,7 @@ public class DoRevokeTPS extends CMSServlet {
             }
 
             CertRequestRepository requestRepository = engine.getCertRequestRepository();
-            revReq = requestRepository.createRequest(IRequest.REVOCATION_REQUEST);
+            revReq = requestRepository.createRequest(Request.REVOCATION_REQUEST);
 
             audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
@@ -504,7 +504,7 @@ public class DoRevokeTPS extends CMSServlet {
                         auditRequestType));
 
             revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
-            revReq.setExtData(Request.REQ_TYPE, IRequest.REVOCATION_REQUEST);
+            revReq.setExtData(Request.REQ_TYPE, Request.REVOCATION_REQUEST);
             if (initiative.equals(AuditFormat.FROMUSER)) {
                 revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_EE);
             } else {
@@ -560,7 +560,7 @@ public class DoRevokeTPS extends CMSServlet {
             // that is meant for the Master CA. From Clone's point of view
             // the request is complete
             if ((stat == RequestStatus.COMPLETE)
-                    || ((type.equals(IRequest.CLA_CERT4CRL_REQUEST)) && (stat == RequestStatus.SVC_PENDING))) {
+                    || ((type.equals(Request.CLA_CERT4CRL_REQUEST)) && (stat == RequestStatus.SVC_PENDING))) {
                 // audit log the error
                 Integer result = revReq.getExtDataInInteger(IRequest.RESULT);
 

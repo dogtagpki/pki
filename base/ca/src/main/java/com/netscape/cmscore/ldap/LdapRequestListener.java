@@ -26,6 +26,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.cmscore.request.Request;
 
 public class LdapRequestListener implements IRequestListener {
 
@@ -46,16 +47,16 @@ public class LdapRequestListener implements IRequestListener {
 
     public void setPublisherProcessor(CAPublisherProcessor publisherProcessor) {
 
-        mRequestListeners.put(IRequest.ENROLLMENT_REQUEST,
+        mRequestListeners.put(Request.ENROLLMENT_REQUEST,
                 new LdapEnrollmentListener(publisherProcessor));
 
-        mRequestListeners.put(IRequest.RENEWAL_REQUEST,
+        mRequestListeners.put(Request.RENEWAL_REQUEST,
                 new LdapRenewalListener(publisherProcessor));
 
-        mRequestListeners.put(IRequest.REVOCATION_REQUEST,
+        mRequestListeners.put(Request.REVOCATION_REQUEST,
                 new LdapRevocationListener(publisherProcessor));
 
-        mRequestListeners.put(IRequest.UNREVOCATION_REQUEST,
+        mRequestListeners.put(Request.UNREVOCATION_REQUEST,
                 new LdapUnrevocationListener(publisherProcessor));
     }
 
@@ -67,7 +68,7 @@ public class LdapRequestListener implements IRequestListener {
         String type = r.getRequestType();
         PublishObject obj = new PublishObject();
 
-        if (type.equals(IRequest.ENROLLMENT_REQUEST)) {
+        if (type.equals(Request.ENROLLMENT_REQUEST)) {
             // in case it's not meant for us
             if (r.getExtDataInInteger(IRequest.RESULT) == null)
                 return null;
@@ -89,7 +90,7 @@ public class LdapRequestListener implements IRequestListener {
             }
             obj.setCerts(certs);
             return obj;
-        } else if (type.equals(IRequest.RENEWAL_REQUEST)) {
+        } else if (type.equals(Request.RENEWAL_REQUEST)) {
             // Note we do not remove old certs from directory during renewal
             X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
@@ -100,7 +101,7 @@ public class LdapRequestListener implements IRequestListener {
             }
             obj.setCerts(certs);
             return obj;
-        } else if (type.equals(IRequest.REVOCATION_REQUEST)) {
+        } else if (type.equals(Request.REVOCATION_REQUEST)) {
             X509CertImpl[] revcerts = r.getExtDataInCertArray(IRequest.OLD_CERTS);
 
             if (revcerts == null || revcerts.length == 0 || revcerts[0] == null) {
@@ -111,7 +112,7 @@ public class LdapRequestListener implements IRequestListener {
             }
             obj.setCerts(revcerts);
             return obj;
-        } else if (type.equals(IRequest.UNREVOCATION_REQUEST)) {
+        } else if (type.equals(Request.UNREVOCATION_REQUEST)) {
             X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.OLD_CERTS);
 
             if (certs == null || certs.length == 0 || certs[0] == null) {

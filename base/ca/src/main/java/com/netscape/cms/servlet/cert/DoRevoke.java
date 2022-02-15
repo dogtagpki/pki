@@ -65,6 +65,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Revoke a Certificate
@@ -507,7 +508,7 @@ public class DoRevoke extends CMSServlet {
 
             if (status == RequestStatus.COMPLETE
                     || status == RequestStatus.SVC_PENDING
-                        && type.equals(IRequest.CLA_CERT4CRL_REQUEST)) {
+                        && type.equals(Request.CLA_CERT4CRL_REQUEST)) {
 
                 header.addStringValue("revoked", "yes");
 

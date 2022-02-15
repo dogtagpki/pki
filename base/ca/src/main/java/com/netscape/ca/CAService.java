@@ -98,6 +98,7 @@ import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -126,46 +127,46 @@ public class CAService implements ICAService, IService {
 
         // init services.
         mServants.put(
-                IRequest.ENROLLMENT_REQUEST,
+                Request.ENROLLMENT_REQUEST,
                 new serviceIssue(this));
         mServants.put(
-                IRequest.RENEWAL_REQUEST,
+                Request.RENEWAL_REQUEST,
                 new serviceRenewal(this));
         mServants.put(
-                IRequest.REVOCATION_REQUEST,
+                Request.REVOCATION_REQUEST,
                 new serviceRevoke(this));
         mServants.put(
-                IRequest.CMCREVOKE_REQUEST,
+                Request.CMCREVOKE_REQUEST,
                 new serviceRevoke(this));
         mServants.put(
-                IRequest.REVOCATION_CHECK_CHALLENGE_REQUEST,
+                Request.REVOCATION_CHECK_CHALLENGE_REQUEST,
                 new serviceCheckChallenge(this));
         mServants.put(
-                IRequest.GETCERTS_FOR_CHALLENGE_REQUEST,
+                Request.GETCERTS_FOR_CHALLENGE_REQUEST,
                 new getCertsForChallenge(this));
         mServants.put(
-                IRequest.UNREVOCATION_REQUEST,
+                Request.UNREVOCATION_REQUEST,
                 new serviceUnrevoke(this));
         mServants.put(
-                IRequest.GETCACHAIN_REQUEST,
+                Request.GETCACHAIN_REQUEST,
                 new serviceGetCAChain(this));
         mServants.put(
-                IRequest.GETCRL_REQUEST,
+                Request.GETCRL_REQUEST,
                 new serviceGetCRL(this));
         mServants.put(
-                IRequest.GETREVOCATIONINFO_REQUEST,
+                Request.GETREVOCATIONINFO_REQUEST,
                 new serviceGetRevocationInfo(this));
         mServants.put(
-                IRequest.GETCERTS_REQUEST,
+                Request.GETCERTS_REQUEST,
                 new serviceGetCertificates(this));
         mServants.put(
-                IRequest.CLA_CERT4CRL_REQUEST,
+                Request.CLA_CERT4CRL_REQUEST,
                 new serviceCert4Crl(this));
         mServants.put(
-                IRequest.CLA_UNCERT4CRL_REQUEST,
+                Request.CLA_UNCERT4CRL_REQUEST,
                 new serviceUnCert4Crl(this));
         mServants.put(
-                IRequest.GETCERT_STATUS_REQUEST,
+                Request.GETCERT_STATUS_REQUEST,
                 new getCertStatus(this));
     }
 
@@ -423,7 +424,7 @@ public class CAService implements ICAService, IService {
 
         try {
             // send request to KRA first
-            if (type.equals(IRequest.ENROLLMENT_REQUEST) &&
+            if (type.equals(Request.ENROLLMENT_REQUEST) &&
                     isPKIArchiveOptionPresent(request) && mKRAConnector != null) {
 
                 logger.debug("CAService: Sending enrollment request to KRA");
@@ -471,7 +472,7 @@ public class CAService implements ICAService, IService {
                     }
                 }
             } else {
-                logger.debug("*** NOT Send to KRA type=" + type + " ENROLLMENT=" + IRequest.ENROLLMENT_REQUEST);
+                logger.debug("*** NOT Send to KRA type=" + type + " ENROLLMENT=" + Request.ENROLLMENT_REQUEST);
             }
 
             completed = servant.service(request);
@@ -480,8 +481,8 @@ public class CAService implements ICAService, IService {
             request.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
             request.setExtData(IRequest.ERROR, e);
 
-            if (!(type.equals(IRequest.REVOCATION_REQUEST) ||
-                    type.equals(IRequest.UNREVOCATION_REQUEST) || type.equals(IRequest.CMCREVOKE_REQUEST))) {
+            if (!(type.equals(Request.REVOCATION_REQUEST) ||
+                    type.equals(Request.UNREVOCATION_REQUEST) || type.equals(Request.CMCREVOKE_REQUEST))) {
 
                 signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
@@ -497,8 +498,8 @@ public class CAService implements ICAService, IService {
         // XXX in case of key archival this may not always be the case.
         logger.debug("serviceRequest completed = " + completed);
 
-        if (!(type.equals(IRequest.REVOCATION_REQUEST) ||
-                type.equals(IRequest.UNREVOCATION_REQUEST) || type.equals(IRequest.CMCREVOKE_REQUEST))) {
+        if (!(type.equals(Request.REVOCATION_REQUEST) ||
+                type.equals(Request.UNREVOCATION_REQUEST) || type.equals(Request.CMCREVOKE_REQUEST))) {
 
             signedAuditLogger.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                     auditSubjectID,
@@ -1798,7 +1799,7 @@ class serviceRevoke implements IServant {
 
             logger.debug(CMS.getLogMessage("CMSCORE_CA_CLONE_READ_REVOKED_CONNECTOR"));
 
-            request.setRequestType(IRequest.CLA_CERT4CRL_REQUEST);
+            request.setRequestType(Request.CLA_CERT4CRL_REQUEST);
             sendStatus = CAService.mCLAConnector.send(request);
             if (sendStatus && request.getExtDataInString(IRequest.ERROR) != null) {
                 request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
@@ -1886,7 +1887,7 @@ class serviceUnrevoke implements IServant {
 
         // if clone ca, send unrevoked cert serials to CLA
         if (CAService.mCLAConnector != null) {
-            request.setRequestType(IRequest.CLA_UNCERT4CRL_REQUEST);
+            request.setRequestType(Request.CLA_UNCERT4CRL_REQUEST);
             sendStatus = CAService.mCLAConnector.send(request);
             if (sendStatus && request.getExtDataInString(IRequest.ERROR) != null) {
                 request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);

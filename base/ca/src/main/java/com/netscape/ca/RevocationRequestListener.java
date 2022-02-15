@@ -11,6 +11,7 @@ import com.netscape.certsrv.ca.EErrorPublishCRL;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 public class RevocationRequestListener implements IRequestListener {
 
@@ -34,10 +35,10 @@ public class RevocationRequestListener implements IRequestListener {
     public void accept(IRequest r) {
         String requestType = r.getRequestType();
 
-        if (!(requestType.equals(IRequest.REVOCATION_REQUEST) ||
-                requestType.equals(IRequest.UNREVOCATION_REQUEST) ||
-                requestType.equals(IRequest.CLA_CERT4CRL_REQUEST) ||
-                requestType.equals(IRequest.CLA_UNCERT4CRL_REQUEST))) {
+        if (!(requestType.equals(Request.REVOCATION_REQUEST) ||
+                requestType.equals(Request.UNREVOCATION_REQUEST) ||
+                requestType.equals(Request.CLA_CERT4CRL_REQUEST) ||
+                requestType.equals(Request.CLA_UNCERT4CRL_REQUEST))) {
             return;
         }
 

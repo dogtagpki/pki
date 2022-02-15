@@ -40,6 +40,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.request.KeyRequestRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 
 /**
@@ -191,7 +192,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         }
 
         if (!missingParam) {
-            thisreq = requestRepository.createRequest(IRequest.NETKEY_KEYRECOVERY_REQUEST);
+            thisreq = requestRepository.createRequest(Request.NETKEY_KEYRECOVERY_REQUEST);
 
             thisreq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_NETKEY_RA);
             thisreq.setExtData(IRequest.NETKEY_ATTR_CUID, rCUID);

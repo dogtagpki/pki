@@ -32,6 +32,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
@@ -192,7 +193,7 @@ public class HttpConnector implements IConnector {
             // XXX hack: don't resend get revocation info requests since
             // resent results are ignored.
             if ((!r.getRequestType().equals(
-                        IRequest.GETREVOCATIONINFO_REQUEST)) &&
+                        Request.GETREVOCATIONINFO_REQUEST)) &&
                     (replyStatus == RequestStatus.BEGIN ||
                             replyStatus == RequestStatus.PENDING ||
                             replyStatus == RequestStatus.SVC_PENDING ||
@@ -234,7 +235,7 @@ public class HttpConnector implements IConnector {
         } catch (EBaseException e) {
             logger.error("HttpConn: error sending request to cert: " + e.getMessage(), e);
 
-            if (!r.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST)) {
+            if (!r.getRequestType().equals(Request.GETREVOCATIONINFO_REQUEST)) {
                 if (mResender != null)
                     mResender.addRequest(r);
             }

@@ -212,7 +212,7 @@ public class CAEnrollProfile extends EnrollProfile {
                 }
                 throw new EProfileException(e);
             }
-        } else if ((optionsData != null) && (!request.getRequestType().equals(IRequest.RENEWAL_REQUEST))) {
+        } else if ((optionsData != null) && (!request.getRequestType().equals(Request.RENEWAL_REQUEST))) {
             // do not archive keys for renewal requests
             PKIArchiveOptions options = toPKIArchiveOptions(optionsData);
 

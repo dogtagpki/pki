@@ -48,6 +48,7 @@ import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
+import com.netscape.cmscore.request.Request;
 
 /**
  * a listener for every completed enrollment request
@@ -181,7 +182,7 @@ public class CertificateRevokedListener implements IRequestListener {
         String rs = r.getRequestStatus().toString();
         String requestType = r.getRequestType();
 
-        if (requestType.equals(IRequest.REVOCATION_REQUEST) == false)
+        if (requestType.equals(Request.REVOCATION_REQUEST) == false)
             return;
         if (rs.equals("complete") == false) {
             logger.warn("CertificateRevokedListener: Request status: " + rs);
@@ -200,7 +201,7 @@ public class CertificateRevokedListener implements IRequestListener {
             return;
         }
 
-        if (requestType.equals(IRequest.REVOCATION_REQUEST)) {
+        if (requestType.equals(Request.REVOCATION_REQUEST)) {
             logger.debug("CertificateRevokedListener: accept() revocation request...");
             // Get the certificate from the request
             //X509CertImpl issuedCert[] =

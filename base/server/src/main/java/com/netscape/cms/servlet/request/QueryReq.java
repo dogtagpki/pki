@@ -48,6 +48,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestRepository;
 
 /**
@@ -135,30 +136,30 @@ public class QueryReq extends CMSServlet {
 
         if (p == null)
             return filter;
-        if (p.equals(IRequest.ENROLLMENT_REQUEST)) {
-            filter = "(requestType=" + IRequest.ENROLLMENT_REQUEST + ")";
-        } else if (p.equals(IRequest.RENEWAL_REQUEST)) {
-            filter = "(requestType=" + IRequest.RENEWAL_REQUEST + ")";
-        } else if (p.equals(IRequest.REVOCATION_REQUEST)) {
-            filter = "(requestType=" + IRequest.REVOCATION_REQUEST + ")";
-        } else if (p.equals(IRequest.UNREVOCATION_REQUEST)) {
-            filter = "(requestType=" + IRequest.UNREVOCATION_REQUEST + ")";
-        } else if (p.equals(IRequest.KEYARCHIVAL_REQUEST)) {
-            filter = "(requestType=" + IRequest.KEYARCHIVAL_REQUEST + ")";
-        } else if (p.equals(IRequest.KEYRECOVERY_REQUEST)) {
-            filter = "(requestType=" + IRequest.KEYRECOVERY_REQUEST + ")";
-        } else if (p.equals(IRequest.GETCACHAIN_REQUEST)) {
-            filter = "(requestType=" + IRequest.GETCACHAIN_REQUEST + ")";
-        } else if (p.equals(IRequest.GETREVOCATIONINFO_REQUEST)) {
-            filter = "(requestType=" + IRequest.GETREVOCATIONINFO_REQUEST + ")";
-        } else if (p.equals(IRequest.GETCRL_REQUEST)) {
-            filter = "(requestType=" + IRequest.GETCRL_REQUEST + ")";
-        } else if (p.equals(IRequest.GETCERTS_REQUEST)) {
-            filter = "(requestType=" + IRequest.GETCERTS_REQUEST + ")";
-        } else if (p.equals(IRequest.NETKEY_KEYGEN_REQUEST)) {
-            filter = "(requestType=" + IRequest.NETKEY_KEYGEN_REQUEST + ")";
-        } else if (p.equals(IRequest.NETKEY_KEYRECOVERY_REQUEST)) {
-            filter = "(requestType=" + IRequest.NETKEY_KEYRECOVERY_REQUEST + ")";
+        if (p.equals(Request.ENROLLMENT_REQUEST)) {
+            filter = "(requestType=" + Request.ENROLLMENT_REQUEST + ")";
+        } else if (p.equals(Request.RENEWAL_REQUEST)) {
+            filter = "(requestType=" + Request.RENEWAL_REQUEST + ")";
+        } else if (p.equals(Request.REVOCATION_REQUEST)) {
+            filter = "(requestType=" + Request.REVOCATION_REQUEST + ")";
+        } else if (p.equals(Request.UNREVOCATION_REQUEST)) {
+            filter = "(requestType=" + Request.UNREVOCATION_REQUEST + ")";
+        } else if (p.equals(Request.KEYARCHIVAL_REQUEST)) {
+            filter = "(requestType=" + Request.KEYARCHIVAL_REQUEST + ")";
+        } else if (p.equals(Request.KEYRECOVERY_REQUEST)) {
+            filter = "(requestType=" + Request.KEYRECOVERY_REQUEST + ")";
+        } else if (p.equals(Request.GETCACHAIN_REQUEST)) {
+            filter = "(requestType=" + Request.GETCACHAIN_REQUEST + ")";
+        } else if (p.equals(Request.GETREVOCATIONINFO_REQUEST)) {
+            filter = "(requestType=" + Request.GETREVOCATIONINFO_REQUEST + ")";
+        } else if (p.equals(Request.GETCRL_REQUEST)) {
+            filter = "(requestType=" + Request.GETCRL_REQUEST + ")";
+        } else if (p.equals(Request.GETCERTS_REQUEST)) {
+            filter = "(requestType=" + Request.GETCERTS_REQUEST + ")";
+        } else if (p.equals(Request.NETKEY_KEYGEN_REQUEST)) {
+            filter = "(requestType=" + Request.NETKEY_KEYGEN_REQUEST + ")";
+        } else if (p.equals(Request.NETKEY_KEYRECOVERY_REQUEST)) {
+            filter = "(requestType=" + Request.NETKEY_KEYRECOVERY_REQUEST + ")";
         } else if (p.equals(IN_SHOW_ALL)) {
             filter = "(requestType=*)";
         }

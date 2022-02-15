@@ -292,9 +292,9 @@ public class RevocationProcessor extends CertProcessor {
 
         CAEngine engine = CAEngine.getInstance();
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        request = requestRepository.createRequest(IRequest.REVOCATION_REQUEST);
+        request = requestRepository.createRequest(Request.REVOCATION_REQUEST);
 
-        request.setExtData(Request.REQ_TYPE, IRequest.REVOCATION_REQUEST);
+        request.setExtData(Request.REQ_TYPE, Request.REVOCATION_REQUEST);
 
         request.setExtData(IRequest.OLD_CERTS, certificates.toArray(new X509CertImpl[certificates.size()]));
         request.setExtData(IRequest.CERT_INFO, revCertImpls.toArray(new RevokedCertImpl[revCertImpls.size()]));
@@ -338,7 +338,7 @@ public class RevocationProcessor extends CertProcessor {
 
         if (requestStatus == RequestStatus.COMPLETE
                 || requestStatus == RequestStatus.SVC_PENDING
-                    && type.equals(IRequest.CLA_CERT4CRL_REQUEST)) {
+                    && type.equals(Request.CLA_CERT4CRL_REQUEST)) {
 
             // audit log the error
             Integer result = request.getExtDataInInteger(IRequest.RESULT);
@@ -365,9 +365,9 @@ public class RevocationProcessor extends CertProcessor {
 
         CAEngine engine = CAEngine.getInstance();
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        request = requestRepository.createRequest(IRequest.UNREVOCATION_REQUEST);
+        request = requestRepository.createRequest(Request.UNREVOCATION_REQUEST);
 
-        request.setExtData(Request.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
+        request.setExtData(Request.REQ_TYPE, Request.UNREVOCATION_REQUEST);
 
         Collection<BigInteger> serialNumbers = new ArrayList<>();
         for (X509CertImpl cert : certificates) {
@@ -397,7 +397,7 @@ public class RevocationProcessor extends CertProcessor {
         logger.debug("RevocationProcessor: - type: " + type);
 
         if (requestStatus == RequestStatus.COMPLETE
-                || requestStatus == RequestStatus.SVC_PENDING && type.equals(IRequest.CLA_UNCERT4CRL_REQUEST)) {
+                || requestStatus == RequestStatus.SVC_PENDING && type.equals(Request.CLA_UNCERT4CRL_REQUEST)) {
 
             Integer result = request.getExtDataInInteger(IRequest.RESULT);
 

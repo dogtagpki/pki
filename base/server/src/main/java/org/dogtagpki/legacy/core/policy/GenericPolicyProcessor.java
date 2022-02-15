@@ -45,6 +45,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This is a Generic policy processor. The three main functions of
@@ -397,15 +398,15 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         }
         logger.debug("GenericPolicyProcessor: apply not ProfileRequest. op=" + op);
 
-        if (op.equalsIgnoreCase(IRequest.ENROLLMENT_REQUEST))
+        if (op.equalsIgnoreCase(Request.ENROLLMENT_REQUEST))
             rules = mEnrollmentRules;
-        else if (op.equalsIgnoreCase(IRequest.RENEWAL_REQUEST))
+        else if (op.equalsIgnoreCase(Request.RENEWAL_REQUEST))
             rules = mRenewalRules;
-        else if (op.equalsIgnoreCase(IRequest.REVOCATION_REQUEST))
+        else if (op.equalsIgnoreCase(Request.REVOCATION_REQUEST))
             rules = mRevocationRules;
-        else if (op.equalsIgnoreCase(IRequest.KEY_RECOVERY_REQUEST))
+        else if (op.equalsIgnoreCase(Request.KEY_RECOVERY_REQUEST))
             rules = mKeyRecoveryRules;
-        else if (op.equalsIgnoreCase(IRequest.KEY_ARCHIVAL_REQUEST))
+        else if (op.equalsIgnoreCase(Request.KEY_ARCHIVAL_REQUEST))
             rules = mKeyArchivalRules;
         else {
             // It aint' a CMP request. We don't care.

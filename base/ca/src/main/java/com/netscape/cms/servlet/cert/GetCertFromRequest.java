@@ -52,6 +52,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Gets a issued certificate from a request id.
@@ -201,8 +202,8 @@ public class GetCertFromRequest extends CMSServlet {
             }
         }
 
-        if (!((r.getRequestType().equals(IRequest.ENROLLMENT_REQUEST)) ||
-                (r.getRequestType().equals(IRequest.RENEWAL_REQUEST)))) {
+        if (!((r.getRequestType().equals(Request.ENROLLMENT_REQUEST)) ||
+                (r.getRequestType().equals(Request.RENEWAL_REQUEST)))) {
             logger.error(CMS.getLogMessage("CMSGW_REQUEST_NOT_ENROLLMENT_1", requestId));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_REQUEST_NOT_ENROLLMENT", requestId));

@@ -47,6 +47,7 @@ import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
+import com.netscape.cmscore.request.Request;
 
 /**
  * a listener for every completed enrollment request
@@ -207,8 +208,8 @@ public class CertificateIssuedListener implements IRequestListener {
         }
         String requestType = r.getRequestType();
 
-        if (requestType.equals(IRequest.ENROLLMENT_REQUEST) ||
-                requestType.equals(IRequest.RENEWAL_REQUEST)) {
+        if (requestType.equals(Request.ENROLLMENT_REQUEST) ||
+                requestType.equals(Request.RENEWAL_REQUEST)) {
             logger.debug("accept() enrollment/renewal request...");
             // Get the certificate from the request
             X509CertImpl issuedCert[] = null;

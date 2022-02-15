@@ -441,9 +441,9 @@ public class CMCRevReqServlet extends CMSServlet {
             CertRequestRepository requestRepository = engine.getCertRequestRepository();
             IRequest revReq = null;
             if (revReason != null && revReason == RevocationReason.REMOVE_FROM_CRL) {
-                revReq = requestRepository.createRequest(IRequest.UNREVOCATION_REQUEST);
+                revReq = requestRepository.createRequest(Request.UNREVOCATION_REQUEST);
             } else {
-                revReq = requestRepository.createRequest(IRequest.REVOCATION_REQUEST);
+                revReq = requestRepository.createRequest(Request.REVOCATION_REQUEST);
             }
 
             audit(new CertStatusChangeRequestEvent(
@@ -455,11 +455,11 @@ public class CMCRevReqServlet extends CMSServlet {
 
             revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
             if (revReason != null && revReason == RevocationReason.REMOVE_FROM_CRL) {
-                revReq.setExtData(Request.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
+                revReq.setExtData(Request.REQ_TYPE, Request.UNREVOCATION_REQUEST);
                 revReq.setExtData(IRequest.OLD_SERIALS, certSerialNumbers);
             } else {
                 revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
-                revReq.setExtData(Request.REQ_TYPE, IRequest.REVOCATION_REQUEST);
+                revReq.setExtData(Request.REQ_TYPE, Request.REVOCATION_REQUEST);
                 revReq.setExtData(IRequest.REVOKED_REASON, reason);
                 revReq.setExtData(IRequest.OLD_CERTS, oldCerts);
                 if (comments != null) {

@@ -64,6 +64,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.ExtPrettyPrint;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Output a 'pretty print' of a certificate request
@@ -254,7 +255,7 @@ public class CertReqParser extends ReqParser {
 
                     if (name.equalsIgnoreCase(IRequest.ISSUED_CERTS) && mDetails &&
                             (req.getRequestStatus() == RequestStatus.COMPLETE ||
-                            req.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST))) {
+                            req.getRequestType().equals(Request.GETREVOCATIONINFO_REQUEST))) {
                         X509CertImpl issuedCert[] =
                                 req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
                         if (issuedCert != null && issuedCert[0] != null) {
@@ -497,7 +498,7 @@ public class CertReqParser extends ReqParser {
 
             if (name.equalsIgnoreCase(IRequest.ISSUED_CERTS) && mDetails &&
                     (req.getRequestStatus() == RequestStatus.COMPLETE ||
-                    req.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST))) {
+                    req.getRequestType().equals(Request.GETREVOCATIONINFO_REQUEST))) {
                 X509CertImpl issuedCert[] =
                         req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
@@ -513,7 +514,7 @@ public class CertReqParser extends ReqParser {
                 if (oldCert != null && oldCert.length > 0) {
                     arg.addBigIntegerValue("serialNumber", oldCert[0].getSerialNumber(), 16);
                     arg.addStringValue("subject", oldCert[0].getSubjectDN().toString());
-                    if (req.getRequestType().equals(IRequest.GETCERTS_REQUEST)) {
+                    if (req.getRequestType().equals(Request.GETCERTS_REQUEST)) {
                         for (int i = 0; i < oldCert.length; i++) {
                             ArgBlock rarg = new ArgBlock();
 
@@ -722,7 +723,7 @@ public class CertReqParser extends ReqParser {
             if (requestorDN != null) {
                 arg.addStringValue("subject", requestorDN);
             }
-        } else if (IRequest.KEYRECOVERY_REQUEST.equals(reqType)) {
+        } else if (Request.KEYRECOVERY_REQUEST.equals(reqType)) {
             arg.addStringValue("profile", "false");
             String subjectDN = getCertSubjectDN(req);
             arg.addStringValue("subject", subjectDN);
@@ -941,7 +942,7 @@ public class CertReqParser extends ReqParser {
 
                         arg.addBigIntegerValue("serialNumber", xcert.getSerialNumber(), 16);
                         arg.addStringValue("subject", xcert.getSubjectDN().toString());
-                        if (req.getRequestType().equals(IRequest.GETCERTS_REQUEST)) {
+                        if (req.getRequestType().equals(Request.GETCERTS_REQUEST)) {
                             for (int i = 0; i < oldCert.length; i++) {
                                 ArgBlock rarg = new ArgBlock();
 

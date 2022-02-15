@@ -63,6 +63,28 @@ public class Request implements IRequest {
     public static final String REQ_TYPE = "requestType";
     public static final String REQ_FORMAT = "requestFormat";
 
+    // request type values.
+    public static final String ENROLLMENT_REQUEST = "enrollment";
+    public static final String RENEWAL_REQUEST = "renewal";
+    public static final String REVOCATION_REQUEST = "revocation";
+    public static final String CMCREVOKE_REQUEST = "CMCRevReq";
+    public static final String UNREVOCATION_REQUEST = "unrevocation";
+    public static final String KEYARCHIVAL_REQUEST = "archival";
+    public static final String KEYRECOVERY_REQUEST = "recovery";
+    public static final String KEY_RECOVERY_REQUEST = "keyRecovery";
+    public static final String KEY_ARCHIVAL_REQUEST = "keyArchival";
+    public static final String GETCACHAIN_REQUEST = "getCAChain";
+    public static final String GETREVOCATIONINFO_REQUEST = "getRevocationInfo";
+    public static final String GETCRL_REQUEST = "getCRL";
+    public static final String GETCERTS_REQUEST = "getCertificates";
+    public static final String REVOCATION_CHECK_CHALLENGE_REQUEST = "revocationChallenge";
+    public static final String GETCERT_STATUS_REQUEST = "getCertStatus";
+    public static final String GETCERTS_FOR_CHALLENGE_REQUEST = "getCertsForChallenge";
+    public static final String CLA_CERT4CRL_REQUEST = "cert4crl";
+    public static final String CLA_UNCERT4CRL_REQUEST = "uncert4crl";
+    public static final String NETKEY_KEYGEN_REQUEST = "netkeyKeygen";
+    public static final String NETKEY_KEYRECOVERY_REQUEST = "netkeyKeyRecovery";
+
     protected RequestId mRequestId;
     protected RequestStatus mRequestStatus;
     protected String mSourceId;

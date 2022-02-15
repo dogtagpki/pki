@@ -34,6 +34,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmscore.request.Request;
 
 public class CertRequestInfoFactory {
 
@@ -70,7 +71,7 @@ public class CertRequestInfoFactory {
             return info;
 
         X509CertImpl impl = request.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
-        if (impl == null && requestType.equals(IRequest.REVOCATION_REQUEST)) {
+        if (impl == null && requestType.equals(Request.REVOCATION_REQUEST)) {
             // revocation request; try and get serial of revoked cert
             X509CertImpl[] certs =
                 request.getExtDataInCertArray(IRequest.OLD_CERTS);

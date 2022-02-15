@@ -28,6 +28,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Output a 'pretty print' of a Key Archival request
@@ -57,7 +58,7 @@ public class KeyReqParser extends ReqParser {
         String type = req.getRequestType();
         CMSEngine engine = CMS.getCMSEngine();
 
-        if (type.equals(IRequest.ENROLLMENT_REQUEST)) {
+        if (type.equals(Request.ENROLLMENT_REQUEST)) {
             BigInteger recSerialNo = req.getExtDataInBigInteger("keyRecord");
             IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
             if (kra != null) {
@@ -68,7 +69,7 @@ public class KeyReqParser extends ReqParser {
                 throw new EBaseException("KRA is not available");
             }
 
-        } else if (type.equals(IRequest.KEYRECOVERY_REQUEST)) {
+        } else if (type.equals(Request.KEYRECOVERY_REQUEST)) {
             BigInteger kid = req.getExtDataInBigInteger("serialNumber");
 
             arg.addStringValue(OUTPUT_SERIALNO, kid.toString());

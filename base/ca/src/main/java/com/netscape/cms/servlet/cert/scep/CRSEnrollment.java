@@ -125,6 +125,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.CertRequestRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -1796,7 +1797,7 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        IRequest pkiReq = requestRepository.createRequest(IRequest.ENROLLMENT_REQUEST);
+        IRequest pkiReq = requestRepository.createRequest(Request.ENROLLMENT_REQUEST);
 
         AuthToken token = (AuthToken) req.get(AUTH_TOKEN);
         if (token != null) {

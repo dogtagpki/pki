@@ -58,6 +58,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 
@@ -395,7 +396,7 @@ public class CloneServlet extends CMSServlet {
                     );
                 }
             } else {
-                if (thisreq.getRequestType().equals(IRequest.CLA_CERT4CRL_REQUEST)) {
+                if (thisreq.getRequestType().equals(Request.CLA_CERT4CRL_REQUEST)) {
                     Integer result = thisreq.getExtDataInInteger(IRequest.RESULT);
 
                     if (result.equals(IRequest.RES_ERROR)) {

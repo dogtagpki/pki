@@ -256,11 +256,11 @@ public class RequestNotifier implements IRequestNotifier {
                     if (requestType == null) {
                         continue;
                     }
-                    if (!(requestType.equals(IRequest.ENROLLMENT_REQUEST) ||
-                            requestType.equals(IRequest.RENEWAL_REQUEST) ||
-                            requestType.equals(IRequest.REVOCATION_REQUEST) ||
-                            requestType.equals(IRequest.CMCREVOKE_REQUEST) ||
-                            requestType.equals(IRequest.UNREVOCATION_REQUEST))) {
+                    if (!(requestType.equals(Request.ENROLLMENT_REQUEST) ||
+                            requestType.equals(Request.RENEWAL_REQUEST) ||
+                            requestType.equals(Request.REVOCATION_REQUEST) ||
+                            requestType.equals(Request.CMCREVOKE_REQUEST) ||
+                            requestType.equals(Request.UNREVOCATION_REQUEST))) {
                         continue;
                     }
                     if (i == 0 && id.equals(r.getRequestId().toString())) {

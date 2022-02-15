@@ -74,6 +74,7 @@ import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -604,7 +605,7 @@ public class EnrollmentService implements IService {
             }
             logger.info(
                     AuditFormat.FORMAT,
-                    IRequest.KEYARCHIVAL_REQUEST,
+                    Request.KEYARCHIVAL_REQUEST,
                     request.getRequestId(),
                     AuditFormat.FROMAGENT + " agentID: " + agentId,
                     authMgr,

@@ -261,7 +261,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             }
 
             CertRequestRepository requestRepository = engine.getCertRequestRepository();
-            unrevReq = requestRepository.createRequest(IRequest.UNREVOCATION_REQUEST);
+            unrevReq = requestRepository.createRequest(Request.UNREVOCATION_REQUEST);
 
             audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
@@ -270,7 +270,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                         auditSerialNumber,
                         auditRequestType));
 
-            unrevReq.setExtData(Request.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
+            unrevReq.setExtData(Request.REQ_TYPE, Request.UNREVOCATION_REQUEST);
             unrevReq.setExtData(IRequest.OLD_SERIALS, serialNumbers);
             unrevReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
 
@@ -299,7 +299,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             String type = unrevReq.getRequestType();
 
             if ((status == RequestStatus.COMPLETE)
-                    || ((type.equals(IRequest.CLA_UNCERT4CRL_REQUEST)) && (status == RequestStatus.SVC_PENDING))) {
+                    || ((type.equals(Request.CLA_UNCERT4CRL_REQUEST)) && (status == RequestStatus.SVC_PENDING))) {
 
                 Integer result = unrevReq.getExtDataInInteger(IRequest.RESULT);
 

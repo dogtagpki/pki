@@ -80,6 +80,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
@@ -757,7 +758,7 @@ public class EnrollServlet extends CMSServlet {
 
             // create enrollment request in request repository
             CertRequestRepository requestRepository = engine.getCertRequestRepository();
-            req = requestRepository.createRequest(IRequest.ENROLLMENT_REQUEST);
+            req = requestRepository.createRequest(Request.ENROLLMENT_REQUEST);
 
             // retrieve the actual "auditRequesterID"
             if (req != null) {

@@ -79,6 +79,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
 import com.netscape.cmscore.request.CertRequestRepository;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -2225,7 +2226,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
                 logger.debug("recoverCRLCache  request=" + request.getRequestId().toString() +
                                 "  type=" + request.getRequestType());
-                if (IRequest.REVOCATION_REQUEST.equals(request.getRequestType())) {
+                if (Request.REVOCATION_REQUEST.equals(request.getRequestType())) {
                     RevokedCertImpl revokedCert[] =
                             request.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
                     if (revokedCert != null) {
@@ -2242,7 +2243,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         logger.error("Revocation Request: Revoked Certificates is a Null or has Invalid Values");
                         throw new EBaseException("Revocation Request: Revoked Certificates is a Null or has Invalid Values");
                     }
-                } else if (IRequest.UNREVOCATION_REQUEST.equals(request.getRequestType())) {
+                } else if (Request.UNREVOCATION_REQUEST.equals(request.getRequestType())) {
                     BigInteger serialNo[] = request.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
                     if (serialNo != null) {
                         for (int j = 0; j < serialNo.length; j++) {

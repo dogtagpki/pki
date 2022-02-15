@@ -72,6 +72,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -440,7 +441,7 @@ public class RecoveryService implements IService {
         }
         logger.info(
                 AuditFormat.FORMAT,
-                IRequest.KEYRECOVERY_REQUEST,
+                Request.KEYRECOVERY_REQUEST,
                 request.getRequestId(),
                 initiative,
                 authMgr,

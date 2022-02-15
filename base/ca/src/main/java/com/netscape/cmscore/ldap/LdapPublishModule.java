@@ -51,6 +51,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPConnection;
 
@@ -253,13 +254,13 @@ public class LdapPublishModule implements IRequestListener {
     }
 
     protected void initHandlers() {
-        mEventHandlers.put(IRequest.ENROLLMENT_REQUEST,
+        mEventHandlers.put(Request.ENROLLMENT_REQUEST,
                 new HandleEnrollment(this));
-        mEventHandlers.put(IRequest.RENEWAL_REQUEST,
+        mEventHandlers.put(Request.RENEWAL_REQUEST,
                 new HandleRenewal(this));
-        mEventHandlers.put(IRequest.REVOCATION_REQUEST,
+        mEventHandlers.put(Request.REVOCATION_REQUEST,
                 new HandleRevocation(this));
-        mEventHandlers.put(IRequest.UNREVOCATION_REQUEST,
+        mEventHandlers.put(Request.UNREVOCATION_REQUEST,
                 new HandleUnrevocation(this));
     }
 

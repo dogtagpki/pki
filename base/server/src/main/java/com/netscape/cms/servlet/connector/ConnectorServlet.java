@@ -729,7 +729,7 @@ public class ConnectorServlet extends CMSServlet {
                         );
                     }
                 } else {
-                    if (thisreq.getRequestType().equals(IRequest.ENROLLMENT_REQUEST)) {
+                    if (thisreq.getRequestType().equals(Request.ENROLLMENT_REQUEST)) {
                         // XXX make the repeat record.
                         // Get the certificate(s) from the request
                         X509CertImpl x509Certs[] = null;
@@ -763,7 +763,7 @@ public class ConnectorServlet extends CMSServlet {
                                     "completed"
                             );
                         }
-                    } else if (thisreq.getRequestType().equals(IRequest.RENEWAL_REQUEST)) {
+                    } else if (thisreq.getRequestType().equals(Request.RENEWAL_REQUEST)) {
                         X509CertImpl[] certs =
                                 thisreq.getExtDataInCertArray(IRequest.OLD_CERTS);
                         X509CertImpl old_cert = certs[0];
@@ -793,7 +793,7 @@ public class ConnectorServlet extends CMSServlet {
                                     "completed with error"
                             );
                         }
-                    } else if (thisreq.getRequestType().equals(IRequest.REVOCATION_REQUEST)) {
+                    } else if (thisreq.getRequestType().equals(Request.REVOCATION_REQUEST)) {
                         Certificate[] oldCerts =
                                 thisreq.getExtDataInCertArray(IRequest.OLD_CERTS);
                         RevokedCertImpl crlentries[] =

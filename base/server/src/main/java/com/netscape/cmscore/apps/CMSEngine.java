@@ -1603,8 +1603,8 @@ public class CMSEngine implements ServletContextListener {
             IRequest checkRevReq = null;
 
             try {
-                checkRevReq = requestRepository.createRequest(IRequest.GETREVOCATIONINFO_REQUEST);
-                checkRevReq.setExtData(Request.REQ_TYPE, IRequest.GETREVOCATIONINFO_REQUEST);
+                checkRevReq = requestRepository.createRequest(Request.GETREVOCATIONINFO_REQUEST);
+                checkRevReq.setExtData(Request.REQ_TYPE, Request.GETREVOCATIONINFO_REQUEST);
                 checkRevReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_RA);
 
                 X509CertImpl agentCerts[] = new X509CertImpl[certificates.length];

@@ -37,6 +37,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -281,8 +282,8 @@ public class AttributePresentConstraints extends APolicyRule
 
         String requestType = r.getRequestType();
 
-        if (requestType.equals(IRequest.ENROLLMENT_REQUEST) ||
-                requestType.equals(IRequest.RENEWAL_REQUEST)) {
+        if (requestType.equals(Request.ENROLLMENT_REQUEST) ||
+                requestType.equals(Request.RENEWAL_REQUEST)) {
 
             String uid = r.getExtDataInString(IRequest.HTTP_PARAMS, "uid");
 

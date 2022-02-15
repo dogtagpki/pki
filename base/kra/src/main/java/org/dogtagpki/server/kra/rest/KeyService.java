@@ -73,6 +73,7 @@ import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.kra.KeyRecoveryAuthority;
@@ -263,7 +264,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         KeyData keyData = null;
         try {
             switch(type) {
-                case IRequest.KEYRECOVERY_REQUEST:
+                case Request.KEYRECOVERY_REQUEST:
 
                     logger.info("KeyService: Processing key recovery request");
                     keyData = recoverKey(data);
@@ -770,7 +771,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         String type = request.getRequestType();
         RequestStatus status = request.getRequestStatus();
 
-        if (!IRequest.KEYRECOVERY_REQUEST.equals(type) ||
+        if (!Request.KEYRECOVERY_REQUEST.equals(type) ||
             !status.equals(RequestStatus.APPROVED)) {
             throw new UnauthorizedException("Request not approved");
         }

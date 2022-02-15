@@ -24,6 +24,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * A class represents a KRA request queue service. This
@@ -41,10 +42,10 @@ public class KRAService implements IService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAService.class);
 
-    public final static String ENROLLMENT = IRequest.ENROLLMENT_REQUEST;
-    public final static String RECOVERY = IRequest.KEYRECOVERY_REQUEST;
-    public final static String NETKEY_KEYGEN = IRequest.NETKEY_KEYGEN_REQUEST;
-    public final static String NETKEY_KEYRECOVERY = IRequest.NETKEY_KEYRECOVERY_REQUEST;
+    public final static String ENROLLMENT = Request.ENROLLMENT_REQUEST;
+    public final static String RECOVERY = Request.KEYRECOVERY_REQUEST;
+    public final static String NETKEY_KEYGEN = Request.NETKEY_KEYGEN_REQUEST;
+    public final static String NETKEY_KEYRECOVERY = Request.NETKEY_KEYRECOVERY_REQUEST;
     public final static String SECURITY_DATA_ENROLLMENT = IRequest.SECURITY_DATA_ENROLLMENT_REQUEST;
     public final static String SECURITY_DATA_RECOVERY = IRequest.SECURITY_DATA_RECOVERY_REQUEST;
     public final static String SYMKEY_GENERATION = IRequest.SYMKEY_GENERATION_REQUEST;

@@ -78,6 +78,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Check the status of a certificate request
@@ -334,8 +335,8 @@ public class CheckRequest extends CMSServlet {
         if (profileId != null) {
             result = IRequest.RES_SUCCESS;
         }
-        if ((type != null) && (type.equals(IRequest.ENROLLMENT_REQUEST) ||
-                type.equals(IRequest.RENEWAL_REQUEST)) && (status != null) &&
+        if ((type != null) && (type.equals(Request.ENROLLMENT_REQUEST) ||
+                type.equals(Request.RENEWAL_REQUEST)) && (status != null) &&
                 status.equals(RequestStatus.COMPLETE) && (result != null) &&
                 result.equals(IRequest.RES_SUCCESS)) {
             Object o = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);

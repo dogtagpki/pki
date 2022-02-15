@@ -55,6 +55,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.request.Request;
 
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
@@ -290,7 +291,7 @@ public class DoUnrevoke extends CMSServlet {
             String type = unrevReq.getRequestType();
 
             if (status == RequestStatus.COMPLETE
-                    || status == RequestStatus.SVC_PENDING && type.equals(IRequest.CLA_UNCERT4CRL_REQUEST)) {
+                    || status == RequestStatus.SVC_PENDING && type.equals(Request.CLA_UNCERT4CRL_REQUEST)) {
 
                 Integer result = unrevReq.getExtDataInInteger(IRequest.RESULT);
 
