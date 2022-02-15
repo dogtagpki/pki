@@ -272,7 +272,7 @@ public class DoUnrevokeTPS extends CMSServlet {
 
             unrevReq.setExtData(Request.REQ_TYPE, Request.UNREVOCATION_REQUEST);
             unrevReq.setExtData(Request.OLD_SERIALS, serialNumbers);
-            unrevReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
+            unrevReq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
 
         } catch (EBaseException e) {
 
@@ -334,12 +334,12 @@ public class DoUnrevokeTPS extends CMSServlet {
                 }
 
                 Integer updateCRLResult =
-                        unrevReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
+                        unrevReq.getExtDataInInteger(Request.CRL_UPDATE_STATUS);
 
                 if (updateCRLResult != null) {
                     if (!updateCRLResult.equals(Request.RES_SUCCESS)) {
                         String crlError =
-                                unrevReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR);
+                                unrevReq.getExtDataInString(Request.CRL_UPDATE_ERROR);
 
                         if (crlError != null) {
                             o_status = "status=3";
@@ -348,12 +348,12 @@ public class DoUnrevokeTPS extends CMSServlet {
                     }
                     // let known crl publishing status too.
                     Integer publishCRLResult =
-                            unrevReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
+                            unrevReq.getExtDataInInteger(Request.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
                         if (!publishCRLResult.equals(Request.RES_SUCCESS)) {
                             String publError =
-                                    unrevReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                                    unrevReq.getExtDataInString(Request.CRL_PUBLISH_ERROR);
 
                             if (publError != null) {
                                 o_status = "status=3";

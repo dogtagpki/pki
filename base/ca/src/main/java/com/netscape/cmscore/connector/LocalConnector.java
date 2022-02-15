@@ -33,6 +33,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.request.CertRequestRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmsutil.http.HttpResponse;
 
@@ -78,7 +79,7 @@ public class LocalConnector implements IConnector {
         //destreq.copyContents(r);  // copy meta attributes in request.
         transferRequest(r, destreq);
         // XXX requestor type is not transferred on return.
-        destreq.setExtData(IRequest.REQUESTOR_TYPE,
+        destreq.setExtData(Request.REQUESTOR_TYPE,
                 IRequest.REQUESTOR_RA);
         logger.debug("connector dest " + mDest.getId() +
                 " processing " + destreq.getRequestId());

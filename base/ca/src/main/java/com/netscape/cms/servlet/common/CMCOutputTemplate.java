@@ -1350,12 +1350,12 @@ public class CMCOutputTemplate {
                     IRequest revReq = requestRepository.createRequest(Request.REVOCATION_REQUEST);
                     auditReqID = revReq.getRequestId().toString();
                     revReq.setExtData(Request.CERT_INFO, revCertImpls);
-                    revReq.setExtData(IRequest.REVOKED_REASON,
+                    revReq.setExtData(Request.REVOKED_REASON,
                             Integer.valueOf(reason.getCode()));
                     UTF8String utfstr = revRequest.getComment();
                     if (utfstr != null)
                         revReq.setExtData(Request.REQUESTOR_COMMENTS, utfstr.toString());
-                    revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
+                    revReq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
                     RequestQueue queue = engine.getRequestQueue();
                     queue.processRequest(revReq);
                     RequestStatus stat = revReq.getRequestStatus();

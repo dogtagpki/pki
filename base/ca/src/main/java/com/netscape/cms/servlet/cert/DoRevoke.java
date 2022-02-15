@@ -512,7 +512,7 @@ public class DoRevoke extends CMSServlet {
 
                 header.addStringValue("revoked", "yes");
 
-                Integer updateCRLResult = revReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
+                Integer updateCRLResult = revReq.getExtDataInInteger(Request.CRL_UPDATE_STATUS);
 
                 if (updateCRLResult != null) {
                     header.addStringValue("updateCRL", "yes");
@@ -520,21 +520,21 @@ public class DoRevoke extends CMSServlet {
                         header.addStringValue("updateCRLSuccess", "yes");
                     } else {
                         header.addStringValue("updateCRLSuccess", "no");
-                        String crlError = revReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR);
+                        String crlError = revReq.getExtDataInString(Request.CRL_UPDATE_ERROR);
 
                         if (crlError != null)
                             header.addStringValue("updateCRLError", crlError);
                     }
 
                     // let known crl publishing status too.
-                    Integer publishCRLResult = revReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
+                    Integer publishCRLResult = revReq.getExtDataInInteger(Request.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
                         if (publishCRLResult.equals(Request.RES_SUCCESS)) {
                             header.addStringValue("publishCRLSuccess", "yes");
                         } else {
                             header.addStringValue("publishCRLSuccess", "no");
-                            String publError = revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                            String publError = revReq.getExtDataInString(Request.CRL_PUBLISH_ERROR);
 
                             if (publError != null)
                                 header.addStringValue("publishCRLError", publError);
@@ -611,7 +611,7 @@ public class DoRevoke extends CMSServlet {
                     header.addIntegerValue("certsToUpdate", certsToUpdate);
 
                     // add crl publishing status.
-                    String publError = revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                    String publError = revReq.getExtDataInString(Request.CRL_PUBLISH_ERROR);
 
                     if (publError != null) {
                         header.addStringValue("crlPublishError", publError);

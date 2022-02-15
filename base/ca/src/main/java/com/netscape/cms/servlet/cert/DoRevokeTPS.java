@@ -506,15 +506,15 @@ public class DoRevokeTPS extends CMSServlet {
             revReq.setExtData(Request.CERT_INFO, revCertImpls);
             revReq.setExtData(Request.REQ_TYPE, Request.REVOCATION_REQUEST);
             if (initiative.equals(AuditFormat.FROMUSER)) {
-                revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_EE);
+                revReq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_EE);
             } else {
-                revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
+                revReq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
             }
             revReq.setExtData(Request.OLD_CERTS, oldCerts);
             if (comments != null) {
                 revReq.setExtData(Request.REQUESTOR_COMMENTS, comments);
             }
-            revReq.setExtData(IRequest.REVOKED_REASON,
+            revReq.setExtData(Request.REVOKED_REASON,
                     Integer.valueOf(reason));
 
         } catch (EBaseException e) {
@@ -636,25 +636,25 @@ public class DoRevokeTPS extends CMSServlet {
                 header.addStringValue("revoked", "yes");
 
                 Integer updateCRLResult =
-                        revReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
+                        revReq.getExtDataInInteger(Request.CRL_UPDATE_STATUS);
 
                 if (updateCRLResult != null) {
                     if (!updateCRLResult.equals(Request.RES_SUCCESS)) {
 
                         o_status = "status=3";
-                        if (revReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR) != null) {
+                        if (revReq.getExtDataInString(Request.CRL_UPDATE_ERROR) != null) {
                             errorString = "error=Update CRL Error.";
                             // 3 means miscellaneous
                         }
                     }
                     // let known crl publishing status too.
                     Integer publishCRLResult =
-                            revReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
+                            revReq.getExtDataInInteger(Request.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
                         if (!publishCRLResult.equals(Request.RES_SUCCESS)) {
                             String publError =
-                                    revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                                    revReq.getExtDataInString(Request.CRL_PUBLISH_ERROR);
 
                             o_status = "status=3";
                             if (publError != null) {
@@ -715,7 +715,7 @@ public class DoRevokeTPS extends CMSServlet {
 
                     // add crl publishing status.
                     String publError =
-                            revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                            revReq.getExtDataInString(Request.CRL_PUBLISH_ERROR);
 
                     if (publError != null) {
                         errorString = "error=" + publError;

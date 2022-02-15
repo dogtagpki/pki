@@ -341,7 +341,7 @@ public class CloneServlet extends CMSServlet {
 
         // setting requestor type must come after copy contents. because
         // requestor is a regular attribute.
-        thisreq.setExtData(IRequest.REQUESTOR_TYPE,
+        thisreq.setExtData(Request.REQUESTOR_TYPE,
                 IRequest.REQUESTOR_RA);
         logger.info("CloneServlet: Processing remote request " + srcid);
 

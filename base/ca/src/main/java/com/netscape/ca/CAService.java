@@ -1795,7 +1795,7 @@ class serviceRevoke implements IServant {
             }
             request.deleteExtData(Request.CERT_INFO);
             request.deleteExtData(Request.OLD_CERTS);
-            request.setExtData(IRequest.REVOKED_CERT_RECORDS, revokedCertIds);
+            request.setExtData(Request.REVOKED_CERT_RECORDS, revokedCertIds);
 
             logger.debug(CMS.getLogMessage("CMSCORE_CA_CLONE_READ_REVOKED_CONNECTOR"));
 
@@ -2012,7 +2012,7 @@ class serviceGetRevocationInfo implements IServant {
                             info.getCRLEntryExtensions());
 
                     revokedCerts[0] = revokedCert;
-                    request.setExtData(IRequest.REVOKED_CERTS, revokedCerts);
+                    request.setExtData(Request.REVOKED_CERTS, revokedCerts);
                 }
             }
         }
@@ -2063,7 +2063,7 @@ class serviceCert4Crl implements IServant {
         // XXX Need to think passing as array.
         // XXX every implemented according to servlet.
         BigInteger revokedCertIds[] = request.getExtDataInBigIntegerArray(
-                IRequest.REVOKED_CERT_RECORDS);
+                Request.REVOKED_CERT_RECORDS);
         if (revokedCertIds == null ||
                 revokedCertIds.length == 0) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CERT4CRL_NO_ENTRY", request.getRequestId().toString()));

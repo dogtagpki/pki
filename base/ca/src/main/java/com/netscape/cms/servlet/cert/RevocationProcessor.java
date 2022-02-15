@@ -300,16 +300,16 @@ public class RevocationProcessor extends CertProcessor {
         request.setExtData(Request.CERT_INFO, revCertImpls.toArray(new RevokedCertImpl[revCertImpls.size()]));
 
         if (AuditFormat.FROMUSER.equals(initiative)) {
-            request.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_EE);
+            request.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_EE);
         } else {
-            request.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
+            request.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
         }
 
         if (comments != null) {
             request.setExtData(Request.REQUESTOR_COMMENTS, comments);
         }
 
-        request.setExtData(IRequest.REVOKED_REASON, revocationReason.getCode());
+        request.setExtData(Request.REVOKED_REASON, revocationReason.getCode());
     }
 
     public void processRevocationRequest() throws EBaseException {
@@ -374,7 +374,7 @@ public class RevocationProcessor extends CertProcessor {
             serialNumbers.add(cert.getSerialNumber());
         }
         request.setExtData(Request.OLD_SERIALS, serialNumbers.toArray(new BigInteger[serialNumbers.size()]));
-        request.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
+        request.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
     }
 
     public void processUnrevocationRequest() throws EBaseException {

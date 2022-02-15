@@ -453,14 +453,14 @@ public class CMCRevReqServlet extends CMSServlet {
                         auditSerialNumber,
                         auditRequestType));
 
-            revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
+            revReq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
             if (revReason != null && revReason == RevocationReason.REMOVE_FROM_CRL) {
                 revReq.setExtData(Request.REQ_TYPE, Request.UNREVOCATION_REQUEST);
                 revReq.setExtData(Request.OLD_SERIALS, certSerialNumbers);
             } else {
                 revReq.setExtData(Request.CERT_INFO, revCertImpls);
                 revReq.setExtData(Request.REQ_TYPE, Request.REVOCATION_REQUEST);
-                revReq.setExtData(IRequest.REVOKED_REASON, reason);
+                revReq.setExtData(Request.REVOKED_REASON, reason);
                 revReq.setExtData(Request.OLD_CERTS, oldCerts);
                 if (comments != null) {
                     revReq.setExtData(Request.REQUESTOR_COMMENTS, comments);
@@ -530,7 +530,7 @@ public class CMCRevReqServlet extends CMSServlet {
                 header.addStringValue("revoked", "yes");
 
                 Integer updateCRLResult =
-                        revReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
+                        revReq.getExtDataInInteger(Request.CRL_UPDATE_STATUS);
 
                 if (updateCRLResult != null) {
                     header.addStringValue("updateCRL", "yes");
@@ -539,7 +539,7 @@ public class CMCRevReqServlet extends CMSServlet {
                     } else {
                         header.addStringValue("updateCRLSuccess", "no");
                         String crlError =
-                                revReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR);
+                                revReq.getExtDataInString(Request.CRL_UPDATE_ERROR);
 
                         if (crlError != null)
                             header.addStringValue("updateCRLError",
@@ -547,7 +547,7 @@ public class CMCRevReqServlet extends CMSServlet {
                     }
                     // let known crl publishing status too.
                     Integer publishCRLResult =
-                            revReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
+                            revReq.getExtDataInInteger(Request.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
                         if (publishCRLResult.equals(Request.RES_SUCCESS)) {
@@ -555,7 +555,7 @@ public class CMCRevReqServlet extends CMSServlet {
                         } else {
                             header.addStringValue("publishCRLSuccess", "no");
                             String publError =
-                                    revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                                    revReq.getExtDataInString(Request.CRL_PUBLISH_ERROR);
 
                             if (publError != null)
                                 header.addStringValue("publishCRLError",
@@ -635,7 +635,7 @@ public class CMCRevReqServlet extends CMSServlet {
 
                     // add crl publishing status.
                     String publError =
-                            revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                            revReq.getExtDataInString(Request.CRL_PUBLISH_ERROR);
 
                     if (publError != null) {
                         header.addStringValue("crlPublishError",

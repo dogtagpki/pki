@@ -956,10 +956,10 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equalsIgnoreCase(IRequest.REVOKED_CERTS) && mDetails &&
+            if (name.equalsIgnoreCase(Request.REVOKED_CERTS) && mDetails &&
                     req.getRequestType().equals("getRevocationInfo")) {
                 RevokedCertImpl revokedCert[] =
-                        req.getExtDataInRevokedCertArray(IRequest.REVOKED_CERTS);
+                        req.getExtDataInRevokedCertArray(Request.REVOKED_CERTS);
 
                 if (revokedCert != null && revokedCert[0] != null) {
                     boolean reasonFound = false;

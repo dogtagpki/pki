@@ -610,7 +610,7 @@ public class ConnectorServlet extends CMSServlet {
 
             // setting requestor type must come after copy contents. because
             // requestor is a regular attribute.
-            thisreq.setExtData(IRequest.REQUESTOR_TYPE,
+            thisreq.setExtData(Request.REQUESTOR_TYPE,
                     IRequest.REQUESTOR_RA);
             logger.info("ConnectorServlet: Processing remote request " + srcid);
 
@@ -797,7 +797,7 @@ public class ConnectorServlet extends CMSServlet {
                         Certificate[] oldCerts =
                                 thisreq.getExtDataInCertArray(Request.OLD_CERTS);
                         RevokedCertImpl crlentries[] =
-                                thisreq.getExtDataInRevokedCertArray(IRequest.REVOKED_CERTS);
+                                thisreq.getExtDataInRevokedCertArray(Request.REVOKED_CERTS);
                         CRLExtensions crlExts = crlentries[0].getExtensions();
                         int reason = 0;
 

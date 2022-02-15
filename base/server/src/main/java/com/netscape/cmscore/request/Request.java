@@ -162,6 +162,18 @@ public class Request implements IRequest {
     public static final String OLD_SERIALS = "OLD_SERIALS";
     public static final String ISSUERDN = "issuerDN";
 
+    // revocation request attributes (internally set)
+    public static final String REVOKED_CERTS = "revokedCerts";
+    public static final String REVOKED_REASON = "revocationReason";
+    // CCA -> CLA request attributes
+    public static final String REVOKED_CERT_RECORDS = "revokedCertRecs";
+    // crl update status after a revocation.
+    public static final String CRL_UPDATE_STATUS = "crlUpdateStatus";
+    public static final String CRL_UPDATE_ERROR = "crlUpdateError";
+    public static final String CRL_PUBLISH_STATUS = "crlPublishStatus";
+    public static final String CRL_PUBLISH_ERROR = "crlPublishError";
+    public static final String REQUESTOR_TYPE = "requestorType";
+
     protected RequestId mRequestId;
     protected RequestStatus mRequestStatus;
     protected String mSourceId;

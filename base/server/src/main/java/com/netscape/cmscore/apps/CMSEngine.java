@@ -1605,7 +1605,7 @@ public class CMSEngine implements ServletContextListener {
             try {
                 checkRevReq = requestRepository.createRequest(Request.GETREVOCATIONINFO_REQUEST);
                 checkRevReq.setExtData(Request.REQ_TYPE, Request.GETREVOCATIONINFO_REQUEST);
-                checkRevReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_RA);
+                checkRevReq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_RA);
 
                 X509CertImpl agentCerts[] = new X509CertImpl[certificates.length];
                 for (int i = 0; i < certificates.length; i++) {
@@ -1623,7 +1623,7 @@ public class CMSEngine implements ServletContextListener {
                     while (keys.hasMoreElements()) {
                         String name = keys.nextElement();
 
-                        if (name.equals(IRequest.REVOKED_CERTS)) {
+                        if (name.equals(Request.REVOKED_CERTS)) {
                             revoked = true;
                             if (mVCList != null) {
                                 mVCList.update(cert, VerifiedCert.REVOKED);

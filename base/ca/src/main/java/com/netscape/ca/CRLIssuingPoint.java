@@ -519,15 +519,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mId = id;
 
         if (mId.equals(ICertificateAuthority.PROP_MASTER_CRL)) {
-            mCrlUpdateStatus = IRequest.CRL_UPDATE_STATUS;
-            mCrlUpdateError = IRequest.CRL_UPDATE_ERROR;
-            mCrlPublishStatus = IRequest.CRL_PUBLISH_STATUS;
-            mCrlPublishError = IRequest.CRL_PUBLISH_ERROR;
+            mCrlUpdateStatus = Request.CRL_UPDATE_STATUS;
+            mCrlUpdateError = Request.CRL_UPDATE_ERROR;
+            mCrlPublishStatus = Request.CRL_PUBLISH_STATUS;
+            mCrlPublishError = Request.CRL_PUBLISH_ERROR;
         } else {
-            mCrlUpdateStatus = IRequest.CRL_UPDATE_STATUS + "_" + mId;
-            mCrlUpdateError = IRequest.CRL_UPDATE_ERROR + "_" + mId;
-            mCrlPublishStatus = IRequest.CRL_PUBLISH_STATUS + "_" + mId;
-            mCrlPublishError = IRequest.CRL_PUBLISH_ERROR + "_" + mId;
+            mCrlUpdateStatus = Request.CRL_UPDATE_STATUS + "_" + mId;
+            mCrlUpdateError = Request.CRL_UPDATE_ERROR + "_" + mId;
+            mCrlPublishStatus = Request.CRL_PUBLISH_STATUS + "_" + mId;
+            mCrlPublishError = Request.CRL_PUBLISH_ERROR + "_" + mId;
         }
 
         mConfigStore = (CRLIssuingPointConfig) config;

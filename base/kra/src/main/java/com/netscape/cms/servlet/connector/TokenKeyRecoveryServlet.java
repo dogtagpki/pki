@@ -194,7 +194,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         if (!missingParam) {
             thisreq = requestRepository.createRequest(Request.NETKEY_KEYRECOVERY_REQUEST);
 
-            thisreq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_NETKEY_RA);
+            thisreq.setExtData(Request.REQUESTOR_TYPE, IRequest.REQUESTOR_NETKEY_RA);
             thisreq.setExtData(IRequest.NETKEY_ATTR_CUID, rCUID);
             thisreq.setExtData(IRequest.NETKEY_ATTR_USERID, rUserid);
             thisreq.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);

@@ -310,7 +310,7 @@ public class DoUnrevoke extends CMSServlet {
                     }
                 }
 
-                Integer updateCRLResult = unrevReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
+                Integer updateCRLResult = unrevReq.getExtDataInInteger(Request.CRL_UPDATE_STATUS);
 
                 if (updateCRLResult != null) {
                     header.addStringValue("updateCRL", "yes");
@@ -320,14 +320,14 @@ public class DoUnrevoke extends CMSServlet {
 
                     } else {
                         header.addStringValue("updateCRLSuccess", "no");
-                        String crlError = unrevReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR);
+                        String crlError = unrevReq.getExtDataInString(Request.CRL_UPDATE_ERROR);
 
                         if (crlError != null)
                             header.addStringValue("updateCRLError", crlError);
                     }
 
                     // let known crl publishing status too.
-                    Integer publishCRLResult = unrevReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
+                    Integer publishCRLResult = unrevReq.getExtDataInInteger(Request.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
                         if (publishCRLResult.equals(Request.RES_SUCCESS)) {
@@ -335,7 +335,7 @@ public class DoUnrevoke extends CMSServlet {
 
                         } else {
                             header.addStringValue("publishCRLSuccess", "no");
-                            String publError = unrevReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                            String publError = unrevReq.getExtDataInString(Request.CRL_PUBLISH_ERROR);
 
                             if (publError != null)
                                 header.addStringValue("publishCRLError", publError);

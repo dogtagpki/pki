@@ -43,18 +43,6 @@ import com.netscape.certsrv.base.IAttrSet;
  */
 public interface IRequest extends Serializable {
 
-    // revocation request attributes (internally set)
-    public static final String REVOKED_CERTS = "revokedCerts";
-    public static final String REVOKED_REASON = "revocationReason";
-    // CCA -> CLA request attributes
-    public static final String REVOKED_CERT_RECORDS = "revokedCertRecs";
-    // crl update status after a revocation.
-    public final static String CRL_UPDATE_STATUS = "crlUpdateStatus";
-    public final static String CRL_UPDATE_ERROR = "crlUpdateError";
-    public final static String CRL_PUBLISH_STATUS = "crlPublishStatus";
-    public final static String CRL_PUBLISH_ERROR = "crlPublishError";
-    public static final String REQUESTOR_TYPE = "requestorType";
-
     // Netkey request attributes
     public final static String NETKEY_ATTR_CUID = "CUID";
     public final static String NETKEY_ATTR_USERID = "USERID";
