@@ -169,7 +169,7 @@ public class UpdateConnector extends CMSServlet {
 
         String uid = "KRA-" + info.getHost() + "-" + info.getPort();
         String fullName = "KRA " + info.getHost() + " " + info.getPort();
-        logger.info("UpdateConnector: UpdateConnector: Adding " + uid + " user");
+        logger.info("UpdateConnector: Adding " + uid + " user");
 
         String auditSubjectID = auditSubjectID();
         String auditParams = "Scope;;users+Operation;;OP_ADD+source;;UpdateConnector" +
@@ -309,7 +309,7 @@ public class UpdateConnector extends CMSServlet {
             jsonObj.getRootNode().set("Response", responseNode);
             outputResult(httpResp, "application/json", jsonObj.toByteArray());
         } catch (Exception e) {
-            logger.warn("UpdateConnector: Failed to send the output: " + e.getMessage(), e);
+            logger.error("UpdateConnector: Failed to send the output: " + e.getMessage(), e);
         }
     }
 
