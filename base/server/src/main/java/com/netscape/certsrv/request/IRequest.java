@@ -43,12 +43,6 @@ import com.netscape.certsrv.base.IAttrSet;
  */
 public interface IRequest extends Serializable {
 
-    // renewal request attributes. (internally set)
-    // also used for revocation
-    public static final String OLD_CERTS = "OLD_CERTS";
-    public static final String OLD_SERIALS = "OLD_SERIALS";
-    public static final String ISSUERDN = "issuerDN";
-
     // revocation request attributes (internally set)
     public static final String REVOKED_CERTS = "revokedCerts";
     public static final String REVOKED_REASON = "revocationReason";

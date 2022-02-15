@@ -271,7 +271,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                         auditRequestType));
 
             unrevReq.setExtData(Request.REQ_TYPE, Request.UNREVOCATION_REQUEST);
-            unrevReq.setExtData(IRequest.OLD_SERIALS, serialNumbers);
+            unrevReq.setExtData(Request.OLD_SERIALS, serialNumbers);
             unrevReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
 
         } catch (EBaseException e) {

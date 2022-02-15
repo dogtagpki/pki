@@ -2244,7 +2244,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         throw new EBaseException("Revocation Request: Revoked Certificates is a Null or has Invalid Values");
                     }
                 } else if (Request.UNREVOCATION_REQUEST.equals(request.getRequestType())) {
-                    BigInteger serialNo[] = request.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
+                    BigInteger serialNo[] = request.getExtDataInBigIntegerArray(Request.OLD_SERIALS);
                     if (serialNo != null) {
                         for (int j = 0; j < serialNo.length; j++) {
                             logger.debug("recoverCRLCache U j=" + j + "  length=" + serialNo.length +

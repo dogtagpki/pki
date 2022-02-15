@@ -280,7 +280,7 @@ public class PolicySet implements IPolicySet {
             return true;
         }
 
-        if (req.getExtDataInCertArray(IRequest.OLD_CERTS) != null) {
+        if (req.getExtDataInCertArray(Request.OLD_CERTS) != null) {
             return true;
         }
 

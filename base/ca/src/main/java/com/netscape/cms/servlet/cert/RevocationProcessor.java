@@ -296,7 +296,7 @@ public class RevocationProcessor extends CertProcessor {
 
         request.setExtData(Request.REQ_TYPE, Request.REVOCATION_REQUEST);
 
-        request.setExtData(IRequest.OLD_CERTS, certificates.toArray(new X509CertImpl[certificates.size()]));
+        request.setExtData(Request.OLD_CERTS, certificates.toArray(new X509CertImpl[certificates.size()]));
         request.setExtData(Request.CERT_INFO, revCertImpls.toArray(new RevokedCertImpl[revCertImpls.size()]));
 
         if (AuditFormat.FROMUSER.equals(initiative)) {
@@ -373,7 +373,7 @@ public class RevocationProcessor extends CertProcessor {
         for (X509CertImpl cert : certificates) {
             serialNumbers.add(cert.getSerialNumber());
         }
-        request.setExtData(IRequest.OLD_SERIALS, serialNumbers.toArray(new BigInteger[serialNumbers.size()]));
+        request.setExtData(Request.OLD_SERIALS, serialNumbers.toArray(new BigInteger[serialNumbers.size()]));
         request.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
     }
 

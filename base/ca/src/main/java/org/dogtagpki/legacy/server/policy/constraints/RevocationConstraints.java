@@ -36,6 +36,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Whether to allow revocation of an expired cert.
@@ -153,7 +154,7 @@ public class RevocationConstraints extends APolicyRule
         try {
             // Get the certificates being renwed.
             X509CertImpl[] oldCerts =
-                    req.getExtDataInCertArray(IRequest.OLD_CERTS);
+                    req.getExtDataInCertArray(Request.OLD_CERTS);
 
             if (oldCerts == null) {
                 setError(req, CMS.getUserMessage("CMS_POLICY_NO_OLD_CERT"),

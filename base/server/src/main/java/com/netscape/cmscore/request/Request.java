@@ -156,6 +156,12 @@ public class Request implements IRequest {
     public static final String ROUTER_CERT = "router"; // deprecated
     public static final String CEP_CERT = "CEP-Request";
 
+    // renewal request attributes. (internally set)
+    // also used for revocation
+    public static final String OLD_CERTS = "OLD_CERTS";
+    public static final String OLD_SERIALS = "OLD_SERIALS";
+    public static final String ISSUERDN = "issuerDN";
+
     protected RequestId mRequestId;
     protected RequestStatus mRequestStatus;
     protected String mSourceId;

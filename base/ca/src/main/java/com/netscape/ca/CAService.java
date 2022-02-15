@@ -1567,7 +1567,7 @@ class getCertsForChallenge implements IServant {
         for (int i = 0; i < serialNoArray.length; i++) {
             certs[i] = cr.getX509Certificate(serialNoArray[i]);
         }
-        request.setExtData(IRequest.OLD_CERTS, certs);
+        request.setExtData(Request.OLD_CERTS, certs);
         return true;
     }
 }
@@ -1794,7 +1794,7 @@ class serviceRevoke implements IServant {
                 revokedCertIds[i] = revokedCerts[i].getSerialNumber();
             }
             request.deleteExtData(Request.CERT_INFO);
-            request.deleteExtData(IRequest.OLD_CERTS);
+            request.deleteExtData(Request.OLD_CERTS);
             request.setExtData(IRequest.REVOKED_CERT_RECORDS, revokedCertIds);
 
             logger.debug(CMS.getLogMessage("CMSCORE_CA_CLONE_READ_REVOKED_CONNECTOR"));
@@ -1842,7 +1842,7 @@ class serviceUnrevoke implements IServant {
             throws EBaseException {
         boolean sendStatus = true;
         BigInteger oldSerialNo[] =
-                request.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
+                request.getExtDataInBigIntegerArray(Request.OLD_SERIALS);
 
         if (oldSerialNo == null || oldSerialNo.length < 1) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_UNREVOKE_MISSING_SERIAL"));
@@ -1855,7 +1855,7 @@ class serviceUnrevoke implements IServant {
 
         String svcerrors[] = null;
         boolean needOldCerts = false;
-        X509CertImpl oldCerts[] = request.getExtDataInCertArray(IRequest.OLD_CERTS);
+        X509CertImpl oldCerts[] = request.getExtDataInCertArray(Request.OLD_CERTS);
 
         if (oldCerts == null || oldCerts.length < 1) {
             needOldCerts = true;
@@ -1903,7 +1903,7 @@ class serviceUnrevoke implements IServant {
         }
 
         if (needOldCerts) {
-            request.setExtData(IRequest.OLD_CERTS, oldCerts);
+            request.setExtData(Request.OLD_CERTS, oldCerts);
         }
 
         if (svcerrors != null) {
@@ -2042,7 +2042,7 @@ class serviceGetCertificates implements IServant {
                 X509CertImpl[] certs = certDB.getX509Certificates(filter);
 
                 if (certs != null) {
-                    request.setExtData(IRequest.OLD_CERTS, certs);
+                    request.setExtData(Request.OLD_CERTS, certs);
                 }
             }
         }
@@ -2142,7 +2142,7 @@ class serviceUnCert4Crl implements IServant {
     public boolean service(IRequest request)
             throws EBaseException {
         BigInteger oldSerialNo[] =
-                request.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
+                request.getExtDataInBigIntegerArray(Request.OLD_SERIALS);
 
         if (oldSerialNo == null || oldSerialNo.length < 1) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_UNREVOKE_MISSING_SERIAL"));

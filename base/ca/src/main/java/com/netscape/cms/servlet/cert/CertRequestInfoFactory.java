@@ -74,7 +74,7 @@ public class CertRequestInfoFactory {
         if (impl == null && requestType.equals(Request.REVOCATION_REQUEST)) {
             // revocation request; try and get serial of revoked cert
             X509CertImpl[] certs =
-                request.getExtDataInCertArray(IRequest.OLD_CERTS);
+                request.getExtDataInCertArray(Request.OLD_CERTS);
             if (certs != null && certs.length > 0)
                 impl = certs[0];
         }

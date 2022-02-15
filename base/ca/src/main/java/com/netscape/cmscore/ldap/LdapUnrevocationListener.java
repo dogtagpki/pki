@@ -62,7 +62,7 @@ public class LdapUnrevocationListener implements IRequestListener {
         logger.info("LdapUnrevocationListener: Handling unrevoke request " + r.getRequestId().toHexString());
 
         // get fields in request.
-        Certificate[] certs = r.getExtDataInCertArray(IRequest.OLD_CERTS);
+        Certificate[] certs = r.getExtDataInCertArray(Request.OLD_CERTS);
 
         if (certs == null || certs.length == 0 || certs[0] == null) {
             // no certs in unrevoke.

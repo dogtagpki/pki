@@ -102,7 +102,7 @@ public class LdapRequestListener implements IRequestListener {
             obj.setCerts(certs);
             return obj;
         } else if (type.equals(Request.REVOCATION_REQUEST)) {
-            X509CertImpl[] revcerts = r.getExtDataInCertArray(IRequest.OLD_CERTS);
+            X509CertImpl[] revcerts = r.getExtDataInCertArray(Request.OLD_CERTS);
 
             if (revcerts == null || revcerts.length == 0 || revcerts[0] == null) {
                 // no certs in revoke.
@@ -113,7 +113,7 @@ public class LdapRequestListener implements IRequestListener {
             obj.setCerts(revcerts);
             return obj;
         } else if (type.equals(Request.UNREVOCATION_REQUEST)) {
-            X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.OLD_CERTS);
+            X509CertImpl[] certs = r.getExtDataInCertArray(Request.OLD_CERTS);
 
             if (certs == null || certs.length == 0 || certs[0] == null) {
                 // no certs in unrevoke.

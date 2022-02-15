@@ -211,9 +211,9 @@ public class RenewalServlet extends CMSServlet {
             CAEngine engine = CAEngine.getInstance();
             CertRequestRepository requestRepository = engine.getCertRequestRepository();
             req = requestRepository.createRequest(Request.RENEWAL_REQUEST);
-            req.setExtData(IRequest.OLD_SERIALS, new BigInteger[] { old_serial_no });
+            req.setExtData(Request.OLD_SERIALS, new BigInteger[] { old_serial_no });
             if (old_cert != null) {
-                req.setExtData(IRequest.OLD_CERTS,
+                req.setExtData(Request.OLD_CERTS,
                         new X509CertImpl[] { old_cert }
                         );
                 // create new certinfo from old_cert contents.

@@ -62,7 +62,7 @@ public class LdapRevocationListener implements IRequestListener {
         logger.info("LdapRevocationListener: Handling revocation request " + r.getRequestId());
 
         // get fields in request.
-        Certificate[] certs = r.getExtDataInCertArray(IRequest.OLD_CERTS);
+        Certificate[] certs = r.getExtDataInCertArray(Request.OLD_CERTS);
 
         if (certs == null || certs.length == 0 || certs[0] == null) {
             // no certs in revoke.

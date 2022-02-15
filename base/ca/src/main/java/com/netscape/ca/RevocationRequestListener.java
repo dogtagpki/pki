@@ -47,10 +47,10 @@ public class RevocationRequestListener implements IRequestListener {
         // check if serial number is in begin/end range if set.
         if (crlIssuingPoint.mBeginSerial != null || crlIssuingPoint.mEndSerial != null) {
 
-            BigInteger[] serialNumbers = r.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
+            BigInteger[] serialNumbers = r.getExtDataInBigIntegerArray(Request.OLD_SERIALS);
             if (serialNumbers == null || serialNumbers.length == 0) {
 
-                X509CertImpl oldCerts[] = r.getExtDataInCertArray(IRequest.OLD_CERTS);
+                X509CertImpl oldCerts[] = r.getExtDataInCertArray(Request.OLD_CERTS);
                 if (oldCerts == null || oldCerts.length == 0) {
                     return;
                 }

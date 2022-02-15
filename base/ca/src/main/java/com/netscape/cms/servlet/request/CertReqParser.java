@@ -480,8 +480,8 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equalsIgnoreCase(IRequest.OLD_SERIALS) && mDetails) {
-                BigInteger oldSerialNo[] = req.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
+            if (name.equalsIgnoreCase(Request.OLD_SERIALS) && mDetails) {
+                BigInteger oldSerialNo[] = req.getExtDataInBigIntegerArray(Request.OLD_SERIALS);
 
                 if (oldSerialNo != null) {
                     if (argSet != null) {
@@ -507,9 +507,9 @@ public class CertReqParser extends ReqParser {
                 if (issuedCert.length == 2)
                     arg.addBigIntegerValue("serialNumber2", issuedCert[1].getSerialNumber(), 16);
             }
-            if (name.equalsIgnoreCase(IRequest.OLD_CERTS) && mDetails) {
+            if (name.equalsIgnoreCase(Request.OLD_CERTS) && mDetails) {
                 X509CertImpl oldCert[] =
-                        req.getExtDataInCertArray(IRequest.OLD_CERTS);
+                        req.getExtDataInCertArray(Request.OLD_CERTS);
 
                 if (oldCert != null && oldCert.length > 0) {
                     arg.addBigIntegerValue("serialNumber", oldCert[0].getSerialNumber(), 16);
@@ -914,8 +914,8 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equalsIgnoreCase(IRequest.OLD_SERIALS) && mDetails) {
-                BigInteger oldSerialNo[] = req.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
+            if (name.equalsIgnoreCase(Request.OLD_SERIALS) && mDetails) {
+                BigInteger oldSerialNo[] = req.getExtDataInBigIntegerArray(Request.OLD_SERIALS);
 
                 if (oldSerialNo != null) {
                     if (argSet != null) {
@@ -930,11 +930,11 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equalsIgnoreCase(IRequest.OLD_CERTS) && mDetails) {
+            if (name.equalsIgnoreCase(Request.OLD_CERTS) && mDetails) {
                 //X509CertImpl oldCert[] =
                 //	(X509CertImpl[])req.get(IRequest.OLD_CERTS);
                 Certificate oldCert[] =
-                        req.getExtDataInCertArray(IRequest.OLD_CERTS);
+                        req.getExtDataInCertArray(Request.OLD_CERTS);
 
                 if (oldCert != null && oldCert.length > 0) {
                     if (oldCert[0] instanceof X509CertImpl) {

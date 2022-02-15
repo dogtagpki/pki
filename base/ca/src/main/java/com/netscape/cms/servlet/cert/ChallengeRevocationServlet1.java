@@ -363,7 +363,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             revReq.setExtData(Request.REQ_TYPE, Request.REVOCATION_REQUEST);
             revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
 
-            revReq.setExtData(IRequest.OLD_CERTS, oldCerts);
+            revReq.setExtData(Request.OLD_CERTS, oldCerts);
             if (comments != null) {
                 revReq.setExtData(Request.REQUESTOR_COMMENTS, comments);
             }

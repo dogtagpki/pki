@@ -197,7 +197,7 @@ public class RenewalValidityConstraints extends APolicyRule
 
             // Get the certificates being renwed.
             X509CertImpl currentCerts[] =
-                    req.getExtDataInCertArray(IRequest.OLD_CERTS);
+                    req.getExtDataInCertArray(Request.OLD_CERTS);
 
             // Both certificate info and current certs should be set
             if (certInfo == null) {

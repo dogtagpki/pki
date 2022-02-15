@@ -673,7 +673,7 @@ class HandleRevocation implements IRequestListener {
         logger.debug("Handle publishing for revoke request id " + r.getRequestId());
 
         // get fields in request.
-        X509CertImpl[] revcerts = r.getExtDataInCertArray(IRequest.OLD_CERTS);
+        X509CertImpl[] revcerts = r.getExtDataInCertArray(Request.OLD_CERTS);
 
         if (revcerts == null || revcerts.length == 0 || revcerts[0] == null) {
             // no certs in revoke.
@@ -739,7 +739,7 @@ class HandleUnrevocation implements IRequestListener {
         logger.debug("Handle publishing for unrevoke request id " + r.getRequestId());
 
         // get fields in request.
-        X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.OLD_CERTS);
+        X509CertImpl[] certs = r.getExtDataInCertArray(Request.OLD_CERTS);
 
         if (certs == null || certs.length == 0 || certs[0] == null) {
             // no certs in unrevoke.

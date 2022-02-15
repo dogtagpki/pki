@@ -765,7 +765,7 @@ public class ConnectorServlet extends CMSServlet {
                         }
                     } else if (thisreq.getRequestType().equals(Request.RENEWAL_REQUEST)) {
                         X509CertImpl[] certs =
-                                thisreq.getExtDataInCertArray(IRequest.OLD_CERTS);
+                                thisreq.getExtDataInCertArray(Request.OLD_CERTS);
                         X509CertImpl old_cert = certs[0];
 
                         certs = thisreq.getExtDataInCertArray(Request.ISSUED_CERTS);
@@ -795,7 +795,7 @@ public class ConnectorServlet extends CMSServlet {
                         }
                     } else if (thisreq.getRequestType().equals(Request.REVOCATION_REQUEST)) {
                         Certificate[] oldCerts =
-                                thisreq.getExtDataInCertArray(IRequest.OLD_CERTS);
+                                thisreq.getExtDataInCertArray(Request.OLD_CERTS);
                         RevokedCertImpl crlentries[] =
                                 thisreq.getExtDataInRevokedCertArray(IRequest.REVOKED_CERTS);
                         CRLExtensions crlExts = crlentries[0].getExtensions();
