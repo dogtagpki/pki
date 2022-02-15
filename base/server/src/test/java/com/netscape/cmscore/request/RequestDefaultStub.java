@@ -20,10 +20,14 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 
 /**
- * Default testing stub for the IRequest interface.
+ * Default testing stub for the Request class.
  */
-public class RequestDefaultStub implements IRequest {
+public class RequestDefaultStub extends Request {
     private static final long serialVersionUID = -8466522941927034614L;
+
+    public RequestDefaultStub() {
+        super(null);
+    }
 
     @Override
     public RequestId getRequestId() {
