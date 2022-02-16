@@ -11,3 +11,8 @@ $ OCSPClient ... --serial 35525
 CertID.serialNumber=0x8ac5
 CertStatus=Revoked
 ----
+
+== pki nss-cert-export Changes ==
+
+The optional positional `path` argument for `pki nss-cert-export` has been deprecated.
+Use the `--output-file` option instead.

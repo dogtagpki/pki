@@ -1683,8 +1683,8 @@ jobs:
               --pkcs12-password Secret.123
           docker exec secondary pki \
               nss-cert-export \
-              Self-Signed-CA \
-              ds_signing.crt
+              --output-file ds_signing.crt \
+              Self-Signed-CA
           docker exec secondary certutil -L -d /root/.dogtag/nssdb
 
       - name: Create DS server cert in secondary PKI container

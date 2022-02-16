@@ -30,12 +30,16 @@ public class NSSCertExportCLI extends CommandCLI {
 
     @Override
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...] nickname [path]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...] <nickname> [path]", options);
     }
 
     @Override
     public void createOptions() {
-        Option option = new Option(null, "format", true, "Certificate format: PEM (default), DER, RAW");
+        Option option = new Option(null, "output-file", true, "Output file path");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "format", true, "Certificate format: PEM (default), DER, RAW");
         option.setArgName("format");
         options.addOption(option);
 
@@ -57,7 +61,13 @@ public class NSSCertExportCLI extends CommandCLI {
         nickname = cmdArgs[0];
 
         if (cmdArgs.length >= 2) {
+            logger.warn("The optional positional path argument has been deprecated. Use the --output-file option instead.");
             path = cmdArgs[1];
+        }
+
+        String outputFile = cmd.getOptionValue("output-file");
+        if (outputFile != null) {
+            path = outputFile;
         }
 
         String format = cmd.getOptionValue("format", "PEM").toUpperCase();

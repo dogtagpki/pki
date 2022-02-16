@@ -1622,7 +1622,10 @@ class NSSDatabase(object):
         else:
             fullname = nickname
 
-        cmd.extend(['nss-cert-export'])
+        cmd.extend([
+            'nss-cert-export',
+            '--output-file', output_file
+        ])
 
         if include_chain:
             cmd.extend(['--with-chain'])
@@ -1636,7 +1639,7 @@ class NSSDatabase(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        cmd.extend([fullname, output_file])
+        cmd.append(fullname)
 
         self.run(cmd, check=True)
 
