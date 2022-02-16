@@ -22,35 +22,18 @@ import java.util.Hashtable;
 
 import javax.servlet.Servlet;
 
-import com.netscape.certsrv.apps.ICommandQueue;
 import com.netscape.certsrv.common.ICMSRequest;
 
-/*---------------------------------------------------------------
- ** CommandQueue - Class
- */
-
 /**
- * register and unregister proccess for clean shutdown
+ * Command queue for registration and unregistration process for clean shutdown.
  */
-public class CommandQueue implements Runnable, ICommandQueue {
+public class CommandQueue implements Runnable {
 
     public static Hashtable<ICMSRequest, Servlet> mCommandQueue = new Hashtable<>();
     public static boolean mShuttingDown = false;
 
-    /*-----------------------------------------------------------
-     ** CommandQueue - Constructor
-     */
-
-    /**
-     * Main constructor.
-     */
     public CommandQueue() {
-
-    } // CommandQueue
-
-    /*-----------------------------------------------------------
-     ** run
-     */
+    }
 
     /**
      * Overrides Thread.run(), calls batchPublish().
@@ -59,9 +42,8 @@ public class CommandQueue implements Runnable, ICommandQueue {
     public void run() {
         //int  priority = Thread.MIN_PRIORITY;
         //Thread.currentThread().setPriority(priority);
-        /*-------------------------------------------------
-         ** Loop until queue is empty
-         */
+
+        // Loop until queue is empty
         mShuttingDown = true;
         while (mCommandQueue.isEmpty() == false) {
             try {
@@ -71,20 +53,30 @@ public class CommandQueue implements Runnable, ICommandQueue {
 
             }
         }
-    } // run
+    }
 
-    @Override
+    /**
+     * Registers a thread into the command queue.
+     *
+     * @param currentRequest request object
+     * @param currentServlet servlet that serves the request object
+     */
     public boolean registerProcess(ICMSRequest currentRequest, Servlet currentServlet) {
         if (mShuttingDown == false) {
             if ((currentServlet instanceof com.netscape.cms.servlet.base.CMSStartServlet) == false)
                 mCommandQueue.put(currentRequest, currentServlet);
             return true;
-        } else
+        } else {
             return false;
-
+        }
     }
 
-    @Override
+    /**
+     * UnRegisters a thread from the command queue.
+     *
+     * @param currentRequest request object
+     * @param currentServlet servlet that serves the request object
+     */
     public void unRegisterProccess(Object currentRequest, Object currentServlet) {
         Enumeration<ICMSRequest> e = mCommandQueue.keys();
 
@@ -96,7 +88,6 @@ public class CommandQueue implements Runnable, ICommandQueue {
                     mCommandQueue.remove(currentRequest);
             }
         }
-
     }
-} // CommandQueue
+}
 
