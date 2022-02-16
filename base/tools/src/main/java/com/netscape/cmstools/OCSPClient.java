@@ -33,6 +33,7 @@ import org.apache.commons.cli.Options;
 import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.CryptoManager;
 
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertStatus;
 import com.netscape.cmsutil.ocsp.GoodInfo;
@@ -167,7 +168,8 @@ public class OCSPClient {
             if (serial != null) {
                 logger.info("Creating request for serial number " + serial);
 
-                BigInteger serialNumber = new BigInteger(serial);
+                CertId certID = new CertId(serial);
+                BigInteger serialNumber = certID.toBigInteger();
                 request = processor.createRequest(caNickname, serialNumber);
 
             } else if (input != null) {
@@ -201,8 +203,9 @@ public class OCSPClient {
                         throw new Exception("No OCSP Response data.");
                     }
 
-                    System.out.println("CertID.serialNumber=" +
-                            sr.getCertID().getSerialNumber());
+                    BigInteger serialNumber = sr.getCertID().getSerialNumber();
+                    CertId certID = new CertId(serialNumber);
+                    System.out.println("CertID.serialNumber=" + certID.toHexString());
 
                     CertStatus status = sr.getCertStatus();
                     if (status instanceof GoodInfo) {
