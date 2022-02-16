@@ -93,7 +93,7 @@ public class RequestProcessor extends CertProcessor {
         return data;
     }
 
-    public void processRequest(HttpServletRequest request, IAuthToken authToken, CertReviewResponse data, IRequest req, String op)
+    public void processRequest(HttpServletRequest request, IAuthToken authToken, CertReviewResponse data, Request req, String op)
             throws EBaseException {
         try {
             startTiming("approval");
@@ -286,7 +286,7 @@ public class RequestProcessor extends CertProcessor {
      * @exception EProfileException an error related to this profile has
      *                occurred
      */
-    private void cancelRequest(IRequest req) throws EProfileException {
+    private void cancelRequest(Request req) throws EProfileException {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
         req.setRequestStatus(RequestStatus.CANCELED);
@@ -314,7 +314,7 @@ public class RequestProcessor extends CertProcessor {
      * @exception EProfileException an error related to this profile has
      *                occurred
      */
-    private void rejectRequest(IRequest req) throws EProfileException {
+    private void rejectRequest(Request req) throws EProfileException {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
 
@@ -374,7 +374,7 @@ public class RequestProcessor extends CertProcessor {
      * @exception EProfileException an error related to this profile has
      *                occurred
      */
-    private void approveRequest(IRequest req, CertReviewResponse data, Profile profile, Locale locale)
+    private void approveRequest(Request req, CertReviewResponse data, Profile profile, Locale locale)
             throws EBaseException {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);

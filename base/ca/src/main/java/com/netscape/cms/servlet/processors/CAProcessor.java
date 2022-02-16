@@ -52,7 +52,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.util.IStatsSubsystem;
@@ -352,7 +351,7 @@ public class CAProcessor extends Processor {
     public IAuthToken authenticate(
             ProfileAuthenticator authenticator,
             HttpServletRequest request,
-            IRequest origReq,
+            Request origReq,
             SessionContext context,
             AuthCredentials credentials) throws EBaseException
     {
@@ -451,7 +450,7 @@ public class CAProcessor extends Processor {
 
     public IAuthToken authenticate(
             HttpServletRequest request,
-            IRequest origReq,
+            Request origReq,
             ProfileAuthenticator authenticator,
             SessionContext context,
             boolean isRenewal,
@@ -538,7 +537,7 @@ public class CAProcessor extends Processor {
         return authenticate(httpReq, authMgr);
     }
 
-    public void saveAuthToken(IAuthToken token, IRequest request) {
+    public void saveAuthToken(IAuthToken token, Request request) {
 
         logger.info("CAProcessor: saving authentication token into request:");
         request.setExtData(Request.AUTH_TOKEN, token);
@@ -898,7 +897,7 @@ public class CAProcessor extends Processor {
      * @param request the actual request
      * @return id string containing the signed audit log message RequesterID
      */
-    protected String auditRequesterID(IRequest request) {
+    protected String auditRequesterID(Request request) {
 
         String requesterID = ILogger.UNIDENTIFIED;
 
