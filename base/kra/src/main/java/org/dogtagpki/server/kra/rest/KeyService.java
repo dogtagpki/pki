@@ -156,7 +156,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
         // get or create request
         requestId = data.getRequestId();
-        IRequest request = null;
+        Request request = null;
 
         if (requestId != null) {
 

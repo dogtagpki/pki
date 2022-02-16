@@ -244,7 +244,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         return createKeyRequestResponse(request, uriInfo);
     }
 
-    public IRequest createRecoveryRequest(KeyRecoveryRequest data, UriInfo uriInfo, String requestor,
+    public Request createRecoveryRequest(KeyRecoveryRequest data, UriInfo uriInfo, String requestor,
             IAuthToken authToken, boolean ephemeral) throws EBaseException{
         if (data == null) {
             throw new BadRequestException("Invalid request.");
@@ -360,7 +360,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
     public KeyRequestResponse submitRequest(KeyRecoveryRequest data, UriInfo uriInfo, String requestor,
             IAuthToken authToken)
             throws EBaseException {
-        IRequest request = createRecoveryRequest(data, uriInfo, requestor, authToken, false);
+        Request request = createRecoveryRequest(data, uriInfo, requestor, authToken, false);
         setTransientData(data, request);
         queue.processRequest(request);
 
