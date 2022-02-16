@@ -43,7 +43,6 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.INotify;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.ProfileAuthenticator;
@@ -92,7 +91,7 @@ public class CertProcessor extends CAProcessor {
         }
     }
 
-    private void setInputsIntoRequest(CertEnrollmentRequest data, Profile profile, IRequest req) {
+    private void setInputsIntoRequest(CertEnrollmentRequest data, Profile profile, Request req) {
         // put profile inputs into a local map
         HashMap<String, String> dataInputs = new HashMap<>();
         for (ProfileInput input : data.getInputs()) {
@@ -128,7 +127,7 @@ public class CertProcessor extends CAProcessor {
     }
 
     private static void setAuthTokenIntoRequest(
-            IRequest req, IAuthToken authToken) {
+            Request req, IAuthToken authToken) {
         Enumeration<String> tokenNames = authToken.getElements();
         while (tokenNames.hasMoreElements()) {
             String tokenName = tokenNames.nextElement();
@@ -174,7 +173,7 @@ public class CertProcessor extends CAProcessor {
      * This is expected to be used by renewal where the request
      * is retrieved from request record
      */
-    private void setInputsIntoRequest(IRequest request, Profile profile, IRequest req, Locale locale) {
+    private void setInputsIntoRequest(Request request, Profile profile, Request req, Locale locale) {
         logger.debug("CertProcessor: setInputsIntoRequest()");
         // passing inputs into request
         Enumeration<String> inputIds = profile.getProfileInputIds();
@@ -220,7 +219,7 @@ public class CertProcessor extends CAProcessor {
         return null;
     }
 
-    protected String submitRequests(Locale locale, Profile profile, IAuthToken authToken, IRequest[] reqs) {
+    protected String submitRequests(Locale locale, Profile profile, IAuthToken authToken, Request[] reqs) {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
         String errorCode = null;
@@ -228,7 +227,7 @@ public class CertProcessor extends CAProcessor {
 
         CAEngine engine = CAEngine.getInstance();
 
-        for (IRequest req : reqs) {
+        for (Request req : reqs) {
             try {
                 IConfigStore profileConf = profile.getConfigStore().getSubStore("auth");
                 boolean explicitApprovalRequired = profileConf.getBoolean("explicitApprovalRequired", false);
@@ -334,11 +333,11 @@ public class CertProcessor extends CAProcessor {
     }
 
     protected void populateRequests(CertEnrollmentRequest data, boolean isRenewal,
-            Locale locale, Date origNotAfter, String origSubjectDN, IRequest origReq, String profileId,
+            Locale locale, Date origNotAfter, String origSubjectDN, Request origReq, String profileId,
             Profile profile, Map<String, String> ctx, ProfileAuthenticator authenticator, IAuthToken authToken,
-            IRequest[] reqs) throws Exception {
+            Request[] reqs) throws Exception {
 
-        for (IRequest req : reqs) {
+        for (Request req : reqs) {
             // adding parameters to request
             if (isRenewal) {
                 setInputsIntoRequest(origReq, profile, req, locale);
