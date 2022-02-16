@@ -42,7 +42,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.system.SystemCertData;
@@ -79,7 +78,7 @@ public class CAConfigurator extends Configurator {
     }
 
     public void initRequest(
-            IRequest request,
+            Request request,
             String certRequestType,
             byte[] certRequest,
             X500Name subjectName,
@@ -170,7 +169,7 @@ public class CAConfigurator extends Configurator {
     }
 
     public void updateRequest(
-            IRequest request,
+            Request request,
             X509CertImpl cert) throws Exception {
 
         request.setExtData(EnrollProfile.REQUEST_CERTINFO, cert.getInfo());

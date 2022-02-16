@@ -24,8 +24,8 @@ import java.util.Vector;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.EnrollDefault;
+import com.netscape.cmscore.request.Request;
 
 public class BootstrapProfile {
 
@@ -88,7 +88,7 @@ public class BootstrapProfile {
         return mProfileSetIDMapping;
     }
 
-    public void populate(IRequest request, X509CertInfo info) throws Exception {
+    public void populate(Request request, X509CertInfo info) throws Exception {
         Enumeration<EnrollDefault> e1 = mDefaults.elements();
         while (e1.hasMoreElements()) {
             EnrollDefault def = e1.nextElement();
