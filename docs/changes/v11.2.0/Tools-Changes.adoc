@@ -1,0 +1,13 @@
+= Tools Changes =
+
+== OCSPClient Changes ==
+
+
+The `OCSPClient` now accepts a serial number in decimal or hexadecimal (with `0x` prefix)
+but always displays the returned serial number in hexadecimal. For example:
+
+----
+$ OCSPClient ... --serial 35525
+CertID.serialNumber=0x8ac5
+CertStatus=Revoked
+----
