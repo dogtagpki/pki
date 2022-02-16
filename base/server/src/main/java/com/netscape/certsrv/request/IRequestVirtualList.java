@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+import com.netscape.cmscore.request.Request;
+
 /**
  * This interface defines access to request virtual list.
  * <p>
@@ -39,7 +41,7 @@ public interface IRequestVirtualList {
      * @param index index of the element
      * @return specified request
      */
-    IRequest getElementAt(int index);
+    Request getElementAt(int index);
 
     /**
      * Gets the current index

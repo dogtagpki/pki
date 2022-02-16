@@ -35,6 +35,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestRepository;
 
 /**
@@ -120,7 +121,7 @@ public abstract class CMSRequestDAO {
             logger.debug("CMSRequestDAO: records (" + numRecords + "):");
 
             for (int i = 0; i < numRecords; i++) {
-                IRequest request = vlvlist.getElementAt(i);
+                Request request = vlvlist.getElementAt(i);
                 logger.debug("- " + request.getRequestId().toHexString());
                 ret.addEntry(createCMSRequestInfo(request, uriInfo));
             }

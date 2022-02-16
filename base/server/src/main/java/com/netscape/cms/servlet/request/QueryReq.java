@@ -538,7 +538,7 @@ public class QueryReq extends CMSServlet {
 
         int c = 0;
         for (int i = 0; i < count; i++) {
-            IRequest request = list.getElementAt(i);
+            Request request = list.getElementAt(i);
             if (request != null) {
                 v.add(request);
                 c++;

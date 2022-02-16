@@ -435,7 +435,7 @@ public class RequestRepository extends Repository {
 
         logger.info("RequestRepository: Requests:");
         for (int i = 0; i < 5; i++) {
-            IRequest request = recList.getElementAt(i);
+            Request request = recList.getElementAt(i);
 
             if (request == null) {
                 continue;

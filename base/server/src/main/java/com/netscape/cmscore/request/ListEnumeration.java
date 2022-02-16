@@ -20,7 +20,6 @@ package com.netscape.cmscore.request;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBVirtualList;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestVirtualList;
 
 public class ListEnumeration implements IRequestVirtualList {
@@ -34,7 +33,7 @@ public class ListEnumeration implements IRequestVirtualList {
     }
 
     @Override
-    public IRequest getElementAt(int i) {
+    public Request getElementAt(int i) {
         RequestRecord record = (RequestRecord) list.getElementAt(i);
 
         if (record == null) {

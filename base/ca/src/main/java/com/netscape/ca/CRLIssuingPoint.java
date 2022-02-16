@@ -64,7 +64,6 @@ import com.netscape.certsrv.logging.event.DeltaCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.DeltaCRLPublishingEvent;
 import com.netscape.certsrv.logging.event.FullCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.FullCRLPublishingEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.IStatsSubsystem;
@@ -2215,7 +2214,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
             int s = list.getSize() - list.getCurrentIndex();
             for (int i = 0; i < s; i++) {
-                IRequest request = null;
+                Request request = null;
                 try {
                     request = list.getElementAt(i);
                 } catch (Exception e) {
