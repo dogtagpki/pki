@@ -20,12 +20,13 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
+
+import javax.security.auth.x500.X500Principal;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
@@ -196,7 +197,7 @@ public class RevocationProcessor extends CertProcessor {
 
         } catch (Exception e) {
             logger.warn("RevocationProcessor:  Failed to map certificate '" +
-                    clientCert.getSubjectDN().getName() + "' to user: " + e.getMessage(), e);
+                    clientCert.getSubjectX500Principal().getName() + "' to user: " + e.getMessage(), e);
             return false;
         }
     }
@@ -206,7 +207,7 @@ public class RevocationProcessor extends CertProcessor {
 
         X509CertImpl targetCert = targetRecord.getCertificate();
         BigInteger targetSerialNumber = targetCert.getSerialNumber();
-        Principal targetSubjectDN = targetCert.getSubjectDN();
+        X500Principal targetSubjectDN = targetCert.getSubjectX500Principal();
 
         // Verify the subject DN matches the target cert's subject DN.
         // Agent has null subject DN so he can revoke any certificate.
@@ -321,7 +322,7 @@ public class RevocationProcessor extends CertProcessor {
         logger.debug("RevocationProcessor: - certs:");
         for (X509CertImpl cert : certificates) {
             logger.debug("RevocationProcessor:   - serial number: " + cert.getSerialNumber().toString(16));
-            logger.debug("RevocationProcessor:   - subject: " + cert.getSubjectDN());
+            logger.debug("RevocationProcessor:   - subject: " + cert.getSubjectX500Principal());
         }
 
         requestQueue.processRequest(request);
@@ -385,7 +386,7 @@ public class RevocationProcessor extends CertProcessor {
         logger.debug("RevocationProcessor: - certs:");
         for (X509CertImpl cert : certificates) {
             logger.debug("RevocationProcessor:   - serial number: " + cert.getSerialNumber().toString(16));
-            logger.debug("RevocationProcessor:   - subject: " + cert.getSubjectDN());
+            logger.debug("RevocationProcessor:   - subject: " + cert.getSubjectX500Principal());
         }
 
         requestQueue.processRequest(request);
@@ -425,7 +426,7 @@ public class RevocationProcessor extends CertProcessor {
             return false;
 
         // check whether it's a self-signed we certificate
-        return caCert.getSubjectDN().equals(caCert.getIssuerDN());
+        return caCert.getSubjectX500Principal().equals(caCert.getIssuerX500Principal());
     }
 
     public void auditChangeRequest(String status) {

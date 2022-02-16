@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -30,6 +29,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import javax.security.auth.x500.X500Principal;
 
 import org.dogtagpki.ct.CTEngine;
 import org.dogtagpki.server.ca.CAEngine;
@@ -1625,7 +1626,7 @@ class getCertStatus implements IServant {
                 status = record.getStatus();
                 if (status.equals("VALID")) {
                     X509CertImpl cacert = mCA.getCACert();
-                    Principal p = cacert.getSubjectDN();
+                    X500Principal p = cacert.getSubjectX500Principal();
 
                     if (!p.toString().equals(issuerDN)) {
                         status = "INVALIDCERTROOT";

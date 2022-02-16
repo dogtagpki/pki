@@ -81,7 +81,7 @@ public class PKCS7CertImportCLI extends CommandCLI {
 
             PKCS7 pkcs7 = new PKCS7(new String(bytes));
             for (X509Certificate cert : pkcs7.getCertificates()) {
-                logger.info(" - " + cert.getSubjectDN());
+                logger.info(" - " + cert.getSubjectX500Principal());
             }
 
             certChain.addPKCS7(pkcs7);
@@ -98,7 +98,7 @@ public class PKCS7CertImportCLI extends CommandCLI {
 
                 CertificateChain inputChain = CertificateChain.fromPEMString(new String(bytes));
                 for (X509Certificate cert : inputChain.getCertificates()) {
-                    logger.info(" - " + cert.getSubjectDN());
+                    logger.info(" - " + cert.getSubjectX500Principal());
                 }
 
                 certChain.addCertificateChain(inputChain);
@@ -106,7 +106,7 @@ public class PKCS7CertImportCLI extends CommandCLI {
             } else if ("DER".equalsIgnoreCase(inputFormat)) {
 
                 X509CertImpl cert = new X509CertImpl(bytes);
-                logger.info(" - " + cert.getSubjectDN());
+                logger.info(" - " + cert.getSubjectX500Principal());
 
                 certChain.addCertificate(cert);
 
@@ -119,7 +119,7 @@ public class PKCS7CertImportCLI extends CommandCLI {
         PKCS7 pkcs7 = certChain.toPKCS7();
 
         for (X509Certificate cert : pkcs7.getCertificates()) {
-            logger.info("- " + cert.getSubjectDN());
+            logger.info("- " + cert.getSubjectX500Principal());
         }
 
         try (PrintWriter os = new PrintWriter(path.toFile())) {

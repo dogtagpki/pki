@@ -224,7 +224,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 rarg.addBigIntegerValue("serialNumber",
                         serialNoArray[i], 16);
                 rarg.addStringValue("subject",
-                        certs[i].getSubjectDN().toString());
+                        certs[i].getSubjectX500Principal().toString());
                 rarg.addLongValue("validNotBefore",
                         certs[i].getNotBefore().getTime() / 1000);
                 rarg.addLongValue("validNotAfter",
@@ -390,7 +390,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                                                 revReq.getRequestId(),
                                                 initiative,
                                                 "completed with error: " + err,
-                                                oldCerts[j].getSubjectDN(),
+                                                oldCerts[j].getSubjectX500Principal(),
                                                 oldCerts[j].getSerialNumber().toString(16),
                                                 RevocationReason.valueOf(reason)
                                         );
@@ -410,7 +410,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                                 revReq.getRequestId(),
                                 initiative,
                                 "completed",
-                                oldCerts[j].getSubjectDN(),
+                                oldCerts[j].getSubjectX500Principal(),
                                 oldCerts[j].getSerialNumber().toString(16),
                                 RevocationReason.valueOf(reason)
                         );
@@ -549,7 +549,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                                 revReq.getRequestId(),
                                 initiative,
                                 "pending",
-                                oldCerts[j].getSubjectDN(),
+                                oldCerts[j].getSubjectX500Principal(),
                                 oldCerts[j].getSerialNumber().toString(16),
                                 RevocationReason.valueOf(reason)
                         );
@@ -575,7 +575,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                                 revReq.getRequestId(),
                                 initiative,
                                 stat,
-                                oldCerts[j].getSubjectDN(),
+                                oldCerts[j].getSubjectX500Principal(),
                                 oldCerts[j].getSerialNumber().toString(16),
                                 RevocationReason.valueOf(reason)
                         );

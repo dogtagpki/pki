@@ -228,7 +228,7 @@ public class KeyCertUtil {
         X509Certificate cert = getCertificate(tokenname, nickname);
         X509CertImpl impl = new X509CertImpl(cert.getEncoded());
 
-        return impl.getSubjectDN().getName();
+        return impl.getSubjectX500Principal().getName();
     }
 
     public static X509CertImpl signCert(PrivateKey privateKey, X509CertInfo certInfo,

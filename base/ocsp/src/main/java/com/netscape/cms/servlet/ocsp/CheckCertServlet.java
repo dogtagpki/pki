@@ -163,10 +163,10 @@ public class CheckCertServlet extends CMSServlet {
         }
 
         ICRLIssuingPointRecord pt = defStore.readCRLIssuingPoint(
-                cert.getIssuerDN().getName());
+                cert.getIssuerX500Principal().getName());
 
-        header.addStringValue(ATTR_ISSUERDN, cert.getIssuerDN().getName());
-        header.addStringValue(ATTR_SUBJECTDN, cert.getSubjectDN().getName());
+        header.addStringValue(ATTR_ISSUERDN, cert.getIssuerX500Principal().getName());
+        header.addStringValue(ATTR_SUBJECTDN, cert.getSubjectX500Principal().getName());
         header.addStringValue(ATTR_SERIALNO, "0x" + cert.getSerialNumber().toString(16));
         try {
             X509CRLImpl crl = null;
@@ -187,7 +187,7 @@ public class CheckCertServlet extends CMSServlet {
             header.addStringValue(ATTR_STATUS, STATUS_UNKNOWN);
         }
 
-        logger.info("Checked Certificate Status " + cert.getIssuerDN().getName() + " " + cert.getSerialNumber().toString());
+        logger.info("Checked Certificate Status " + cert.getIssuerX500Principal().getName() + " " + cert.getSerialNumber().toString());
 
         try {
             ServletOutputStream out = resp.getOutputStream();

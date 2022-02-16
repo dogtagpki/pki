@@ -311,9 +311,9 @@ public class CertificateRevokedListener implements IRequestListener {
             X509Certificate cert = certDB.getX509Certificate(revCert.getSerialNumber());
 
             mContentParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,
-                    cert.getIssuerDN().toString());
+                    cert.getIssuerX500Principal().toString());
             mContentParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
-                    cert.getSubjectDN().toString());
+                    cert.getSubjectX500Principal().toString());
             Date date = crlentries[0].getRevocationDate();
 
             mContentParams.put(IEmailFormProcessor.TOKEN_REVOCATION_DATE,

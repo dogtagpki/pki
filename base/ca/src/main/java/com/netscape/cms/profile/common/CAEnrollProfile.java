@@ -433,7 +433,7 @@ public class CAEnrollProfile extends EnrollProfile {
                 initiative,
                 authMgr,
                 "completed",
-                theCert.getSubjectDN(),
+                theCert.getSubjectX500Principal(),
                 "cert issued serial number: 0x" +
                         theCert.getSerialNumber().toString(16) +
                         " time: " + (endTime - startTime)

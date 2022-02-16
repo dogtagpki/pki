@@ -31,7 +31,7 @@ public class PKITrustManager implements X509TrustManager {
         certChain = Cert.sortCertificateChain(certChain);
 
         for (X509Certificate cert : certChain) {
-            logger.debug("PKITrustManager:  - " + cert.getSubjectDN());
+            logger.debug("PKITrustManager:  - " + cert.getSubjectX500Principal());
         }
 
         // get CA certs
@@ -59,7 +59,7 @@ public class PKITrustManager implements X509TrustManager {
 
     public void checkCert(X509Certificate cert, X509Certificate[] caCerts, String keyUsage) throws Exception {
 
-        logger.debug("PKITrustManager: checkCert(" + cert.getSubjectDN() + "):");
+        logger.debug("PKITrustManager: checkCert(" + cert.getSubjectX500Principal() + "):");
 
         boolean[] aki = cert.getIssuerUniqueID();
         logger.debug("PKITrustManager: cert AKI: " + Arrays.toString(aki));
@@ -68,7 +68,7 @@ public class PKITrustManager implements X509TrustManager {
         for (X509Certificate caCert : caCerts) {
 
             boolean[] ski = caCert.getSubjectUniqueID();
-            logger.debug("PKITrustManager: SKI of " + caCert.getSubjectDN() + ": " + Arrays.toString(ski));
+            logger.debug("PKITrustManager: SKI of " + caCert.getSubjectX500Principal() + ": " + Arrays.toString(ski));
 
             try {
                 cert.verify(caCert.getPublicKey(), "Mozilla-JSS");
@@ -80,10 +80,10 @@ public class PKITrustManager implements X509TrustManager {
         }
 
         if (issuer == null) {
-            throw new CertificateException("Unable to validate signature: " + cert.getSubjectDN());
+            throw new CertificateException("Unable to validate signature: " + cert.getSubjectX500Principal());
         }
 
-        logger.debug("PKITrustManager: cert signed by " + issuer.getSubjectDN());
+        logger.debug("PKITrustManager: cert signed by " + issuer.getSubjectX500Principal());
 
         logger.debug("PKITrustManager: checking validity range:");
         logger.debug("PKITrustManager:  - not before: " + cert.getNotBefore());

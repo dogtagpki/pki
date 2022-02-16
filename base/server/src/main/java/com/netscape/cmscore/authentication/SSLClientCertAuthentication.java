@@ -21,8 +21,9 @@ package com.netscape.cmscore.authentication;
 
 // cert server imports.
 import java.math.BigInteger;
-import java.security.Principal;
 import java.security.cert.X509Certificate;
+
+import javax.security.auth.x500.X500Principal;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
@@ -137,7 +138,7 @@ public class SSLClientCertAuthentication implements AuthManager {
                     "Invalid serial number."));
         }
 
-        String clientCertIssuerDN = clientCert.getIssuerDN().toString();
+        String clientCertIssuerDN = clientCert.getIssuerX500Principal().toString();
 
         if (mCertDB != null) { /* is CA */
             CertRecord record = null;
@@ -153,7 +154,7 @@ public class SSLClientCertAuthentication implements AuthManager {
                 if (status.equals("VALID")) {
 
                     X509CertImpl cacert = mCA.getCACert();
-                    Principal p = cacert.getSubjectDN();
+                    X500Principal p = cacert.getSubjectX500Principal();
 
                     if (!p.toString().equals(clientCertIssuerDN)) {
                         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ISSUER_NAME"));

@@ -203,19 +203,19 @@ public class AddCAServlet extends CMSServlet {
 
             certs[0] = cert;
             leafCert = cert;
-            auditCASubjectDN = leafCert.getSubjectDN().getName();
+            auditCASubjectDN = leafCert.getSubjectX500Principal().getName();
         } catch (Exception e) {
         }
         if (certs == null) {
             try {
                 // this could be a chain
                 certs = Cert.mapCertFromPKCS7(b64);
-                if (certs[0].getSubjectDN().getName().equals(certs[0].getIssuerDN().getName())) {
+                if (certs[0].getSubjectX500Principal().getName().equals(certs[0].getIssuerX500Principal().getName())) {
                     leafCert = certs[certs.length - 1];
                 } else {
                     leafCert = certs[0];
                 }
-                auditCASubjectDN = leafCert.getSubjectDN().getName();
+                auditCASubjectDN = leafCert.getSubjectX500Principal().getName();
             } catch (Exception e) {
 
                 audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
@@ -232,7 +232,7 @@ public class AddCAServlet extends CMSServlet {
             // (2) store certificate (and certificate chain) into
             // database
             ICRLIssuingPointRecord rec = defStore.createCRLIssuingPointRecord(
-                    leafCert.getSubjectDN().getName(),
+                    leafCert.getSubjectX500Principal().getName(),
                     BIG_ZERO,
                     MINUS_ONE, null, null);
 
@@ -246,8 +246,8 @@ public class AddCAServlet extends CMSServlet {
 
                 // error
             }
-            defStore.addCRLIssuingPoint(leafCert.getSubjectDN().getName(), rec);
-            logger.info("Added CA certificate " + leafCert.getSubjectDN().getName());
+            defStore.addCRLIssuingPoint(leafCert.getSubjectX500Principal().getName(), rec);
+            logger.info("Added CA certificate " + leafCert.getSubjectX500Principal().getName());
 
             audit(OCSPAddCARequestProcessedEvent.createSuccessEvent(
                     auditSubjectID,

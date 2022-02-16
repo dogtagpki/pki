@@ -108,7 +108,7 @@ public class PKIRealm extends RealmBase {
 
         for (int i=0; i<certs.length; i++) {
             X509Certificate cert = certs[i];
-            logger.info("PKIRealm: - " + cert.getSubjectDN());
+            logger.info("PKIRealm: - " + cert.getSubjectX500Principal());
         }
 
         // get the cert from the ssl client auth
@@ -172,7 +172,7 @@ public class PKIRealm extends RealmBase {
     }
 
     private String getAuditUserfromCert(X509Certificate clientCert) {
-        String certUID = clientCert.getSubjectDN().getName();
+        String certUID = clientCert.getSubjectX500Principal().getName();
         return StringUtils.stripToNull(certUID);
     }
 

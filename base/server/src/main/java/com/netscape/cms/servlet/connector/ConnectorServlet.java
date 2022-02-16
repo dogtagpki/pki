@@ -211,7 +211,7 @@ public class ConnectorServlet extends CMSServlet {
         try {
             token = authenticate(request);
             raUserId = token.getInString("userid");
-            RA_Id = peerCert.getSubjectDN().toString();
+            RA_Id = peerCert.getSubjectX500Principal().toString();
         } catch (EInvalidCredentials e) {
             // already logged.
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -222,7 +222,7 @@ public class ConnectorServlet extends CMSServlet {
             return;
         }
 
-        logger.info("ConnectorServlet: Remote Authority authenticated: " + peerCert.getSubjectDN());
+        logger.info("ConnectorServlet: Remote Authority authenticated: " + peerCert.getSubjectX500Principal());
 
         // authorize
         AuthzToken authzToken = null;
@@ -747,7 +747,7 @@ public class ConnectorServlet extends CMSServlet {
                                         initiative,
                                         authMgr,
                                         "completed",
-                                        x509Certs[i].getSubjectDN(),
+                                        x509Certs[i].getSubjectX500Principal(),
                                         "cert issued serial number: 0x" +
                                                 x509Certs[i].getSerialNumber().toString(16)
                                 );
@@ -777,7 +777,7 @@ public class ConnectorServlet extends CMSServlet {
                                     initiative,
                                     authMgr,
                                     "completed",
-                                    old_cert.getSubjectDN(),
+                                    old_cert.getSubjectX500Principal(),
                                     old_cert.getSerialNumber().toString(16),
                                     "new serial number: 0x" +
                                             renewed_cert.getSerialNumber().toString(16)
@@ -835,7 +835,7 @@ public class ConnectorServlet extends CMSServlet {
                                                             thisreq.getRequestId(),
                                                             initiative,
                                                             "completed with error: " + err,
-                                                            cert.getSubjectDN(),
+                                                            cert.getSubjectX500Principal(),
                                                             cert.getSerialNumber().toString(16),
                                                             RevocationReason.valueOf(reason)
                                                     );
@@ -857,7 +857,7 @@ public class ConnectorServlet extends CMSServlet {
                                                 thisreq.getRequestId(),
                                                 initiative,
                                                 "completed",
-                                                cert.getSubjectDN(),
+                                                cert.getSubjectX500Principal(),
                                                 cert.getSerialNumber().toString(16),
                                                 RevocationReason.valueOf(reason)
                                         );

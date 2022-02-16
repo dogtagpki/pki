@@ -308,7 +308,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                                 unrevReq.getRequestId(),
                                 initiative,
                                 "completed",
-                                certs[0].getSubjectDN(),
+                                certs[0].getSubjectX500Principal(),
                                 "0x" + serialNumbers[0].toString(16)
                         );
                     }
@@ -324,7 +324,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                                     unrevReq.getRequestId(),
                                     initiative,
                                     "completed with error: " + error,
-                                    certs[0].getSubjectDN(),
+                                    certs[0].getSubjectX500Principal(),
                                     "0x" + serialNumbers[0].toString(16)
                             );
                         }
@@ -426,7 +426,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                             unrevReq.getRequestId(),
                             initiative,
                             "pending",
-                            certs[0].getSubjectDN(),
+                            certs[0].getSubjectX500Principal(),
                             "0x" + serialNumbers[0].toString(16)
                     );
                 }
@@ -440,7 +440,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                                 unrevReq.getRequestId(),
                                 initiative,
                                 status,
-                                certs[0].getSubjectDN(),
+                                certs[0].getSubjectX500Principal(),
                                 "0x" + serialNumbers[0].toString(16)
                         );
                 }

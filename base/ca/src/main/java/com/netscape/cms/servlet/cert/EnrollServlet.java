@@ -862,7 +862,7 @@ public class EnrollServlet extends CMSServlet {
                             CMS.getUserMessage("CMS_GW_MISSING_SSL_CLIENT_CERT"));
                 }
 
-                certBasedOldSubjectDN = sslClientCert.getSubjectDN().toString();
+                certBasedOldSubjectDN = sslClientCert.getSubjectX500Principal().toString();
                 certBasedOldSerialNum = sslClientCert.getSerialNumber();
 
                 logger.debug("EnrollServlet: certBasedOldSubjectDN " + certBasedOldSubjectDN);
@@ -1124,9 +1124,9 @@ public class EnrollServlet extends CMSServlet {
                                 authToken, httpParams);
 
                         req.setExtData(CLIENT_ISSUER,
-                                sslClientCert.getIssuerDN().toString());
+                                sslClientCert.getIssuerX500Principal().toString());
                         logger.debug("EnrollServlet: sslClientCert issuerDN = " +
-                                sslClientCert.getIssuerDN().toString());
+                                sslClientCert.getIssuerX500Principal().toString());
                     } else if (crmf != null && crmf != "") {
                         CRMFProcessor crmfProc = new CRMFProcessor(cmsReq, this, enforcePop);
 
@@ -1136,9 +1136,9 @@ public class EnrollServlet extends CMSServlet {
                                     req);
 
                         req.setExtData(CLIENT_ISSUER,
-                                sslClientCert.getIssuerDN().toString());
+                                sslClientCert.getIssuerX500Principal().toString());
                         logger.debug("EnrollServlet: sslClientCert issuerDN = " +
-                                sslClientCert.getIssuerDN().toString());
+                                sslClientCert.getIssuerX500Principal().toString());
                     } else {
                         logger.error(CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
                                         CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
@@ -1400,7 +1400,7 @@ public class EnrollServlet extends CMSServlet {
                     initiative,
                     mAuthMgr,
                     "completed",
-                    issuedCerts[0].getSubjectDN(),
+                    issuedCerts[0].getSubjectX500Principal(),
                     "cert issued serial number: 0x" +
                             issuedCerts[0].getSerialNumber().toString(16) +
                             " time: " +

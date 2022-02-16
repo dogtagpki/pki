@@ -79,7 +79,7 @@ public class PKCS7ExportCLI extends CommandCLI {
         PKCS7 pkcs7 = certChain.toPKCS7();
 
         for (X509Certificate cert : certChain.getCertificates()) {
-            logger.info("- " + cert.getSubjectDN());
+            logger.info("- " + cert.getSubjectX500Principal());
         }
 
         try (PrintWriter out = new PrintWriter(filename)) {

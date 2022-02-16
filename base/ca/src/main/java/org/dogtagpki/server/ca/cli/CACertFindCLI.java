@@ -112,8 +112,8 @@ public class CACertFindCLI extends CommandCLI {
                 X509Certificate cert = record.getCertificate();
 
                 System.out.println("  Serial Number: " + id.toHexString());
-                System.out.println("  Subject DN: " + cert.getSubjectDN());
-                System.out.println("  Issuer DN: " + cert.getIssuerDN());
+                System.out.println("  Subject DN: " + cert.getSubjectX500Principal());
+                System.out.println("  Issuer DN: " + cert.getIssuerX500Principal());
                 System.out.println("  Not Valid Before: " + cert.getNotBefore());
                 System.out.println("  Not Valid After: " + cert.getNotAfter());
             }

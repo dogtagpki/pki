@@ -73,8 +73,8 @@ public class ExactMatchCertUserLocator implements CertUserLocator {
             return null;
         int pos = 0;
 
-        if (certificates[0].getSubjectDN().toString().equals(
-                certificates[0].getIssuerDN().toString())) {
+        if (certificates[0].getSubjectX500Principal().toString().equals(
+                certificates[0].getIssuerX500Principal().toString())) {
             pos = certificates.length - 1;
         }
 

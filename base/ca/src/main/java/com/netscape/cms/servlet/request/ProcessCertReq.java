@@ -888,7 +888,7 @@ public class ProcessCertReq extends CMSServlet {
                                         initiative,
                                         authMgr,
                                         "completed",
-                                        issuedCerts[i].getSubjectDN(),
+                                        issuedCerts[i].getSubjectX500Principal(),
                                         "cert issued serial number: 0x"
                                                 +
                                                 issuedCerts[i].getSerialNumber().toString(16) + " time: "

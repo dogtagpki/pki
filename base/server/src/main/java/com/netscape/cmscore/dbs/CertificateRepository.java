@@ -679,8 +679,8 @@ public class CertificateRepository extends Repository {
             logger.info("CertificateRepository: Adding certificate record " + name);
 
             X509CertImpl x509cert = (X509CertImpl) record.get(CertRecord.ATTR_X509CERT);
-            logger.info("CertificateRepository: - subject: " + x509cert.getSubjectDN());
-            logger.info("CertificateRepository: - issuer: " + x509cert.getIssuerDN());
+            logger.info("CertificateRepository: - subject: " + x509cert.getSubjectX500Principal());
+            logger.info("CertificateRepository: - issuer: " + x509cert.getIssuerX500Principal());
 
             SessionContext ctx = SessionContext.getContext();
             String uid = (String) ctx.get(SessionContext.USER_ID);
@@ -1419,7 +1419,7 @@ public class CertificateRepository extends Repository {
             while (e.hasMoreElements()) {
                 CertRecord rec = e.nextElement();
                 X509CertImpl cert = rec.getCertificate();
-                String subjectDN = cert.getSubjectDN().toString();
+                String subjectDN = cert.getSubjectX500Principal().toString();
                 String renewalFlag = rec.getAutoRenew();
 
                 // See if the subjectDN is in the table

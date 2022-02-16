@@ -192,7 +192,7 @@ public class CloneServlet extends CMSServlet {
             // cfu maybe don't need CCA_Id, because the above check
             //			was good enough
             CCAUserId = token.getInString("userid");
-            CCA_Id = peerCert.getSubjectDN().toString();
+            CCA_Id = peerCert.getSubjectX500Principal().toString();
         } catch (EInvalidCredentials e) {
             // already logged.
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -203,7 +203,7 @@ public class CloneServlet extends CMSServlet {
             return;
         }
 
-        logger.info("CloneServlet: Clone Certificate Authority authenticated: " + peerCert.getSubjectDN());
+        logger.info("CloneServlet: Clone Certificate Authority authenticated: " + peerCert.getSubjectX500Principal());
 
         // authorize, any authenticated user are authorized
         AuthzToken authzToken = null;
@@ -289,13 +289,13 @@ public class CloneServlet extends CMSServlet {
 
             return token;
         } catch (CertificateException e) {
-            logger.error(CMS.getLogMessage("CMSGW_REMOTE_AUTHORITY_AUTH_FAILURE", peerCert.getSubjectDN().toString()), e);
+            logger.error(CMS.getLogMessage("CMSGW_REMOTE_AUTHORITY_AUTH_FAILURE", peerCert.getSubjectX500Principal().toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (EInvalidCredentials e) {
-            logger.error(CMS.getLogMessage("CMSGW_REMOTE_AUTHORITY_AUTH_FAILURE", peerCert.getSubjectDN().toString()), e);
+            logger.error(CMS.getLogMessage("CMSGW_REMOTE_AUTHORITY_AUTH_FAILURE", peerCert.getSubjectX500Principal().toString()), e);
             throw e;
         } catch (EBaseException e) {
-            logger.error(CMS.getLogMessage("CMSGW_REMOTE_AUTHORITY_AUTH_FAILURE", peerCert.getSubjectDN().toString()), e);
+            logger.error(CMS.getLogMessage("CMSGW_REMOTE_AUTHORITY_AUTH_FAILURE", peerCert.getSubjectX500Principal().toString()), e);
             throw e;
         }
     }

@@ -127,7 +127,7 @@ public class PKCS7CertExportCLI extends CommandCLI {
 
         for (X509Certificate cert : certs) {
 
-            logger.info("Exporting certificate #" + i + ": " + cert.getSubjectDN());
+            logger.info("Exporting certificate #" + i + ": " + cert.getSubjectX500Principal());
 
             String output = prefix + i + suffix;
 
@@ -137,7 +137,7 @@ public class PKCS7CertExportCLI extends CommandCLI {
                 out.println(Cert.FOOTER);
             }
 
-            System.out.println(output + ": " + cert.getSubjectDN());
+            System.out.println(output + ": " + cert.getSubjectX500Principal());
 
             i++;
         }

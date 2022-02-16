@@ -767,7 +767,7 @@ public class UGSubsystem {
                     AuditFormat.ADDUSERCERTFORMAT,
                     adminId,
                     userID,
-                    cert.getSubjectDN(),
+                    cert.getSubjectX500Principal(),
                     cert.getSerialNumber().toString(16)
             );
 
@@ -925,7 +925,7 @@ public class UGSubsystem {
                     // remove seeAlso attribute
                     LDAPModificationSet attrs = new LDAPModificationSet();
                     LDAPAttribute certDNAttrS = new LDAPAttribute(LDAP_ATTR_CERTDN);
-                    certDNAttrS.addValue(certs[i].getSubjectDN().toString());
+                    certDNAttrS.addValue(certs[i].getSubjectX500Principal().toString());
                     attrs.add(LDAPModification.DELETE, certDNAttrS);
                     ldapconn.modify(dn, attrs);
 
@@ -960,7 +960,7 @@ public class UGSubsystem {
                         AuditFormat.REMOVEUSERCERTFORMAT,
                         adminId,
                         user.getUserID(),
-                        certs[0].getSubjectDN(),
+                        certs[0].getSubjectX500Principal(),
                         certs[i].getSerialNumber().toString(16)
                 );
 
@@ -1843,7 +1843,7 @@ public class UGSubsystem {
         }
         // note that it did not represent a certificate fully
         return "-1;" + cert.getSerialNumber().toString() +
-                ";" + cert.getIssuerDN() + ";" + cert.getSubjectDN();
+                ";" + cert.getIssuerX500Principal() + ";" + cert.getSubjectX500Principal();
     }
 
     public String getCertificateString(X509Certificate cert) {
@@ -1853,7 +1853,7 @@ public class UGSubsystem {
 
         // note that it did not represent a certificate fully
         return cert.getVersion() + ";" + cert.getSerialNumber().toString() +
-                ";" + cert.getIssuerDN() + ";" + cert.getSubjectDN();
+                ";" + cert.getIssuerX500Principal() + ";" + cert.getSubjectX500Principal();
     }
 
     /**

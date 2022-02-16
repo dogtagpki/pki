@@ -136,7 +136,7 @@ public abstract class SigningUnit {
 
         for (int i = 0; i < chain.length; i++) {
             certs[i] = new X509CertImpl(chain[i].getEncoded());
-            logger.info("SigningUnit: - " + certs[i].getSubjectDN());
+            logger.info("SigningUnit: - " + certs[i].getSubjectX500Principal());
         }
 
         certChain = new CertificateChain(certs);

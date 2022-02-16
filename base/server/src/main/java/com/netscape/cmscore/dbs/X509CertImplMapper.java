@@ -107,12 +107,12 @@ public class X509CertImplMapper extends DBAttrMapper {
             logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_SUBJECT);
             attrs.add(new LDAPAttribute(
                     CertDBSchema.LDAP_ATTR_SUBJECT,
-                    cert.getSubjectDN().getName()));
+                    cert.getSubjectX500Principal().getName()));
 
             logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_ISSUER);
             attrs.add(new LDAPAttribute(
                     CertDBSchema.LDAP_ATTR_ISSUER,
-                    cert.getIssuerDN().getName()));
+                    cert.getIssuerX500Principal().getName()));
 
             logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_PUBLIC_KEY_DATA);
             attrs.add(new LDAPAttribute(

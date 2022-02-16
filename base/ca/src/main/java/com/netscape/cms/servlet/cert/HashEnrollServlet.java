@@ -370,7 +370,7 @@ public class HashEnrollServlet extends CMSServlet {
                         CMS.getUserMessage("CMS_GW_MISSING_SSL_CLIENT_CERT"));
             }
 
-            certBasedOldSubjectDN = sslClientCert.getSubjectDN().toString();
+            certBasedOldSubjectDN = sslClientCert.getSubjectX500Principal().toString();
             certBasedOldSerialNum = sslClientCert.getSerialNumber();
             try {
                 certInfo = (X509CertInfo)
@@ -554,8 +554,8 @@ public class HashEnrollServlet extends CMSServlet {
                 if (crmf != null && crmf != "") {
                     certInfoArray = fillCRMF(crmf, authToken, httpParams, req);
                     req.setExtData(CLIENT_ISSUER,
-                            sslClientCert.getIssuerDN().toString());
-                    logger.debug("HashEnrollServlet: sslClientCert issuerDN = " + sslClientCert.getIssuerDN());
+                            sslClientCert.getIssuerX500Principal().toString());
+                    logger.debug("HashEnrollServlet: sslClientCert issuerDN = " + sslClientCert.getIssuerX500Principal());
                 } else {
                     logger.error(CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
                     throw new ECMSGWException(CMS.getUserMessage(getLocale(httpReq),
@@ -573,7 +573,7 @@ public class HashEnrollServlet extends CMSServlet {
                 }
 
                 req.setExtData(CLIENT_ISSUER,
-                        sslClientCert.getIssuerDN().toString());
+                        sslClientCert.getIssuerX500Principal().toString());
             }
         } else if (crmf != null && crmf != "") {
             certInfoArray = fillCRMF(crmf, authToken, httpParams, req);
@@ -734,7 +734,7 @@ public class HashEnrollServlet extends CMSServlet {
                 initiative,
                 authMgr,
                 "completed",
-                issuedCerts[0].getSubjectDN(),
+                issuedCerts[0].getSubjectX500Principal(),
                 "cert issued serial number: 0x" +
                         issuedCerts[0].getSerialNumber().toString(16)
         );

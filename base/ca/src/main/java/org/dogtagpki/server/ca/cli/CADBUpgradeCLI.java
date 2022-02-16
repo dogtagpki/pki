@@ -73,7 +73,7 @@ public class CADBUpgradeCLI extends SubsystemDBUpgradeCLI {
             X509CertImpl cert = new X509CertImpl(bytes);
 
             // get issuer DN
-            String issuerDN = cert.getIssuerDN().toString();
+            String issuerDN = cert.getIssuerX500Principal().toString();
 
             logger.info("Setting issuerName to " + issuerDN);
             LDAPModification mods = new LDAPModification(

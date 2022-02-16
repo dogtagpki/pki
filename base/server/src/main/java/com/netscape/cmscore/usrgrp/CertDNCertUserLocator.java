@@ -73,7 +73,7 @@ public class CertDNCertUserLocator implements CertUserLocator {
             return null;
 
         String filter = LDAP_ATTR_CERTDN + "=" +
-                certificates[0].getSubjectDN();
+                certificates[0].getSubjectX500Principal();
 
         return mUG.findUsersByCert(filter);
     }

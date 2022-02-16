@@ -96,7 +96,7 @@ public class PKCS7ImportCLI extends CommandCLI {
 
         PKCS7 pkcs7 = new PKCS7(input);
         for (X509Certificate cert : pkcs7.getCertificates()) {
-            logger.info("- " + cert.getSubjectDN());
+            logger.info("- " + cert.getSubjectX500Principal());
         }
 
         CryptoUtil.importPKCS7(pkcs7, nickname, trustFlags);

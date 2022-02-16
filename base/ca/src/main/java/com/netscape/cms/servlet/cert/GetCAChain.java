@@ -294,7 +294,7 @@ public class GetCAChain extends CMSServlet {
 
             try {
                 subjectdn =
-                        certChain.getFirstCertificate().getSubjectDN().toString();
+                        certChain.getFirstCertificate().getSubjectX500Principal().toString();
                 ByteArrayOutputStream encoded = new ByteArrayOutputStream();
 
                 certChain.encode(encoded);
@@ -322,7 +322,7 @@ public class GetCAChain extends CMSServlet {
                     } catch (CertificateEncodingException e) {
                         throw new IOException("Internal Error");
                     }
-                    String subjectdn = certs[i].getSubjectDN().toString();
+                    String subjectdn = certs[i].getSubjectX500Principal().toString();
                     String finger = null;
                     try {
                         finger = CertUtils.getFingerPrints(certs[i]);

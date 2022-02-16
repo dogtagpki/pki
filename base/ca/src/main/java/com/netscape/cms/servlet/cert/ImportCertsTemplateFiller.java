@@ -209,7 +209,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
 
             // if nickname is not requested set to subject name by default.
             if (certnickname == null)
-                fixed.set(CERT_NICKNAME, certs[0].getSubjectDN().toString());
+                fixed.set(CERT_NICKNAME, certs[0].getSubjectX500Principal().toString());
             else
                 fixed.set(CERT_NICKNAME, certnickname);
         }

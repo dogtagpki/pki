@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.security.InvalidKeyException;
-import java.security.Principal;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
@@ -33,6 +32,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
+import javax.security.auth.x500.X500Principal;
 import javax.ws.rs.core.Response;
 
 import org.apache.catalina.realm.GenericPrincipal;
@@ -225,7 +225,7 @@ public class CertService extends PKIService implements CertResource {
 
             if (clientCert != null) {
                 clientSerialNumber = clientCert.getSerialNumber();
-                clientSubjectDN = clientCert.getSubjectDN().toString();
+                clientSubjectDN = clientCert.getSubjectX500Principal().toString();
 
                 X500Name x500issuerDN = (X500Name) clientCert.getIssuerDN();
                 /*
@@ -545,10 +545,10 @@ public class CertService extends PKIService implements CertResource {
 
         certData.setSerialNumber(certId);
 
-        Principal issuerDN = cert.getIssuerDN();
+        X500Principal issuerDN = cert.getIssuerX500Principal();
         if (issuerDN != null) certData.setIssuerDN(issuerDN.toString());
 
-        Principal subjectDN = cert.getSubjectDN();
+        X500Principal subjectDN = cert.getSubjectX500Principal();
         if (subjectDN != null) certData.setSubjectDN(subjectDN.toString());
 
         String base64 = CertUtil.toPEM(cert);
@@ -620,8 +620,8 @@ public class CertService extends PKIService implements CertResource {
         info.setID(id);
 
         X509Certificate cert = record.getCertificate();
-        info.setIssuerDN(cert.getIssuerDN().toString());
-        info.setSubjectDN(cert.getSubjectDN().toString());
+        info.setIssuerDN(cert.getIssuerX500Principal().toString());
+        info.setSubjectDN(cert.getSubjectX500Principal().toString());
         info.setStatus(record.getStatus());
         info.setVersion(cert.getVersion());
         info.setType(cert.getType());

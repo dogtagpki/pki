@@ -90,7 +90,7 @@ public class GetCertChain extends CMSServlet {
         } else {
             logger.debug("GetCertChain: certificate chain:");
             for (X509Certificate cert : certs) {
-                logger.debug("GetCertChain: - " + cert.getSubjectDN());
+                logger.debug("GetCertChain: - " + cert.getSubjectX500Principal());
             }
         }
 

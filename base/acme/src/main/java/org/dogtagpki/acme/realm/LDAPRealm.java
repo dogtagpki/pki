@@ -263,8 +263,8 @@ public class LDAPRealm extends ACMERealm {
     public String getCertID(X509Certificate cert) {
         return cert.getVersion() + ";"
                 + cert.getSerialNumber() + ";"
-                + cert.getIssuerDN() + ";"
-                + cert.getSubjectDN();
+                + cert.getIssuerX500Principal() + ";"
+                + cert.getSubjectX500Principal();
     }
 
     public User findUserByCertID(LDAPConnection conn, String certID) throws Exception {

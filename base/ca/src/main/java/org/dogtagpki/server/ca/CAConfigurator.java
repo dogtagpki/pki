@@ -262,8 +262,8 @@ public class CAConfigurator extends Configurator {
         queue.updateRequest(request);
 
         logger.info("CAConfigurator: Creating cert record 0x" + cert.getSerialNumber().toString(16));
-        logger.info("CAConfigurator: - subject: " + cert.getSubjectDN());
-        logger.info("CAConfigurator: - issuer: " + cert.getIssuerDN());
+        logger.info("CAConfigurator: - subject: " + cert.getSubjectX500Principal());
+        logger.info("CAConfigurator: - issuer: " + cert.getIssuerX500Principal());
 
         CertificateRepository certificateRepository = engine.getCertificateRepository();
         CertRecord certRecord = certificateRepository.createCertRecord(
@@ -362,8 +362,8 @@ public class CAConfigurator extends Configurator {
         queue.updateRequest(request);
 
         logger.info("CAConfigurator: Creating cert record 0x" + cert.getSerialNumber().toString(16));
-        logger.info("CAConfigurator: - subject: " + cert.getSubjectDN());
-        logger.info("CAConfigurator: - issuer: " + cert.getIssuerDN());
+        logger.info("CAConfigurator: - subject: " + cert.getSubjectX500Principal());
+        logger.info("CAConfigurator: - issuer: " + cert.getIssuerX500Principal());
 
         CertificateRepository certificateRepository = engine.getCertificateRepository();
         CertRecord certRecord = certificateRepository.createCertRecord(

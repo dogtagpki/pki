@@ -217,9 +217,9 @@ public abstract class AJobBase implements IJob, Runnable {
         mItemParams.put(IEmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
                 cert.getSerialNumber().toString(16));
         mItemParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,
-                cert.getIssuerDN().toString());
+                cert.getIssuerX500Principal().toString());
         mItemParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
-                cert.getSubjectDN().toString());
+                cert.getSubjectX500Principal().toString());
         mItemParams.put(IEmailFormProcessor.TOKEN_NOT_AFTER,
                 cert.getNotAfter().toString());
         mItemParams.put(IEmailFormProcessor.TOKEN_NOT_BEFORE,

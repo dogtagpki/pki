@@ -40,7 +40,7 @@ public class PKCS7CertCLI extends CLI {
     public static void printCertInfo(X509Certificate cert) throws Exception {
 
         System.out.println("  Serial Number: " + new CertId(cert.getSerialNumber()).toHexString());
-        System.out.println("  Subject DN: " + cert.getSubjectDN());
-        System.out.println("  Issuer DN: " + cert.getIssuerDN());
+        System.out.println("  Subject DN: " + cert.getSubjectX500Principal());
+        System.out.println("  Issuer DN: " + cert.getIssuerX500Principal());
     }
 }

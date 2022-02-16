@@ -449,7 +449,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         String issuerDN;
         BigInteger serial;
         try {
-            issuerDN = ca.getCACert().getIssuerDN().toString();
+            issuerDN = ca.getCACert().getIssuerX500Principal().toString();
             serial = ca.getCACert().getSerialNumber();
         } catch (EBaseException e) {
             throw new PKIException("Error reading CA data: missing CA cert", e);

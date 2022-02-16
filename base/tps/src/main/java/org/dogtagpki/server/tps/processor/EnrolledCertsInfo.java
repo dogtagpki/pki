@@ -242,12 +242,12 @@ public class EnrolledCertsInfo {
             }
 
             //Issuer
-            String issuedBy = cert.getIssuerDN().toString();
+            String issuedBy = cert.getIssuerX500Principal().toString();
             certRecord.setIssuedBy(issuedBy);
             logger.debug("EnrolledCertsInfo.toTPSCertRecords: issuer ="+ issuedBy);
 
             //Subject
-            String subject = cert.getSubjectDN().toString();
+            String subject = cert.getSubjectX500Principal().toString();
             certRecord.setSubject(subject);
             logger.debug("EnrolledCertsInfo.toTPSCertRecords: subject ="+ subject);
 

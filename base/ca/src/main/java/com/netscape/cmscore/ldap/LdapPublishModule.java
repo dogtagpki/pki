@@ -366,17 +366,17 @@ public class LdapPublishModule implements IRequestListener {
 
             conn = mLdapConnFactory.getConn();
             if (mapper == null) { // use the cert's subject name exactly
-                dirdn = cert.getSubjectDN().toString();
-                logger.debug("no mapper found. Using subject name exactly: " + cert.getSubjectDN());
+                dirdn = cert.getSubjectX500Principal().toString();
+                logger.debug("no mapper found. Using subject name exactly: " + cert.getSubjectX500Principal());
             } else {
                 result = mapper.map(conn, cert);
                 dirdn = result;
                 if (dirdn == null) {
                     logger.error(CMS.getLogMessage("CMSCORE_LDAP_PUBLISH_NOT_MATCH",
                                     cert.getSerialNumber().toString(16),
-                                    cert.getSubjectDN().toString()));
+                                    cert.getSubjectX500Principal().toString()));
                     throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
-                            cert.getSubjectDN().toString()));
+                            cert.getSubjectX500Principal().toString()));
                 }
             }
             publisher.publish(conn, dirdn, cert);
@@ -398,16 +398,16 @@ public class LdapPublishModule implements IRequestListener {
 
             conn = mLdapConnFactory.getConn();
             if (mapper == null) { // use the cert's subject name exactly
-                dirdn = cert.getSubjectDN().toString();
+                dirdn = cert.getSubjectX500Principal().toString();
             } else {
                 result = mapper.map(conn, cert);
                 dirdn = result;
                 if (dirdn == null) {
                     logger.error(CMS.getLogMessage("CMSCORE_LDAP_PUBLISH_NOT_MATCH",
                                     cert.getSerialNumber().toString(16),
-                                    cert.getSubjectDN().toString()));
+                                    cert.getSubjectX500Principal().toString()));
                     throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
-                            cert.getSubjectDN().toString()));
+                            cert.getSubjectX500Principal().toString()));
                 }
             }
             publisher.unpublish(conn, dirdn, cert);

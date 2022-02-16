@@ -300,8 +300,8 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     protected boolean arePair(X509Certificate cert1, X509Certificate cert2) {
         // 1. does cert1's issuer match cert2's subject?
         // 2. does cert2's issuer match cert1's subject?
-        if (cert1.getIssuerDN().equals(cert2.getSubjectDN())
-                && cert2.getIssuerDN().equals(cert1.getSubjectDN()))
+        if (cert1.getIssuerX500Principal().equals(cert2.getSubjectX500Principal())
+                && cert2.getIssuerX500Principal().equals(cert1.getSubjectX500Principal()))
             return true;
         else
             return false;

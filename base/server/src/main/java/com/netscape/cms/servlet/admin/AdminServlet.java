@@ -307,7 +307,7 @@ public class AdminServlet extends HttpServlet {
 
                     // save the "Subject DN" of this certificate in case it
                     // must be audited as an authentication failure
-                    String certUID = cert.getSubjectDN().getName();
+                    String certUID = cert.getSubjectX500Principal().getName();
 
                     if (certUID != null) {
                         certUID = certUID.trim();

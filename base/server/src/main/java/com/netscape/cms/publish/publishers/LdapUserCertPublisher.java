@@ -219,7 +219,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
                     AuditFormat.LDAP_PUBLISHED_FORMAT,
                     "LdapUserCertPublisher",
                     cert.getSerialNumber().toString(16),
-                    cert.getSubjectDN()
+                    cert.getSubjectX500Principal()
             );
 
         } catch (CertificateEncodingException e) {

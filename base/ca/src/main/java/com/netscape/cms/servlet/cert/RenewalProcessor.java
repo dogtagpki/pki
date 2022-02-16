@@ -204,7 +204,7 @@ public class RenewalProcessor extends CertProcessor {
             Date origNotAfter = origCert.getNotAfter();
             logger.debug("processRenewal: origNotAfter =" + origNotAfter.toString());
 
-            String origSubjectDN = origCert.getSubjectDN().getName();
+            String origSubjectDN = origCert.getSubjectX500Principal().getName();
             logger.debug("processRenewal: orig subj dn =" + origSubjectDN);
 
             Request origReq = getOriginalRequest(certSerial, rec);
@@ -400,7 +400,7 @@ public class RenewalProcessor extends CertProcessor {
         X509Certificate clientCert = null;
         for (X509Certificate cert : certs) {
 
-            logger.debug("RenewalProcessor: cert " + cert.getSubjectDN());
+            logger.debug("RenewalProcessor: cert " + cert.getSubjectX500Principal());
             clientCert = cert;
 
             byte[] extBytes = clientCert.getExtensionValue("2.5.29.19");

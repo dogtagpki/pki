@@ -572,8 +572,8 @@ public class UserService extends SubsystemService implements UserResource {
 
         userCertData.setVersion(cert.getVersion());
         userCertData.setSerialNumber(new CertId(cert.getSerialNumber()));
-        userCertData.setIssuerDN(cert.getIssuerDN().toString());
-        userCertData.setSubjectDN(cert.getSubjectDN().toString());
+        userCertData.setIssuerDN(cert.getIssuerX500Principal().toString());
+        userCertData.setSubjectDN(cert.getSubjectX500Principal().toString());
 
         userID = URLEncoder.encode(userID, "UTF-8");
         String certID = URLEncoder.encode(userCertData.getID(), "UTF-8");
@@ -798,17 +798,17 @@ public class UserService extends SubsystemService implements UserResource {
 
                     // self-signed and alone? take it. otherwise test
                     // the ordering
-                    if (p7certs[0].getSubjectDN().toString().equals(
-                            p7certs[0].getIssuerDN().toString()) &&
+                    if (p7certs[0].getSubjectX500Principal().toString().equals(
+                            p7certs[0].getIssuerX500Principal().toString()) &&
                             (p7certs.length == 1)) {
                         cert = p7certs[0];
                         logger.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_SINGLE_CERT_IMPORT"));
 
-                    } else if (p7certs[0].getIssuerDN().toString().equals(p7certs[1].getSubjectDN().toString())) {
+                    } else if (p7certs[0].getIssuerX500Principal().toString().equals(p7certs[1].getSubjectX500Principal().toString())) {
                         cert = p7certs[0];
                         logger.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_ACEND_ORD"));
 
-                    } else if (p7certs[1].getIssuerDN().toString().equals(p7certs[0].getSubjectDN().toString())) {
+                    } else if (p7certs[1].getIssuerX500Principal().toString().equals(p7certs[0].getSubjectX500Principal().toString())) {
                         assending = false;
                         logger.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_DESC_ORD"));
                         cert = p7certs[p7certs.length - 1];
@@ -838,7 +838,7 @@ public class UserService extends SubsystemService implements UserResource {
                     for (j = jBegin; j < jEnd; j++) {
                         logger.debug("UserService: "
                                 + CMS.getLogMessage("ADMIN_SRVLT_CERT_IN_CHAIN", String.valueOf(j),
-                                        String.valueOf(p7certs[j].getSubjectDN())));
+                                        String.valueOf(p7certs[j].getSubjectX500Principal())));
                         org.mozilla.jss.crypto.X509Certificate leafCert =
                                 manager.importCACertPackage(p7certs[j].getEncoded());
 
@@ -856,7 +856,7 @@ public class UserService extends SubsystemService implements UserResource {
                                     PK11Cert.TRUSTED_CLIENT_CA);
                         } else {
                             logger.error(CMS.getLogMessage("ADMIN_SRVLT_NOT_INTERNAL_CERT",
-                                    String.valueOf(p7certs[j].getSubjectDN())));
+                                    String.valueOf(p7certs[j].getSubjectX500Principal())));
                         }
                     }
 
@@ -892,7 +892,7 @@ public class UserService extends SubsystemService implements UserResource {
                 userCertData.setVersion(cert.getVersion());
                 userCertData.setSerialNumber(new CertId(cert.getSerialNumber()));
                 userCertData.setIssuerDN(cert.getIssuerDN().toString());
-                userCertData.setSubjectDN(cert.getSubjectDN().toString());
+                userCertData.setSubjectDN(cert.getSubjectX500Principal().toString());
                 String certID = userCertData.getID();
 
                 String encodedCertID = URLEncoder.encode(certID, "UTF-8");
@@ -908,13 +908,13 @@ public class UserService extends SubsystemService implements UserResource {
             } catch (CertificateExpiredException e) {
                 logger.error("UserService: Certificate expired: " + e.getMessage(), e);
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
-                        String.valueOf(cert.getSubjectDN())));
+                        String.valueOf(cert.getSubjectX500Principal())));
                 throw new BadRequestException("Certificate expired: " + e.getMessage(), e);
 
             } catch (CertificateNotYetValidException e) {
                 logger.error("UserService: Certificate not yet valid: " + e.getMessage(), e);
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
-                        String.valueOf(cert.getSubjectDN())));
+                        String.valueOf(cert.getSubjectX500Principal())));
                 throw new BadRequestException("Certificate not yet valid: " + e.getMessage(), e);
             }
 

@@ -225,8 +225,8 @@ public class PostgreSQLRealm extends ACMERealm {
     public String getCertID(X509Certificate cert) {
         return cert.getVersion() + ";"
                 + cert.getSerialNumber() + ";"
-                + cert.getIssuerDN() + ";"
-                + cert.getSubjectDN();
+                + cert.getIssuerX500Principal() + ";"
+                + cert.getSubjectX500Principal();
     }
 
     public User getUserByCertID(String certID) throws Exception {

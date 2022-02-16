@@ -446,7 +446,7 @@ public class RecoveryService implements IService {
                 initiative,
                 authMgr,
                 "completed",
-                ((X509CertImpl) x509cert).getSubjectDN(),
+                ((X509CertImpl) x509cert).getSubjectX500Principal(),
                 "serial number: 0x" + serialno.toString(16)
         );
 
@@ -593,7 +593,7 @@ public class RecoveryService implements IService {
             String nickname = request.getExtDataInString(ATTR_NICKNAME);
 
             if (nickname == null) {
-                nickname = x509cert.getSubjectDN().toString();
+                nickname = x509cert.getSubjectX500Principal().toString();
             }
             byte localKeyId[] = createLocalKeyId(x509cert);
             SET certAttrs = createBagAttrs(
@@ -664,7 +664,7 @@ public class RecoveryService implements IService {
             }
 
             SET keyAttrs = createBagAttrs(
-                    x509cert.getSubjectDN().toString(),
+                    x509cert.getSubjectX500Principal().toString(),
                     localKeyId);
 
             SafeBag keyBag = new SafeBag(
@@ -797,7 +797,7 @@ public class RecoveryService implements IService {
             String nickname = request.getExtDataInString(ATTR_NICKNAME);
 
             if (nickname == null) {
-                nickname = x509cert.getSubjectDN().toString();
+                nickname = x509cert.getSubjectX500Principal().toString();
             }
             byte localKeyId[] = createLocalKeyId(x509cert);
             SET certAttrs = createBagAttrs(
@@ -845,7 +845,7 @@ public class RecoveryService implements IService {
             }
 
             SET keyAttrs = createBagAttrs(
-                    x509cert.getSubjectDN().toString(),
+                    x509cert.getSubjectX500Principal().toString(),
                     localKeyId);
             SafeBag keyBag = new SafeBag(
                     SafeBag.PKCS8_SHROUDED_KEY_BAG, epki,

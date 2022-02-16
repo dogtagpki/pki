@@ -57,7 +57,7 @@ public class PFXUtils {
                     x509cert.getEncoded());
             byte localKeyId[] = createLocalKeyId(x509cert);
             SET certAttrs = createBagAttrs(
-                    x509cert.getSubjectDN().toString(), localKeyId);
+                    x509cert.getSubjectX500Principal().toString(), localKeyId);
             // attributes: user friendly name, Local Key ID
             SafeBag certBag = new SafeBag(SafeBag.CERT_BAG,
                     new CertBag(CertBag.X509_CERT_TYPE, cert),
@@ -79,7 +79,7 @@ public class PFXUtils {
                     PBEAlgorithm.PBE_SHA1_DES3_CBC,
                     pass, salt, 1, passConverter, pki);
             SET keyAttrs = createBagAttrs(
-                    x509cert.getSubjectDN().toString(),
+                    x509cert.getSubjectX500Principal().toString(),
                     localKeyId);
             SafeBag keyBag = new SafeBag(
                     SafeBag.PKCS8_SHROUDED_KEY_BAG, key,

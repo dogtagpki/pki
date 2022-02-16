@@ -107,7 +107,7 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
 
         // find leaf cert
         X509Certificate cert = certs[0];
-        if (cert.getSubjectDN().getName().equals(cert.getIssuerDN().getName())) {
+        if (cert.getSubjectX500Principal().getName().equals(cert.getIssuerX500Principal().getName())) {
             cert = certs[certs.length - 1];
         }
 
@@ -133,11 +133,11 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
         // (2) store certificate (and certificate chain) into
         // database
         ICRLIssuingPointRecord record = store.createCRLIssuingPointRecord(
-                cert.getSubjectDN().getName(),
+                cert.getSubjectX500Principal().getName(),
                 Configurator.BIG_ZERO,
                 Configurator.MINUS_ONE, null, null);
 
         record.set(ICRLIssuingPointRecord.ATTR_CA_CERT, cert.getEncoded());
-        store.addCRLIssuingPoint(cert.getSubjectDN().getName(), record);
+        store.addCRLIssuingPoint(cert.getSubjectX500Principal().getName(), record);
     }
 }

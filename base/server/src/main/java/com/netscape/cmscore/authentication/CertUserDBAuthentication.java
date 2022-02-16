@@ -194,7 +194,7 @@ public class CertUserDBAuthentication implements AuthManager {
         } catch (EUsrGrpException e) {
             logger.error("CertUserDBAuthentication: cannot map certificate to any user: " + e.getMessage(), e);
             logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0].getSerialNumber()
-                    .toString(16), x509Certs[0].getSubjectDN().toString(), e.toString()));
+                    .toString(16), x509Certs[0].getSubjectX500Principal().toString(), e.toString()));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         } catch (netscape.ldap.LDAPException e) {
             logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_CANNOT_AGENT_AUTH", e.toString()), e);

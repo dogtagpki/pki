@@ -540,7 +540,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
         // note that it did not represent a certificate fully
         return cert.getVersion() + ";" + cert.getSerialNumber().toString() +
-                ";" + cert.getIssuerDN() + ";" + cert.getSubjectDN();
+                ";" + cert.getIssuerX500Principal() + ";" + cert.getSubjectX500Principal();
     }
 
     /**
@@ -1020,15 +1020,15 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                     // self-signed and alone? take it. otherwise test
                     // the ordering
-                    if (p7certs[0].getSubjectDN().toString().equals(
-                            p7certs[0].getIssuerDN().toString()) &&
+                    if (p7certs[0].getSubjectX500Principal().toString().equals(
+                            p7certs[0].getIssuerX500Principal().toString()) &&
                             (p7certs.length == 1)) {
                         certs[0] = p7certs[0];
                         logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_SINGLE_CERT_IMPORT"));
-                    } else if (p7certs[0].getIssuerDN().toString().equals(p7certs[1].getSubjectDN().toString())) {
+                    } else if (p7certs[0].getIssuerX500Principal().toString().equals(p7certs[1].getSubjectX500Principal().toString())) {
                         certs[0] = p7certs[0];
                         logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_ACEND_ORD"));
-                    } else if (p7certs[1].getIssuerDN().toString().equals(p7certs[0].getSubjectDN().toString())) {
+                    } else if (p7certs[1].getIssuerX500Principal().toString().equals(p7certs[0].getSubjectX500Principal().toString())) {
                         assending = false;
                         logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_DESC_ORD"));
                         certs[0] = p7certs[p7certs.length - 1];
@@ -1064,7 +1064,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     for (j = jBegin; j < jEnd; j++) {
                         logger.debug("UsrGrpAdminServlet: "
                                 + CMS.getLogMessage("ADMIN_SRVLT_CERT_IN_CHAIN", String.valueOf(j),
-                                        String.valueOf(p7certs[j].getSubjectDN())));
+                                        String.valueOf(p7certs[j].getSubjectX500Principal())));
                         org.mozilla.jss.crypto.X509Certificate leafCert =
                                 null;
 
@@ -1084,7 +1084,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                                     PK11Cert.TRUSTED_CLIENT_CA);
                         } else {
                             logger.error(CMS.getLogMessage("ADMIN_SRVLT_NOT_INTERNAL_CERT",
-                                    String.valueOf(p7certs[j].getSubjectDN())));
+                                    String.valueOf(p7certs[j].getSubjectX500Principal())));
                         }
                     }
 
@@ -1138,7 +1138,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             } catch (CertificateExpiredException e) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
-                        String.valueOf(certs[0].getSubjectDN())), e);
+                        String.valueOf(certs[0].getSubjectX500Principal())), e);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1150,7 +1150,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             } catch (CertificateNotYetValidException e) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
-                        String.valueOf(certs[0].getSubjectDN())), e);
+                        String.valueOf(certs[0].getSubjectX500Principal())), e);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,

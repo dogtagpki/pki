@@ -624,7 +624,7 @@ public class CAProcessor extends Processor {
                 if (clientCert == null) {
                     logger.debug("CAProcessor: no client certificate found");
                 } else {
-                    String certUID = clientCert.getSubjectDN().getName();
+                    String certUID = clientCert.getSubjectX500Principal().getName();
                     logger.debug("CAProcessor: cert UID: " + certUID);
 
                     if (certUID != null) {

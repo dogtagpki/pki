@@ -17,12 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authentication;
 
-import java.security.Principal;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
+
+import javax.security.auth.x500.X500Principal;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
@@ -224,7 +225,7 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
             }
         }
         Certificates certs = new Certificates(ci);
-        Principal p_dn = clientCert.getSubjectDN();
+        X500Principal p_dn = clientCert.getSubjectX500Principal();
         authToken.set(TOKEN_USERDN, p_dn.getName());
         authToken.set("userdn", p_dn.getName());
         String uid = getUidFromDN(p_dn.getName());

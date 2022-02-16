@@ -513,7 +513,7 @@ public class CertReqParser extends ReqParser {
 
                 if (oldCert != null && oldCert.length > 0) {
                     arg.addBigIntegerValue("serialNumber", oldCert[0].getSerialNumber(), 16);
-                    arg.addStringValue("subject", oldCert[0].getSubjectDN().toString());
+                    arg.addStringValue("subject", oldCert[0].getSubjectX500Principal().toString());
                     if (req.getRequestType().equals(Request.GETCERTS_REQUEST)) {
                         for (int i = 0; i < oldCert.length; i++) {
                             ArgBlock rarg = new ArgBlock();
@@ -653,7 +653,7 @@ public class CertReqParser extends ReqParser {
                 }
 
                 if (theCert != null) {
-                    String subject = theCert.getSubjectDN().toString();
+                    String subject = theCert.getSubjectX500Principal().toString();
                     return subject;
                 }
             }
@@ -941,7 +941,7 @@ public class CertReqParser extends ReqParser {
                         X509CertImpl xcert = (X509CertImpl) oldCert[0];
 
                         arg.addBigIntegerValue("serialNumber", xcert.getSerialNumber(), 16);
-                        arg.addStringValue("subject", xcert.getSubjectDN().toString());
+                        arg.addStringValue("subject", xcert.getSubjectX500Principal().toString());
                         if (req.getRequestType().equals(Request.GETCERTS_REQUEST)) {
                             for (int i = 0; i < oldCert.length; i++) {
                                 ArgBlock rarg = new ArgBlock();

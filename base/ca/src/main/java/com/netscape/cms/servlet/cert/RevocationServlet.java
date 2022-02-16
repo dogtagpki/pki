@@ -222,7 +222,7 @@ public class RevocationServlet extends CMSServlet {
             }
 
             certsToRevoke = cr.getX509Certificates(
-                        old_cert.getSubjectDN().toString(),
+                        old_cert.getSubjectX500Principal().toString(),
                         CertificateRepository.ALL_UNREVOKED_CERTS);
         }
 
@@ -267,7 +267,7 @@ public class RevocationServlet extends CMSServlet {
                 rarg.addStringValue("serialNumberDecimal",
                         certsToRevoke[i].getSerialNumber().toString());
                 rarg.addStringValue("subject",
-                        certsToRevoke[i].getSubjectDN().toString());
+                        certsToRevoke[i].getSubjectX500Principal().toString());
                 rarg.addLongValue("validNotBefore",
                         certsToRevoke[i].getNotBefore().getTime() / 1000);
                 rarg.addLongValue("validNotAfter",

@@ -645,10 +645,10 @@ public class ListCerts extends CMSServlet {
         rarg.addStringValue("serialNumber", cert.getSerialNumber().toString(16));
         rarg.addStringValue("serialNumberDecimal", cert.getSerialNumber().toString());
 
-        if (cert.getSubjectDN().toString().equals("")) {
+        if (cert.getSubjectX500Principal().toString().equals("")) {
             rarg.addStringValue("subject", " ");
         } else
-            rarg.addStringValue("subject", CMSTemplate.escapeJavaScriptString(cert.getSubjectDN().toString()));
+            rarg.addStringValue("subject", CMSTemplate.escapeJavaScriptString(cert.getSubjectX500Principal().toString()));
 
         rarg.addStringValue("type", "X.509");
 

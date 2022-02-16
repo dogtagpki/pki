@@ -1466,7 +1466,7 @@ public abstract class CMSServlet extends HttpServlet {
                 ((ICertificateAuthority) mAuthority).getCACert();
         if (caCert != null) {
             /* only check this if we are self-signed */
-            if (caCert.getSubjectDN().equals(caCert.getIssuerDN())) {
+            if (caCert.getSubjectX500Principal().equals(caCert.getIssuerX500Principal())) {
                 if (caCert.getSerialNumber().equals(serialNo)) {
                     return true;
                 }
@@ -1706,7 +1706,7 @@ public abstract class CMSServlet extends HttpServlet {
                 if (clientCert == null) {
                     logger.debug("CMSServlet: no client certificate found");
                 } else {
-                    String certUID = clientCert.getSubjectDN().getName();
+                    String certUID = clientCert.getSubjectX500Principal().getName();
                     logger.debug("CMSServlet: certUID=" + certUID);
 
                     if (certUID != null) {

@@ -147,8 +147,8 @@ public class PromptForTrustDialog extends AbstractDialog {
     }
 
     private String getPrettyPrint(X509Certificate cert) {
-        String subjectdn = cert.getSubjectDN().toString();
-        String issuerdn = cert.getIssuerDN().toString();
+        String subjectdn = cert.getSubjectX500Principal().toString();
+        String issuerdn = cert.getIssuerX500Principal().toString();
         String serial = cert.getSerialNumber().toString();
         SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
         String before = formatter.format(cert.getNotBefore());

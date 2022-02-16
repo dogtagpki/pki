@@ -19,10 +19,10 @@ package com.netscape.certsrv.cert;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+import javax.security.auth.x500.X500Principal;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -508,10 +508,10 @@ public class CertData implements JSONSerializer {
 
         data.setSerialNumber(new CertId(cert.getSerialNumber()));
 
-        Principal issuerDN = cert.getIssuerDN();
+        X500Principal issuerDN = cert.getIssuerX500Principal();
         if (issuerDN != null) data.setIssuerDN(issuerDN.toString());
 
-        Principal subjectDN = cert.getSubjectDN();
+        X500Principal subjectDN = cert.getSubjectX500Principal();
         if (subjectDN != null) data.setSubjectDN(subjectDN.toString());
 
         Date notBefore = cert.getNotBefore();

@@ -392,7 +392,7 @@ public class TPSTokendb {
             BigInteger serial_BigInt = cert.getSerialNumber();
             String hexSerial = serial_BigInt.toString(16);
             serialNumber = "0x" + hexSerial;
-            issuedBy = cert.getIssuerDN().toString();
+            issuedBy = cert.getIssuerX500Principal().toString();
         } catch (Exception e) {
             logger.error(method + ":" + e.getMessage(), e);
             return null;
