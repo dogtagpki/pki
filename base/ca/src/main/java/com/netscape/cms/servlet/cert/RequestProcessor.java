@@ -74,7 +74,7 @@ public class RequestProcessor extends CertProcessor {
     public CertReviewResponse processRequest(CMSRequest cmsReq, String op) throws EBaseException {
 
         HttpServletRequest request = cmsReq.getHttpReq();
-        IRequest ireq = cmsReq.getIRequest();
+        Request ireq = cmsReq.getRequest();
 
         String profileId = ireq.getExtDataInString(Request.PROFILE_ID);
         Profile profile = ps.getProfile(profileId);

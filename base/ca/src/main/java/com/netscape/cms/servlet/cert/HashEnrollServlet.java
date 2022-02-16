@@ -331,7 +331,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         String challengePassword = httpParams.getValueAsString("challengePassword", "");
 
-        cmsReq.setIRequest(req);
+        cmsReq.setRequest(req);
         saveHttpHeaders(httpReq, req);
         saveHttpParams(httpParams, req);
 
@@ -1036,59 +1036,59 @@ public class HashEnrollServlet extends CMSServlet {
         out.println("</TITLE>");
         // out.println("<BODY BGCOLOR=white>");
 
-        if (cmsReq.getIRequest().getRequestStatus().equals(RequestStatus.COMPLETE)) {
+        if (cmsReq.getRequest().getRequestStatus().equals(RequestStatus.COMPLETE)) {
             out.println("<H1>");
             out.println("SUCCESS");
             out.println("</H1>");
             out.println("Your request is submitted and approved. Please cut and paste the certificate into your server."); // XXX - localize the message
             out.println("<P>");
             out.println("Request Creation Time: ");
-            out.println(cmsReq.getIRequest().getCreationTime().toString());
+            out.println(cmsReq.getRequest().getCreationTime().toString());
             out.println("<P>");
             out.println("Request Status: ");
             out.println(cmsReq.getStatus().toString());
             out.println("<P>");
             out.println("Request ID: ");
-            out.println(cmsReq.getIRequest().getRequestId().toString());
+            out.println(cmsReq.getRequest().getRequestId().toString());
             out.println("<P>");
             out.println("Certificate: ");
             out.println("<P>");
             out.println("<PRE>");
             X509CertImpl certs[] =
-                    cmsReq.getIRequest().getExtDataInCertArray(Request.ISSUED_CERTS);
+                    cmsReq.getRequest().getExtDataInCertArray(Request.ISSUED_CERTS);
 
             out.println(CertUtil.toPEM(certs[0]));
             out.println("</PRE>");
             out.println("<P>");
             out.println("<!HTTP_OUTPUT REQUEST_CREATION_TIME=" +
-                    cmsReq.getIRequest().getCreationTime().toString() + ">");
+                    cmsReq.getRequest().getCreationTime().toString() + ">");
             out.println("<!HTTP_OUTPUT REQUEST_STATUS=" +
                     cmsReq.getStatus().toString() + ">");
             out.println("<!HTTP_OUTPUT REQUEST_ID=" +
-                    cmsReq.getIRequest().getRequestId().toString() + ">");
+                    cmsReq.getRequest().getRequestId().toString() + ">");
             out.println("<!HTTP_OUTPUT X509_CERTIFICATE=" +
                     CertUtil.toPEM(certs[0]) + ">");
-        } else if (cmsReq.getIRequest().getRequestStatus().equals(RequestStatus.PENDING)) {
+        } else if (cmsReq.getRequest().getRequestStatus().equals(RequestStatus.PENDING)) {
             out.println("<H1>");
             out.println("PENDING");
             out.println("</H1>");
             out.println("Your request is submitted. You can check on the status of your request with an authorized agent or local administrator by referring to the request ID."); // XXX - localize the message
             out.println("<P>");
             out.println("Request Creation Time: ");
-            out.println(cmsReq.getIRequest().getCreationTime().toString());
+            out.println(cmsReq.getRequest().getCreationTime().toString());
             out.println("<P>");
             out.println("Request Status: ");
             out.println(cmsReq.getStatus().toString());
             out.println("<P>");
             out.println("Request ID: ");
-            out.println(cmsReq.getIRequest().getRequestId().toString());
+            out.println(cmsReq.getRequest().getRequestId().toString());
             out.println("<P>");
             out.println("<!HTTP_OUTPUT REQUEST_CREATION_TIME=" +
-                    cmsReq.getIRequest().getCreationTime().toString() + ">");
+                    cmsReq.getRequest().getCreationTime().toString() + ">");
             out.println("<!HTTP_OUTPUT REQUEST_STATUS=" +
                     cmsReq.getStatus().toString() + ">");
             out.println("<!HTTP_OUTPUT REQUEST_ID=" +
-                    cmsReq.getIRequest().getRequestId().toString() + ">");
+                    cmsReq.getRequest().getRequestId().toString() + ">");
         } else {
             out.println("<H1>");
             out.println("ERROR");

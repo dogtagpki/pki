@@ -1634,7 +1634,7 @@ public abstract class CMSServlet extends HttpServlet {
         IAuthToken authToken = authenticate(req.getHttpReq(),
                 authMgrName);
 
-        saveAuthToken(authToken, req.getIRequest());
+        saveAuthToken(authToken, req.getRequest());
         return authToken;
     }
 

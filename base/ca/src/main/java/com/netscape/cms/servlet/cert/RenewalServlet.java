@@ -249,7 +249,7 @@ public class RenewalServlet extends CMSServlet {
         saveHttpParams(httpParams, req);
         if (doSaveAuthToken)
             saveAuthToken(authToken, req);
-        cmsReq.setIRequest(req);
+        cmsReq.setRequest(req);
 
         // send request to request queue.
         mRequestQueue.processRequest(req);

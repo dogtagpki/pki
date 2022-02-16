@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
@@ -62,7 +61,7 @@ public class CMSRequest implements ICMSRequest {
     private ServletContext mServletContext = null;
 
     // permanent request in request queue.
-    private IRequest mRequest = null;
+    private Request mRequest = null;
 
     // whether request processed successfully
     private Integer mStatus = SUCCESS;
@@ -96,7 +95,7 @@ public class CMSRequest implements ICMSRequest {
     /**
      * set the Request aobject associated with this session
      */
-    public void setIRequest(IRequest request) {
+    public void setRequest(Request request) {
         mRequest = request;
     }
 
@@ -197,7 +196,7 @@ public class CMSRequest implements ICMSRequest {
         return mServletContext;
     }
 
-    public IRequest getIRequest() {
+    public Request getRequest() {
         return mRequest;
     }
 
@@ -229,7 +228,7 @@ public class CMSRequest implements ICMSRequest {
         return reason;
     }
 
-    // handy routines for IRequest.
+    // handy routines for Request.
 
     public void setExtData(String type, String value) {
         if (mRequest != null) {
@@ -254,7 +253,7 @@ public class CMSRequest implements ICMSRequest {
     }
 
     /**
-     * set default CMS status according to IRequest status.
+     * set default CMS status according to Request status.
      */
     public void setIRequestStatus() throws EBaseException {
         if (mRequest == null) {

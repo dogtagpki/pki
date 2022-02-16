@@ -246,7 +246,7 @@ public class GetCertFromRequest extends CMSServlet {
             }
 
             // for importsCert to get the crmf_reqid.
-            cmsReq.setIRequest(r);
+            cmsReq.setRequest(r);
 
             cmsReq.setStatus(ICMSRequest.SUCCESS);
 

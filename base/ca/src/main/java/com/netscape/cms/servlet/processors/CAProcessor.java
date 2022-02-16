@@ -247,7 +247,7 @@ public class CAProcessor extends Processor {
      * Utility Functions
      ******************************************/
 
-    public IRequest getRequest(String rid) throws EBaseException {
+    public Request getRequest(String rid) throws EBaseException {
         return requestRepository.readRequest(new RequestId(rid));
     }
 

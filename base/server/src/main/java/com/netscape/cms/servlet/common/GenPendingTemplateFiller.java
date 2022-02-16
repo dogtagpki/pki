@@ -52,7 +52,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
@@ -95,7 +94,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
             fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
 
         // request id
-        IRequest req = cmsReq.getIRequest();
+        Request req = cmsReq.getRequest();
 
         if (req != null) {
             RequestId reqId = req.getRequestId();

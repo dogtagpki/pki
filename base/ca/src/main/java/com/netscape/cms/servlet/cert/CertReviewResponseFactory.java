@@ -40,6 +40,7 @@ import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
 import com.netscape.cms.servlet.profile.ProfileInputFactory;
+import com.netscape.cmscore.request.Request;
 
 public class CertReviewResponseFactory {
 
@@ -131,7 +132,7 @@ public class CertReviewResponseFactory {
             CMSRequest cmsReq, Profile profile, boolean noncesEnabled, Locale locale)
             throws EPropertyException, EProfileException {
         HttpServletRequest req = cmsReq.getHttpReq();
-        IRequest ireq = cmsReq.getIRequest();
+        Request ireq = cmsReq.getRequest();
         IArgBlock params = cmsReq.getHttpParams();
 
         CertReviewResponse ret = new CertReviewResponse();

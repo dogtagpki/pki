@@ -22,7 +22,6 @@ import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 
@@ -64,7 +63,7 @@ public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
         }
 
         // request id
-        IRequest req = cmsReq.getIRequest();
+        Request req = cmsReq.getRequest();
 
         if (req != null) {
             fixed.set(ICMSTemplateFiller.REQUEST_ID, req.getRequestId());

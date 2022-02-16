@@ -20,7 +20,6 @@ package com.netscape.cms.servlet.common;
 import java.util.Locale;
 
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 
@@ -57,7 +56,7 @@ public class GenSvcPendingTemplateFiller implements ICMSTemplateFiller {
                 fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
 
             // request id
-            IRequest req = cmsReq.getIRequest();
+            Request req = cmsReq.getRequest();
 
             if (req != null) {
                 fixed.set(ICMSTemplateFiller.REQUEST_ID, req.getRequestId());

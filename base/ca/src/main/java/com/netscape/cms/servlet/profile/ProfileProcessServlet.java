@@ -17,14 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
-import java.util.Locale;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
@@ -39,7 +41,6 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileOutput;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.certsrv.template.ArgString;
@@ -48,8 +49,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
-
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This servlet approves profile-based request.
@@ -96,7 +95,7 @@ public class ProfileProcessServlet extends ProfileServlet {
             return;
         }
 
-        IRequest req = processor.getRequest(requestId);
+        Request req = processor.getRequest(requestId);
         if (req == null) {
             setError(args, CMS.getUserMessage(locale, "CMS_REQUEST_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(requestId)), request, response);
             return;
@@ -111,7 +110,7 @@ public class ProfileProcessServlet extends ProfileServlet {
         logger.debug("ProfileProcessServlet: profileId=" + profileId);
 
         // set request in cmsReq for later retrieval
-        cmsReq.setIRequest(req);
+        cmsReq.setRequest(req);
 
         CertReviewResponse data = null;
         try {

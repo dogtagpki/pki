@@ -49,7 +49,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
@@ -136,7 +135,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
         fixed.set(ICMSTemplateFiller.HOST, host);
         fixed.set(ICMSTemplateFiller.PORT, Integer.valueOf(port));
         fixed.set(ICMSTemplateFiller.SCHEME, scheme);
-        IRequest r = cmsReq.getIRequest();
+        Request r = cmsReq.getRequest();
 
         if (r != null) {
             fixed.set(ICMSTemplateFiller.REQUEST_ID, r.getRequestId().toString());
