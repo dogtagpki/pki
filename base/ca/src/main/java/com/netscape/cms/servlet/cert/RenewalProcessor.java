@@ -47,7 +47,6 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
@@ -208,7 +207,7 @@ public class RenewalProcessor extends CertProcessor {
             String origSubjectDN = origCert.getSubjectDN().getName();
             logger.debug("processRenewal: orig subj dn =" + origSubjectDN);
 
-            IRequest origReq = getOriginalRequest(certSerial, rec);
+            Request origReq = getOriginalRequest(certSerial, rec);
             if (origReq == null) {
                 logger.error("processRenewal: original request not found");
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
@@ -358,7 +357,7 @@ public class RenewalProcessor extends CertProcessor {
 
             List<String> errors = new ArrayList<>();
             if (errorCode != null) {
-                for (IRequest req: reqs) {
+                for (Request req: reqs) {
                     String error = req.getError(locale);
                     if (error != null) {
                         String code = req.getErrorCode(locale);
@@ -442,7 +441,7 @@ public class RenewalProcessor extends CertProcessor {
      * This is expected to be used by renewal where the request
      * is retrieved from request record
      */
-    private void setInputsIntoContext(IRequest request, Profile profile, Map<String, String> ctx, Locale locale) {
+    private void setInputsIntoContext(Request request, Profile profile, Map<String, String> ctx, Locale locale) {
         // passing inputs into context
         Enumeration<String> inputIds = profile.getProfileInputIds();
 

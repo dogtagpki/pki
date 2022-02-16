@@ -251,7 +251,7 @@ public class CAProcessor extends Processor {
         return requestRepository.readRequest(new RequestId(rid));
     }
 
-    protected IRequest getOriginalRequest(BigInteger certSerial, CertRecord rec) throws EBaseException {
+    protected Request getOriginalRequest(BigInteger certSerial, CertRecord rec) throws EBaseException {
         MetaInfo metaInfo = (MetaInfo) rec.get(CertRecord.ATTR_META_INFO);
         if (metaInfo == null) {
             logger.error("getOriginalRequest: cert record locating MetaInfo failed for serial number " + certSerial);
