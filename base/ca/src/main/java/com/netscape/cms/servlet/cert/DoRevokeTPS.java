@@ -52,7 +52,6 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -352,7 +351,7 @@ public class DoRevokeTPS extends CMSServlet {
         }
 
         long startTime = new Date().getTime();
-        IRequest revReq = null;
+        Request revReq = null;
         int count = 0;
         X509CertImpl[] oldCerts;
 

@@ -36,7 +36,6 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -262,7 +261,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
             RequestQueue queue = engine.getRequestQueue();
 
             if (queue != null) {
-                IRequest checkChallengeReq = requestRepository.createRequest(Request.REVOCATION_CHECK_CHALLENGE_REQUEST);
+                Request checkChallengeReq = requestRepository.createRequest(Request.REVOCATION_CHECK_CHALLENGE_REQUEST);
                 checkChallengeReq.setExtData(CHALLENGE_PHRASE, challenge);
                 // pass just serial number instead of whole cert
                 if (serialNum != null)

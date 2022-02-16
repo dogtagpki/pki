@@ -37,7 +37,6 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -176,7 +175,7 @@ public class SSLClientCertAuthentication implements AuthManager {
             RequestQueue queue = engine.getRequestQueue();
 
             if (queue != null) {
-                IRequest getCertStatusReq = requestRepository.createRequest(Request.GETCERT_STATUS_REQUEST);
+                Request getCertStatusReq = requestRepository.createRequest(Request.GETCERT_STATUS_REQUEST);
                 // pass just serial number instead of whole cert
                 if (serialNum != null) {
                     getCertStatusReq.setExtData(SERIALNUMBER, serialNum);

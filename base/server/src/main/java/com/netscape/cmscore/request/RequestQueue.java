@@ -91,7 +91,7 @@ public class RequestQueue extends ARequestQueue {
 
         // 2. create new request
         String requestType = request.getRequestType();
-        IRequest clone = mRepository.createRequest(requestType);
+        Request clone = mRepository.createRequest(requestType);
 
         // 3. copy all attributes of original request to clone and modify.
         // source id (from remote authority) is not copied.

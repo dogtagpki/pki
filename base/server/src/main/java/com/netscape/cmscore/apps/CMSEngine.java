@@ -60,7 +60,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.realm.PKIRealm;
@@ -1600,7 +1599,7 @@ public class CMSEngine implements ServletContextListener {
         boolean revoked = false;
 
         if (requestQueue != null) {
-            IRequest checkRevReq = null;
+            Request checkRevReq = null;
 
             try {
                 checkRevReq = requestRepository.createRequest(Request.GETREVOCATIONINFO_REQUEST);

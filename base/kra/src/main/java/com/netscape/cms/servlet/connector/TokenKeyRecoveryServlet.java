@@ -34,7 +34,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.authentication.AuthSubsystem;
@@ -155,7 +154,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         KRAEngine engine = KRAEngine.getInstance();
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
-        IRequest thisreq = null;
+        Request thisreq = null;
 
         //        IConfigStore sconfig = CMS.getConfigStore();
         boolean missingParam = false;

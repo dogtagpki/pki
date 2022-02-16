@@ -157,7 +157,7 @@ public class RequestRepository extends Repository {
         return new RequestId(id);
     }
 
-    public IRequest createRequest(RequestId requestID, String requestType) throws EBaseException {
+    public Request createRequest(RequestId requestID, String requestType) throws EBaseException {
 
         if (requestType == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_REQUEST_TYPE", "null"));
@@ -181,7 +181,7 @@ public class RequestRepository extends Repository {
         return request;
     }
 
-    public IRequest createRequest(String requestType) throws EBaseException {
+    public Request createRequest(String requestType) throws EBaseException {
         RequestId requestID = createRequestID();
         return createRequest(requestID, requestType);
     }

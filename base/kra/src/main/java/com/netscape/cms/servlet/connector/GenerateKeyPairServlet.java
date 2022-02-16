@@ -34,7 +34,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
@@ -137,7 +136,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
         KRAEngine engine = KRAEngine.getInstance();
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
-        IRequest thisreq = null;
+        Request thisreq = null;
 
         boolean missingParam = false;
         String status = "0";

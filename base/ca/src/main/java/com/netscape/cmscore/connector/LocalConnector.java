@@ -67,7 +67,7 @@ public class LocalConnector implements IConnector {
 
         CAEngine engine = CAEngine.getInstance();
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        IRequest destreq = requestRepository.createRequest(r.getRequestType());
+        Request destreq = requestRepository.createRequest(r.getRequestType());
 
         logger.debug("local connector dest req " +
                 destreq.getRequestId() + " created for source rId " + r.getRequestId());

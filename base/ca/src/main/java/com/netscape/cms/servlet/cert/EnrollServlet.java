@@ -708,7 +708,7 @@ public class EnrollServlet extends CMSServlet {
         HttpServletRequest httpReq = null;
         IAuthToken authToken = null;
         AuthzToken authzToken = null;
-        IRequest req = null;
+        Request req = null;
         X509CertInfo certInfo = null;
 
         /* XXX shouldn't we read this from ServletConfig at init time? */

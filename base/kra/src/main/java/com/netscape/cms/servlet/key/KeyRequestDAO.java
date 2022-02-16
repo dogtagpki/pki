@@ -209,7 +209,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         boolean ephemeral = kra.isEphemeral(realm);
         RequestId requestID = requestRepository.createRequestID(ephemeral);
-        IRequest request = requestRepository.createRequest(requestID, Request.SECURITY_DATA_ENROLLMENT_REQUEST);
+        Request request = requestRepository.createRequest(requestID, Request.SECURITY_DATA_ENROLLMENT_REQUEST);
 
         if (pkiArchiveOptions != null) {
             request.setExtData(REQUEST_ARCHIVE_OPTIONS, pkiArchiveOptions);
@@ -280,7 +280,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
 
         RequestId requestID = requestRepository.createRequestID(ephemeral);
-        IRequest request = requestRepository.createRequest(requestID, Request.SECURITY_DATA_RECOVERY_REQUEST);
+        Request request = requestRepository.createRequest(requestID, Request.SECURITY_DATA_RECOVERY_REQUEST);
 
         if (rec.getRealm() != null) {
             request.setRealm(rec.getRealm());
@@ -450,7 +450,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         KRAEngine engine = KRAEngine.getInstance();
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
-        IRequest request = requestRepository.createRequest(Request.SYMKEY_GENERATION_REQUEST);
+        Request request = requestRepository.createRequest(Request.SYMKEY_GENERATION_REQUEST);
 
         request.setExtData(Request.KEY_GEN_ALGORITHM, algName);
         request.setExtData(Request.KEY_GEN_SIZE, keySize);
@@ -540,7 +540,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
-        IRequest request = requestRepository.createRequest(Request.ASYMKEY_GENERATION_REQUEST);
+        Request request = requestRepository.createRequest(Request.ASYMKEY_GENERATION_REQUEST);
 
         request.setExtData(Request.KEY_GEN_ALGORITHM, algName);
         request.setExtData(Request.KEY_GEN_SIZE, keySize);

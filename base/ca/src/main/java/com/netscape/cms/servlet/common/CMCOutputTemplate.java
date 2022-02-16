@@ -1347,7 +1347,7 @@ public class CMCOutputTemplate {
                     RevokedCertImpl[] revCertImpls = new RevokedCertImpl[1];
                     revCertImpls[0] = revCertImpl;
                     CertRequestRepository requestRepository = engine.getCertRequestRepository();
-                    IRequest revReq = requestRepository.createRequest(Request.REVOCATION_REQUEST);
+                    Request revReq = requestRepository.createRequest(Request.REVOCATION_REQUEST);
                     auditReqID = revReq.getRequestId().toString();
                     revReq.setExtData(Request.CERT_INFO, revCertImpls);
                     revReq.setExtData(Request.REVOKED_REASON,

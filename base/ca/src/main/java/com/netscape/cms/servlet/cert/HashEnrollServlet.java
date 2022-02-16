@@ -283,7 +283,7 @@ public class HashEnrollServlet extends CMSServlet {
         // create enrollment request in request repository
         CAEngine engine = CAEngine.getInstance();
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        IRequest req = requestRepository.createRequest(Request.ENROLLMENT_REQUEST);
+        Request req = requestRepository.createRequest(Request.ENROLLMENT_REQUEST);
 
         /*
          * === certAuth based enroll ===

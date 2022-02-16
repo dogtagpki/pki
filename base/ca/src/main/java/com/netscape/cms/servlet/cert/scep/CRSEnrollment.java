@@ -1797,7 +1797,7 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        IRequest pkiReq = requestRepository.createRequest(Request.ENROLLMENT_REQUEST);
+        Request pkiReq = requestRepository.createRequest(Request.ENROLLMENT_REQUEST);
 
         AuthToken token = (AuthToken) req.get(AUTH_TOKEN);
         if (token != null) {

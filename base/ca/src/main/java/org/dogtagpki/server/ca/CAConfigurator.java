@@ -55,6 +55,7 @@ import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -238,7 +239,7 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(profilePath);
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        IRequest request = requestRepository.createRequest(requestID, "enrollment");
+        Request request = requestRepository.createRequest(requestID, "enrollment");
 
         initRequest(
                 request,
@@ -332,7 +333,7 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        IRequest request = requestRepository.createRequest(requestID, "enrollment");
+        Request request = requestRepository.createRequest(requestID, "enrollment");
 
         initRequest(
                 request,

@@ -85,7 +85,7 @@ public class RevocationProcessor extends CertProcessor {
     CRLExtensions entryExtn;
     Collection<X509CertImpl> certificates = new ArrayList<>();
     Collection<RevokedCertImpl> revCertImpls = new ArrayList<>();
-    IRequest request;
+    Request request;
     RequestStatus requestStatus;
 
     public RevocationProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {

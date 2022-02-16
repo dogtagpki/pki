@@ -439,7 +439,7 @@ public abstract class EnrollProfile extends Profile {
     public IRequest createEnrollmentRequest() throws EProfileException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IRequest req = null;
+        Request req = null;
 
         try {
             RequestRepository requestRepository = engine.getRequestRepository();

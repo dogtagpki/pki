@@ -47,7 +47,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -202,7 +201,7 @@ public class RenewalServlet extends CMSServlet {
             old_cert = cert[0];
         }
 
-        IRequest req = null;
+        Request req = null;
 
         try {
             // get ready to send request to request queue.

@@ -47,7 +47,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -357,7 +356,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             }
 
             CertRequestRepository requestRepository = engine.getCertRequestRepository();
-            IRequest revReq = requestRepository.createRequest(Request.REVOCATION_REQUEST);
+            Request revReq = requestRepository.createRequest(Request.REVOCATION_REQUEST);
 
             revReq.setExtData(Request.CERT_INFO, revCertImpls);
             revReq.setExtData(Request.REQ_TYPE, Request.REVOCATION_REQUEST);

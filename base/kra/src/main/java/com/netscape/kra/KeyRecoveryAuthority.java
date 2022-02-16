@@ -814,7 +814,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         KRAEngine engine = KRAEngine.getInstance();
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
-        IRequest r = null;
+        Request r = null;
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -884,7 +884,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         KRAEngine engine = KRAEngine.getInstance();
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
-        IRequest r = null;
+        Request r = null;
 
         try {
             r = requestRepository.createRequest(KRAService.RECOVERY);
@@ -1057,7 +1057,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         KRAEngine engine = KRAEngine.getInstance();
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
 
-        IRequest r = null;
+        Request r = null;
         Hashtable<String, Object> params = null;
 
         logger.debug("KeyRecoveryAuthority: in synchronous doKeyRecovery()");
@@ -1261,7 +1261,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         KRAEngine engine = KRAEngine.getInstance();
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
 
-        IRequest r = requestRepository.createRequest("recovery");
+        Request r = requestRepository.createRequest("recovery");
         r.setExtData(RecoveryService.ATTR_SERIALNO, kid);
         r.setExtData(RecoveryService.ATTR_TRANSPORT_PWD, password);
         r.setExtData(RecoveryService.ATTR_USER_CERT, cert);
@@ -1332,7 +1332,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         KRAEngine engine = KRAEngine.getInstance();
 
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
-        IRequest r = requestRepository.createRequest("recovery");
+        Request r = requestRepository.createRequest("recovery");
 
         ByteArrayOutputStream certChainOut = new ByteArrayOutputStream();
         try {
