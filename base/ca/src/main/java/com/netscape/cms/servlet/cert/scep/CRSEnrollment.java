@@ -1123,7 +1123,7 @@ public class CRSEnrollment extends HttpServlet {
                 continue;
             }
 
-            IRequest request = requestRepository.readRequest(rid);
+            Request request = requestRepository.readRequest(rid);
             if (request == null) {
                 continue;
             }

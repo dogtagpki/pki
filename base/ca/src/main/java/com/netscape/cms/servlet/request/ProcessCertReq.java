@@ -306,7 +306,7 @@ public class ProcessCertReq extends CMSServlet {
             subject = req.getParameter("subject");
             signatureAlgorithm = req.getParameter("signatureAlgorithm");
 
-            IRequest r = null;
+            Request r = null;
 
             if (seqNum.compareTo(BigInteger.ONE.negate()) > 0) {
                 r = requestRepository.readRequest(new RequestId(seqNum));
@@ -418,7 +418,7 @@ public class ProcessCertReq extends CMSServlet {
         }
 
         try {
-            IRequest r = requestRepository.readRequest(new RequestId(seqNum));
+            Request r = requestRepository.readRequest(new RequestId(seqNum));
 
             if (r != null) {
                 // overwrite "auditRequesterID" if and only if "id" != null

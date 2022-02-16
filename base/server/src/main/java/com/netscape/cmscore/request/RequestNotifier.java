@@ -213,7 +213,7 @@ public class RequestNotifier implements IRequestNotifier {
      */
     @Override
     public synchronized IRequest getRequest() {
-        IRequest r = null;
+        Request r = null;
         String id = null;
 
         CMSEngine engine = CMS.getCMSEngine();

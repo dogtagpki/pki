@@ -433,7 +433,7 @@ public class ConnectorServlet extends CMSServlet {
 
             // find request in request queue and return result.
             RequestId thisreqid = queue.findRequestBySourceId(srcid);
-            IRequest thisreq = null;
+            Request thisreq = null;
 
             if (thisreqid != null) {
                 logger.debug(method + "thisreqid not null:" + thisreqid);

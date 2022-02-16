@@ -121,7 +121,7 @@ public class LdapUnrevocationListener implements IRequestListener {
                     ridString = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
                 }
 
-                IRequest req = null;
+                Request req = null;
 
                 if (ridString != null) {
                     RequestId rid = new RequestId(ridString);

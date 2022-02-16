@@ -91,7 +91,7 @@ public class RequestListByStatus implements IRequestList {
             rId = mEnumeration.nextElement();
 
             try {
-                IRequest r = requestRepository.readRequest(rId);
+                Request r = requestRepository.readRequest(rId);
 
                 if (r.getRequestStatus() == mStatus)
                     mNext = rId;

@@ -858,7 +858,7 @@ public class CMCOutputTemplate {
                                         ASN1Util.encode(values.elementAt(i)));
                         String requestId = new String(reqId.toByteArray());
 
-                        IRequest r = requestRepository.readRequest(new RequestId(requestId));
+                        Request r = requestRepository.readRequest(new RequestId(requestId));
                         if (r != null) {
                             RequestStatus status = r.getRequestStatus();
                             if (status.equals(RequestStatus.PENDING)) {

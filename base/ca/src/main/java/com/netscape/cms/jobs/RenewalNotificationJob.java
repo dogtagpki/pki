@@ -49,6 +49,7 @@ import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
+import com.netscape.cmscore.request.Request;
 
 /**
  * A job for the Jobs Scheduler. This job checks in the internal ldap
@@ -652,7 +653,7 @@ class CertRecProcessor implements IElementProcessor {
         }
 
         CAEngine engine = CAEngine.getInstance();
-        IRequest req = null;
+        Request req = null;
 
         if (ridString != null) {
             RequestId rid = new RequestId(ridString);

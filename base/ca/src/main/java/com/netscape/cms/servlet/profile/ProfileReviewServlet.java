@@ -191,7 +191,7 @@ public class ProfileReviewServlet extends ProfileServlet {
         }
 
         String requestId = request.getParameter("requestId");
-        IRequest req = null;
+        Request req = null;
 
         logger.debug("ProfileReviewServlet: requestId=" + requestId);
         try {

@@ -56,7 +56,6 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -322,7 +321,7 @@ public class DisplayBySerial extends CMSServlet {
                     String rid = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
 
                     if (rid != null && mAuthority instanceof ICertificateAuthority) {
-                        IRequest r = requestRepository.readRequest(new RequestId(rid));
+                        Request r = requestRepository.readRequest(new RequestId(rid));
                         String certType = r.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
 
                         if (certType != null && certType.equals(Request.CLIENT_CERT)) {

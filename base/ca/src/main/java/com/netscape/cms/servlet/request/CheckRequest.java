@@ -67,7 +67,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -282,7 +281,7 @@ public class CheckRequest extends CMSServlet {
                     CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT_1",CMSTemplate.escapeJavaScriptStringHTML( requestId)));
         }
 
-        IRequest r = requestRepository.readRequest(new RequestId(requestId));
+        Request r = requestRepository.readRequest(new RequestId(requestId));
 
         if (r == null) {
             logger.error(CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND_1", requestId));

@@ -206,7 +206,7 @@ public class RequestRepository extends Repository {
         }
     }
 
-    public IRequest readRequest(RequestId id) throws EBaseException {
+    public Request readRequest(RequestId id) throws EBaseException {
 
         String name = "cn=" + id + "," + mBaseDN;
 

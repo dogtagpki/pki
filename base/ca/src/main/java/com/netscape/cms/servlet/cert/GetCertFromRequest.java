@@ -39,7 +39,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -173,7 +172,7 @@ public class GetCertFromRequest extends CMSServlet {
                     CMS.getUserMessage(getLocale(httpReq), "CMS_BASE_INVALID_NUMBER_FORMAT_1", CMSTemplate.escapeJavaScriptStringHTML(requestId)), e);
         }
 
-        IRequest r = requestRepository.readRequest(new RequestId(requestId));
+        Request r = requestRepository.readRequest(new RequestId(requestId));
 
         if (r == null) {
             logger.error(CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND", requestId));
@@ -285,7 +284,7 @@ class CertFrRequestFiller extends ImportCertsTemplateFiller {
         tparams.getHeader().addStringValue(GetCertFromRequest.REQUEST_ID, reqId);
 
         if (reqId != null) {
-            IRequest r = engine.getRequestRepository().readRequest(new RequestId(reqId));
+            Request r = engine.getRequestRepository().readRequest(new RequestId(reqId));
             if (r != null) {
                 boolean noCertImport = true;
                 String certType = r.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);

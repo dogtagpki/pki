@@ -248,8 +248,7 @@ public class CAProcessor extends Processor {
      ******************************************/
 
     public IRequest getRequest(String rid) throws EBaseException {
-        IRequest request = requestRepository.readRequest(new RequestId(rid));
-        return request;
+        return requestRepository.readRequest(new RequestId(rid));
     }
 
     protected IRequest getOriginalRequest(BigInteger certSerial, CertRecord rec) throws EBaseException {
@@ -266,8 +265,7 @@ public class CAProcessor extends Processor {
             return null;
         }
 
-        IRequest request = requestRepository.readRequest(new RequestId(rid));
-        return request;
+        return requestRepository.readRequest(new RequestId(rid));
     }
 
     protected void printParameterValues(HashMap<String, String> data) {

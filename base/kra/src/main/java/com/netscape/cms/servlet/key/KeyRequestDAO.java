@@ -165,7 +165,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @throws EBaseException
      */
     public KeyRequestInfo getRequest(RequestId id, UriInfo uriInfo, IAuthToken authToken) throws EBaseException {
-        IRequest request = requestRepository.readRequest(id);
+        Request request = requestRepository.readRequest(id);
         if (request == null) {
             return null;
         }
@@ -400,7 +400,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             e.printStackTrace();
             throw new PKIException(e.toString(), e);
         }
-        IRequest request = null;
+        Request request = null;
         try {
             request = requestRepository.readRequest(new RequestId(requestId));
         } catch (EBaseException e) {
@@ -568,7 +568,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     public void approveRequest(RequestId id, String requestor, IAuthToken authToken)
             throws EBaseException {
-        IRequest request = requestRepository.readRequest(id);
+        Request request = requestRepository.readRequest(id);
         authz.checkRealm(request.getRealm(), authToken,
                 request.getExtDataInString(Request.ATTR_REQUEST_OWNER),
                 "certServer.kra.requests", "execute");
@@ -577,7 +577,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
     }
 
     public void rejectRequest(RequestId id, IAuthToken authToken) throws EBaseException {
-        IRequest request = requestRepository.readRequest(id);
+        Request request = requestRepository.readRequest(id);
         String realm = request.getRealm();
         authz.checkRealm(realm, authToken,
                 request.getExtDataInString(Request.ATTR_REQUEST_OWNER),
@@ -587,7 +587,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
     }
 
     public void cancelRequest(RequestId id, IAuthToken authToken) throws EBaseException {
-        IRequest request = requestRepository.readRequest(id);
+        Request request = requestRepository.readRequest(id);
         String realm = request.getRealm();
         authz.checkRealm(realm, authToken,
                 request.getExtDataInString(Request.ATTR_REQUEST_OWNER),

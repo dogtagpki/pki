@@ -38,6 +38,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 
@@ -171,7 +172,7 @@ public class Resender implements IResender {
             // request ids are added as strings.
             String ridString = enum1.nextElement();
             RequestId rid = new RequestId(ridString);
-            IRequest r = null;
+            Request r = null;
 
             logger.debug("resend processing request id " + rid);
 

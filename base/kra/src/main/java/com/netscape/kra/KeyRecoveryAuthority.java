@@ -932,7 +932,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         KRAEngine engine = KRAEngine.getInstance();
         RequestRepository requestRepository = engine.getRequestRepository();
 
-        IRequest r = requestRepository.readRequest(new RequestId(reqID));
+        Request r = requestRepository.readRequest(new RequestId(reqID));
         return r.getRequestStatus() == RequestStatus.APPROVED;
     }
 
@@ -946,7 +946,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         KRAEngine engine = KRAEngine.getInstance();
         RequestRepository requestRepository = engine.getRequestRepository();
 
-        IRequest r = requestRepository.readRequest(new RequestId(reqID));
+        Request r = requestRepository.readRequest(new RequestId(reqID));
 
         String agents = r.getExtDataInString(Request.ATTR_APPROVE_AGENTS);
         if (agents == null) { // no approvingAgents existing, can't be async recovery
@@ -983,7 +983,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         RequestRepository requestRepository = engine.getRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
-        IRequest r = requestRepository.readRequest(new RequestId(reqID));
+        Request r = requestRepository.readRequest(new RequestId(reqID));
 
         String agents = r.getExtDataInString(Request.ATTR_APPROVE_AGENTS);
         if (agents != null) {
@@ -1181,11 +1181,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         RequestRepository requestRepository = engine.getRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
 
-        IRequest r = null;
         Hashtable<String, Object> params = null;
 
         logger.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery()");
-        r = requestRepository.readRequest(new RequestId(reqID));
+        Request r = requestRepository.readRequest(new RequestId(reqID));
 
         auditAgents = r.getExtDataInString(Request.ATTR_APPROVE_AGENTS);
         BigInteger serialNumber = r.getExtDataInBigInteger("serialNumber");

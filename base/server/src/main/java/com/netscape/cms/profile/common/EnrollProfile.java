@@ -1303,7 +1303,7 @@ public abstract class EnrollProfile extends Profile {
 
         CMSEngine engine = CMS.getCMSEngine();
         RequestRepository requestRepository = engine.getRequestRepository();
-        IRequest req = null;
+        Request req = null;
         try {
             req = requestRepository.readRequest(new RequestId(reqIdBI));
         } catch (Exception e) {

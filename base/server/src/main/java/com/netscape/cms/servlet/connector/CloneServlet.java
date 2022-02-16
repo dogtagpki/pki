@@ -47,7 +47,6 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -315,7 +314,7 @@ public class CloneServlet extends CMSServlet {
 
         // find request in request queue and return result.
         RequestId thisreqid = queue.findRequestBySourceId(srcid);
-        IRequest thisreq = null;
+        Request thisreq = null;
 
         if (thisreqid != null) {
             thisreq = requestRepository.readRequest(thisreqid);

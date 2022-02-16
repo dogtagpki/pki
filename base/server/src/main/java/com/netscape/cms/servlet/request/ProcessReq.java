@@ -35,7 +35,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -46,6 +45,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.ARequestQueue;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Display Generic Request detail to the user.
@@ -218,7 +218,7 @@ public class ProcessReq extends CMSServlet {
         header.addBigIntegerValue("seqNum", seqNum, 10);
 
         CMSEngine engine = CMS.getCMSEngine();
-        IRequest r = requestRepository.readRequest(new RequestId(seqNum));
+        Request r = requestRepository.readRequest(new RequestId(seqNum));
 
         if (r != null) {
             if (doAssign != null) {

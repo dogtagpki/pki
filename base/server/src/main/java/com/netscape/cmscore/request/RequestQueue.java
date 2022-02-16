@@ -363,7 +363,7 @@ public class RequestQueue extends ARequestQueue {
             RequestId requestID = list.nextRequestId();
 
             try {
-                IRequest request = mRepository.readRequest(requestID);
+                Request request = mRepository.readRequest(requestID);
 
                 // Recheck the status - should be the same!!
                 if (request.getRequestStatus() == RequestStatus.APPROVED) {

@@ -667,7 +667,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         // For CMC, requests may be zero. Then check if controls exist.
         // In case of decryptedPOP, request already exists, find it and
         // put in provedReq.
-        IRequest provedReq = null;
+        Request provedReq = null;
         boolean isRevoke = false;
         if (reqs == null) {
             // handling DecryptedPOP request here

@@ -61,6 +61,7 @@ import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Update the configured LDAP server with specified objects
@@ -456,7 +457,7 @@ public class UpdateDir extends CMSServlet {
                             ridString = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
                         }
 
-                        IRequest r = null;
+                        Request r = null;
 
                         if (ridString != null) {
                             RequestId rid = new RequestId(ridString);

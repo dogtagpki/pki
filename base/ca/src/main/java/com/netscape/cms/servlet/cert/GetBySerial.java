@@ -45,7 +45,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -184,7 +183,7 @@ public class GetBySerial extends CMSServlet {
                     if (metai != null) {
                         String reqId = (String) metai.get(CertRecord.META_REQUEST_ID);
                         RequestId rid = new RequestId(reqId);
-                        IRequest creq = requestRepository.readRequest(rid);
+                        Request creq = requestRepository.readRequest(rid);
                         if (creq != null) {
                             String reqOwner = creq.getRequestOwner();
                             if (reqOwner != null) {

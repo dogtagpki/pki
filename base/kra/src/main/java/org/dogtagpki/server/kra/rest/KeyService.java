@@ -762,7 +762,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         RequestId reqId = data.getRequestId();
 
         // confirm request exists
-        IRequest request = requestRepository.readRequest(reqId);
+        Request request = requestRepository.readRequest(reqId);
 
         if (request == null) {
             throw new HTTPGoneException("Request not found: " + reqId);
