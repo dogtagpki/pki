@@ -1305,7 +1305,7 @@ public class CAService implements IService {
 ///
 
 interface IServant {
-    public boolean service(IRequest request) throws EBaseException;
+    public boolean service(Request request) throws EBaseException;
 }
 
 class serviceIssue implements IServant {
@@ -1319,7 +1319,7 @@ class serviceIssue implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request)
+    public boolean service(Request request)
             throws EBaseException {
         // XXX This is ugly. should associate attributes with
         // request types, not policy.
@@ -1406,7 +1406,7 @@ class serviceRenewal implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request)
+    public boolean service(Request request)
             throws EBaseException {
         // XXX if one fails should all fail ? - can't backtrack.
         X509CertInfo certinfos[] =
@@ -1569,7 +1569,7 @@ class getCertsForChallenge implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request)
+    public boolean service(Request request)
             throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
@@ -1603,7 +1603,7 @@ class getCertStatus implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request) throws EBaseException {
+    public boolean service(Request request) throws EBaseException {
         BigInteger serialno = request.getExtDataInBigInteger("serialNumber");
         String issuerDN = request.getExtDataInString("issuerDN");
 
@@ -1654,7 +1654,7 @@ class serviceCheckChallenge implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request)
+    public boolean service(Request request)
             throws EBaseException {
         // note: some request attributes used below are set in
         // authentication/ChallengePhraseAuthentication.java :(
@@ -1764,7 +1764,7 @@ class serviceRevoke implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request)
+    public boolean service(Request request)
             throws EBaseException {
         boolean sendStatus = true;
         // XXX Need to think passing as array.
@@ -1856,7 +1856,7 @@ class serviceUnrevoke implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request)
+    public boolean service(Request request)
             throws EBaseException {
         boolean sendStatus = true;
         BigInteger oldSerialNo[] =
@@ -1946,7 +1946,7 @@ class serviceGetCAChain implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request) throws EBaseException {
+    public boolean service(Request request) throws EBaseException {
         CertificateChain certChain = mCA.getCACertChain();
         ByteArrayOutputStream certChainOut = new ByteArrayOutputStream();
         try {
@@ -1968,7 +1968,7 @@ class serviceGetCRL implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request)
+    public boolean service(Request request)
             throws EBaseException {
         try {
             CAEngine engine = CAEngine.getInstance();
@@ -2005,7 +2005,7 @@ class serviceGetRevocationInfo implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request)
+    public boolean service(Request request)
             throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
@@ -2044,7 +2044,7 @@ class serviceGetCertificates implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request)
+    public boolean service(Request request)
             throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
@@ -2076,7 +2076,7 @@ class serviceCert4Crl implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request)
+    public boolean service(Request request)
             throws EBaseException {
         // XXX Need to think passing as array.
         // XXX every implemented according to servlet.
@@ -2157,7 +2157,7 @@ class serviceUnCert4Crl implements IServant {
     }
 
     @Override
-    public boolean service(IRequest request)
+    public boolean service(Request request)
             throws EBaseException {
         BigInteger oldSerialNo[] =
                 request.getExtDataInBigIntegerArray(Request.OLD_SERIALS);
