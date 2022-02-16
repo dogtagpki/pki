@@ -1734,7 +1734,7 @@ public class CRSEnrollment extends HttpServlet {
                 authToken = authenticate(credentials, authenticator, httpReq);
             }
 
-            IRequest reqs[] = null;
+            Request reqs[] = null;
             logger.debug("CRSEnrollment: Creating profile requests");
             ctx.put(EnrollProfile.CTX_CERT_REQUEST_TYPE, "pkcs10");
             ctx.put(Request.CTX_CERT_REQUEST, pkcs10blob);

@@ -45,6 +45,7 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 public class EnrollmentProcessor extends CertProcessor {
@@ -185,7 +186,7 @@ public class EnrollmentProcessor extends CertProcessor {
             // create and populate request
             ///////////////////////////////////////////////
             startTiming("request_population");
-            IRequest[] reqs = profile.createRequests(ctx, locale);
+            Request[] reqs = profile.createRequests(ctx, locale);
             populateRequests(data, false, locale, null, null, null, profileId, profile,
                     ctx, authenticator, authToken, reqs);
             endTiming("request_population");

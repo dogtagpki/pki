@@ -508,7 +508,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 Utils.normalizeString(requestB64));
         signedAuditLogger.log(auditMessage);
 
-        IRequest reqs[] = null;
+        Request[] reqs = null;
 
         ///////////////////////////////////////////////
         // create request
@@ -984,7 +984,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 try {
                     profile.validate(provedReq);
                     profile.execute(provedReq);
-                    reqs = new IRequest[1];
+                    reqs = new Request[1];
                     reqs[0] = provedReq;
                     reqs[0].setRequestStatus(RequestStatus.COMPLETE);
                     //profile.getRequestQueue().markAsServiced(provedReq);

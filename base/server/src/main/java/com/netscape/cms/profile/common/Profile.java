@@ -47,6 +47,7 @@ import com.netscape.cms.profile.updater.IProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.registry.PluginRegistry;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements a basic profile. A profile contains
@@ -1210,7 +1211,7 @@ public abstract class Profile {
      * @return a list of requests
      * @exception Exception failed to create requests
      */
-    public abstract IRequest[] createRequests(Map<String, String> ctx, Locale locale) throws Exception;
+    public abstract Request[] createRequests(Map<String, String> ctx, Locale locale) throws Exception;
 
     /**
      * Returns the profile description.

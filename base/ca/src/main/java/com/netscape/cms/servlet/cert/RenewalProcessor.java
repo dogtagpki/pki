@@ -345,7 +345,7 @@ public class RenewalProcessor extends CertProcessor {
             // create and populate requests
             ///////////////////////////////////////////////
             startTiming("request_population");
-            IRequest[] reqs = profile.createRequests(ctx, locale);
+            Request[] reqs = profile.createRequests(ctx, locale);
             populateRequests(data, true, locale, origNotAfter, origSubjectDN, origReq, profileId,
                     profile, ctx, authenticator, authToken, reqs);
             endTiming("request_population");

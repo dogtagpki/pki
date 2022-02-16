@@ -264,7 +264,7 @@ public abstract class EnrollProfile extends Profile {
      * Creates request.
      */
     @Override
-    public IRequest[] createRequests(Map<String, String> ctx, Locale locale) throws Exception {
+    public Request[] createRequests(Map<String, String> ctx, Locale locale) throws Exception {
 
         String method = "EnrollProfile: createRequests: ";
         logger.debug(method + "begins");
@@ -345,7 +345,7 @@ public abstract class EnrollProfile extends Profile {
         }
 
         // populate requests with appropriate content
-        IRequest result[] = new IRequest[num_requests];
+        Request result[] = new Request[num_requests];
 
         for (int i = 0; i < num_requests; i++) {
             result[i] = createEnrollmentRequest();
@@ -436,7 +436,7 @@ public abstract class EnrollProfile extends Profile {
         request.setExtData(REQUEST_CERTINFO, info);
     }
 
-    public IRequest createEnrollmentRequest() throws EProfileException {
+    public Request createEnrollmentRequest() throws EProfileException {
 
         CMSEngine engine = CMS.getCMSEngine();
         Request req = null;
