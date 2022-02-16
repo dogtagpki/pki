@@ -177,7 +177,7 @@ public abstract class ARequestQueue {
      * @param r request to be processed
      * @exception EBaseException failed to process request
      */
-    public final void processRequest(IRequest r)
+    public final void processRequest(Request r)
             throws EBaseException {
 
         // #610553 Thread Scheduler

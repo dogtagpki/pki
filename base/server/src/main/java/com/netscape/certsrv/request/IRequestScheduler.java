@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+import com.netscape.cmscore.request.Request;
+
 //import java.io.Serializable;
 
 /**
@@ -34,12 +36,12 @@ public interface IRequestScheduler {
      *
      * @param r request
      */
-    public void requestIn(IRequest r);
+    public void requestIn(Request r);
 
     /**
      * Request exited the request queue processing.
      *
      * @param r request
      */
-    public void requestOut(IRequest r);
+    public void requestOut(Request r);
 }

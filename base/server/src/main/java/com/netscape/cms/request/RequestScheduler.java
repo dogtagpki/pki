@@ -19,8 +19,8 @@ package com.netscape.cms.request;
 
 import java.util.Vector;
 
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestScheduler;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class represents a request scheduler that prioritizes
@@ -39,7 +39,7 @@ public class RequestScheduler implements IRequestScheduler {
      * @param r request
      */
     @Override
-    public synchronized void requestIn(IRequest r) {
+    public synchronized void requestIn(Request r) {
         Thread current = Thread.currentThread();
 
         if (mRequestThreads.size() == 0) {
@@ -54,7 +54,7 @@ public class RequestScheduler implements IRequestScheduler {
      * @param r request
      */
     @Override
-    public synchronized void requestOut(IRequest r) {
+    public synchronized void requestOut(Request r) {
         Thread current = Thread.currentThread();
         Thread first = mRequestThreads.elementAt(0);
 

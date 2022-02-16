@@ -309,7 +309,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         return retrieveKey(data);
     }
 
-    public KeyData getKey(KeyId keyId, IRequest request, KeyRecoveryRequest data,
+    public KeyData getKey(KeyId keyId, Request request, KeyRecoveryRequest data,
             boolean synchronous, boolean ephemeral) throws EBaseException {
         String method = "KeyService.getKey:";
         auditInfo = method;
