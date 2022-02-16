@@ -23,8 +23,8 @@ import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.IPolicy;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.request.Request;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -60,7 +60,7 @@ public class KRAPolicy implements IPolicy {
     /**
      */
     @Override
-    public PolicyResult apply(IRequest r) {
+    public PolicyResult apply(Request r) {
         logger.debug("KRA applies policies");
         PolicyResult result = mPolicies.apply(r);
 

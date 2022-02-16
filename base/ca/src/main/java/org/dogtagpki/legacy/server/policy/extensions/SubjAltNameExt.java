@@ -145,7 +145,7 @@ public class SubjAltNameExt extends APolicyRule
      * @return The policy result object.
      */
     @Override
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(Request req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
         // Find the X509CertInfo object in the request

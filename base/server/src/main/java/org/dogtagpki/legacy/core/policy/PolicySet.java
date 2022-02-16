@@ -194,7 +194,7 @@ public class PolicySet implements IPolicySet {
             try {
                 logger.debug("Policy " + name + " selected");
                 logger.debug("Policy " + name + " selected");
-                PolicyResult result = rule.apply(req);
+                PolicyResult result = rule.apply((Request) req);
                 logger.debug("Policy applied");
 
                 logger.debug("Policy " + name + " returned " + result);

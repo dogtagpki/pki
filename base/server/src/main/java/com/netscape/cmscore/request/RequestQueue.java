@@ -208,7 +208,7 @@ public class RequestQueue extends ARequestQueue {
         aas.addApproval(agentName);
         request.setExtData(AgentApprovals.class.getName(), aas.toStringVector());
 
-        PolicyResult pr = mPolicy.apply(request);
+        PolicyResult pr = mPolicy.apply((Request) request);
 
         if (pr == PolicyResult.ACCEPTED) {
             request.setRequestStatus(RequestStatus.APPROVED);

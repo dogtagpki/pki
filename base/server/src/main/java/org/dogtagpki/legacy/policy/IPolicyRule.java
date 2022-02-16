@@ -23,6 +23,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Interface for a policy rule.
@@ -101,7 +102,7 @@ public interface IPolicyRule
      * @return The PolicyResult object.
      */
     @Override
-    PolicyResult apply(IRequest req);
+    PolicyResult apply(Request req);
 
     /**
      * Return configured parameters for a policy rule instance.

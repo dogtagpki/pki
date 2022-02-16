@@ -26,8 +26,8 @@ import org.dogtagpki.legacy.server.policy.APolicyRule;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Checks extension presence.
@@ -96,7 +96,7 @@ public class PresenceExt extends APolicyRule {
     }
 
     @Override
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(Request req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
         /*

@@ -36,7 +36,6 @@ import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -151,7 +150,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      * @return The policy result object.
      */
     @Override
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(Request req) {
         if (!mPreAgentApprovalChecking) {
             // post agent approval checking
             if (!agentApproved(req))

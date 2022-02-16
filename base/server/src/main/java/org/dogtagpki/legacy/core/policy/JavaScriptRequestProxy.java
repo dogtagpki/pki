@@ -39,7 +39,7 @@ public class JavaScriptRequestProxy {
     }
 
     public PolicyResult applyPolicy(IPolicyRule r) {
-        return r.apply(req);
+        return r.apply((Request) req);
     }
 
 }

@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+import com.netscape.cmscore.request.Request;
+
 /**
  * Interface to a policy. The policy evaluates the request for
  * correctness and completeness. It may change or add to values
@@ -49,5 +51,5 @@ public interface IPolicy {
      *         processor will determine the next request processing step based
      *         on this value
      */
-    PolicyResult apply(IRequest request);
+    PolicyResult apply(Request request);
 }

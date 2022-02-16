@@ -26,9 +26,9 @@ import org.dogtagpki.legacy.server.policy.APolicyRule;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.AgentApprovals;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * AgentPolicy is an enrollment policy wraps another policy module.
@@ -111,7 +111,7 @@ public class AgentPolicy extends APolicyRule
      * @return The policy result object.
      */
     @Override
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(Request req) {
 
         // The default is to require manual approval for everything
         PolicyResult result = PolicyResult.DEFERRED;

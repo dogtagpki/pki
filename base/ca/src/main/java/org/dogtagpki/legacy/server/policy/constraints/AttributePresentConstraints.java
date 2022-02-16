@@ -31,7 +31,6 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -277,7 +276,7 @@ public class AttributePresentConstraints extends APolicyRule
     }
 
     @Override
-    public PolicyResult apply(IRequest r) {
+    public PolicyResult apply(Request r) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
         String requestType = r.getRequestType();

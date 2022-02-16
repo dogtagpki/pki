@@ -170,7 +170,7 @@ public class PolicyConstraintsExt extends APolicyRule
      * @return The policy result object.
      */
     @Override
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(Request req) {
         // if extension hasn't been properly configured reject requests until
         // it has been resolved (or disabled).
         if (mPolicyConstraintsExtension == null) {

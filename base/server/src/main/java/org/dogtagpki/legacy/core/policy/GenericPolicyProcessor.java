@@ -378,7 +378,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      * @return The policy result object.
      */
     @Override
-    public PolicyResult apply(IRequest request) {
+    public PolicyResult apply(Request request) {
         IPolicySet rules = null;
         String op = request.getRequestType();
 

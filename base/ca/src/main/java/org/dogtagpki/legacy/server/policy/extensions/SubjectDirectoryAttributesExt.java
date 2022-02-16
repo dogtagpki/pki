@@ -126,7 +126,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     }
 
     @Override
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(Request req) {
         X509CertInfo[] ci =
                 req.getExtDataInCertInfoArray(Request.CERT_INFO);
 

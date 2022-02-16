@@ -160,7 +160,7 @@ public class NSCertTypeExt extends APolicyRule
      * @return The policy result object.
      */
     @Override
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(Request req) {
         logger.debug("NSCertTypeExt: Impl: " + NAME + ", Instance: " + getInstanceName() + "::apply()");
 
         X509CertInfo[] ci =

@@ -107,7 +107,7 @@ public class OCSPNoCheckExt extends APolicyRule
      * Applies the policy to the given request.
      */
     @Override
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(Request req) {
 
         // if the extension was not configured correctly, just skip it
         if (mOCSPNoCheck == null) {

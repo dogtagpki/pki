@@ -150,7 +150,7 @@ public abstract class APolicyRule implements IPolicyRule {
      * @return The policy result object.
      */
     @Override
-    public abstract PolicyResult apply(IRequest req);
+    public abstract PolicyResult apply(Request req);
 
     /**
      * Return configured parameters for a policy rule instance.

@@ -144,7 +144,7 @@ public class IssuerAltNameExt extends APolicyRule
      * @return The policy result object.
      */
     @Override
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(Request req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
         if (mEnabled == false || mExtension == null)

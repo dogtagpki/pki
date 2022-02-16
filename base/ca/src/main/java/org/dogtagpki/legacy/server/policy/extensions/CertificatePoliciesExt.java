@@ -166,7 +166,7 @@ public class CertificatePoliciesExt extends APolicyRule
      * @return The policy result object.
      */
     @Override
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(Request req) {
 
         // get certInfo from request.
         X509CertInfo[] ci =

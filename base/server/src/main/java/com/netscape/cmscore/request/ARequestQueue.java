@@ -395,7 +395,7 @@ public abstract class ARequestQueue {
                 PolicyResult pr = PolicyResult.ACCEPTED;
 
                 if (mPolicy != null)
-                    pr = mPolicy.apply(r);
+                    pr = mPolicy.apply((Request) r);
 
                 if (pr == PolicyResult.ACCEPTED) {
                     r.setRequestStatus(RequestStatus.APPROVED);

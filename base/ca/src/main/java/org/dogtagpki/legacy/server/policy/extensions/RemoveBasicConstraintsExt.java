@@ -65,7 +65,7 @@ public class RemoveBasicConstraintsExt extends APolicyRule
     }
 
     @Override
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(Request req) {
 
         // get cert info.
         X509CertInfo[] ci =
