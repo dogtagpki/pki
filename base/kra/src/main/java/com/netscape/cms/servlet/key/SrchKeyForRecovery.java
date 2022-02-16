@@ -35,7 +35,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -117,7 +116,7 @@ public class SrchKeyForRecovery extends CMSServlet {
         mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
         mAuthName = ((KeyRecoveryAuthority) mAuthority).getX500Name();
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
 
@@ -172,7 +171,7 @@ public class SrchKeyForRecovery extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -181,11 +180,11 @@ public class SrchKeyForRecovery extends CMSServlet {
             mAuthz.checkRealm(realm, authToken, null, mAuthzResourceName, "list");
         } catch (EAuthzAccessDenied | EAuthzUnknownRealm e) {
             logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         } catch (EBaseException e) {
             logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
-            cmsReq.setStatus(ICMSRequest.EXCEPTION);
+            cmsReq.setStatus(CMSRequest.EXCEPTION);
             return;
         }
 
@@ -250,10 +249,10 @@ public class SrchKeyForRecovery extends CMSServlet {
                     ServletOutputStream out = resp.getOutputStream();
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
-                    cmsReq.setStatus(ICMSRequest.SUCCESS);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             } else {
-                cmsReq.setStatus(ICMSRequest.ERROR);
+                cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
         } catch (IOException e) {

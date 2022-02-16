@@ -40,7 +40,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
@@ -99,7 +98,7 @@ public class DoUnrevokeTPS extends CMSServlet {
         mPublisherProcessor = engine.getPublisherProcessor();
         mQueue = engine.getRequestQueue();
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         mRenderResult = false;
     }
 
@@ -162,7 +161,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             }
 
             if (authzToken == null) {
-                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+                cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
                 o_status = "status=3";
                 errorString = "error=unauthorized";
                 String pp = o_status + "&" + errorString;

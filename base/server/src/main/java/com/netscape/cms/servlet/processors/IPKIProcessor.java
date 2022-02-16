@@ -18,7 +18,7 @@
 package com.netscape.cms.servlet.processors;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.cms.servlet.common.CMSRequest;
 
 /**
  * This represents the request parser.
@@ -27,7 +27,7 @@ import com.netscape.certsrv.common.ICMSRequest;
  */
 public interface IPKIProcessor {
 
-    public void process(ICMSRequest cmsReq)
+    public void process(CMSRequest cmsReq)
             throws EBaseException;
 
 }

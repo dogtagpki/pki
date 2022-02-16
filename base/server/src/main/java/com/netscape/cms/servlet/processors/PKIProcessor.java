@@ -34,13 +34,13 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 
@@ -61,7 +61,7 @@ public class PKIProcessor implements IPKIProcessor {
     public static final String PKCS10_REQUEST = "pkcs10Request";
     public static final String SUBJECT_KEYGEN_INFO = "subjectKeyGenInfo";
 
-    protected ICMSRequest mRequest = null;
+    protected CMSRequest mRequest = null;
 
     protected HttpServletRequest httpReq = null;
     protected String mServletId = null;
@@ -70,7 +70,7 @@ public class PKIProcessor implements IPKIProcessor {
     public PKIProcessor() {
     }
 
-    public PKIProcessor(ICMSRequest cmsReq, CMSServlet servlet) {
+    public PKIProcessor(CMSRequest cmsReq, CMSServlet servlet) {
         mRequest = cmsReq;
 
         mServlet = servlet;
@@ -84,7 +84,7 @@ public class PKIProcessor implements IPKIProcessor {
     }
 
     @Override
-    public void process(ICMSRequest cmsReq)
+    public void process(CMSRequest cmsReq)
             throws EBaseException {
     }
 

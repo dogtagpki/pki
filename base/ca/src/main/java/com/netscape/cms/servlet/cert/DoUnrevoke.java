@@ -40,7 +40,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -98,7 +97,7 @@ public class DoUnrevoke extends CMSServlet {
         }
         mPublisherProcessor = engine.getPublisherProcessor();
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
     }
@@ -168,7 +167,7 @@ public class DoUnrevoke extends CMSServlet {
             }
 
             if (authzToken == null) {
-                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+                cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
                 return;
             }
 
@@ -192,10 +191,10 @@ public class DoUnrevoke extends CMSServlet {
                 } else {
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
-                    cmsReq.setStatus(ICMSRequest.SUCCESS);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             } else {
-                cmsReq.setStatus(ICMSRequest.ERROR);
+                cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
 

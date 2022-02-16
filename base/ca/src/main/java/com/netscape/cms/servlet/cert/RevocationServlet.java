@@ -42,7 +42,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -99,7 +98,7 @@ public class RevocationServlet extends CMSServlet {
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         // override success template. has same info as enrollment.
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
 
         mFormPath = "/" + TPL_FILE;
         try {
@@ -182,7 +181,7 @@ public class RevocationServlet extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -290,7 +289,7 @@ public class RevocationServlet extends CMSServlet {
 
             httpResp.setContentType("text/html");
             form.renderOutput(out, argSet);
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()), e);
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);

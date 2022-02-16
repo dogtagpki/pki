@@ -49,7 +49,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -105,7 +104,7 @@ public class SrchCerts extends CMSServlet {
         CAEngine engine = CAEngine.getInstance();
 
         // override success to render own template.
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
 
         ISubsystem sub = mAuthority;
         IConfigStore authConfig = sub.getConfigStore();
@@ -510,7 +509,7 @@ public class SrchCerts extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -568,12 +567,12 @@ public class SrchCerts extends CMSServlet {
                 if (xmlOutput != null && xmlOutput.equals("true")) {
                     outputXML(resp, argSet);
                 } else {
-                    cmsReq.setStatus(ICMSRequest.SUCCESS);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
                 }
             } else {
-                cmsReq.setStatus(ICMSRequest.ERROR);
+                cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
 

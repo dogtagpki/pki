@@ -33,7 +33,6 @@ import org.dogtagpki.server.kra.KRAEngine;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.authentication.AuthSubsystem;
@@ -351,7 +350,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
                 logger.warn("TokenKeyRecoveryServlet: " + e.getMessage(), e);
             }
 
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 

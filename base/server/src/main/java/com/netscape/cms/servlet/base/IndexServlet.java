@@ -25,7 +25,6 @@ import javax.servlet.ServletException;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
@@ -65,7 +64,7 @@ public class IndexServlet extends CMSServlet {
          PROP_SUCCESS_TEMPLATE, PROP_SUCCESS_TEMPLATE_FILLER,
          mTemplateName, new IndexTemplateFiller()));
          */
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
     }
 
     @Override
@@ -105,6 +104,6 @@ public class IndexServlet extends CMSServlet {
                 throw new ECMSGWException(CMS.getLogMessage("CMSG_ERROR_DISPLAY_TEMPLATE"), e);
             }
         }
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
+        cmsReq.setStatus(CMSRequest.SUCCESS);
     }
 }

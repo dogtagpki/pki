@@ -44,7 +44,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -102,7 +101,7 @@ public class GetBySerial extends CMSServlet {
 
         // override success and error templates to null -
         // handle templates locally.
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
 
         CAEngine engine = CAEngine.getInstance();
         mReqQ = engine.getRequestQueue();
@@ -138,7 +137,7 @@ public class GetBySerial extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -157,7 +156,7 @@ public class GetBySerial extends CMSServlet {
         if (serial == null || serialNo == null) {
             logger.warn(CMS.getLogMessage("CMSGW_INVALID_SERIAL_NUMBER"));
             cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_SERIAL_NUMBER")));
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
 
@@ -165,7 +164,7 @@ public class GetBySerial extends CMSServlet {
         if (certRecord == null) {
             logger.warn(CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", serialNo.toString(16)));
             cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_CERT_SERIAL_NOT_FOUND", "0x" + serialNo.toString(16))));
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
 
@@ -196,7 +195,7 @@ public class GetBySerial extends CMSServlet {
                     if (groupMatched == false) {
                         logger.warn(CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", serialNo.toString(16)));
                         cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_CERT_SERIAL_NOT_FOUND", "0x" + serialNo.toString(16))));
-                        cmsReq.setStatus(ICMSRequest.ERROR);
+                        cmsReq.setStatus(CMSRequest.ERROR);
                         return;
                     }
                 }
@@ -240,7 +239,7 @@ public class GetBySerial extends CMSServlet {
                 try {
                     CMSTemplate form = getTemplate(mIETemplate, req, locale);
                     ServletOutputStream out = response.getOutputStream();
-                    cmsReq.setStatus(ICMSRequest.SUCCESS);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                     response.setContentType("text/html");
                     form.renderOutput(out, argSet);
                     return;
@@ -260,7 +259,7 @@ public class GetBySerial extends CMSServlet {
 
             if (crmfReqId == null && checkImportCertToNav(
                     cmsReq.getHttpResp(), cmsReq.getHttpParams(), cert)) {
-                cmsReq.setStatus(ICMSRequest.SUCCESS);
+                cmsReq.setStatus(CMSRequest.SUCCESS);
                 return;
             }
 
@@ -269,7 +268,7 @@ public class GetBySerial extends CMSServlet {
 
             cmsReq.setResult(certs);
 
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
 
             // XXX follow request in cert record to set certtype, which will
             // import cert only if it's client. For now assume "client" if

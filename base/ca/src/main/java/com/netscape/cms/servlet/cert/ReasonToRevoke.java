@@ -40,7 +40,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -99,7 +98,7 @@ public class ReasonToRevoke extends CMSServlet {
             mRandom = jssSubsystem.getRandomNumberGenerator();
         }
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
 
@@ -145,7 +144,7 @@ public class ReasonToRevoke extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -206,10 +205,10 @@ public class ReasonToRevoke extends CMSServlet {
                 } else {
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
-                    cmsReq.setStatus(ICMSRequest.SUCCESS);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             } else {
-                cmsReq.setStatus(ICMSRequest.ERROR);
+                cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
         } catch (IOException e) {

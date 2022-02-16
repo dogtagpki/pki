@@ -46,7 +46,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -102,7 +101,7 @@ public class ListCerts extends CMSServlet {
         CAEngine engine = CAEngine.getInstance();
 
         // override success to render own template.
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
 
         if (mAuthority instanceof ICertificateAuthority) {
             ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
@@ -214,7 +213,7 @@ public class ListCerts extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -293,7 +292,7 @@ public class ListCerts extends CMSServlet {
             String queryCertFilter = buildFilter(req);
 
             if (queryCertFilter == null) {
-                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+                cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
                 return;
             }
 
@@ -332,12 +331,12 @@ public class ListCerts extends CMSServlet {
                 if (xmlOutput != null && xmlOutput.equals("true")) {
                     outputXML(resp, argSet);
                 } else {
-                    cmsReq.setStatus(ICMSRequest.SUCCESS);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
                 }
             } else {
-                cmsReq.setStatus(ICMSRequest.ERROR);
+                cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
         } catch (IOException e) {

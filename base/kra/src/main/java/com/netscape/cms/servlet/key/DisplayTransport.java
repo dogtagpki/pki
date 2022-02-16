@@ -27,7 +27,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -62,7 +61,7 @@ public class DisplayTransport extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
     }
 
     /**
@@ -95,7 +94,7 @@ public class DisplayTransport extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -122,6 +121,6 @@ public class DisplayTransport extends CMSServlet {
             logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
+        cmsReq.setStatus(CMSRequest.SUCCESS);
     }
 }

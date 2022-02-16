@@ -36,7 +36,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -93,7 +92,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
         mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
         mService = (IKeyService) mAuthority;
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
     }
 
     /**
@@ -133,7 +132,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -167,7 +166,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
 
         } catch (EAuthzException e) {
             logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
 
         } catch (NumberFormatException e) {
@@ -188,7 +187,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
+        cmsReq.setStatus(CMSRequest.SUCCESS);
     }
 
     /**

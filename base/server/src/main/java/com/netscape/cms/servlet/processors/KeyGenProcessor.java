@@ -29,8 +29,8 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.KeyGenInfo;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
@@ -49,13 +49,13 @@ public class KeyGenProcessor extends PKIProcessor {
         super();
     }
 
-    public KeyGenProcessor(ICMSRequest cmsReq, CMSServlet servlet) {
+    public KeyGenProcessor(CMSRequest cmsReq, CMSServlet servlet) {
         super(cmsReq, servlet);
 
     }
 
     @Override
-    public void process(ICMSRequest cmsReq)
+    public void process(CMSRequest cmsReq)
             throws EBaseException {
     }
 

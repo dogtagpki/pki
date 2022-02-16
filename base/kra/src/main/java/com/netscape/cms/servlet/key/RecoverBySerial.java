@@ -41,7 +41,6 @@ import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -109,7 +108,7 @@ public class RecoverBySerial extends CMSServlet {
         mService = (com.netscape.certsrv.kra.IKeyService) mAuthority;
         repo = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
     }
@@ -154,7 +153,7 @@ public class RecoverBySerial extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -169,7 +168,7 @@ public class RecoverBySerial extends CMSServlet {
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
+        cmsReq.setStatus(CMSRequest.SUCCESS);
         ArgBlock header = new ArgBlock();
         ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
@@ -205,7 +204,7 @@ public class RecoverBySerial extends CMSServlet {
                         mAuthzResourceName, "recover");
             } catch (EAuthzException e) {
                 logger.warn("RecoverBySerial: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
-                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+                cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
                 return;
             }
 
@@ -278,7 +277,7 @@ public class RecoverBySerial extends CMSServlet {
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
+        cmsReq.setStatus(CMSRequest.SUCCESS);
     }
 
     /**

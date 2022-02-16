@@ -47,7 +47,6 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
@@ -119,7 +118,7 @@ public class CMCRevReqServlet extends CMSServlet {
 
         mFormPath = "/" + authorityId + "/" + TPL_FILE;
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         if (mAuthority instanceof ICertificateAuthority) {
             mCertDB = engine.getCertificateRepository();
         }
@@ -183,7 +182,7 @@ public class CMCRevReqServlet extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -273,7 +272,7 @@ public class CMCRevReqServlet extends CMSServlet {
             ServletOutputStream out = resp.getOutputStream();
 
             if ((serialNoArray == null) || (serialNoArray.length == 0)) {
-                cmsReq.setStatus(ICMSRequest.ERROR);
+                cmsReq.setStatus(CMSRequest.ERROR);
                 EBaseException ee = new EBaseException("No matched certificate is found");
 
                 cmsReq.setError(ee);
@@ -284,7 +283,7 @@ public class CMCRevReqServlet extends CMSServlet {
                 } else {
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
-                    cmsReq.setStatus(ICMSRequest.SUCCESS);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             }
         } catch (IOException e) {

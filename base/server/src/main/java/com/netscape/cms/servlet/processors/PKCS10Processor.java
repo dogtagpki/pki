@@ -39,8 +39,8 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
@@ -65,13 +65,13 @@ public class PKCS10Processor extends PKIProcessor {
         super();
     }
 
-    public PKCS10Processor(ICMSRequest cmsReq, CMSServlet servlet) {
+    public PKCS10Processor(CMSRequest cmsReq, CMSServlet servlet) {
         super(cmsReq, servlet);
 
     }
 
     @Override
-    public void process(ICMSRequest cmsReq)
+    public void process(CMSRequest cmsReq)
             throws EBaseException {
     }
 

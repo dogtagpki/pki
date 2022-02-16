@@ -33,7 +33,6 @@ import org.dogtagpki.server.authorization.AuthzToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.certsrv.util.StatsEvent;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -77,7 +76,7 @@ public class GetStats extends CMSServlet {
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
     }
 
     /**
@@ -105,7 +104,7 @@ public class GetStats extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -118,7 +117,7 @@ public class GetStats extends CMSServlet {
             logger.warn(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
 
@@ -143,14 +142,14 @@ public class GetStats extends CMSServlet {
 
             httpResp.setContentType("text/html");
             form.renderOutput(out, argSet);
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
             logger.warn(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
         }
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
+        cmsReq.setStatus(CMSRequest.SUCCESS);
         return;
     }
 

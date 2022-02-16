@@ -30,7 +30,6 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -94,7 +93,7 @@ public class CloneRedirect extends CMSServlet {
             mCA = (ICertificateAuthority) mAuthority;
 
         // override success to do output with our own template.
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
     }
 
     /**
@@ -130,7 +129,7 @@ public class CloneRedirect extends CMSServlet {
             } else {
                 resp.setContentType("text/html");
                 form.renderOutput(out, argSet);
-                cmsReq.setStatus(ICMSRequest.SUCCESS);
+                cmsReq.setStatus(CMSRequest.SUCCESS);
             }
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()), e);

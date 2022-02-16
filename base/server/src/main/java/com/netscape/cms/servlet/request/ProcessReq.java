@@ -34,7 +34,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -90,8 +89,8 @@ public class ProcessReq extends CMSServlet {
 
         // override success and error templates to null -
         // handle templates locally.
-        mTemplates.remove(ICMSRequest.SUCCESS);
-        mTemplates.remove(ICMSRequest.ERROR);
+        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.ERROR);
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
     }
@@ -161,7 +160,7 @@ public class ProcessReq extends CMSServlet {
                 }
 
                 if (authzToken == null) {
-                    cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+                    cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
                     return;
                 }
 
@@ -187,11 +186,11 @@ public class ProcessReq extends CMSServlet {
                 } else {
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
-                    cmsReq.setStatus(ICMSRequest.SUCCESS);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             } else {
                 cmsReq.setError(error);
-                cmsReq.setStatus(ICMSRequest.ERROR);
+                cmsReq.setStatus(CMSRequest.ERROR);
             }
         } catch (IOException e) {
             logger.error("ProcessReq: Error getting servlet output stream for rendering template: " + e.getMessage(), e);

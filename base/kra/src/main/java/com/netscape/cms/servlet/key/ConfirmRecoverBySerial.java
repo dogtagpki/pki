@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -88,7 +87,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
         mRecoveryService = (IKeyService) mAuthority;
         mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
     }
 
     /**
@@ -158,7 +157,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
             logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
+        cmsReq.setStatus(CMSRequest.SUCCESS);
     }
 
     /**

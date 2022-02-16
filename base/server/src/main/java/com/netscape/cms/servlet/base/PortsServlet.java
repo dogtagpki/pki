@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -50,8 +49,8 @@ public class PortsServlet extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override these to output directly ourselves.
-        mTemplates.remove(ICMSRequest.SUCCESS);
-        mTemplates.remove(ICMSRequest.ERROR);
+        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.ERROR);
     }
 
     /**

@@ -63,9 +63,9 @@ import org.mozilla.jss.pkix.primitive.Name;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -86,7 +86,7 @@ public class CMCProcessor extends PKIProcessor {
         super();
     }
 
-    public CMCProcessor(ICMSRequest cmsReq, CMSServlet servlet, boolean doEnforcePop) {
+    public CMCProcessor(CMSRequest cmsReq, CMSServlet servlet, boolean doEnforcePop) {
 
         super(cmsReq, servlet);
         enforcePop = doEnforcePop;
@@ -94,7 +94,7 @@ public class CMCProcessor extends PKIProcessor {
     }
 
     @Override
-    public void process(ICMSRequest cmsReq)
+    public void process(CMSRequest cmsReq)
             throws EBaseException {
     }
 

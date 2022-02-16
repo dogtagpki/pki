@@ -47,7 +47,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
@@ -116,7 +115,7 @@ public class DoRevokeTPS extends CMSServlet {
         mPublisherProcessor = engine.getPublisherProcessor();
         mQueue = engine.getRequestQueue();
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
         mRenderResult = false;
@@ -223,7 +222,7 @@ public class DoRevokeTPS extends CMSServlet {
             }
 
             if (authzToken == null) {
-                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+                cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
                 return;
             }
 

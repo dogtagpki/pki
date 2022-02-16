@@ -26,7 +26,6 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
@@ -54,7 +53,7 @@ public class DisplayHtmlServlet extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mHTMLPath = sc.getInitParameter(PROP_HTML_PATH);
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
     }
 
     /**

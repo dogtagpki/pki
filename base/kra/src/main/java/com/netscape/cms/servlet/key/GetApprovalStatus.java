@@ -35,7 +35,6 @@ import org.dogtagpki.server.authorization.AuthzToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -87,7 +86,7 @@ public class GetApprovalStatus extends CMSServlet {
         // mFormPath = "/"+authority.getId()+"/"+TPL_FILE;
         mService = (com.netscape.certsrv.kra.IKeyService) mAuthority;
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
     }
 
     /**
@@ -124,14 +123,14 @@ public class GetApprovalStatus extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
+        cmsReq.setStatus(CMSRequest.SUCCESS);
         ArgBlock header = new ArgBlock();
         ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
@@ -227,6 +226,6 @@ public class GetApprovalStatus extends CMSServlet {
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
+        cmsReq.setStatus(CMSRequest.SUCCESS);
     }
 }

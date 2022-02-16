@@ -35,7 +35,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -85,7 +84,7 @@ public class SearchReqs extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override success to render own template.
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
 
         CMSEngine engine = CMS.getCMSEngine();
         ISubsystem sub = mAuthority;
@@ -119,8 +118,8 @@ public class SearchReqs extends CMSServlet {
 
         // override success and error templates to null -
         // handle templates locally.
-        mTemplates.remove(ICMSRequest.SUCCESS);
-        mTemplates.remove(ICMSRequest.ERROR);
+        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.ERROR);
 
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
@@ -153,7 +152,7 @@ public class SearchReqs extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -204,12 +203,12 @@ public class SearchReqs extends CMSServlet {
                 if (xmlOutput != null && xmlOutput.equals("true")) {
                     outputXML(resp, argSet);
                 } else {
-                    cmsReq.setStatus(ICMSRequest.SUCCESS);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
                 }
             } else {
-                cmsReq.setStatus(ICMSRequest.ERROR);
+                cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
 

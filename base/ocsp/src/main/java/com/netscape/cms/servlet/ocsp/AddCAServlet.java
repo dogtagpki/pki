@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.OCSPAddCARequestEvent;
@@ -81,7 +80,7 @@ public class AddCAServlet extends CMSServlet {
         // override success to display own output.
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         mOCSPAuthority = (OCSPAuthority) mAuthority;
 
         if (mOutputTemplatePath != null)
@@ -122,7 +121,7 @@ public class AddCAServlet extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -264,7 +263,7 @@ public class AddCAServlet extends CMSServlet {
             } else {
                 resp.setContentType("text/html");
                 form.renderOutput(out, argSet);
-                cmsReq.setStatus(ICMSRequest.SUCCESS);
+                cmsReq.setStatus(CMSRequest.SUCCESS);
             }
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);

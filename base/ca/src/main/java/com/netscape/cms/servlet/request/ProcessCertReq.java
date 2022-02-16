@@ -62,7 +62,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -218,7 +217,7 @@ public class ProcessCertReq extends CMSServlet {
 
             // override success and error templates to null -
             // handle templates locally.
-            mTemplates.remove(ICMSRequest.SUCCESS);
+            mTemplates.remove(CMSRequest.SUCCESS);
 
             try {
                 mReqCompletedTemplate = sc.getInitParameter(
@@ -339,10 +338,10 @@ public class ProcessCertReq extends CMSServlet {
                 } else {
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
-                    cmsReq.setStatus(ICMSRequest.SUCCESS);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             } else {
-                cmsReq.setStatus(ICMSRequest.ERROR);
+                cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
 
@@ -446,7 +445,7 @@ public class ProcessCertReq extends CMSServlet {
                 }
 
                 if (authzToken == null) {
-                    cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+                    cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
 
                     // store a message in the signed audit log file
                     if (toDo.equals(SIGNED_AUDIT_CLONING)) {
@@ -782,7 +781,7 @@ public class ProcessCertReq extends CMSServlet {
 
                     if (r.getRequestStatus().equals(RequestStatus.PENDING)) {
                         cmsReq.setResult(r);
-                        cmsReq.setStatus(ICMSRequest.PENDING);
+                        cmsReq.setStatus(CMSRequest.PENDING);
                         if (certInfo != null) {
                             for (int i = 0; i < certInfo.length; i++) {
                                 logger.info(
@@ -824,7 +823,7 @@ public class ProcessCertReq extends CMSServlet {
                             r.getRequestStatus().equals(
                                     RequestStatus.SVC_PENDING)) {
                         cmsReq.setResult(r);
-                        cmsReq.setStatus(ICMSRequest.SVC_PENDING);
+                        cmsReq.setStatus(CMSRequest.SVC_PENDING);
                         if (certInfo != null) {
                             for (int i = 0; i < certInfo.length; i++) {
                                 logger.info(
@@ -863,7 +862,7 @@ public class ProcessCertReq extends CMSServlet {
                         }
                     } else if (r.getRequestStatus().equals(
                             RequestStatus.COMPLETE)) {
-                        cmsReq.setStatus(ICMSRequest.SUCCESS);
+                        cmsReq.setStatus(CMSRequest.SUCCESS);
 
                         // XXX make the repeat record.
                         // Get the certificate(s) from the request

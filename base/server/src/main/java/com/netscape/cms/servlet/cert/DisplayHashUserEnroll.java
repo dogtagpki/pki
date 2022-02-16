@@ -30,7 +30,6 @@ import org.dogtagpki.server.authorization.AuthzToken;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -75,7 +74,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
         } catch (Exception e) {
         }
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
     }
 
     @Override
@@ -106,7 +105,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -114,7 +113,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
 
         logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE"));
         cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
-        cmsReq.setStatus(ICMSRequest.ERROR);
+        cmsReq.setStatus(CMSRequest.ERROR);
     }
 
     private void printError(CMSRequest cmsReq, String errorCode)
@@ -125,7 +124,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
         ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         header.addStringValue("authority", "Registration Manager");
         header.addStringValue("errorCode", errorCode);
         String formPath = TPL_ERROR_FILE;
@@ -138,7 +137,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", formPath, e.toString()), e);
             cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e));
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
 
@@ -147,11 +146,11 @@ public class DisplayHashUserEnroll extends CMSServlet {
 
             httpResp.setContentType("text/html");
             form.renderOutput(out, argSet);
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()), e);
             cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e));
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
         }
     }
 }

@@ -30,7 +30,6 @@ import org.dogtagpki.server.authorization.AuthzToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
@@ -68,7 +67,7 @@ public class EnableEnrollResult extends CMSServlet {
         // coming from agent
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
 
         CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
@@ -102,7 +101,7 @@ public class EnableEnrollResult extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -116,7 +115,7 @@ public class EnableEnrollResult extends CMSServlet {
 
         logger.error(CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
         cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
-        cmsReq.setStatus(ICMSRequest.ERROR);
+        cmsReq.setStatus(CMSRequest.ERROR);
     }
 
 }

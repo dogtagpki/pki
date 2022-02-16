@@ -45,7 +45,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -97,7 +96,7 @@ public class RenewalServlet extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override success template. has same info as enrollment.
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         try {
             mRenewalSuccessTemplate = sc.getInitParameter(
                         PROP_SUCCESS_TEMPLATE);
@@ -158,7 +157,7 @@ public class RenewalServlet extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -328,7 +327,7 @@ public class RenewalServlet extends CMSServlet {
         if (result.equals(Request.RES_ERROR)) {
             logger.debug("RenewalServlet: Result for request " + req.getRequestId() + " is error.");
 
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
             cmsReq.setError(req.getExtDataInString(Request.ERROR));
             String[] svcErrors =
                     req.getExtDataInStringArray(Request.SVCERRORS);
@@ -386,7 +385,7 @@ public class RenewalServlet extends CMSServlet {
             throws EBaseException {
         cmsReq.setResult(new X509CertImpl[] { renewed_cert }
                 );
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
+        cmsReq.setStatus(CMSRequest.SUCCESS);
 
         // check if cert should be imported.
         // browser must have input type set to nav or cartman since

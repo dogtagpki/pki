@@ -57,12 +57,12 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.realm.PKIRealm;
+import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cms.tomcat.ProxyRealm;
 import com.netscape.cmscore.authentication.AuthSubsystem;
@@ -1231,7 +1231,7 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void terminateRequests() {
-        Enumeration<ICMSRequest> e = CommandQueue.mCommandQueue.keys();
+        Enumeration<CMSRequest> e = CommandQueue.mCommandQueue.keys();
 
         while (e.hasMoreElements()) {
             Object thisRequest = e.nextElement();

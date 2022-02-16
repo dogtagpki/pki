@@ -43,7 +43,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -217,7 +216,7 @@ public class CloneServlet extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsRequest.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsRequest.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 

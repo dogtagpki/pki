@@ -22,14 +22,14 @@ import java.util.Hashtable;
 
 import javax.servlet.Servlet;
 
-import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.cms.servlet.common.CMSRequest;
 
 /**
  * Command queue for registration and unregistration process for clean shutdown.
  */
 public class CommandQueue implements Runnable {
 
-    public static Hashtable<ICMSRequest, Servlet> mCommandQueue = new Hashtable<>();
+    public static Hashtable<CMSRequest, Servlet> mCommandQueue = new Hashtable<>();
     public static boolean mShuttingDown = false;
 
     public CommandQueue() {
@@ -61,7 +61,7 @@ public class CommandQueue implements Runnable {
      * @param currentRequest request object
      * @param currentServlet servlet that serves the request object
      */
-    public boolean registerProcess(ICMSRequest currentRequest, Servlet currentServlet) {
+    public boolean registerProcess(CMSRequest currentRequest, Servlet currentServlet) {
         if (mShuttingDown == false) {
             if ((currentServlet instanceof com.netscape.cms.servlet.base.CMSStartServlet) == false)
                 mCommandQueue.put(currentRequest, currentServlet);
@@ -78,7 +78,7 @@ public class CommandQueue implements Runnable {
      * @param currentServlet servlet that serves the request object
      */
     public void unRegisterProccess(Object currentRequest, Object currentServlet) {
-        Enumeration<ICMSRequest> e = mCommandQueue.keys();
+        Enumeration<CMSRequest> e = mCommandQueue.keys();
 
         while (e.hasMoreElements()) {
             Object thisRequest = e.nextElement();

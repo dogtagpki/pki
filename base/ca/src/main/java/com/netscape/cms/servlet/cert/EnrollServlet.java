@@ -55,7 +55,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.KeyGenInfo;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -247,7 +246,7 @@ public class EnrollServlet extends CMSServlet {
             }
 
             // override success template to allow direct import of keygen certs.
-            mTemplates.remove(ICMSRequest.SUCCESS);
+            mTemplates.remove(CMSRequest.SUCCESS);
 
             try {
                 // determine the service ID for signed audit log messages
@@ -623,7 +622,7 @@ public class EnrollServlet extends CMSServlet {
 
         if (result.equals(Request.RES_ERROR)) {
 
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
             cmsReq.setError(req.getExtDataInString(Request.ERROR));
             String[] svcErrors =
                     req.getExtDataInStringArray(Request.SVCERRORS);
@@ -737,7 +736,7 @@ public class EnrollServlet extends CMSServlet {
             }
 
             if (authzToken == null) {
-                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+                cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
 
                 // store a message in the signed audit log file
                 // (either an "admin" cert request for an admin certificate,
@@ -1333,7 +1332,7 @@ public class EnrollServlet extends CMSServlet {
             if (httpParams.getValueAsString(OLD_CERT_TYPE, null) != null) {
                 try {
                     renderServerEnrollResult(cmsReq);
-                    cmsReq.setStatus(ICMSRequest.SUCCESS); // no default render
+                    cmsReq.setStatus(CMSRequest.SUCCESS); // no default render
 
                     issuedCerts =
                             cmsReq.getRequest().getExtDataInCertArray(
@@ -1349,7 +1348,7 @@ public class EnrollServlet extends CMSServlet {
                                     issuedCerts[i]));
                     }
                 } catch (Exception ex) {
-                    cmsReq.setStatus(ICMSRequest.ERROR);
+                    cmsReq.setStatus(CMSRequest.ERROR);
 
                     // (automated "agent" cert request processed - "rejected")
                     audit(CertRequestProcessedEvent.createFailureEvent(
@@ -1378,7 +1377,7 @@ public class EnrollServlet extends CMSServlet {
             }
 
             // service success
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
             issuedCerts = req.getExtDataInCertArray(Request.ISSUED_CERTS);
 
             String initiative = null;
@@ -1414,7 +1413,7 @@ public class EnrollServlet extends CMSServlet {
             // return cert as mime type binary if requested.
             if (checkImportCertToNav(cmsReq.getHttpResp(),
                     httpParams, issuedCerts[0])) {
-                cmsReq.setStatus(ICMSRequest.SUCCESS);
+                cmsReq.setStatus(CMSRequest.SUCCESS);
 
                 for (int i = 0; i < issuedCerts.length; i++) {
                     // (automated "agent" cert request processed - "accepted")
@@ -1433,7 +1432,7 @@ public class EnrollServlet extends CMSServlet {
                 cmsReq.setResult(issuedCerts);
                 renderTemplate(cmsReq, mEnrollSuccessTemplate,
                         mEnrollSuccessFiller);
-                cmsReq.setStatus(ICMSRequest.SUCCESS);
+                cmsReq.setStatus(CMSRequest.SUCCESS);
 
                 for (int i = 0; i < issuedCerts.length; i++) {
                     // (automated "agent" cert request processed - "accepted")

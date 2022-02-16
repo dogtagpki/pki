@@ -33,7 +33,6 @@ import org.dogtagpki.server.kra.KRAEngine;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
@@ -334,7 +333,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
                 logger.warn("GenerateKeyPairServlet: " + e.getMessage(), e);
             }
 
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 

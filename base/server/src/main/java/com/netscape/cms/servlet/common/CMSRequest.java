@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
@@ -38,9 +37,18 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class CMSRequest implements ICMSRequest {
+public class CMSRequest {
 
     private static final String RESULT = "cmsRequestResult";
+
+    // statuses. the first two are out of band.
+    public static final Integer UNAUTHORIZED = Integer.valueOf(1);
+    public static final Integer SUCCESS = Integer.valueOf(2);
+    public static final Integer PENDING = Integer.valueOf(3);
+    public static final Integer SVC_PENDING = Integer.valueOf(4);
+    public static final Integer REJECTED = Integer.valueOf(5);
+    public static final Integer ERROR = Integer.valueOf(6);
+    public static final Integer EXCEPTION = Integer.valueOf(7); // unexpected error.
 
     // Reason message for request failure
     private String reason = null;
@@ -64,7 +72,7 @@ public class CMSRequest implements ICMSRequest {
     private Request mRequest = null;
 
     // whether request processed successfully
-    private Integer mStatus = SUCCESS;
+    private Integer mStatus = CMSRequest.SUCCESS;
 
     // exception message containing error that occured.
     // note exception could also be thrown seperately.
@@ -141,13 +149,13 @@ public class CMSRequest implements ICMSRequest {
      * @throws IllegalArgumentException if status is not one of the above values
      */
     public void setStatus(Integer status) {
-        if (!status.equals(UNAUTHORIZED) &&
-                !status.equals(SUCCESS) &&
-                !status.equals(REJECTED) &&
-                !status.equals(PENDING) &&
-                !status.equals(ERROR) &&
-                !status.equals(SVC_PENDING) &&
-                !status.equals(EXCEPTION)) {
+        if (!status.equals(CMSRequest.UNAUTHORIZED) &&
+                !status.equals(CMSRequest.SUCCESS) &&
+                !status.equals(CMSRequest.REJECTED) &&
+                !status.equals(CMSRequest.PENDING) &&
+                !status.equals(CMSRequest.ERROR) &&
+                !status.equals(CMSRequest.SVC_PENDING) &&
+                !status.equals(CMSRequest.EXCEPTION)) {
             throw new IllegalArgumentException(CMS.getLogMessage("CMSGW_BAD_REQ_STATUS"));
         }
         mStatus = status;
@@ -267,19 +275,19 @@ public class CMSRequest implements ICMSRequest {
 
         // completed equivalent to success by default.
         if (status == RequestStatus.COMPLETE) {
-            mStatus = ICMSRequest.SUCCESS;
+            mStatus = CMSRequest.SUCCESS;
             return;
         }
         // unexpected resulting request status.
         if (status == RequestStatus.REJECTED) {
-            mStatus = ICMSRequest.REJECTED;
+            mStatus = CMSRequest.REJECTED;
             return;
         } // pending or service pending.
         else if (status == RequestStatus.PENDING) {
-            mStatus = ICMSRequest.PENDING;
+            mStatus = CMSRequest.PENDING;
             return;
         } else if (status == RequestStatus.SVC_PENDING) {
-            mStatus = ICMSRequest.SVC_PENDING;
+            mStatus = CMSRequest.SVC_PENDING;
             return;
         } else {
             RequestId reqId = mRequest.getRequestId();

@@ -49,7 +49,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.EErrorPublishCRL;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.event.ScheduleCRLGenerationEvent;
@@ -97,7 +96,7 @@ public class UpdateCRL extends CMSServlet {
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
         // override success to do output orw own template.
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
     }
@@ -137,7 +136,7 @@ public class UpdateCRL extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             if (statsSub != null) {
                 statsSub.endTiming("crl");
             }
@@ -183,10 +182,10 @@ public class UpdateCRL extends CMSServlet {
                 } else {
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
-                    cmsReq.setStatus(ICMSRequest.SUCCESS);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             } else {
-                cmsReq.setStatus(ICMSRequest.ERROR);
+                cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
         } catch (IOException e) {

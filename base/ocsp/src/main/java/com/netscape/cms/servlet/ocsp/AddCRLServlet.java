@@ -43,7 +43,6 @@ import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -95,7 +94,7 @@ public class AddCRLServlet extends CMSServlet {
         // override success to display own output.
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         mOCSPAuthority = (OCSPAuthority) mAuthority;
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
@@ -152,7 +151,7 @@ public class AddCRLServlet extends CMSServlet {
             }
 
             if (authzToken == null) {
-                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+                cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -417,7 +416,7 @@ public class AddCRLServlet extends CMSServlet {
                         resp.getOutputStream().write(
                                 "error=Sent CRL is older than the current CRL\n".getBytes());
                         resp.getOutputStream().flush();
-                        cmsReq.setStatus(ICMSRequest.SUCCESS);
+                        cmsReq.setStatus(CMSRequest.SUCCESS);
 
                         // NOTE:  The signed audit events
                         //        LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL and
@@ -451,7 +450,7 @@ public class AddCRLServlet extends CMSServlet {
                         resp.getOutputStream().write(
                                 "error=Delta CRLs are not supported.\n".getBytes());
                         resp.getOutputStream().flush();
-                        cmsReq.setStatus(ICMSRequest.SUCCESS);
+                        cmsReq.setStatus(CMSRequest.SUCCESS);
 
                         return;
                     } catch (Exception e) {
@@ -502,7 +501,7 @@ public class AddCRLServlet extends CMSServlet {
                     resp.setContentType("application/text");
                     resp.getOutputStream().write("status=0".getBytes());
                     resp.getOutputStream().flush();
-                    cmsReq.setStatus(ICMSRequest.SUCCESS);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 } else {
                     logger.debug("AddCRLServlet: return result noUI=false");
                     String xmlOutput = req.getParameter("xml");
@@ -511,7 +510,7 @@ public class AddCRLServlet extends CMSServlet {
                     } else {
                         resp.setContentType("text/html");
                         form.renderOutput(out, argSet);
-                        cmsReq.setStatus(ICMSRequest.SUCCESS);
+                        cmsReq.setStatus(CMSRequest.SUCCESS);
                     }
                 }
             } catch (IOException e) {

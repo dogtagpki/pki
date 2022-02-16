@@ -69,7 +69,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
@@ -144,7 +143,7 @@ public class HashEnrollServlet extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override success template to allow direct import of keygen certs.
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         try {
             mEnrollSuccessTemplate = sc.getInitParameter(
                     CMSServlet.PROP_SUCCESS_TEMPLATE);
@@ -188,7 +187,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         if (host == null || !host.equals(reqHost)) {
             printError(cmsReq, "0");
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
             return;
         }
 
@@ -210,7 +209,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         if (!enable) {
             printError(cmsReq, "0");
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
             return;
         }
         if (lastlogin == 0)
@@ -218,7 +217,7 @@ public class HashEnrollServlet extends CMSServlet {
         else if (diff > timeout) {
             mgr.disable(reqHost);
             printError(cmsReq, "2");
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
             return;
         }
 
@@ -244,7 +243,7 @@ public class HashEnrollServlet extends CMSServlet {
         ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         header.addStringValue("authority", "Registration Manager");
         header.addStringValue("errorCode", errorCode);
         String formPath = TPL_ERROR_FILE;
@@ -258,7 +257,7 @@ public class HashEnrollServlet extends CMSServlet {
             logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", formPath, e.toString()), e);
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
         try {
@@ -266,12 +265,12 @@ public class HashEnrollServlet extends CMSServlet {
 
             httpResp.setContentType("text/html");
             form.renderOutput(out, argSet);
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", e.toString()), e);
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
         }
     }
 
@@ -350,7 +349,7 @@ public class HashEnrollServlet extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -401,7 +400,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         if (authToken == null) {
             printError(cmsReq, "3");
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
             return;
         } else {
             authMgr =
@@ -602,9 +601,9 @@ public class HashEnrollServlet extends CMSServlet {
         if (httpParams.getValueAsString(OLD_CERT_TYPE, null) != null) {
             try {
                 renderServerEnrollResult(cmsReq);
-                cmsReq.setStatus(ICMSRequest.SUCCESS); // no default render
+                cmsReq.setStatus(CMSRequest.SUCCESS); // no default render
             } catch (Exception ex) {
-                cmsReq.setStatus(ICMSRequest.ERROR);
+                cmsReq.setStatus(CMSRequest.ERROR);
             }
             return;
         }
@@ -685,7 +684,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         if (result.equals(Request.RES_ERROR)) {
 
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
             cmsReq.setError(req.getExtDataInString(Request.ERROR));
             String[] svcErrors =
                     req.getExtDataInStringArray(Request.SVCERRORS);
@@ -724,7 +723,7 @@ public class HashEnrollServlet extends CMSServlet {
         }
 
         // service success
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
+        cmsReq.setStatus(CMSRequest.SUCCESS);
         X509CertImpl[] issuedCerts =
                 req.getExtDataInCertArray(Request.ISSUED_CERTS);
 
@@ -743,7 +742,7 @@ public class HashEnrollServlet extends CMSServlet {
         // return cert as mime type binary if requested.
         if (checkImportCertToNav(
                 cmsReq.getHttpResp(), httpParams, issuedCerts[0])) {
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
             return;
         }
 
@@ -752,7 +751,7 @@ public class HashEnrollServlet extends CMSServlet {
             cmsReq.setResult(issuedCerts);
             renderTemplate(cmsReq, mEnrollSuccessTemplate,
                     mEnrollSuccessFiller);
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
 
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("CMSGW_TEMP_REND_ERR", mEnrollSuccessFiller.toString(), e.toString()), e);

@@ -35,7 +35,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.event.OCSPGenerationEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.util.IStatsSubsystem;
@@ -122,7 +121,7 @@ public class OCSPServlet extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 

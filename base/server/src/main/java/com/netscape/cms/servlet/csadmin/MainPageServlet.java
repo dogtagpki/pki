@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -51,8 +50,8 @@ public class MainPageServlet extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mTemplates.remove(ICMSRequest.SUCCESS);
-        mTemplates.remove(ICMSRequest.ERROR);
+        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.ERROR);
     }
 
     @Override
@@ -86,7 +85,7 @@ public class MainPageServlet extends CMSServlet {
         try {
             ServletOutputStream out = response.getOutputStream();
 
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
             response.setContentType("text/html");
             form.renderOutput(out, argSet);
         } catch (IOException e) {

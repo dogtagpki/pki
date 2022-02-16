@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -71,7 +70,7 @@ public class DirAuthServlet extends CMSServlet {
         } catch (Exception e) {
         }
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
     }
 
     /**
@@ -93,7 +92,7 @@ public class DirAuthServlet extends CMSServlet {
 
         logger.error(CMS.getLogMessage("ADMIN_SRVLT_CA_FROM_RA_NOT_IMP"));
         cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_NOT_YET_IMPLEMENTED")));
-        cmsReq.setStatus(ICMSRequest.ERROR);
+        cmsReq.setStatus(CMSRequest.ERROR);
     }
 
     private void printError(CMSRequest cmsReq, String errorCode)
@@ -104,7 +103,7 @@ public class DirAuthServlet extends CMSServlet {
         ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(CMSRequest.SUCCESS);
         header.addStringValue("authority", "Registration Manager");
         header.addStringValue("errorCode", errorCode);
         String formPath = TPL_ERROR_FILE;
@@ -117,7 +116,7 @@ public class DirAuthServlet extends CMSServlet {
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", formPath, e.toString()), e);
             cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e));
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
 
@@ -126,11 +125,11 @@ public class DirAuthServlet extends CMSServlet {
 
             httpResp.setContentType("text/html");
             form.renderOutput(out, argSet);
-            cmsReq.setStatus(ICMSRequest.SUCCESS);
+            cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()), e);
             cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e));
-            cmsReq.setStatus(ICMSRequest.ERROR);
+            cmsReq.setStatus(CMSRequest.ERROR);
         }
     }
 

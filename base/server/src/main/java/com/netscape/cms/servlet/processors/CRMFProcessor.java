@@ -49,11 +49,11 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -69,7 +69,7 @@ public class CRMFProcessor extends PKIProcessor {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRMFProcessor.class);
 
     @SuppressWarnings("unused")
-    private ICMSRequest mRequest;
+    private CMSRequest mRequest;
 
     private boolean enforcePop = false;
 
@@ -77,7 +77,7 @@ public class CRMFProcessor extends PKIProcessor {
         super();
     }
 
-    public CRMFProcessor(ICMSRequest cmsReq, CMSServlet servlet, boolean doEnforcePop) {
+    public CRMFProcessor(CMSRequest cmsReq, CMSServlet servlet, boolean doEnforcePop) {
         super(cmsReq, servlet);
 
         enforcePop = doEnforcePop;
@@ -85,7 +85,7 @@ public class CRMFProcessor extends PKIProcessor {
     }
 
     @Override
-    public void process(ICMSRequest cmsReq)
+    public void process(CMSRequest cmsReq)
             throws EBaseException {
     }
 

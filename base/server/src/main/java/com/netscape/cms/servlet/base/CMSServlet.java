@@ -68,7 +68,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -490,7 +489,7 @@ public abstract class CMSServlet extends HttpServlet {
 
         try {
             if (iCommandQueue.registerProcess(cmsRequest, this) == false) {
-                cmsRequest.setStatus(ICMSRequest.ERROR);
+                cmsRequest.setStatus(CMSRequest.ERROR);
                 renderResult(cmsRequest);
                 SessionContext.releaseContext();
                 return;
@@ -702,7 +701,7 @@ public abstract class CMSServlet extends HttpServlet {
         try {
             Locale[] locale = new Locale[1];
             CMSLoadTemplate loadTempl =
-                    mTemplates.get(ICMSRequest.EXCEPTION);
+                    mTemplates.get(CMSRequest.EXCEPTION);
             CMSTemplate template = getTemplate(loadTempl.mTemplateName,
                     cmsReq.getHttpReq(), locale);
             ICMSTemplateFiller filler = loadTempl.mFiller;
@@ -712,7 +711,7 @@ public abstract class CMSServlet extends HttpServlet {
             // will leave the requestStatus value set to something other
             // than CMSRequest.EXCEPTION, so force the requestStatus to
             // EXCEPTION since it must be that if we're here.
-            cmsReq.setStatus(ICMSRequest.EXCEPTION);
+            cmsReq.setStatus(CMSRequest.EXCEPTION);
 
             if (filler != null) {
                 templateParams = filler.getTemplateParams(
@@ -1219,37 +1218,37 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         mTemplates.put(
-                ICMSRequest.UNAUTHORIZED,
+                CMSRequest.UNAUTHORIZED,
                 new CMSLoadTemplate(
                         PROP_UNAUTHORIZED_TEMPLATE, PROP_UNAUTHOR_TEMPLATE_FILLER,
                         unauthorizedTemplate, null));
         mTemplates.put(
-                ICMSRequest.SUCCESS,
+                CMSRequest.SUCCESS,
                 new CMSLoadTemplate(
                         PROP_SUCCESS_TEMPLATE, PROP_SUCCESS_TEMPLATE_FILLER,
                         successTemplate, new GenSuccessTemplateFiller()));
         mTemplates.put(
-                ICMSRequest.PENDING,
+                CMSRequest.PENDING,
                 new CMSLoadTemplate(
                         PROP_PENDING_TEMPLATE, PROP_PENDING_TEMPLATE_FILLER,
                         pendingTemplate, new GenPendingTemplateFiller()));
         mTemplates.put(
-                ICMSRequest.SVC_PENDING,
+                CMSRequest.SVC_PENDING,
                 new CMSLoadTemplate(
                         PROP_SVC_PENDING_TEMPLATE, PROP_SVC_PENDING_TEMPLATE_FILLER,
                         svcpendingTemplate, new GenSvcPendingTemplateFiller()));
         mTemplates.put(
-                ICMSRequest.REJECTED,
+                CMSRequest.REJECTED,
                 new CMSLoadTemplate(
                         PROP_REJECTED_TEMPLATE, PROP_REJECTED_TEMPLATE_FILLER,
                         rejectedTemplate, new GenRejectedTemplateFiller()));
         mTemplates.put(
-                ICMSRequest.ERROR,
+                CMSRequest.ERROR,
                 new CMSLoadTemplate(
                         PROP_ERROR_TEMPLATE, PROP_ERROR_TEMPLATE_FILLER,
                         errorTemplate, new GenErrorTemplateFiller()));
         mTemplates.put(
-                ICMSRequest.EXCEPTION,
+                CMSRequest.EXCEPTION,
                 new CMSLoadTemplate(
                         PROP_EXCEPTION_TEMPLATE, PROP_EXCEPTION_TEMPLATE_FILLER,
                         unexpectedErrorTemplate, new GenUnexpectedErrorTemplateFiller()));

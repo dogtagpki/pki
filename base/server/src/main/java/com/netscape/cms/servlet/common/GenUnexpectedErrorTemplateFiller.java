@@ -21,7 +21,6 @@ import java.util.Locale;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 
@@ -53,7 +52,7 @@ public class GenUnexpectedErrorTemplateFiller implements ICMSTemplateFiller {
         // will leave the requestStatus value set to something other
         // than CMSRequest.EXCEPTION, so force the requestStatus to
         // EXCEPTION since it must be that if we're here.
-        Integer sts = ICMSRequest.EXCEPTION;
+        Integer sts = CMSRequest.EXCEPTION;
         if (cmsReq != null)
             cmsReq.setStatus(sts);
         fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
