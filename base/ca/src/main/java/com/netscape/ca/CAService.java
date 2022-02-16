@@ -33,7 +33,6 @@ import java.util.Vector;
 
 import org.dogtagpki.ct.CTEngine;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICAService;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
@@ -104,7 +103,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 /**
  * Request Service for CertificateAuthority.
  */
-public class CAService implements ICAService, IService {
+public class CAService implements IService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAService.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
@@ -221,17 +220,19 @@ public class CAService implements ICAService, IService {
         return mCA;
     }
 
-    @Override
+    /**
+     * Returns KRA-CA connector.
+     *
+     * @return KRA-CA connector
+     */
     public IConnector getKRAConnector() {
         return mKRAConnector;
     }
 
-    @Override
     public void setKRAConnector(IConnector c) {
         mKRAConnector = c;
     }
 
-    @Override
     public IConnector getConnector(IConfigStore config)
             throws EBaseException {
 
@@ -325,10 +326,11 @@ public class CAService implements ICAService, IService {
     }
 
     /**
-     * After population of defaults, and constraint validation,
-     * the profile request is processed here.
+     * Services profile request.
+     *
+     * @param request profile enrollment request information
+     * @exception EBaseException failed to service profile enrollment request
      */
-    @Override
     public void serviceProfileRequest(IRequest request)
             throws EBaseException {
         logger.debug("CAService: serviceProfileRequest requestId=" +
@@ -539,9 +541,15 @@ public class CAService implements ICAService, IService {
     ///
 
     /**
-     * issue cert for enrollment.
+     * Issues certificate base on enrollment information,
+     * creates certificate record, and stores all necessary data.
+     *
+     * @param aid CA ID
+     * @param certi information obtain from revocation request
+     * @param profileId Name of profile used
+     * @param rid Request ID
+     * @exception EBaseException failed to issue certificate or create certificate record
      */
-    @Override
     public X509CertImpl issueX509Cert(
             AuthorityID aid, X509CertInfo certi,
             String profileId, String rid)
@@ -987,15 +995,25 @@ public class CAService implements ICAService, IService {
     }
 
     /**
-     * revoke cert, check fields in crlentry, etc.
+     * Marks certificate record as revoked by adding revocation information.
+     * Updates CRL cache.
+     *
+     * @param crlentry revocation information obtained from revocation request
+     * @exception EBaseException failed to mark certificate record as revoked
      */
-    @Override
     public void revokeCert(RevokedCertImpl crlentry)
             throws EBaseException {
         revokeCert(crlentry, null);
     }
 
-    @Override
+    /**
+     * Marks certificate record as revoked by adding revocation information.
+     * Updates CRL cache.
+     *
+     * @param crlentry revocation information obtained from revocation request
+     * @param requestId revocation request id
+     * @exception EBaseException failed to mark certificate record as revoked
+     */
     public void revokeCert(RevokedCertImpl crlentry, String requestId)
             throws EBaseException {
 

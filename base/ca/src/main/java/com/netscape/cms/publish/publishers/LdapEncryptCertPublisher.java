@@ -27,13 +27,13 @@ import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICAService;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CAService;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -313,7 +313,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         BigInteger serialNum = cert.getSerialNumber();
         // need to revoke certificate also
         CertificateAuthority ca = engine.getCA();
-        ICAService service = (ICAService) ca.getCAService();
+        CAService service = (CAService) ca.getCAService();
         RevokedCertImpl crlEntry = formCRLEntry(
                 serialNum, RevocationReason.KEY_COMPROMISE);
 

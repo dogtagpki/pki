@@ -22,8 +22,8 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICAService;
 
+import com.netscape.ca.CAService;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
@@ -54,7 +54,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
 
-        ICAService caService = (ICAService)ca.getCAService();
+        CAService caService = (CAService)ca.getCAService();
         connectorExists = caService.getKRAConnector() != null;
     }
 
@@ -149,7 +149,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
 
-        ICAService caService = (ICAService)ca.getCAService();
+        CAService caService = (CAService) ca.getCAService();
         IConnector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
             kraConnector.stop();
@@ -161,7 +161,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
 
-        ICAService caService = (ICAService)ca.getCAService();
+        CAService caService = (CAService) ca.getCAService();
         IConnector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
             kraConnector.start();
@@ -175,7 +175,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
 
-        ICAService caService = (ICAService)ca.getCAService();
+        CAService caService = (CAService) ca.getCAService();
 
         EngineConfig cs = engine.getConfig();
         IConnector kraConnector = caService.getConnector(cs.getSubStore(PREFIX));
@@ -190,7 +190,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
 
-        ICAService caService = (ICAService)ca.getCAService();
+        CAService caService = (CAService)ca.getCAService();
         caService.setKRAConnector(null);
     }
 

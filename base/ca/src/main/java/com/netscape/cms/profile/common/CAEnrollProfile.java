@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.Enumeration;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICAService;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
@@ -33,6 +32,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 
+import com.netscape.ca.CAService;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -110,7 +110,7 @@ public class CAEnrollProfile extends EnrollProfile {
         CAEngine engine = CAEngine.getInstance();
         ICertificateAuthority ca = (ICertificateAuthority) getAuthority();
 
-        ICAService caService = (ICAService) ca.getCAService();
+        CAService caService = (CAService) ca.getCAService();
         if (caService == null) {
             throw new EProfileException("No CA Service");
         }
