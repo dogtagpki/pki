@@ -55,7 +55,6 @@ import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeyGenEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeyGenProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
@@ -151,7 +150,7 @@ public class NetkeyKeygenService implements IService {
      * @exception EBaseException failed to serve
      */
     @Override
-    public boolean serviceRequest(IRequest request)
+    public boolean serviceRequest(Request request)
             throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();

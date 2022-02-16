@@ -33,7 +33,6 @@ import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AsymKeyGenerationProcessedEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeygenProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
@@ -73,7 +72,7 @@ public class AsymKeyGenService implements IService {
     }
 
     @Override
-    public boolean serviceRequest(IRequest request) throws EBaseException {
+    public boolean serviceRequest(Request request) throws EBaseException {
         String method = "AsymKeyGenService:serviceRequest: ";
         KRAEngine engine = KRAEngine.getInstance();
         EngineConfig configStore = engine.getConfig();

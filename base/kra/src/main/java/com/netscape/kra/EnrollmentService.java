@@ -142,7 +142,7 @@ public class EnrollmentService implements IService {
      * @exception EBaseException failed to serve
      */
     @Override
-    public boolean serviceRequest(IRequest request)
+    public boolean serviceRequest(Request request)
             throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();

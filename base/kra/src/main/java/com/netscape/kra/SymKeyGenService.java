@@ -37,7 +37,6 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SymKeyGenerationProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
@@ -88,7 +87,7 @@ public class SymKeyGenService implements IService {
      * @exception EBaseException indicates major processing failure.
      */
     @Override
-    public boolean serviceRequest(IRequest request)
+    public boolean serviceRequest(Request request)
             throws EBaseException {
         String id = request.getRequestId().toString();
         String clientKeyId = request.getExtDataInString(Request.SECURITY_DATA_CLIENT_KEY_ID);

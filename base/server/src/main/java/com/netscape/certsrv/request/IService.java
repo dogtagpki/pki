@@ -18,6 +18,7 @@
 package com.netscape.certsrv.request;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This interface defines how requests are serviced.
@@ -43,6 +44,6 @@ public interface IService {
      *         'false' means the request will wait for further notification.
      * @exception EBaseException indicates major processing failure.
      */
-    boolean serviceRequest(IRequest request)
+    boolean serviceRequest(Request request)
             throws EBaseException;
 }

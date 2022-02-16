@@ -20,7 +20,6 @@ package com.netscape.kra;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
@@ -77,7 +76,7 @@ public class KRAService implements IService {
      * @exception EBaseException failed to serve
      */
     @Override
-    public boolean serviceRequest(IRequest r) throws EBaseException {
+    public boolean serviceRequest(Request r) throws EBaseException {
 
         logger.info("KRA services request " + r.getRequestId());
 

@@ -53,7 +53,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
@@ -189,7 +188,7 @@ public class TokenKeyRecoveryService implements IService {
      * @exception EBaseException failed to serve
      */
     @Override
-    public synchronized boolean serviceRequest(IRequest request) throws EBaseException {
+    public synchronized boolean serviceRequest(Request request) throws EBaseException {
         String auditSubjectID = null;
         String iv_s = "";
 

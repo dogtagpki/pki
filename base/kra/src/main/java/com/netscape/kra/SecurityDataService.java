@@ -20,8 +20,8 @@ package com.netscape.kra;
 import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This implementation implements SecurityData archival operations.
@@ -52,7 +52,7 @@ public class SecurityDataService implements IService {
      * @exception EBaseException indicates major processing failure.
      */
     @Override
-    public boolean serviceRequest(IRequest request)
+    public boolean serviceRequest(Request request)
             throws EBaseException {
 
         processor.archive(request);

@@ -420,7 +420,7 @@ public abstract class ARequestQueue {
             } else if (rs == RequestStatus.APPROVED) {
                 boolean svcComplete;
 
-                svcComplete = mService.serviceRequest(r);
+                svcComplete = mService.serviceRequest((Request) r);
 
                 // Completed requests call the notifier and are done. Others
                 // wait for the serviceComplete call.

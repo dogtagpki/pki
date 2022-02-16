@@ -26,7 +26,6 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.logging.Logger;
@@ -65,7 +64,7 @@ public class SecurityDataRecoveryService implements IService {
      * @exception EBaseException indicates major processing failure.
      */
     @Override
-    public boolean serviceRequest(IRequest request)
+    public boolean serviceRequest(Request request)
             throws EBaseException {
 
         logger.debug("SecurityDataRecoveryService.serviceRequest()");

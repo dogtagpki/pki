@@ -380,7 +380,7 @@ public class CAService implements IService {
      * @return true or false
      */
     @Override
-    public boolean serviceRequest(IRequest request) {
+    public boolean serviceRequest(Request request) {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
         RequestId requestId = request.getRequestId();

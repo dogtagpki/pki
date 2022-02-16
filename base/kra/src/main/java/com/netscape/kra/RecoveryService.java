@@ -135,7 +135,7 @@ public class RecoveryService implements IService {
      * @exception EBaseException failed to serve
      */
     @Override
-    public boolean serviceRequest(IRequest request) throws EBaseException {
+    public boolean serviceRequest(Request request) throws EBaseException {
 
         CryptoManager cm = null;
         EngineConfig config = null;
