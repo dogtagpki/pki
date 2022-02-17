@@ -165,7 +165,7 @@ public abstract class EnrollInput extends ProfileInput {
     }
 
     @Override
-    public String getValue(String name, Locale locale, IRequest request)
+    public String getValue(String name, Locale locale, Request request)
             throws EProfileException {
         return request.getExtDataInString(name);
     }
@@ -174,7 +174,7 @@ public abstract class EnrollInput extends ProfileInput {
      * Sets the value of the given value parameter by name.
      */
     @Override
-    public void setValue(String name, Locale locale, IRequest request,
+    public void setValue(String name, Locale locale, Request request,
             String value) throws EPropertyException {
         request.setExtData(name, value);
     }

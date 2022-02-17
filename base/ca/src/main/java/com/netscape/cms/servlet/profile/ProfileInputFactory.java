@@ -8,6 +8,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 public class ProfileInputFactory {
 
@@ -23,7 +24,7 @@ public class ProfileInputFactory {
         Enumeration<String> names = input.getValueNames();
         while (names.hasMoreElements()) {
             String name = names.nextElement();
-            String value = input.getValue(name, locale, request);
+            String value = input.getValue(name, locale, (Request) request);
             if (value != null) {
                 ret.addAttribute(new ProfileAttribute(name, value, null));
             }

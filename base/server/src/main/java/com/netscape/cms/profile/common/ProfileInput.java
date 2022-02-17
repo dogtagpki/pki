@@ -26,7 +26,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -95,7 +94,7 @@ public abstract class ProfileInput implements IConfigTemplate {
      * @param request request
      * @exception EProfileException failed to get value
      */
-    public abstract String getValue(String name, Locale locale, IRequest request)
+    public abstract String getValue(String name, Locale locale, Request request)
             throws EProfileException;
 
     /**
@@ -106,6 +105,6 @@ public abstract class ProfileInput implements IConfigTemplate {
      * @param request request
      * @param value value
      */
-    public abstract void setValue(String name, Locale locale, IRequest request,
+    public abstract void setValue(String name, Locale locale, Request request,
             String value) throws EPropertyException;
 }
