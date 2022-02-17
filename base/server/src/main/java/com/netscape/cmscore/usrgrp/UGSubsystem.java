@@ -238,12 +238,16 @@ public class UGSubsystem {
             filter = stripped.toString() + up;
         }
 
+        String baseDN = getUserBaseDN();
+        filter = "(" + filter + ")";
+        logger.info("UGSubsystem: Searching " + baseDN + " for " + filter);
+
         LDAPConnection ldapconn = null;
 
         try {
             ldapconn = getConn();
-            LDAPSearchResults res = ldapconn.search(getUserBaseDN(),
-                    LDAPv2.SCOPE_SUB, "(" + filter + ")",
+            LDAPSearchResults res = ldapconn.search(baseDN,
+                    LDAPv2.SCOPE_SUB, filter,
                     null, false);
 
             Enumeration<User> e = buildUsers(res);
