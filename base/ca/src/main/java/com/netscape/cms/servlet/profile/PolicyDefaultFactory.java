@@ -29,6 +29,7 @@ import com.netscape.certsrv.profile.ProfileParameter;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 public class PolicyDefaultFactory {
 
@@ -42,7 +43,7 @@ public class PolicyDefaultFactory {
             String defName = defNames.nextElement();
             ProfileAttribute attr = new ProfileAttribute(
                     defName,
-                    def.getValue(defName, locale, request),
+                    def.getValue(defName, locale, (Request) request),
                     (Descriptor) def.getValueDescriptor(locale, defName));
             ret.addAttribute(attr);
         }

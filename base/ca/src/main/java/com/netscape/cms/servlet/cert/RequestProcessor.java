@@ -482,7 +482,7 @@ public class RequestProcessor extends CertProcessor {
             String defName = defNames.nextElement();
             String defValue = data.get(defName);
 
-            def.setValue(defName, locale, req, defValue);
+            def.setValue(defName, locale, (Request) req, defValue);
         }
     }
 }

@@ -2661,7 +2661,7 @@ public abstract class EnrollProfile extends Profile {
     }
 
     @Override
-    public void populate(IRequest request)
+    public void populate(Request request)
             throws EProfileException {
 
         String method = "EnrollProfile: populate: ";

@@ -422,7 +422,7 @@ public class ProfileReviewServlet extends ProfileServlet {
                 String defValue = null;
 
                 try {
-                    defValue = def.getValue(defName, locale, req);
+                    defValue = def.getValue(defName, locale, (Request) req);
                 } catch (Exception exp) {
                     logger.warn("ProfileReviewServlet: " + exp.getMessage(), exp);
                 }

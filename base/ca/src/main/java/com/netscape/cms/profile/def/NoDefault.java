@@ -26,8 +26,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements no default policy.
@@ -80,7 +80,7 @@ public class NoDefault extends PolicyDefault {
      * Populates the request with this policy default.
      */
     @Override
-    public void populate(IRequest request)
+    public void populate(Request request)
             throws EProfileException {
     }
 
@@ -95,13 +95,13 @@ public class NoDefault extends PolicyDefault {
     }
 
     @Override
-    public void setValue(String name, Locale locale, IRequest request,
+    public void setValue(String name, Locale locale, Request request,
             String value)
             throws EPropertyException {
     }
 
     @Override
-    public String getValue(String name, Locale locale, IRequest request) {
+    public String getValue(String name, Locale locale, Request request) {
         return null;
     }
 

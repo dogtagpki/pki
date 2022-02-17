@@ -58,6 +58,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements an enrollment default policy.
@@ -219,7 +220,7 @@ public abstract class EnrollDefault extends PolicyDefault {
      * @exception EProfileException failed to populate
      */
     @Override
-    public void populate(IRequest request)
+    public void populate(Request request)
             throws EProfileException {
         String method = "EnrollDefault: populate: ";
         String name = getClass().getName();
@@ -261,7 +262,7 @@ public abstract class EnrollDefault extends PolicyDefault {
      * @exception EPropertyException failed to set property
      */
     @Override
-    public void setValue(String name, Locale locale, IRequest request,
+    public void setValue(String name, Locale locale, Request request,
             String value)
             throws EPropertyException {
         X509CertInfo info =
@@ -289,7 +290,7 @@ public abstract class EnrollDefault extends PolicyDefault {
      * @exception EPropertyException failed to get property
      */
     @Override
-    public String getValue(String name, Locale locale, IRequest request)
+    public String getValue(String name, Locale locale, Request request)
             throws EPropertyException {
         X509CertInfo info =
                 request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);

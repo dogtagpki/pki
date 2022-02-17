@@ -1277,7 +1277,7 @@ public abstract class Profile {
      * @param request request
      * @exception EProfileException failed to populate default values
      */
-    public void populate(IRequest request)
+    public void populate(Request request)
             throws EProfileException {
         String method = "Profile: populate: ";
         String setId = getPolicySetId(request);

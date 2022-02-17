@@ -27,6 +27,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements an enrollment default policy
@@ -67,7 +68,7 @@ public class ImageDefault extends EnrollDefault {
     }
 
     @Override
-    public String getValue(String name, Locale locale, IRequest request)
+    public String getValue(String name, Locale locale, Request request)
             throws EPropertyException {
 
         if (name == null) {

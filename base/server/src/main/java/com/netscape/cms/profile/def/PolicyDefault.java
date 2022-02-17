@@ -25,7 +25,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This represents a default policy that populates
@@ -71,7 +71,7 @@ public abstract class PolicyDefault implements IConfigTemplate {
      * @param request request to be populated
      * @exception EProfileException failed to populate
      */
-    public abstract void populate(IRequest request)
+    public abstract void populate(Request request)
             throws EProfileException;
 
     /**
@@ -118,7 +118,7 @@ public abstract class PolicyDefault implements IConfigTemplate {
      * @param value value to be set in the given request
      * @exception EPropertyException failed to set property
      */
-    public abstract void setValue(String name, Locale locale, IRequest request,
+    public abstract void setValue(String name, Locale locale, Request request,
             String value) throws EPropertyException;
 
     /**
@@ -130,7 +130,7 @@ public abstract class PolicyDefault implements IConfigTemplate {
      * @param request request
      * @exception EPropertyException failed to get property
      */
-    public abstract String getValue(String name, Locale locale, IRequest request)
+    public abstract String getValue(String name, Locale locale, Request request)
             throws EPropertyException;
 
 }
