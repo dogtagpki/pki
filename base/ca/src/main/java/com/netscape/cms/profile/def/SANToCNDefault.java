@@ -21,7 +21,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This plug-in replaces the subject DN with CN=<DNS name>
@@ -34,7 +34,7 @@ public class SANToCNDefault extends EnrollExtDefault {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SANToCNDefault.class);
 
     @Override
-    public void populate(IRequest request, X509CertInfo info) throws EProfileException {
+    public void populate(Request request, X509CertInfo info) throws EProfileException {
 
         X500Name subjectDN = info.getSubjectObj().getX500Name();
         logger.info("SANtoCNDefault: Subject DN: " + subjectDN);

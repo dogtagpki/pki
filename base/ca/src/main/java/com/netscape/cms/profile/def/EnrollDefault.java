@@ -179,7 +179,7 @@ public abstract class EnrollDefault extends PolicyDefault {
      * @exception EProfileException failed to populate attributes
      *                into request
      */
-    public abstract void populate(IRequest request, X509CertInfo info)
+    public abstract void populate(Request request, X509CertInfo info)
             throws EProfileException;
 
     /**

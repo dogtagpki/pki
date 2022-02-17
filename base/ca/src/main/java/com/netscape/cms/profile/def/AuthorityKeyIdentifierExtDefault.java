@@ -34,7 +34,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -168,7 +167,7 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
      * Populates the request with this policy default.
      */
     @Override
-    public void populate(IRequest request, X509CertInfo info)
+    public void populate(Request request, X509CertInfo info)
             throws EProfileException {
 
         CAEngine engine = CAEngine.getInstance();

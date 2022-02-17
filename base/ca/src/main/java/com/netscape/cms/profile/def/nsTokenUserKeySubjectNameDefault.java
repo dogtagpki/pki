@@ -38,6 +38,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -339,7 +340,7 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
      * Populates the request with this policy default.
      */
     @Override
-    public void populate(IRequest request, X509CertInfo info)
+    public void populate(Request request, X509CertInfo info)
             throws EProfileException {
         X500Name name = null;
         logger.debug("nsTokenUserKeySubjectNameDefault: in populate");

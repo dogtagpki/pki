@@ -35,7 +35,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This plugin will examine the most specific CN in the Subject DN,
@@ -62,7 +62,7 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
     private static final String LOG_PREFIX = "CommonNameToSANDefault: ";
 
     @Override
-    public void populate(IRequest _req, X509CertInfo info)
+    public void populate(Request _req, X509CertInfo info)
             throws EProfileException {
         // examine the Subject DN
         CertificateSubjectName subjectName;
