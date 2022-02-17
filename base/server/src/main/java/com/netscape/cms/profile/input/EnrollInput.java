@@ -44,6 +44,7 @@ import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -83,7 +84,7 @@ public abstract class EnrollInput extends ProfileInput {
      * @exception Exception failed to populate
      */
     @Override
-    public abstract void populate(Map<String, String> ctx, IRequest request) throws Exception;
+    public abstract void populate(Map<String, String> ctx, Request request) throws Exception;
 
     /**
      * Retrieves the localizable name of this policy.

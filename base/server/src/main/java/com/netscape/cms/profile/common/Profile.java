@@ -1252,7 +1252,7 @@ public abstract class Profile {
             String id = ids.nextElement();
             ProfileInput input = getProfileInput(id);
 
-            input.populate(ctx, request);
+            input.populate(ctx, (Request) request);
         }
     }
 

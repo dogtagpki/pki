@@ -24,9 +24,9 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements input for the Server-Side Keygen Enrollment
@@ -87,7 +87,7 @@ public class ServerKeygenInput extends EnrollInput {
      * Populates the request with this policy default.
      */
     @Override
-    public void populate(Map<String, String> ctx, IRequest request)
+    public void populate(Map<String, String> ctx, Request request)
             throws EProfileException {
     }
 

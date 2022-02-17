@@ -27,6 +27,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This interface represents a input policy which
@@ -51,7 +52,7 @@ public abstract class ProfileInput implements IConfigTemplate {
      * @param request request
      * @exception Exception failed to populate
      */
-    public abstract void populate(Map<String, String> ctx, IRequest request) throws Exception;
+    public abstract void populate(Map<String, String> ctx, Request request) throws Exception;
 
     /**
      * Retrieves the localizable name of this policy.

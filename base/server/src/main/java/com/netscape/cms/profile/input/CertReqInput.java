@@ -32,7 +32,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
@@ -96,7 +95,7 @@ public class CertReqInput extends EnrollInput {
      * Populates the request with this policy default.
      */
     @Override
-    public void populate(Map<String, String> ctx, IRequest request) throws Exception {
+    public void populate(Map<String, String> ctx, Request request) throws Exception {
 
         String method = "CertReqInput: populate: ";
         logger.debug(method + "begins");

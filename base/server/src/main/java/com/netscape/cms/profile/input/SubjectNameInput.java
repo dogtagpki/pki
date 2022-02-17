@@ -201,7 +201,7 @@ public class SubjectNameInput extends EnrollInput {
      * Populates the request with this policy default.
      */
     @Override
-    public void populate(Map<String, String> ctx, IRequest request) throws Exception {
+    public void populate(Map<String, String> ctx, Request request) throws Exception {
 
         X509CertInfo info =
                 request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);

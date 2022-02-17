@@ -26,9 +26,9 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements a generic input.
@@ -113,7 +113,7 @@ public class GenericInput extends EnrollInput {
      * Populates the request with this policy default.
      */
     @Override
-    public void populate(Map<String, String> ctx, IRequest request) throws Exception {
+    public void populate(Map<String, String> ctx, Request request) throws Exception {
         int num = getNum();
         for (int i = 0; i < num; i++) {
             String enable = getConfig(CONFIG_ENABLE + i);
