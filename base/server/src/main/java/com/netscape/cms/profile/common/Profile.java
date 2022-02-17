@@ -1298,7 +1298,7 @@ public abstract class Profile {
      * @param request request
      * @exception ERejectException validation violation
      */
-    public void validate(IRequest request)
+    public void validate(Request request)
             throws ERejectException {
         String setId = getPolicySetId(request);
         logger.debug("Profile: validate start on setId=" + setId);

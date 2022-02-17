@@ -27,9 +27,9 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements no constraint.
@@ -82,7 +82,7 @@ public class NoConstraint extends PolicyConstraint {
      * during the validation.
      */
     @Override
-    public void validate(IRequest request)
+    public void validate(Request request)
             throws ERejectException {
     }
 

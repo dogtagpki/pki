@@ -469,7 +469,7 @@ public class RequestProcessor extends CertProcessor {
             throws ERejectException, EDeferException {
         PolicyConstraint con = policy.getConstraint();
 
-        con.validate(req);
+        con.validate((Request) req);
     }
 
     private void setValue(Locale locale, int count, ProfilePolicy policy, IRequest req,

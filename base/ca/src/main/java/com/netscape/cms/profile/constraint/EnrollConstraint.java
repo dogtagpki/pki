@@ -34,6 +34,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.def.PolicyDefault;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements the generic enrollment constraint.
@@ -160,7 +161,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
      *                to violation of constraint
      */
     @Override
-    public void validate(IRequest request)
+    public void validate(Request request)
             throws ERejectException {
         String name = getClass().getName();
 

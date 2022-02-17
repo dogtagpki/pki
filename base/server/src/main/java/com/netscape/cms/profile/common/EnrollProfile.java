@@ -692,7 +692,7 @@ public abstract class EnrollProfile extends Profile {
 
 
             logger.debug(method + " validating request");
-            validate(request);
+            validate((Request) request);
             try {
                 queue.updateRequest(request);
             } catch (EBaseException e) {
@@ -704,7 +704,7 @@ public abstract class EnrollProfile extends Profile {
         } else if (popChallengeRequired) {
             // this is encryptedPOP case; defer to require decryptedPOP
             logger.debug(method + " popChallengeRequired, defer to enforce decryptedPOP");
-            validate(request);
+            validate((Request) request);
 
             logger.debug(method + " about to call setPOPchallenge");
             try {
@@ -722,7 +722,7 @@ public abstract class EnrollProfile extends Profile {
             // this profile executes request that is authenticated
             // by non NoAuth
             logger.debug(method + " auth token is not null");
-            validate(request);
+            validate((Request) request);
             execute(request);
         }
     }
@@ -2675,7 +2675,7 @@ public abstract class EnrollProfile extends Profile {
      * that validate the request against the profile.
      */
     @Override
-    public void validate(IRequest request)
+    public void validate(Request request)
             throws ERejectException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();

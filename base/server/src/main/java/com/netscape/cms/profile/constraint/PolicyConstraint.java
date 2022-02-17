@@ -23,8 +23,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.IConfigTemplate;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.PolicyDefault;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This represents a constraint policy. A constraint policy
@@ -59,7 +59,7 @@ public abstract class PolicyConstraint implements IConfigTemplate {
      * @param request request to be validated
      * @exception ERejectException reject the given request
      */
-    public abstract void validate(IRequest request)
+    public abstract void validate(Request request)
             throws ERejectException;
 
     /**

@@ -358,7 +358,7 @@ public class CAService implements IService {
         request.setExtData("dbStatus", "NOT_UPDATED");
 
         //	profile.populate(request);
-        profile.validate(request);
+        profile.validate((Request) request);
         profile.execute(request);
 
         // This function is called only from ConnectorServlet
