@@ -18,6 +18,7 @@
 package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -54,6 +55,9 @@ public abstract class Repository implements IRepository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Repository.class);
 
+    public static final int LEGACY = 0;
+    public static final int RANDOM = 1;
+
     // (the next serialNo to be issued) - 1
     private BigInteger mSerialNo = null;
 
@@ -82,6 +86,11 @@ public abstract class Repository implements IRepository {
     protected Hashtable<String, String> repositoryConfig = new Hashtable<>();
 
     private BigInteger mLastSerialNo = null;
+
+    protected int idGenerator;
+    protected int idLength;
+
+    protected SecureRandom secureRandom;
 
     /**
      * Constructs a repository.
@@ -166,10 +175,26 @@ public abstract class Repository implements IRepository {
         mLastSerialNo = lastSN;
     }
 
+    protected void setIDGenerator(String generator) throws Exception {
+        if ("random".equals(generator)) {
+            idGenerator = RANDOM;
+
+        } else if ("legacy".equals(generator)) {
+            idGenerator = LEGACY;
+
+        } else {
+            throw new Exception("Invalid ID generator: " + generator);
+        }
+    }
+
     /**
      * init serial number cache
      */
     protected void initCache() throws EBaseException {
+
+        if (idGenerator == RANDOM) {
+            return;
+        }
 
         logger.debug("Repository: in InitCache");
 
@@ -267,6 +292,18 @@ public abstract class Repository implements IRepository {
     @Override
     public synchronized BigInteger getNextSerialNumber() throws
             EBaseException {
+
+        if (idGenerator == RANDOM) {
+
+            logger.debug("Repository: Generating random serial number");
+
+            // JSS BigInt does not allow negative value
+            // so use the absolute (i.e. positive) value.
+            BigInteger id = new BigInteger(idLength, secureRandom).abs();
+            logger.info("Repository: id: 0x" + id.toString(16));
+
+            return id;
+        }
 
         logger.debug("Repository: in getNextSerialNumber. ");
 
@@ -594,6 +631,10 @@ public abstract class Repository implements IRepository {
      */
     @Override
     public void checkRanges() throws EBaseException {
+
+        if (idGenerator == RANDOM) {
+            return;
+        }
 
         if (!dbSubsystem.getEnableSerialMgmt()) {
             logger.debug("Repository: serial management not enabled, ignore");
