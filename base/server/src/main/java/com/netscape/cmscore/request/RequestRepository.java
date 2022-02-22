@@ -54,6 +54,9 @@ public class RequestRepository extends Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRepository.class);
 
+    public static final String PROP_REQUEST_ID_GENERATOR = "request.id.generator";
+    public static final String PROP_REQUEST_ID_LENGTH = "request.id.length";
+
     protected String filter;
 
     /**
@@ -77,6 +80,33 @@ public class RequestRepository extends Repository {
 
         mBaseDN = dbConfig.getRequestDN() + "," + dbSubsystem.getBaseDN();
         logger.info("RequestRepository: - base DN: " + mBaseDN);
+
+        String value = dbConfig.getString(PROP_REQUEST_ID_GENERATOR, null);
+        logger.info("RequestRepository: - request ID generator: " + value);
+
+        if (value != null) {
+            setIDGenerator(value);
+        }
+
+        if (idGenerator == RANDOM) {
+
+            idLength = dbConfig.getInteger(PROP_REQUEST_ID_LENGTH);
+            logger.info("RequestRepository: - request ID length: " + idLength);
+
+            secureRandom = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
+
+        } else {
+            initLegacyGenerator();
+        }
+
+        // Let RequestRecord class register its
+        // database mapping and object mapping values
+        RequestRecord.register(dbSubsystem);
+    }
+
+    public void initLegacyGenerator() throws Exception {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         rangeDN = dbConfig.getRequestRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.info("RequestRepository: - range DN: " + rangeDN);
@@ -122,10 +152,6 @@ public class RequestRepository extends Repository {
         if (incrementNo != null) {
             mIncrementNo = new BigInteger(incrementNo, mRadix);
         }
-
-        // Let RequestRecord class register its
-        // database mapping and object mapping values
-        RequestRecord.register(dbSubsystem);
     }
 
     public void init(Hashtable<String, String> repositoryConfig) throws Exception {

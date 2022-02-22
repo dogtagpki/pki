@@ -80,7 +80,10 @@ public class CertificateRepository extends Repository {
     private static final String PROP_COLLISION_RECOVERY_STEPS = "collisionRecoverySteps";
     private static final String PROP_COLLISION_RECOVERY_REGENERATIONS = "collisionRecoveryRegenerations";
     private static final String PROP_MINIMUM_RANDOM_BITS = "minimumRandomBits";
-    private static final BigInteger BI_MINUS_ONE = (BigInteger.ZERO).subtract(BigInteger.ONE);
+    private static final BigInteger BI_MINUS_ONE = BigInteger.ONE.negate();
+
+    public static final String PROP_CERT_ID_GENERATOR = "cert.id.generator";
+    public static final String PROP_CERT_ID_LENGTH = "cert.id.length";
 
     private boolean mConsistencyCheck = false;
 
@@ -108,6 +111,27 @@ public class CertificateRepository extends Repository {
 
         mBaseDN = mDBConfig.getSerialDN() + "," + dbSubsystem.getBaseDN();
         logger.info("CertificateRepository: - base DN: " + mBaseDN);
+
+        String value = mDBConfig.getString(PROP_CERT_ID_GENERATOR, null);
+        logger.info("CertificateRepository: - cert ID generator: " + value);
+
+        if (value != null) {
+            setIDGenerator(value);
+        }
+
+        if (idGenerator == RANDOM) {
+
+            idLength = mDBConfig.getInteger(PROP_CERT_ID_LENGTH);
+            logger.info("CertificateRepository: - cert ID length: " + idLength);
+
+            secureRandom = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
+
+        } else {
+            initLegacyGenerator();
+        }
+    }
+
+    public void initLegacyGenerator() throws Exception {
 
         rangeDN = mDBConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.info("CertificateRepository: - range DN: " + rangeDN);
@@ -309,6 +333,10 @@ public class CertificateRepository extends Repository {
     public synchronized BigInteger getNextSerialNumber()
             throws EBaseException {
 
+        if (idGenerator == RANDOM) {
+            return super.getNextSerialNumber();
+        }
+
         BigInteger nextSerialNumber = null;
         BigInteger randomNumber = null;
 
@@ -375,6 +403,11 @@ public class CertificateRepository extends Repository {
     }
 
     public void updateCounter() {
+
+        if (idGenerator == RANDOM) {
+            return;
+        }
+
         logger.debug("CertificateRepository: updateCounter  mEnableRandomSerialNumbers="+
                   mEnableRandomSerialNumbers+"  mCounter="+mCounter);
 
