@@ -29,6 +29,34 @@ COPY build/RPMS /tmp/RPMS/
 RUN dnf localinstall -y /tmp/RPMS/*; rm -rf /tmp/RPMS
 
 ################################################################################
+FROM pki-runner AS pki-server
+
+ARG SUMMARY="Dogtag PKI Server"
+ARG COPR_REPO
+
+LABEL name="pki-server" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-server" \
+      com.redhat.component="$COMPONENT"
+
+EXPOSE 8080 8443
+
+# Create PKI server
+RUN pki-server create tomcat@pki --user tomcat --group root
+
+# Grant the root group the full access to PKI server files
+# https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
+RUN chgrp -Rf root /var/lib/tomcats/pki
+RUN chmod -Rf g+rw /var/lib/tomcats/pki
+
+CMD [ "pki-server", "run", "-v" ]
+
+################################################################################
 FROM registry.fedoraproject.org/fedora:$OS_VERSION AS pki-acme
 
 ARG SUMMARY="Dogtag PKI ACME Responder"
