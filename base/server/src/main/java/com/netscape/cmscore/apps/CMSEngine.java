@@ -1287,7 +1287,9 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void shutdownAuthSubsystem() {
-        authSubsystem.shutdown();
+        if (authSubsystem != null) {
+            authSubsystem.shutdown();
+        }
     }
 
     public void shutdownRequestSubsystem() {
