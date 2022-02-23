@@ -37,7 +37,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -611,15 +610,7 @@ public class CMSAdminServlet extends AdminServlet {
          */
     }
 
-    public void modifyCAGatewayCert(ICertificateAuthority ca, String nickName) {
-        CMSEngine engine = CMS.getCMSEngine();
-        engine.setServerCertNickname(nickName);
-
-        /*
-         HTTPSubsystem caGateway = ca.getHTTPSubsystem();
-         HTTPService httpsService = caGateway.getHttpsService();
-         httpsService.setNickName(nickName);
-         */
+    public void modifyCAGatewayCert(String nickname) {
     }
 
     /**
@@ -652,6 +643,9 @@ public class CMSAdminServlet extends AdminServlet {
 
     }
 
+    void readSubsystem(NameValuePairs params) {
+    }
+
     /**
      * Reads subsystems that server has loaded with.
      */
@@ -668,8 +662,6 @@ public class CMSAdminServlet extends AdminServlet {
             //get subsystem type
             if (sys instanceof IKeyRecoveryAuthority)
                 type = Constants.PR_KRA_INSTANCE;
-            if (sys instanceof ICertificateAuthority)
-                type = Constants.PR_CA_INSTANCE;
             if (sys instanceof IOCSPAuthority)
                 type = Constants.PR_OCSP_INSTANCE;
             if (sys instanceof ITKSAuthority)
@@ -677,6 +669,8 @@ public class CMSAdminServlet extends AdminServlet {
             if (!type.trim().equals(""))
                 params.put(sys.getId(), type);
         }
+
+        readSubsystem(params);
 
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -1144,71 +1138,33 @@ public class CMSAdminServlet extends AdminServlet {
         }
     }
 
-    public void setCANewnickname(String tokenName, String nickname)
-            throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        SigningUnit signingUnit = ca.getSigningUnit();
-
-        if (CryptoUtil.isInternalToken(tokenName))
-            signingUnit.setNewNickName(nickname);
-        else {
-            if (tokenName.equals("") && nickname.equals(""))
-                signingUnit.setNewNickName("");
-            else
-                signingUnit.setNewNickName(tokenName + ":" + nickname);
-        }
+    String getCANewnickname() throws EBaseException {
+        return null;
     }
 
-    private String getCANewnickname() throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        SigningUnit signingUnit = ca.getSigningUnit();
-
-        return signingUnit.getNewNickName();
+    void setCANewnickname(String tokenName, String nickname) throws EBaseException {
     }
 
-    public void setOCSPNewnickname(String tokenName, String nickname)
-            throws EBaseException {
+    void setOCSPNewnickname(String tokenName, String nickname) throws EBaseException {
+
         CMSEngine engine = CMS.getCMSEngine();
         IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
+        SigningUnit signingUnit = ocsp.getSigningUnit();
 
-        if (ocsp != null) {
-            SigningUnit signingUnit = ocsp.getSigningUnit();
+        if (CryptoUtil.isInternalToken(tokenName)) {
+            signingUnit.setNewNickName(nickname);
 
-            if (CryptoUtil.isInternalToken(tokenName))
-                signingUnit.setNewNickName(nickname);
-            else {
-                if (tokenName.equals("") && nickname.equals(""))
-                    signingUnit.setNewNickName("");
-                else
-                    signingUnit.setNewNickName(tokenName + ":" + nickname);
-            }
+        } else if (tokenName.equals("") && nickname.equals("")) {
+            signingUnit.setNewNickName("");
+
         } else {
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            SigningUnit signingUnit = ca.getOCSPSigningUnit();
-
-            if (CryptoUtil.isInternalToken(tokenName))
-                signingUnit.setNewNickName(nickname);
-            else {
-                if (tokenName.equals("") && nickname.equals(""))
-                    signingUnit.setNewNickName("");
-                else
-                    signingUnit.setNewNickName(tokenName + ":" + nickname);
-            }
+            signingUnit.setNewNickName(tokenName + ":" + nickname);
         }
     }
 
     private String getOCSPNewnickname() throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
         IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
-
-        if (ocsp == null) {
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            SigningUnit signingUnit = ca.getOCSPSigningUnit();
-
-            return signingUnit.getNewNickName();
-        }
         SigningUnit signingUnit = ocsp.getSigningUnit();
 
         return signingUnit.getNewNickName();
@@ -1581,11 +1537,7 @@ public class CMSAdminServlet extends AdminServlet {
                 setAgentNewnickname("", "");
                 //modifyRADMCert(nickname);
                 modifyAgentGatewayCert(nickname);
-                if (isSubsystemInstalled("ca")) {
-                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-
-                    modifyCAGatewayCert(ca, nickname);
-                }
+                modifyCAGatewayCert(nickname);
             } else if (certType.equals(Constants.PR_SERVER_CERT_RADM)) {
                 setRADMNewnickname("", "");
                 modifyRADMCert(nickname);
@@ -1844,24 +1796,26 @@ public class CMSAdminServlet extends AdminServlet {
         }
     }
 
+    String getCANickname() {
+        return null;
+    }
+
+    String getOCSPNickname() {
+        return null;
+    }
+
     public String getNickname(String certType) throws EBaseException {
         String nickname = "";
         CMSEngine engine = CMS.getCMSEngine();
 
         if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            SigningUnit signingUnit = ca.getSigningUnit();
-
-            nickname = signingUnit.getNickname();
+            nickname = getCANickname();
         } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
             IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
 
             if (ocsp == null) {
                 // this is a local CA service
-                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-                SigningUnit signingUnit = ca.getOCSPSigningUnit();
-
-                nickname = signingUnit.getNickname();
+                nickname = getOCSPNickname();
             } else {
                 SigningUnit signingUnit = ocsp.getSigningUnit();
 
