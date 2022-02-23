@@ -19,6 +19,7 @@ package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -46,6 +47,9 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRepository.class);
 
+    public static final String PROP_KEY_ID_GENERATOR = "key.id.generator";
+    public static final String PROP_KEY_ID_LENGTH = "key.id.length";
+
     /**
      * Constructs a key repository. It checks if the key repository
      * does exist. If not, it creates the repository.
@@ -67,49 +71,22 @@ public class KeyRepository extends Repository implements IKeyRepository {
         mBaseDN = dbConfig.getSerialDN() + "," + dbSubsystem.getBaseDN();
         logger.info("KeyRepository: - base DN: " + mBaseDN);
 
-        rangeDN = dbConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
-        logger.info("KeyRepository: - range DN: " + rangeDN);
+        String value = dbConfig.getString(PROP_KEY_ID_GENERATOR, null);
+        logger.info("KeyRepository: - key ID generator: " + value);
 
-        minSerialName = DBSubsystem.PROP_MIN_SERIAL_NUMBER;
-        String minSerial = dbConfig.getBeginSerialNumber();
-        if (minSerial != null) {
-            mMinSerialNo = new BigInteger(minSerial, mRadix);
+        if (value != null) {
+            setIDGenerator(value);
         }
-        logger.info("KeyRepository: - min serial: " + mMinSerialNo);
 
-        maxSerialName = DBSubsystem.PROP_MAX_SERIAL_NUMBER;
-        String maxSerial = dbConfig.getEndSerialNumber();
-        if (maxSerial != null) {
-            mMaxSerialNo = new BigInteger(maxSerial, mRadix);
-        }
-        logger.info("KeyRepository: - max serial: " + mMaxSerialNo);
+        if (idGenerator == RANDOM) {
 
-        nextMinSerialName = DBSubsystem.PROP_NEXT_MIN_SERIAL_NUMBER;
-        String nextMinSerial = dbConfig.getNextBeginSerialNumber();
-        if (nextMinSerial == null || nextMinSerial.equals("-1")) {
-            mNextMinSerialNo = null;
+            idLength = dbConfig.getInteger(PROP_KEY_ID_LENGTH);
+            logger.info("KeyRepository: - key ID length: " + idLength);
+
+            secureRandom = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
+
         } else {
-            mNextMinSerialNo = new BigInteger(nextMinSerial, mRadix);
-        }
-        logger.info("KeyRepository: - next min serial: " + mNextMinSerialNo);
-
-        nextMaxSerialName = DBSubsystem.PROP_NEXT_MAX_SERIAL_NUMBER;
-        String nextMaxSerial = dbConfig.getNextEndSerialNumber();
-        if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
-            mNextMaxSerialNo = null;
-        } else {
-            mNextMaxSerialNo = new BigInteger(nextMaxSerial, mRadix);
-        }
-        logger.info("KeyRepository: - next max serial: " + mNextMaxSerialNo);
-
-        String lowWaterMark = dbConfig.getSerialLowWaterMark();
-        if (lowWaterMark != null) {
-            mLowWaterMarkNo = new BigInteger(lowWaterMark, mRadix);
-        }
-
-        String incrementNo = dbConfig.getSerialIncrement();
-        if (incrementNo != null) {
-            mIncrementNo = new BigInteger(incrementNo, mRadix);
+            initLegacyGenerator();
         }
 
         // register key record schema
@@ -188,6 +165,56 @@ public class KeyRepository extends Repository implements IKeyRepository {
                     StringMapper(KeyDBSchema.LDAP_ATTR_REALM));
         }
 
+    }
+
+    public void initLegacyGenerator() throws Exception {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        rangeDN = dbConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
+        logger.info("KeyRepository: - range DN: " + rangeDN);
+
+        minSerialName = DBSubsystem.PROP_MIN_SERIAL_NUMBER;
+        String minSerial = dbConfig.getBeginSerialNumber();
+        if (minSerial != null) {
+            mMinSerialNo = new BigInteger(minSerial, mRadix);
+        }
+        logger.info("KeyRepository: - min serial: " + mMinSerialNo);
+
+        maxSerialName = DBSubsystem.PROP_MAX_SERIAL_NUMBER;
+        String maxSerial = dbConfig.getEndSerialNumber();
+        if (maxSerial != null) {
+            mMaxSerialNo = new BigInteger(maxSerial, mRadix);
+        }
+        logger.info("KeyRepository: - max serial: " + mMaxSerialNo);
+
+        nextMinSerialName = DBSubsystem.PROP_NEXT_MIN_SERIAL_NUMBER;
+        String nextMinSerial = dbConfig.getNextBeginSerialNumber();
+        if (nextMinSerial == null || nextMinSerial.equals("-1")) {
+            mNextMinSerialNo = null;
+        } else {
+            mNextMinSerialNo = new BigInteger(nextMinSerial, mRadix);
+        }
+        logger.info("KeyRepository: - next min serial: " + mNextMinSerialNo);
+
+        nextMaxSerialName = DBSubsystem.PROP_NEXT_MAX_SERIAL_NUMBER;
+        String nextMaxSerial = dbConfig.getNextEndSerialNumber();
+        if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
+            mNextMaxSerialNo = null;
+        } else {
+            mNextMaxSerialNo = new BigInteger(nextMaxSerial, mRadix);
+        }
+        logger.info("KeyRepository: - next max serial: " + mNextMaxSerialNo);
+
+        String lowWaterMark = dbConfig.getSerialLowWaterMark();
+        if (lowWaterMark != null) {
+            mLowWaterMarkNo = new BigInteger(lowWaterMark, mRadix);
+        }
+
+        String incrementNo = dbConfig.getSerialIncrement();
+        if (incrementNo != null) {
+            mIncrementNo = new BigInteger(incrementNo, mRadix);
+        }
     }
 
     public DBSubsystem getDBSubsystem() {
