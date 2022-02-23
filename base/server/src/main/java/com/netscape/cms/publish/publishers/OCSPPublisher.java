@@ -176,16 +176,13 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
      * Initializes this plugin.
      */
     @Override
-    public void init(IConfigStore config) {
+    public void init(IConfigStore config) throws EBaseException {
         mConfig = config;
-        try {
-            mHost = mConfig.getString(PROP_HOST, "");
-            mPort = mConfig.getString(PROP_PORT, "");
-            mPath = mConfig.getString(PROP_PATH, "");
-            mNickname = mConfig.getString(PROP_NICK, "");
-            mClientAuthEnabled = mConfig.getBoolean(PROP_CLIENT_AUTH_ENABLE, true);
-        } catch (EBaseException e) {
-        }
+        mHost = mConfig.getString(PROP_HOST, "");
+        mPort = mConfig.getString(PROP_PORT, "");
+        mPath = mConfig.getString(PROP_PATH, "");
+        mNickname = mConfig.getString(PROP_NICK, "");
+        mClientAuthEnabled = mConfig.getBoolean(PROP_CLIENT_AUTH_ENABLE, true);
     }
 
     @Override
@@ -209,6 +206,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 }
                 return socket;
             } catch (Exception e) {
+                logger.warn("OCSPPublisher: " + e.getMessage(), e);
             }
             try {
                 Thread.sleep(5000); // 5 seconds delay
@@ -233,8 +231,10 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public synchronized void publish(LDAPConnection conn, String dn, Object object)
             throws ELdapException {
         try {
-            if (!(object instanceof X509CRL))
+            if (!(object instanceof X509CRL)) {
                 return;
+            }
+
             X509CRL crl = (X509CRL) object;
 
             // talk to agent port of CMS
@@ -246,9 +246,8 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             int port = Integer.parseInt(mPort);
             String path = mPath;
 
-            logger.info("OCSPPublisher: " +
-                    "Host='" + host + "' Port='" + port +
-                    "' URL='" + path + "'");
+            String url = "https://" + host + ":" + port + path;
+            logger.info("OCSPPublisher: Publishing CRL to " + url);
 
             StringBuffer query = new StringBuffer();
             query.append("crl=");
@@ -284,8 +283,8 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             }
 
             if (socket == null) {
-                logger.error("OCSPPublisher::publish() - socket is null!");
-                throw new ELdapException("socket is null");
+                logger.error("OCSPPublisher: Unable to connect to " + url);
+                throw new ELdapException("Unable to connect to " + url);
             }
 
             // use HttpRequest and POST
@@ -305,15 +304,18 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             OutputStream os = socket.getOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(os, "UTF8");
 
-            logger.info("OCSPPublisher: start sending CRL");
+            logger.debug("OCSPPublisher: start sending CRL");
+
             long startTime = new Date().getTime();
             logger.debug("OCSPPublisher: start CRL sending startTime=" + startTime);
+
             httpReq.write(outputStreamWriter);
+
             long endTime = new Date().getTime();
             logger.debug("OCSPPublisher: done CRL sending endTime=" + endTime + " diff=" + (endTime - startTime));
 
             // Read the response
-            logger.info("OCSPPublisher: start getting response");
+            logger.debug("OCSPPublisher: start getting response");
             BufferedReader dis = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String nextline;
             String error = "";
@@ -331,21 +333,21 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             }
             dis.close();
             if (status) {
-                logger.info("OCSPPublisher: successful");
+                logger.debug("OCSPPublisher: successful");
             } else {
-                logger.warn("OCSPPublisher: failed - " + error);
+                logger.warn("OCSPPublisher: Unable to publish CRL: " + error);
             }
 
         } catch (IOException e) {
-            logger.warn("OCSPPublisher: publish failed " + e.getMessage(), e);
+            logger.warn("OCSPPublisher: Unable to publish CRL: " + e.getMessage(), e);
             logger.warn(CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
 
         } catch (CRLException e) {
-            logger.warn("OCSPPublisher: publish failed " + e.getMessage(), e);
+            logger.warn("OCSPPublisher: Unable to publish CRL: " + e.getMessage(), e);
             logger.warn(CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
 
         } catch (Exception e) {
-            logger.warn("OCSPPublisher: publish failed " + e.getMessage(), e);
+            logger.warn("OCSPPublisher: Unable to publish CRL: " + e.getMessage(), e);
             logger.warn(CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
         }
     }
