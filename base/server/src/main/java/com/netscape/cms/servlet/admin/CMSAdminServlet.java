@@ -58,7 +58,6 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigTrustedPublicKeyEvent;
@@ -340,10 +339,7 @@ public class CMSAdminServlet extends AdminServlet {
         for (ISubsystem sys : engine.getSubsystems()) {
 
             //get subsystem type
-            if ((sys instanceof IKeyRecoveryAuthority) &&
-                    subsystem.equals("kra"))
-                return true;
-            else if ((sys instanceof IOCSPAuthority) &&
+            if ((sys instanceof IOCSPAuthority) &&
                     subsystem.equals("ocsp"))
                 return true;
         }
@@ -359,15 +355,6 @@ public class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-
-        boolean isKRAInstalled = false;
-
-        for (ISubsystem sys : engine.getSubsystems()) {
-
-            //get subsystem type
-            if (sys instanceof IKeyRecoveryAuthority)
-                isKRAInstalled = true;
-        }
 
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
@@ -399,13 +386,6 @@ public class CMSAdminServlet extends AdminServlet {
         params.put(Constants.PR_TOKEN_LIST, tokenNewList);
 
         readEncryption(params);
-
-        if (isKRAInstalled) {
-            IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
-            String kraNickname = kra.getNickname();
-
-            params.put(Constants.PR_CERT_TRANS, getCertNickname(kraNickname));
-        }
 
         String nickName = engine.getServerCertNickname();
 
@@ -450,6 +430,9 @@ public class CMSAdminServlet extends AdminServlet {
     public void modifyCACert(HttpServletRequest request, String value) throws EBaseException {
     }
 
+    public void modifyKRACert(String nickname) throws EBaseException {
+    }
+
     public void modifyServerCert(String nickname) throws EBaseException {
     }
 
@@ -483,19 +466,6 @@ public class CMSAdminServlet extends AdminServlet {
             JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             jssSubsystem.getInternalTokenName();
 
-            boolean isKRAInstalled = false;
-
-            for (ISubsystem sys : engine.getSubsystems()) {
-
-                //get subsystem type
-                if (sys instanceof IKeyRecoveryAuthority)
-                    isKRAInstalled = true;
-            }
-
-            IKeyRecoveryAuthority kra = null;
-            if (isKRAInstalled)
-                kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
-
             while (enum1.hasMoreElements()) {
                 String name = enum1.nextElement();
                 String val = req.getParameter(name);
@@ -509,8 +479,7 @@ public class CMSAdminServlet extends AdminServlet {
                 } else if (name.equals(Constants.PR_CERT_TRANS)) {
                     if ((val != null) && (!val.equals(""))) {
                         String nickName = getCertConfigNickname(val);
-
-                        kra.setNickname(nickName);
+                        modifyKRACert(nickName);
                     }
                 } else if (name.equals(Constants.PR_CERT_SERVER)) {
                     if ((val != null) && (!val.equals(""))) {
@@ -660,8 +629,6 @@ public class CMSAdminServlet extends AdminServlet {
             String type = "";
 
             //get subsystem type
-            if (sys instanceof IKeyRecoveryAuthority)
-                type = Constants.PR_KRA_INSTANCE;
             if (sys instanceof IOCSPAuthority)
                 type = Constants.PR_OCSP_INSTANCE;
             if (sys instanceof ITKSAuthority)
@@ -1170,25 +1137,18 @@ public class CMSAdminServlet extends AdminServlet {
         return signingUnit.getNewNickName();
     }
 
-    private void setKRANewnickname(String tokenName, String nickname)
-            throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
-        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
-
-        if (CryptoUtil.isInternalToken(tokenName)) {
-            kra.setNewNickName(nickname);
-        } else if (tokenName.equals("") && nickname.equals("")) {
-            kra.setNewNickName("");
-        } else {
-            kra.setNewNickName(tokenName + ":" + nickname);
-        }
+    String getKRANewnickname() throws EBaseException {
+        return null;
     }
 
-    private String getKRANewnickname() throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
-        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
+    void setKRANewnickname(String tokenName, String nickname) throws EBaseException {
+    }
 
-        return kra.getNewNickName();
+    String getKRANickname() throws EBaseException {
+        return null;
+    }
+
+    void setKRANickname(String nickname) throws EBaseException {
     }
 
     private void setRADMNewnickname(String tokenName, String nickName)
@@ -1530,9 +1490,7 @@ public class CMSAdminServlet extends AdminServlet {
                 }
             } else if (certType.equals(Constants.PR_KRA_TRANSPORT_CERT)) {
                 setKRANewnickname("", "");
-                IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
-
-                kra.setNickname(nickname);
+                setKRANickname(nickname);
             } else if (certType.equals(Constants.PR_SERVER_CERT)) {
                 setAgentNewnickname("", "");
                 //modifyRADMCert(nickname);
@@ -1822,9 +1780,7 @@ public class CMSAdminServlet extends AdminServlet {
                 nickname = signingUnit.getNickname();
             }
         } else if (certType.equals(Constants.PR_KRA_TRANSPORT_CERT)) {
-            IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
-
-            nickname = kra.getNickname();
+            nickname = getKRANickname();
         } else if (certType.equals(Constants.PR_SERVER_CERT)) {
             nickname = engine.getServerCertNickname();
         } else if (certType.equals(Constants.PR_SERVER_CERT_RADM)) {
