@@ -870,6 +870,10 @@ grant codeBase "file:%s" {
         hostname = socket.getfqdn()
         port = server_config.get_secure_port()
 
+        if port is None:
+            protocol = 'http'
+            port = server_config.get_unsecure_port()
+
         connection = pki.client.PKIConnection(
             protocol=protocol,
             hostname=hostname,
