@@ -166,7 +166,10 @@ class PKIConnection:
         self.port = port
         self.subsystem = subsystem
 
-        self.rootURI = self.protocol + '://' + self.hostname + ':' + self.port
+        self.rootURI = self.protocol + '://' + self.hostname
+
+        if self.port is not None:
+            self.rootURI = self.rootURI + ':' + self.port
 
         if subsystem is not None:
             logger.warning(
