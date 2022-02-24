@@ -456,7 +456,6 @@ class RemoveCLI(pki.cli.CLI):
 
         logger.info('Removing instance: %s', instance_name)
 
-        instance.stop()
         instance.remove(force=force)
 
 
