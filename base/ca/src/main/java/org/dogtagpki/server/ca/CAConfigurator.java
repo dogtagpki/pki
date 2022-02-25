@@ -178,6 +178,23 @@ public class CAConfigurator extends Configurator {
         request.setRequestStatus(RequestStatus.COMPLETE);
     }
 
+    public void createCertRecord(X509CertImpl cert, RequestId requestID, String profileID) throws Exception {
+
+        logger.info("CAConfigurator: Creating cert record 0x" + cert.getSerialNumber().toString(16));
+        logger.info("CAConfigurator: - subject: " + cert.getSubjectDN());
+        logger.info("CAConfigurator: - issuer: " + cert.getIssuerDN());
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+
+        CertRecord certRecord = certificateRepository.createCertRecord(
+                requestID,
+                profileID,
+                cert);
+
+        certificateRepository.addCertificateRecord(certRecord);
+    }
+
     @Override
     public void importCert(
             byte[] binCert,
@@ -261,16 +278,10 @@ public class CAConfigurator extends Configurator {
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(request);
 
-        logger.info("CAConfigurator: Creating cert record 0x" + cert.getSerialNumber().toString(16));
-        logger.info("CAConfigurator: - subject: " + cert.getSubjectDN());
-        logger.info("CAConfigurator: - issuer: " + cert.getIssuerDN());
-
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-        CertRecord certRecord = certificateRepository.createCertRecord(
+        createCertRecord(
+                cert,
                 request.getRequestId(),
-                profileConfig.getString("profileIDMapping"),
-                cert);
-        certificateRepository.addCertificateRecord(certRecord);
+                profileConfig.getString("profileIDMapping"));
     }
 
     @Override
@@ -361,16 +372,10 @@ public class CAConfigurator extends Configurator {
         RequestQueue queue = engine.getRequestQueue();
         queue.updateRequest(request);
 
-        logger.info("CAConfigurator: Creating cert record 0x" + cert.getSerialNumber().toString(16));
-        logger.info("CAConfigurator: - subject: " + cert.getSubjectDN());
-        logger.info("CAConfigurator: - issuer: " + cert.getIssuerDN());
-
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-        CertRecord certRecord = certificateRepository.createCertRecord(
+        createCertRecord(
+                cert,
                 request.getRequestId(),
-                profileConfig.getString("profileIDMapping"),
-                cert);
-        certificateRepository.addCertificateRecord(certRecord);
+                profileConfig.getString("profileIDMapping"));
 
         return cert;
     }
