@@ -798,7 +798,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if 'pki_one_time_pin' not in deployer.mdict:
             deployer.mdict['pki_one_time_pin'] = subsystem.config['preop.pin']
 
-        system_certs = deployer.setup_system_certs(subsystem, client)
+        nssdb = subsystem.instance.open_nssdb()
+
+        try:
+            system_certs = deployer.setup_system_certs(nssdb, subsystem, client)
+        finally:
+            nssdb.close()
+
+        subsystem.save()
 
         if subsystem.type == 'CA':
             logger.info('Setting up subsystem user')

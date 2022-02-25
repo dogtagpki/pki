@@ -874,7 +874,7 @@ class PKIDeployer:
             logger.info('Initializing subsystem')
             client.initSubsystem(request)
 
-    def setup_system_certs(self, subsystem, client):
+    def setup_system_certs(self, nssdb, subsystem, client):
 
         logger.debug('PKIDeployer.setup_system_certs()')
         system_certs = {}
@@ -886,40 +886,32 @@ class PKIDeployer:
         clone = self.configuration_file.clone
         tomcat_instance_subsystems = len(self.instance.tomcat_instance_subsystems())
 
-        nssdb = subsystem.instance.open_nssdb()
+        for tag in subsystem.config['preop.cert.list'].split(','):
 
-        try:
-            for tag in subsystem.config['preop.cert.list'].split(','):
+            if tag != 'sslserver' and clone:
+                logger.info('%s certificate is already set up', tag)
+                continue
 
-                if tag != 'sslserver' and clone:
-                    logger.info('%s certificate is already set up', tag)
-                    continue
+            if tag == 'sslserver' and tomcat_instance_subsystems > 1:
+                logger.info('sslserver certificate is already set up')
+                continue
 
-                if tag == 'sslserver' and tomcat_instance_subsystems > 1:
-                    logger.info('sslserver certificate is already set up')
-                    continue
+            if tag == 'subsystem' and tomcat_instance_subsystems > 1:
+                logger.info('subsystem certificate is already set up')
+                continue
 
-                if tag == 'subsystem' and tomcat_instance_subsystems > 1:
-                    logger.info('subsystem certificate is already set up')
-                    continue
+            self.setup_system_cert(subsystem, nssdb, client, tag, system_certs[tag])
 
-                self.setup_system_cert(subsystem, nssdb, client, tag, system_certs[tag])
+            logger.info('Setting up certificate trust flags')
 
-                logger.info('Setting up certificate trust flags')
-
-            if subsystem.type == 'CA':
-                nssdb.modify_cert(
-                    nickname=self.mdict['pki_ca_signing_nickname'],
-                    trust_attributes='CTu,Cu,Cu')
-
+        if subsystem.type == 'CA':
             nssdb.modify_cert(
-                nickname=self.mdict['pki_audit_signing_nickname'],
-                trust_attributes='u,u,Pu')
+                nickname=self.mdict['pki_ca_signing_nickname'],
+                trust_attributes='CTu,Cu,Cu')
 
-        finally:
-            nssdb.close()
-
-        subsystem.save()
+        nssdb.modify_cert(
+            nickname=self.mdict['pki_audit_signing_nickname'],
+            trust_attributes='u,u,Pu')
 
         return system_certs
 
