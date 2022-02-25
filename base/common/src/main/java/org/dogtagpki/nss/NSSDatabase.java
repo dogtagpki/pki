@@ -899,101 +899,70 @@ public class NSSDatabase {
         }
     }
 
-    public PKCS10 createRequest(
-            String subject,
-            String keyID,
-            String keyType,
-            String keySize,
-            String curve,
-            String hash,
-            Extensions extensions) throws Exception {
+    public KeyPair loadKeyPair(
+            CryptoToken token,
+            byte[] keyID) throws Exception {
 
-        return createRequest(
-                null,
-                subject,
-                keyID,
-                keyType,
-                keySize,
-                curve,
-                hash,
-                extensions);
+        logger.info("NSSDatabase: Loading key pair");
+
+        logger.info("NSSDatabase: - key ID: " + CryptoUtil.encodeKeyID(keyID));
+        PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(token, keyID);
+
+        logger.info("NSSDatabase: - class: " + privateKey.getClass().getName());
+        logger.info("NSSDatabase: - algorithm: " + privateKey.getAlgorithm());
+        logger.info("NSSDatabase: - format: " + privateKey.getFormat());
+
+        PK11PubKey publicKey = privateKey.getPublicKey();
+
+        String keyType = privateKey.getType().toString();
+        logger.info("NSSDatabase: - key type: " + keyType);
+
+        if (privateKey instanceof PK11RSAPrivateKey) {
+            logger.info("NSSDatabase: - size: " + privateKey.getStrength());
+
+        } else if (privateKey instanceof PK11ECPrivateKey) {
+            PK11ECPrivateKey ecPrivateKey = (PK11ECPrivateKey) privateKey;
+            ECParameterSpec spec = ecPrivateKey.getParams();
+            logger.info("NSSDatabase: - curve: " + spec.getCurve());
+        }
+
+        return new KeyPair(publicKey, privateKey);
     }
 
-    public PKCS10 createRequest(
-            String tokenName,
+    public KeyPair createRSAKeyPair(
+            CryptoToken token,
+            int keySize) throws Exception {
+
+        logger.info("NSSDatabase: Creating RSA key pair");
+        logger.info("NSSDatabase: - size: " + keySize);
+
+        return CryptoUtil.generateRSAKeyPair(token, keySize);
+    }
+
+    public KeyPair createECKeyPair(
+            CryptoToken token,
+            String curve) throws Exception {
+
+        logger.info("NSSDatabase: Creating EC key pair");
+        logger.info("NSSDatabase: - curve: " + curve);
+
+        return CryptoUtil.generateECCKeyPair(token, curve);
+    }
+
+    public PKCS10 createPKCS10Request(
+            KeyPair keyPair,
             String subject,
-            String keyID,
-            String keyType,
-            String keySize,
-            String curve,
-            String hash,
+            String algorithm,
             Extensions extensions) throws Exception {
 
-        logger.info("NSSDatabase: Creating certificate signing request for " + subject);
-
-        logger.info("NSSDatabase: - token: " + tokenName);
-        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-
-        KeyPair keyPair = null;
-        if (keyID != null) {
-
-            logger.info("NSSDatabase: - key ID: " + keyID);
-
-            byte[] id = CryptoUtil.hexString2Bytes(keyID);
-            PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(token, id);
-
-            logger.info("NSSDatabase: - class: " + privateKey.getClass().getName());
-            logger.info("NSSDatabase: - algorithm: " + privateKey.getAlgorithm());
-            logger.info("NSSDatabase: - format: " + privateKey.getFormat());
-
-            PK11PubKey publicKey = privateKey.getPublicKey();
-
-            keyType = privateKey.getType().toString();
-            logger.info("NSSDatabase: - type: " + keyType);
-
-            logger.info("NSSDatabase: - class: " + privateKey.getClass().getName());
-            if (privateKey instanceof PK11RSAPrivateKey) {
-                logger.info("NSSDatabase: - size: " + privateKey.getStrength());
-
-            } else if (privateKey instanceof PK11ECPrivateKey) {
-                PK11ECPrivateKey ecPrivateKey = (PK11ECPrivateKey) privateKey;
-                ECParameterSpec spec = ecPrivateKey.getParams();
-                logger.info("NSSDatabase: - curve: " + spec.getCurve());
-            }
-
-            keyPair = new KeyPair(publicKey, privateKey);
-
-        } else if ("rsa".equalsIgnoreCase(keyType)) {
-
-            logger.info("NSSDatabase: - type: RSA");
-            logger.info("NSSDatabase: - size: " + keySize);
-            int size = Integer.parseInt(keySize);
-
-            keyPair = CryptoUtil.generateRSAKeyPair(token, size);
-
-        } else if ("ec".equalsIgnoreCase(keyType)) {
-
-            logger.info("NSSDatabase: - type: EC");
-            logger.info("NSSDatabase: - curve: " + curve);
-
-            keyPair = CryptoUtil.generateECCKeyPair(token, curve);
-
-        } else {
-            throw new Exception("Unsupported key type: " + keyType);
-        }
-
-        if (hash == null) {
-            hash = "SHA256";
-        }
-        logger.info("NSSDatabase: - hash algorithm: " + hash);
-
-        String keyAlgorithm = hash + "with" + keyType;
-        logger.info("NSSDatabase: - key algorithm: " + keyAlgorithm);
+        logger.info("NSSDatabase: Creating PKCS #10 request");
+        logger.info("NSSDatabase: - subjecct: " + subject);
+        logger.info("NSSDatabase: - algorithm: " + algorithm);
 
         return CryptoUtil.createCertificationRequest(
                 subject,
                 keyPair,
-                keyAlgorithm,
+                algorithm,
                 extensions);
     }
 

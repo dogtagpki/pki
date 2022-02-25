@@ -7,6 +7,7 @@ package com.netscape.cmstools.nss;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.KeyPair;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -14,11 +15,14 @@ import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.pkcs11.PK11PrivKey;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class NSSCertRequestCLI extends CommandCLI {
 
@@ -76,16 +80,23 @@ public class NSSCertRequestCLI extends CommandCLI {
     public void execute(CommandLine cmd) throws Exception {
 
         String subject = cmd.getOptionValue("subject");
-        String keyID = cmd.getOptionValue("key-id");
+        if (subject == null) {
+            throw new Exception("Missing subject name");
+        }
+
+        String hexKeyID = cmd.getOptionValue("key-id");
+        byte[] keyID = null;
+
+        if (hexKeyID != null) {
+            logger.info("Key ID: " + hexKeyID);
+            keyID = CryptoUtil.hexString2Bytes(hexKeyID);
+        }
+
         String keyType = cmd.getOptionValue("key-type", "RSA");
         String keySize = cmd.getOptionValue("key-size", "2048");
         String curve = cmd.getOptionValue("curve");
         String hash = cmd.getOptionValue("hash", "SHA256");
         String extConf = cmd.getOptionValue("ext");
-
-        if (subject == null) {
-            throw new Exception("Missing subject name");
-        }
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
@@ -101,15 +112,31 @@ public class NSSCertRequestCLI extends CommandCLI {
         }
 
         String tokenName = clientConfig.getTokenName();
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
-        PKCS10 pkcs10 = nssdb.createRequest(
-                tokenName,
+        KeyPair keyPair;
+
+        if (keyID != null) {
+            keyPair = nssdb.loadKeyPair(token, keyID);
+
+        } else if ("rsa".equalsIgnoreCase(keyType)) {
+            keyPair = nssdb.createRSAKeyPair(token, Integer.parseInt(keySize));
+
+        } else if ("ec".equalsIgnoreCase(keyType)) {
+            keyPair = nssdb.createECKeyPair(token, curve);
+
+        } else {
+            throw new Exception("Unsupported key type: " + keyType);
+        }
+
+        PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
+        String keyAlgorithm = hash + "with" + privateKey.getType();
+        logger.info("NSSDatabase: - key algorithm: " + keyAlgorithm);
+
+        PKCS10 pkcs10 = nssdb.createPKCS10Request(
+                keyPair,
                 subject,
-                keyID,
-                keyType,
-                keySize,
-                curve,
-                hash,
+                keyAlgorithm,
                 extensions);
 
         String format = cmd.getOptionValue("format");
