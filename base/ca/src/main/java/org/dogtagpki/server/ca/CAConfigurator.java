@@ -168,14 +168,22 @@ public class CAConfigurator extends Configurator {
         }
     }
 
-    public void updateRequest(
+    public void updateRequestRecord(
             Request request,
             X509CertImpl cert) throws Exception {
+
+        logger.info("CAConfigurator: Updating request record " + request.getRequestId().toHexString());
+        logger.info("CAConfigurator: - cert serial number: 0x" + cert.getSerialNumber().toString(16));
+
+        CAEngine engine = CAEngine.getInstance();
+        RequestQueue queue = engine.getRequestQueue();
 
         request.setExtData(EnrollProfile.REQUEST_CERTINFO, cert.getInfo());
         request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
 
         request.setRequestStatus(RequestStatus.COMPLETE);
+
+        queue.updateRequest(request);
     }
 
     public void createCertRecord(X509CertImpl cert, RequestId requestID, String profileID) throws Exception {
@@ -270,13 +278,7 @@ public class CAConfigurator extends Configurator {
                 installAdjustValidity,
                 extensions);
 
-        logger.info("CAConfigurator: Creating request record " + requestID.toHexString());
-        logger.info("CAConfigurator: - cert serial number: 0x" + cert.getSerialNumber().toString(16));
-
-        updateRequest(request, cert);
-
-        RequestQueue queue = engine.getRequestQueue();
-        queue.updateRequest(request);
+        updateRequestRecord(request, cert);
 
         createCertRecord(
                 cert,
@@ -364,13 +366,7 @@ public class CAConfigurator extends Configurator {
         profile.populate(request, info);
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
 
-        logger.info("CAConfigurator: Creating request record " + requestID.toHexString());
-        logger.info("CAConfigurator: - cert serial number: 0x" + cert.getSerialNumber().toString(16));
-
-        updateRequest(request, cert);
-
-        RequestQueue queue = engine.getRequestQueue();
-        queue.updateRequest(request);
+        updateRequestRecord(request, cert);
 
         createCertRecord(
                 cert,
