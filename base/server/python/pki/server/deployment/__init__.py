@@ -1134,22 +1134,28 @@ class PKIDeployer:
     def get_admin_cert(self, subsystem, client):
 
         logger.debug('PKIDeployer.get_admin_cert()')
+
         external_step_two = config.str2bool(self.mdict['pki_external_step_two'])
+        logger.debug('PKIDeployer: pki_external_step_two: %s', external_step_two)
+
         if config.str2bool(self.mdict['pki_import_admin_cert']):
             b64cert = self.load_admin_cert(subsystem)
+
+        elif external_step_two and subsystem.type != 'CA':
+            b64cert = self.load_admin_cert(subsystem)
+            logger.debug('Admin cert: %s', b64cert)
+
+            self.export_admin_pkcs12()
+
+            return base64.b64decode(b64cert)
+
+        elif subsystem.type == 'CA':
+            b64csr = self.create_admin_csr()
+            b64cert = self.create_admin_cert(subsystem, b64csr, client)
+
         else:
-            if external_step_two and subsystem.type != 'CA':
-                logger.debug('get_admin_cert: pki_external_step_two True')
-                b64cert = self.load_admin_cert(subsystem)
-                self.export_admin_pkcs12()
-                logger.debug('Admin cert: %s', b64cert)
-                return base64.b64decode(b64cert)
-            else:
-                b64csr = self.create_admin_csr()
-                if subsystem.type == 'CA':
-                    b64cert = self.create_admin_cert(subsystem, b64csr, client)
-                else:
-                    b64cert = self.request_admin_cert(subsystem, b64csr)
+            b64csr = self.create_admin_csr()
+            b64cert = self.request_admin_cert(subsystem, b64csr)
 
         logger.debug('Admin cert: %s', b64cert)
 
