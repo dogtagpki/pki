@@ -784,30 +784,13 @@ class PKIDeployer:
 
         return request
 
-    def setup_system_cert(self, subsystem, nssdb, client, tag, system_cert):
+    def setup_system_cert(self, nssdb, subsystem, tag, system_cert, request, client):
 
         logger.debug('PKIDeployer.setup_system_cert()')
-
-        # Process existing CA installation like external CA
-        external = config.str2bool(self.mdict['pki_external']) or \
-            config.str2bool(self.mdict['pki_existing'])
-        standalone = config.str2bool(self.mdict['pki_standalone'])
-
-        # For external/standalone KRA/OCSP/TKS/TPS case, all system certs will be provided.
-        # No system certs will be generated including the SSL server cert.
-
-        if subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS'] and (external or standalone):
-            return
-
-        request = self.create_cert_setup_request(subsystem, tag, system_cert)
 
         cert_info = nssdb.get_cert_info(
             nickname=request.systemCert.nickname,
             token=request.systemCert.token)
-
-        if subsystem.type == 'CA':
-            signing_cert_info = nssdb.get_cert_info(
-                nickname=subsystem.config["ca.signing.nickname"])
 
         if cert_info:
             logger.info('%s cert already exists', tag)
@@ -821,9 +804,15 @@ class PKIDeployer:
         # For external/existing CA case, some/all system certs may be provided.
         # The SSL server cert will always be generated for the current host.
 
+        external = config.str2bool(self.mdict['pki_external']) or \
+            config.str2bool(self.mdict['pki_existing'])
+
         if subsystem.type == 'CA' and external and tag != 'sslserver' and cert_info:
 
+            signing_cert_info = nssdb.get_cert_info(
+                nickname=subsystem.config["ca.signing.nickname"])
             logger.info('CA subject: %s', signing_cert_info['subject'])
+
             if cert_info['object'].issuer == signing_cert_info['object'].subject:
 
                 logger.info('Import cert and request into database: %s', tag)
@@ -870,10 +859,6 @@ class PKIDeployer:
         request_id = cert.get('requestID')
         logger.info('Request ID: %s', request_id)
 
-        if subsystem.type == 'CA' and tag == 'signing':
-            logger.info('Initializing subsystem')
-            client.initSubsystem(request)
-
     def setup_system_certs(self, nssdb, subsystem, client):
 
         logger.debug('PKIDeployer.setup_system_certs()')
@@ -885,6 +870,10 @@ class PKIDeployer:
 
         clone = self.configuration_file.clone
         tomcat_instance_subsystems = len(self.instance.tomcat_instance_subsystems())
+
+        external = config.str2bool(self.mdict['pki_external']) or \
+            config.str2bool(self.mdict['pki_existing']) or \
+            config.str2bool(self.mdict['pki_standalone'])
 
         for tag in subsystem.config['preop.cert.list'].split(','):
 
@@ -900,9 +889,26 @@ class PKIDeployer:
                 logger.info('subsystem certificate is already set up')
                 continue
 
-            self.setup_system_cert(subsystem, nssdb, client, tag, system_certs[tag])
+            # For external/standalone KRA/OCSP/TKS/TPS case, all system certs will be provided.
+            # No system certs will be generated including the SSL server cert.
 
-            logger.info('Setting up certificate trust flags')
+            if subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS'] and external:
+                continue
+
+            request = self.create_cert_setup_request(subsystem, tag, system_certs[tag])
+
+            self.setup_system_cert(nssdb, subsystem, tag, system_certs[tag], request, client)
+
+            if subsystem.type == 'CA' and tag == 'signing':
+
+                logger.info('Initializing CA')
+
+                request = pki.system.CertificateSetupRequest()
+                request.pin = self.mdict['pki_one_time_pin']
+
+                client.initSubsystem(request)
+
+        logger.info('Setting up trust flags')
 
         if subsystem.type == 'CA':
             nssdb.modify_cert(
