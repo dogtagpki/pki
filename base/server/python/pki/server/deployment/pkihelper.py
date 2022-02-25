@@ -2547,31 +2547,6 @@ class ConfigClient:
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
 
-    def process_admin_cert(self, admin_cert):
-
-        logger.debug('ConfigClient.process_admin_cert()')
-        admin_cert_file = self.mdict['pki_client_admin_cert']
-        logger.info('Storing admin certificate into %s', admin_cert_file)
-
-        self.save_admin_cert(admin_cert, admin_cert_file,
-                             self.mdict['pki_subsystem_name'])
-        os.chmod(admin_cert_file, pki.server.DEFAULT_FILE_MODE)
-
-        logger.info('Importing admin certificate into %s',
-                    self.mdict['pki_client_database_dir'])
-
-        client_nssdb = pki.nssdb.NSSDatabase(
-            directory=self.mdict['pki_client_database_dir'],
-            password_file=self.mdict['pki_client_password_conf'])
-
-        try:
-            client_nssdb.add_cert(
-                re.sub("&#39;", "'", self.mdict['pki_admin_nickname']),
-                admin_cert_file)
-
-        finally:
-            client_nssdb.close()
-
     def process_admin_p12(self):
 
         logger.debug('ConfigClient.process_admin_p12()')
@@ -2616,18 +2591,6 @@ class ConfigClient:
         with open(self.mdict['pki_admin_csr_path'], "r") as f:
             admin_certreq = f.read()
         logger.info('Admin request: %s', admin_certreq)
-
-    def save_admin_cert(self, input_data, output_file, subsystem_name):
-
-        logger.debug(
-            log.PKI_CONFIG_ADMIN_CERT_SAVE_2,
-            subsystem_name,
-            output_file)
-
-        input_data = pki.nssdb.convert_cert(input_data, 'base64', 'pem')
-
-        with open(output_file, "w") as f:
-            f.write(input_data)
 
     def save_system_csr(self, request, message, path, subsystem=None):
         if subsystem is not None:

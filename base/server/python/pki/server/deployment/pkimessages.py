@@ -313,7 +313,6 @@ PKIHELPER_USER_ADD_DEFAULT_2 = "Adding default UID '%s' for user '%s'"
 PKIHELPER_USER_ADD_KEYERROR_1 = "KeyError:  pki_user %s"
 PKIHELPER_USER_ADD_UID_KEYERROR_1 = "KeyError:  pki_uid %s"
 
-PKI_CONFIG_ADMIN_CERT_SAVE_2 = "saving %s Admin Certificate to file: %s"
 PKI_CONFIG_ADMIN_CERT_ATOB_1 = "converting %s Admin Certificate to binary:"
 PKI_CONFIG_CONSTRUCTING_PKI_DATA = "constructing PKI configuration data."
 PKI_CONFIG_PKCS10_SUPPORT_ONLY = \

@@ -24,6 +24,7 @@ import json
 import ldap
 import logging
 import os
+import re
 import shutil
 import socket
 import struct
@@ -35,6 +36,7 @@ import urllib.parse
 
 import pki.account
 import pki.client
+import pki.server
 import pki.system
 
 from . import pkiconfig as config
@@ -336,6 +338,33 @@ class PKIDeployer:
                 nickname=nickname,
                 cert_chain_file=cert_file,
                 trust_attributes=',,')
+
+        finally:
+            client_nssdb.close()
+
+    def store_admin_cert(self, admin_cert):
+
+        cert_file = self.mdict['pki_client_admin_cert']
+        logger.info('Storing admin cert into %s', cert_file)
+
+        pem_cert = pki.nssdb.convert_cert(admin_cert, 'base64', 'pem')
+
+        with open(cert_file, "w") as f:
+            f.write(pem_cert)
+
+        os.chmod(cert_file, pki.server.DEFAULT_FILE_MODE)
+
+        client_nssdb_dir = self.mdict['pki_client_database_dir']
+        logger.info('Importing admin cert into %s', client_nssdb_dir)
+
+        client_nssdb = pki.nssdb.NSSDatabase(
+            directory=client_nssdb_dir,
+            password_file=self.mdict['pki_client_password_conf'])
+
+        try:
+            client_nssdb.add_cert(
+                re.sub("&#39;", "'", self.mdict['pki_admin_nickname']),
+                cert_file)
 
         finally:
             client_nssdb.close()
@@ -1097,7 +1126,7 @@ class PKIDeployer:
                 or config.str2bool(self.mdict['pki_standalone']) \
                 or not config.str2bool(self.mdict['pki_import_admin_cert']):
 
-            self.config_client.process_admin_cert(b64cert)
+            self.store_admin_cert(b64cert)
             self.config_client.process_admin_p12()
 
         return base64.b64decode(b64cert)
