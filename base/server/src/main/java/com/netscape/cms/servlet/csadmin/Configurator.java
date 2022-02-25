@@ -53,7 +53,6 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
-import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.ServerXml;
@@ -452,8 +451,5 @@ public class Configurator {
     }
 
     public void initSubsystem() throws Exception {
-    }
-
-    public void createAdminCertificate(SystemCertData certData) throws Exception {
     }
 }

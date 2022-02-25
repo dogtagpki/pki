@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.rest;
 
+import java.io.IOException;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -25,6 +26,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
@@ -48,6 +50,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -390,7 +393,91 @@ public class SystemConfigService extends PKIService {
             }
 
             SystemCertData certData = request.getSystemCert();
-            configurator.createAdminCertificate(certData);
+
+            String certRequestType = certData.getRequestType();
+            logger.info("SystemConfigService: - request type: " + certRequestType);
+
+            String profileID = certData.getProfile();
+            logger.info("SystemConfigService: - profile: " + profileID);
+
+            // cert type is selfsign, local, or remote
+            String certType = certData.getType();
+            logger.info("SystemConfigService: - cert type: " + certType);
+
+            String subjectDN = certData.getSubjectDN();
+            logger.info("SystemConfigService: - subject: " + subjectDN);
+
+            PreOpConfig preopConfig = cs.getPreOpConfig();
+            String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
+            String profileFile = cs.getString("profile.caAdminCert.config");
+            String defaultSigningAlgsAllowed = cs.getString(
+                    "ca.profiles.defaultSigningAlgsAllowed",
+                    "SHA256withRSA,SHA256withEC");
+            String keyAlgorithm = CertUtils.getAdminProfileAlgorithm(
+                    caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
+
+            KeyPair keyPair = null;
+            String certRequest = certData.getRequest();
+            byte[] binCertRequest = Utils.base64decode(certRequest);
+
+            X500Name subjectName;
+            X509Key x509key;
+
+            if (certRequestType.equals("crmf")) {
+                SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binCertRequest);
+                subjectName = CryptoUtil.getSubjectName(crmfMsgs);
+                x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
+
+            } else if (certRequestType.equals("pkcs10")) {
+                PKCS10 pkcs10 = new PKCS10(binCertRequest);
+                subjectName = pkcs10.getSubjectName();
+                x509key = pkcs10.getSubjectPublicKeyInfo();
+
+            } else {
+                throw new Exception("Certificate request type not supported: " + certRequestType);
+            }
+
+            if (x509key == null) {
+                logger.error("SystemConfigService: Missing certificate public key");
+                throw new IOException("Missing certificate public key");
+            }
+
+            String[] dnsNames = null;
+            boolean installAdjustValidity = false;
+
+            X500Name issuerName;
+            PrivateKey signingPrivateKey;
+            String signingAlgorithm;
+
+            if (certType.equals("selfsign")) {
+                issuerName = subjectName;
+                signingPrivateKey = keyPair.getPrivate();
+                signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
+            } else { // local
+                issuerName = null;
+                signingPrivateKey = null;
+                signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
+            }
+
+            RequestId requestID = configurator.createRequestID();
+            certData.setRequestID(requestID);
+
+            X509CertImpl certImpl = configurator.createLocalCert(
+                    keyAlgorithm,
+                    x509key,
+                    profileID,
+                    dnsNames,
+                    installAdjustValidity,
+                    signingPrivateKey,
+                    signingAlgorithm,
+                    certRequestType,
+                    binCertRequest,
+                    issuerName,
+                    subjectName,
+                    requestID);
+
+            byte[] binCert = certImpl.getEncoded();
+            certData.setCert(CryptoUtil.base64Encode(binCert));
 
             return certData;
 

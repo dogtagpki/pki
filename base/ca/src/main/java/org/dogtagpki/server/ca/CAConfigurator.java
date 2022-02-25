@@ -17,20 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.util.Date;
 
-import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
 import org.mozilla.jss.netscape.security.pkcs.PKCS9Attribute;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.Extensions;
@@ -44,13 +40,10 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.csadmin.BootstrapProfile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.PreOpConfig;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -398,97 +391,5 @@ public class CAConfigurator extends Configurator {
         CertificateAuthority ca = engine.getCA();
         ca.setConfig(engineConfig.getCAConfig());
         ca.initCertSigningUnit();
-    }
-
-    @Override
-    public void createAdminCertificate(SystemCertData certData) throws Exception {
-
-        logger.info("CAConfigurator: Generating admin cert");
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String certRequestType = certData.getRequestType();
-        logger.info("CAConfigurator: - request type: " + certRequestType);
-
-        String profileID = certData.getProfile();
-        logger.info("CAConfigurator: - profile: " + profileID);
-
-        // cert type is selfsign, local, or remote
-        String certType = certData.getType();
-        logger.info("CAConfigurator: - cert type: " + certType);
-
-        String subjectDN = certData.getSubjectDN();
-        logger.info("CAConfigurator: - subject: " + subjectDN);
-
-        String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
-        String profileFile = cs.getString("profile.caAdminCert.config");
-        String defaultSigningAlgsAllowed = cs.getString(
-                "ca.profiles.defaultSigningAlgsAllowed",
-                "SHA256withRSA,SHA256withEC");
-        String keyAlgorithm = CertUtils.getAdminProfileAlgorithm(
-                caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
-
-        KeyPair keyPair = null;
-        String certRequest = certData.getRequest();
-        byte[] binCertRequest = Utils.base64decode(certRequest);
-
-        X500Name subjectName;
-        X509Key x509key;
-
-        if (certRequestType.equals("crmf")) {
-            SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binCertRequest);
-            subjectName = CryptoUtil.getSubjectName(crmfMsgs);
-            x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
-
-        } else if (certRequestType.equals("pkcs10")) {
-            PKCS10 pkcs10 = new PKCS10(binCertRequest);
-            subjectName = pkcs10.getSubjectName();
-            x509key = pkcs10.getSubjectPublicKeyInfo();
-
-        } else {
-            throw new Exception("Certificate request type not supported: " + certRequestType);
-        }
-
-        if (x509key == null) {
-            logger.error("CAConfigurator: Missing certificate public key");
-            throw new IOException("Missing certificate public key");
-        }
-
-        String[] dnsNames = null;
-        boolean installAdjustValidity = false;
-
-        X500Name issuerName;
-        PrivateKey signingPrivateKey;
-        String signingAlgorithm;
-
-        if (certType.equals("selfsign")) {
-            issuerName = subjectName;
-            signingPrivateKey = keyPair.getPrivate();
-            signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-        } else { // local
-            issuerName = null;
-            signingPrivateKey = null;
-            signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
-        }
-
-        RequestId requestID = createRequestID();
-        certData.setRequestID(requestID);
-
-        X509CertImpl certImpl = createLocalCert(
-                keyAlgorithm,
-                x509key,
-                profileID,
-                dnsNames,
-                installAdjustValidity,
-                signingPrivateKey,
-                signingAlgorithm,
-                certRequestType,
-                binCertRequest,
-                issuerName,
-                subjectName,
-                requestID);
-
-        byte[] binCert = certImpl.getEncoded();
-        certData.setCert(CryptoUtil.base64Encode(binCert));
     }
 }
