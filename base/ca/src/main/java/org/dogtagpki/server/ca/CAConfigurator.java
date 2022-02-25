@@ -88,7 +88,7 @@ public class CAConfigurator extends Configurator {
             X509Key x509key,
             String[] sanHostnames,
             boolean installAdjustValidity,
-            CertificateExtensions extensions) throws Exception {
+            CertificateExtensions requestExtensions) throws Exception {
 
         logger.info("CAConfigurator: Creating request record " + request.getRequestId().toHexString());
 
@@ -99,7 +99,7 @@ public class CAConfigurator extends Configurator {
         request.setExtData("requestversion", "1.0.0");
         request.setExtData("req_seq_num", "0");
 
-        request.setExtData(EnrollProfile.REQUEST_EXTENSIONS, extensions);
+        request.setExtData(EnrollProfile.REQUEST_EXTENSIONS, requestExtensions);
 
         request.setExtData("requesttype", "enrollment");
         request.setExtData("requestor_name", "");
@@ -208,6 +208,31 @@ public class CAConfigurator extends Configurator {
         certificateRepository.addCertificateRecord(certRecord);
     }
 
+    public CertificateExtensions createRequestExtensions(PKCS10 pkcs10) throws Exception {
+
+        PKCS10Attributes attrs = pkcs10.getAttributes();
+        PKCS10Attribute extsAttr = attrs.getAttribute(CertificateExtensions.NAME);
+
+        CertificateExtensions extensions;
+
+        if (extsAttr != null && extsAttr.getAttributeId().equals(PKCS9Attribute.EXTENSION_REQUEST_OID)) {
+
+            Extensions exts = (Extensions) extsAttr.getAttributeValue();
+
+            // convert Extensions into CertificateExtensions
+            DerOutputStream os = new DerOutputStream();
+            exts.encode(os);
+            DerInputStream is = new DerInputStream(os.toByteArray());
+
+            extensions = new CertificateExtensions(is);
+
+        } else {
+            extensions = new CertificateExtensions();
+        }
+
+        return extensions;
+    }
+
     @Override
     public void importCert(
             byte[] binCert,
@@ -228,25 +253,8 @@ public class CAConfigurator extends Configurator {
 
         PKCS10 pkcs10 = new PKCS10(binCertRequest);
         X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
-        PKCS10Attributes attrs = pkcs10.getAttributes();
-        PKCS10Attribute extsAttr = attrs.getAttribute(CertificateExtensions.NAME);
 
-        CertificateExtensions extensions;
-
-        if (extsAttr != null && extsAttr.getAttributeId().equals(PKCS9Attribute.EXTENSION_REQUEST_OID)) {
-
-            Extensions exts = (Extensions) extsAttr.getAttributeValue();
-
-            // convert Extensions into CertificateExtensions
-            DerOutputStream os = new DerOutputStream();
-            exts.encode(os);
-            DerInputStream is = new DerInputStream(os.toByteArray());
-
-            extensions = new CertificateExtensions(is);
-
-        } else {
-            extensions = new CertificateExtensions();
-        }
+        CertificateExtensions requestExtensions = createRequestExtensions(pkcs10);
 
         X509CertImpl cert = new X509CertImpl(binCert);
         X509CertInfo info = cert.getInfo();
@@ -281,7 +289,7 @@ public class CAConfigurator extends Configurator {
                 x509key,
                 dnsNames,
                 installAdjustValidity,
-                extensions);
+                requestExtensions);
 
         updateRequestRecord(request, cert);
 
