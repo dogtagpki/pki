@@ -77,7 +77,7 @@ public class CAConfigurator extends Configurator {
         return new CertId(serialNumber);
     }
 
-    public void initRequest(
+    public void createRequestRecord(
             Request request,
             String certRequestType,
             byte[] certRequest,
@@ -90,7 +90,10 @@ public class CAConfigurator extends Configurator {
             boolean installAdjustValidity,
             CertificateExtensions extensions) throws Exception {
 
-        logger.info("CAConfigurator: Initialize cert request " + request.getRequestId().toHexString());
+        logger.info("CAConfigurator: Creating request record " + request.getRequestId().toHexString());
+
+        CAEngine engine = CAEngine.getInstance();
+        RequestQueue queue = engine.getRequestQueue();
 
         request.setExtData("profile", "true");
         request.setExtData("requestversion", "1.0.0");
@@ -166,6 +169,8 @@ public class CAConfigurator extends Configurator {
             // notAfter value to that of the CA's signing cert if needed
             request.setExtData("installAdjustValidity", "true");
         }
+
+        queue.updateRequest(request);
     }
 
     public void updateRequestRecord(
@@ -265,7 +270,7 @@ public class CAConfigurator extends Configurator {
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         Request request = requestRepository.createRequest(requestID, "enrollment");
 
-        initRequest(
+        createRequestRecord(
                 request,
                 certRequestType,
                 binCertRequest,
@@ -347,7 +352,7 @@ public class CAConfigurator extends Configurator {
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         Request request = requestRepository.createRequest(requestID, "enrollment");
 
-        initRequest(
+        createRequestRecord(
                 request,
                 certRequestType,
                 certRequest,
