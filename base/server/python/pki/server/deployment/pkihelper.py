@@ -2547,30 +2547,6 @@ class ConfigClient:
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
 
-    def process_admin_p12(self):
-
-        logger.debug('ConfigClient.process_admin_p12()')
-
-        logger.info('Exporting admin certificate into %s',
-                    self.mdict['pki_client_admin_cert_p12'])
-
-        # create directory for p12 file if it does not exist
-        self.deployer.directory.create(os.path.dirname(
-            self.mdict['pki_client_admin_cert_p12']))
-
-        # Export the Administration Certificate from the
-        # client NSS security database into a PKCS #12 file
-        self.deployer.pk12util.create_file(
-            self.mdict['pki_client_admin_cert_p12'],
-            re.sub("&#39;", "'", self.mdict['pki_admin_nickname']),
-            self.mdict['pki_client_pkcs12_password_conf'],
-            self.mdict['pki_client_password_conf'],
-            self.mdict['pki_client_database_dir'])
-
-        os.chmod(
-            self.mdict['pki_client_admin_cert_p12'],
-            config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-
     def save_admin_csr(self):
         logger.info(
             log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_2,

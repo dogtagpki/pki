@@ -369,6 +369,26 @@ class PKIDeployer:
         finally:
             client_nssdb.close()
 
+    def export_admin_pkcs12(self):
+
+        pkcs12_file = self.mdict['pki_client_admin_cert_p12']
+        logger.info('Exporting admin cert into %s', pkcs12_file)
+
+        # Create directory for PKCS #12 file
+        self.directory.create(os.path.dirname(pkcs12_file))
+
+        # Export admin cert into PKCS #12 file
+        self.pk12util.create_file(
+            pkcs12_file,
+            re.sub("&#39;", "'", self.mdict['pki_admin_nickname']),
+            self.mdict['pki_client_pkcs12_password_conf'],
+            self.mdict['pki_client_password_conf'],
+            self.mdict['pki_client_database_dir'])
+
+        os.chmod(
+            pkcs12_file,
+            config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
+
     def import_certs_and_keys(self, nssdb):
 
         pkcs12_file = self.mdict.get('pki_external_pkcs12_path')
@@ -1110,7 +1130,7 @@ class PKIDeployer:
             if external_step_two and subsystem.type != 'CA':
                 logger.debug('get_admin_cert: pki_external_step_two True')
                 b64cert = self.load_admin_cert(subsystem)
-                self.config_client.process_admin_p12()
+                self.export_admin_pkcs12()
                 logger.debug('Admin cert: %s', b64cert)
                 return base64.b64decode(b64cert)
             else:
@@ -1127,7 +1147,7 @@ class PKIDeployer:
                 or not config.str2bool(self.mdict['pki_import_admin_cert']):
 
             self.store_admin_cert(b64cert)
-            self.config_client.process_admin_p12()
+            self.export_admin_pkcs12()
 
         return base64.b64decode(b64cert)
 
