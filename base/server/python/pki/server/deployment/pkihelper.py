@@ -2547,27 +2547,6 @@ class ConfigClient:
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
 
-    def save_admin_csr(self):
-        logger.info(
-            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_2,
-            self.subsystem,
-            self.mdict['pki_admin_csr_path'])
-        self.deployer.directory.create(
-            os.path.dirname(self.mdict['pki_admin_csr_path']))
-        with open(self.mdict['pki_admin_csr_path'], "w") as f:
-            f.write("-----BEGIN CERTIFICATE REQUEST-----\n")
-        with open(os.path.join(
-                  self.mdict['pki_client_database_dir'],
-                  "admin_pkcs10.bin.asc"), "r") as f:
-            admin_certreq = f.read()
-        with open(self.mdict['pki_admin_csr_path'], "a") as f:
-            f.write(admin_certreq)
-            f.write("-----END CERTIFICATE REQUEST-----")
-        # Read in and print Admin certificate request
-        with open(self.mdict['pki_admin_csr_path'], "r") as f:
-            admin_certreq = f.read()
-        logger.info('Admin request: %s', admin_certreq)
-
     def save_system_csr(self, request, message, path, subsystem=None):
         if subsystem is not None:
             logger.info(message, subsystem, path)

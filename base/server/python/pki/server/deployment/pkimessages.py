@@ -340,7 +340,6 @@ PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_TRANSPORT_1 = (
     "saving KRA Transport CSR to file: %s")
 PKI_CONFIG_EXTERNAL_CSR_SAVE_OCSP_SIGNING_1 = (
     "saving OCSP Signing CSR to file: %s")
-PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_2 = "saving %s Admin CSR to file: '%s'"
 PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_AUDIT_SIGNING_2 = \
     "saving %s Audit Signing CSR to file: %s"
 PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SSLSERVER_2 = (
