@@ -2547,18 +2547,6 @@ class ConfigClient:
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
 
-    def save_system_csr(self, request, message, path, subsystem=None):
-        if subsystem is not None:
-            logger.info(message, subsystem, path)
-        else:
-            logger.info(message, path)
-        self.deployer.directory.create(os.path.dirname(path))
-        csr = pki.nssdb.convert_csr(request, 'base64', 'pem')
-        with open(path, "w") as f:
-            f.write(csr)
-        # Print this certificate request
-        logger.info('Request:\n%s', csr)
-
     def set_system_cert_info(self, request, tag):
 
         if self.subsystem == 'CA' and tag == 'signing':
