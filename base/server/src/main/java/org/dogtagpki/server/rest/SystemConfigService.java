@@ -17,11 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.rest;
 
+import java.net.URL;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +40,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.CertificateSetupRequest;
+import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Configurator;
@@ -36,6 +48,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author alee
@@ -142,7 +155,191 @@ public class SystemConfigService extends PKIService {
                 throw new BadRequestException("System already configured");
             }
 
-            return configurator.setupCert(request);
+            SystemCertData certData = request.getSystemCert();
+
+            String nickname = certData.getNickname();
+            logger.info("SystemConfigService: - nickname: " + nickname);
+
+            String tokenName = certData.getToken();
+            logger.info("SystemConfigService: - token: " + tokenName);
+
+            String certRequestType = certData.getRequestType();
+            logger.info("SystemConfigService: - request type: " + certRequestType);
+
+            String profileID = certData.getProfile();
+            logger.info("SystemConfigService: - profile: " + profileID);
+
+            // cert type is selfsign, local, or remote
+            String certType = certData.getType();
+            logger.info("SystemConfigService: - cert type: " + certType);
+
+            String[] dnsNames = certData.getDNSNames();
+            if (dnsNames != null) {
+                logger.info("SystemConfigService: - SAN extension: ");
+                for (String dnsName : dnsNames) {
+                    logger.info("SystemConfigService:   - " + dnsName);
+                }
+            }
+
+            String fullName = nickname;
+            if (!CryptoUtil.isInternalToken(tokenName)) {
+                fullName = tokenName + ":" + nickname;
+            }
+
+            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+
+            X509Certificate x509Cert;
+            KeyPair keyPair;
+
+            try {
+                logger.info("SystemConfigService: Loading " + tag + " cert from NSS database: " + fullName);
+                CryptoManager cm = CryptoManager.getInstance();
+                x509Cert = cm.findCertByNickname(fullName);
+
+                logger.info("SystemConfigService: Loading " + tag + " key pair from NSS database");
+                keyPair = configurator.loadKeyPair(x509Cert);
+
+            } catch (ObjectNotFoundException e) {
+                logger.info("SystemConfigService: " + tag + " cert not found: " + fullName);
+                x509Cert = null;
+
+                String keyType = certData.getKeyType();
+                String keySize = certData.getKeySize();
+
+                if (keyType.equals("ecc")) {
+                    String ecType = certData.getEcType();
+                    keyPair = configurator.createECCKeyPair(tag, token, keySize, ecType);
+
+                } else {
+                    keyPair = configurator.createRSAKeyPair(tag, token, keySize);
+                }
+            }
+
+            String subjectDN = certData.getSubjectDN();
+            String keyAlgorithm = certData.getKeyAlgorithm();
+
+            String extOID = certData.getReqExtOID();
+            String extData = certData.getReqExtData();
+            boolean extCritical = certData.getReqExtCritical();
+
+            Boolean clone = request.isClone();
+            URL masterURL = request.getMasterURL();
+            InstallToken installToken = request.getInstallToken();
+
+            byte[] binCertRequest;
+            X500Name subjectName;
+            X509Key x509key;
+
+            if (certRequestType.equals("pkcs10")) {
+
+                PKCS10 pkcs10 = configurator.createPKCS10Request(
+                        tag,
+                        keyPair,
+                        subjectDN,
+                        keyAlgorithm,
+                        extOID,
+                        extData,
+                        extCritical);
+
+                subjectName = pkcs10.getSubjectName();
+                x509key = pkcs10.getSubjectPublicKeyInfo();
+
+                binCertRequest = pkcs10.toByteArray();
+
+            } else {
+                throw new Exception("Certificate request type not supported: " + certRequestType);
+            }
+
+            certData.setRequest(CryptoUtil.base64Encode(binCertRequest));
+
+            String type = cs.getType();
+            PreOpConfig preopConfig = cs.getPreOpConfig();
+            X509CertImpl certImpl;
+
+            if (type.equals("CA") && clone && tag.equals("sslserver")) {
+
+                // For CA clone always use the master CA to generate the SSL
+                // server certificate to avoid any changes which may have
+                // been made to the X500Name directory string encoding order.
+
+                String hostname = masterURL.getHost();
+                int port = masterURL.getPort();
+
+                certImpl = configurator.createRemoteCert(
+                        hostname,
+                        port,
+                        profileID,
+                        certRequestType,
+                        binCertRequest,
+                        dnsNames,
+                        installToken);
+
+            } else if (certType.equals("remote")) {
+
+                // Issue subordinate CA signing cert using remote CA signing cert.
+
+                String hostname;
+                int port;
+
+                if (tag.equals("subsystem")) {
+                    hostname = cs.getString("securitydomain.host", "");
+                    port = cs.getInteger("securitydomain.httpseeport", -1);
+
+                } else {
+                    hostname = preopConfig.getString("ca.hostname", "");
+                    port = preopConfig.getInteger("ca.httpsport", -1);
+                }
+
+                certImpl = configurator.createRemoteCert(
+                        hostname,
+                        port,
+                        profileID,
+                        certRequestType,
+                        binCertRequest,
+                        dnsNames,
+                        installToken);
+
+            } else { // certType == "selfsign" || certType == "local"
+
+                boolean installAdjustValidity = !tag.equals("signing");
+
+                X500Name issuerName;
+                PrivateKey signingPrivateKey;
+                String signingAlgorithm;
+
+                if (certType.equals("selfsign")) {
+                    issuerName = subjectName;
+                    signingPrivateKey = keyPair.getPrivate();
+                    signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
+
+                } else { // certType == local
+                    issuerName = null;
+                    signingPrivateKey = null;
+                    signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
+                }
+
+                RequestId requestID = configurator.createRequestID();
+                certData.setRequestID(requestID);
+
+                certImpl = configurator.createLocalCert(
+                        keyAlgorithm,
+                        x509key,
+                        profileID,
+                        dnsNames,
+                        installAdjustValidity,
+                        signingPrivateKey,
+                        signingAlgorithm,
+                        certRequestType,
+                        binCertRequest,
+                        issuerName,
+                        subjectName,
+                        requestID);
+            }
+
+            byte[] binCert = certImpl.getEncoded();
+            certData.setCert(CryptoUtil.base64Encode(binCert));
+
+            return certData;
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());

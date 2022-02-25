@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.math.BigInteger;
-import java.net.URL;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -30,7 +29,6 @@ import javax.ws.rs.core.Response;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
@@ -53,13 +51,11 @@ import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -453,200 +449,6 @@ public class Configurator {
             byte[] certRequest,
             X500Name subjectName,
             RequestId requestID) throws Exception {
-    }
-
-    public SystemCertData setupCert(CertificateSetupRequest request) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String type = cs.getType();
-        String tag = request.getTag();
-
-        logger.info("Configurator: Processing " + tag + " certificate");
-
-        SystemCertData certData = request.getSystemCert();
-
-        String nickname = certData.getNickname();
-        logger.info("Configurator: - nickname: " + nickname);
-
-        String tokenName = certData.getToken();
-        logger.info("Configurator: - token: " + tokenName);
-
-        String certRequestType = certData.getRequestType();
-        logger.info("Configurator: - request type: " + certRequestType);
-
-        String profileID = certData.getProfile();
-        logger.info("Configurator: - profile: " + profileID);
-
-        // cert type is selfsign, local, or remote
-        String certType = certData.getType();
-        logger.info("Configurator: - cert type: " + certType);
-
-        String[] dnsNames = certData.getDNSNames();
-        if (dnsNames != null) {
-            logger.info("Configurator: - SAN extension: ");
-            for (String dnsName : dnsNames) {
-                logger.info("Configurator:   - " + dnsName);
-            }
-        }
-
-        String fullName = nickname;
-        if (!CryptoUtil.isInternalToken(tokenName)) {
-            fullName = tokenName + ":" + nickname;
-        }
-
-        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-
-        X509Certificate x509Cert;
-        KeyPair keyPair;
-
-        try {
-            logger.info("Configurator: Loading " + tag + " cert from NSS database: " + fullName);
-            CryptoManager cm = CryptoManager.getInstance();
-            x509Cert = cm.findCertByNickname(fullName);
-
-            logger.info("Configurator: Loading " + tag + " key pair from NSS database");
-            keyPair = loadKeyPair(x509Cert);
-
-        } catch (ObjectNotFoundException e) {
-            logger.info("Configurator: " + tag + " cert not found: " + fullName);
-            x509Cert = null;
-
-            String keyType = certData.getKeyType();
-            String keySize = certData.getKeySize();
-
-            if (keyType.equals("ecc")) {
-                String ecType = certData.getEcType();
-                keyPair = createECCKeyPair(tag, token, keySize, ecType);
-
-            } else {
-                keyPair = createRSAKeyPair(tag, token, keySize);
-            }
-        }
-
-        String subjectDN = certData.getSubjectDN();
-        String keyAlgorithm = certData.getKeyAlgorithm();
-
-        String extOID = certData.getReqExtOID();
-        String extData = certData.getReqExtData();
-        boolean extCritical = certData.getReqExtCritical();
-
-        Boolean clone = request.isClone();
-        URL masterURL = request.getMasterURL();
-        InstallToken installToken = request.getInstallToken();
-
-        byte[] binCertRequest;
-        X500Name subjectName;
-        X509Key x509key;
-
-        if (certRequestType.equals("pkcs10")) {
-
-            PKCS10 pkcs10 = createPKCS10Request(
-                    tag,
-                    keyPair,
-                    subjectDN,
-                    keyAlgorithm,
-                    extOID,
-                    extData,
-                    extCritical);
-
-            subjectName = pkcs10.getSubjectName();
-            x509key = pkcs10.getSubjectPublicKeyInfo();
-
-            binCertRequest = pkcs10.toByteArray();
-
-        } else {
-            throw new Exception("Certificate request type not supported: " + certRequestType);
-        }
-
-        certData.setRequest(CryptoUtil.base64Encode(binCertRequest));
-
-        X509CertImpl certImpl;
-
-        if (type.equals("CA") && clone && tag.equals("sslserver")) {
-
-            // For CA clone always use the master CA to generate the SSL
-            // server certificate to avoid any changes which may have
-            // been made to the X500Name directory string encoding order.
-
-            String hostname = masterURL.getHost();
-            int port = masterURL.getPort();
-
-            certImpl = createRemoteCert(
-                    hostname,
-                    port,
-                    profileID,
-                    certRequestType,
-                    binCertRequest,
-                    dnsNames,
-                    installToken);
-
-        } else if (certType.equals("remote")) {
-
-            // Issue subordinate CA signing cert using remote CA signing cert.
-
-            String hostname;
-            int port;
-
-            if (tag.equals("subsystem")) {
-                hostname = cs.getString("securitydomain.host", "");
-                port = cs.getInteger("securitydomain.httpseeport", -1);
-
-            } else {
-                hostname = preopConfig.getString("ca.hostname", "");
-                port = preopConfig.getInteger("ca.httpsport", -1);
-            }
-
-            certImpl = createRemoteCert(
-                    hostname,
-                    port,
-                    profileID,
-                    certRequestType,
-                    binCertRequest,
-                    dnsNames,
-                    installToken);
-
-        } else { // certType == "selfsign" || certType == "local"
-
-            boolean installAdjustValidity = !tag.equals("signing");
-
-            X500Name issuerName;
-            PrivateKey signingPrivateKey;
-            String signingAlgorithm;
-
-            if (certType.equals("selfsign")) {
-                issuerName = subjectName;
-                signingPrivateKey = keyPair.getPrivate();
-                signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-
-            } else { // certType == local
-                issuerName = null;
-                signingPrivateKey = null;
-                signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
-            }
-
-            RequestId requestID = createRequestID();
-            certData.setRequestID(requestID);
-
-            certImpl = createLocalCert(
-                    keyAlgorithm,
-                    x509key,
-                    profileID,
-                    dnsNames,
-                    installAdjustValidity,
-                    signingPrivateKey,
-                    signingAlgorithm,
-                    certRequestType,
-                    binCertRequest,
-                    issuerName,
-                    subjectName,
-                    requestID);
-        }
-
-        byte[] binCert = certImpl.getEncoded();
-        certData.setCert(CryptoUtil.base64Encode(binCert));
-
-        return certData;
     }
 
     public void initSubsystem() throws Exception {
