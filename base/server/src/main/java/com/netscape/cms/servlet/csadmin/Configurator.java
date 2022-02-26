@@ -353,47 +353,29 @@ public class Configurator {
     }
 
     public PKCS10 createPKCS10Request(
-            String tag,
             KeyPair keyPair,
             String subjectDN,
             String algorithm,
-            String extOID,
-            String extData,
-            boolean extCritical) throws Exception {
+            Extensions requestExtensionss) throws Exception {
 
-        logger.info("Configurator: Creating request for " + tag + " certificate");
+        logger.info("Configurator: Creating PKCS #10 request");
         logger.info("Configurator: - subject: " + subjectDN);
         logger.info("Configurator: - algorithm: " + algorithm);
 
-        Extensions exts = new Extensions();
-        if (tag.equals("signing")) {
-            logger.info("Configurator: Creating basic CA extensions");
-            createBasicCAExtensions(exts);
-        }
-
-        if (extOID != null && extData != null) {
-            logger.info("Configurator: Creating generic extension");
-            logger.info("Configurator: - OID: " + extOID);
-            logger.info("Configurator: - data: " + extData);
-            logger.info("Configurator: - critical: " + extCritical);
-            Extension ext = createGenericExtension(extOID, extData, extCritical);
-            exts.add(ext);
-        }
-
-        logger.debug("Configurator: Generating PKCS #10 request");
         return CryptoUtil.createCertificationRequest(
                 subjectDN,
                 keyPair,
                 algorithm,
-                exts);
+                requestExtensionss);
     }
 
     /*
      * createBasicCAExtensions creates the basic Extensions needed for a CSR to a
      * CA signing certificate
      */
-    private void createBasicCAExtensions(Extensions exts) throws Exception {
-        logger.debug("Configurator: createBasicCAExtensions: begins");
+    public void createBasicCAExtensions(Extensions exts) throws Exception {
+
+        logger.info("Configurator: Creating basic CA extensions");
 
         // create BasicConstraintsExtension
         BasicConstraintsExtension bcExt = new BasicConstraintsExtension(true, -1);
@@ -423,7 +405,12 @@ public class Configurator {
         */
     }
 
-    private Extension createGenericExtension(String oid, String data, boolean critical) throws Exception {
+    public Extension createGenericExtension(String oid, String data, boolean critical) throws Exception {
+
+        logger.info("Configurator: Creating generic extension");
+        logger.info("Configurator: - OID: " + oid);
+        logger.info("Configurator: - data: " + data);
+        logger.info("Configurator: - critical: " + critical);
 
         try (DerOutputStream out = new DerOutputStream()) {
 

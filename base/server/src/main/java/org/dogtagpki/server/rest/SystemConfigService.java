@@ -32,6 +32,8 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
@@ -218,12 +220,22 @@ public class SystemConfigService extends PKIService {
                 }
             }
 
-            String subjectDN = certData.getSubjectDN();
-            String keyAlgorithm = certData.getKeyAlgorithm();
+            Extensions requestExtensionss = new Extensions();
+            if (tag.equals("signing")) {
+                configurator.createBasicCAExtensions(requestExtensionss);
+            }
 
             String extOID = certData.getReqExtOID();
             String extData = certData.getReqExtData();
             boolean extCritical = certData.getReqExtCritical();
+
+            if (extOID != null && extData != null) {
+                Extension ext = configurator.createGenericExtension(extOID, extData, extCritical);
+                requestExtensionss.add(ext);
+            }
+
+            String subjectDN = certData.getSubjectDN();
+            String keyAlgorithm = certData.getKeyAlgorithm();
 
             Boolean clone = request.isClone();
             URL masterURL = request.getMasterURL();
@@ -236,13 +248,10 @@ public class SystemConfigService extends PKIService {
             if (certRequestType.equals("pkcs10")) {
 
                 PKCS10 pkcs10 = configurator.createPKCS10Request(
-                        tag,
                         keyPair,
                         subjectDN,
                         keyAlgorithm,
-                        extOID,
-                        extData,
-                        extCritical);
+                        requestExtensionss);
 
                 subjectName = pkcs10.getSubjectName();
                 x509key = pkcs10.getSubjectPublicKeyInfo();
