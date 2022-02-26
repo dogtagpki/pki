@@ -1962,28 +1962,58 @@ public class CryptoUtil {
     }
 
     /**
-     * Retrieves a private key from a unique key ID.
+     * Finds private key by key ID in all tokens.
      */
-    public static PrivateKey findPrivateKeyFromID(byte id[])
-            throws NotInitializedException,
-            TokenException {
+    public static PrivateKey findPrivateKey(byte[] id) throws Exception {
+
         CryptoManager cm = CryptoManager.getInstance();
         Enumeration<CryptoToken> enums = cm.getAllTokens();
 
         while (enums.hasMoreElements()) {
             CryptoToken token = enums.nextElement();
-            CryptoStore store = token.getCryptoStore();
-            PrivateKey keys[] = store.getPrivateKeys();
+            PrivateKey privateKey = findPrivateKey(token, id);
 
-            if (keys != null) {
-                for (int i = 0; i < keys.length; i++) {
-                    if (compare(keys[i].getUniqueID(), id)) {
-                        return keys[i];
-                    }
-                }
+            if (privateKey != null) {
+                return privateKey;
             }
         }
+
         return null;
+    }
+
+    /**
+     * Finds private key by key ID in specified token.
+     */
+    public static PrivateKey findPrivateKey(CryptoToken token, byte[] id) throws Exception {
+
+        CryptoStore store = token.getCryptoStore();
+        PrivateKey[] privateKeys = store.getPrivateKeys();
+
+        if (privateKeys == null) {
+            return null;
+        }
+
+        for (PrivateKey privateKey : privateKeys) {
+            if (compare(privateKey.getUniqueID(), id)) {
+                return privateKey;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Finds private key by cert nickname.
+     */
+    public static PrivateKey findPrivateKey(String nickname) throws Exception {
+        try {
+            CryptoManager cm = CryptoManager.getInstance();
+            X509Certificate cert = cm.findCertByNickname(nickname);
+            return cm.findPrivKeyByCert(cert);
+
+        } catch (ObjectNotFoundException e) {
+            return null;
+        }
     }
 
     /**
@@ -2039,22 +2069,6 @@ public class CryptoUtil {
             store.deletePrivateKey(prikey);
         } catch (NoSuchItemOnTokenException e) {
         }
-    }
-
-    /**
-     * Retrieves a private key by nickname.
-     */
-    public static PrivateKey getPrivateKey(String nickname)
-            throws NotInitializedException, TokenException {
-        try {
-            CryptoManager cm = CryptoManager.getInstance();
-            X509Certificate cert = cm.findCertByNickname(nickname);
-            org.mozilla.jss.crypto.PrivateKey prikey = cm.findPrivKeyByCert(cert);
-
-            return prikey;
-        } catch (ObjectNotFoundException e) {
-        }
-        return null;
     }
 
     /**

@@ -250,12 +250,11 @@ public class Configurator {
 
             // XXX - store curve , w
             byte id[] = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
-            String kid = CryptoUtil.encodeKeyID(id);
 
             // try to locate the private key
-            PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
+            PrivateKey privk = CryptoUtil.findPrivateKey(token, id);
             if (privk == null) {
-                logger.debug("Bad ECC key ID: " + kid);
+                logger.debug("Bad ECC key ID: " + CryptoUtil.encodeKeyID(id));
                 pair = null;
             }
         } while (pair == null);
@@ -287,13 +286,12 @@ public class Configurator {
             }
 
             byte id[] = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
-            String kid = CryptoUtil.encodeKeyID(id);
 
             // try to locate the private key
-            PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
+            PrivateKey privk = CryptoUtil.findPrivateKey(token, id);
 
             if (privk == null) {
-                logger.error("Bad RSA key ID: " + kid);
+                logger.error("Bad RSA key ID: " + CryptoUtil.encodeKeyID(id));
                 pair = null;
             }
         } while (pair == null);

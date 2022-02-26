@@ -940,7 +940,7 @@ public class NSSDatabase {
             logger.info("NSSDatabase: - key ID: " + keyID);
 
             byte[] id = CryptoUtil.hexString2Bytes(keyID);
-            PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKeyFromID(id);
+            PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(token, id);
 
             logger.info("NSSDatabase: - class: " + privateKey.getClass().getName());
             logger.info("NSSDatabase: - algorithm: " + privateKey.getAlgorithm());

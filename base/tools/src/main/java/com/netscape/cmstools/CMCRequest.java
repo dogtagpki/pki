@@ -1999,7 +1999,7 @@ public class CMCRequest {
 
                     byte[] keyIDb = CryptoUtil.decodeKeyID(privKeyId);
 
-                    privk = CryptoUtil.findPrivateKeyFromID(keyIDb);
+                    privk = CryptoUtil.findPrivateKey(keyIDb);
 
                     if (privk != null) {
                         System.out.println("TEST_CMC: got private key");
@@ -2333,7 +2333,7 @@ public class CMCRequest {
 
                     byte[] keyIDb = CryptoUtil.decodeKeyID(privKeyId);
 
-                    privk = CryptoUtil.findPrivateKeyFromID(keyIDb);
+                    privk = CryptoUtil.findPrivateKey(keyIDb);
 
                     if (privk != null) {
                         System.out.println("got private key");
