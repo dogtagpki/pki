@@ -994,34 +994,19 @@ class PKIDeployer:
 
         return b64cert
 
-    def request_admin_cert(self, subsystem, csr):
-
-        ca_type = subsystem.config['preop.ca.type']
-
-        if ca_type == 'sdca':
-            ca_hostname = subsystem.config['preop.ca.hostname']
-            ca_port = subsystem.config['preop.ca.httpsport']
-        else:
-            ca_hostname = subsystem.config['securitydomain.host']
-            ca_port = subsystem.config['securitydomain.httpseeport']
-
-        ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
-        logger.info('Requesting admin cert from %s', ca_url)
-
-        request_type = self.mdict['pki_admin_cert_request_type']
-        key_type = self.mdict['pki_admin_key_type']
-
-        if key_type.lower() == 'ecc':
-            profile = 'caECAdminCert'
-        else:
-            profile = self.mdict['pki_admin_profile_id']
-
-        subject = self.mdict['pki_admin_subject_dn']
+    def request_cert(
+            self,
+            subsystem,
+            url,
+            request_type,
+            csr,
+            profile,
+            subject):
 
         tmpdir = tempfile.mkdtemp()
         try:
             pem_csr = pki.nssdb.convert_csr(csr, 'base64', 'pem')
-            csr_file = os.path.join(tmpdir, 'admin.csr')
+            csr_file = os.path.join(tmpdir, 'request.csr')
             with open(csr_file, 'w') as f:
                 f.write(pem_csr)
 
@@ -1033,7 +1018,7 @@ class PKIDeployer:
                 'pki',
                 '-d', subsystem.instance.nssdb_dir,
                 '-f', subsystem.instance.password_conf,
-                '-U', ca_url,
+                '-U', url,
                 'ca-cert-request-submit',
                 '--request-type', request_type,
                 '--csr-file', csr_file,
@@ -1164,7 +1149,37 @@ class PKIDeployer:
 
         else:
             b64csr = self.create_admin_csr()
-            b64cert = self.request_admin_cert(subsystem, b64csr)
+
+            ca_type = subsystem.config['preop.ca.type']
+
+            if ca_type == 'sdca':
+                ca_hostname = subsystem.config['preop.ca.hostname']
+                ca_port = subsystem.config['preop.ca.httpsport']
+            else:
+                ca_hostname = subsystem.config['securitydomain.host']
+                ca_port = subsystem.config['securitydomain.httpseeport']
+
+            ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
+            logger.info('Requesting admin cert from %s', ca_url)
+
+            request_type = self.mdict['pki_admin_cert_request_type']
+
+            key_type = self.mdict['pki_admin_key_type']
+
+            if key_type.lower() == 'ecc':
+                profile = 'caECAdminCert'
+            else:
+                profile = self.mdict['pki_admin_profile_id']
+
+            subject = self.mdict['pki_admin_subject_dn']
+
+            b64cert = self.request_cert(
+                subsystem,
+                ca_url,
+                request_type,
+                b64csr,
+                profile,
+                subject)
 
         logger.debug('Admin cert: %s', b64cert)
 
