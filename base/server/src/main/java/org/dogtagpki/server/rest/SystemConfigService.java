@@ -168,24 +168,6 @@ public class SystemConfigService extends PKIService {
             String tokenName = certData.getToken();
             logger.info("SystemConfigService: - token: " + tokenName);
 
-            String certRequestType = certData.getRequestType();
-            logger.info("SystemConfigService: - request type: " + certRequestType);
-
-            String profileID = certData.getProfile();
-            logger.info("SystemConfigService: - profile: " + profileID);
-
-            // cert type is selfsign, local, or remote
-            String certType = certData.getType();
-            logger.info("SystemConfigService: - cert type: " + certType);
-
-            String[] dnsNames = certData.getDNSNames();
-            if (dnsNames != null) {
-                logger.info("SystemConfigService: - SAN extension: ");
-                for (String dnsName : dnsNames) {
-                    logger.info("SystemConfigService:   - " + dnsName);
-                }
-            }
-
             String fullName = nickname;
             if (!CryptoUtil.isInternalToken(tokenName)) {
                 fullName = tokenName + ":" + nickname;
@@ -220,9 +202,9 @@ public class SystemConfigService extends PKIService {
                 }
             }
 
-            Extensions requestExtensionss = new Extensions();
+            Extensions requestExtensions = new Extensions();
             if (tag.equals("signing")) {
-                configurator.createBasicCAExtensions(requestExtensionss);
+                configurator.createBasicCAExtensions(requestExtensions);
             }
 
             String extOID = certData.getReqExtOID();
@@ -231,15 +213,14 @@ public class SystemConfigService extends PKIService {
 
             if (extOID != null && extData != null) {
                 Extension ext = configurator.createGenericExtension(extOID, extData, extCritical);
-                requestExtensionss.add(ext);
+                requestExtensions.add(ext);
             }
 
             String subjectDN = certData.getSubjectDN();
             String keyAlgorithm = certData.getKeyAlgorithm();
 
-            Boolean clone = request.isClone();
-            URL masterURL = request.getMasterURL();
-            InstallToken installToken = request.getInstallToken();
+            String certRequestType = certData.getRequestType();
+            logger.info("SystemConfigService: - request type: " + certRequestType);
 
             byte[] binCertRequest;
             X500Name subjectName;
@@ -251,7 +232,7 @@ public class SystemConfigService extends PKIService {
                         keyPair,
                         subjectDN,
                         keyAlgorithm,
-                        requestExtensionss);
+                        requestExtensions);
 
                 subjectName = pkcs10.getSubjectName();
                 x509key = pkcs10.getSubjectPublicKeyInfo();
@@ -264,36 +245,45 @@ public class SystemConfigService extends PKIService {
 
             certData.setRequest(CryptoUtil.base64Encode(binCertRequest));
 
+            // cert type is selfsign, local, or remote
+            String certType = certData.getType();
+            logger.info("SystemConfigService: - cert type: " + certType);
+
+            String profileID = certData.getProfile();
+            logger.info("SystemConfigService: - profile: " + profileID);
+
+            String[] dnsNames = certData.getDNSNames();
+            if (dnsNames != null) {
+                logger.info("SystemConfigService: - SAN extension: ");
+                for (String dnsName : dnsNames) {
+                    logger.info("SystemConfigService:   - " + dnsName);
+                }
+            }
+
+            Boolean clone = request.isClone();
+            URL masterURL = request.getMasterURL();
+            InstallToken installToken = request.getInstallToken();
+
             String type = cs.getType();
             PreOpConfig preopConfig = cs.getPreOpConfig();
             X509CertImpl certImpl;
 
-            if (type.equals("CA") && clone && tag.equals("sslserver")) {
-
-                // For CA clone always use the master CA to generate the SSL
-                // server certificate to avoid any changes which may have
-                // been made to the X500Name directory string encoding order.
-
-                String hostname = masterURL.getHost();
-                int port = masterURL.getPort();
-
-                certImpl = configurator.createRemoteCert(
-                        hostname,
-                        port,
-                        profileID,
-                        certRequestType,
-                        binCertRequest,
-                        dnsNames,
-                        installToken);
-
-            } else if (certType.equals("remote")) {
+            if (certType.equals("remote")) {
 
                 // Issue subordinate CA signing cert using remote CA signing cert.
 
                 String hostname;
                 int port;
 
-                if (tag.equals("subsystem")) {
+                if (type.equals("CA") && clone && tag.equals("sslserver")) {
+                    // For CA clone always use the master CA to generate the SSL
+                    // server certificate to avoid any changes which may have
+                    // been made to the X500Name directory string encoding order.
+
+                    hostname = masterURL.getHost();
+                    port = masterURL.getPort();
+
+                } else if (tag.equals("subsystem")) {
                     hostname = cs.getString("securitydomain.host", "");
                     port = cs.getInteger("securitydomain.httpseeport", -1);
 
