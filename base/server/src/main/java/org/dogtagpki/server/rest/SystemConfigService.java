@@ -223,11 +223,11 @@ public class SystemConfigService extends PKIService {
     }
 
     @POST
-    @Path("setupCert")
-    public SystemCertData setupCert(CertificateSetupRequest request) throws Exception {
+    @Path("createRequest")
+    public SystemCertData createRequest(CertificateSetupRequest request) throws Exception {
 
         String tag = request.getTag();
-        logger.info("SystemConfigService: Setting up " + tag + " request and cert");
+        logger.info("SystemConfigService: Creating " + tag + " cert request");
 
         try {
             validatePin(request.getPin());
@@ -273,8 +273,6 @@ public class SystemConfigService extends PKIService {
             logger.info("SystemConfigService: - request type: " + certRequestType);
 
             byte[] binCertRequest;
-            X500Name subjectName;
-            X509Key x509key;
 
             if (certRequestType.equals("pkcs10")) {
 
@@ -284,9 +282,6 @@ public class SystemConfigService extends PKIService {
                         keyAlgorithm,
                         requestExtensions);
 
-                subjectName = pkcs10.getSubjectName();
-                x509key = pkcs10.getSubjectPublicKeyInfo();
-
                 binCertRequest = pkcs10.toByteArray();
 
             } else {
@@ -294,6 +289,68 @@ public class SystemConfigService extends PKIService {
             }
 
             certData.setRequest(CryptoUtil.base64Encode(binCertRequest));
+
+            return certData;
+
+        } catch (PKIException e) { // normal response
+            logger.error("Configuration failed: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Configuration failed: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @POST
+    @Path("setupCert")
+    public SystemCertData setupCert(CertificateSetupRequest request) throws Exception {
+
+        String tag = request.getTag();
+        logger.info("SystemConfigService: Setting up " + tag + " cert");
+
+        try {
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            SystemCertData certData = request.getSystemCert();
+
+            String tokenName = certData.getToken();
+            logger.info("SystemConfigService: - token: " + tokenName);
+            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+
+            String keyID = certData.getKeyID();
+            logger.info("SystemConfigService: - key: " + keyID);
+
+            PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(
+                    token,
+                    Hex.decodeHex(keyID));
+
+            PK11PubKey publicKey = privateKey.getPublicKey();
+            KeyPair keyPair = new KeyPair(publicKey, privateKey);
+
+            String certRequestType = certData.getRequestType();
+            logger.info("SystemConfigService: - request type: " + certRequestType);
+
+            String certRequest = certData.getRequest();
+            byte[] binCertRequest = CryptoUtil.base64Decode(certRequest);
+
+            X500Name subjectName;
+            X509Key x509key;
+
+            if (certRequestType.equals("pkcs10")) {
+
+                PKCS10 pkcs10 = new PKCS10(binCertRequest);
+
+                subjectName = pkcs10.getSubjectName();
+                x509key = pkcs10.getSubjectPublicKeyInfo();
+
+            } else {
+                throw new Exception("Certificate request type not supported: " + certRequestType);
+            }
 
             // cert type is selfsign, local, or remote
             String certType = certData.getType();
@@ -309,6 +366,9 @@ public class SystemConfigService extends PKIService {
                     logger.info("SystemConfigService:   - " + dnsName);
                 }
             }
+
+            String keyAlgorithm = certData.getKeyAlgorithm();
+            logger.info("SystemConfigService: - key algorithm: " + keyAlgorithm);
 
             Boolean clone = request.isClone();
             URL masterURL = request.getMasterURL();

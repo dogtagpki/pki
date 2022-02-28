@@ -355,6 +355,7 @@ class SystemConfigClient(object):
 
         self.load_cert_url = '/rest/installer/loadCert'
         self.setup_key_url = '/rest/installer/setupKey'
+        self.create_request_url = '/rest/installer/createRequest'
         self.setup_cert_url = '/rest/installer/setupCert'
         self.init_subsystem_url = '/rest/installer/initSubsystem'
         self.setup_admin_url = '/rest/installer/setupAdmin'
@@ -368,6 +369,7 @@ class SystemConfigClient(object):
 
             self.load_cert_url = '/' + subsystem + self.load_cert_url
             self.setup_key_url = '/' + subsystem + self.setup_key_url
+            self.create_request_url = '/' + subsystem + self.create_request_url
             self.setup_cert_url = '/' + subsystem + self.setup_cert_url
             self.init_subsystem_url = '/' + subsystem + self.init_subsystem_url
             self.setup_admin_url = '/' + subsystem + self.setup_admin_url
@@ -407,6 +409,25 @@ class SystemConfigClient(object):
 
         response = self.connection.post(
             self.setup_key_url,
+            data,
+            headers)
+
+        return response.json()
+
+    def createRequest(self, request):
+        """
+        Create certificate request.
+
+        :param request: Certificate setup request
+        :type request: CertificateSetupRequest
+        :return: SystemCertData
+        """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
+        headers = {'Content-type': 'application/json',
+                   'Accept': 'application/json'}
+
+        response = self.connection.post(
+            self.create_request_url,
             data,
             headers)
 

@@ -832,8 +832,15 @@ class PKIDeployer:
             request.systemCert.keyID = cert['keyID']
             logger.info('- key: %s', request.systemCert.keyID)
 
-            logger.info('Creating cert and request for %s', tag)
+            logger.info('Creating %s cert request', tag)
+            cert = client.createRequest(request)
+
+            request.systemCert.request = cert['request']
+            logger.debug('- request: %s', request.systemCert.request)
+
+            logger.info('Setting up %s cert', tag)
             cert = client.setupCert(request)
+            logger.debug('- cert: %s', cert['cert'])
 
             if tag != 'sslserver':
 
@@ -854,8 +861,6 @@ class PKIDeployer:
                     use_jss=True)
 
             logger.info('Storing cert and request for %s', tag)
-            logger.debug('- cert: %s', cert['cert'])
-            logger.debug('- request: %s', cert['request'])
             system_cert['data'] = cert['cert']
             system_cert['request'] = cert['request']
             system_cert['token'] = cert['token']
