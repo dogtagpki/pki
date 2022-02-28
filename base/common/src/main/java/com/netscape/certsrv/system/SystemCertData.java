@@ -45,6 +45,7 @@ public class SystemCertData implements JSONSerializer {
 
     protected String type;
 
+    protected String keyID;
     protected String keyType;
     protected String keySize;
 
@@ -128,6 +129,14 @@ public class SystemCertData implements JSONSerializer {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getKeyID() {
+        return keyID;
+    }
+
+    public void setKeyID(String keyID) {
+        this.keyID = keyID;
     }
 
     public String getKeyType() {
@@ -277,6 +286,7 @@ public class SystemCertData implements JSONSerializer {
             + ", token=" + token
             + ", profile=" + profile
             + ", type=" + type
+            + ", keyID=" + keyID
             + ", keyType=" + keyType
             + ", keySize=" + keySize
             + ", keyCurveName=" + keyCurveName
@@ -300,6 +310,7 @@ public class SystemCertData implements JSONSerializer {
         int result = 1;
         result = prime * result + Arrays.hashCode(dnsNames);
         result = prime * result + Objects.hash(cert,
+                keyID,
                 keyType,
                 keySize,
                 keyCurveName,
@@ -324,6 +335,7 @@ public class SystemCertData implements JSONSerializer {
             return false;
         SystemCertData other = (SystemCertData) obj;
         return Objects.equals(cert, other.cert) && Arrays.equals(dnsNames, other.dnsNames)
+                && Objects.equals(keyID, other.keyID)
                 && Objects.equals(keyType, other.keyType)
                 && Objects.equals(keySize, other.keySize)
                 && Objects.equals(keyCurveName, other.keyCurveName)
