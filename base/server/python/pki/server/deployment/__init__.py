@@ -826,6 +826,12 @@ class PKIDeployer:
 
         else:
 
+            logger.info('Setting up %s key', tag)
+            cert = client.setupKey(request)
+
+            request.systemCert.keyID = cert['keyID']
+            logger.info('- key: %s', request.systemCert.keyID)
+
             logger.info('Creating cert and request for %s', tag)
             cert = client.setupCert(request)
 

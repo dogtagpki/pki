@@ -20,15 +20,16 @@ package org.dogtagpki.server.rest;
 import java.io.IOException;
 import java.net.URL;
 import java.security.KeyPair;
-import java.security.PrivateKey;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
+import org.apache.commons.codec.binary.Hex;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -37,6 +38,8 @@ import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.pkcs11.PK11PrivKey;
+import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,11 +150,11 @@ public class SystemConfigService extends PKIService {
     }
 
     @POST
-    @Path("setupCert")
-    public SystemCertData setupCert(CertificateSetupRequest request) throws Exception {
+    @Path("setupKey")
+    public SystemCertData setupKey(CertificateSetupRequest request) throws Exception {
 
         String tag = request.getTag();
-        logger.info("SystemConfigService: setting up " + tag + " certificate");
+        logger.info("SystemConfigService: Setting up " + tag + " key");
 
         try {
             validatePin(request.getPin());
@@ -201,6 +204,53 @@ public class SystemConfigService extends PKIService {
                     keyPair = configurator.createRSAKeyPair(tag, token, keySize);
                 }
             }
+
+            PrivateKey privateKey = (PrivateKey) keyPair.getPrivate();
+            String keyID = Hex.encodeHexString(privateKey.getUniqueID());
+            logger.info("SystemConfigService: - key: " + keyID);
+            certData.setKeyID(keyID);
+
+            return certData;
+
+        } catch (PKIException e) { // normal response
+            logger.error("Configuration failed: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Configuration failed: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @POST
+    @Path("setupCert")
+    public SystemCertData setupCert(CertificateSetupRequest request) throws Exception {
+
+        String tag = request.getTag();
+        logger.info("SystemConfigService: Setting up " + tag + " request and cert");
+
+        try {
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            SystemCertData certData = request.getSystemCert();
+
+            String tokenName = certData.getToken();
+            logger.info("SystemConfigService: - token: " + tokenName);
+            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+
+            String keyID = certData.getKeyID();
+            logger.info("SystemConfigService: - key: " + keyID);
+
+            PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(
+                    token,
+                    Hex.decodeHex(keyID));
+
+            PK11PubKey publicKey = privateKey.getPublicKey();
+            KeyPair keyPair = new KeyPair(publicKey, privateKey);
 
             Extensions requestExtensions = new Extensions();
             if (tag.equals("signing")) {
@@ -311,7 +361,7 @@ public class SystemConfigService extends PKIService {
 
                 if (certType.equals("selfsign")) {
                     issuerName = subjectName;
-                    signingPrivateKey = keyPair.getPrivate();
+                    signingPrivateKey = (PrivateKey) keyPair.getPrivate();
                     signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
 
                 } else { // certType == local
@@ -450,7 +500,7 @@ public class SystemConfigService extends PKIService {
 
             if (certType.equals("selfsign")) {
                 issuerName = subjectName;
-                signingPrivateKey = keyPair.getPrivate();
+                signingPrivateKey = (PrivateKey) keyPair.getPrivate();
                 signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
             } else { // local
                 issuerName = null;
