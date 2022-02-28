@@ -1302,23 +1302,6 @@ public class CertificateAuthority
 
         IConfigStore caSigningCfg = mConfig.getSubStore(PROP_SIGNING_SUBSTORE);
 
-        String caSigningCertStr = caSigningCfg.getString("cert", "");
-        if (!caSigningCertStr.equals("")) {
-
-            byte[] bytes = Utils.base64decode(caSigningCertStr);
-            X509CertImpl caCertImpl = new X509CertImpl(bytes);
-
-            // this ensures the isserDN and subjectDN have the same encoding
-            // as that of the CA signing cert
-            mSubjectObj = caCertImpl.getSubjectObj();
-            logger.debug("CertificateAuthority: - subject DN: " + mSubjectObj);
-
-            // The mIssuerObj is the "issuerDN" object for the certs issued by this CA,
-            // not the isserDN object of the CA signing cert unless the it is self-signed.
-            mIssuerObj = new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
-            logger.debug("CertificateAuthority: - issuer DN: " + mIssuerObj);
-        }
-
         mSigningUnit = new CASigningUnit();
         mSigningUnit.init(caSigningCfg, mNickname);
 
@@ -1338,14 +1321,13 @@ public class CertificateAuthority
         // This ensures the isserDN and subjectDN have the same encoding
         // as that of the CA signing cert.
         mSubjectObj = caCertImpl.getSubjectObj();
+        logger.debug("CertificateAuthority: - subject DN: " + mSubjectObj);
 
-        if (mSubjectObj != null) {
-            // The mIssuerObj is the "issuerDN" object for the certs issued by this CA,
-            // not the isserDN object of the CA signing cert unless the it is self-signed.
-
-            X500Name issuerName = (X500Name) mSubjectObj.get(CertificateIssuerName.DN_NAME);
-            mIssuerObj = new CertificateIssuerName(issuerName);
-        }
+        // The mIssuerObj is the "issuerDN" object for the certs issued by this CA,
+        // not the isserDN object of the CA signing cert unless the it is self-signed.
+        X500Name issuerName = (X500Name) mSubjectObj.get(CertificateIssuerName.DN_NAME);
+        mIssuerObj = new CertificateIssuerName(issuerName);
+        logger.debug("CertificateAuthority: - issuer DN: " + mIssuerObj);
 
         String certSigningSKI = CryptoUtil.getSKIString(caCertImpl);
 
