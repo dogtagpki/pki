@@ -29,12 +29,14 @@ import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
+import com.netscape.ca.CASigningUnit;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -315,20 +317,27 @@ public class CAConfigurator extends Configurator {
         CertId certID = createCertID();
         logger.info("CAConfigurator: - serial number: " + certID.toHexString());
 
-        CertificateIssuerName certIssuerName;
-        if (issuerName != null) {
-            // create new issuer object
-            certIssuerName = new CertificateIssuerName(issuerName);
-            // signingPrivateKey should be provided by caller
+        logger.info("CAConfigurator: - subject: " + subjectName);
 
-        } else {
+        if (issuerName == null) { // local (not selfsign) cert
+
+            CAEngineConfig engineConfig = engine.getConfig();
+            CAConfig caConfig = engineConfig.getCAConfig();
+            IConfigStore caSigningCfg = caConfig.getSubStore("signing");
+
+            // create CA signing unit
+            CASigningUnit signingUnit = new CASigningUnit();
+            signingUnit.init(caSigningCfg, null);
+
+            X509CertImpl caCertImpl = signingUnit.getCertImpl();
+            CertificateSubjectName certSubjectName = caCertImpl.getSubjectObj();
+
             // use CA's issuer object to preserve DN encoding
-            CertificateAuthority ca = engine.getCA();
-            certIssuerName = ca.getIssuerObj();
-            signingPrivateKey = ca.getSigningUnit().getPrivateKey();
+            issuerName = (X500Name) certSubjectName.get(CertificateIssuerName.DN_NAME);
+            signingPrivateKey = signingUnit.getPrivateKey();
         }
 
-        logger.info("CAConfigurator: - subject: " + subjectName);
+        CertificateIssuerName certIssuerName = new CertificateIssuerName(issuerName);
         logger.info("CAConfigurator: - issuer: " + certIssuerName);
 
         CertificateExtensions extensions = new CertificateExtensions();
