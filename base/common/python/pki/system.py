@@ -357,7 +357,8 @@ class SystemConfigClient(object):
         self.import_cert_url = '/rest/installer/importCert'
         self.setup_key_url = '/rest/installer/setupKey'
         self.create_request_url = '/rest/installer/createRequest'
-        self.setup_cert_url = '/rest/installer/setupCert'
+        self.request_cert_url = '/rest/installer/requestCert'
+        self.create_cert_url = '/rest/installer/createCert'
         self.init_subsystem_url = '/rest/installer/initSubsystem'
         self.setup_admin_url = '/rest/installer/setupAdmin'
         self.backup_keys_url = '/rest/installer/backupKeys'
@@ -372,7 +373,8 @@ class SystemConfigClient(object):
             self.import_cert_url = '/' + subsystem + self.import_cert_url
             self.setup_key_url = '/' + subsystem + self.setup_key_url
             self.create_request_url = '/' + subsystem + self.create_request_url
-            self.setup_cert_url = '/' + subsystem + self.setup_cert_url
+            self.request_cert_url = '/' + subsystem + self.request_cert_url
+            self.create_cert_url = '/' + subsystem + self.create_cert_url
             self.init_subsystem_url = '/' + subsystem + self.init_subsystem_url
             self.setup_admin_url = '/' + subsystem + self.setup_admin_url
             self.backup_keys_url = '/' + subsystem + self.backup_keys_url
@@ -450,9 +452,9 @@ class SystemConfigClient(object):
 
         return response.json()
 
-    def setupCert(self, request):
+    def requestCert(self, request):
         """
-        Set up certificate.
+        Request certificate.
 
         :param request: Certificate setup request
         :type request: CertificateSetupRequest
@@ -463,7 +465,26 @@ class SystemConfigClient(object):
                    'Accept': 'application/json'}
 
         response = self.connection.post(
-            self.setup_cert_url,
+            self.request_cert_url,
+            data,
+            headers)
+
+        return response.json()
+
+    def createCert(self, request):
+        """
+        Create certificate.
+
+        :param request: Certificate setup request
+        :type request: CertificateSetupRequest
+        :return: SystemCertData
+        """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
+        headers = {'Content-type': 'application/json',
+                   'Accept': 'application/json'}
+
+        response = self.connection.post(
+            self.create_cert_url,
             data,
             headers)
 

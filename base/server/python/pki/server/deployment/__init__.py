@@ -842,9 +842,15 @@ class PKIDeployer:
         request.systemCert.request = cert['request']
         logger.debug('- request: %s', request.systemCert.request)
 
-        logger.info('Setting up %s cert', tag)
-        cert = client.setupCert(request)
-        logger.info('- request ID: %s', cert['requestID'])
+        if request.systemCert.type == 'remote':
+            logger.info('Requesting %s cert', tag)
+            cert = client.requestCert(request)
+
+        else:  # selfsign or local
+            logger.info('Creating %s cert', tag)
+            cert = client.createCert(request)
+            logger.info('- request ID: %s', cert['requestID'])
+
         logger.debug('- cert: %s', cert['cert'])
 
         if tag != 'sslserver':
