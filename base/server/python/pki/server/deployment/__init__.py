@@ -813,62 +813,58 @@ class PKIDeployer:
                 nickname=subsystem.config["ca.signing.nickname"])
             logger.info('CA subject: %s', signing_cert_info['subject'])
 
-            if cert_info['object'].issuer == signing_cert_info['object'].subject:
-
-                logger.info('Import cert and request into database: %s', tag)
-                logger.debug('- cert: %s', system_cert['data'])
-                logger.debug('- request: %s', system_cert['request'])
-                cert = client.loadCert(request)
-
-            else:
+            if cert_info['object'].issuer != signing_cert_info['object'].subject:
                 logger.info('Do not import external cert and request into database: %s', tag)
-                cert = system_cert
+                return
 
-        else:
+            logger.info('Import cert and request into database: %s', tag)
+            logger.debug('- cert: %s', system_cert['data'])
+            logger.debug('- request: %s', system_cert['request'])
+            cert = client.loadCert(request)
 
-            logger.info('Setting up %s key', tag)
-            cert = client.setupKey(request)
+            return
 
-            request.systemCert.keyID = cert['keyID']
-            logger.info('- key: %s', request.systemCert.keyID)
+        logger.info('Setting up %s key', tag)
+        cert = client.setupKey(request)
 
-            logger.info('Creating %s cert request', tag)
-            cert = client.createRequest(request)
+        request.systemCert.keyID = cert['keyID']
+        logger.info('- key ID: %s', request.systemCert.keyID)
 
-            request.systemCert.request = cert['request']
-            logger.debug('- request: %s', request.systemCert.request)
+        logger.info('Creating %s cert request', tag)
+        cert = client.createRequest(request)
 
-            logger.info('Setting up %s cert', tag)
-            cert = client.setupCert(request)
-            logger.debug('- cert: %s', cert['cert'])
+        request.systemCert.request = cert['request']
+        logger.debug('- request: %s', request.systemCert.request)
 
-            if tag != 'sslserver':
+        logger.info('Setting up %s cert', tag)
+        cert = client.setupCert(request)
+        logger.info('- request ID: %s', cert['requestID'])
+        logger.debug('- cert: %s', cert['cert'])
 
-                logger.info('Importing %s cert into NSS database', tag)
-                # the temporary SSL server cert will be replaced later on restart
+        if tag != 'sslserver':
 
-                if cert_info:
-                    # remove the existing cert (if any) but keep the key
-                    nssdb.remove_cert(
-                        nickname=request.systemCert.nickname,
-                        token=request.systemCert.token)
+            logger.info('Importing %s cert into NSS database', tag)
+            # the temporary SSL server cert will be replaced later on restart
 
-                nssdb.add_cert(
+            if cert_info:
+                # remove the existing cert (if any) but keep the key
+                nssdb.remove_cert(
                     nickname=request.systemCert.nickname,
-                    cert_data=cert['cert'],
-                    cert_format='base64',
-                    token=request.systemCert.token,
-                    use_jss=True)
+                    token=request.systemCert.token)
 
-            logger.info('Storing cert and request for %s', tag)
-            system_cert['data'] = cert['cert']
-            system_cert['request'] = cert['request']
-            system_cert['token'] = cert['token']
+            nssdb.add_cert(
+                nickname=request.systemCert.nickname,
+                cert_data=cert['cert'],
+                cert_format='base64',
+                token=request.systemCert.token,
+                use_jss=True)
 
-            subsystem.update_system_cert(system_cert)
+        logger.info('Storing cert and request for %s', tag)
+        system_cert['data'] = cert['cert']
+        system_cert['request'] = cert['request']
+        system_cert['token'] = cert['token']
 
-        request_id = cert.get('requestID')
-        logger.info('Request ID: %s', request_id)
+        subsystem.update_system_cert(system_cert)
 
     def setup_system_certs(self, nssdb, subsystem, client):
 
