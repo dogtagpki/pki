@@ -229,7 +229,7 @@ public class CAConfigurator extends Configurator {
     }
 
     @Override
-    public void importCert(
+    public void importRequest(
             byte[] binCert,
             String profileID,
             String[] dnsNames,
@@ -287,10 +287,26 @@ public class CAConfigurator extends Configurator {
                 requestExtensions);
 
         updateRequestRecord(request, cert);
+    }
+
+    public void importCert(
+            byte[] binCert,
+            RequestId requestID,
+            String profileID) throws Exception {
+
+        X509CertImpl cert = new X509CertImpl(binCert);
+
+        String instanceRoot = cs.getInstanceDir();
+        String configurationRoot = cs.getString("configurationRoot");
+        String profilePath = instanceRoot + configurationRoot + profileID;
+        logger.info("CAConfigurator: Loading " + profilePath);
+
+        CAEngine engine = CAEngine.getInstance();
+        IConfigStore profileConfig = engine.createFileConfigStore(profilePath);
 
         createCertRecord(
                 cert,
-                request.getRequestId(),
+                requestID,
                 profileConfig.getString("profileIDMapping"));
     }
 

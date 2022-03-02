@@ -817,10 +817,16 @@ class PKIDeployer:
                 logger.info('Do not import external cert and request into database: %s', tag)
                 return
 
-            logger.info('Import cert and request into database: %s', tag)
-            logger.debug('- cert: %s', system_cert['data'])
+            logger.info('Importing %s cert request', tag)
             logger.debug('- request: %s', system_cert['request'])
-            cert = client.loadCert(request)
+            cert = client.importRequest(request)
+
+            request.systemCert.requestID = cert['requestID']
+            logger.info('- request ID: %s', request.systemCert.requestID)
+
+            logger.info('Importing %s cert', tag)
+            logger.debug('- cert: %s', system_cert['data'])
+            client.importCert(request)
 
             return
 

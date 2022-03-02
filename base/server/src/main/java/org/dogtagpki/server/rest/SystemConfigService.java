@@ -96,11 +96,11 @@ public class SystemConfigService extends PKIService {
     }
 
     @POST
-    @Path("loadCert")
-    public SystemCertData loadCert(CertificateSetupRequest request) throws Exception {
+    @Path("importRequest")
+    public SystemCertData importRequest(CertificateSetupRequest request) throws Exception {
 
         String tag = request.getTag();
-        logger.info("SystemConfigService: Loading existing " + tag + " certificate");
+        logger.info("SystemConfigService: Importing " + tag + " cert request");
 
         try {
             validatePin(request.getPin());
@@ -127,7 +127,7 @@ public class SystemConfigService extends PKIService {
             RequestId requestID = configurator.createRequestID();
             certData.setRequestID(requestID);
 
-            configurator.importCert(
+            configurator.importRequest(
                     binCert,
                     profileID,
                     dnsNames,
@@ -140,11 +140,49 @@ public class SystemConfigService extends PKIService {
             return certData;
 
         } catch (PKIException e) { // normal response
-            logger.error("Unable to load " + tag + " certificate: " + e.getMessage());
+            logger.error("Unable to import " + tag + " certificate request: " + e.getMessage());
             throw e;
 
         } catch (Throwable e) { // unexpected error
-            logger.error("Unable to load " + tag + " certificate: " + e.getMessage(), e);
+            logger.error("Unable to import " + tag + " certificate request: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @POST
+    @Path("importCert")
+    public void importCert(CertificateSetupRequest request) throws Exception {
+
+        String tag = request.getTag();
+        logger.info("SystemConfigService: Importing " + tag + " certificate");
+
+        try {
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            SystemCertData certData = request.getSystemCert();
+
+            String cert = certData.getCert();
+            byte[] binCert = Utils.base64decode(cert);
+
+            RequestId requestID = certData.getRequestID();
+
+            String profileID = certData.getProfile();
+
+            configurator.importCert(
+                    binCert,
+                    requestID,
+                    profileID);
+
+        } catch (PKIException e) { // normal response
+            logger.error("Unable to import " + tag + " certificate: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Unable to import " + tag + " certificate: " + e.getMessage(), e);
             throw e;
         }
     }

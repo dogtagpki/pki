@@ -353,7 +353,8 @@ class SystemConfigClient(object):
 
         self.connection = connection
 
-        self.load_cert_url = '/rest/installer/loadCert'
+        self.import_request_url = '/rest/installer/importRequest'
+        self.import_cert_url = '/rest/installer/importCert'
         self.setup_key_url = '/rest/installer/setupKey'
         self.create_request_url = '/rest/installer/createRequest'
         self.setup_cert_url = '/rest/installer/setupCert'
@@ -367,7 +368,8 @@ class SystemConfigClient(object):
             if subsystem is None:
                 raise Exception('Missing subsystem for SystemConfigClient')
 
-            self.load_cert_url = '/' + subsystem + self.load_cert_url
+            self.import_request_url = '/' + subsystem + self.import_request_url
+            self.import_cert_url = '/' + subsystem + self.import_cert_url
             self.setup_key_url = '/' + subsystem + self.setup_key_url
             self.create_request_url = '/' + subsystem + self.create_request_url
             self.setup_cert_url = '/' + subsystem + self.setup_cert_url
@@ -376,9 +378,9 @@ class SystemConfigClient(object):
             self.backup_keys_url = '/' + subsystem + self.backup_keys_url
             self.setup_security_domain_url = '/' + subsystem + self.setup_security_domain_url
 
-    def loadCert(self, request):
+    def importRequest(self, request):
         """
-        Load existing certificate.
+        Import certificate request.
 
         :param request: Certificate setup request
         :type request: CertificateSetupRequest
@@ -389,11 +391,26 @@ class SystemConfigClient(object):
                    'Accept': 'application/json'}
 
         response = self.connection.post(
-            self.load_cert_url,
+            self.import_request_url,
             data,
             headers)
 
         return response.json()
+
+    def importCert(self, request):
+        """
+        Import certificate.
+
+        :param request: Certificate setup request
+        :type request: CertificateSetupRequest
+        """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
+        headers = {'Content-type': 'application/json'}
+
+        self.connection.post(
+            self.import_cert_url,
+            data,
+            headers)
 
     def setupKey(self, request):
         """

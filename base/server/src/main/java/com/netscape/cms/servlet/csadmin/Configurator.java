@@ -424,15 +424,21 @@ public class Configurator {
         }
     }
 
-    public void importCert(
-            byte[] cert,
+    public void importRequest(
+            byte[] binCert,
             String profileID,
             String[] dnsNames,
             boolean installAdjustValidity,
             String certRequestType,
-            byte[] certRequest,
+            byte[] binCertRequest,
             X500Name subjectName,
             RequestId requestID) throws Exception {
+    }
+
+    public void importCert(
+            byte[] binCert,
+            RequestId requestID,
+            String profileID) throws Exception {
     }
 
     public void initSubsystem() throws Exception {
