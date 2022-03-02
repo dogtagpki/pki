@@ -1030,7 +1030,9 @@ class PKIDeployer:
             request_type,
             csr,
             profile,
-            subject):
+            subject,
+            dns_names=None,
+            requestor=None):
 
         tmpdir = tempfile.mkdtemp()
         try:
@@ -1052,10 +1054,19 @@ class PKIDeployer:
                 '--request-type', request_type,
                 '--csr-file', csr_file,
                 '--profile', profile,
-                '--subject', subject,
+                '--subject', subject
+            ]
+
+            if dns_names:
+                cmd.extend(['--dns-names', ','.join(dns_names)])
+
+            if requestor:
+                cmd.extend(['--requestor', requestor])
+
+            cmd.extend([
                 '--install-token', install_token,
                 '--output-format', 'PEM'
-            ]
+            ])
 
             if logger.isEnabledFor(logging.DEBUG):
                 cmd.append('--debug')

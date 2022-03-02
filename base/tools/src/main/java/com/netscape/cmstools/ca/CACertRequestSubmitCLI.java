@@ -86,6 +86,14 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         option.setArgName("DN");
         options.addOption(option);
 
+        option = new Option(null, "dns-names", true, "Comma-separated list of DNS names");
+        option.setArgName("names");
+        options.addOption(option);
+
+        option = new Option(null, "requestor", true, "Requestor");
+        option.setArgName("requestor");
+        options.addOption(option);
+
         option = new Option(null, "session", true, "Session ID");
         option.setArgName("ID");
         options.addOption(option);
@@ -272,6 +280,17 @@ public class CACertRequestSubmitCLI extends CommandCLI {
 
         logger.info("Request:\n" + request);
 
+        String list = cmd.getOptionValue("dns-names");
+        logger.info("DNS names: " + list);
+
+        String[] dnsNames = null;
+        if (list != null) {
+            dnsNames = list.split(",");
+        }
+
+        String requestor = cmd.getOptionValue("requestor");
+        logger.info("Requestor: " + requestor);
+
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
@@ -298,8 +317,8 @@ public class CACertRequestSubmitCLI extends CommandCLI {
                 csr,
                 profileID,
                 subjectDN,
-                null,
-                null,
+                dnsNames,
+                requestor,
                 sessionID);
         byte[] bytes = cert.getEncoded();
 
