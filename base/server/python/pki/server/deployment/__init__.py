@@ -740,9 +740,6 @@ class PKIDeployer:
         request.pin = self.mdict['pki_one_time_pin']
         request.installToken = self.install_token
 
-        request.clone = config.str2bool(self.mdict['pki_clone'])
-        request.masterURL = self.mdict['pki_clone_uri']
-
         self.config_client.set_system_cert_info(request, tag)
 
         if not request.systemCert.token:
@@ -843,7 +840,31 @@ class PKIDeployer:
         logger.debug('- request: %s', request.systemCert.request)
 
         if request.systemCert.type == 'remote':
-            logger.info('Requesting %s cert', tag)
+
+            # Issue subordinate CA signing cert using remote CA signing cert.
+
+            if subsystem.type == 'CA' and \
+                    config.str2bool(self.mdict['pki_clone']) \
+                    and tag == 'sslserver':
+
+                # For CA clone always use the master CA to generate the SSL
+                # server certificate to avoid any changes which may have
+                # been made to the X500Name directory string encoding order.
+                request.url = self.mdict['pki_clone_uri']
+
+            elif tag == 'subsystem':
+
+                sd_hostname = subsystem.config['securitydomain.host']
+                sd_port = subsystem.config['securitydomain.httpseeport']
+                request.url = 'https://%s:%s' % (sd_hostname, sd_port)
+
+            else:
+
+                ca_hostname = subsystem.config['preop.ca.hostname']
+                ca_port = subsystem.config['preop.ca.httpsport']
+                request.url = 'https://%s:%s' % (ca_hostname, ca_port)
+
+            logger.info('Requesting %s cert from %s', tag, request.url)
             cert = client.requestCert(request)
 
         else:  # selfsign or local

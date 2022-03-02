@@ -373,38 +373,11 @@ public class SystemConfigService extends PKIService {
                 }
             }
 
-            Boolean clone = request.isClone();
-            URL masterURL = request.getMasterURL();
+            URL url = request.getURL();
             InstallToken installToken = request.getInstallToken();
 
-            String type = cs.getType();
-            PreOpConfig preopConfig = cs.getPreOpConfig();
-
-            // Issue subordinate CA signing cert using remote CA signing cert.
-
-            String hostname;
-            int port;
-
-            if (type.equals("CA") && clone && tag.equals("sslserver")) {
-                // For CA clone always use the master CA to generate the SSL
-                // server certificate to avoid any changes which may have
-                // been made to the X500Name directory string encoding order.
-
-                hostname = masterURL.getHost();
-                port = masterURL.getPort();
-
-            } else if (tag.equals("subsystem")) {
-                hostname = cs.getString("securitydomain.host", "");
-                port = cs.getInteger("securitydomain.httpseeport", -1);
-
-            } else {
-                hostname = preopConfig.getString("ca.hostname", "");
-                port = preopConfig.getInteger("ca.httpsport", -1);
-            }
-
             X509CertImpl certImpl = configurator.createRemoteCert(
-                    hostname,
-                    port,
+                    url,
                     profileID,
                     certRequestType,
                     binCertRequest,

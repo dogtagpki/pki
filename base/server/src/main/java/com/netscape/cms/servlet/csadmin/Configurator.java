@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.math.BigInteger;
+import java.net.URL;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -317,8 +318,7 @@ public class Configurator {
     }
 
     public X509CertImpl createRemoteCert(
-            String hostname,
-            int port,
+            URL url,
             String profileID,
             String certRequestType,
             byte[] request,
@@ -326,7 +326,7 @@ public class Configurator {
             InstallToken installToken)
             throws Exception {
 
-        String serverURL = "https://" + hostname + ":" + port;
+        String serverURL = url.toExternalForm();
         logger.info("Configurator: Submitting cert request to " + serverURL);
 
         String certRequest = CryptoUtil.base64Encode(request);

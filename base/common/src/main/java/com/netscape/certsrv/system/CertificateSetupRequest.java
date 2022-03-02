@@ -41,9 +41,7 @@ public class CertificateSetupRequest implements JSONSerializer {
 
     protected SystemCertData systemCert;
 
-    protected Boolean clone;
-
-    protected URL masterURL;
+    protected URL url;
 
     public CertificateSetupRequest() {
     }
@@ -80,20 +78,12 @@ public class CertificateSetupRequest implements JSONSerializer {
        this.systemCert = systemCert;
    }
 
-    public Boolean isClone() {
-        return clone;
+    public URL getURL() {
+        return url;
     }
 
-    public void setClone(Boolean clone) {
-        this.clone = clone;
-    }
-
-    public URL getMasterURL() {
-        return masterURL;
-    }
-
-    public void setMasterURL(URL masterURL) {
-        this.masterURL = masterURL;
+    public void setURL(URL url) {
+        this.url = url;
     }
 
     @Override
@@ -101,14 +91,13 @@ public class CertificateSetupRequest implements JSONSerializer {
         return "CertificateSetupRequest [pin=XXXX" +
                ", tag=" + tag +
                ", systemCert=" + systemCert +
-               ", clone=" + clone +
-               ", masterURL=" + masterURL +
+               ", url=" + url +
                "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(clone, installToken, masterURL, pin, systemCert, tag);
+        return Objects.hash(installToken, url, pin, systemCert, tag);
     }
 
     @Override
@@ -120,8 +109,8 @@ public class CertificateSetupRequest implements JSONSerializer {
         if (getClass() != obj.getClass())
             return false;
         CertificateSetupRequest other = (CertificateSetupRequest) obj;
-        return Objects.equals(clone, other.clone) && Objects.equals(installToken, other.installToken)
-                && Objects.equals(masterURL, other.masterURL) && Objects.equals(pin, other.pin)
+        return Objects.equals(installToken, other.installToken)
+                && Objects.equals(url, other.url) && Objects.equals(pin, other.pin)
                 && Objects.equals(systemCert, other.systemCert) && Objects.equals(tag, other.tag);
     }
 
