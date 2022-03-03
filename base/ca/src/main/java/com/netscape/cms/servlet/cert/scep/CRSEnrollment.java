@@ -110,7 +110,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.INotify;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
@@ -1046,7 +1045,7 @@ public class CRSEnrollment extends HttpServlet {
                     // for a new request with the same txid, which is not allowed -
                     // so we return 'failure'.
 
-                    IRequest cmsRequest = findRequestByTransactionID(req.getTransactionID(), true);
+                    Request cmsRequest = findRequestByTransactionID(req.getTransactionID(), true);
 
                     // If there was no request (with a cert) with this transaction ID,
                     // process it as a new request
@@ -1102,7 +1101,7 @@ public class CRSEnrollment extends HttpServlet {
      * If found 'pending' or 'completed' request - return that request
      */
 
-    public IRequest findRequestByTransactionID(String txid, boolean ignoreRejected)
+    public Request findRequestByTransactionID(String txid, boolean ignoreRejected)
             throws EBaseException {
 
         /* Check if certificate request has been completed */
@@ -1110,7 +1109,7 @@ public class CRSEnrollment extends HttpServlet {
         CAEngine engine = CAEngine.getInstance();
         RequestRepository requestRepository = engine.getRequestRepository();
         RequestQueue rq = engine.getRequestQueue();
-        IRequest foundRequest = null;
+        Request foundRequest = null;
 
         Enumeration<RequestId> rids = rq.findRequestsBySourceId(txid);
         if (rids == null) {
@@ -1154,7 +1153,7 @@ public class CRSEnrollment extends HttpServlet {
      */
 
     public X509CertImpl handleGetCertInitial(CRSPKIMessage req, CRSPKIMessage resp) {
-        IRequest foundRequest = null;
+        Request foundRequest = null;
 
         // already done by handlePKIOperation
         // resp.setRecipientNonce(req.getSenderNonce());
@@ -1579,7 +1578,7 @@ public class CRSEnrollment extends HttpServlet {
         return authenticationFailed;
     }
 
-    private boolean areFingerprintsEqual(IRequest req, Hashtable<String, byte[]> fingerprints) {
+    private boolean areFingerprintsEqual(Request req, Hashtable<String, byte[]> fingerprints) {
 
         Hashtable<String, String> old_fprints = req.getExtDataInHashtable(Request.FINGERPRINTS);
         if (old_fprints == null) {
@@ -1600,7 +1599,7 @@ public class CRSEnrollment extends HttpServlet {
     }
 
     public X509CertImpl handlePKCSReq(HttpServletRequest httpReq,
-                                 IRequest cmsRequest, CRSPKIMessage req,
+                                 Request cmsRequest, CRSPKIMessage req,
                                     CRSPKIMessage crsResp, CryptoContext cx)
             throws Exception {
 
@@ -1640,7 +1639,7 @@ public class CRSEnrollment extends HttpServlet {
 
                 return null;
             } else {
-                IRequest ireq = postRequest(httpReq, req, crsResp);
+                Request ireq = postRequest(httpReq, req, crsResp);
 
                 logger.debug("created response");
                 return makeResponseFromRequest(req, crsResp, ireq);
@@ -1671,7 +1670,7 @@ public class CRSEnrollment extends HttpServlet {
       crsResp
     */
 
-    private IRequest postRequest(HttpServletRequest httpReq, CRSPKIMessage req, CRSPKIMessage crsResp)
+    private Request postRequest(HttpServletRequest httpReq, CRSPKIMessage req, CRSPKIMessage crsResp)
             throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
@@ -1876,7 +1875,7 @@ public class CRSEnrollment extends HttpServlet {
     // in the response message
 
     private X509CertImpl makeResponseFromRequest(CRSPKIMessage crsReq, CRSPKIMessage crsResp,
-                                      IRequest pkiReq) {
+                                      Request pkiReq) {
 
         X509CertImpl issuedCert = null;
 
