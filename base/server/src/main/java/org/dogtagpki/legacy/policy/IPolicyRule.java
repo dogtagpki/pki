@@ -21,7 +21,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.request.Request;
 
@@ -120,9 +119,9 @@ public interface IPolicyRule
      */
     public Vector<String> getDefaultParams();
 
-    public void setError(IRequest req, String format, Object[] params);
+    public void setError(Request req, String format, Object[] params);
 
     public void setInstanceName(String instanceName);
 
-    public void setPolicyException(IRequest req, EBaseException ex);
+    public void setPolicyException(Request req, EBaseException ex);
 }

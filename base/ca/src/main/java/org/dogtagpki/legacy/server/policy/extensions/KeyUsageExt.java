@@ -37,7 +37,6 @@ import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -177,7 +176,7 @@ public class KeyUsageExt extends APolicyRule
         return PolicyResult.ACCEPTED;
     }
 
-    public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
+    public PolicyResult applyCert(Request req, X509CertInfo certInfo) {
         try {
             CertificateExtensions extensions = (CertificateExtensions)
                     certInfo.get(X509CertInfo.EXTENSIONS);
@@ -354,7 +353,7 @@ public class KeyUsageExt extends APolicyRule
         return mDefParams;
     }
 
-    private boolean getBit(String usage, String choice, IRequest req) {
+    private boolean getBit(String usage, String choice, Request req) {
         if (choice.equals(HTTP_INPUT)) {
             choice = req.getExtDataInString(Request.HTTP_PARAMS, usage);
             if (choice == null)

@@ -114,7 +114,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
         return res;
     }
 
-    public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
+    public PolicyResult applyCert(Request req, X509CertInfo certInfo) {
 
         CertificateExtensions extensions = null;
 

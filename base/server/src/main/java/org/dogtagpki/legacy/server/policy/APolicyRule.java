@@ -36,7 +36,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.AgentApprovals;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -169,11 +168,11 @@ public abstract class APolicyRule implements IPolicyRule {
     public abstract Vector<String> getDefaultParams();
 
     @Override
-    public void setError(IRequest req, String format, Object[] params) {
+    public void setError(Request req, String format, Object[] params) {
         setPolicyException(req, format, params);
     }
 
-    public void setError(IRequest req, String format, String arg1,
+    public void setError(Request req, String format, String arg1,
             String arg2) {
         Object[] np = new Object[2];
 
@@ -182,7 +181,7 @@ public abstract class APolicyRule implements IPolicyRule {
         setPolicyException(req, format, np);
     }
 
-    public void setError(IRequest req, String format, String arg) {
+    public void setError(Request req, String format, String arg) {
         Object[] np = new Object[1];
 
         np[0] = arg;
@@ -190,7 +189,7 @@ public abstract class APolicyRule implements IPolicyRule {
     }
 
     @Override
-    public void setPolicyException(IRequest req, EBaseException ex) {
+    public void setPolicyException(Request req, EBaseException ex) {
         Vector<String> ev = req.getExtDataInStringVector(Request.ERRORS);
         if (ev == null) {
             ev = new Vector<>();
@@ -207,7 +206,7 @@ public abstract class APolicyRule implements IPolicyRule {
      * PolicyResult.DEFERRED directly.
      * <p>
      */
-    protected PolicyResult deferred(IRequest req) {
+    protected PolicyResult deferred(Request req) {
         // Try to find an agent approval
         AgentApprovals aa = AgentApprovals.fromStringVector(
                 req.getExtDataInStringVector(AgentApprovals.class.getName()));
@@ -219,7 +218,7 @@ public abstract class APolicyRule implements IPolicyRule {
     /**
      * request has previously been approved by an agent
      */
-    protected boolean agentApproved(IRequest req) {
+    protected boolean agentApproved(Request req) {
         // Try to find an agent approval
         AgentApprovals aa = AgentApprovals.fromStringVector(
                 req.getExtDataInStringVector(AgentApprovals.class.getName()));
@@ -228,7 +227,7 @@ public abstract class APolicyRule implements IPolicyRule {
         return aa != null && aa.elements().hasMoreElements();
     }
 
-    public void setPolicyException(IRequest req, String format,
+    public void setPolicyException(Request req, String format,
             Object[] params) {
         if (format == null)
             return;

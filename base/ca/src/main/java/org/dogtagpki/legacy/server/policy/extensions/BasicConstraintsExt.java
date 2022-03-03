@@ -40,7 +40,6 @@ import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -225,8 +224,8 @@ public class BasicConstraintsExt extends APolicyRule
 
         /**
          * boolean isCA = false;
-         * String type = (String)req.get(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
-         * if (type != null && type.equalsIgnoreCase(IRequest.CA_CERT)) {
+         * String type = (String)req.get(Request.HTTP_PARAMS, Request.CERT_TYPE);
+         * if (type != null && type.equalsIgnoreCase(Request.CA_CERT)) {
          * isCA = true;
          * }
          **/
@@ -241,7 +240,7 @@ public class BasicConstraintsExt extends APolicyRule
     }
 
     public PolicyResult applyCert(
-            IRequest req, boolean isCA, X509CertInfo certInfo) {
+            Request req, boolean isCA, X509CertInfo certInfo) {
 
         // get basic constraints extension from cert info if any.
         CertificateExtensions extensions = null;

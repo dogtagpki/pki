@@ -44,7 +44,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -425,7 +424,7 @@ public class CRLDistributionPointsExt extends APolicyRule
         return PolicyResult.ACCEPTED;
     }
 
-    public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
+    public PolicyResult applyCert(Request req, X509CertInfo certInfo) {
 
         try {
             // find the extensions in the certInfo

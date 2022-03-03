@@ -36,7 +36,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -167,7 +166,7 @@ public class SubjAltNameExt extends APolicyRule
         return res;
     }
 
-    public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
+    public PolicyResult applyCert(Request req, X509CertInfo certInfo) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
         //
@@ -247,7 +246,7 @@ public class SubjAltNameExt extends APolicyRule
      * If the token is not present return null
      */
     protected IAuthToken
-            findAuthToken(IRequest req, String authMgrName) {
+            findAuthToken(Request req, String authMgrName) {
 
         return req.getExtDataInAuthToken(Request.AUTH_TOKEN);
     }

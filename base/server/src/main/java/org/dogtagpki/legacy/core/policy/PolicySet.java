@@ -24,7 +24,6 @@ import org.dogtagpki.legacy.policy.IExpression;
 import org.dogtagpki.legacy.policy.IPolicyRule;
 import org.dogtagpki.legacy.policy.IPolicySet;
 
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -159,7 +158,7 @@ public class PolicySet implements IPolicySet {
      * @return the PolicyResult.
      */
     @Override
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(Request req) {
         // If there are no rules, we are done.
 
         if (mRules.size() == 0)
@@ -194,7 +193,7 @@ public class PolicySet implements IPolicySet {
             try {
                 logger.debug("Policy " + name + " selected");
                 logger.debug("Policy " + name + " selected");
-                PolicyResult result = rule.apply((Request) req);
+                PolicyResult result = rule.apply(req);
                 logger.debug("Policy applied");
 
                 logger.debug("Policy " + name + " returned " + result);
@@ -274,7 +273,7 @@ public class PolicySet implements IPolicySet {
             return "unknown";
     }
 
-    boolean typeMatched(IPolicyRule rule, IRequest req) {
+    boolean typeMatched(IPolicyRule rule, Request req) {
 
         if (req.getExtDataInCertInfoArray(Request.CERT_INFO) != null) {
             return true;

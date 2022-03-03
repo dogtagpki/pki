@@ -19,8 +19,8 @@ package org.dogtagpki.legacy.policy;
 
 import java.util.Enumeration;
 
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Represents a set of policy rules. Policy rules are ordered from
@@ -100,5 +100,5 @@ public interface IPolicySet {
      *            <P>
      * @return The policy result.
      */
-    PolicyResult apply(IRequest req);
+    PolicyResult apply(Request req);
 }

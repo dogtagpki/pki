@@ -119,7 +119,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
         return PolicyResult.ACCEPTED;
     }
 
-    public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
+    public PolicyResult applyCert(Request req, X509CertInfo certInfo) {
         try {
             // find the extensions in the certInfo
             CertificateExtensions extensions = (CertificateExtensions)

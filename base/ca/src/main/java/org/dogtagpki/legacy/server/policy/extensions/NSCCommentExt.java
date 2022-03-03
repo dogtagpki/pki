@@ -173,7 +173,7 @@ public class NSCCommentExt extends APolicyRule
         return res;
     }
 
-    public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
+    public PolicyResult applyCert(Request req, X509CertInfo certInfo) {
 
         certApplied = false;
         CertificateExtensions extensions = null;

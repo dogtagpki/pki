@@ -39,7 +39,6 @@ import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -180,7 +179,7 @@ public class NSCertTypeExt extends APolicyRule
         return PolicyResult.ACCEPTED;
     }
 
-    public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
+    public PolicyResult applyCert(Request req, X509CertInfo certInfo) {
         try {
             String certType =
                     req.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
@@ -279,7 +278,7 @@ public class NSCertTypeExt extends APolicyRule
      * if not authorized to set extension, bits will be replaced.
      */
     protected boolean extensionIsGood(
-            NSCertTypeExtension nsCertTypeExt, IRequest req)
+            NSCertTypeExtension nsCertTypeExt, Request req)
             throws IOException, CertificateException {
         // always return false for now to make sure minimum is set.
         // agents and ee can add others.
@@ -357,7 +356,7 @@ public class NSCertTypeExt extends APolicyRule
      * If no cert type, use default.
      */
 
-    protected boolean[] getBitsFromRequest(IRequest req, boolean setDefault) {
+    protected boolean[] getBitsFromRequest(Request req, boolean setDefault) {
         boolean[] bits = null;
 
         logger.debug("NSCertTypeExt: ns cert type getting ns cert type vars");
@@ -378,7 +377,7 @@ public class NSCertTypeExt extends APolicyRule
     /**
      * get ns cert type bits from actual sets in the request
      */
-    protected boolean[] getNSCertTypeBits(IRequest req) {
+    protected boolean[] getNSCertTypeBits(Request req) {
         boolean[] bits = new boolean[NSCertTypeExtension.NBITS];
 
         bits[NSCertTypeExtension.SSL_CLIENT_BIT] =
@@ -432,7 +431,7 @@ public class NSCertTypeExt extends APolicyRule
     /**
      * get cert type bits according to cert type.
      */
-    protected boolean[] getCertTypeBits(IRequest req) {
+    protected boolean[] getCertTypeBits(Request req) {
         String certType =
                 req.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
 
