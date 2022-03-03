@@ -778,6 +778,8 @@ class PKIDeployer:
             for dns_name in dns_names:
                 logger.info('- %s', dns_name)
             request.systemCert.dnsNames = dns_names
+        else:
+            request.systemCert.dnsNames = None
 
         return request
 
@@ -864,15 +866,32 @@ class PKIDeployer:
                 ca_port = subsystem.config['preop.ca.httpsport']
                 request.url = 'https://%s:%s' % (ca_hostname, ca_port)
 
+            hostname = self.mdict['pki_hostname']
+
+            server_config = subsystem.instance.get_server_config()
+            secure_port = server_config.get_secure_port()
+
+            requestor = '%s-%s-%s' % (subsystem.type, hostname, secure_port)
+
             logger.info('Requesting %s cert from %s', tag, request.url)
-            cert = client.requestCert(request)
+
+            cert_data = self.request_cert(
+                subsystem,
+                request.url,
+                request.systemCert.requestType,
+                request.systemCert.request,
+                request.systemCert.profile,
+                request.systemCert.subjectDN,
+                dns_names=request.systemCert.dnsNames,
+                requestor=requestor)
 
         else:  # selfsign or local
             logger.info('Creating %s cert', tag)
             cert = client.createCert(request)
             logger.info('- request ID: %s', cert['requestID'])
+            cert_data = cert['cert']
 
-        logger.debug('- cert: %s', cert['cert'])
+        logger.debug('- cert: %s', cert_data)
 
         if tag != 'sslserver':
 
@@ -887,13 +906,13 @@ class PKIDeployer:
 
             nssdb.add_cert(
                 nickname=request.systemCert.nickname,
-                cert_data=cert['cert'],
+                cert_data=cert_data,
                 cert_format='base64',
                 token=request.systemCert.token,
                 use_jss=True)
 
         logger.info('Storing cert and request for %s', tag)
-        system_cert['data'] = cert['cert']
+        system_cert['data'] = cert_data
         system_cert['request'] = cert['request']
         system_cert['token'] = cert['token']
 

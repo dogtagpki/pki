@@ -357,11 +357,9 @@ class SystemConfigClient(object):
         self.import_cert_url = '/rest/installer/importCert'
         self.setup_key_url = '/rest/installer/setupKey'
         self.create_request_url = '/rest/installer/createRequest'
-        self.request_cert_url = '/rest/installer/requestCert'
         self.create_cert_url = '/rest/installer/createCert'
         self.init_subsystem_url = '/rest/installer/initSubsystem'
         self.setup_admin_url = '/rest/installer/setupAdmin'
-        self.backup_keys_url = '/rest/installer/backupKeys'
         self.setup_security_domain_url = '/rest/installer/setupSecurityDomain'
 
         if connection.subsystem is None:
@@ -373,11 +371,9 @@ class SystemConfigClient(object):
             self.import_cert_url = '/' + subsystem + self.import_cert_url
             self.setup_key_url = '/' + subsystem + self.setup_key_url
             self.create_request_url = '/' + subsystem + self.create_request_url
-            self.request_cert_url = '/' + subsystem + self.request_cert_url
             self.create_cert_url = '/' + subsystem + self.create_cert_url
             self.init_subsystem_url = '/' + subsystem + self.init_subsystem_url
             self.setup_admin_url = '/' + subsystem + self.setup_admin_url
-            self.backup_keys_url = '/' + subsystem + self.backup_keys_url
             self.setup_security_domain_url = '/' + subsystem + self.setup_security_domain_url
 
     def importRequest(self, request):
@@ -447,25 +443,6 @@ class SystemConfigClient(object):
 
         response = self.connection.post(
             self.create_request_url,
-            data,
-            headers)
-
-        return response.json()
-
-    def requestCert(self, request):
-        """
-        Request certificate.
-
-        :param request: Certificate setup request
-        :type request: CertificateSetupRequest
-        :return: SystemCertData
-        """
-        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
-        headers = {'Content-type': 'application/json',
-                   'Accept': 'application/json'}
-
-        response = self.connection.post(
-            self.request_cert_url,
             data,
             headers)
 
