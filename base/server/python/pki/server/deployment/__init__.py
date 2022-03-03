@@ -781,6 +781,8 @@ class PKIDeployer:
         else:
             request.systemCert.dnsNames = None
 
+        request.systemCert.adjustValidity = tag != 'signing'
+
         return request
 
     def setup_system_cert(self, nssdb, subsystem, tag, system_cert, request, client):
@@ -886,6 +888,7 @@ class PKIDeployer:
                 requestor=requestor)
 
         else:  # selfsign or local
+
             logger.info('Creating %s cert', tag)
             cert = client.createCert(request)
             logger.info('- request ID: %s', cert['requestID'])
@@ -1180,6 +1183,7 @@ class PKIDeployer:
         request.systemCert.subjectDN = self.mdict['pki_admin_subject_dn']
         request.systemCert.requestType = self.mdict['pki_admin_cert_request_type']
         request.systemCert.request = csr
+        request.systemCert.adjustValidity = False
 
         response = client.setupAdmin(request)
         return response['cert']

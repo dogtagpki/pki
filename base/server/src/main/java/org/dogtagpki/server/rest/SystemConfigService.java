@@ -119,7 +119,9 @@ public class SystemConfigService extends PKIService {
             String certRequest = certData.getRequest();
             byte[] binCertRequest = Utils.base64decode(certRequest);
 
-            boolean installAdjustValidity = !tag.equals("signing");
+            boolean installAdjustValidity = certData.getAdjustValidity();
+            logger.info("SystemConfigService: - adjust validity: " + installAdjustValidity);
+
             X500Name subjectName = null;
 
             RequestId requestID = configurator.createRequestID();
@@ -408,8 +410,6 @@ public class SystemConfigService extends PKIService {
 
             PreOpConfig preopConfig = cs.getPreOpConfig();
 
-            boolean installAdjustValidity = !tag.equals("signing");
-
             X500Name issuerName;
             PrivateKey signingPrivateKey;
             String signingAlgorithm;
@@ -424,6 +424,9 @@ public class SystemConfigService extends PKIService {
                 signingPrivateKey = null;
                 signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
             }
+
+            boolean installAdjustValidity = certData.getAdjustValidity();
+            logger.info("SystemConfigService: - adjust validity: " + installAdjustValidity);
 
             RequestId requestID = configurator.createRequestID();
             certData.setRequestID(requestID);
@@ -546,7 +549,6 @@ public class SystemConfigService extends PKIService {
             }
 
             String[] dnsNames = null;
-            boolean installAdjustValidity = false;
 
             X500Name issuerName;
             PrivateKey signingPrivateKey;
@@ -561,6 +563,9 @@ public class SystemConfigService extends PKIService {
                 signingPrivateKey = null;
                 signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
             }
+
+            boolean installAdjustValidity = certData.getAdjustValidity();
+            logger.info("SystemConfigService: - adjust validity: " + installAdjustValidity);
 
             RequestId requestID = configurator.createRequestID();
             certData.setRequestID(requestID);

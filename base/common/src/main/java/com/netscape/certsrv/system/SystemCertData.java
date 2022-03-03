@@ -69,6 +69,8 @@ public class SystemCertData implements JSONSerializer {
     protected String req_ext_data;
 
     protected String[] dnsNames;
+    protected boolean adjustValidity;
+
 
     public SystemCertData() {
     }
@@ -278,6 +280,14 @@ public class SystemCertData implements JSONSerializer {
         this.dnsNames = dnsNames;
     }
 
+    public boolean getAdjustValidity() {
+        return adjustValidity;
+    }
+
+    public void setAdjustValidity(boolean adjustValidity) {
+        this.adjustValidity = adjustValidity;
+    }
+
     @Override
     public String toString() {
         return "SystemCertData["
@@ -301,6 +311,7 @@ public class SystemCertData implements JSONSerializer {
             + ", req_ext_critical=" + req_ext_critical
             + ", req_ext_data=" + req_ext_data
             + ", dnsNames=" + (dnsNames == null ? null : Arrays.asList(dnsNames))
+            + ", adjustValidity=" + adjustValidity
             + "]";
     }
 
@@ -309,19 +320,27 @@ public class SystemCertData implements JSONSerializer {
         final int prime = 31;
         int result = 1;
         result = prime * result + Arrays.hashCode(dnsNames);
-        result = prime * result + Objects.hash(cert,
+        result = prime * result + Objects.hash(
+                cert,
                 keyID,
                 keyType,
                 keySize,
                 keyCurveName,
                 ecType,
                 keyAlgorithm,
-                nickname, profile, req_ext_critical,
-                req_ext_data, req_ext_oid,
+                nickname,
+                profile,
+                req_ext_critical,
+                req_ext_data,
+                req_ext_oid,
                 requestType,
                 request,
                 requestID,
-                subjectDN, tag, token, type);
+                subjectDN,
+                tag,
+                token,
+                type,
+                adjustValidity);
         return result;
     }
 
@@ -334,22 +353,26 @@ public class SystemCertData implements JSONSerializer {
         if (getClass() != obj.getClass())
             return false;
         SystemCertData other = (SystemCertData) obj;
-        return Objects.equals(cert, other.cert) && Arrays.equals(dnsNames, other.dnsNames)
+        return Objects.equals(cert, other.cert)
+                && Arrays.equals(dnsNames, other.dnsNames)
                 && Objects.equals(keyID, other.keyID)
                 && Objects.equals(keyType, other.keyType)
                 && Objects.equals(keySize, other.keySize)
                 && Objects.equals(keyCurveName, other.keyCurveName)
                 && Objects.equals(ecType, other.ecType)
                 && Objects.equals(keyAlgorithm, other.keyAlgorithm)
-                && Objects.equals(nickname, other.nickname) && Objects.equals(profile, other.profile)
+                && Objects.equals(nickname, other.nickname)
+                && Objects.equals(profile, other.profile)
                 && Objects.equals(req_ext_critical, other.req_ext_critical)
-                && Objects.equals(req_ext_data, other.req_ext_data) && Objects.equals(req_ext_oid, other.req_ext_oid)
+                && Objects.equals(req_ext_data, other.req_ext_data)
+                && Objects.equals(req_ext_oid, other.req_ext_oid)
                 && Objects.equals(requestType, other.requestType)
                 && Objects.equals(request, other.request)
                 && Objects.equals(requestID, other.requestID)
                 && Objects.equals(subjectDN, other.subjectDN)
                 && Objects.equals(tag, other.tag) && Objects.equals(token, other.token)
-                && Objects.equals(type, other.type);
+                && Objects.equals(type, other.type)
+                && Objects.equals(adjustValidity, other.adjustValidity);
     }
 
 }
