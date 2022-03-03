@@ -50,7 +50,6 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileOutput;
 import com.netscape.certsrv.profile.ProfilePolicySet;
 import com.netscape.certsrv.property.EPropertyException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -215,7 +214,7 @@ public class RequestProcessor extends CertProcessor {
         }
     }
 
-    private boolean grantPermission(IRequest req, IAuthToken token) {
+    private boolean grantPermission(Request req, IAuthToken token) {
 
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
@@ -244,7 +243,7 @@ public class RequestProcessor extends CertProcessor {
      * Check if the request creation time is older than the profile
      * lastModified attribute.
      */
-    private void checkProfileVersion(Profile profile, IRequest req) throws EProfileException {
+    private void checkProfileVersion(Profile profile, Request req) throws EProfileException {
         IConfigStore profileConfig = profile.getConfigStore();
         if (profileConfig != null) {
             String lastModified = null;
@@ -418,7 +417,7 @@ public class RequestProcessor extends CertProcessor {
         }
     }
 
-    private void updateValues(CertReviewResponse data, IRequest req,
+    private void updateValues(CertReviewResponse data, Request req,
             Profile profile, Locale locale)
             throws ERejectException, EDeferException, EPropertyException {
 
@@ -457,7 +456,7 @@ public class RequestProcessor extends CertProcessor {
 
     }
 
-    private void updateNotes(CertReviewResponse data, IRequest req) {
+    private void updateNotes(CertReviewResponse data, Request req) {
         String notes = data.getRequestNotes();
 
         if (notes != null) {
@@ -465,14 +464,14 @@ public class RequestProcessor extends CertProcessor {
         }
     }
 
-    private void validate(int count, ProfilePolicy policy, IRequest req)
+    private void validate(int count, ProfilePolicy policy, Request req)
             throws ERejectException, EDeferException {
         PolicyConstraint con = policy.getConstraint();
 
-        con.validate((Request) req);
+        con.validate(req);
     }
 
-    private void setValue(Locale locale, int count, ProfilePolicy policy, IRequest req,
+    private void setValue(Locale locale, int count, ProfilePolicy policy, Request req,
             HashMap<String, String> data) throws EPropertyException {
         // handle default policy
         com.netscape.cms.profile.def.PolicyDefault def = policy.getDefault();
@@ -482,7 +481,7 @@ public class RequestProcessor extends CertProcessor {
             String defName = defNames.nextElement();
             String defValue = data.get(defName);
 
-            def.setValue(defName, locale, (Request) req, defValue);
+            def.setValue(defName, locale, req, defValue);
         }
     }
 }
