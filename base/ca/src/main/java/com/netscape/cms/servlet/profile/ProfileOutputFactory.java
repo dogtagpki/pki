@@ -24,13 +24,13 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileOutput;
 import com.netscape.certsrv.property.Descriptor;
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 public class ProfileOutputFactory {
 
     public static ProfileOutput create(
             com.netscape.cms.profile.common.ProfileOutput output,
-            IRequest request,
+            Request request,
             Locale locale) throws EProfileException {
 
         ProfileOutput ret = new ProfileOutput();

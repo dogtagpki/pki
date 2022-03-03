@@ -26,9 +26,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements the output plugin that outputs
@@ -64,7 +64,7 @@ public class nsNKeyOutput extends EnrollOutput {
      * Populates the request with this policy default.
      */
     @Override
-    public void populate(Map<String, String> ctx, IRequest request)
+    public void populate(Map<String, String> ctx, Request request)
             throws EProfileException {
     }
 
@@ -84,7 +84,7 @@ public class nsNKeyOutput extends EnrollOutput {
     }
 
     @Override
-    public String getValue(String name, Locale locale, IRequest request)
+    public String getValue(String name, Locale locale, Request request)
             throws EProfileException {
         if (name.equals(VAL_DER)) {
 

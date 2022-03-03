@@ -35,7 +35,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -179,7 +178,7 @@ public abstract class EnrollInput extends ProfileInput {
         request.setExtData(name, value);
     }
 
-    public Locale getLocale(IRequest request) {
+    public Locale getLocale(Request request) {
         Locale locale = null;
         String language = request.getExtDataInString(
                 EnrollProfile.REQUEST_LOCALE);

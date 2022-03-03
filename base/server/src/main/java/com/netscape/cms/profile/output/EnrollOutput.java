@@ -26,8 +26,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.ProfileOutput;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements the basic enrollment output.
@@ -64,7 +64,7 @@ public abstract class EnrollOutput extends ProfileOutput {
      * @exception EProfileException failed to populate
      */
     @Override
-    public abstract void populate(Map<String, String> ctx, IRequest request)
+    public abstract void populate(Map<String, String> ctx, Request request)
             throws EProfileException;
 
     /**
@@ -105,7 +105,7 @@ public abstract class EnrollOutput extends ProfileOutput {
     }
 
     @Override
-    public String getValue(String name, Locale locale, IRequest request)
+    public String getValue(String name, Locale locale, Request request)
             throws EProfileException {
         return request.getExtDataInString(name);
     }
@@ -114,7 +114,7 @@ public abstract class EnrollOutput extends ProfileOutput {
      * Sets the value of the given value parameter by name.
      */
     @Override
-    public void setValue(String name, Locale locale, IRequest request,
+    public void setValue(String name, Locale locale, Request request,
             String value) throws EPropertyException {
         request.setExtData(name, value);
     }

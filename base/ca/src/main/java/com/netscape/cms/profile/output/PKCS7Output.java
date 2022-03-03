@@ -34,10 +34,10 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements the output plugin that outputs
@@ -75,7 +75,7 @@ public class PKCS7Output extends EnrollOutput {
      * Populates the request with this policy default.
      */
     @Override
-    public void populate(Map<String, String> ctx, IRequest request)
+    public void populate(Map<String, String> ctx, Request request)
             throws EProfileException {
     }
 
@@ -100,7 +100,7 @@ public class PKCS7Output extends EnrollOutput {
     }
 
     @Override
-    public String getValue(String name, Locale locale, IRequest request)
+    public String getValue(String name, Locale locale, Request request)
             throws EProfileException {
 
         CAEngine engine = CAEngine.getInstance();

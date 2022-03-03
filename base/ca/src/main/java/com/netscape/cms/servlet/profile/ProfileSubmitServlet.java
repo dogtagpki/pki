@@ -60,6 +60,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -335,7 +336,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
                         try {
                             outputValue = profileOutput.getValue(outputName,
-                                    locale, req);
+                                    locale, (Request) req);
                         } catch (EProfileException e) {
                             logger.warn("ProfileSubmitServlet: " + e.getMessage(), e);
                         }
@@ -423,7 +424,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                                     !outputName.equals("pkcs7"))
                                     continue;
                                 try {
-                                    String outputValue = profileOutput.getValue(outputName, locale, reqs[i]);
+                                    String outputValue = profileOutput.getValue(outputName, locale, (Request) reqs[i]);
                                     if (outputName.equals("b64_cert") ||
                                         outputName.equals("der")) {
                                         String ss = Cert.normalizeCertStrAndReq(outputValue);
