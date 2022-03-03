@@ -667,7 +667,7 @@ public abstract class EnrollProfile extends Profile {
         // this profile queues request that is authenticated
         // by NoAuth
         try {
-            queue.updateRequest(request);
+            queue.updateRequest((Request) request);
         } catch (EBaseException e) {
             // save request to disk
             logger.warn("Unable to update request: " + e.getMessage(), e);
@@ -693,7 +693,7 @@ public abstract class EnrollProfile extends Profile {
             logger.debug(method + " validating request");
             validate(request);
             try {
-                queue.updateRequest(request);
+                queue.updateRequest((Request) request);
             } catch (EBaseException e) {
                 msg = method + " Unable to update request after validation: " + e.getMessage();
                 logger.error(msg, e);
@@ -708,7 +708,7 @@ public abstract class EnrollProfile extends Profile {
             logger.debug(method + " about to call setPOPchallenge");
             try {
                 setPOPchallenge(request);
-                queue.updateRequest(request);
+                queue.updateRequest((Request) request);
             } catch (EBaseException e) {
                 msg = method + e.getMessage();
                 logger.error(msg, e);

@@ -24,7 +24,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
@@ -115,8 +114,8 @@ public abstract class ARequestQueue {
      * @param date
      *            The new value for the time.
      */
-    protected final void setModificationTime(IRequest request, Date date) {
-        Request r = (Request) request;
+    protected final void setModificationTime(Request request, Date date) {
+        Request r = request;
 
         r.mModificationTime = date;
     }
@@ -130,8 +129,8 @@ public abstract class ARequestQueue {
      * @param date
      *            The new value for the time.
      */
-    protected final void setCreationTime(IRequest request, Date date) {
-        Request r = (Request) request;
+    protected final void setCreationTime(Request request, Date date) {
+        Request r = request;
 
         r.mCreationTime = date;
     }
@@ -149,7 +148,7 @@ public abstract class ARequestQueue {
      * @return cloned request
      * @exception EBaseException failed to clone request
      */
-    public abstract IRequest cloneRequest(IRequest r) throws EBaseException;
+    public abstract Request cloneRequest(Request r) throws EBaseException;
 
     /**
      * Sets request scheduler.
@@ -214,7 +213,7 @@ public abstract class ARequestQueue {
      *            the request to mark PENDING
      * @exception EBaseException failed to mark request as pending
      */
-    public abstract void markRequestPending(IRequest request) throws EBaseException;
+    public abstract void markRequestPending(Request request) throws EBaseException;
 
     /**
      * Clones a request object and mark it pending. A new request id is assigned
@@ -229,9 +228,9 @@ public abstract class ARequestQueue {
      * @return cloned request mark PENDING
      * @exception EBaseException failed to clone or mark request
      */
-    public IRequest cloneAndMarkPending(IRequest r)
+    public Request cloneAndMarkPending(Request r)
             throws EBaseException {
-        IRequest clone = cloneRequest(r);
+        Request clone = cloneRequest(r);
 
         markRequestPending(clone);
         return clone;
@@ -252,7 +251,7 @@ public abstract class ARequestQueue {
      *            the request that is being approved
      * @exception EBaseException failed to approve request
      */
-    public abstract void approveRequest(IRequest request) throws EBaseException;
+    public abstract void approveRequest(Request request) throws EBaseException;
 
     /**
      * Rejects a request. The request must be locked.
@@ -266,7 +265,7 @@ public abstract class ARequestQueue {
      *            the request that is being rejected
      * @exception EBaseException failed to reject request
      */
-    public abstract void rejectRequest(IRequest request) throws EBaseException;
+    public abstract void rejectRequest(Request request) throws EBaseException;
 
     /**
      * Cancels a request. The request must be locked.
@@ -280,7 +279,7 @@ public abstract class ARequestQueue {
      *            the request that is being canceled
      * @exception EBaseException failed to cancel request
      */
-    public abstract void cancelRequest(IRequest request) throws EBaseException;
+    public abstract void cancelRequest(Request request) throws EBaseException;
 
     /**
      * Marks as serviced after destination authority has serviced request.
@@ -290,7 +289,7 @@ public abstract class ARequestQueue {
      *
      * @param request request
      */
-    public abstract void markAsServiced(IRequest request) throws EBaseException;
+    public abstract void markAsServiced(Request request) throws EBaseException;
 
     /**
      * Returns an enumerator that lists all RequestIds in the
@@ -366,7 +365,7 @@ public abstract class ARequestQueue {
      *
      * @param request request
      */
-    public final void releaseRequest(IRequest request) {
+    public final void releaseRequest(Request request) {
         // mTable.unlock(request.getRequestId());
     }
 
@@ -380,11 +379,11 @@ public abstract class ARequestQueue {
      * @param r the request that is being updated
      * @exception EBaseException failed to update request
      */
-    public abstract void updateRequest(IRequest r) throws EBaseException;
+    public abstract void updateRequest(Request r) throws EBaseException;
 
     // PRIVATE functions
 
-    protected final void stateEngine(IRequest r)
+    protected final void stateEngine(Request r)
             throws EBaseException {
         boolean complete = false;
 
@@ -395,7 +394,7 @@ public abstract class ARequestQueue {
                 PolicyResult pr = PolicyResult.ACCEPTED;
 
                 if (mPolicy != null)
-                    pr = mPolicy.apply((Request) r);
+                    pr = mPolicy.apply(r);
 
                 if (pr == PolicyResult.ACCEPTED) {
                     r.setRequestStatus(RequestStatus.APPROVED);
@@ -420,7 +419,7 @@ public abstract class ARequestQueue {
             } else if (rs == RequestStatus.APPROVED) {
                 boolean svcComplete;
 
-                svcComplete = mService.serviceRequest((Request) r);
+                svcComplete = mService.serviceRequest(r);
 
                 // Completed requests call the notifier and are done. Others
                 // wait for the serviceComplete call.
@@ -455,7 +454,7 @@ public abstract class ARequestQueue {
     /**
      * log a change in the request status
      */
-    protected void logChange(IRequest request) {
+    protected void logChange(Request request) {
         // write the queue name and request id
         // write who changed it
         // write what change (which state change) was made

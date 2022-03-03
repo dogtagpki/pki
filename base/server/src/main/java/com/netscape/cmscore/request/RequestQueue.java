@@ -27,7 +27,6 @@ import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.PolicyResult;
@@ -81,7 +80,7 @@ public class RequestQueue extends ARequestQueue {
     }
 
     @Override
-    public IRequest cloneRequest(IRequest request) throws EBaseException {
+    public Request cloneRequest(Request request) throws EBaseException {
 
         // 1. check for valid state. (Are any invalid ?)
         RequestStatus requestStatus = request.getRequestStatus();
@@ -107,12 +106,12 @@ public class RequestQueue extends ARequestQueue {
         return clone;
     }
 
-    public IRequest findRequest(RequestId id) throws EBaseException {
+    public Request findRequest(RequestId id) throws EBaseException {
         return mRepository.readRequest(id);
     }
 
     @Override
-    public void updateRequest(IRequest request) throws EBaseException {
+    public void updateRequest(Request request) throws EBaseException {
 
         String name = getUserIdentity();
         if (name != null) {
@@ -120,7 +119,7 @@ public class RequestQueue extends ARequestQueue {
         }
 
         String delayLDAPCommit = request.getExtDataInString("delayLDAPCommit");
-        ((Request) request).mModificationTime = new Date();
+        request.mModificationTime = new Date();
 
         if (delayLDAPCommit != null && delayLDAPCommit.equals("true")) {
             // delay writing to LDAP
@@ -141,7 +140,7 @@ public class RequestQueue extends ARequestQueue {
     }
 
     @Override
-    public void markRequestPending(IRequest request) throws EBaseException {
+    public void markRequestPending(Request request) throws EBaseException {
 
         RequestStatus rs = request.getRequestStatus();
 
@@ -160,7 +159,7 @@ public class RequestQueue extends ARequestQueue {
     }
 
     @Override
-    public void cancelRequest(IRequest request) throws EBaseException {
+    public void cancelRequest(Request request) throws EBaseException {
 
         request.setRequestStatus(RequestStatus.CANCELED);
 
@@ -169,7 +168,7 @@ public class RequestQueue extends ARequestQueue {
     }
 
     @Override
-    public void rejectRequest(IRequest request) throws EBaseException {
+    public void rejectRequest(Request request) throws EBaseException {
 
         RequestStatus rs = request.getRequestStatus();
 
@@ -184,7 +183,7 @@ public class RequestQueue extends ARequestQueue {
     }
 
     @Override
-    public void approveRequest(IRequest request) throws EBaseException {
+    public void approveRequest(Request request) throws EBaseException {
 
         RequestStatus rs = request.getRequestStatus();
 
@@ -208,7 +207,7 @@ public class RequestQueue extends ARequestQueue {
         aas.addApproval(agentName);
         request.setExtData(AgentApprovals.class.getName(), aas.toStringVector());
 
-        PolicyResult pr = mPolicy.apply((Request) request);
+        PolicyResult pr = mPolicy.apply(request);
 
         if (pr == PolicyResult.ACCEPTED) {
             request.setRequestStatus(RequestStatus.APPROVED);
@@ -222,7 +221,7 @@ public class RequestQueue extends ARequestQueue {
     }
 
     @Override
-    public void markAsServiced(IRequest request) throws EBaseException {
+    public void markAsServiced(Request request) throws EBaseException {
 
         request.setRequestStatus(RequestStatus.COMPLETE);
 

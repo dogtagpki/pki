@@ -480,7 +480,7 @@ public class QueryReq extends CMSServlet {
 
                 ArgBlock rec = new ArgBlock();
                 mParser.fillRequestIntoArg(locale, request, argset, rec);
-                mQueue.releaseRequest(request);
+                mQueue.releaseRequest((Request) request);
                 argset.addRepeatRecord(rec);
 
                 currentCount++;

@@ -200,12 +200,12 @@ public class LocalConnector implements IConnector {
                 if (r.getRequestStatus() != RequestStatus.SVC_PENDING) {
                     logger.warn("request state of " + rId + "not pending " +
                                     " from dest authority " + mDest.getId());
-                    sourceQ.releaseRequest(r);
+                    sourceQ.releaseRequest((Request) r);
                     return;
                 }
                 transferRequest(destreq, r);
-                sourceQ.markAsServiced(r);
-                sourceQ.releaseRequest(r);
+                sourceQ.markAsServiced((Request) r);
+                sourceQ.releaseRequest((Request) r);
 
                 logger.debug("released request " + r.getRequestId());
             }

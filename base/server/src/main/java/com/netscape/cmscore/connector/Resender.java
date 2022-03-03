@@ -252,8 +252,8 @@ public class Resender implements IResender {
             // request was completed. copy relevant contents.
             replymsg.toRequest(r);
             logger.debug("resend request id was completed " + r.getRequestId());
-            mQueue.markAsServiced(r);
-            mQueue.releaseRequest(r);
+            mQueue.markAsServiced((Request) r);
+            mQueue.releaseRequest((Request) r);
             logger.debug("resend released request " + r.getRequestId());
             return true;
         } catch (EBaseException e) {
