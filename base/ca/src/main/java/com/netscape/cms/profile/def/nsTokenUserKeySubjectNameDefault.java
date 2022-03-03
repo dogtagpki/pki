@@ -33,7 +33,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
@@ -369,7 +368,7 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
         }
     }
 
-    private String getSubjectName(IRequest request)
+    private String getSubjectName(Request request)
             throws EProfileException, IOException {
 
         logger.debug("nsTokenUserKeySubjectNameDefault: in getSubjectName");

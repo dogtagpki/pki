@@ -54,7 +54,6 @@ import com.netscape.certsrv.pattern.Pattern;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
@@ -800,7 +799,7 @@ public abstract class EnrollDefault extends PolicyDefault {
         return s.substring(pos + 1).trim();
     }
 
-    public Locale getLocale(IRequest request) {
+    public Locale getLocale(Request request) {
         Locale locale = null;
 
         if (request == null)
@@ -824,7 +823,7 @@ public abstract class EnrollDefault extends PolicyDefault {
         return gn.toString();
     }
 
-    protected String mapPattern(IRequest request, String pattern)
+    protected String mapPattern(Request request, String pattern)
             throws IOException {
         Pattern p = new Pattern(pattern);
         IAttrSet attrSet = null;

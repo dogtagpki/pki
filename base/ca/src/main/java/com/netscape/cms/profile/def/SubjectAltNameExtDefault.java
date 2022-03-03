@@ -36,7 +36,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -396,7 +395,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         }
     }
 
-    public SubjectAlternativeNameExtension createExtension(IRequest request)
+    public SubjectAlternativeNameExtension createExtension(Request request)
             throws IOException, EProfileException {
         SubjectAlternativeNameExtension ext = null;
         int num = getNumGNs();
@@ -494,7 +493,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
     }
 
     @Override
-    public String mapPattern(IRequest request, String pattern)
+    public String mapPattern(Request request, String pattern)
             throws IOException {
         Pattern p = new Pattern(pattern);
         IAttrSet attrSet = null;
@@ -505,7 +504,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
     }
 
     // for server-side generated values
-    public String mapPattern(String val, IRequest request, String pattern)
+    public String mapPattern(String val, Request request, String pattern)
             throws IOException {
         Pattern p = new Pattern(pattern);
         IAttrSet attrSet = null;

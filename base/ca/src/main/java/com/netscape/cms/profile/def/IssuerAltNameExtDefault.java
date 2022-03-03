@@ -33,7 +33,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -285,7 +284,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
                 ext, info);
     }
 
-    public IssuerAlternativeNameExtension createExtension(IRequest request)
+    public IssuerAlternativeNameExtension createExtension(Request request)
             throws IOException, EProfileException {
         IssuerAlternativeNameExtension ext = null;
 

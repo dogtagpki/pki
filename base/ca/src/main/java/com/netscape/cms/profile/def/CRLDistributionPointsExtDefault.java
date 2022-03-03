@@ -40,7 +40,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -615,7 +614,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                 ext, info);
     }
 
-    public CRLDistributionPointsExtension createExtension(IRequest request) {
+    public CRLDistributionPointsExtension createExtension(Request request) {
         CRLDistributionPointsExtension ext = null;
         int num = 0;
 

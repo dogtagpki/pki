@@ -29,7 +29,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -241,7 +240,7 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
         addExtension(InhibitAnyPolicyExtension.OID, ext, info);
     }
 
-    public InhibitAnyPolicyExtension createExtension(IRequest request)
+    public InhibitAnyPolicyExtension createExtension(Request request)
             throws EProfileException {
         InhibitAnyPolicyExtension ext = null;
 

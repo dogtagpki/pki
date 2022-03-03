@@ -28,7 +28,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -244,7 +243,7 @@ public class GenericExtDefault extends EnrollExtDefault {
         addExtension(ext.getExtensionId().toString(), ext, info);
     }
 
-    public Extension createExtension(IRequest request) {
+    public Extension createExtension(Request request) {
         Extension ext = null;
 
         try (DerOutputStream out = new DerOutputStream()) {
