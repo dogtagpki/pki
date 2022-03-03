@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.math.BigInteger;
-import java.net.URL;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -47,8 +46,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.ca.CACertClient;
-import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.request.RequestId;
@@ -315,41 +312,6 @@ public class Configurator {
             RequestId requestID) throws Exception {
 
         return null;
-    }
-
-    public X509CertImpl createRemoteCert(
-            URL url,
-            String profileID,
-            String certRequestType,
-            byte[] request,
-            String[] dnsNames,
-            InstallToken installToken)
-            throws Exception {
-
-        String serverURL = url.toExternalForm();
-        logger.info("Configurator: Submitting cert request to " + serverURL);
-
-        String certRequest = CryptoUtil.base64Encode(request);
-
-        String sysType = cs.getType();
-        String machineName = cs.getHostname();
-        String securePort = cs.getString("service.securePort", "");
-        String requestor = sysType + "-" + machineName + "-" + securePort;
-
-        String sessionID = installToken.getToken();
-
-        PKIClient client = Configurator.createClient(serverURL, null, null);
-        CAClient caClient = new CAClient(client);
-        CACertClient caCertClient = new CACertClient(caClient);
-
-        return caCertClient.submitRequest(
-                certRequestType,
-                certRequest,
-                profileID,
-                null,
-                dnsNames,
-                requestor,
-                sessionID);
     }
 
     public PKCS10 createPKCS10Request(

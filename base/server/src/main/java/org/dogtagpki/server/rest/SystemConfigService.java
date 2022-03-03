@@ -18,7 +18,6 @@
 package org.dogtagpki.server.rest;
 
 import java.io.IOException;
-import java.net.URL;
 import java.security.KeyPair;
 
 import javax.ws.rs.POST;
@@ -47,7 +46,6 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.CertificateSetupRequest;
-import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Configurator;
@@ -327,65 +325,6 @@ public class SystemConfigService extends PKIService {
             }
 
             certData.setRequest(CryptoUtil.base64Encode(binCertRequest));
-
-            return certData;
-
-        } catch (PKIException e) { // normal response
-            logger.error("Configuration failed: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Configuration failed: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    @POST
-    @Path("requestCert")
-    public SystemCertData requestCert(CertificateSetupRequest request) throws Exception {
-
-        String tag = request.getTag();
-        logger.info("SystemConfigService: Requesting " + tag + " cert");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            SystemCertData certData = request.getSystemCert();
-
-            String certRequestType = certData.getRequestType();
-            logger.info("SystemConfigService: - request type: " + certRequestType);
-
-            String certRequest = certData.getRequest();
-            byte[] binCertRequest = CryptoUtil.base64Decode(certRequest);
-
-            String profileID = certData.getProfile();
-            logger.info("SystemConfigService: - profile: " + profileID);
-
-            String[] dnsNames = certData.getDNSNames();
-            if (dnsNames != null) {
-                logger.info("SystemConfigService: - SAN extension: ");
-                for (String dnsName : dnsNames) {
-                    logger.info("SystemConfigService:   - " + dnsName);
-                }
-            }
-
-            URL url = request.getURL();
-            InstallToken installToken = request.getInstallToken();
-
-            X509CertImpl certImpl = configurator.createRemoteCert(
-                    url,
-                    profileID,
-                    certRequestType,
-                    binCertRequest,
-                    dnsNames,
-                    installToken);
-
-            byte[] binCert = certImpl.getEncoded();
-            certData.setCert(CryptoUtil.base64Encode(binCert));
 
             return certData;
 
