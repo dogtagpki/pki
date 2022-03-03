@@ -359,8 +359,6 @@ class SystemConfigClient(object):
         self.create_request_url = '/rest/installer/createRequest'
         self.create_cert_url = '/rest/installer/createCert'
         self.init_subsystem_url = '/rest/installer/initSubsystem'
-        self.setup_admin_url = '/rest/installer/setupAdmin'
-        self.setup_security_domain_url = '/rest/installer/setupSecurityDomain'
 
         if connection.subsystem is None:
 
@@ -373,8 +371,6 @@ class SystemConfigClient(object):
             self.create_request_url = '/' + subsystem + self.create_request_url
             self.create_cert_url = '/' + subsystem + self.create_cert_url
             self.init_subsystem_url = '/' + subsystem + self.init_subsystem_url
-            self.setup_admin_url = '/' + subsystem + self.setup_admin_url
-            self.setup_security_domain_url = '/' + subsystem + self.setup_security_domain_url
 
     def importRequest(self, request):
         """
@@ -481,23 +477,6 @@ class SystemConfigClient(object):
             self.init_subsystem_url,
             data,
             headers)
-
-    def setupAdmin(self, request):
-        """
-        Set up admin.
-
-        :param request: Admin setup request
-        :type request: CertificateSetupRequest
-        :return: SystemCertData
-        """
-        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
-        headers = {'Content-type': 'application/json',
-                   'Accept': 'application/json'}
-        response = self.connection.post(
-            self.setup_admin_url,
-            data,
-            headers)
-        return response.json()
 
 
 class SystemStatusClient(object):

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.rest;
 
-import java.io.IOException;
 import java.security.KeyPair;
 
 import javax.ws.rs.POST;
@@ -477,114 +476,6 @@ public class SystemConfigService extends PKIService {
             }
 
             configurator.initSubsystem();
-
-        } catch (PKIException e) { // normal response
-            logger.error("Configuration failed: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Configuration failed: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    @POST
-    @Path("setupAdmin")
-    public SystemCertData setupAdmin(CertificateSetupRequest request) throws Exception {
-
-        logger.info("SystemConfigService: setting up admin");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            SystemCertData certData = request.getSystemCert();
-
-            String certRequestType = certData.getRequestType();
-            logger.info("SystemConfigService: - request type: " + certRequestType);
-
-            String profileID = certData.getProfile();
-            logger.info("SystemConfigService: - profile: " + profileID);
-
-            // cert type is selfsign, local, or remote
-            String certType = certData.getType();
-            logger.info("SystemConfigService: - cert type: " + certType);
-
-            String subjectDN = certData.getSubjectDN();
-            logger.info("SystemConfigService: - subject: " + subjectDN);
-
-            PreOpConfig preopConfig = cs.getPreOpConfig();
-            String keyAlgorithm = certData.getKeyAlgorithm();
-
-            KeyPair keyPair = null;
-            String certRequest = certData.getRequest();
-            byte[] binCertRequest = Utils.base64decode(certRequest);
-
-            X500Name subjectName;
-            X509Key x509key;
-
-            if (certRequestType.equals("crmf")) {
-                SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binCertRequest);
-                subjectName = CryptoUtil.getSubjectName(crmfMsgs);
-                x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
-
-            } else if (certRequestType.equals("pkcs10")) {
-                PKCS10 pkcs10 = new PKCS10(binCertRequest);
-                subjectName = pkcs10.getSubjectName();
-                x509key = pkcs10.getSubjectPublicKeyInfo();
-
-            } else {
-                throw new Exception("Certificate request type not supported: " + certRequestType);
-            }
-
-            if (x509key == null) {
-                logger.error("SystemConfigService: Missing certificate public key");
-                throw new IOException("Missing certificate public key");
-            }
-
-            String[] dnsNames = null;
-
-            X500Name issuerName;
-            PrivateKey signingPrivateKey;
-            String signingAlgorithm;
-
-            if (certType.equals("selfsign")) {
-                issuerName = subjectName;
-                signingPrivateKey = (PrivateKey) keyPair.getPrivate();
-                signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-            } else { // local
-                issuerName = null;
-                signingPrivateKey = null;
-                signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
-            }
-
-            boolean installAdjustValidity = certData.getAdjustValidity();
-            logger.info("SystemConfigService: - adjust validity: " + installAdjustValidity);
-
-            RequestId requestID = configurator.createRequestID();
-            certData.setRequestID(requestID);
-
-            X509CertImpl certImpl = configurator.createLocalCert(
-                    keyAlgorithm,
-                    x509key,
-                    profileID,
-                    dnsNames,
-                    installAdjustValidity,
-                    signingPrivateKey,
-                    signingAlgorithm,
-                    certRequestType,
-                    binCertRequest,
-                    issuerName,
-                    subjectName,
-                    requestID);
-
-            byte[] binCert = certImpl.getEncoded();
-            certData.setCert(CryptoUtil.base64Encode(binCert));
-
-            return certData;
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
