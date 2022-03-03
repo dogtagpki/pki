@@ -35,8 +35,6 @@ public class CertificateSetupRequest implements JSONSerializer {
 
     protected String pin;
 
-    protected InstallToken installToken;
-
     protected String tag;
 
     protected SystemCertData systemCert;
@@ -52,14 +50,6 @@ public class CertificateSetupRequest implements JSONSerializer {
 
     public void setPin(String pin) {
         this.pin = pin;
-    }
-
-    public InstallToken getInstallToken() {
-        return installToken;
-    }
-
-    public void setInstallToken(InstallToken installToken) {
-        this.installToken = installToken;
     }
 
     public String getTag() {
@@ -97,7 +87,7 @@ public class CertificateSetupRequest implements JSONSerializer {
 
     @Override
     public int hashCode() {
-        return Objects.hash(installToken, url, pin, systemCert, tag);
+        return Objects.hash(url, pin, systemCert, tag);
     }
 
     @Override
@@ -109,9 +99,10 @@ public class CertificateSetupRequest implements JSONSerializer {
         if (getClass() != obj.getClass())
             return false;
         CertificateSetupRequest other = (CertificateSetupRequest) obj;
-        return Objects.equals(installToken, other.installToken)
-                && Objects.equals(url, other.url) && Objects.equals(pin, other.pin)
-                && Objects.equals(systemCert, other.systemCert) && Objects.equals(tag, other.tag);
+        return Objects.equals(url, other.url)
+                && Objects.equals(pin, other.pin)
+                && Objects.equals(systemCert, other.systemCert)
+                && Objects.equals(tag, other.tag);
     }
 
 }

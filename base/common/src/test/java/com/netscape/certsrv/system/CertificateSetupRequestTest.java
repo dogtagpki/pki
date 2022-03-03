@@ -15,7 +15,6 @@ public class CertificateSetupRequestTest {
 
     @Before
     public void setUpBefore() throws MalformedURLException {
-        before.setInstallToken(new InstallToken("foo"));
         before.setURL(new URL("https://www.example.com"));
         before.setPin("bar");
         before.setSystemCert(new SystemCertData());

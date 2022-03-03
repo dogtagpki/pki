@@ -738,7 +738,6 @@ class PKIDeployer:
         request = pki.system.CertificateSetupRequest()
         request.tag = tag
         request.pin = self.mdict['pki_one_time_pin']
-        request.installToken = self.install_token
 
         self.config_client.set_system_cert_info(request, tag)
 
@@ -1251,7 +1250,6 @@ class PKIDeployer:
         request = pki.system.CertificateSetupRequest()
         request.tag = 'admin'
         request.pin = self.mdict['pki_one_time_pin']
-        request.installToken = self.install_token
 
         request.systemCert = pki.system.SystemCertData()
         request.systemCert.type = subsystem.config.get('preop.cert.admin.type', 'local')
