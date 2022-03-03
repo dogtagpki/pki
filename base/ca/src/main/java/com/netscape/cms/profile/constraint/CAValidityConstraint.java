@@ -29,13 +29,13 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.CAValidityDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
 import com.netscape.cms.profile.def.ValidityDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements the validity constraint.
@@ -74,7 +74,7 @@ public class CAValidityConstraint extends CAEnrollConstraint {
      * during the validation.
      */
     @Override
-    public void validate(IRequest request, X509CertInfo info) throws ERejectException {
+    public void validate(Request request, X509CertInfo info) throws ERejectException {
 
         logger.info("CAValidityConstraint: Validating cert validity:");
 

@@ -29,14 +29,14 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.CAValidityDefault;
-import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NoDefault;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.RandomizedValidityDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
 import com.netscape.cms.profile.def.ValidityDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements the validity constraint.
@@ -128,7 +128,7 @@ public class ValidityConstraint extends EnrollConstraint {
      * during the validation.
      */
     @Override
-    public void validate(IRequest request, X509CertInfo info)
+    public void validate(Request request, X509CertInfo info)
             throws ERejectException {
 
         CertificateValidity v;

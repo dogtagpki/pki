@@ -37,7 +37,6 @@ import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.SubjectNameDefault;
@@ -45,6 +44,7 @@ import com.netscape.cms.profile.def.UserSubjectNameDefault;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements the unique subject name constraint.
@@ -145,7 +145,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
      * 3. the keyUsageExtension bits are different and enableKeyUsageExtensionChecking=true (default)
      */
     @Override
-    public void validate(IRequest request, X509CertInfo info)
+    public void validate(Request request, X509CertInfo info)
             throws ERejectException {
         logger.debug("UniqueSubjectNameConstraint: validate start");
         CertificateSubjectName sn = null;

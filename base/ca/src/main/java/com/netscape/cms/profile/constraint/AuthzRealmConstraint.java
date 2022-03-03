@@ -27,11 +27,11 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.AuthzRealmDefault;
-import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NoDefault;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements the authz realm constraint.
@@ -91,7 +91,7 @@ public class AuthzRealmConstraint extends EnrollConstraint {
     }
 
     @Override
-    public void validate(IRequest request, X509CertInfo info) throws ERejectException {
+    public void validate(Request request, X509CertInfo info) throws ERejectException {
         String realm = request.getRealm();
         List<String> allowedRealms = Arrays.asList(getConfig(CONFIG_REALMS_ALLOWED).split("\\s*,\\s*"));
         if (! allowedRealms.contains(realm)) {

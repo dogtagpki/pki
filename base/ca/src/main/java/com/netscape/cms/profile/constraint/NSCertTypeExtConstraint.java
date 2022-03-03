@@ -25,12 +25,12 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NSCertTypeExtDefault;
 import com.netscape.cms.profile.def.NoDefault;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.UserExtensionDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements the Netscape certificate type extension constraint.
@@ -106,7 +106,7 @@ public class NSCertTypeExtConstraint extends EnrollConstraint {
      * during the validation.
      */
     @Override
-    public void validate(IRequest request, X509CertInfo info)
+    public void validate(Request request, X509CertInfo info)
             throws ERejectException {
         NSCertTypeExtension ext = (NSCertTypeExtension)
                 getExtension(NSCertTypeExtension.CertType_Id.toString(), info);

@@ -34,7 +34,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.input.CertReqInput;
 import com.netscape.cmscore.request.Request;
 
@@ -48,7 +47,7 @@ public class ExternalProcessConstraint extends EnrollConstraint {
 
     public static final long DEFAULT_TIMEOUT = 10;
 
-    /* Map of envvars to include, and the corresponding IRequest keys
+    /* Map of envvars to include, and the corresponding Request keys
      *
      * All keys will be prefixed with "DOGTAG_" when added to environment.
      */
@@ -128,7 +127,7 @@ public class ExternalProcessConstraint extends EnrollConstraint {
     }
 
     @Override
-    public void validate(IRequest request, X509CertInfo info)
+    public void validate(Request request, X509CertInfo info)
             throws ERejectException {
         logger.debug("About to execute command: " + this.executable);
         ProcessBuilder pb = new ProcessBuilder(this.executable);

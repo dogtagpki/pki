@@ -36,13 +36,13 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This constraint is to check for publickey uniqueness.
@@ -131,7 +131,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
      * but after any of the SubjectName Default and Constraint
      */
     @Override
-    public void validate(IRequest request, X509CertInfo info)
+    public void validate(Request request, X509CertInfo info)
             throws ERejectException {
         String method = "UniqueKeyConstraint: validate: ";
         String msg = "";

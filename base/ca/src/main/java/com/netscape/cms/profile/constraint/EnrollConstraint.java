@@ -31,7 +31,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.request.Request;
@@ -72,7 +71,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
         return null;
     }
 
-    public Locale getLocale(IRequest request) {
+    public Locale getLocale(Request request) {
         Locale locale = null;
         String language = request.getExtDataInString(
                 EnrollProfile.REQUEST_LOCALE);
@@ -145,7 +144,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
      * @exception ERejectException request is rejected due
      *                to violation of constraint
      */
-    public abstract void validate(IRequest request, X509CertInfo info)
+    public abstract void validate(Request request, X509CertInfo info)
             throws ERejectException;
 
     /**

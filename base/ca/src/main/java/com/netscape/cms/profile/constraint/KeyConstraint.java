@@ -37,11 +37,11 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.UserKeyDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -106,7 +106,7 @@ public class KeyConstraint extends EnrollConstraint {
      * during the validation.
      */
     @Override
-    public void validate(IRequest request, X509CertInfo info)
+    public void validate(Request request, X509CertInfo info)
             throws ERejectException {
         try {
             CertificateX509Key infokey = (CertificateX509Key) info.get(X509CertInfo.KEY);

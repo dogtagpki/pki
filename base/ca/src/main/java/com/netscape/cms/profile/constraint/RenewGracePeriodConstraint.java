@@ -27,10 +27,10 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NoDefault;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class supports renewal grace period, which has two
@@ -82,7 +82,7 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
     }
 
     @Override
-    public void validate(IRequest req, X509CertInfo info)
+    public void validate(Request req, X509CertInfo info)
             throws ERejectException {
         String method = "RenewGracePeriodConstraint: validate: ";
         String msg = "";
