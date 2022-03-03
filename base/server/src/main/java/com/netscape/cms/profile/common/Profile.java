@@ -36,7 +36,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -195,7 +194,7 @@ public abstract class Profile {
      * @param request request
      * @return distringuished name of the request owner
      */
-    public String getRequestorDN(IRequest request) {
+    public String getRequestorDN(Request request) {
         return null;
     }
 
@@ -450,12 +449,12 @@ public abstract class Profile {
         return null;
     }
 
-    public String getInput(String name, Locale locale, IRequest request)
+    public String getInput(String name, Locale locale, Request request)
             throws EProfileException {
         return null;
     }
 
-    public void setInput(String name, Locale locale, IRequest request,
+    public void setInput(String name, Locale locale, Request request,
             String value) throws EProfileException {
     }
 
@@ -1244,7 +1243,7 @@ public abstract class Profile {
      * @param request request
      * @exception Exception failed to populate
      */
-    public void populateInput(Map<String, String> ctx, IRequest request) throws Exception {
+    public void populateInput(Map<String, String> ctx, Request request) throws Exception {
 
         Enumeration<String> ids = getProfileInputIds();
 
@@ -1252,7 +1251,7 @@ public abstract class Profile {
             String id = ids.nextElement();
             ProfileInput input = getProfileInput(id);
 
-            input.populate(ctx, (Request) request);
+            input.populate(ctx, request);
         }
     }
 
@@ -1268,7 +1267,7 @@ public abstract class Profile {
      * @param req request
      * @return policy set id
      */
-    public abstract String getPolicySetId(IRequest req);
+    public abstract String getPolicySetId(Request req);
 
     /**
      * Passes the request to the set of default policies that
@@ -1356,7 +1355,7 @@ public abstract class Profile {
      * @param request request to be processed
      * @exception EProfileException failed to process
      */
-    public void execute(IRequest request)
+    public void execute(Request request)
             throws EProfileException {
     }
 
@@ -1368,9 +1367,9 @@ public abstract class Profile {
      * @exception EDeferException defer request
      * @exception EProfileException failed to submit
      */
-    public abstract void submit(IAuthToken token, IRequest request)
+    public abstract void submit(IAuthToken token, Request request)
             throws EDeferException, EProfileException;
-    public abstract void submit(IAuthToken token, IRequest request, boolean explicitApprovalRequired)
+    public abstract void submit(IAuthToken token, Request request, boolean explicitApprovalRequired)
             throws EDeferException, EProfileException;
 
     /**

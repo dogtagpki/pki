@@ -49,7 +49,7 @@ public class KRAConnectorServlet extends ConnectorServlet {
             logger.info("KRAConnectorServlet: Updating profile " + profileId);
 
             profile = (EnrollProfile) ps.getProfile(profileId);
-            profile.setDefaultCertInfo(request);
+            profile.setDefaultCertInfo((Request) request);
 
         } catch (EProfileException e) {
             logger.warn("Unable to update profile: " + e.getMessage(), e);

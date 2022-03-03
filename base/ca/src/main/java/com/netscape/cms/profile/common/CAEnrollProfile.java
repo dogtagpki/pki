@@ -45,7 +45,6 @@ import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeyRetrievalEven
 import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeygenEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.updater.IProfileUpdater;
@@ -89,7 +88,7 @@ public class CAEnrollProfile extends EnrollProfile {
     }
 
     @Override
-    public void execute(IRequest request)
+    public void execute(Request request)
             throws EProfileException, ERejectException {
 
         String method = "CAEnrollProfile: execute: ";

@@ -124,7 +124,6 @@ import com.netscape.certsrv.profile.ECMCUnsupportedExtException;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -378,7 +377,7 @@ public abstract class EnrollProfile extends Profile {
      * @param request profile-based certificate request.
      * @exception EProfileException failed to set the X509CertInfo.
      */
-    public void setDefaultCertInfo(IRequest request) throws EProfileException {
+    public void setDefaultCertInfo(Request request) throws EProfileException {
         // create an empty certificate template so that
         // default plugins that store stuff
         X509CertInfo info = new X509CertInfo();
@@ -459,14 +458,14 @@ public abstract class EnrollProfile extends Profile {
     }
 
     @Override
-    public abstract void execute(IRequest request)
+    public abstract void execute(Request request)
             throws EProfileException;
 
     /**
      * Perform simple policy set assignment.
      */
     @Override
-    public String getPolicySetId(IRequest req) {
+    public String getPolicySetId(Request req) {
         Integer seq = req.getExtDataInInteger(REQUEST_SEQ_NUM);
         int seq_no = seq.intValue(); // start from 0
 
@@ -485,7 +484,7 @@ public abstract class EnrollProfile extends Profile {
     }
 
     @Override
-    public String getRequestorDN(IRequest request) {
+    public String getRequestorDN(Request request) {
         X509CertInfo info = request.getExtDataInCertInfo(REQUEST_CERTINFO);
 
         try {
@@ -505,7 +504,7 @@ public abstract class EnrollProfile extends Profile {
      *
      * @param req the request
      */
-    public void setPOPchallenge(IRequest req) throws EBaseException {
+    public void setPOPchallenge(Request req) throws EBaseException {
         String method = "EnrollProfile: setPOPchallenge: ";
         String msg = "";
 
@@ -637,11 +636,11 @@ public abstract class EnrollProfile extends Profile {
      * request from the end-entity page.
      */
     @Override
-    public void submit(IAuthToken token, IRequest request)
+    public void submit(IAuthToken token, Request request)
             throws EDeferException, EProfileException {
         submit(token, request, false);
     }
-    public void submit(IAuthToken token, IRequest request, boolean explicitApprovalRequired)
+    public void submit(IAuthToken token, Request request, boolean explicitApprovalRequired)
             throws EDeferException, EProfileException {
         // Request Submission Logic:
         //
@@ -692,7 +691,7 @@ public abstract class EnrollProfile extends Profile {
 
 
             logger.debug(method + " validating request");
-            validate((Request) request);
+            validate(request);
             try {
                 queue.updateRequest(request);
             } catch (EBaseException e) {
@@ -704,7 +703,7 @@ public abstract class EnrollProfile extends Profile {
         } else if (popChallengeRequired) {
             // this is encryptedPOP case; defer to require decryptedPOP
             logger.debug(method + " popChallengeRequired, defer to enforce decryptedPOP");
-            validate((Request) request);
+            validate(request);
 
             logger.debug(method + " about to call setPOPchallenge");
             try {
@@ -722,7 +721,7 @@ public abstract class EnrollProfile extends Profile {
             // this profile executes request that is authenticated
             // by non NoAuth
             logger.debug(method + " auth token is not null");
-            validate((Request) request);
+            validate(request);
             execute(request);
         }
     }
@@ -2037,7 +2036,7 @@ public abstract class EnrollProfile extends Profile {
     }
 
     public void fillTaggedRequest(Locale locale, TaggedRequest tagreq, X509CertInfo info,
-            IRequest req)
+            Request req)
             throws EProfileException, ECMCPopFailedException, ECMCBadRequestException {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -2255,7 +2254,7 @@ public abstract class EnrollProfile extends Profile {
     }
 
     public void fillCertReqMsg(Locale locale, CertReqMsg certReqMsg, X509CertInfo info,
-            IRequest req)
+            Request req)
             throws EProfileException, ECMCUnsupportedExtException {
         String method = "EnrollProfile: fillCertReqMsg: ";
         logger.debug(method + "Start parseCertReqMsg ");
@@ -2432,7 +2431,7 @@ public abstract class EnrollProfile extends Profile {
         }
     }
 
-    public void fillPKCS10(Locale locale, PKCS10 pkcs10, X509CertInfo info, IRequest req)
+    public void fillPKCS10(Locale locale, PKCS10 pkcs10, X509CertInfo info, Request req)
             throws EProfileException, ECMCUnsupportedExtException {
 
         logger.info("EnrollProfile: Processing PKCS #10 request:");
@@ -2531,7 +2530,7 @@ public abstract class EnrollProfile extends Profile {
     }
 
     // for netkey
-    public void fillNSNKEY(Locale locale, String sn, String skey, X509CertInfo info, IRequest req)
+    public void fillNSNKEY(Locale locale, String sn, String skey, X509CertInfo info, Request req)
             throws EProfileException {
 
         try {
@@ -2558,7 +2557,7 @@ public abstract class EnrollProfile extends Profile {
     }
 
     // for house key
-    public void fillNSHKEY(Locale locale, String tcuid, String skey, X509CertInfo info, IRequest req)
+    public void fillNSHKEY(Locale locale, String tcuid, String skey, X509CertInfo info, Request req)
             throws EProfileException {
 
         try {
@@ -2581,7 +2580,7 @@ public abstract class EnrollProfile extends Profile {
         }
     }
 
-    public void fillKeyGen(Locale locale, DerInputStream derIn, X509CertInfo info, IRequest req
+    public void fillKeyGen(Locale locale, DerInputStream derIn, X509CertInfo info, Request req
             )
                     throws EProfileException {
         try {
@@ -2628,7 +2627,7 @@ public abstract class EnrollProfile extends Profile {
         }
     }
 
-    public Locale getLocale(IRequest request) {
+    public Locale getLocale(Request request) {
         Locale locale = null;
         String language = request.getExtDataInString(
                 EnrollProfile.REQUEST_LOCALE);
@@ -2656,7 +2655,7 @@ public abstract class EnrollProfile extends Profile {
      * @exception Exception an error related to this profile has occurred
      */
     @Override
-    public void populateInput(Map<String, String> ctx, IRequest request) throws Exception {
+    public void populateInput(Map<String, String> ctx, Request request) throws Exception {
         super.populateInput(ctx, request);
     }
 
@@ -2780,7 +2779,7 @@ public abstract class EnrollProfile extends Profile {
      * @param request the actual request
      * @return id string containing the signed audit log message RequesterID
      */
-    protected String auditRequesterID(IRequest request) {
+    protected String auditRequesterID(Request request) {
 
         String requesterID = ILogger.UNIDENTIFIED;
 

@@ -359,7 +359,7 @@ public class CAService implements IService {
 
         //	profile.populate(request);
         profile.validate((Request) request);
-        profile.execute(request);
+        profile.execute((Request) request);
 
         // This function is called only from ConnectorServlet
 
