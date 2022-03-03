@@ -53,7 +53,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -514,13 +513,7 @@ public class SystemConfigService extends PKIService {
             logger.info("SystemConfigService: - subject: " + subjectDN);
 
             PreOpConfig preopConfig = cs.getPreOpConfig();
-            String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
-            String profileFile = cs.getString("profile.caAdminCert.config");
-            String defaultSigningAlgsAllowed = cs.getString(
-                    "ca.profiles.defaultSigningAlgsAllowed",
-                    "SHA256withRSA,SHA256withEC");
-            String keyAlgorithm = CertUtils.getAdminProfileAlgorithm(
-                    caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
+            String keyAlgorithm = certData.getKeyAlgorithm();
 
             KeyPair keyPair = null;
             String certRequest = certData.getRequest();
