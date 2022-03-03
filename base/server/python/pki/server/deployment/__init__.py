@@ -1188,54 +1188,55 @@ class PKIDeployer:
         Get the signing algorithm from a profile.
 
         First, get the allowed algorithms from the profile (constraint.params.signingAlgsAllowed).
-        If the entry does not exist, use entry ca.profiles.defaultSigningAlgsAllowed from CS.cfg.
-        If the entry does not exist, use the default: SHA256withRSA, SHA256withEC.
+        If the property does not exist, get the ca.profiles.defaultSigningAlgsAllowed from CS.cfg.
+        If the property does not exist, use the default: SHA256withRSA, SHA256withEC.
 
         Next, get the default signing algorithm from the profile (default.params.signingAlg).
-        If the entry exists and matches the signing CA key type, return the algorithm.
-        If the entry does not exist or equals '-', get the first allowed algorithm
-        that matches CA signing key type.
+        If the property exists and matches the signing CA key type, return the algorithm.
+        If the property does not exist or equals '-', get the first allowed algorithm
+        that matches the CA signing key type.
         '''
 
         key_type = subsystem.config.get('preop.cert.signing.keytype', 'rsa')
-        logger.info('Signing key type: %s', key_type)
+        logger.info('Key type: %s', key_type)
 
-        default_algorithm = None
+        algorithm = None
         allowed_algorithms = None
 
+        # get default algorithm and allowed algorithms from profile
         for name in profile:
             value = profile[name]
 
             if name.endswith('default.params.signingAlg'):
-                default_algorithm = value.strip()
+                algorithm = value.strip()
 
             if name.endswith('constraint.params.signingAlgsAllowed'):
                 allowed_algorithms = value.split(',')
 
+        # if profile does not define allowed algorithms, use the one from CS.cfg
         if not allowed_algorithms:
             default_allowed_algorithms = subsystem.config.get(
                 'ca.profiles.defaultSigningAlgsAllowed',
                 'SHA256withRSA,SHA256withEC')
             allowed_algorithms = default_allowed_algorithms.split(',')
 
-        logger.info('Default signing algorithm: %s', default_algorithm)
         logger.info('Allowed signing algorithms: %s', ','.join(allowed_algorithms))
 
         if not allowed_algorithms:
-            raise Exception('Missing allowed signing algorithms')
+            raise Exception('Unable to get allowed signing algorithms')
 
-        # check default signing algorithm
-        if default_algorithm and default_algorithm != '-':
+        # check algorithm
+        if algorithm and algorithm != '-':
 
-            if not self.valid_algorithm(key_type, default_algorithm):
-                raise Exception('Invalid signing algorithm: %s' % default_algorithm)
+            if not self.valid_algorithm(key_type, algorithm):
+                raise Exception('Invalid signing algorithm: %s' % algorithm)
 
-            if default_algorithm not in allowed_algorithms:
-                raise Exception('Signing algorithm not allowed: %s' % default_algorithm)
+            if algorithm not in allowed_algorithms:
+                raise Exception('Signing algorithm not allowed: %s' % algorithm)
 
-            return default_algorithm
+            return algorithm
 
-        # get the first allowed signing algorithm
+        # get the first allowed algorithm
         for algorithm in allowed_algorithms:
 
             if not self.valid_algorithm(key_type, algorithm):
@@ -1243,11 +1244,12 @@ class PKIDeployer:
 
             return algorithm
 
-        return None
+        raise Exception('Unable to get signing algorithm')
 
     def create_admin_cert(self, subsystem, csr, client):
 
         request = pki.system.CertificateSetupRequest()
+        request.tag = 'admin'
         request.pin = self.mdict['pki_one_time_pin']
         request.installToken = self.install_token
 
@@ -1269,10 +1271,7 @@ class PKIDeployer:
         request.systemCert.keyAlgorithm = self.get_signing_algorithm(subsystem, profile)
         logger.info('Signing algorithm: %s', request.systemCert.keyAlgorithm)
 
-        if not request.systemCert.keyAlgorithm:
-            raise Exception('Unable to get signing algorithm')
-
-        response = client.setupAdmin(request)
+        response = client.createCert(request)
         return response['cert']
 
     def get_admin_cert(self, subsystem, client):

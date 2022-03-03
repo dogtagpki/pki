@@ -355,20 +355,6 @@ public class SystemConfigService extends PKIService {
 
             SystemCertData certData = request.getSystemCert();
 
-            String tokenName = certData.getToken();
-            logger.info("SystemConfigService: - token: " + tokenName);
-            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-
-            String keyID = certData.getKeyID();
-            logger.info("SystemConfigService: - key ID: " + keyID);
-
-            PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(
-                    token,
-                    Hex.decodeHex(keyID));
-
-            PK11PubKey publicKey = privateKey.getPublicKey();
-            KeyPair keyPair = new KeyPair(publicKey, privateKey);
-
             String certRequestType = certData.getRequestType();
             logger.info("SystemConfigService: - request type: " + certRequestType);
 
@@ -378,10 +364,13 @@ public class SystemConfigService extends PKIService {
             X500Name subjectName;
             X509Key x509key;
 
-            if (certRequestType.equals("pkcs10")) {
+            if (certRequestType.equals("crmf")) {
+                SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binCertRequest);
+                subjectName = CryptoUtil.getSubjectName(crmfMsgs);
+                x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
 
+            } else if (certRequestType.equals("pkcs10")) {
                 PKCS10 pkcs10 = new PKCS10(binCertRequest);
-
                 subjectName = pkcs10.getSubjectName();
                 x509key = pkcs10.getSubjectPublicKeyInfo();
 
@@ -414,6 +403,21 @@ public class SystemConfigService extends PKIService {
             String signingAlgorithm;
 
             if (certType.equals("selfsign")) {
+
+                String tokenName = certData.getToken();
+                logger.info("SystemConfigService: - token: " + tokenName);
+                CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+
+                String keyID = certData.getKeyID();
+                logger.info("SystemConfigService: - key ID: " + keyID);
+
+                PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(
+                        token,
+                        Hex.decodeHex(keyID));
+
+                PK11PubKey publicKey = privateKey.getPublicKey();
+                KeyPair keyPair = new KeyPair(publicKey, privateKey);
+
                 issuerName = subjectName;
                 signingPrivateKey = (PrivateKey) keyPair.getPrivate();
                 signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
