@@ -67,7 +67,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -1100,7 +1099,7 @@ public class ProcessCertReq extends CMSServlet {
                                 SIGNED_AUDIT_MANUAL_CANCELLATION_REASON[1]));
 
                 } else if (toDo.equals("clone")) {
-                    IRequest clonedRequest = mQueue.cloneAndMarkPending(r);
+                    Request clonedRequest = mQueue.cloneAndMarkPending(r);
 
                     header.addStringValue("clonedRequestId",
                             clonedRequest.getRequestId().toString());
@@ -1408,7 +1407,7 @@ public class ProcessCertReq extends CMSServlet {
      * updateExtensions() will be called to set the extension
      * parameter into the extension directly.
      */
-    private int updateExtensionsInRequest(HttpServletRequest req, IRequest r) {
+    private int updateExtensionsInRequest(HttpServletRequest req, Request r) {
         int nChanges = 0;
 
         if (req.getParameter("certTypeSSLServer") != null) {
@@ -1480,7 +1479,7 @@ public class ProcessCertReq extends CMSServlet {
     public static final String GRANT_PRIVILEGE = "grantPrivilege";
 
     protected int grant_privileges(
-            CMSRequest cmsReq, IRequest req, X509Certificate[] certs, IArgBlock header)
+            CMSRequest cmsReq, Request req, X509Certificate[] certs, IArgBlock header)
             throws EBaseException {
         // get privileges to grant
         IArgBlock httpParams = cmsReq.getHttpParams();

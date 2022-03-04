@@ -75,7 +75,6 @@ import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
@@ -363,8 +362,8 @@ public abstract class CMSServlet extends HttpServlet {
                 }
             }
 
-            // get http params NOT to store in a IRequest and
-            // get http headers TO store in a IRequest.
+            // get http params NOT to store in a Request and
+            // get http headers TO store in a Request.
             getDontSaveHttpParams(sc);
             getSaveHttpHeaders(sc);
         } catch (Exception e) {
@@ -971,10 +970,10 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     /**
-     * save http headers in a IRequest.
+     * save http headers in a Request.
      */
     protected void saveHttpHeaders(
-            HttpServletRequest httpReq, IRequest req)
+            HttpServletRequest httpReq, Request req)
             throws EBaseException {
         Hashtable<String, String> headers = new Hashtable<>();
         Enumeration<String> hdrs = mSaveHttpHeaders.elements();
@@ -991,10 +990,10 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     /**
-     * save http headers in a IRequest.
+     * save http headers in a Request.
      */
     protected void saveHttpParams(
-            IArgBlock httpParams, IRequest req) {
+            IArgBlock httpParams, Request req) {
         Hashtable<String, String> saveParams = new Hashtable<>();
 
         Enumeration<String> names = httpParams.elements();
@@ -1404,7 +1403,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
     }
 
-    protected static void saveAuthToken(IAuthToken token, IRequest req) {
+    protected static void saveAuthToken(IAuthToken token, Request req) {
         if (token != null && req != null)
             req.setExtData(Request.AUTH_TOKEN, token);
 
@@ -1432,7 +1431,7 @@ public abstract class CMSServlet extends HttpServlet {
         } // if
     }
 
-    protected IAuthToken getAuthToken(IRequest req) {
+    protected IAuthToken getAuthToken(Request req) {
         return req.getExtDataInAuthToken(Request.AUTH_TOKEN);
     }
 
