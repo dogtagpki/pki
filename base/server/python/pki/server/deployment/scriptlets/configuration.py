@@ -231,6 +231,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if ocsp_uri:
             subsystem.config['ca.defaultOcspUri'] = ocsp_uri
 
+        deployer.configure_id_generators(subsystem)
+
         if subsystem.name == 'ca':
             serial_number_range_start = deployer.mdict.get('pki_serial_number_range_start')
             if serial_number_range_start:

@@ -231,6 +231,56 @@ class PKIDeployer:
             subsystem_dict[0] = None
             self.mdict.update(subsystem_dict)
 
+    def configure_id_generators(self, subsystem):
+
+        if subsystem.type in ['CA', 'KRA']:
+
+            request_id_generator = self.mdict['pki_request_id_generator']
+
+            if request_id_generator == 'random':
+                subsystem.config['dbs.request.id.generator'] = request_id_generator
+                subsystem.config['dbs.request.id.length'] = self.mdict['pki_request_id_length']
+
+            else:  # legacy
+                subsystem.config['dbs.beginRequestNumber'] = '1'
+                subsystem.config['dbs.endRequestNumber'] = '10000000'
+                subsystem.config['dbs.requestIncrement'] = '10000000'
+                subsystem.config['dbs.requestLowWaterMark'] = '2000000'
+                subsystem.config['dbs.requestCloneTransferNumber'] = '10000'
+                subsystem.config['dbs.requestRangeDN'] = 'ou=requests,ou=ranges'
+
+        if subsystem.type == 'CA':
+
+            cert_id_generator = self.mdict['pki_cert_id_generator']
+
+            if cert_id_generator == 'random':
+                subsystem.config['dbs.cert.id.generator'] = cert_id_generator
+                subsystem.config['dbs.cert.id.length'] = self.mdict['pki_cert_id_length']
+
+            else:  # legacy
+                subsystem.config['dbs.beginSerialNumber'] = '1'
+                subsystem.config['dbs.endSerialNumber'] = '10000000'
+                subsystem.config['dbs.serialIncrement'] = '10000000'
+                subsystem.config['dbs.serialLowWaterMark'] = '2000000'
+                subsystem.config['dbs.serialCloneTransferNumber'] = '10000'
+                subsystem.config['dbs.serialRangeDN'] = 'ou=certificateRepository,ou=ranges'
+
+        if subsystem.type == 'KRA':
+
+            key_id_generator = self.mdict['pki_key_id_generator']
+
+            if key_id_generator == 'random':
+                subsystem.config['dbs.key.id.generator'] = key_id_generator
+                subsystem.config['dbs.key.id.length'] = self.mdict['pki_key_id_length']
+
+            else:  # legacy
+                subsystem.config['dbs.beginSerialNumber'] = '1'
+                subsystem.config['dbs.endSerialNumber'] = '10000000'
+                subsystem.config['dbs.serialIncrement'] = '10000000'
+                subsystem.config['dbs.serialLowWaterMark'] = '2000000'
+                subsystem.config['dbs.serialCloneTransferNumber'] = '10000'
+                subsystem.config['dbs.serialRangeDN'] = 'ou=keyRepository,ou=ranges'
+
     def get_cert_id(self, subsystem, tag):
 
         if tag == 'signing':
