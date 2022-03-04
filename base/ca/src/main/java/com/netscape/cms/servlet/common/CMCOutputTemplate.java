@@ -91,7 +91,6 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
@@ -164,7 +163,7 @@ public class CMCOutputTemplate {
         }
     }
 
-    public void createFullResponse(HttpServletResponse resp, IRequest[] reqs,
+    public void createFullResponse(HttpServletResponse resp, Request[] reqs,
             String cert_request_type, int[] error_codes) {
         String method = "CMCOutputTemplate: createFullResponse: ";
         logger.debug(method +
@@ -507,7 +506,7 @@ public class CMCOutputTemplate {
      * and constructs an EncryptedPOP
      * to be included in the response later
      */
-    public EncryptedPOP constructEncryptedPop(IRequest req)
+    public EncryptedPOP constructEncryptedPop(Request req)
             throws EBaseException {
         String method = "CMCOutputTemplate: constructEncryptedPop: ";
         String msg = "";
@@ -671,7 +670,7 @@ public class CMCOutputTemplate {
         return null;
     }
 
-    public void createSimpleResponse(HttpServletResponse resp, IRequest[] reqs) {
+    public void createSimpleResponse(HttpServletResponse resp, Request[] reqs) {
         SET certs = new SET();
         SessionContext context = SessionContext.getContext();
         try {

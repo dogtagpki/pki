@@ -46,7 +46,6 @@ import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -150,7 +149,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             return;
         }
 
-        IRequest[] reqs = (IRequest []) results.get(CAProcessor.ARG_REQUESTS);
+        Request[] reqs = (Request []) results.get(CAProcessor.ARG_REQUESTS);
         String errorCode = (String) results.get(CAProcessor.ARG_ERROR_CODE);
         String errorReason = (String) results.get(CAProcessor.ARG_ERROR_REASON);
         Profile profile = (Profile) results.get(CAProcessor.ARG_PROFILE);
@@ -159,7 +158,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         if (errorCode != null) {
             if (xmlOutput) {
                 String requestIds = "";
-                for (IRequest req : reqs) {
+                for (Request req : reqs) {
                     requestIds += "  " + req.getRequestId().toString();
                 }
 
@@ -167,7 +166,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             } else {
                 ArgList requestlist = new ArgList();
 
-                for (IRequest req : reqs) {
+                for (Request req : reqs) {
                     ArgSet requestset = new ArgSet();
                     requestset.set(ARG_REQUEST_ID, req.getRequestId().toString());
                     requestlist.add(requestset);
@@ -310,7 +309,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         return processor.processRenewal(data, request, null);
     }
 
-    private void setOutputIntoArgs(Profile profile, ArgList outputlist, Locale locale, IRequest req) {
+    private void setOutputIntoArgs(Profile profile, ArgList outputlist, Locale locale, Request req) {
         Enumeration<String> outputIds = profile.getProfileOutputIds();
 
         if (outputIds != null) {
@@ -336,7 +335,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
                         try {
                             outputValue = profileOutput.getValue(outputName,
-                                    locale, (Request) req);
+                                    locale, req);
                         } catch (EProfileException e) {
                             logger.warn("ProfileSubmitServlet: " + e.getMessage(), e);
                         }
@@ -388,7 +387,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         return xmlOutput;
     }
 
-    private void xmlOutput(HttpServletResponse httpResp, Profile profile, Locale locale, IRequest[] reqs) {
+    private void xmlOutput(HttpServletResponse httpResp, Profile profile, Locale locale, Request[] reqs) {
         try {
             XMLObject xmlObj = null;
             xmlObj = new XMLObject();
@@ -424,7 +423,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                                     !outputName.equals("pkcs7"))
                                     continue;
                                 try {
-                                    String outputValue = profileOutput.getValue(outputName, locale, (Request) reqs[i]);
+                                    String outputValue = profileOutput.getValue(outputName, locale, reqs[i]);
                                     if (outputName.equals("b64_cert") ||
                                         outputName.equals("der")) {
                                         String ss = Cert.normalizeCertStrAndReq(outputValue);

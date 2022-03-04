@@ -67,7 +67,6 @@ import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.request.INotify;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
@@ -228,7 +227,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
     }
 
     private void setInputsIntoRequest(HttpServletRequest request, Profile
-            profile, IRequest req) {
+            profile, Request req) {
         Enumeration<String> inputIds = profile.getProfileInputIds();
 
         if (inputIds != null) {
@@ -1117,7 +1116,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
      * @param request the actual request
      * @return id string containing the signed audit log message RequesterID
      */
-    private String auditRequesterID(IRequest request) {
+    private String auditRequesterID(Request request) {
 
         String requesterID = ILogger.UNIDENTIFIED;
 
