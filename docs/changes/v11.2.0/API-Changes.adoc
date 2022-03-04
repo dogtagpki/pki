@@ -1,0 +1,6 @@
+= API Changes =
+
+== com.netscape.certsrv.request.IRequest has been removed ==
+
+The `com.netscape.certsrv.request.IRequest` interface has been removed.
+Use `com.netscape.cmscore.request.Request` instead.
