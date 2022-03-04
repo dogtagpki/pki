@@ -114,7 +114,6 @@ import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
 import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
 import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IService;
@@ -1923,8 +1922,8 @@ public class CertificateAuthority
         Map<String, Object> resultMap = processor.processEnrollment(
             certRequest, null, authorityID, null, authToken);
 
-        IRequest[] requests = (IRequest[]) resultMap.get(CAProcessor.ARG_REQUESTS);
-        IRequest request = requests[0];
+        com.netscape.cmscore.request.Request[] requests = (com.netscape.cmscore.request.Request[]) resultMap.get(CAProcessor.ARG_REQUESTS);
+        com.netscape.cmscore.request.Request request = requests[0];
 
         Integer result = request.getExtDataInInteger(com.netscape.cmscore.request.Request.RESULT);
         if (result != null && !result.equals(com.netscape.cmscore.request.Request.RES_SUCCESS)) {
@@ -1985,8 +1984,8 @@ public class CertificateAuthority
             new RenewalProcessor("renewAuthority", httpReq.getLocale());
         Map<String, Object> resultMap =
             processor.processRenewal(req, httpReq, null);
-        IRequest requests[] = (IRequest[]) resultMap.get(CAProcessor.ARG_REQUESTS);
-        IRequest request = requests[0];
+        com.netscape.cmscore.request.Request requests[] = (com.netscape.cmscore.request.Request[]) resultMap.get(CAProcessor.ARG_REQUESTS);
+        com.netscape.cmscore.request.Request request = requests[0];
         Integer result = request.getExtDataInInteger(com.netscape.cmscore.request.Request.RESULT);
         if (result != null && !result.equals(com.netscape.cmscore.request.Request.RES_SUCCESS))
             throw new EBaseException("renewAuthority: certificate renewal submission resulted in error: " + result);
