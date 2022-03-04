@@ -20,7 +20,6 @@ package com.netscape.cmscore.request;
 import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.request.IRequest;
 
 /**
  * The RequestAttr class defines the methods used
@@ -40,11 +39,11 @@ abstract class RequestAttr {
 
     abstract Object get(RequestRecord r);
 
-    abstract void read(IRequest r, RequestRecord rr);
+    abstract void read(Request r, RequestRecord rr);
 
-    abstract void add(IRequest r, RequestRecord rr);
+    abstract void add(Request r, RequestRecord rr);
 
-    abstract void mod(ModificationSet mods, IRequest r);
+    abstract void mod(ModificationSet mods, Request r);
 
     RequestAttr(String attrName, DBAttrMapper mapper) {
         mAttrName = attrName;

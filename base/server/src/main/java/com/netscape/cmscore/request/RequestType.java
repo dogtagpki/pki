@@ -18,7 +18,6 @@
 package com.netscape.cmscore.request;
 
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.dbs.StringMapper;
 
 public class RequestType extends RequestAttr {
@@ -38,17 +37,17 @@ public class RequestType extends RequestAttr {
     }
 
     @Override
-    void read(IRequest request, RequestRecord requestRecord) {
+    void read(Request request, RequestRecord requestRecord) {
         request.setRequestType(requestRecord.mRequestType);
     }
 
     @Override
-    void add(IRequest request, RequestRecord requestRecord) {
+    void add(Request request, RequestRecord requestRecord) {
         requestRecord.mRequestType = request.getRequestType();
     }
 
     @Override
-    void mod(ModificationSet mods, IRequest request) {
+    void mod(ModificationSet mods, Request request) {
         addmod(mods, request.getRequestType());
     }
 }
