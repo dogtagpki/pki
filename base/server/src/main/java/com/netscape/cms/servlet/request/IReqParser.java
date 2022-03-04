@@ -21,8 +21,8 @@ import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
+import com.netscape.cmscore.request.Request;
 
 /**
  * An interface representing a request parser which
@@ -37,6 +37,6 @@ public interface IReqParser {
     /**
      * Maps request object into argument block.
      */
-    public void fillRequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
+    public void fillRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, IArgBlock arg)
             throws EBaseException;
 }

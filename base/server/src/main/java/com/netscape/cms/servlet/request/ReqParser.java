@@ -17,13 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request;
 
-import java.util.Locale;
 import java.math.BigInteger;
+import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cmscore.request.Request;
 
@@ -51,7 +50,7 @@ public class ReqParser implements IReqParser {
      * Maps request object into argument block.
      */
     @Override
-    public void fillRequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
+    public void fillRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, IArgBlock arg)
             throws EBaseException {
         arg.addStringValue(TYPE, req.getRequestType());
         arg.addBigIntegerValue("seqNum",

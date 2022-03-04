@@ -54,7 +54,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IPrettyPrintFormat;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -108,11 +107,11 @@ public class CertReqParser extends ReqParser {
      * Fills in certificate specific request attributes.
      */
     @Override
-    public void fillRequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
+    public void fillRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, IArgBlock arg)
             throws EBaseException {
 
         // in case x509CertInfo is missing, at least add the subject for display
-        if (req.getExtDataInCertInfo("req_x509info"/*IRequest.CERT_INFO*/) == null
+        if (req.getExtDataInCertInfo("req_x509info"/*Request.CERT_INFO*/) == null
                 && req.getExtDataInCertInfo(Request.CERT_INFO) == null
                 && arg.getValueAsString("subject", "").equals("")) {
             //logger.debug("CertReqParser.fillRequestIntoArg: filling subject due to missing x509CertInfo in request");
@@ -135,13 +134,13 @@ public class CertReqParser extends ReqParser {
         } else if (req.getExtDataInRevokedCertArray(Request.CERT_INFO) != null) {
             fillRevokeRequestIntoArg(l, req, argSet, arg);
         } else {
-            //o = req.get(IRequest.OLD_CERTS);
+            //o = req.get(Request.OLD_CERTS);
             //if (o != null)
             fillRevokeRequestIntoArg(l, req, argSet, arg);
         }
     }
 
-    private void fillX509RequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
+    private void fillX509RequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, IArgBlock arg)
             throws EBaseException {
 
         // fill in the standard attributes
@@ -637,7 +636,7 @@ public class CertReqParser extends ReqParser {
                 CMSTemplate.escapeJavaScriptStringHTML(v.toString()) + "\"";
     }
 
-    public String getCertSubjectDN(IRequest request) {
+    public String getCertSubjectDN(Request request) {
         try {
             String cert = request.getExtDataInString("cert");
             if (cert == null) {
@@ -663,7 +662,7 @@ public class CertReqParser extends ReqParser {
         return null;
     }
 
-    public String getRequestorDN(IRequest request) {
+    public String getRequestorDN(Request request) {
         try {
             X509CertInfo info = request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
             if (info == null) return null;
@@ -678,7 +677,7 @@ public class CertReqParser extends ReqParser {
         return null;
     }
 
-    public String getKeyID(IRequest request) {
+    public String getKeyID(Request request) {
         try {
             String kid = null;
 
@@ -702,7 +701,7 @@ public class CertReqParser extends ReqParser {
         return null;
     }
 
-    private void fillRevokeRequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
+    private void fillRevokeRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, IArgBlock arg)
             throws EBaseException {
         // fill in the standard attributes
         super.fillRequestIntoArg(l, req, argSet, arg);
@@ -932,7 +931,7 @@ public class CertReqParser extends ReqParser {
 
             if (name.equalsIgnoreCase(Request.OLD_CERTS) && mDetails) {
                 //X509CertImpl oldCert[] =
-                //	(X509CertImpl[])req.get(IRequest.OLD_CERTS);
+                //	(X509CertImpl[])req.get(Request.OLD_CERTS);
                 Certificate oldCert[] =
                         req.getExtDataInCertArray(Request.OLD_CERTS);
 
