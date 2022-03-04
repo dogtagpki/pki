@@ -20,7 +20,6 @@ package com.netscape.cms.servlet.connector;
 import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.Request;
@@ -35,7 +34,7 @@ public class KRAConnectorServlet extends ConnectorServlet {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAConnectorServlet.class);
 
     @Override
-    public void normalizeProfileRequest(IRequest request) {
+    public void normalizeProfileRequest(Request request) {
 
         super.normalizeProfileRequest(request);
 
@@ -49,7 +48,7 @@ public class KRAConnectorServlet extends ConnectorServlet {
             logger.info("KRAConnectorServlet: Updating profile " + profileId);
 
             profile = (EnrollProfile) ps.getProfile(profileId);
-            profile.setDefaultCertInfo((Request) request);
+            profile.setDefaultCertInfo(request);
 
         } catch (EProfileException e) {
             logger.warn("Unable to update profile: " + e.getMessage(), e);

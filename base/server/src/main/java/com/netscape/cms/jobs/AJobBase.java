@@ -30,7 +30,6 @@ import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IMailNotification;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailTemplate;
@@ -227,7 +226,7 @@ public abstract class AJobBase implements IJob, Runnable {
         // ... and more
     }
 
-    protected void buildItemParams(IRequest r) {
+    protected void buildItemParams(Request r) {
         String re = r.getExtDataInString(Request.HTTP_PARAMS, "csrRequestorEmail");
 
         if (re != null) {

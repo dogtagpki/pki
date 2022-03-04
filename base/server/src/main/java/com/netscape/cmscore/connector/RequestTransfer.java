@@ -20,7 +20,6 @@ package com.netscape.cmscore.connector;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.authentication.ChallengePhraseAuthentication;
 import com.netscape.cmscore.request.Request;
 
@@ -56,7 +55,7 @@ public class RequestTransfer {
             "uid", // UidPwdDirAuthentication.CRED_UID,
     };
 
-    public static boolean isProfileRequest(IRequest request) {
+    public static boolean isProfileRequest(Request request) {
         String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId == null || profileId.equals(""))
@@ -65,7 +64,7 @@ public class RequestTransfer {
             return true;
     }
 
-    public static String[] getTransferAttributes(IRequest r) {
+    public static String[] getTransferAttributes(Request r) {
         if (isProfileRequest(r)) {
             // copy everything in the request
             logger.debug("RequestTransfer: profile request id = " +
@@ -100,7 +99,7 @@ public class RequestTransfer {
         }
     }
 
-    public static void transfer(IRequest src, IRequest dest) {
+    public static void transfer(Request src, Request dest) {
         logger.debug("Transfer srcId=" +
                 src.getRequestId().toString() +
                 " destId=" + dest.getRequestId().toString());

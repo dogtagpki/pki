@@ -62,7 +62,6 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -295,7 +294,7 @@ public class ConnectorServlet extends CMSServlet {
         logger.debug("ConnectorServlet: send response RA_Id=" + RA_Id);
     }
 
-    public static boolean isProfileRequest(IRequest request) {
+    public static boolean isProfileRequest(Request request) {
         String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId == null || profileId.equals(""))
@@ -304,7 +303,7 @@ public class ConnectorServlet extends CMSServlet {
             return true;
     }
 
-    public void normalizeProfileRequest(IRequest request) {
+    public void normalizeProfileRequest(Request request) {
         // if it is profile request, we need to normalize the
         // x509certinfo from ra into request
         X509CertInfo info = null;
@@ -466,7 +465,7 @@ public class ConnectorServlet extends CMSServlet {
                     String errormsg = "Found request " + thisreqid + " for " + srcid;
                     // for Server-Side Keygen, it could be the 2nd trip
                     // where stage was Request.SSK_STAGE_KEYGEN going on
-                    // IRequest.SSK_STAGE_KEY_RETRIEVE
+                    // Request.SSK_STAGE_KEY_RETRIEVE
                     String sskKeygenStage = thisreq.getExtDataInString(Request.SSK_STAGE);
                     if (sskKeygenStage!= null && sskKeygenStage.equalsIgnoreCase(Request.SSK_STAGE_KEYGEN)) {
                         logger.debug("ConnectorServlet:processRequest: Stage=" + sskKeygenStage);
@@ -527,10 +526,10 @@ public class ConnectorServlet extends CMSServlet {
                 String sskKeygenStage = thisreq.getExtDataInString(Request.SSK_STAGE);
                 if (sskKeygenStage!= null && sskKeygenStage.equalsIgnoreCase(Request.SSK_STAGE_KEYGEN)) {
                     logger.debug(method + "isServerSideKeygen Stage=" + sskKeygenStage);
-                    thisreq.setRequestType("asymkeyGenRequest"); //IRequest.ASYMKEY_GENERATION_REQUEST
+                    thisreq.setRequestType("asymkeyGenRequest"); //Request.ASYMKEY_GENERATION_REQUEST
                 } else if (sskKeygenStage.equalsIgnoreCase(Request.SSK_STAGE_KEY_RETRIEVE)) {
                     logger.debug(method + "isServerSideKeygen Stage=" + sskKeygenStage);
-                    thisreq.setRequestType("recovery"); //IRequest.KEYRECOVERY_REQUEST
+                    thisreq.setRequestType("recovery"); //Request.KEYRECOVERY_REQUEST
                 }
                 String clientKeyId = thisreq.getExtDataInString(Request.SECURITY_DATA_CLIENT_KEY_ID);
                 if (clientKeyId != null)
