@@ -43,7 +43,7 @@ public class RequestListByStatus implements IRequestList {
     }
 
     @Override
-    public IRequest nextRequestObject() {
+    public Request nextRequestObject() {
         return null;
     }
 

@@ -68,7 +68,7 @@ public class SearchEnumeration implements IRequestList {
     }
 
     @Override
-    public IRequest nextRequestObject() {
+    public Request nextRequestObject() {
         RequestRecord record = (RequestRecord) nextRequest();
         if (record != null) {
             try {

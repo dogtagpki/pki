@@ -19,6 +19,8 @@ package com.netscape.certsrv.request;
 
 import java.util.Enumeration;
 
+import com.netscape.cmscore.request.Request;
+
 /**
  * An interface providing a list of RequestIds that match
  * some criteria. It could be a list of all elements in a
@@ -52,5 +54,5 @@ public interface IRequestList
      *
      * @return next request
      */
-    public IRequest nextRequestObject();
+    public Request nextRequestObject();
 }
