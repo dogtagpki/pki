@@ -35,7 +35,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -448,18 +447,18 @@ public class QueryReq extends CMSServlet {
             header.addIntegerValue(OUT_TOTALCOUNT, totalCount);
             header.addIntegerValue(OUT_CURRENTCOUNT, list.getSize());
 
-            Vector<IRequest> v = fetchRecords(list, maxCount);
+            Vector<Request> v = fetchRecords(list, maxCount);
             v = normalizeOrder(v);
             trim(v, id);
 
             int currentCount = 0;
             BigInteger curNum = BigInteger.ZERO;
             BigInteger firstNum = BigInteger.ONE.negate();
-            Enumeration<IRequest> requests = v.elements();
+            Enumeration<Request> requests = v.elements();
 
             logger.info("QueryReq: Requests:");
             while (requests.hasMoreElements()) {
-                IRequest request = null;
+                Request request = null;
                 try {
                     request = requests.nextElement();
                 } catch (Exception e) {
@@ -480,7 +479,7 @@ public class QueryReq extends CMSServlet {
 
                 ArgBlock rec = new ArgBlock();
                 mParser.fillRequestIntoArg(locale, request, argset, rec);
-                mQueue.releaseRequest((Request) request);
+                mQueue.releaseRequest(request);
                 argset.addRepeatRecord(rec);
 
                 currentCount++;
@@ -508,7 +507,7 @@ public class QueryReq extends CMSServlet {
      * @param v The vector to trim
      * @param marker the marker to look for.
      */
-    private void trim(Vector<IRequest> v, RequestId marker) {
+    private void trim(Vector<Request> v, RequestId marker) {
         int i = v.size() - 1;
 
         if (i == 0) {
@@ -529,9 +528,9 @@ public class QueryReq extends CMSServlet {
      * @param list
      * @return
      */
-    private Vector<IRequest> fetchRecords(IRequestVirtualList list, int maxCount) {
+    private Vector<Request> fetchRecords(IRequestVirtualList list, int maxCount) {
 
-        Vector<IRequest> v = new Vector<>();
+        Vector<Request> v = new Vector<>();
         int count = list.getSize();
         logger.info("QueryReq: Fetching " + count + " request(s)");
 
@@ -556,7 +555,7 @@ public class QueryReq extends CMSServlet {
      * @param list
      * @return
      */
-    private Vector<IRequest> normalizeOrder(Vector<IRequest> list) {
+    private Vector<Request> normalizeOrder(Vector<Request> list) {
 
         BigInteger firstrequestnum = new BigInteger(list.elementAt(0)
                 .getRequestId().toString());
@@ -566,10 +565,10 @@ public class QueryReq extends CMSServlet {
         if (firstrequestnum.compareTo(lastrequestnum) > 0) {
             reverse = true; // if the order is backwards, place items at the beginning
         }
-        Vector<IRequest> v = new Vector<>();
+        Vector<Request> v = new Vector<>();
         int count = list.size();
         for (int i = 0; i < count; i++) {
-            IRequest request = list.elementAt(i);
+            Request request = list.elementAt(i);
             if (request != null) {
                 if (reverse)
                     v.add(0, request);
