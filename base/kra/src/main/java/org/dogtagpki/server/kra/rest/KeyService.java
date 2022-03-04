@@ -65,7 +65,6 @@ import com.netscape.certsrv.logging.event.SecurityDataInfoEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataStatusChangeEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.realm.PKIPrincipal;
@@ -431,7 +430,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         return keyData;
     }
 
-    private void validateRequest(KeyRecoveryRequest data, IRequest request) {
+    private void validateRequest(KeyRecoveryRequest data, Request request) {
         String method = "KeyService.validateRequest: ";
         logger.debug(method + "begins.");
 

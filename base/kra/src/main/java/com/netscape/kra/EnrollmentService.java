@@ -59,7 +59,6 @@ import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
@@ -808,7 +807,7 @@ public class EnrollmentService implements IService {
      * @return JSS public key
      * @exception EBaseException failed to retrieve public key
      */
-    private X509Key getPublicKey(IRequest request, int i) throws EBaseException {
+    private X509Key getPublicKey(Request request, int i) throws EBaseException {
         String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId != null && !profileId.equals("")) {
@@ -872,7 +871,7 @@ public class EnrollmentService implements IService {
      * @return owner name (subject name)
      * @exception EBaseException failed to retrieve public key
      */
-    private String getOwnerName(IRequest request, int i)
+    private String getOwnerName(Request request, int i)
             throws EBaseException {
 
         String profileId = request.getExtDataInString(Request.PROFILE_ID);

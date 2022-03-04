@@ -63,7 +63,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
@@ -561,7 +560,7 @@ public class RecoveryService implements IService {
      * @param priKey private key handle
      * @exception EBaseException failed to create P12 file
      */
-    public void createPFX(IRequest request, Hashtable<String, Object> params,
+    public void createPFX(Request request, Hashtable<String, Object> params,
             PrivateKey priKey, CryptoToken ct) throws EBaseException {
 
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=false");
@@ -722,7 +721,7 @@ public class RecoveryService implements IService {
         }
         */
         // update request
-        engine.getRequestQueue().updateRequest((Request) request);
+        engine.getRequestQueue().updateRequest(request);
     }
 
     /**
@@ -765,7 +764,7 @@ public class RecoveryService implements IService {
      * @param priData decrypted private key (PrivateKeyInfo)
      * @exception EBaseException failed to create P12 file
      */
-    public void createPFX(IRequest request, Hashtable<String, Object> params,
+    public void createPFX(Request request, Hashtable<String, Object> params,
             byte priData[]) throws EBaseException {
 
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
@@ -890,7 +889,7 @@ public class RecoveryService implements IService {
         }
 
         // update request
-        engine.getRequestQueue().updateRequest((Request) request);
+        engine.getRequestQueue().updateRequest(request);
     }
 
     /**
