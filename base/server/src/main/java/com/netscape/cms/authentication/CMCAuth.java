@@ -92,7 +92,6 @@ import com.netscape.certsrv.logging.event.CMCSignedRequestSigVerifyEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.ProfileAuthenticator;
@@ -101,6 +100,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 //import com.netscape.cmscore.util.*;
@@ -1065,7 +1065,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
     }
 
     @Override
-    public void populate(IAuthToken token, IRequest request)
+    public void populate(IAuthToken token, Request request)
             throws EProfileException {
         request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                 token.getInString(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT));

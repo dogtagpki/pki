@@ -30,7 +30,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -185,7 +184,7 @@ public class ValidityConstraints extends APolicyRule
         try {
             // Get the certificate info from the request
             //X509CertInfo certInfo[] = (X509CertInfo[])
-            //    req.get(IRequest.CERT_INFO);
+            //    req.get(Request.CERT_INFO);
             X509CertInfo certInfo[] = req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
             // There should be a certificate info set.
@@ -299,7 +298,7 @@ public class ValidityConstraints extends APolicyRule
      * TODO: it might be good to base this calculation on the creation
      * time of the request.
      */
-    protected CertificateValidity makeDefaultValidity(IRequest req) {
+    protected CertificateValidity makeDefaultValidity(Request req) {
         long now = roundTimeToSecond(new Date().getTime());
 
         // We will set the max duration as the default validity.

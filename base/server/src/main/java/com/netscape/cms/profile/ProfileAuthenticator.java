@@ -20,15 +20,15 @@ package com.netscape.cms.profile;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthManager;
+import org.dogtagpki.server.authentication.AuthManagerConfig;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This interface represents an authenticator for profile.
@@ -69,7 +69,7 @@ public interface ProfileAuthenticator extends AuthManager {
      * @param request request
      * @exception EProfileException failed to populate
      */
-    public void populate(IAuthToken token, IRequest request)
+    public void populate(IAuthToken token, Request request)
             throws EProfileException;
 
     /**

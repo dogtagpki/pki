@@ -99,13 +99,13 @@ import com.netscape.certsrv.logging.event.CMCUserSignedRequestSigVerifyEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 //import com.netscape.cmscore.util.*;
@@ -1287,7 +1287,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
     }
 
     @Override
-    public void populate(IAuthToken token, IRequest request)
+    public void populate(IAuthToken token, Request request)
             throws EProfileException {
         String method = "CMCUserSignedAuth: populate: ";
         String authenticatedDN = token.getInString(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT);

@@ -36,11 +36,11 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -378,7 +378,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
     }
 
     @Override
-    public void populate(IAuthToken token, IRequest request)
+    public void populate(IAuthToken token, Request request)
             throws EProfileException {
         request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                 token.getInString(USER_DN));

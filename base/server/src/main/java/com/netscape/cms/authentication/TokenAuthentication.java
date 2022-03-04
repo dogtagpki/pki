@@ -39,13 +39,13 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -323,7 +323,7 @@ public class TokenAuthentication implements ProfileAuthenticator {
     }
 
     @Override
-    public void populate(IAuthToken token, IRequest request)
+    public void populate(IAuthToken token, Request request)
             throws EProfileException {
     }
 }

@@ -31,10 +31,10 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Pull any existing auth token from the session context.
@@ -179,6 +179,6 @@ public class SessionAuthentication
     }
 
     @Override
-    public void populate(IAuthToken token, IRequest request) {
+    public void populate(IAuthToken token, Request request) {
     }
 }

@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -315,7 +314,7 @@ public class RenewalValidityConstraints extends APolicyRule
         }
     }
 
-    private String getCertDetails(IRequest req, X509CertImpl cert) {
+    private String getCertDetails(Request req, X509CertImpl cert) {
         StringBuffer sb = new StringBuffer();
 
         sb.append("\n");

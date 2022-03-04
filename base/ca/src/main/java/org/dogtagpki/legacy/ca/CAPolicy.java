@@ -25,7 +25,6 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.IPolicy;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.profile.ProfileSubsystem;
@@ -83,7 +82,7 @@ public class CAPolicy implements IPolicy {
         mPolicies.init(mCA, mConfig);
     }
 
-    public boolean isProfileRequest(IRequest request) {
+    public boolean isProfileRequest(Request request) {
         String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         if (profileId == null || profileId.equals(""))
