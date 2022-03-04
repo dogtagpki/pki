@@ -179,7 +179,7 @@ public class RequestInQueueJob extends AJobBase
 
             /*  This is way too slow
              // get request from request id
-             IRequest req = null;
+             Request req = null;
              try {
              req = mReqQ.findRequest(rid);
              } catch (EBaseException e) {

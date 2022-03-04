@@ -27,7 +27,7 @@ import com.netscape.certsrv.dbs.ModificationSet;
  * a request. The three forms are:
  * 1) LDAPAttributes (and Modifications)
  * 2) Database record IDBAttrSet
- * 3) IRequest (Request) object
+ * 3) Request object
  */
 abstract class RequestAttr {
 

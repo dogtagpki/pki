@@ -120,7 +120,7 @@ public interface IAuthToken {
 
     /************
      * Helpers for non-string sets and gets.
-     * These are needed because AuthToken is stored in IRequest (which can
+     * These are needed because AuthToken is stored in Request (which can
      * only store string values
      */
 

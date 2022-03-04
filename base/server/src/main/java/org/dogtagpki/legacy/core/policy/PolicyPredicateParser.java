@@ -188,7 +188,7 @@ public class PolicyPredicateParser {
     public static void main(String[] args) {
 
         /*********
-         * IRequest req = new IRequest();
+         * Request req = new Request();
          * try
          * {
          * req.set("ou", "people");

@@ -49,10 +49,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 
-/**
- * Request - implementation of the IRequest interface.  This
- * version is returned by ARequestQueue (and its derivatives)
- */
 public class Request implements IRequest {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Request.class);
@@ -450,10 +446,13 @@ public class Request implements IRequest {
     }
 
     /**
-     * this isn't that efficient but will do for now.
+     * Copies meta attributes (excluding request ID, etc.) of another request
+     * to this request.
+     *
+     * @param req another request
      */
-    @Override
-    public void copyContents(IRequest req) {
+    public void copyContents(Request req) {
+        // this isn't that efficient but will do for now.
         Enumeration<String> e = req.getExtDataKeys();
         while (e.hasMoreElements()) {
             String key = e.nextElement();
@@ -742,7 +741,7 @@ public class Request implements IRequest {
             try {
                 return new X509CertImpl(data);
             } catch (CertificateException e) {
-                logger.warn("ARequestQueue: getExtDataInCert(): " + e.getMessage(), e);
+                logger.warn("Request: getExtDataInCert(): " + e.getMessage(), e);
                 return null;
             }
         }
@@ -776,7 +775,7 @@ public class Request implements IRequest {
             try {
                 certArray[index] = new X509CertImpl(Utils.base64decode(stringArray[index]));
             } catch (CertificateException e) {
-                logger.warn("ARequestQueue: getExtDataInCertArray(): " + e.getMessage(), e);
+                logger.warn("Request: getExtDataInCertArray(): " + e.getMessage(), e);
                 return null;
             }
         }
@@ -802,7 +801,7 @@ public class Request implements IRequest {
             try {
                 return new X509CertInfo(data);
             } catch (CertificateException e) {
-                logger.warn("ARequestQueue: getExtDataInCertInfo(): " + e.getMessage(), e);
+                logger.warn("Request: getExtDataInCertInfo(): " + e.getMessage(), e);
                 return null;
             }
         }
@@ -836,7 +835,7 @@ public class Request implements IRequest {
             try {
                 certArray[index] = new X509CertInfo(Utils.base64decode(stringArray[index]));
             } catch (CertificateException e) {
-                logger.warn("ARequestQueue: getExtDataInCertInfoArray(): " + e.getMessage(), e);
+                logger.warn("Request: getExtDataInCertInfoArray(): " + e.getMessage(), e);
                 return null;
             }
         }
@@ -963,10 +962,10 @@ public class Request implements IRequest {
         try {
             data.encode(byteStream);
         } catch (CertificateException e) {
-            logger.warn("ARequestQueue: setExtData(): " + e.getMessage(), e);
+            logger.warn("Request: setExtData(): " + e.getMessage(), e);
             return false;
         } catch (IOException e) {
-            logger.warn("ARequestQueue: setExtData(): " + e.getMessage(), e);
+            logger.warn("Request: setExtData(): " + e.getMessage(), e);
             return false;
         }
         return setExtData(key, byteStream.toByteArray());

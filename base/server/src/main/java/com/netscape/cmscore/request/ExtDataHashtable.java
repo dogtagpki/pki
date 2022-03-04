@@ -4,7 +4,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 /**
- * Subclass of Hashtable returned by IRequest.getExtDataInHashtable. Its
+ * Subclass of Hashtable returned by Request.getExtDataInHashtable. Its
  * purpose is to hide the fact that LDAP doesn't preserve the case of keys.
  * It does this by lowercasing all keys used to access the Hashtable.
  */

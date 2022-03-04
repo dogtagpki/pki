@@ -21,13 +21,12 @@ import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IAttrSet;
-import com.netscape.certsrv.request.IRequest;
 
 public class RequestIAttrSetWrapper implements IAttrSet {
 
-    IRequest mRequest;
+    Request mRequest;
 
-    public RequestIAttrSetWrapper(IRequest request) {
+    public RequestIAttrSetWrapper(Request request) {
         mRequest = request;
     }
 

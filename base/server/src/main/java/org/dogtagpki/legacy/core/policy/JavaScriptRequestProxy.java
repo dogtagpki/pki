@@ -19,14 +19,13 @@ package org.dogtagpki.legacy.core.policy;
 
 import org.dogtagpki.legacy.policy.IPolicyRule;
 
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.request.Request;
 
 public class JavaScriptRequestProxy {
-    IRequest req;
+    Request req;
 
-    public JavaScriptRequestProxy(IRequest r) {
+    public JavaScriptRequestProxy(Request r) {
         req = r;
     }
 
@@ -39,7 +38,7 @@ public class JavaScriptRequestProxy {
     }
 
     public PolicyResult applyPolicy(IPolicyRule r) {
-        return r.apply((Request) req);
+        return r.apply(req);
     }
 
 }

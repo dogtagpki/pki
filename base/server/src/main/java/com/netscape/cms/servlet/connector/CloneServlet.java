@@ -406,11 +406,11 @@ public class CloneServlet extends CMSServlet {
                 }
 
                 /* cfu ---
-                 if (thisreq.getRequestType().equals(IRequest.ENROLLMENT_REQUEST)) {
+                 if (thisreq.getRequestType().equals(Request.ENROLLMENT_REQUEST)) {
                  // XXX make the repeat record.
                 // Get the certificate(s) from the request
                 X509CertImpl issuedCerts[] =
-                (X509CertImpl[])thisreq.get(IRequest.ISSUED_CERTS);
+                (X509CertImpl[])thisreq.get(Request.ISSUED_CERTS);
                 // return potentially more than one certificates.
                 if (issuedCerts != null) {
                 for (int i = 0; i < issuedCerts.length; i++) {
@@ -442,10 +442,10 @@ public class CloneServlet extends CMSServlet {
                 "completed"}
                 );
                 }
-                } else if (thisreq.getRequestType().equals(IRequest.RENEWAL_REQUEST)) {
-                X509CertImpl[] certs = (X509CertImpl[])thisreq.get(IRequest.OLD_CERTS);
+                } else if (thisreq.getRequestType().equals(Request.RENEWAL_REQUEST)) {
+                X509CertImpl[] certs = (X509CertImpl[])thisreq.get(Request.OLD_CERTS);
                 X509CertImpl old_cert = certs[0];
-                certs = (X509CertImpl[])thisreq.get(IRequest.ISSUED_CERTS);
+                certs = (X509CertImpl[])thisreq.get(Request.ISSUED_CERTS);
                 X509CertImpl renewed_cert = certs[0];
                 if (old_cert != null && renewed_cert != null) {
                 audit(ILogger.EV_AUDIT, ILogger.S_OTHER,
@@ -474,10 +474,10 @@ public class CloneServlet extends CMSServlet {
                 "completed with error"}
                 );
                 }
-                } else if (thisreq.getRequestType().equals(IRequest.REVOCATION_REQUEST)) {
-                X509CertImpl[] oldCerts = (X509CertImpl[])thisreq.get(IRequest.OLD_CERTS);
+                } else if (thisreq.getRequestType().equals(Request.REVOCATION_REQUEST)) {
+                X509CertImpl[] oldCerts = (X509CertImpl[])thisreq.get(Request.OLD_CERTS);
                 RevokedCertImpl crlentries[] =
-                (RevokedCertImpl[])thisreq.get(IRequest.REVOKED_CERTS);
+                (RevokedCertImpl[])thisreq.get(Request.REVOKED_CERTS);
                 CRLExtensions crlExts = crlentries[0].getExtensions();
                 int reason = 0;
                 if (crlExts != null) {
@@ -493,11 +493,11 @@ public class CloneServlet extends CMSServlet {
                 }
 
                 int count = oldCerts.length;
-                Integer result = (Integer)thisreq.get(IRequest.RESULT);
-                if (result.equals(IRequest.RES_ERROR)) {
-                EBaseException ex = (EBaseException)thisreq.get(IRequest.ERROR);
+                Integer result = (Integer)thisreq.get(Request.RESULT);
+                if (result.equals(Request.RES_ERROR)) {
+                EBaseException ex = (EBaseException)thisreq.get(Request.ERROR);
                 EBaseException[] svcErrors =
-                (EBaseException[])thisreq.get(IRequest.SVCERRORS);
+                (EBaseException[])thisreq.get(Request.SVCERRORS);
                 if (svcErrors != null && svcErrors.length > 0) {
                 for (int i = 0; i < svcErrors.length; i++) {
                 EBaseException err = svcErrors[i];

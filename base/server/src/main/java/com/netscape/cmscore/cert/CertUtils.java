@@ -64,12 +64,12 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -1200,7 +1200,7 @@ public class CertUtils {
         return null;
     }
 
-    public static void printRequestContent(IRequest request) {
+    public static void printRequestContent(Request request) {
         String method = "CertUtils.printRequestContent: ";
         logger.debug(method + "Content of request: ");
         Enumeration<String> ereq = request.getExtDataKeys();

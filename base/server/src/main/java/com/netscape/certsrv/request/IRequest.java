@@ -138,14 +138,6 @@ public interface IRequest extends Serializable {
     void setModificationTime(Date date);
 
     /**
-     * Copies meta attributes (excluding request Id, etc.) of another request
-     * to this request.
-     *
-     * @param req another request
-     */
-    public void copyContents(IRequest req);
-
-    /**
      * Gets context of this request.
      *
      * @return request context

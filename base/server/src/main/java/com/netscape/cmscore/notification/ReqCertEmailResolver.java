@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -60,7 +59,7 @@ public class ReqCertEmailResolver implements IEmailResolver {
     @Override
     public String getEmail(IEmailResolverKeys keys)
             throws EBaseException, ENotificationException {
-        IRequest req = (IRequest) keys.get(KEY_REQUEST);
+        Request req = (Request) keys.get(KEY_REQUEST);
 
         String mEmail = null;
 

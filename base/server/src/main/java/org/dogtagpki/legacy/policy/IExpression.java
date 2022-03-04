@@ -47,7 +47,7 @@ public interface IExpression {
     /**
      * Evaluate the Expression.
      *
-     * @param req The PKIRequest on which we are applying the condition.
+     * @param req The Request on which we are applying the condition.
      * @return The return value.
      */
     boolean evaluate(Request req)

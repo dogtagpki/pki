@@ -19,7 +19,6 @@ package com.netscape.cmscore.request;
 
 import java.util.Enumeration;
 
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;

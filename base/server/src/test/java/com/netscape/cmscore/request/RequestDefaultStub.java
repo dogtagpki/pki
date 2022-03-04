@@ -15,7 +15,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.IAttrSet;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 
@@ -105,7 +104,7 @@ public class RequestDefaultStub extends Request {
     }
 
     @Override
-    public void copyContents(IRequest req) {
+    public void copyContents(Request req) {
     }
 
     @Override
