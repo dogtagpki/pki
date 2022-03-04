@@ -164,7 +164,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
         try {
             // Get the certificate info from the request
             // X509CertInfo certInfo[] = (X509CertInfo[])
-            //    req.get(IRequest.CERT_INFO);
+            //    req.get(Request.CERT_INFO);
             X509CertInfo certInfo[] = req.getExtDataInCertInfoArray(Request.CERT_INFO);
 
             // We need to have a certificate info set

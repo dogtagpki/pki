@@ -30,7 +30,6 @@ import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestResource;
 import com.netscape.certsrv.cert.CertResource;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -38,7 +37,7 @@ import com.netscape.cmscore.request.Request;
 
 public class CertRequestInfoFactory {
 
-    public static CertRequestInfo create(IRequest request, UriInfo uriInfo) throws SecurityException, NoSuchMethodException {
+    public static CertRequestInfo create(Request request, UriInfo uriInfo) throws SecurityException, NoSuchMethodException {
 
         CertRequestInfo info = new CertRequestInfo();
 

@@ -39,7 +39,6 @@ import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.notification.IMailNotification;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -535,7 +534,7 @@ public class RenewalNotificationJob
     protected void mailUser(String subject,
             String msg,
             String sender,
-            IRequest req,
+            Request req,
             CertRecord cr)
             throws IOException, ENotificationException, EBaseException {
 

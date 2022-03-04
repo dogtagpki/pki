@@ -78,7 +78,6 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.logging.Logger;
@@ -320,7 +319,7 @@ public class CAService implements IService {
         return connector;
     }
 
-    public boolean isProfileRequest(IRequest request) {
+    public boolean isProfileRequest(Request request) {
         String profileId = request.getExtDataInString(Request.PROFILE_ID);
         return !(profileId == null || profileId.equals(""));
     }
@@ -331,7 +330,7 @@ public class CAService implements IService {
      * @param request profile enrollment request information
      * @exception EBaseException failed to service profile enrollment request
      */
-    public void serviceProfileRequest(IRequest request)
+    public void serviceProfileRequest(Request request)
             throws EBaseException {
         logger.debug("CAService: serviceProfileRequest requestId=" +
                 request.getRequestId().toString());
@@ -358,8 +357,8 @@ public class CAService implements IService {
         request.setExtData("dbStatus", "NOT_UPDATED");
 
         //	profile.populate(request);
-        profile.validate((Request) request);
-        profile.execute((Request) request);
+        profile.validate(request);
+        profile.execute(request);
 
         // This function is called only from ConnectorServlet
 
@@ -516,7 +515,7 @@ public class CAService implements IService {
     /**
      * Checks if PKIArchiveOption present in the request.
      */
-    private boolean isPKIArchiveOptionPresent(IRequest request) {
+    private boolean isPKIArchiveOptionPresent(Request request) {
         String crmfBlob = request.getExtDataInString(
                 Request.HTTP_PARAMS, CRMF_REQUEST);
 
@@ -1329,7 +1328,7 @@ class serviceIssue implements IServant {
         return !requestContentsAreNull && serviceX509(request);
     }
 
-    public boolean serviceX509(IRequest request)
+    public boolean serviceX509(Request request)
             throws EBaseException {
         // XXX This is ugly. should associate attributes with
         // request types, not policy.
@@ -1799,8 +1798,8 @@ class serviceRevoke implements IServant {
             }
         }
 
-        // #605941 - request.get(IRequest.CERT_INFO) store exact same thing
-        // request.set(IRequest.REVOKED_CERTS, revokedCerts);
+        // #605941 - request.get(Request.CERT_INFO) store exact same thing
+        // request.set(Request.REVOKED_CERTS, revokedCerts);
 
         // if clone ca, send revoked cert records to CLA
         if (CAService.mCLAConnector != null) {
@@ -2139,7 +2138,7 @@ class serviceCert4Crl implements IServant {
             }
         }
         //need to record which gets recorded and which failed...cfu
-        //		request.set(IRequest.REVOKED_CERTS, revokedCerts);
+        //		request.set(Request.REVOKED_CERTS, revokedCerts);
         if (svcerrors != null) {
             request.setExtData(Request.SVCERRORS, svcerrors);
             throw new ECAException(CMS.getUserMessage("CMS_CA_CERT4CRL_FAILED"));

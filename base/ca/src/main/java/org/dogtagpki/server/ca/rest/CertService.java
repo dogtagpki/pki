@@ -72,7 +72,6 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.FilterBuilder;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
@@ -82,6 +81,7 @@ import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -315,7 +315,7 @@ public class CertService extends PKIService implements CertResource {
         }
 
         try {
-            IRequest certRequest = processor.getRequest();
+            Request certRequest = processor.getRequest();
             CertRequestDAO dao = new CertRequestDAO();
             CertRequestInfo requestInfo = dao.getRequest(certRequest.getRequestId(), uriInfo);
             return createOKResponse(requestInfo);
@@ -390,7 +390,7 @@ public class CertService extends PKIService implements CertResource {
         }
 
         try {
-            IRequest certRequest = processor.getRequest();
+            Request certRequest = processor.getRequest();
             CertRequestDAO dao = new CertRequestDAO();
             return createOKResponse(dao.getRequest(certRequest.getRequestId(), uriInfo));
 

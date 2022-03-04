@@ -70,7 +70,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.authentication.HashAuthentication;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -413,7 +412,7 @@ public class HashEnrollServlet extends CMSServlet {
             fillCertInfoFromAuthToken(certInfo, authToken);
             // save authtoken attrs to request directly (for policy use)
             saveAuthToken(authToken, req);
-            // req.set(IRequest.AUTH_TOKEN, authToken);
+            // req.set(Request.AUTH_TOKEN, authToken);
             // }
         }
 
@@ -624,7 +623,7 @@ public class HashEnrollServlet extends CMSServlet {
         RequestStatus status = req.getRequestStatus();
 
         if (status != RequestStatus.COMPLETE) {
-            cmsReq.setIRequestStatus(); // set status acc. to IRequest status.
+            cmsReq.setIRequestStatus(); // set status acc. to Request status.
             // audit log the status
             try {
                 if (status == RequestStatus.REJECTED) {
@@ -846,7 +845,7 @@ public class HashEnrollServlet extends CMSServlet {
     }
 
     protected X509CertInfo[] fillCRMF(
-            String crmf, IAuthToken authToken, IArgBlock httpParams, IRequest req)
+            String crmf, IAuthToken authToken, IArgBlock httpParams, Request req)
             throws EBaseException {
         try {
             byte[] crmfBlob = Utils.base64decode(crmf);

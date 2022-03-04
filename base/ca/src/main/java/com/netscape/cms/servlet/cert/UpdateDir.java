@@ -46,7 +46,6 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -570,7 +569,7 @@ public class UpdateDir extends CMSServlet {
                             ridString = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
                         }
 
-                        IRequest r = null;
+                        Request r = null;
 
                         if (ridString != null) {
                             RequestId rid = new RequestId(ridString);
@@ -582,7 +581,7 @@ public class UpdateDir extends CMSServlet {
                             if (r == null) {
                                 mPublisherProcessor.unpublishCert(cert, null);
                             } else {
-                                mPublisherProcessor.unpublishCert(cert, (Request) r);
+                                mPublisherProcessor.unpublishCert(cert, r);
                             }
                             i++;
                         } catch (Exception e) {
@@ -675,7 +674,7 @@ public class UpdateDir extends CMSServlet {
                             ridString = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
                         }
 
-                        IRequest r = null;
+                        Request r = null;
 
                         if (ridString != null) {
                             RequestId rid = new RequestId(ridString);
@@ -687,7 +686,7 @@ public class UpdateDir extends CMSServlet {
                             if (r == null) {
                                 mPublisherProcessor.unpublishCert(cert, null);
                             } else {
-                                mPublisherProcessor.unpublishCert(cert, (Request) r);
+                                mPublisherProcessor.unpublishCert(cert, r);
                             }
                             i++;
                         } catch (Exception e) {

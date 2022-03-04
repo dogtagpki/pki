@@ -320,7 +320,7 @@ public class CheckRequest extends CMSServlet {
         String type = r.getRequestType();
         Integer result = r.getExtDataInInteger(Request.RESULT);
 
-        /*        if (type.equals(IRequest.ENROLLMENT_REQUEST) && (r.get("profile") != null) && status.equals(RequestStatus.COMPLETE)) {
+        /*        if (type.equals(Request.ENROLLMENT_REQUEST) && (r.get("profile") != null) && status.equals(RequestStatus.COMPLETE)) {
                     X509CertImpl cert = (X509CertImpl) r.get(IEnrollProfile.REQUEST_ISSUED_CERT);
                     ArgBlock rarg = new ArgBlock();
 

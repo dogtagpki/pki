@@ -59,7 +59,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSGateway;
@@ -540,7 +539,7 @@ public class EnrollServlet extends CMSServlet {
 
     }
 
-    private boolean handleEnrollAuditLog(IRequest req, CMSRequest cmsReq, String authMgr, IAuthToken authToken,
+    private boolean handleEnrollAuditLog(Request req, CMSRequest cmsReq, String authMgr, IAuthToken authToken,
             X509CertInfo certInfo, long startTime)
             throws EBaseException {
         //for audit log
@@ -560,7 +559,7 @@ public class EnrollServlet extends CMSServlet {
         RequestStatus status = req.getRequestStatus();
 
         if (status != RequestStatus.COMPLETE) {
-            cmsReq.setIRequestStatus(); // set status acc. to IRequest status.
+            cmsReq.setIRequestStatus(); // set status acc. to Request status.
             // audit log the status
             try {
                 if (status == RequestStatus.REJECTED) {
@@ -925,7 +924,7 @@ public class EnrollServlet extends CMSServlet {
                 // save authtoken attrs to request directly
                 // (for policy use)
                 saveAuthToken(authToken, req);
-                // req.set(IRequest.AUTH_TOKEN, authToken);
+                // req.set(Request.AUTH_TOKEN, authToken);
                 // }
             }
 

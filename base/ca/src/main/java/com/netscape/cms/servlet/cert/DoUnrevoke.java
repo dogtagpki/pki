@@ -43,7 +43,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -284,7 +283,7 @@ public class DoUnrevoke extends CMSServlet {
 
         try {
             processor.processUnrevocationRequest();
-            IRequest unrevReq = processor.getRequest();
+            Request unrevReq = processor.getRequest();
 
             RequestStatus status = unrevReq.getRequestStatus();
             String type = unrevReq.getRequestType();

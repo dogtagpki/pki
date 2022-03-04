@@ -51,7 +51,6 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -493,7 +492,7 @@ public class DoRevoke extends CMSServlet {
 
         try {
             processor.processRevocationRequest();
-            IRequest revReq = processor.getRequest();
+            Request revReq = processor.getRequest();
 
             // retrieve the request status
             RequestStatus status = revReq.getRequestStatus();

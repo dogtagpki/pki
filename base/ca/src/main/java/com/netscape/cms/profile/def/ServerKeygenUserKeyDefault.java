@@ -425,7 +425,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                 request.setExtData(Request.KEY_GEN_SIZE, keySize);
             }
             else if (keyType.contentEquals("EC")) {
-                // TODO: Check whether IRequest.KEY_GEN_SIZE can accept string value
+                // TODO: Check whether Request.KEY_GEN_SIZE can accept string value
                 request.setExtData(Request.KEY_GEN_SIZE, curveName);
             }
 

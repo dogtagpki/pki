@@ -2192,8 +2192,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if (mEnableCacheRecovery) {
             // 553815 - original filter was not aligned with any VLV index
             // String filter = "(&(requeststate=complete)"+
-            //                 "(|(requestType=" + IRequest.REVOCATION_REQUEST + ")"+
-            //                 "(requestType=" + IRequest.UNREVOCATION_REQUEST + ")))";
+            //                 "(|(requestType=" + Request.REVOCATION_REQUEST + ")"+
+            //                 "(requestType=" + Request.UNREVOCATION_REQUEST + ")))";
             String filter = "(requeststate=complete)";
             logger.debug("recoverCRLCache  mFirstUnsaved=" + mFirstUnsaved + "  filter=" + filter);
 

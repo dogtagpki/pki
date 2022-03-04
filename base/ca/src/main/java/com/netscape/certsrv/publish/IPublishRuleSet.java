@@ -23,8 +23,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.ldap.LdapRule;
+import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPConnection;
 
@@ -96,7 +96,7 @@ public interface IPublishRuleSet {
      * @param req The request from which rule will be identified.
      * @return The publishing rule or null if none exists.
      */
-    LdapRule getRule(IRequest req);
+    LdapRule getRule(Request req);
 
     /**
      * Get an enumeration of publishing rules.
@@ -118,6 +118,6 @@ public interface IPublishRuleSet {
      * @param req The request to apply policies on.
      * @exception ELdapException publish failed due to Ldap error.
      */
-    public void publish(LDAPConnection conn, IRequest req)
+    public void publish(LDAPConnection conn, Request req)
             throws ELdapException;
 }
