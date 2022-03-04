@@ -33,7 +33,6 @@ import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -41,6 +40,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
@@ -115,7 +115,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     }
 
     @Override
-    public void update(IRequest req, RequestStatus status)
+    public void update(Request req, RequestStatus status)
             throws EProfileException {
 
         CMSEngine engine = CMS.getCMSEngine();

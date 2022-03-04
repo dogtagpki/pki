@@ -22,9 +22,9 @@ import java.util.Locale;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IConfigTemplate;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This interface represents an updater that will be
@@ -58,7 +58,7 @@ public interface IProfileUpdater extends IConfigTemplate {
      * @param status The status to check for.
      * @exception EProfileException failed to populate
      */
-    public void update(IRequest req, RequestStatus status)
+    public void update(Request req, RequestStatus status)
             throws EProfileException;
 
     /**

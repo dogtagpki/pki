@@ -37,7 +37,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
@@ -395,7 +394,7 @@ public class ProfileReviewServlet extends ProfileServlet {
 
     private void handlePolicy(ArgList list, ServletResponse response,
             Locale locale, String id, ProfilePolicy policy,
-            IRequest req) {
+            Request req) {
         ArgSet set = new ArgSet();
 
         set.set(ARG_POLICY_ID, id);
@@ -422,7 +421,7 @@ public class ProfileReviewServlet extends ProfileServlet {
                 String defValue = null;
 
                 try {
-                    defValue = def.getValue(defName, locale, (Request) req);
+                    defValue = def.getValue(defName, locale, req);
                 } catch (Exception exp) {
                     logger.warn("ProfileReviewServlet: " + exp.getMessage(), exp);
                 }
