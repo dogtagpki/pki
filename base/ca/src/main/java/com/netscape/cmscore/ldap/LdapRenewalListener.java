@@ -78,7 +78,7 @@ public class LdapRenewalListener implements IRequestListener {
             }
 
             try {
-                processor.publishCert(cert, r);
+                processor.publishCert(cert, (Request) r);
                 results[i] = Request.RES_SUCCESS;
 
                 logger.info("LdapRenewalListener: Published cert 0x" + cert.getSerialNumber().toString(16));

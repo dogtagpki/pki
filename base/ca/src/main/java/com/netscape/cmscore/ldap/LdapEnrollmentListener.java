@@ -105,7 +105,7 @@ public class LdapEnrollmentListener implements IRequestListener {
             }
 
             try {
-                processor.publishCert(xcert, r);
+                processor.publishCert(xcert, (Request) r);
                 results[i] = Request.RES_SUCCESS;
 
                 logger.debug("LdapEnrollmentListener: Published cert 0x" + xcert.getSerialNumber().toString(16));

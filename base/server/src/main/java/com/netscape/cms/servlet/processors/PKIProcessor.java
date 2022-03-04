@@ -36,13 +36,13 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Process Certificate Requests
@@ -95,7 +95,7 @@ public class PKIProcessor implements IPKIProcessor {
     }
 
     protected X509CertInfo[] fillCertInfoArray(
-            String protocolString, IAuthToken authToken, IArgBlock httpParams, IRequest req)
+            String protocolString, IAuthToken authToken, IArgBlock httpParams, Request req)
             throws EBaseException {
         return null;
     }

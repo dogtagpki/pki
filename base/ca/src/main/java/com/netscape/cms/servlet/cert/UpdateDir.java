@@ -582,7 +582,7 @@ public class UpdateDir extends CMSServlet {
                             if (r == null) {
                                 mPublisherProcessor.unpublishCert(cert, null);
                             } else {
-                                mPublisherProcessor.unpublishCert(cert, r);
+                                mPublisherProcessor.unpublishCert(cert, (Request) r);
                             }
                             i++;
                         } catch (Exception e) {
@@ -687,7 +687,7 @@ public class UpdateDir extends CMSServlet {
                             if (r == null) {
                                 mPublisherProcessor.unpublishCert(cert, null);
                             } else {
-                                mPublisherProcessor.unpublishCert(cert, r);
+                                mPublisherProcessor.unpublishCert(cert, (Request) r);
                             }
                             i++;
                         } catch (Exception e) {

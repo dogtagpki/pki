@@ -34,9 +34,9 @@ import com.netscape.certsrv.publish.MapperProxy;
 import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Controls the publishing process from the top level. Maintains
@@ -496,7 +496,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
      * @param publishingType Type for which to retrieve rule list.
      * @param req Corresponding publish request.
      */
-    public Enumeration<LdapRule> getRules(String publishingType, IRequest req) {
+    public Enumeration<LdapRule> getRules(String publishingType, Request req) {
 
         if (req == null) {
             return getRules(publishingType);

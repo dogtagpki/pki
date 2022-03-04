@@ -1282,10 +1282,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         SecurityDataProcessor processor = new SecurityDataProcessor(this);
         switch(request.getRequestType()){
             case Request.SECURITY_DATA_ENROLLMENT_REQUEST:
-                processor.archive(request);
+                processor.archive((Request) request);
                 break;
             case Request.SECURITY_DATA_RECOVERY_REQUEST:
-                processor.recover(request);
+                processor.recover((Request) request);
                 break;
             default:
                 throw new EBaseException("Unsupported synchronous request type: " + request.getRequestType());

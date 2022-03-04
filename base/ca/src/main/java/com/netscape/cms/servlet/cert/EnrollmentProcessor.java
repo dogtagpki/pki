@@ -37,7 +37,6 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
@@ -194,7 +193,7 @@ public class EnrollmentProcessor extends CertProcessor {
             ///////////////////////////////////////////////
             // validate realm (if present)
             ///////////////////////////////////////////////
-            for (IRequest req : reqs) {
+            for (Request req : reqs) {
                 String realm = req.getRealm();
                 if (StringUtils.isNotBlank(realm)) {
                     authz.checkRealm(realm, authToken, null,
@@ -210,7 +209,7 @@ public class EnrollmentProcessor extends CertProcessor {
 
             List<String> errors = new ArrayList<>();
             if (errorCode != null) {
-                for (IRequest req: reqs) {
+                for (Request req: reqs) {
                     String error = req.getError(locale);
                     if (error != null) {
                         String code = req.getErrorCode(locale);

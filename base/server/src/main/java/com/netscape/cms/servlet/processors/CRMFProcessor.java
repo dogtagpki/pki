@@ -51,7 +51,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
@@ -321,7 +320,7 @@ public class CRMFProcessor extends PKIProcessor {
 
     @Override
     public X509CertInfo[] fillCertInfoArray(
-            String protocolString, IAuthToken authToken, IArgBlock httpParams, IRequest req)
+            String protocolString, IAuthToken authToken, IArgBlock httpParams, Request req)
             throws EBaseException {
 
         logger.debug("CRMFProcessor.fillCertInfoArray!");

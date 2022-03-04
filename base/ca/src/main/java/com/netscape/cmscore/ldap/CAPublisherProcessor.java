@@ -35,13 +35,13 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.cms.publish.mappers.LdapCertSubjMap;
 import com.netscape.cms.publish.publishers.FileBasedPublisher;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPConnection;
 
@@ -379,7 +379,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
      * @exception ELdapException publish failed due to Ldap error.
      * @throws ELdapException
      */
-    public void publishCert(X509Certificate cert, IRequest req) throws ELdapException {
+    public void publishCert(X509Certificate cert, Request req) throws ELdapException {
 
         logger.info("CAPublisherProcessor: Publishing cert " + cert.getSerialNumber());
 
@@ -448,7 +448,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
      * @exception ELdapException unpublish failed due to Ldap error.
      * @throws ELdapException
      */
-    public void unpublishCert(X509Certificate cert, IRequest req) throws ELdapException {
+    public void unpublishCert(X509Certificate cert, Request req) throws ELdapException {
 
         logger.info("CAPublisherProcessor: Unpublishing cert 0x" + cert.getSerialNumber().toString(16));
 
@@ -684,7 +684,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         }
     }
 
-    private void publishNow(ILdapMapper mapper, ILdapPublisher publisher, IRequest r, Object obj) throws ELdapException {
+    private void publishNow(ILdapMapper mapper, ILdapPublisher publisher, Request r, Object obj) throws ELdapException {
 
         if (!isCertPublishingEnabled()) {
             return;
@@ -761,7 +761,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
     }
 
     // for crosscerts
-    private void publishNow(ILdapMapper mapper, ILdapPublisher publisher, IRequest r, byte[] bytes) throws EBaseException {
+    private void publishNow(ILdapMapper mapper, ILdapPublisher publisher, Request r, byte[] bytes) throws EBaseException {
 
         if (!isCertPublishingEnabled()) {
             return;
@@ -815,7 +815,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         }
     }
 
-    private void unpublishNow(ILdapMapper mapper, ILdapPublisher publisher, IRequest r, Object obj) throws ELdapException {
+    private void unpublishNow(ILdapMapper mapper, ILdapPublisher publisher, Request r, Object obj) throws ELdapException {
 
         if (!isCertPublishingEnabled()) {
             return;

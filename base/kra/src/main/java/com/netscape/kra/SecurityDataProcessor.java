@@ -41,7 +41,6 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
@@ -81,7 +80,7 @@ public class SecurityDataProcessor {
         keyRepository = kra.getKeyRepository();
     }
 
-    public boolean archive(IRequest request)
+    public boolean archive(Request request)
             throws EBaseException {
         RequestId requestId = request.getRequestId();
         String clientKeyId = request.getExtDataInString(Request.SECURITY_DATA_CLIENT_KEY_ID);
@@ -370,7 +369,7 @@ public class SecurityDataProcessor {
         return true;
     }
 
-    public boolean recover(IRequest request)
+    public boolean recover(Request request)
             throws EBaseException {
 
         logger.debug("SecurityDataService.recover(): start");

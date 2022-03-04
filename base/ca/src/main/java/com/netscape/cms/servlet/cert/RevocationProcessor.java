@@ -45,7 +45,6 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.cmscore.apps.CMS;
@@ -177,7 +176,7 @@ public class RevocationProcessor extends CertProcessor {
         return certificates;
     }
 
-    public IRequest getRequest() {
+    public Request getRequest() {
         return request;
     }
 
