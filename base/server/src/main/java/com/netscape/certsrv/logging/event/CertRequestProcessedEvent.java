@@ -19,12 +19,12 @@ package com.netscape.certsrv.logging.event;
 
 import java.security.cert.CertificateEncodingException;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SignedAuditEvent;
-import com.netscape.certsrv.request.IRequest;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.request.Request;
 
 public class CertRequestProcessedEvent extends SignedAuditEvent {
 
@@ -93,7 +93,7 @@ public class CertRequestProcessedEvent extends SignedAuditEvent {
             String subjectID,
             String requesterID,
             String infoName,
-            IRequest request) {
+            Request request) {
 
         CertRequestProcessedEvent event = new CertRequestProcessedEvent();
 
@@ -164,7 +164,7 @@ public class CertRequestProcessedEvent extends SignedAuditEvent {
      * @param request the actual request
      * @return reason string containing the signed audit log message reason
      */
-    static String auditInfoValue(IRequest request) {
+    static String auditInfoValue(Request request) {
 
         String reason = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 

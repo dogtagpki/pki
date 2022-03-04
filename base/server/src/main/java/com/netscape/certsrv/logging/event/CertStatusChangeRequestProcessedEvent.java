@@ -18,8 +18,8 @@
 package com.netscape.certsrv.logging.event;
 
 import com.netscape.certsrv.logging.SignedAuditEvent;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmscore.request.Request;
 
 public class CertStatusChangeRequestProcessedEvent extends SignedAuditEvent {
 
@@ -73,7 +73,7 @@ public class CertStatusChangeRequestProcessedEvent extends SignedAuditEvent {
     public CertStatusChangeRequestProcessedEvent(
             String subjectID,
             String outcome,
-            IRequest request,
+            Request request,
             String serialNumber,
             String requestType,
             String reasonNum,
