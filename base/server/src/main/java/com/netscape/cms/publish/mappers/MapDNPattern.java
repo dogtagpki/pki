@@ -27,8 +27,8 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 /**
  * class for parsing a DN pattern used to construct a ldap dn from
@@ -172,7 +172,7 @@ public class MapDNPattern {
      * @param subject the subjectDN of the certificate
      * @return Ldap v3 DN string to use for base ldap search.
      */
-    public String formDN(IRequest req, X500Name subject, CertificateExtensions ext)
+    public String formDN(Request req, X500Name subject, CertificateExtensions ext)
             throws ELdapException {
         StringBuffer formedDN = new StringBuffer();
 

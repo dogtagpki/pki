@@ -43,8 +43,8 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ECompSyntaxErr;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPDN;
 
@@ -381,7 +381,7 @@ class AVAPattern {
         }
     }
 
-    public String formAVA(IRequest req,
+    public String formAVA(Request req,
             X500Name subject,
             CertificateExtensions extensions)
             throws ELdapException {
