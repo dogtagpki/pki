@@ -20,6 +20,7 @@ package com.netscape.certsrv.request;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cmscore.request.Request;
 
 /**
  * An interface that defines abilities of request listener,
@@ -42,7 +43,7 @@ public interface IRequestListener {
      *
      * @param request request
      */
-    public void accept(IRequest request);
+    public void accept(Request request);
 
     /**
      * Sets attribute.

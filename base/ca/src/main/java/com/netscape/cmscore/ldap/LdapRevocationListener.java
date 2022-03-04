@@ -30,7 +30,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
@@ -57,7 +56,7 @@ public class LdapRevocationListener implements IRequestListener {
     }
 
     @Override
-    public void accept(IRequest r) {
+    public void accept(Request r) {
 
         logger.info("LdapRevocationListener: Handling revocation request " + r.getRequestId());
 
@@ -73,7 +72,7 @@ public class LdapRevocationListener implements IRequestListener {
         acceptX509(r, certs);
     }
 
-    public void acceptX509(IRequest r, Certificate[] revcerts) {
+    public void acceptX509(Request r, Certificate[] revcerts) {
 
         CAEngine engine = CAEngine.getInstance();
 

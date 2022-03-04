@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+import com.netscape.cmscore.request.Request;
+
 /**
  * The INotify interface defines operations that are invoked
  * when a request is completely processed. A class implementing
@@ -30,11 +32,11 @@ public interface INotify {
 
     /**
      * Provides notification that a request has been completed.
-     * The implementation may use values stored in the IRequest
+     * The implementation may use values stored in the Request
      * object, and may implement any type publishing (such as email
      * or writing values into a directory)
      *
      * @param request the request that is completed.
      */
-    public void notify(IRequest request);
+    public void notify(Request request);
 }

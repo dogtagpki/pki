@@ -28,7 +28,6 @@ import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
@@ -152,7 +151,7 @@ public class HttpConnector implements IConnector {
     }
 
     @Override
-    public boolean send(IRequest r)
+    public boolean send(Request r)
             throws EBaseException {
         IHttpConnection curConn = null;
 

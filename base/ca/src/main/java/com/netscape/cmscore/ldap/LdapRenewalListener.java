@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -49,7 +48,7 @@ public class LdapRenewalListener implements IRequestListener {
     }
 
     @Override
-    public void accept(IRequest r) {
+    public void accept(Request r) {
 
         logger.info("LdapRenewalListener: Handling renewal request " + r.getRequestId());
 
@@ -64,7 +63,7 @@ public class LdapRenewalListener implements IRequestListener {
         acceptX509(r, certs);
     }
 
-    public void acceptX509(IRequest r, Certificate[] certs) {
+    public void acceptX509(Request r, Certificate[] certs) {
 
         Integer[] results = new Integer[certs.length];
         Integer status = Request.RES_SUCCESS;
@@ -78,7 +77,7 @@ public class LdapRenewalListener implements IRequestListener {
             }
 
             try {
-                processor.publishCert(cert, (Request) r);
+                processor.publishCert(cert, r);
                 results[i] = Request.RES_SUCCESS;
 
                 logger.info("LdapRenewalListener: Published cert 0x" + cert.getSerialNumber().toString(16));

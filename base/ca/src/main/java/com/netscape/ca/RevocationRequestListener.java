@@ -8,7 +8,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.EErrorPublishCRL;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -32,7 +31,7 @@ public class RevocationRequestListener implements IRequestListener {
     }
 
     @Override
-    public void accept(IRequest r) {
+    public void accept(Request r) {
         String requestType = r.getRequestType();
 
         if (!(requestType.equals(Request.REVOCATION_REQUEST) ||

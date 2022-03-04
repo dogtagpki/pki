@@ -19,6 +19,8 @@ package com.netscape.certsrv.request;
 
 import java.util.Enumeration;
 
+import com.netscape.cmscore.request.Request;
+
 /**
  * IRequestNotifier interface defines methods to register listeners,
  *
@@ -82,7 +84,7 @@ public interface IRequestNotifier extends INotify {
      *
      * @return request
      */
-    public IRequest getRequest();
+    public Request getRequest();
 
     /**
      * Gets number of requests in publishing queue.
@@ -110,7 +112,7 @@ public interface IRequestNotifier extends INotify {
      *
      * @param r request
      */
-    public void addToNotify(IRequest r);
+    public void addToNotify(Request r);
 
     /**
      * Sets publishing queue parameters.

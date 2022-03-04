@@ -19,7 +19,6 @@ package com.netscape.cmscore.request;
 
 import java.util.Enumeration;
 
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 
@@ -31,7 +30,7 @@ public class RunListeners implements Runnable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RunListeners.class);
 
-    IRequest mRequest = null;
+    Request mRequest = null;
     Enumeration<IRequestListener> mListeners = null;
     IRequestNotifier mRequestNotifier = null;
 
@@ -41,7 +40,7 @@ public class RunListeners implements Runnable {
      * @param r request
      * @param listeners list of listeners
      */
-    public RunListeners(IRequest r, Enumeration<IRequestListener> listeners) {
+    public RunListeners(Request r, Enumeration<IRequestListener> listeners) {
         mRequest = r;
         mListeners = listeners;
     }

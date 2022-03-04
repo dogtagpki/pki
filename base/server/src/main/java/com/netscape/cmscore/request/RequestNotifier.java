@@ -23,7 +23,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestVirtualList;
@@ -212,7 +211,7 @@ public class RequestNotifier implements IRequestNotifier {
      * @return request
      */
     @Override
-    public synchronized IRequest getRequest() {
+    public synchronized Request getRequest() {
         Request r = null;
         String id = null;
 
@@ -358,7 +357,7 @@ public class RequestNotifier implements IRequestNotifier {
      * @param r request
      */
     @Override
-    public void notify(IRequest r) {
+    public void notify(Request r) {
         logger.debug("ARequestNotifier  notify mIsPublishingQueueEnabled=" + mIsPublishingQueueEnabled +
                   " mMaxThreads=" + mMaxThreads);
         if (mIsPublishingQueueEnabled) {
@@ -424,7 +423,7 @@ public class RequestNotifier implements IRequestNotifier {
      * @param r request
      */
     @Override
-    public synchronized void addToNotify(IRequest r) {
+    public synchronized void addToNotify(Request r) {
         if (!mSearchForRequests) {
             if (mRequests.size() < mMaxRequests) {
                 mRequests.addElement(r.getRequestId().toString());

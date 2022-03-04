@@ -30,7 +30,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
@@ -379,7 +378,7 @@ public class SubjectNameInput extends EnrollInput {
         return null;
     }
 
-    protected void parseSubjectName(X500Name subj, X509CertInfo info, IRequest req)
+    protected void parseSubjectName(X500Name subj, X509CertInfo info, Request req)
             throws EProfileException {
         try {
             req.setExtData(Request.REQUEST_SUBJECT_NAME,

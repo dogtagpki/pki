@@ -20,7 +20,6 @@ package com.netscape.cms.listeners;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -120,7 +119,7 @@ public class PinRemovalListener implements IRequestListener {
     }
 
     @Override
-    public void accept(IRequest r) {
+    public void accept(Request r) {
         if (mEnabled != true)
             return;
 

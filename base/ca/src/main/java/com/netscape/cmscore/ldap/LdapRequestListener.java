@@ -24,7 +24,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.request.Request;
 
@@ -64,7 +63,7 @@ public class LdapRequestListener implements IRequestListener {
     public void init(ISubsystem sys, IConfigStore config) throws EBaseException {
     }
 
-    public PublishObject getPublishObject(IRequest r) {
+    public PublishObject getPublishObject(Request r) {
         String type = r.getRequestType();
         PublishObject obj = new PublishObject();
 
@@ -133,7 +132,7 @@ public class LdapRequestListener implements IRequestListener {
     }
 
     @Override
-    public void accept(IRequest r) {
+    public void accept(Request r) {
         String type = r.getRequestType();
 
         IRequestListener handler = mRequestListeners.get(type);

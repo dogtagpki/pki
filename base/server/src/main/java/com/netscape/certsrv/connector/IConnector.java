@@ -18,7 +18,7 @@
 package com.netscape.certsrv.connector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.http.HttpResponse;
 
 /**
@@ -52,7 +52,7 @@ public interface IConnector {
      * @return true for success, otherwise false.
      * @exception EBaseException Failure to send request to remote authority.
      */
-    public boolean send(IRequest req)
+    public boolean send(Request req)
             throws EBaseException;
 
     /**

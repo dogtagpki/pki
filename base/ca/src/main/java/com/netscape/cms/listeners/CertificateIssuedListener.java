@@ -37,7 +37,6 @@ import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.notification.IMailNotification;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -173,7 +172,7 @@ public class CertificateIssuedListener implements IRequestListener {
     }
 
     @Override
-    public void accept(IRequest r) {
+    public void accept(Request r) {
         logger.debug("CertificateIssuedListener: accept " +
                 r.getRequestId().toString());
         if (mEnabled != true)
@@ -318,7 +317,7 @@ public class CertificateIssuedListener implements IRequestListener {
         }
     }
 
-    private void rejected(IRequest r) {
+    private void rejected(Request r) {
         // do we have an email to send?
         String mEmail = null;
         EmailResolverKeys keys = new EmailResolverKeys();

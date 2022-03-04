@@ -42,7 +42,6 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPlugin;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -271,7 +270,7 @@ public class LdapPublishModule implements IRequestListener {
      * @param request The publishing request.
      */
     @Override
-    public void accept(IRequest request) {
+    public void accept(Request request) {
         String type = request.getRequestType();
 
         IRequestListener handler = mEventHandlers.get(type);
@@ -527,7 +526,7 @@ class HandleEnrollment implements IRequestListener {
     }
 
     @Override
-    public void accept(IRequest r) {
+    public void accept(Request r) {
         logger.debug("handling publishing for enrollment request id " + r.getRequestId());
 
         // in case it's not meant for us
@@ -603,7 +602,7 @@ class HandleRenewal implements IRequestListener {
     }
 
     @Override
-    public void accept(IRequest r) {
+    public void accept(Request r) {
         // Note we do not remove old certs from directory during renewal
         X509CertImpl[] certs = r.getExtDataInCertArray(Request.ISSUED_CERTS);
 
@@ -669,7 +668,7 @@ class HandleRevocation implements IRequestListener {
     }
 
     @Override
-    public void accept(IRequest r) {
+    public void accept(Request r) {
         logger.debug("Handle publishing for revoke request id " + r.getRequestId());
 
         // get fields in request.
@@ -735,7 +734,7 @@ class HandleUnrevocation implements IRequestListener {
     }
 
     @Override
-    public void accept(IRequest r) {
+    public void accept(Request r) {
         logger.debug("Handle publishing for unrevoke request id " + r.getRequestId());
 
         // get fields in request.

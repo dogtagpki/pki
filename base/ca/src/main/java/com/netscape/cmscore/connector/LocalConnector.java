@@ -28,7 +28,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.connector.IConnector;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -43,7 +42,7 @@ public class LocalConnector implements IConnector {
 
     ICertAuthority mSource = null;
     IAuthority mDest = null;
-    Hashtable<String, IRequest> mSourceReqs = new Hashtable<>();
+    Hashtable<String, Request> mSourceReqs = new Hashtable<>();
 
     public LocalConnector(ICertAuthority source, IAuthority dest) {
         mSource = source;
@@ -61,7 +60,7 @@ public class LocalConnector implements IConnector {
      * returns resulting request
      */
     @Override
-    public boolean send(IRequest r) throws EBaseException {
+    public boolean send(Request r) throws EBaseException {
         logger.debug("send request type " + r.getRequestType() + " status=" + r.getRequestStatus());
         logger.debug("to " + mDest.getId() + " id=" + r.getRequestId());
 
@@ -140,7 +139,7 @@ public class LocalConnector implements IConnector {
         }
 
         @Override
-        public void accept(IRequest destreq) {
+        public void accept(Request destreq) {
             try {
                 acceptImpl(destreq);
             } catch (Exception e) {
@@ -148,7 +147,7 @@ public class LocalConnector implements IConnector {
             }
         }
 
-        public void acceptImpl(IRequest destreq) throws Exception {
+        public void acceptImpl(Request destreq) throws Exception {
 
             logger.debug("dest " + mDest.getId() + " done with " + destreq.getRequestId());
 
@@ -178,7 +177,7 @@ public class LocalConnector implements IConnector {
 
             // logger.debug(mDest.getId() + " " + destreq.getRequestId() + " mapped to " + mSource.getId() + " " + rId);
 
-            IRequest r = null;
+            Request r = null;
 
             // 391439: Previously, we try to access the request
             // via request queue here. Due to the recent
@@ -200,12 +199,12 @@ public class LocalConnector implements IConnector {
                 if (r.getRequestStatus() != RequestStatus.SVC_PENDING) {
                     logger.warn("request state of " + rId + "not pending " +
                                     " from dest authority " + mDest.getId());
-                    sourceQ.releaseRequest((Request) r);
+                    sourceQ.releaseRequest(r);
                     return;
                 }
                 transferRequest(destreq, r);
-                sourceQ.markAsServiced((Request) r);
-                sourceQ.releaseRequest((Request) r);
+                sourceQ.markAsServiced(r);
+                sourceQ.releaseRequest(r);
 
                 logger.debug("released request " + r.getRequestId());
             }
@@ -220,7 +219,7 @@ public class LocalConnector implements IConnector {
     public void stop() {
     }
 
-    protected void transferRequest(IRequest src, IRequest dest) {
+    protected void transferRequest(Request src, Request dest) {
         RequestTransfer.transfer(src, dest);
     }
 }

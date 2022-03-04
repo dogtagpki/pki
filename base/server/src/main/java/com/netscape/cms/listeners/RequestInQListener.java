@@ -29,7 +29,6 @@ import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IMailNotification;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.profile.input.SubjectNameInput;
@@ -136,11 +135,11 @@ public class RequestInQListener implements IRequestListener {
     /**
      * carries out the operation when the listener is triggered.
      *
-     * @param r IRequest structure holding the request information
-     * @see com.netscape.certsrv.request.IRequest
+     * @param r Request structure holding the request information
+     * @see com.netscape.cmscore.request.Request
      */
     @Override
-    public void accept(IRequest r) {
+    public void accept(Request r) {
 
         if (mEnabled != true)
             return;
@@ -188,7 +187,7 @@ public class RequestInQListener implements IRequestListener {
         }
     }
 
-    private void buildContentParams(IRequest r) {
+    private void buildContentParams(Request r) {
         mContentParams.clear();
         mContentParams.put(IEmailFormProcessor.TOKEN_ID,
                 mConfig.getName());
