@@ -67,7 +67,6 @@ import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.IPolicy;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
@@ -806,7 +805,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @return the request
      *         <P>
      */
-    public IRequest archiveKey(KeyRecord rec)
+    public Request archiveKey(KeyRecord rec)
             throws EBaseException {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
@@ -1252,7 +1251,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @return executed request
      * @exception EBaseException failed to recover key
      */
-    public IRequest recoverKey(BigInteger kid,
+    public Request recoverKey(BigInteger kid,
             Credential creds[], String password,
             X509CertImpl cert,
             String delivery) throws EBaseException {
@@ -1278,14 +1277,14 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @throws EBaseException
      */
     @Override
-    public void processSynchronousRequest(IRequest request) throws EBaseException {
+    public void processSynchronousRequest(Request request) throws EBaseException {
         SecurityDataProcessor processor = new SecurityDataProcessor(this);
         switch(request.getRequestType()){
             case Request.SECURITY_DATA_ENROLLMENT_REQUEST:
-                processor.archive((Request) request);
+                processor.archive(request);
                 break;
             case Request.SECURITY_DATA_RECOVERY_REQUEST:
-                processor.recover((Request) request);
+                processor.recover(request);
                 break;
             default:
                 throw new EBaseException("Unsupported synchronous request type: " + request.getRequestType());
@@ -1323,7 +1322,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @return executed request
      * @exception EBaseException failed to recover key
      */
-    public IRequest recoverKey(Credential creds[], CertificateChain
+    public Request recoverKey(Credential creds[], CertificateChain
             encryptionChain, X509CertImpl signingCert,
             X509CertImpl transportCert,
             X500Name ownerName) throws EBaseException {

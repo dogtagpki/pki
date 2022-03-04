@@ -31,13 +31,13 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
+import com.netscape.cmscore.request.Request;
 
 /**
  * An interface represents key recovery authority. The
@@ -307,7 +307,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
     /**
      * Process synchronous archival and recovery requests
      */
-    public void processSynchronousRequest(IRequest request) throws EBaseException;
+    public void processSynchronousRequest(Request request) throws EBaseException;
 
     /**
      * Are ephemeral requests enabled for SECURITY_DATA recovery and archival
