@@ -22,8 +22,8 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.util.AssertionException;
 
 /**
@@ -160,7 +160,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     @Override
-    public boolean evaluate(IRequest req)
+    public boolean evaluate(Request req)
             throws ELdapException {
         boolean result = false;
         // mPfx and mVar are looked up case-indendently

@@ -19,7 +19,7 @@ package com.netscape.cmscore.ldap;
 
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Interface for a Ldap predicate expression.
@@ -57,7 +57,7 @@ public interface ILdapExpression {
      * @return The return value.
      * @exception ELdapExeption Failed to evaluate expression.
      */
-    boolean evaluate(IRequest req)
+    boolean evaluate(Request req)
             throws ELdapException;
 
     /**

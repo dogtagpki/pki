@@ -19,7 +19,7 @@ package com.netscape.cmscore.ldap;
 
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class represents an Or expression of the form
@@ -54,7 +54,7 @@ public class LdapOrExpression implements ILdapExpression {
     }
 
     @Override
-    public boolean evaluate(IRequest req)
+    public boolean evaluate(Request req)
             throws ELdapException {
         if (mExp1 == null && mExp2 == null)
             return true;

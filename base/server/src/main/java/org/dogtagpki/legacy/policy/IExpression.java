@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.policy;
 
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Interface for a policy expression.
@@ -50,7 +50,7 @@ public interface IExpression {
      * @param req The PKIRequest on which we are applying the condition.
      * @return The return value.
      */
-    boolean evaluate(IRequest req)
+    boolean evaluate(Request req)
             throws EPolicyException;
 
     /**

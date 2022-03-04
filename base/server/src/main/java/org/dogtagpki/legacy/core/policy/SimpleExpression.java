@@ -23,8 +23,8 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IExpression;
 
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.util.AssertionException;
 
 /**
@@ -119,7 +119,7 @@ public class SimpleExpression implements IExpression {
     }
 
     @Override
-    public boolean evaluate(IRequest req)
+    public boolean evaluate(Request req)
             throws EPolicyException {
         // mPfx and mVar are looked up case-indendently
         String givenVal = req.getExtDataInString(mPfx, mVar);

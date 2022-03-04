@@ -20,7 +20,7 @@ package org.dogtagpki.legacy.core.policy;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IExpression;
 
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This class represents an expression of the form
@@ -41,7 +41,7 @@ public class AndExpression implements IExpression {
     }
 
     @Override
-    public boolean evaluate(IRequest req)
+    public boolean evaluate(Request req)
             throws EPolicyException {
         // If an expression is missing we assume applicability.
         if (mExp1 == null && mExp2 == null)
