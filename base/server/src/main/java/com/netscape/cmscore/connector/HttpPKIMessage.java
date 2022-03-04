@@ -27,7 +27,7 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import com.netscape.certsrv.connector.IHttpPKIMessage;
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 /**
  * simple name/value pair message.
@@ -72,7 +72,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
      * copy contents of request to make a simple name/value message.
      */
     @Override
-    public void fromRequest(IRequest r) {
+    public void fromRequest(Request r) {
         // actually don't need to copy source id since
         reqType = r.getRequestType();
         reqId = r.getRequestId().toString();
@@ -105,7 +105,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public void toRequest(IRequest r) {
+    public void toRequest(Request r) {
         // id, type and status
         // type had to have been set in instantiation.
         // id is checked but not reset.

@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.connector;
 
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This represents a Http PKI message. It contains
@@ -47,16 +47,16 @@ public interface IHttpPKIMessage extends IPKIMessage {
     /**
      * Copies contents of request to make a simple name/value message.
      *
-     * @param r Instance of IRequest to be copied from.
+     * @param r Instance of Request to be copied from.
      */
     @Override
-    public void fromRequest(IRequest r);
+    public void fromRequest(Request r);
 
     /**
      * Copies contents to request.
      *
-     * @param r Instance of IRequest to be copied to.
+     * @param r Instance of Request to be copied to.
      */
     @Override
-    public void toRequest(IRequest r);
+    public void toRequest(Request r);
 }

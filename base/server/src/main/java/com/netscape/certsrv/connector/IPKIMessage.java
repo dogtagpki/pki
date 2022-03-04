@@ -19,7 +19,7 @@ package com.netscape.certsrv.connector;
 
 import java.io.Serializable;
 
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Messages that are serialized and go over the wire.
@@ -58,7 +58,7 @@ public interface IPKIMessage extends Serializable {
      *
      * @param r Request to copy from.
      */
-    public void fromRequest(IRequest r);
+    public void fromRequest(Request r);
 
     /**
      * Copies contents of PKIMessage to the request
@@ -66,7 +66,7 @@ public interface IPKIMessage extends Serializable {
      *
      * @param r Request to copy to.
      */
-    public void toRequest(IRequest r);
+    public void toRequest(Request r);
 
     /**
      * Retrieves the request realm

@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.connector;
 
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Resend requests at intervals to the server to ensure completion of requests.
@@ -34,7 +34,7 @@ public interface IResender extends Runnable {
      *
      * @param r Request to be placed on the resend queue.
      */
-    public void addRequest(IRequest r);
+    public void addRequest(Request r);
 
     public void start(final String name);
 

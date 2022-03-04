@@ -31,7 +31,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -111,7 +110,7 @@ public class Resender implements IResender {
     }
 
     @Override
-    public void addRequest(IRequest r) {
+    public void addRequest(Request r) {
         synchronized (mRequestIds) {
             // note the request ids are added as strings.
             mRequestIds.addElement(r.getRequestId().toString());
@@ -223,7 +222,7 @@ public class Resender implements IResender {
     }
 
     // this is almost the same as connector's send.
-    private boolean send(IRequest r)
+    private boolean send(Request r)
             throws IOException, EBaseException {
 
         try {
@@ -252,8 +251,8 @@ public class Resender implements IResender {
             // request was completed. copy relevant contents.
             replymsg.toRequest(r);
             logger.debug("resend request id was completed " + r.getRequestId());
-            mQueue.markAsServiced((Request) r);
-            mQueue.releaseRequest((Request) r);
+            mQueue.markAsServiced(r);
+            mQueue.releaseRequest(r);
             logger.debug("resend released request " + r.getRequestId());
             return true;
         } catch (EBaseException e) {
