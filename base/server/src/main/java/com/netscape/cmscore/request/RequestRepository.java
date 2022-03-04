@@ -29,7 +29,6 @@ import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
@@ -212,7 +211,7 @@ public class RequestRepository extends Repository {
         return createRequest(requestID, requestType);
     }
 
-    public void addRequest(IRequest request) throws EBaseException {
+    public void addRequest(Request request) throws EBaseException {
 
         RequestRecord requestRecord = new RequestRecord();
         requestRecord.add(request);
@@ -252,7 +251,7 @@ public class RequestRepository extends Repository {
         return record.toRequest();
     }
 
-    public void modifyRequest(IRequest request) throws EBaseException {
+    public void modifyRequest(Request request) throws EBaseException {
 
         ModificationSet mods = new ModificationSet();
         RequestRecord.mod(mods, request);
@@ -363,7 +362,7 @@ public class RequestRepository extends Repository {
     }
 
     /**
-     * Gets a pageable list of IRequest entries in this queue. This
+     * Gets a pageable list of Request entries in this queue. This
      * jumps right to the end of the list.
      *
      * @param fromID request id to start with

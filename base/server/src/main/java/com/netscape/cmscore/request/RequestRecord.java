@@ -30,7 +30,6 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
@@ -209,7 +208,7 @@ public class RequestRecord implements IDBObj {
     }
 
     // copy values from r to the local record
-    void add(IRequest r) throws EBaseException {
+    void add(Request r) throws EBaseException {
         // Collect the values for the record
         mRequestId = r.getRequestId();
         mRequestType = r.getRequestType();
@@ -226,7 +225,7 @@ public class RequestRecord implements IDBObj {
         }
     }
 
-    void read(IRequest r) throws EBaseException {
+    void read(Request r) throws EBaseException {
         r.setRequestStatus(mRequestState);
         r.setSourceId(mSourceId);
         r.setRequestOwner(mOwner);
@@ -240,7 +239,7 @@ public class RequestRecord implements IDBObj {
         }
     }
 
-    static void mod(ModificationSet mods, IRequest r) throws EBaseException {
+    static void mod(ModificationSet mods, Request r) throws EBaseException {
         //
         mods.add(ATTR_REQUEST_STATE, Modification.MOD_REPLACE, r.getRequestStatus());
         mods.add(ATTR_SOURCE_ID, Modification.MOD_REPLACE, r.getSourceId());
@@ -285,7 +284,7 @@ public class RequestRecord implements IDBObj {
     protected static final String mOC[] =
         { Schema.LDAP_OC_TOP, Schema.LDAP_OC_REQUEST, Schema.LDAP_OC_EXTENSIBLE };
 
-    protected static Hashtable<String, Object> loadExtDataFromRequest(IRequest r) throws EBaseException {
+    protected static Hashtable<String, Object> loadExtDataFromRequest(Request r) throws EBaseException {
         Hashtable<String, Object> h = new Hashtable<>();
         String reqType = r.getExtDataInString("cert_request_type");
         if (reqType == null || reqType.equals("")) {
@@ -334,7 +333,7 @@ public class RequestRecord implements IDBObj {
     }
 
     @SuppressWarnings("unchecked")
-    protected void storeExtDataIntoRequest(IRequest r) throws EBaseException {
+    protected void storeExtDataIntoRequest(Request r) throws EBaseException {
         Enumeration<String> e = mExtData.keys();
         while (e.hasMoreElements()) {
             String key = e.nextElement();
