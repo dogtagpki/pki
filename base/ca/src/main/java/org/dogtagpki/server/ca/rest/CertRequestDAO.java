@@ -40,7 +40,6 @@ import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.profile.common.Profile;
@@ -215,8 +214,8 @@ public class CertRequestDAO extends CMSRequestDAO {
             results = processor.processEnrollment(data, request, aid, credentials);
         }
 
-        IRequest reqs[] = (IRequest[]) results.get(CAProcessor.ARG_REQUESTS);
-        for (IRequest req : reqs) {
+        Request reqs[] = (Request[]) results.get(CAProcessor.ARG_REQUESTS);
+        for (Request req : reqs) {
             try {
                 CertRequestInfo info = CertRequestInfoFactory.create(req, uriInfo);
                 ret.addEntry(info);
@@ -261,7 +260,7 @@ public class CertRequestDAO extends CMSRequestDAO {
     }
 
     @Override
-    public CertRequestInfo createCMSRequestInfo(IRequest request, UriInfo uriInfo) {
+    public CertRequestInfo createCMSRequestInfo(Request request, UriInfo uriInfo) {
         try {
             return CertRequestInfoFactory.create(request, uriInfo);
         } catch (NoSuchMethodException e) {

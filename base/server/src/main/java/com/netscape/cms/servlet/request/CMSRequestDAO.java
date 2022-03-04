@@ -27,7 +27,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
@@ -194,6 +193,6 @@ public abstract class CMSRequestDAO {
         return false;
     }
 
-    protected abstract CMSRequestInfo createCMSRequestInfo(IRequest request, UriInfo uriInfo);
+    protected abstract CMSRequestInfo createCMSRequestInfo(Request request, UriInfo uriInfo);
 }
 

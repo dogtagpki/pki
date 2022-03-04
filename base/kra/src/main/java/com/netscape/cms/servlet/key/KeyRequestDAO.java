@@ -62,7 +62,6 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
@@ -301,7 +300,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         return request;
     }
 
-    public void setTransientData(KeyRecoveryRequest data, IRequest request) throws EBaseException {
+    public void setTransientData(KeyRecoveryRequest data, Request request) throws EBaseException {
 
         Hashtable<String, Object> requestParams = getTransientData(request);
 
@@ -332,7 +331,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
     }
 
-    public Hashtable<String, Object> getTransientData(IRequest request) throws EBaseException {
+    public Hashtable<String, Object> getTransientData(Request request) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
         KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
@@ -596,7 +595,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         queue.updateRequest(request);
     }
 
-    private KeyRequestInfo createKeyRequestInfo(IRequest request, UriInfo uriInfo) {
+    private KeyRequestInfo createKeyRequestInfo(Request request, UriInfo uriInfo) {
         KeyRequestInfo ret = new KeyRequestInfo();
 
         ret.setRequestType(request.getRequestType());
@@ -626,13 +625,13 @@ public class KeyRequestDAO extends CMSRequestDAO {
         return ret;
     }
 
-    private KeyData createKeyData(IRequest request, UriInfo uriInfo) {
+    private KeyData createKeyData(Request request, UriInfo uriInfo) {
         // TODO - to be implemented when we enable one-shot generation and recovery
         // with retrieval
         return null;
     }
 
-    private KeyRequestResponse createKeyRequestResponse(IRequest request, UriInfo uriInfo) {
+    private KeyRequestResponse createKeyRequestResponse(Request request, UriInfo uriInfo) {
         KeyRequestResponse response = new KeyRequestResponse();
         response.setRequestInfo(createKeyRequestInfo(request, uriInfo));
         response.setKeyData(createKeyData(request, uriInfo));
@@ -640,11 +639,11 @@ public class KeyRequestDAO extends CMSRequestDAO {
     }
 
     @Override
-    public KeyRequestInfo createCMSRequestInfo(IRequest request, UriInfo uriInfo) {
+    public KeyRequestInfo createCMSRequestInfo(Request request, UriInfo uriInfo) {
         return createKeyRequestInfo(request, uriInfo);
     }
 
-    public KeyRequestResponse createCMSRequestResponse(IRequest request, UriInfo uriInfo) {
+    public KeyRequestResponse createCMSRequestResponse(Request request, UriInfo uriInfo) {
         return createKeyRequestResponse(request, uriInfo);
     }
 
