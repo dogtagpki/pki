@@ -20,14 +20,14 @@ package com.netscape.cms.publish.mappers;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.ldap.LDAPConnection;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapMapper;
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
+
+import netscape.ldap.LDAPConnection;
 
 /**
  * No Map
@@ -83,7 +83,7 @@ public class NoMap implements ILdapMapper, IExtendedPluginInfo {
     }
 
     @Override
-    public String map(LDAPConnection conn, IRequest req, Object obj)
+    public String map(LDAPConnection conn, Request req, Object obj)
             throws ELdapException {
         return null;
     }

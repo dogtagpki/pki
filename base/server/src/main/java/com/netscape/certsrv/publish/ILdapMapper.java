@@ -19,10 +19,10 @@ package com.netscape.certsrv.publish;
 
 import java.util.Vector;
 
-import netscape.ldap.LDAPConnection;
-
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.request.Request;
+
+import netscape.ldap.LDAPConnection;
 
 /**
  * Interface for mapping a X509 certificate to a LDAP entry.
@@ -75,6 +75,6 @@ public interface ILdapMapper extends ILdapPlugin {
      * @exception ELdapException Map operation failed.
      */
     public String
-            map(LDAPConnection conn, IRequest r, Object obj)
+            map(LDAPConnection conn, Request r, Object obj)
                     throws ELdapException;
 }

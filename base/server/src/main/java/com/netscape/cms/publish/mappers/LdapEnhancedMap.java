@@ -42,8 +42,8 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.ILdapMapper;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -203,7 +203,7 @@ public class LdapEnhancedMap
      * @param req The request
      * @param obj The certificate or crl
      */
-    private String formDN(IRequest req, Object obj)
+    private String formDN(Request req, Object obj)
             throws EBaseException {
         CertificateExtensions certExt = null;
         X500Name subjectDN = null;
@@ -445,7 +445,7 @@ public class LdapEnhancedMap
      * @exception ELdapException if any LDAP exceptions occurred.
      */
     @Override
-    public String map(LDAPConnection conn, IRequest req, Object obj)
+    public String map(LDAPConnection conn, Request req, Object obj)
             throws ELdapException {
         if (conn == null) {
             return null;

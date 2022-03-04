@@ -28,8 +28,8 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapMapper;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPConnection;
 
@@ -170,7 +170,7 @@ public class LdapCertCompsMap
     }
 
     @Override
-    public String map(LDAPConnection conn, IRequest req, Object obj)
+    public String map(LDAPConnection conn, Request req, Object obj)
             throws ELdapException {
         return map(conn, obj);
     }

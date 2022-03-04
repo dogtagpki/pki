@@ -30,8 +30,8 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.ILdapMapper;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
@@ -258,7 +258,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
     }
 
     @Override
-    public String map(LDAPConnection conn, IRequest req, Object obj)
+    public String map(LDAPConnection conn, Request req, Object obj)
             throws ELdapException {
         return map(conn, obj);
     }
@@ -311,7 +311,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         return v;
     }
 
-    public Vector<String> mapAll(LDAPConnection conn, IRequest req, Object obj)
+    public Vector<String> mapAll(LDAPConnection conn, Request req, Object obj)
             throws ELdapException {
         return mapAll(conn, obj);
     }
