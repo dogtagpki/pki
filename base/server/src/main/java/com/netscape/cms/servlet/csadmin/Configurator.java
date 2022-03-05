@@ -297,19 +297,17 @@ public class Configurator {
         return pair;
     }
 
-    public X509CertImpl createLocalCert(
+    public X509CertImpl createCert(
+            RequestId requestID,
             String keyAlgorithm,
             X509Key x509key,
             String profileID,
-            String[] dnsNames,
-            boolean installAdjustValidity,
             PrivateKey signingPrivateKey,
             String signingAlgorithm,
             String certRequestType,
-            byte[] certRequest,
+            byte[] binCertRequest,
             X500Name issuerName,
-            X500Name subjectName,
-            RequestId requestID) throws Exception {
+            X500Name subjectName) throws Exception {
 
         return null;
     }

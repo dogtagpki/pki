@@ -34,6 +34,9 @@ import time
 from time import strftime as date
 import urllib.parse
 
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+
 import pki.account
 import pki.client
 import pki.server
@@ -893,11 +896,18 @@ class PKIDeployer:
 
         else:  # selfsign or local
 
+            logger.info('Importing %s cert request', tag)
+            response = client.importRequest(request)
+
+            request.systemCert.requestID = response['requestID']
+            logger.info('- request ID: %s', request.systemCert.requestID)
+
             logger.info('Creating %s cert', tag)
             response = client.createCert(request)
-            logger.info('- request ID: %s', response['requestID'])
 
-        logger.debug('- cert: %s', response['cert'])
+        cert_pem = pki.nssdb.convert_cert(response['cert'], 'base64', 'pem').encode()
+        cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
+        logger.info('- serial: %s', hex(cert_obj.serial_number))
 
         logger.info('Storing cert and request for %s', tag)
         system_cert['data'] = response['cert']
@@ -1273,7 +1283,19 @@ class PKIDeployer:
         request.systemCert.keyAlgorithm = self.get_signing_algorithm(subsystem, profile)
         logger.info('Signing algorithm: %s', request.systemCert.keyAlgorithm)
 
+        logger.info('Importing admin cert request')
+        response = client.importRequest(request)
+
+        request.systemCert.requestID = response['requestID']
+        logger.info('- request ID: %s', request.systemCert.requestID)
+
+        logger.info('Creating admin cert')
         response = client.createCert(request)
+
+        cert_pem = pki.nssdb.convert_cert(response['cert'], 'base64', 'pem').encode()
+        cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
+        logger.info('- serial: %s', hex(cert_obj.serial_number))
+
         return response['cert']
 
     def get_admin_cert(self, subsystem, client):

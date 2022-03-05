@@ -312,27 +312,26 @@ public class CAConfigurator extends Configurator {
     }
 
     @Override
-    public X509CertImpl createLocalCert(
+    public X509CertImpl createCert(
+            RequestId requestID,
             String keyAlgorithm,
             X509Key x509key,
             String profileID,
-            String[] dnsNames,
-            boolean installAdjustValidity,
             PrivateKey signingPrivateKey,
             String signingAlgorithm,
             String certRequestType,
-            byte[] certRequest,
+            byte[] binCertRequest,
             X500Name issuerName,
-            X500Name subjectName,
-            RequestId requestID) throws Exception {
+            X500Name subjectName) throws Exception {
 
-        logger.info("CAConfigurator: Creating local certificate");
+        logger.info("CAConfigurator: Loading request record " + requestID.toHexString());
 
-        Date date = new Date();
         CAEngine engine = CAEngine.getInstance();
+        CertRequestRepository requestRepository = engine.getCertRequestRepository();
+        Request request = requestRepository.readRequest(requestID);
 
         CertId certID = createCertID();
-        logger.info("CAConfigurator: - serial number: " + certID.toHexString());
+        logger.info("CAConfigurator: Creating cert " + certID.toHexString());
 
         logger.info("CAConfigurator: - subject: " + subjectName);
 
@@ -359,6 +358,15 @@ public class CAConfigurator extends Configurator {
 
         CertificateExtensions extensions = new CertificateExtensions();
 
+        String instanceRoot = cs.getInstanceDir();
+        String configurationRoot = cs.getString("configurationRoot");
+        String profilePath = instanceRoot + configurationRoot + profileID;
+
+        logger.info("CAConfigurator: Loading " + profilePath);
+        IConfigStore profileConfig = engine.createFileConfigStore(profilePath);
+        BootstrapProfile profile = new BootstrapProfile(profileConfig);
+
+        Date date = new Date();
         X509CertInfo info = CryptoUtil.createX509CertInfo(
                 x509key,
                 certID.toBigInteger(),
@@ -369,41 +377,17 @@ public class CAConfigurator extends Configurator {
                 keyAlgorithm,
                 extensions);
 
-        logger.info("CAConfigurator: Cert info:\n" + info);
-
-        String instanceRoot = cs.getInstanceDir();
-        String configurationRoot = cs.getString("configurationRoot");
-
-        IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
-
-        CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        Request request = requestRepository.createRequest(requestID, "enrollment");
-
-        createRequestRecord(
-                request,
-                certRequestType,
-                certRequest,
-                subjectName,
-                profileConfig.getString("id"),
-                profileConfig.getString("profileIDMapping"),
-                profileConfig.getString("profileSetIDMapping"),
-                x509key,
-                dnsNames,
-                installAdjustValidity,
-                extensions);
-
-        logger.info("CAConfigurator: Creating cert " + certID.toHexString());
-
-        BootstrapProfile profile = new BootstrapProfile(profileConfig);
         profile.populate(request, info);
-        X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
 
-        updateRequestRecord(request, cert);
+        X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
+        logger.info("CAConfigurator: Cert info:\n" + info);
 
         createCertRecord(
                 cert,
                 request.getRequestId(),
                 profileConfig.getString("profileIDMapping"));
+
+        updateRequestRecord(request, cert);
 
         return cert;
     }

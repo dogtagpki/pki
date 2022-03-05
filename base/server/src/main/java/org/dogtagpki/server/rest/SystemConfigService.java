@@ -347,6 +347,8 @@ public class SystemConfigService extends PKIService {
 
             SystemCertData certData = request.getSystemCert();
 
+            RequestId requestID = certData.getRequestID();
+
             String certRequestType = certData.getRequestType();
             logger.info("SystemConfigService: - request type: " + certRequestType);
 
@@ -376,14 +378,6 @@ public class SystemConfigService extends PKIService {
 
             String profileID = certData.getProfile();
             logger.info("SystemConfigService: - profile: " + profileID);
-
-            String[] dnsNames = certData.getDNSNames();
-            if (dnsNames != null) {
-                logger.info("SystemConfigService: - SAN extension: ");
-                for (String dnsName : dnsNames) {
-                    logger.info("SystemConfigService:   - " + dnsName);
-                }
-            }
 
             String keyAlgorithm = certData.getKeyAlgorithm();
             logger.info("SystemConfigService: - key algorithm: " + keyAlgorithm);
@@ -420,25 +414,17 @@ public class SystemConfigService extends PKIService {
                 signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
             }
 
-            boolean installAdjustValidity = certData.getAdjustValidity();
-            logger.info("SystemConfigService: - adjust validity: " + installAdjustValidity);
-
-            RequestId requestID = configurator.createRequestID();
-            certData.setRequestID(requestID);
-
-            X509CertImpl certImpl = configurator.createLocalCert(
+            X509CertImpl certImpl = configurator.createCert(
+                    requestID,
                     keyAlgorithm,
                     x509key,
                     profileID,
-                    dnsNames,
-                    installAdjustValidity,
                     signingPrivateKey,
                     signingAlgorithm,
                     certRequestType,
                     binCertRequest,
                     issuerName,
-                    subjectName,
-                    requestID);
+                    subjectName);
 
             byte[] binCert = certImpl.getEncoded();
             certData.setCert(CryptoUtil.base64Encode(binCert));
