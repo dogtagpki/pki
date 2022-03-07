@@ -82,7 +82,7 @@ public class RequestQueue {
 
     protected DBSubsystem dbSubsystem;
     protected String mBaseDN;
-    protected RequestRepository mRepository;
+    protected RequestRepository requestRepository;
 
     /**
      * Create a request queue.
@@ -112,7 +112,7 @@ public class RequestQueue {
         this.mNotify = notifier;
         this.mPendingNotify = pendingNotifier;
         this.dbSubsystem = dbSubsystem;
-        this.mRepository = requestRepository;
+        this.requestRepository = requestRepository;
         this.mBaseDN = requestRepository.getBaseDN();
     }
 
@@ -157,7 +157,7 @@ public class RequestQueue {
 
         // 2. create new request
         String requestType = request.getRequestType();
-        Request clone = mRepository.createRequest(requestType);
+        Request clone = requestRepository.createRequest(requestType);
 
         // 3. copy all attributes of original request to clone and modify.
         // source id (from remote authority) is not copied.
@@ -174,7 +174,7 @@ public class RequestQueue {
     }
 
     public Request findRequest(RequestId id) throws EBaseException {
-        return mRepository.readRequest(id);
+        return requestRepository.readRequest(id);
     }
 
     /**
@@ -183,45 +183,6 @@ public class RequestQueue {
     protected String getUserIdentity() {
         SessionContext s = SessionContext.getContext();
         return (String) s.get(SessionContext.USER_ID);
-    }
-
-    /**
-     * Updates the request in the permanent data store.
-     *
-     * This call can be made after changing a value like
-     * source id or owner, to force the new value to be written.
-     *
-     * The request must be locked to make this call.
-     *
-     * @param r the request that is being updated
-     * @exception EBaseException failed to update request
-     */
-    public void updateRequest(Request request) throws EBaseException {
-
-        String name = getUserIdentity();
-        if (name != null) {
-            request.setExtData(Request.UPDATED_BY, name);
-        }
-
-        String delayLDAPCommit = request.getExtDataInString("delayLDAPCommit");
-        request.mModificationTime = new Date();
-
-        if (delayLDAPCommit != null && delayLDAPCommit.equals("true")) {
-            // delay writing to LDAP
-            return;
-        }
-
-        // TODO: use a state flag to determine whether to call
-        // addRequest or modifyRequest (see newRequest as well)
-
-        String dbStatus = request.getExtDataInString("dbStatus");
-        if (dbStatus.equals("UPDATED")) {
-            mRepository.modifyRequest(request);
-            return;
-        }
-
-        request.setExtData("dbStatus", "UPDATED");
-        mRepository.addRequest(request);
     }
 
     protected void stateEngine(Request r) throws EBaseException {
@@ -249,7 +210,7 @@ public class RequestQueue {
                 // the request processing, we do not want to
                 // have too many db operation.
                 if (pr != PolicyResult.ACCEPTED) {
-                    updateRequest(r);
+                    requestRepository.updateRequest(r);
                 }
             } else if (rs == RequestStatus.PENDING) {
                 if (mPendingNotify != null)
@@ -269,7 +230,7 @@ public class RequestQueue {
                     r.setRequestStatus(RequestStatus.SVC_PENDING);
                 }
 
-                updateRequest(r);
+                requestRepository.updateRequest(r);
             } else if (rs == RequestStatus.SVC_PENDING) {
                 complete = true;
             } else if (rs == RequestStatus.CANCELED) {
@@ -318,7 +279,7 @@ public class RequestQueue {
         // of this routine.
         request.setRequestStatus(RequestStatus.PENDING);
 
-        updateRequest(request);
+        requestRepository.updateRequest(request);
         stateEngine(request);
     }
 
@@ -356,7 +317,7 @@ public class RequestQueue {
 
         request.setRequestStatus(RequestStatus.CANCELED);
 
-        updateRequest(request);
+        requestRepository.updateRequest(request);
         stateEngine(request);
     }
 
@@ -380,7 +341,7 @@ public class RequestQueue {
         }
 
         request.setRequestStatus(RequestStatus.REJECTED);
-        updateRequest(request);
+        requestRepository.updateRequest(request);
 
         stateEngine(request); // does nothing
     }
@@ -436,7 +397,7 @@ public class RequestQueue {
             // ignore
         }
 
-        updateRequest(request);
+        requestRepository.updateRequest(request);
         stateEngine(request);
     }
 
@@ -452,7 +413,7 @@ public class RequestQueue {
 
         request.setRequestStatus(RequestStatus.COMPLETE);
 
-        updateRequest(request);
+        requestRepository.updateRequest(request);
 
         if (mNotify != null) {
             mNotify.notify(request);
@@ -671,7 +632,7 @@ public class RequestQueue {
             RequestId requestID = list.nextRequestId();
 
             try {
-                Request request = mRepository.readRequest(requestID);
+                Request request = requestRepository.readRequest(requestID);
 
                 // Recheck the status - should be the same!!
                 if (request.getRequestStatus() == RequestStatus.APPROVED) {

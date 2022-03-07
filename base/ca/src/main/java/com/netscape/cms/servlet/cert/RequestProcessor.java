@@ -204,7 +204,7 @@ public class RequestProcessor extends CertProcessor {
                 if (op.equals("approve")) {
                     queue.markAsServiced(req);
                 } else {
-                    queue.updateRequest(req);
+                    requestRepository.updateRequest(req);
                 }
             }
             endTiming("approval");

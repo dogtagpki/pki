@@ -51,7 +51,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
-import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CAConfigurator extends Configurator {
@@ -89,7 +89,7 @@ public class CAConfigurator extends Configurator {
         logger.info("CAConfigurator: Creating request record " + request.getRequestId().toHexString());
 
         CAEngine engine = CAEngine.getInstance();
-        RequestQueue queue = engine.getRequestQueue();
+        RequestRepository repository = engine.getRequestRepository();
 
         request.setExtData("profile", "true");
         request.setExtData("requestversion", "1.0.0");
@@ -166,7 +166,7 @@ public class CAConfigurator extends Configurator {
             request.setExtData("installAdjustValidity", "true");
         }
 
-        queue.updateRequest(request);
+        repository.updateRequest(request);
     }
 
     public void updateRequestRecord(
@@ -177,14 +177,14 @@ public class CAConfigurator extends Configurator {
         logger.info("CAConfigurator: - cert serial number: 0x" + cert.getSerialNumber().toString(16));
 
         CAEngine engine = CAEngine.getInstance();
-        RequestQueue queue = engine.getRequestQueue();
+        RequestRepository repository = engine.getRequestRepository();
 
         request.setExtData(EnrollProfile.REQUEST_CERTINFO, cert.getInfo());
         request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
 
         request.setRequestStatus(RequestStatus.COMPLETE);
 
-        queue.updateRequest(request);
+        repository.updateRequest(request);
     }
 
     public void createCertRecord(X509CertImpl cert, RequestId requestID, String profileID) throws Exception {

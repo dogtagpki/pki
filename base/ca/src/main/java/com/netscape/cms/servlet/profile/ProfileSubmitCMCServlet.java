@@ -941,7 +941,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     if (errorCode == null) {
                         engine.getRequestQueue().markAsServiced(reqs[k]);
                     } else {
-                        engine.getRequestQueue().updateRequest(reqs[k]);
+                        engine.getRequestRepository().updateRequest(reqs[k]);
                     }
                 } catch (EBaseException e) {
                     logger.warn("ProfileSubmitCMCServlet: updateRequest " +
@@ -1021,7 +1021,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     logger.debug("ProfileSubmitCMCServlet: provedReq set to complete");
                 } else {
                     error_codes[0] = Integer.parseInt(errorCode);
-                    engine.getRequestQueue().updateRequest(provedReq);
+                    engine.getRequestRepository().updateRequest(provedReq);
                     logger.warn("ProfileSubmitCMCServlet: provedReq updateRequest");
                     audit(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,

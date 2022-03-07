@@ -131,7 +131,6 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.request.Request;
-import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -656,7 +655,7 @@ public abstract class EnrollProfile extends Profile {
         String method = "EnrollProfile: submit: ";
 
         CMSEngine engine = CMS.getCMSEngine();
-        RequestQueue queue = engine.getRequestQueue();
+        RequestRepository requestRepository = engine.getRequestRepository();
         String msg = "";
         logger.debug(method + "begins");
 
@@ -667,7 +666,7 @@ public abstract class EnrollProfile extends Profile {
         // this profile queues request that is authenticated
         // by NoAuth
         try {
-            queue.updateRequest((Request) request);
+            requestRepository.updateRequest(request);
         } catch (EBaseException e) {
             // save request to disk
             logger.warn("Unable to update request: " + e.getMessage(), e);
@@ -693,7 +692,7 @@ public abstract class EnrollProfile extends Profile {
             logger.debug(method + " validating request");
             validate(request);
             try {
-                queue.updateRequest((Request) request);
+                requestRepository.updateRequest(request);
             } catch (EBaseException e) {
                 msg = method + " Unable to update request after validation: " + e.getMessage();
                 logger.error(msg, e);
@@ -708,7 +707,7 @@ public abstract class EnrollProfile extends Profile {
             logger.debug(method + " about to call setPOPchallenge");
             try {
                 setPOPchallenge(request);
-                queue.updateRequest((Request) request);
+                requestRepository.updateRequest(request);
             } catch (EBaseException e) {
                 msg = method + e.getMessage();
                 logger.error(msg, e);

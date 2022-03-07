@@ -772,7 +772,7 @@ public class ProcessCertReq extends CMSServlet {
                             alterationCounter += updateExtensionsInRequest(req, r);
                         }
                         if (alterationCounter > 0) {
-                            mQueue.updateRequest(r);
+                            requestRepository.updateRequest(r);
                         }
                     }
 

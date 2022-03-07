@@ -80,7 +80,7 @@ public class SecurityDataRecoveryService implements IService {
 
         try {
             processor.recover(request);
-            engine.getRequestQueue().updateRequest(request);
+            engine.getRequestRepository().updateRequest(request);
             auditRecoveryRequestProcessed(
                     auditSubjectID,
                     ILogger.SUCCESS,

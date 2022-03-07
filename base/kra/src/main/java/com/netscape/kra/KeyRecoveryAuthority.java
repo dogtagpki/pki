@@ -895,7 +895,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             r.setRequestStatus(RequestStatus.PENDING);
             r.setRealm(realm);
             RequestQueue queue = engine.getRequestQueue();
-            queue.updateRequest(r);
+            requestRepository.updateRequest(r);
             auditRecoveryID = r.getRequestId();
 
             // store a message in the signed audit log file
@@ -1012,7 +1012,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 } else {
                     r.setRequestStatus(RequestStatus.PENDING);
                 }
-                queue.updateRequest(r);
+                requestRepository.updateRequest(r);
             }
         } else { // no approvingAgents existing, can't be async recovery
             logger.debug("addAgentAsyncKeyRecovery: no approvingAgents in request. Async recovery request not initiated?");

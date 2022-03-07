@@ -272,7 +272,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
         // now that fields are cleared, we can really write to ldap
         thisreq.setExtData("delayLDAPCommit", "false");
-        queue.updateRequest(thisreq);
+        requestRepository.updateRequest(thisreq);
 
         /*
           if (selectedToken == null)

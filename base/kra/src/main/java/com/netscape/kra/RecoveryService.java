@@ -721,7 +721,7 @@ public class RecoveryService implements IService {
         }
         */
         // update request
-        engine.getRequestQueue().updateRequest(request);
+        engine.getRequestRepository().updateRequest(request);
     }
 
     /**
@@ -889,7 +889,7 @@ public class RecoveryService implements IService {
         }
 
         // update request
-        engine.getRequestQueue().updateRequest(request);
+        engine.getRequestRepository().updateRequest(request);
     }
 
     /**

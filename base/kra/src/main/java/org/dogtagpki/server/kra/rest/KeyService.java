@@ -231,7 +231,7 @@ public class KeyService extends SubsystemService implements KeyResource {
                 logger.info("KeyService: Storing request in database");
 
                 try {
-                    queue.updateRequest(request);
+                    requestRepository.updateRequest(request);
                 } catch (EBaseException e) {
                     logger.error("KeyService: " + e.getMessage(), e);
                     auditRecoveryRequest(ILogger.FAILURE);
@@ -423,7 +423,7 @@ public class KeyService extends SubsystemService implements KeyResource {
             request.setRequestStatus(RequestStatus.COMPLETE);
             if (! ephemeral) {
                 // stores the request in LDAP
-                queue.updateRequest(request);
+                requestRepository.updateRequest(request);
             }
         }
 

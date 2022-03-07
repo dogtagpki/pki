@@ -44,7 +44,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
-import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * Display Generic Request detail to the user.
@@ -60,7 +59,6 @@ public class ProcessReq extends CMSServlet {
     protected final static String TPL_FILE = "processReq.template";
     protected final static String PROP_PARSER = "parser";
 
-    protected RequestQueue mQueue;
     protected String mFormPath;
     protected IReqParser mParser;
 
@@ -83,8 +81,6 @@ public class ProcessReq extends CMSServlet {
 
         super.init(sc);
 
-        CMSEngine engine = CMS.getCMSEngine();
-        mQueue = engine.getRequestQueue();
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
         // override success and error templates to null -
@@ -227,10 +223,10 @@ public class ProcessReq extends CMSServlet {
                     String id = (String) ctx.get(SessionContext.USER_ID);
 
                     r.setRequestOwner(id);
-                    mQueue.updateRequest(r);
+                    requestRepository.updateRequest(r);
                 } else if (doAssign.equals("reassignToNobody")) {
                     r.setRequestOwner(null);
-                    mQueue.updateRequest(r);
+                    requestRepository.updateRequest(r);
                 }
             }
 

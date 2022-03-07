@@ -321,7 +321,7 @@ public class CertProcessor extends CAProcessor {
                 if (errorCode == null) {
                     engine.getRequestQueue().markAsServiced(req);
                 } else {
-                    engine.getRequestQueue().updateRequest(req);
+                    engine.getRequestRepository().updateRequest(req);
                 }
 
             } catch (EBaseException e) {

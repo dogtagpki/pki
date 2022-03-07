@@ -180,7 +180,7 @@ public class CAEnrollProfile extends EnrollProfile {
                             if ((request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) { //Todo
                                 logger.debug(method + "set request status: REJECTED");
                                 request.setRequestStatus(RequestStatus.REJECTED);
-                                engine.getRequestQueue().updateRequest((Request) request);
+                                engine.getRequestRepository().updateRequest(request);
                             }
                             throw new ERejectException(
                                     request.getError(getLocale(request)));
@@ -256,7 +256,7 @@ public class CAEnrollProfile extends EnrollProfile {
                                 if ((request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
                                     logger.error("CAEnrollProfile: execute set request status: REJECTED");
                                     request.setRequestStatus(RequestStatus.REJECTED);
-                                    engine.getRequestQueue().updateRequest((Request) request);
+                                    engine.getRequestRepository().updateRequest(request);
                                 }
                                 throw new ERejectException(
                                     request.getError(getLocale(request)));
@@ -380,7 +380,7 @@ public class CAEnrollProfile extends EnrollProfile {
                             if ((request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) { //Todo
                                 logger.debug(method + "set request status: REJECTED");
                                 request.setRequestStatus(RequestStatus.REJECTED);
-                                engine.getRequestQueue().updateRequest((Request) request);
+                                engine.getRequestRepository().updateRequest(request);
                             }
                             throw new ERejectException(
                                     request.getError(getLocale(request)));

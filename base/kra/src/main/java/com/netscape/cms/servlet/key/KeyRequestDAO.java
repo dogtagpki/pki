@@ -582,7 +582,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
                 request.getExtDataInString(Request.ATTR_REQUEST_OWNER),
                 "certServer.kra.requests", "execute");
         request.setRequestStatus(RequestStatus.REJECTED);
-        queue.updateRequest(request);
+        requestRepository.updateRequest(request);
     }
 
     public void cancelRequest(RequestId id, IAuthToken authToken) throws EBaseException {
@@ -592,7 +592,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
                 request.getExtDataInString(Request.ATTR_REQUEST_OWNER),
                 "certServer.kra.requests", "execute");
         request.setRequestStatus(RequestStatus.CANCELED);
-        queue.updateRequest(request);
+        requestRepository.updateRequest(request);
     }
 
     private KeyRequestInfo createKeyRequestInfo(Request request, UriInfo uriInfo) {

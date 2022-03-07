@@ -19,9 +19,11 @@ package com.netscape.cmscore.request;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBSearchResults;
@@ -249,6 +251,50 @@ public class RequestRepository extends Repository {
         }
 
         return record.toRequest();
+    }
+
+    public String getUserIdentity() {
+        SessionContext s = SessionContext.getContext();
+        return (String) s.get(SessionContext.USER_ID);
+    }
+
+    /**
+     * Update the request in the permanent data store.
+     *
+     * This call can be made after changing a value like source ID or owner,
+     * to force the new value to be written.
+     *
+     * The request must be locked to make this call.
+     *
+     * @param request the request that is being updated
+     * @exception EBaseException failed to update request
+     */
+    public void updateRequest(Request request) throws EBaseException {
+
+        String name = getUserIdentity();
+        if (name != null) {
+            request.setExtData(Request.UPDATED_BY, name);
+        }
+
+        String delayLDAPCommit = request.getExtDataInString("delayLDAPCommit");
+        request.mModificationTime = new Date();
+
+        if (delayLDAPCommit != null && delayLDAPCommit.equals("true")) {
+            // delay writing to LDAP
+            return;
+        }
+
+        // TODO: use a state flag to determine whether to call
+        // addRequest or modifyRequest (see newRequest as well)
+
+        String dbStatus = request.getExtDataInString("dbStatus");
+        if (dbStatus.equals("UPDATED")) {
+            modifyRequest(request);
+            return;
+        }
+
+        request.setExtData("dbStatus", "UPDATED");
+        addRequest(request);
     }
 
     public void modifyRequest(Request request) throws EBaseException {

@@ -58,7 +58,7 @@ public class SecurityDataService implements IService {
         processor.archive(request);
 
         KRAEngine engine = KRAEngine.getInstance();
-        engine.getRequestQueue().updateRequest(request);
+        engine.getRequestRepository().updateRequest(request);
 
         return true;
     }
