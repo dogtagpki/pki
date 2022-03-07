@@ -750,6 +750,14 @@ class PKIDeployer:
         # cert type: selfsign, local, or remote
         request.systemCert.type = subsystem.config['preop.cert.%s.type' % tag]
 
+        if request.systemCert.type == 'selfsign':
+            request.systemCert.signingAlgorithm = \
+                subsystem.config.get('preop.cert.signing.keyalgorithm', 'SHA256withRSA')
+
+        elif request.systemCert.type == 'local':
+            request.systemCert.signingAlgorithm = \
+                subsystem.config.get('preop.cert.signing.signingalgorithm', 'SHA256withRSA')
+
         # key type: rsa or ecc
         request.systemCert.keyType = subsystem.config['preop.cert.%s.keytype' % tag]
 
@@ -1266,7 +1274,17 @@ class PKIDeployer:
         request.pin = self.mdict['pki_one_time_pin']
 
         request.systemCert = pki.system.SystemCertData()
+
         request.systemCert.type = subsystem.config.get('preop.cert.admin.type', 'local')
+
+        if request.systemCert.type == 'selfsign':
+            request.systemCert.signingAlgorithm = \
+                subsystem.config.get('preop.cert.signing.keyalgorithm', 'SHA256withRSA')
+
+        elif request.systemCert.type == 'local':
+            request.systemCert.signingAlgorithm = \
+                subsystem.config.get('preop.cert.signing.signingalgorithm', 'SHA256withRSA')
+
         request.systemCert.keyType = self.mdict['pki_admin_key_type']
         request.systemCert.profile = subsystem.config['preop.cert.admin.profile']
         request.systemCert.subjectDN = self.mdict['pki_admin_subject_dn']

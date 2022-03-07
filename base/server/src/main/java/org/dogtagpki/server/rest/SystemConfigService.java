@@ -382,11 +382,8 @@ public class SystemConfigService extends PKIService {
             String keyAlgorithm = certData.getKeyAlgorithm();
             logger.info("SystemConfigService: - key algorithm: " + keyAlgorithm);
 
-            PreOpConfig preopConfig = cs.getPreOpConfig();
-
             X500Name issuerName;
             PrivateKey signingPrivateKey;
-            String signingAlgorithm;
 
             if (certType.equals("selfsign")) {
 
@@ -406,13 +403,14 @@ public class SystemConfigService extends PKIService {
 
                 issuerName = subjectName;
                 signingPrivateKey = (PrivateKey) keyPair.getPrivate();
-                signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
 
             } else { // certType == local
                 issuerName = null;
                 signingPrivateKey = null;
-                signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
             }
+
+            String signingAlgorithm = certData.getSigningAlgorithm();
+            logger.info("SystemConfigService: - signing algorithm: " + signingAlgorithm);
 
             X509CertImpl certImpl = configurator.createCert(
                     requestID,

@@ -71,6 +71,7 @@ public class SystemCertData implements JSONSerializer {
     protected String[] dnsNames;
     protected boolean adjustValidity;
 
+    protected String signingAlgorithm;
 
     public SystemCertData() {
     }
@@ -288,6 +289,14 @@ public class SystemCertData implements JSONSerializer {
         this.adjustValidity = adjustValidity;
     }
 
+    public String getSigningAlgorithm() {
+        return signingAlgorithm;
+    }
+
+    public void setSigningAlgorithm(String signingAlgorithm) {
+        this.signingAlgorithm = signingAlgorithm;
+    }
+
     @Override
     public String toString() {
         return "SystemCertData["
@@ -312,6 +321,7 @@ public class SystemCertData implements JSONSerializer {
             + ", req_ext_data=" + req_ext_data
             + ", dnsNames=" + (dnsNames == null ? null : Arrays.asList(dnsNames))
             + ", adjustValidity=" + adjustValidity
+            + ", signingAlgorithm=" + signingAlgorithm
             + "]";
     }
 
@@ -340,7 +350,8 @@ public class SystemCertData implements JSONSerializer {
                 tag,
                 token,
                 type,
-                adjustValidity);
+                adjustValidity,
+                signingAlgorithm);
         return result;
     }
 
@@ -372,7 +383,8 @@ public class SystemCertData implements JSONSerializer {
                 && Objects.equals(subjectDN, other.subjectDN)
                 && Objects.equals(tag, other.tag) && Objects.equals(token, other.token)
                 && Objects.equals(type, other.type)
-                && Objects.equals(adjustValidity, other.adjustValidity);
+                && Objects.equals(adjustValidity, other.adjustValidity)
+                && Objects.equals(signingAlgorithm, other.signingAlgorithm);
     }
 
 }
