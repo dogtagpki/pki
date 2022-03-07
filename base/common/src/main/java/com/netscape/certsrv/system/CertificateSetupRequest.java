@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.net.URL;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -38,8 +37,6 @@ public class CertificateSetupRequest implements JSONSerializer {
     protected String tag;
 
     protected SystemCertData systemCert;
-
-    protected URL url;
 
     public CertificateSetupRequest() {
     }
@@ -68,26 +65,17 @@ public class CertificateSetupRequest implements JSONSerializer {
        this.systemCert = systemCert;
    }
 
-    public URL getURL() {
-        return url;
-    }
-
-    public void setURL(URL url) {
-        this.url = url;
-    }
-
     @Override
     public String toString() {
         return "CertificateSetupRequest [pin=XXXX" +
                ", tag=" + tag +
                ", systemCert=" + systemCert +
-               ", url=" + url +
                "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(url, pin, systemCert, tag);
+        return Objects.hash(pin, systemCert, tag);
     }
 
     @Override
@@ -99,10 +87,8 @@ public class CertificateSetupRequest implements JSONSerializer {
         if (getClass() != obj.getClass())
             return false;
         CertificateSetupRequest other = (CertificateSetupRequest) obj;
-        return Objects.equals(url, other.url)
-                && Objects.equals(pin, other.pin)
+        return Objects.equals(pin, other.pin)
                 && Objects.equals(systemCert, other.systemCert)
                 && Objects.equals(tag, other.tag);
     }
-
 }

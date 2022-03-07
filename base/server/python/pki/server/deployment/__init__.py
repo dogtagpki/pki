@@ -869,19 +869,19 @@ class PKIDeployer:
                 # For CA clone always use the master CA to generate the SSL
                 # server certificate to avoid any changes which may have
                 # been made to the X500Name directory string encoding order.
-                request.url = self.mdict['pki_clone_uri']
+                ca_url = self.mdict['pki_clone_uri']
 
             elif tag == 'subsystem':
 
                 sd_hostname = subsystem.config['securitydomain.host']
                 sd_port = subsystem.config['securitydomain.httpseeport']
-                request.url = 'https://%s:%s' % (sd_hostname, sd_port)
+                ca_url = 'https://%s:%s' % (sd_hostname, sd_port)
 
             else:
 
                 ca_hostname = subsystem.config['preop.ca.hostname']
                 ca_port = subsystem.config['preop.ca.httpsport']
-                request.url = 'https://%s:%s' % (ca_hostname, ca_port)
+                ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
 
             hostname = self.mdict['pki_hostname']
 
@@ -890,11 +890,11 @@ class PKIDeployer:
 
             requestor = '%s-%s-%s' % (subsystem.type, hostname, secure_port)
 
-            logger.info('Requesting %s cert from %s', tag, request.url)
+            logger.info('Requesting %s cert from %s', tag, ca_url)
 
             response['cert'] = self.request_cert(
                 subsystem,
-                request.url,
+                ca_url,
                 request.systemCert.requestType,
                 request.systemCert.request,
                 request.systemCert.profile,

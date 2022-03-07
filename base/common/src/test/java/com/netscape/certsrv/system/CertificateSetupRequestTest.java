@@ -1,7 +1,6 @@
 package com.netscape.certsrv.system;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,7 +14,6 @@ public class CertificateSetupRequestTest {
 
     @Before
     public void setUpBefore() throws MalformedURLException {
-        before.setURL(new URL("https://www.example.com"));
         before.setPin("bar");
         before.setSystemCert(new SystemCertData());
         before.setTag("lorem");
