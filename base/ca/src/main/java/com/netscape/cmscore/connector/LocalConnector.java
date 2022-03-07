@@ -193,7 +193,7 @@ public class LocalConnector implements IConnector {
             // Note that the pending requests, on the other hand,
             // are persistent before the servicing.
             // Please see stateEngine() function in
-            // ARequestQueue.java for details.
+            // RequestQueue.java for details.
             r = mSourceReqs.get(rId.toString());
             if (r != null) {
                 if (r.getRequestStatus() != RequestStatus.SVC_PENDING) {

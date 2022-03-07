@@ -101,8 +101,8 @@ import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.Group;
@@ -236,7 +236,7 @@ public abstract class CMSServlet extends HttpServlet {
     protected IAuthority mAuthority = null;
     protected ICertificateAuthority certAuthority;
     protected RequestRepository requestRepository;
-    protected ARequestQueue mRequestQueue = null;
+    protected RequestQueue mRequestQueue;
 
     // system logger.
     protected LogSource mLogCategory = ILogger.S_OTHER;

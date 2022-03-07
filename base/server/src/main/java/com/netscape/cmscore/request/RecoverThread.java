@@ -19,9 +19,9 @@ package com.netscape.cmscore.request;
 
 public class RecoverThread extends Thread {
 
-    ARequestQueue queue;
+    RequestQueue queue;
 
-    public RecoverThread(ARequestQueue queue) {
+    public RecoverThread(RequestQueue queue) {
         super("RequestRecoverThread");
         this.queue = queue;
     }

@@ -49,8 +49,8 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * Gets a issued certificate from a request id.
@@ -71,7 +71,7 @@ public class GetCertFromRequest extends CMSServlet {
     protected String mCertFrReqSuccessTemplate = null;
     protected ICMSTemplateFiller mCertFrReqFiller = null;
 
-    protected ARequestQueue mQueue = null;
+    protected RequestQueue mQueue;
     protected boolean mImportCert = true;
 
     public GetCertFromRequest() {

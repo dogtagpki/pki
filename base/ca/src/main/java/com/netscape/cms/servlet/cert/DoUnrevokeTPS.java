@@ -51,9 +51,9 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
@@ -69,7 +69,7 @@ public class DoUnrevokeTPS extends CMSServlet {
     @SuppressWarnings("unused")
     private CertificateRepository mCertDB;
 
-    private ARequestQueue mQueue = null;
+    private RequestQueue mQueue;
     private CAPublisherProcessor mPublisherProcessor;
     private String errorString = "error=";
     private String o_status = "status=0";

@@ -33,8 +33,8 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 
 /**
@@ -47,7 +47,7 @@ public abstract class CMSRequestDAO {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSRequestDAO.class);
 
     protected RequestRepository requestRepository;
-    protected ARequestQueue queue;
+    protected RequestQueue queue;
     protected AuthzSubsystem authz;
 
     private String[] vlvFilters = {

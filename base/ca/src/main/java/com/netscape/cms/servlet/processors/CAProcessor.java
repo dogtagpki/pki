@@ -67,8 +67,8 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.profile.ProfileSubsystem;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.Group;
@@ -134,7 +134,7 @@ public class CAProcessor extends Processor {
     protected UGSubsystem ug;
     protected CertUserLocator ul;
     protected RequestRepository requestRepository;
-    protected ARequestQueue queue;
+    protected RequestQueue queue;
     protected ProfileSubsystem ps;
     protected CertificateRepository certdb;
 

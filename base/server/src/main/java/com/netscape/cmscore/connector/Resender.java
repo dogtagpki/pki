@@ -36,8 +36,8 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 
@@ -53,7 +53,7 @@ public class Resender implements IResender {
 
     protected IAuthority mAuthority = null;
     protected RequestRepository requestRepository;
-    ARequestQueue mQueue = null;
+    RequestQueue mQueue;
     protected IRemoteAuthority mDest = null;
     ScheduledExecutorService executorService;
 

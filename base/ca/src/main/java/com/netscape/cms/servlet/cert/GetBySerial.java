@@ -54,8 +54,8 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -72,7 +72,7 @@ public class GetBySerial extends CMSServlet {
     private String mImportTemplate = null;
     private String mIETemplate = null;
     private ICMSTemplateFiller mImportTemplateFiller = null;
-    ARequestQueue mReqQ = null;
+    RequestQueue mReqQ;
 
     public GetBySerial() {
         super();

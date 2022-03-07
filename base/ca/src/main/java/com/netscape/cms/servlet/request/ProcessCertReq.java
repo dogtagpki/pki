@@ -78,8 +78,8 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
@@ -98,7 +98,7 @@ public class ProcessCertReq extends CMSServlet {
     private final static String SEQNUM = "seqNum";
     private final static String TPL_FILE = "processCertReq.template";
 
-    private ARequestQueue mQueue = null;
+    private RequestQueue mQueue;
     private String mFormPath = null;
     private IReqParser mParser = null;
     private CAPublisherProcessor mPublisherProcessor;

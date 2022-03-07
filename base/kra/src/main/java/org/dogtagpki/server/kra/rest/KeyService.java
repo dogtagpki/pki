@@ -71,8 +71,8 @@ import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.dbs.KeyRepository;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.kra.KeyRecoveryAuthority;
@@ -92,7 +92,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     private KeyRepository repo;
     private KeyRecoveryAuthority kra;
     private RequestRepository requestRepository;
-    private ARequestQueue queue;
+    private RequestQueue queue;
     private IKeyService service;
 
     //parameters for auditing

@@ -45,8 +45,8 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 
 /**
@@ -83,7 +83,7 @@ public class QueryReq extends CMSServlet {
 
     // variables
     protected IReqParser mParser;
-    protected ARequestQueue mQueue;
+    protected RequestQueue mQueue;
     protected String mFormPath;
     protected int mMaxReturns = 2000;
 

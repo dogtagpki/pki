@@ -40,8 +40,8 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.notification.EmailFormProcessor;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 
 /**
@@ -65,7 +65,7 @@ public class UnpublishExpiredJob extends AJobBase
 
     CertificateAuthority mCa;
     RequestRepository requestRepository;
-    ARequestQueue mReqQ = null;
+    RequestQueue mReqQ;
     CertificateRepository mRepository;
     CAPublisherProcessor mPublisherProcessor;
     private boolean mSummary = false;

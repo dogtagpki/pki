@@ -22,7 +22,7 @@ import com.netscape.cmscore.request.Request;
 /**
  * The INotify interface defines operations that are invoked
  * when a request is completely processed. A class implementing
- * this interface may be registered with an ARequestQueue.
+ * this interface may be registered with an RequestQueue.
  * The interface will be invoked when a request is completely
  * serviced by the IService object.
  *

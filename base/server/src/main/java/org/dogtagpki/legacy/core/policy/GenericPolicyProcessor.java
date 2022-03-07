@@ -43,8 +43,8 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.PropConfigStore;
-import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * This is a Generic policy processor. The three main functions of
@@ -430,7 +430,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
         // request must be up to date or can't process it.
         PolicyResult res = PolicyResult.ACCEPTED;
-        String mVersion = ARequestQueue.REQUEST_VERSION;
+        String mVersion = RequestQueue.REQUEST_VERSION;
         String vers = request.getRequestVersion();
 
         if (vers == null || !vers.equals(mVersion)) {

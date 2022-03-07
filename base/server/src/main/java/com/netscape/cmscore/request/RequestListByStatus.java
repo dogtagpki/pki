@@ -27,7 +27,7 @@ public class RequestListByStatus implements IRequestList {
 
     protected RequestStatus mStatus;
     protected RequestRepository requestRepository;
-    protected ARequestQueue mQueue;
+    protected RequestQueue mQueue;
     protected Enumeration<RequestId> mEnumeration;
     protected RequestId mNext;
 
@@ -68,7 +68,7 @@ public class RequestListByStatus implements IRequestList {
             Enumeration<RequestId> e,
             RequestStatus s,
             RequestRepository requestRepository,
-            ARequestQueue q) {
+            RequestQueue q) {
 
         mEnumeration = e;
         mStatus = s;
