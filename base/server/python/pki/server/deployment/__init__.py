@@ -819,9 +819,9 @@ class PKIDeployer:
 
             logger.info('Importing %s cert request', tag)
             logger.debug('- request: %s', system_cert['request'])
-            cert = client.importRequest(request)
+            response = client.importRequest(request)
 
-            request.systemCert.requestID = cert['requestID']
+            request.systemCert.requestID = response['requestID']
             logger.info('- request ID: %s', request.systemCert.requestID)
 
             logger.info('Importing %s cert', tag)
@@ -831,15 +831,15 @@ class PKIDeployer:
             return
 
         logger.info('Setting up %s key', tag)
-        cert = client.setupKey(request)
+        response = client.setupKey(request)
 
-        request.systemCert.keyID = cert['keyID']
+        request.systemCert.keyID = response['keyID']
         logger.info('- key ID: %s', request.systemCert.keyID)
 
         logger.info('Creating %s cert request', tag)
-        cert = client.createRequest(request)
+        response = client.createRequest(request)
 
-        request.systemCert.request = cert['request']
+        request.systemCert.request = response['request']
         logger.debug('- request: %s', request.systemCert.request)
 
         if request.systemCert.type == 'remote':
@@ -876,7 +876,7 @@ class PKIDeployer:
 
             logger.info('Requesting %s cert from %s', tag, request.url)
 
-            cert_data = self.request_cert(
+            response['cert'] = self.request_cert(
                 subsystem,
                 request.url,
                 request.systemCert.requestType,
@@ -889,11 +889,17 @@ class PKIDeployer:
         else:  # selfsign or local
 
             logger.info('Creating %s cert', tag)
-            cert = client.createCert(request)
-            logger.info('- request ID: %s', cert['requestID'])
-            cert_data = cert['cert']
+            response = client.createCert(request)
+            logger.info('- request ID: %s', response['requestID'])
 
-        logger.debug('- cert: %s', cert_data)
+        logger.debug('- cert: %s', response['cert'])
+
+        logger.info('Storing cert and request for %s', tag)
+        system_cert['data'] = response['cert']
+        system_cert['request'] = response['request']
+        system_cert['token'] = response['token']
+
+        subsystem.update_system_cert(system_cert)
 
         if tag != 'sslserver':
 
@@ -908,17 +914,10 @@ class PKIDeployer:
 
             nssdb.add_cert(
                 nickname=request.systemCert.nickname,
-                cert_data=cert_data,
+                cert_data=response['cert'],
                 cert_format='base64',
                 token=request.systemCert.token,
                 use_jss=True)
-
-        logger.info('Storing cert and request for %s', tag)
-        system_cert['data'] = cert_data
-        system_cert['request'] = cert['request']
-        system_cert['token'] = cert['token']
-
-        subsystem.update_system_cert(system_cert)
 
     def setup_system_certs(self, nssdb, subsystem, client):
 
