@@ -817,6 +817,11 @@ class PKIDeployer:
                 logger.info('Do not import external cert and request into database: %s', tag)
                 return
 
+            # When importing existing self-signed CA certificate, create a
+            # certificate record to reserve the serial number. Otherwise it
+            # might conflict with system certificates to be created later.
+            # Also create the certificate request record for renewals.
+
             logger.info('Importing %s cert request', tag)
             logger.debug('- request: %s', system_cert['request'])
             response = client.importRequest(request)

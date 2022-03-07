@@ -387,14 +387,12 @@ public class Configurator {
     }
 
     public void importRequest(
-            byte[] binCert,
+            RequestId requestID,
             String profileID,
             String[] dnsNames,
             boolean installAdjustValidity,
             String certRequestType,
-            byte[] binCertRequest,
-            X500Name subjectName,
-            RequestId requestID) throws Exception {
+            byte[] binCertRequest) throws Exception {
     }
 
     public void importCert(

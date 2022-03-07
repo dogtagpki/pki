@@ -107,9 +107,6 @@ public class SystemConfigService extends PKIService {
 
             SystemCertData certData = request.getSystemCert();
 
-            String cert = certData.getCert();
-            byte[] binCert = Utils.base64decode(cert);
-
             String profileID = certData.getProfile();
             String[] dnsNames = certData.getDNSNames();
 
@@ -120,20 +117,16 @@ public class SystemConfigService extends PKIService {
             boolean installAdjustValidity = certData.getAdjustValidity();
             logger.info("SystemConfigService: - adjust validity: " + installAdjustValidity);
 
-            X500Name subjectName = null;
-
             RequestId requestID = configurator.createRequestID();
             certData.setRequestID(requestID);
 
             configurator.importRequest(
-                    binCert,
+                    requestID,
                     profileID,
                     dnsNames,
                     installAdjustValidity,
                     certRequestType,
-                    binCertRequest,
-                    subjectName,
-                    requestID);
+                    binCertRequest);
 
             return certData;
 

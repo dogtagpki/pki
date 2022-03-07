@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.util.Date;
 
+import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
@@ -230,43 +231,40 @@ public class CAConfigurator extends Configurator {
 
     @Override
     public void importRequest(
-            byte[] binCert,
+            RequestId requestID,
             String profileID,
             String[] dnsNames,
             boolean installAdjustValidity,
             String certRequestType,
-            byte[] binCertRequest,
-            X500Name subjectName,
-            RequestId requestID) throws Exception {
+            byte[] binCertRequest) throws Exception {
 
-        // When importing existing self-signed CA certificate, create a
-        // certificate record to reserve the serial number. Otherwise it
-        // might conflict with system certificates to be created later.
-        // Also create the certificate request record for renewals.
+        logger.info("CAConfigurator: Importing " + certRequestType + " request");
 
-        logger.info("CAConfigurator: Parsing " + certRequestType + " request");
+        X500Name subjectName;
+        X509Key x509key;
+        CertificateExtensions requestExtensions;
 
-        PKCS10 pkcs10 = new PKCS10(binCertRequest);
-        X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
+        if (certRequestType.equals("crmf")) {
+            SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binCertRequest);
+            subjectName = CryptoUtil.getSubjectName(crmfMsgs);
+            x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
+            requestExtensions = new CertificateExtensions();
 
-        CertificateExtensions requestExtensions = createRequestExtensions(pkcs10);
+        } else if (certRequestType.equals("pkcs10")) {
+            PKCS10 pkcs10 = new PKCS10(binCertRequest);
+            subjectName = pkcs10.getSubjectName();
+            x509key = pkcs10.getSubjectPublicKeyInfo();
+            requestExtensions = createRequestExtensions(pkcs10);
 
-        X509CertImpl cert = new X509CertImpl(binCert);
-        X509CertInfo info = cert.getInfo();
-        logger.info("CAConfigurator: Cert info:\n" + info);
-
-        if (dnsNames != null) {
-            logger.info("CAConfigurator: SAN extension: ");
-            for (String dnsName : dnsNames) {
-                logger.info("CAConfigurator: - " + dnsName);
-            }
+        } else {
+            throw new Exception("Certificate request type not supported: " + certRequestType);
         }
 
         String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
         String profilePath = instanceRoot + configurationRoot + profileID;
-        logger.info("CAConfigurator: Loading " + profilePath);
 
+        logger.info("CAConfigurator: Loading " + profilePath);
         CAEngine engine = CAEngine.getInstance();
         IConfigStore profileConfig = engine.createFileConfigStore(profilePath);
 
@@ -285,8 +283,6 @@ public class CAConfigurator extends Configurator {
                 dnsNames,
                 installAdjustValidity,
                 requestExtensions);
-
-        updateRequestRecord(request, cert);
     }
 
     public void importCert(
@@ -308,6 +304,11 @@ public class CAConfigurator extends Configurator {
                 cert,
                 requestID,
                 profileConfig.getString("profileIDMapping"));
+
+        CertRequestRepository requestRepository = engine.getCertRequestRepository();
+        Request request = requestRepository.readRequest(requestID);
+
+        updateRequestRecord(request, cert);
     }
 
     @Override
