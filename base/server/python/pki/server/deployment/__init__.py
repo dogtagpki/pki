@@ -837,12 +837,25 @@ class PKIDeployer:
             logger.debug('- request: %s', system_cert['request'])
             response = client.importRequest(request)
 
-            request.systemCert.requestID = response['requestID']
-            logger.info('- request ID: %s', request.systemCert.requestID)
+            logger.info('- request ID: %s', response['requestID'])
+
+            profile_id = subsystem.config['preop.cert.%s.profile' % tag]
+            profile_path = os.path.join(subsystem.conf_dir, profile_id)
+
+            logger.info('Loading %s', profile_path)
+            profile = {}
+            pki.util.load_properties(profile_path, profile)
+
+            profile_id_mapping = profile['profileIDMapping']
+            cert_data = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem')
 
             logger.info('Importing %s cert', tag)
             logger.debug('- cert: %s', system_cert['data'])
-            client.importCert(request)
+            subsystem.import_cert(
+                cert_data=cert_data,
+                cert_format='PEM',
+                profile_id=profile_id_mapping,
+                request_id=response['requestID'])
 
             return
 
