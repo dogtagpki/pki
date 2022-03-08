@@ -836,9 +836,127 @@ class PKIInstance(pki.server.PKIServer):
             nssdb.close()
             shutil.rmtree(tmpdir)
 
+    def configure_ajp_connectors_secret(self):
+
+        logger.info('Configuring AJP connectors secret')
+
+        document = etree.parse(self.server_xml, parser)
+        server = document.getroot()
+
+        # replace 'requiredSecret' with 'secret' in comments
+
+        services = server.findall('Service')
+        for service in services:
+
+            children = list(service)
+            for child in children:
+
+                if not isinstance(child, etree._Comment):  # pylint: disable=protected-access
+                    # not a comment -> skip
+                    continue
+
+                if 'protocol="AJP/1.3"' not in child.text:
+                    # not an AJP connector -> skip
+                    continue
+
+                child.text = re.sub(r'requiredSecret=',
+                                    r'secret=',
+                                    child.text,
+                                    flags=re.MULTILINE)
+
+        # replace 'requiredSecret' with 'secret' in Connectors
+
+        connectors = server.findall('Service/Connector')
+        for connector in connectors:
+
+            if connector.get('protocol') != 'AJP/1.3':
+                # not an AJP connector -> skip
+                continue
+
+            # remove existing 'requiredSecret' if any
+            value = connector.attrib.pop('requiredSecret', None)
+            print('AJP connector requiredSecret: %s' % value)
+
+            if connector.get('secret'):
+                # already has a 'secret' -> skip
+                continue
+
+            if not value:
+                raise Exception('Missing AJP connector secret in %s' % self.server_xml)
+
+            # store 'secret'
+            connector.set('secret', value)
+
+        with open(self.server_xml, 'wb') as f:
+            document.write(f, pretty_print=True, encoding='utf-8')
+
+    def configure_ajp_connectors_required_secret(self):
+
+        logger.info('Configuring AJP connectors requiredSecret')
+
+        document = etree.parse(self.server_xml, parser)
+        server = document.getroot()
+
+        # replace 'secret' with 'requiredSecret' in comments
+
+        services = server.findall('Service')
+        for service in services:
+
+            children = list(service)
+            for child in children:
+
+                if not isinstance(child, etree._Comment):  # pylint: disable=protected-access
+                    # not a comment -> skip
+                    continue
+
+                if 'protocol="AJP/1.3"' not in child.text:
+                    # not an AJP connector -> skip
+                    continue
+
+                child.text = re.sub(r'secret=',
+                                    r'requiredSecret=',
+                                    child.text,
+                                    flags=re.MULTILINE)
+
+        # replace 'secret' with 'requiredSecret' in Connectors
+
+        connectors = server.findall('Service/Connector')
+        for connector in connectors:
+
+            if connector.get('protocol') != 'AJP/1.3':
+                # not an AJP connector -> skip
+                continue
+
+            # remove existing 'secret' if any
+            value = connector.attrib.pop('secret', None)
+            print('AJP connector secret: %s' % value)
+
+            if connector.get('requiredSecret'):
+                # already has a 'requiredSecret' -> skip
+                continue
+
+            if not value:
+                raise Exception('Missing AJP connector requiredSecret in %s' % self.server_xml)
+
+            # store 'requiredSecret'
+            connector.set('requiredSecret', value)
+
+        with open(self.server_xml, 'wb') as f:
+            document.write(f, pretty_print=True, encoding='utf-8')
+
+    def configure_ajp_connectors(self):
+
+        tomcat_version = pki.server.Tomcat.get_version()
+
+        if tomcat_version >= pki.util.Version('9.0.31'):
+            self.configure_ajp_connectors_secret()
+        else:
+            self.configure_ajp_connectors_required_secret()
+
     def init(self):
         super(PKIInstance, self).init()
         self.validate_banner()
+        self.configure_ajp_connectors()
 
     @classmethod
     def instances(cls):
