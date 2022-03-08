@@ -550,7 +550,7 @@ public class FlatFileAuth
             }
             keyForUser = keyForUser.concat((String) authCred.get(keyAttrs[i]));
         }
-        logger.debug("FlatFileAuth: authenticating user: finding user from key: " + keyForUser);
+        logger.info("FlatFileAuth: authenticating user: finding user from key: " + keyForUser);
 
         Hashtable<String, String> user = entries.get(keyForUser);
 
