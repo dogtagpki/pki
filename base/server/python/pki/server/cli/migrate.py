@@ -23,7 +23,6 @@ from __future__ import print_function
 
 import getopt
 import logging
-import re
 import sys
 
 from lxml import etree
@@ -104,62 +103,3 @@ class MigrateCLI(pki.cli.CLI):
 
             for instance in instances:
                 instance.init()
-
-        # update AJP connectors for Tomcat 9.0.31 or later
-
-        tomcat_version = pki.server.Tomcat.get_version()
-        if tomcat_version >= pki.util.Version('9.0.31'):
-
-            for instance in instances:
-                self.update_ajp_connectors(instance)
-
-    def update_ajp_connectors(self, instance):
-
-        logger.info('Updating AJP connectors in %s', instance.server_xml)
-
-        document = etree.parse(instance.server_xml, self.parser)
-        server = document.getroot()
-
-        # replace 'requiredSecret' with 'secret' in comments
-
-        services = server.findall('Service')
-        for service in services:
-
-            children = list(service)
-            for child in children:
-
-                if not isinstance(child, etree._Comment):  # pylint: disable=protected-access
-                    # not a comment -> skip
-                    continue
-
-                if 'protocol="AJP/1.3"' not in child.text:
-                    # not an AJP connector -> skip
-                    continue
-
-                child.text = re.sub(r'requiredSecret=',
-                                    r'secret=',
-                                    child.text,
-                                    flags=re.MULTILINE)
-
-        # replace 'requiredSecret' with 'secret' in Connectors
-
-        connectors = server.findall('Service/Connector')
-        for connector in connectors:
-
-            if connector.get('protocol') != 'AJP/1.3':
-                # not an AJP connector -> skip
-                continue
-
-            if connector.get('secret'):
-                # already has a 'secret' -> skip
-                continue
-
-            if connector.get('requiredSecret') is None:
-                # does not have a 'requiredSecret' -> skip
-                continue
-
-            value = connector.attrib.pop('requiredSecret')
-            connector.set('secret', value)
-
-        with open(instance.server_xml, 'wb') as f:
-            document.write(f, pretty_print=True, encoding='utf-8')
