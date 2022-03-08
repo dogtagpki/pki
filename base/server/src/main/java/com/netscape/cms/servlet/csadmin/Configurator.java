@@ -393,12 +393,6 @@ public class Configurator {
             byte[] binCertRequest) throws Exception {
     }
 
-    public void importCert(
-            byte[] binCert,
-            RequestId requestID,
-            String profileID) throws Exception {
-    }
-
     public void initSubsystem() throws Exception {
     }
 }

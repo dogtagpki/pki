@@ -285,32 +285,6 @@ public class CAConfigurator extends Configurator {
                 requestExtensions);
     }
 
-    public void importCert(
-            byte[] binCert,
-            RequestId requestID,
-            String profileID) throws Exception {
-
-        X509CertImpl cert = new X509CertImpl(binCert);
-
-        String instanceRoot = cs.getInstanceDir();
-        String configurationRoot = cs.getString("configurationRoot");
-        String profilePath = instanceRoot + configurationRoot + profileID;
-        logger.info("CAConfigurator: Loading " + profilePath);
-
-        CAEngine engine = CAEngine.getInstance();
-        IConfigStore profileConfig = engine.createFileConfigStore(profilePath);
-
-        createCertRecord(
-                cert,
-                requestID,
-                profileConfig.getString("profileIDMapping"));
-
-        CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        Request request = requestRepository.readRequest(requestID);
-
-        updateRequestRecord(request, cert);
-    }
-
     @Override
     public X509CertImpl createCert(
             RequestId requestID,

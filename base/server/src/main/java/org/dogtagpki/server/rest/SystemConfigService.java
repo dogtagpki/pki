@@ -141,44 +141,6 @@ public class SystemConfigService extends PKIService {
     }
 
     @POST
-    @Path("importCert")
-    public void importCert(CertificateSetupRequest request) throws Exception {
-
-        String tag = request.getTag();
-        logger.info("SystemConfigService: Importing " + tag + " certificate");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            SystemCertData certData = request.getSystemCert();
-
-            String cert = certData.getCert();
-            byte[] binCert = Utils.base64decode(cert);
-
-            RequestId requestID = certData.getRequestID();
-
-            String profileID = certData.getProfile();
-
-            configurator.importCert(
-                    binCert,
-                    requestID,
-                    profileID);
-
-        } catch (PKIException e) { // normal response
-            logger.error("Unable to import " + tag + " certificate: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Unable to import " + tag + " certificate: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    @POST
     @Path("setupKey")
     public SystemCertData setupKey(CertificateSetupRequest request) throws Exception {
 
