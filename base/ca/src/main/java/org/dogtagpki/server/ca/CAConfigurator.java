@@ -38,7 +38,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.csadmin.BootstrapProfile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -46,7 +45,6 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
-import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CAConfigurator extends Configurator {
@@ -66,120 +64,6 @@ public class CAConfigurator extends Configurator {
         CertificateRepository certificateRepository = engine.getCertificateRepository();
         BigInteger serialNumber = certificateRepository.getNextSerialNumber();
         return new CertId(serialNumber);
-    }
-
-    public void createRequestRecord(
-            Request request,
-            String certRequestType,
-            byte[] certRequest,
-            X500Name subjectName,
-            String profileID,
-            String profileIDMapping,
-            String profileSetIDMapping,
-            X509Key x509key,
-            String[] sanHostnames,
-            boolean installAdjustValidity,
-            CertificateExtensions requestExtensions) throws Exception {
-
-        logger.info("CAConfigurator: Creating request record " + request.getRequestId().toHexString());
-
-        CAEngine engine = CAEngine.getInstance();
-        RequestRepository repository = engine.getRequestRepository();
-
-        request.setExtData("profile", "true");
-        request.setExtData("requestversion", "1.0.0");
-        request.setExtData("req_seq_num", "0");
-
-        request.setExtData(EnrollProfile.REQUEST_EXTENSIONS, requestExtensions);
-
-        request.setExtData("requesttype", "enrollment");
-        request.setExtData("requestor_name", "");
-        request.setExtData("requestor_email", "");
-        request.setExtData("requestor_phone", "");
-        request.setExtData("profileRemoteHost", "");
-        request.setExtData("profileRemoteAddr", "");
-        request.setExtData("requestnotes", "");
-        request.setExtData("isencryptioncert", "false");
-        request.setExtData("profileapprovedby", "system");
-
-        logger.debug("CAConfigurator: - type: " + certRequestType);
-        request.setExtData("cert_request_type", certRequestType);
-
-        if (certRequest != null) {
-            String b64CertRequest = CryptoUtil.base64Encode(certRequest);
-            String pemCertRequest = CryptoUtil.reqFormat(b64CertRequest);
-            logger.debug("CAConfigurator: - request:\n" + pemCertRequest);
-            request.setExtData("cert_request", pemCertRequest);
-        }
-
-        if (subjectName != null) {
-            logger.debug("CAConfigurator: - subject: " + subjectName);
-            request.setExtData("subject", subjectName.toString());
-        }
-
-        if (sanHostnames != null) {
-
-            logger.info("CAConfigurator: Injecting SAN extension:");
-
-            // Dynamically inject the SubjectAlternativeName extension to a
-            // local/self-signed master CA's request for its SSL Server Certificate.
-            //
-            // Since this information may vary from instance to
-            // instance, obtain the necessary information from the
-            // 'service.sslserver.san' value(s) in the instance's
-            // CS.cfg, process these values converting each item into
-            // its individual SubjectAlternativeName components, and
-            // inject these values into the local request.
-
-            int i = 0;
-            for (String sanHostname : sanHostnames) {
-                logger.info("CAConfigurator: - " + sanHostname);
-                request.setExtData("req_san_pattern_" + i, sanHostname);
-                i++;
-            }
-        }
-
-        request.setExtData("req_key", x509key.toString());
-
-        String origProfileID = profileID;
-        int idx = origProfileID.lastIndexOf('.');
-        if (idx > 0) {
-            origProfileID = origProfileID.substring(0, idx);
-        }
-
-        // store original profile ID in cert request
-        request.setExtData("origprofileid", origProfileID);
-
-        // store mapped profile ID for renewal
-        request.setExtData("profileid", profileIDMapping);
-        request.setExtData("profilesetid", profileSetIDMapping);
-
-        if (installAdjustValidity) {
-            // (applies to non-CA-signing cert only)
-            // installAdjustValidity tells ValidityDefault to adjust the
-            // notAfter value to that of the CA's signing cert if needed
-            request.setExtData("installAdjustValidity", "true");
-        }
-
-        repository.updateRequest(request);
-    }
-
-    public void updateRequestRecord(
-            Request request,
-            X509CertImpl cert) throws Exception {
-
-        logger.info("CAConfigurator: Updating request record " + request.getRequestId().toHexString());
-        logger.info("CAConfigurator: - cert serial number: 0x" + cert.getSerialNumber().toString(16));
-
-        CAEngine engine = CAEngine.getInstance();
-        RequestRepository repository = engine.getRequestRepository();
-
-        request.setExtData(EnrollProfile.REQUEST_CERTINFO, cert.getInfo());
-        request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
-
-        request.setRequestStatus(RequestStatus.COMPLETE);
-
-        repository.updateRequest(request);
     }
 
     public void createCertRecord(X509CertImpl cert, RequestId requestID, String profileID) throws Exception {
@@ -240,18 +124,23 @@ public class CAConfigurator extends Configurator {
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         Request request = requestRepository.createRequest(requestID, "enrollment");
 
-        createRequestRecord(
+        requestRepository.updateRequest(
                 request,
                 certRequestType,
                 binCertRequest,
                 subjectName,
+                x509key,
+                dnsNames,
+                requestExtensions);
+
+        requestRepository.updateRequest(
+                request,
                 profileConfig.getString("id"),
                 profileConfig.getString("profileIDMapping"),
                 profileConfig.getString("profileSetIDMapping"),
-                x509key,
-                dnsNames,
-                installAdjustValidity,
-                requestExtensions);
+                installAdjustValidity);
+
+        requestRepository.updateRequest(request);
     }
 
     @Override
@@ -330,7 +219,10 @@ public class CAConfigurator extends Configurator {
                 request.getRequestId(),
                 profileConfig.getString("profileIDMapping"));
 
-        updateRequestRecord(request, cert);
+        requestRepository.updateRequest(request, cert);
+
+        request.setRequestStatus(RequestStatus.COMPLETE);
+        requestRepository.updateRequest(request);
 
         return cert;
     }

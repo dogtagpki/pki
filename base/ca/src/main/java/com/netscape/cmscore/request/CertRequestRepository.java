@@ -17,7 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CertRequestRepository extends RequestRepository {
 
@@ -25,5 +34,122 @@ public class CertRequestRepository extends RequestRepository {
 
     public CertRequestRepository(DBSubsystem dbSubsystem) {
         super(dbSubsystem, "(requeststate=*)");
+    }
+
+    public Request createRequest(RequestId requestID, String requestType) throws EBaseException {
+
+        logger.info("CertRequestRepository: Creating request " + requestID.toHexString());
+        Request request = super.createRequest(requestID, requestType);
+
+        request.setExtData("profile", "true");
+        request.setExtData("requestversion", "1.0.0");
+        request.setExtData("req_seq_num", "0");
+        request.setExtData("requesttype", "enrollment");
+        request.setExtData("requestor_name", "");
+        request.setExtData("requestor_email", "");
+        request.setExtData("requestor_phone", "");
+        request.setExtData("profileRemoteHost", "");
+        request.setExtData("profileRemoteAddr", "");
+        request.setExtData("requestnotes", "");
+        request.setExtData("isencryptioncert", "false");
+        request.setExtData("profileapprovedby", "system");
+
+        return request;
+    }
+
+    public void updateRequest(
+            Request request,
+            String requestType,
+            byte[] binRequest,
+            X500Name subjectName,
+            X509Key x509key,
+            String[] dnsNames,
+            CertificateExtensions requestExtensions) throws Exception {
+
+        logger.info("CertRequestRepository: Updating request " + request.getRequestId().toHexString());
+
+        logger.info("CertRequestRepository: - type: " + requestType);
+        request.setExtData("cert_request_type", requestType);
+
+        if (binRequest != null) {
+            String b64CertRequest = CryptoUtil.base64Encode(binRequest);
+            String pemCertRequest = CryptoUtil.reqFormat(b64CertRequest);
+            logger.debug("CertRequestRepository: - request:\n" + pemCertRequest);
+            request.setExtData("cert_request", pemCertRequest);
+        }
+
+        if (subjectName != null) {
+            logger.info("CertRequestRepository: - subject: " + subjectName);
+            request.setExtData("subject", subjectName.toString());
+        }
+
+        request.setExtData("req_key", x509key.toString());
+
+        if (dnsNames != null) {
+
+            logger.info("CertRequestRepository: DNS names:");
+
+            // Dynamically inject the SubjectAlternativeName extension to a
+            // local/self-signed master CA's request for its SSL Server Certificate.
+            //
+            // Since this information may vary from instance to
+            // instance, obtain the necessary information from the
+            // 'service.sslserver.san' value(s) in the instance's
+            // CS.cfg, process these values converting each item into
+            // its individual SubjectAlternativeName components, and
+            // inject these values into the local request.
+
+            int i = 0;
+            for (String dnsName : dnsNames) {
+                logger.info("CertRequestRepository: - " + dnsName);
+                request.setExtData("req_san_pattern_" + i, dnsName);
+                i++;
+            }
+        }
+
+        request.setExtData(EnrollProfile.REQUEST_EXTENSIONS, requestExtensions);
+    }
+
+    public void updateRequest(
+            Request request,
+            String profileID,
+            String profileIDMapping,
+            String profileSetIDMapping,
+            boolean installAdjustValidity) throws Exception {
+
+        logger.info("CertRequestRepository: Updating request " + request.getRequestId().toHexString());
+        logger.info("CertRequestRepository: - profile: " + profileID);
+        logger.info("CertRequestRepository: - adjust validity: " + installAdjustValidity);
+
+        String origProfileID = profileID;
+        int idx = origProfileID.lastIndexOf('.');
+        if (idx > 0) {
+            origProfileID = origProfileID.substring(0, idx);
+        }
+
+        // store original profile ID in cert request
+        request.setExtData("origprofileid", origProfileID);
+
+        // store mapped profile ID for renewal
+        request.setExtData("profileid", profileIDMapping);
+        request.setExtData("profilesetid", profileSetIDMapping);
+
+        if (installAdjustValidity) {
+            // (applies to non-CA-signing cert only)
+            // installAdjustValidity tells ValidityDefault to adjust the
+            // notAfter value to that of the CA's signing cert if needed
+            request.setExtData("installAdjustValidity", "true");
+        }
+    }
+
+    public void updateRequest(
+            Request request,
+            X509CertImpl cert) throws Exception {
+
+        logger.info("CertRequestRepository: Updating request " + request.getRequestId().toHexString());
+        logger.info("CertRequestRepository: - cert serial number: 0x" + cert.getSerialNumber().toString(16));
+
+        request.setExtData(EnrollProfile.REQUEST_CERTINFO, cert.getInfo());
+        request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
     }
 }
