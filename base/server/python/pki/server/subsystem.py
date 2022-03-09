@@ -1833,6 +1833,59 @@ class CASubsystem(PKISubsystem):
 
         return cert_requests
 
+    def import_cert_request(
+            self,
+            request_id,
+            request_data=None,
+            request_path=None,
+            request_format=None,
+            request_type=None,
+            profile_id=None,
+            dns_names=None,
+            adjust_validity=None):
+
+        tmpdir = tempfile.mkdtemp()
+
+        try:
+            if request_data and not request_path:
+                request_path = os.path.join(tmpdir, 'cert.csr')
+                with open(request_path, 'w') as f:
+                    f.write(request_data)
+
+            cmd = ['ca-cert-request-import']
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            if request_path:
+                cmd.extend(['--csr', request_path])
+
+            if request_format:
+                cmd.extend(['--format', request_format])
+
+            if request_type:
+                cmd.extend(['--type', request_type])
+
+            if profile_id:
+                cmd.extend(['--profile', profile_id])
+
+            if dns_names:
+                cmd.extend(['--dns-names', ','.join(dns_names)])
+
+            if adjust_validity:
+                cmd.append('--adjust-validity')
+
+            cmd.append(request_id)
+
+            # run as current user so it can read the input file
+            self.run(cmd, as_current_user=True)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def get_cert_requests(self, request_id):
 
         base_dn = self.config['internaldb.basedn']

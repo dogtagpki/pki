@@ -833,10 +833,9 @@ class PKIDeployer:
 
         request.systemCert.keyAlgorithm = subsystem.config['preop.cert.%s.keyalgorithm' % tag]
 
+        request.systemCert.requestID = None
         request.systemCert.requestType = 'pkcs10'
-        b64csr = subsystem.config.get('%s.%s.certreq' % (subsystem.name, tag))
-        if b64csr:
-            request.systemCert.request = b64csr
+        request.systemCert.request = subsystem.config.get('%s.%s.certreq' % (subsystem.name, tag))
 
         request.systemCert.cert = cert.get('data')
 
@@ -904,8 +903,14 @@ class PKIDeployer:
             logger.info('- request ID: %s', request.systemCert.requestID)
 
             logger.info('Importing request for %s cert', tag)
-            logger.debug('- request: %s', system_cert['request'])
-            self.client.importRequest(request)
+            request_pem = pki.nssdb.convert_csr(request.systemCert.request, 'base64', 'pem')
+            subsystem.import_cert_request(
+                request_id=request.systemCert.requestID,
+                request_data=request_pem,
+                request_type=request.systemCert.requestType,
+                profile_id=request.systemCert.profile,
+                dns_names=request.systemCert.dnsNames,
+                adjust_validity=request.systemCert.adjustValidity)
 
             logger.info('Importing %s cert', tag)
             logger.debug('- cert: %s', system_cert['data'])
@@ -983,7 +988,14 @@ class PKIDeployer:
             logger.info('- request ID: %s', request.systemCert.requestID)
 
             logger.info('Importing request for %s cert', tag)
-            self.client.importRequest(request)
+            request_pem = pki.nssdb.convert_csr(request.systemCert.request, 'base64', 'pem')
+            subsystem.import_cert_request(
+                request_id=request.systemCert.requestID,
+                request_data=request_pem,
+                request_type=request.systemCert.requestType,
+                profile_id=request.systemCert.profile,
+                dns_names=request.systemCert.dnsNames,
+                adjust_validity=request.systemCert.adjustValidity)
 
             logger.info('Creating %s cert', tag)
             response = self.client.createCert(request)
@@ -1363,8 +1375,12 @@ class PKIDeployer:
         request.systemCert.keyType = self.mdict['pki_admin_key_type']
         request.systemCert.profile = subsystem.config['preop.cert.admin.profile']
         request.systemCert.subjectDN = self.mdict['pki_admin_subject_dn']
+
+        request.systemCert.requestID = None
         request.systemCert.requestType = self.mdict['pki_admin_cert_request_type']
         request.systemCert.request = csr
+
+        request.systemCert.dnsNames = None
         request.systemCert.adjustValidity = False
 
         profile_filename = subsystem.config.get('profile.caAdminCert.config')
@@ -1381,7 +1397,14 @@ class PKIDeployer:
         logger.info('- request ID: %s', request.systemCert.requestID)
 
         logger.info('Importing request for admin cert')
-        self.client.importRequest(request)
+        request_pem = pki.nssdb.convert_csr(request.systemCert.request, 'base64', 'pem')
+        subsystem.import_cert_request(
+            request_id=request.systemCert.requestID,
+            request_data=request_pem,
+            request_type=request.systemCert.requestType,
+            profile_id=request.systemCert.profile,
+            dns_names=request.systemCert.dnsNames,
+            adjust_validity=request.systemCert.adjustValidity)
 
         logger.info('Creating admin cert')
         response = self.client.createCert(request)

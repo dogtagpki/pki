@@ -1,0 +1,200 @@
+//
+// Copyright Red Hat, Inc.
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+package org.dogtagpki.server.ca.cli;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.io.IOUtils;
+import org.apache.tomcat.util.net.jss.TomcatJSS;
+import org.dogtag.util.cert.CertUtil;
+import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.server.ca.CAEngineConfig;
+import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.util.logging.PKILogger.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.DatabaseConfig;
+import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.request.CertRequestRepository;
+import com.netscape.cmscore.request.Request;
+import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStoreConfig;
+
+/**
+ * @author Endi S. Dewata
+ */
+public class CACertRequestImportCLI extends CommandCLI {
+
+    public static Logger logger = LoggerFactory.getLogger(CACertRequestImportCLI.class);
+
+    public CACertRequestImportCLI(CLI parent) {
+        super("import", "Import certificate request into CA", parent);
+    }
+
+    @Override
+    public void createOptions() {
+
+        Option option = new Option(null, "csr", true, "Certificate request path");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "format", true, "Certificate request format: PEM (default), DER");
+        option.setArgName("format");
+        options.addOption(option);
+
+        option = new Option(null, "type", true, "Certificate request type: pkcs10 (default), crmf");
+        option.setArgName("type");
+        options.addOption(option);
+
+        option = new Option(null, "profile", true, "Profile ID");
+        option.setArgName("ID");
+        options.addOption(option);
+
+        option = new Option(null, "dns-names", true, "Comma-separated list of DNS names");
+        option.setArgName("names");
+        options.addOption(option);
+
+        options.addOption(null, "adjust-validity", false, "Adjust validity");
+
+        options.addOption("v", "verbose", false, "Run in verbose mode.");
+        options.addOption(null, "debug", false, "Run in debug mode.");
+        options.addOption(null, "help", false, "Show help message.");
+    }
+
+    @Override
+    public void execute(CommandLine cmd) throws Exception {
+
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(Level.INFO);
+        }
+
+        String catalinaBase = System.getProperty("catalina.base");
+
+        TomcatJSS tomcatjss = TomcatJSS.getInstance();
+        tomcatjss.loadConfig();
+        tomcatjss.init();
+
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length < 1) {
+            throw new Exception("Missing request ID");
+        }
+
+        RequestId requestID = new RequestId(cmdArgs[0]);
+
+        if (!cmd.hasOption("profile")) {
+            throw new Exception("Missing profile ID");
+        }
+
+        if (!cmd.hasOption("csr")) {
+            throw new Exception("Missing certificate request");
+        }
+
+        String requestPath = cmd.getOptionValue("csr");
+        String requestFormat = cmd.getOptionValue("format");
+
+        byte[] bytes;
+        if (requestPath == null) {
+            // read from standard input
+            bytes = IOUtils.toByteArray(System.in);
+
+        } else {
+            logger.info("Importing " + requestPath);
+            bytes = Files.readAllBytes(Paths.get(requestPath));
+        }
+
+        if (requestFormat == null || "PEM".equalsIgnoreCase(requestFormat)) {
+            bytes = CertUtil.parseCSR(new String(bytes));
+
+        } else if ("DER".equalsIgnoreCase(requestFormat)) {
+            // nothing to do
+
+        } else {
+            throw new Exception("Unsupported format: " + requestFormat);
+        }
+
+        String subsystem = parent.getParent().getParent().getName();
+        String confDir = catalinaBase + File.separator + subsystem + File.separator + "conf";
+        String configFile = confDir + File.separator + CMS.CONFIG_FILE;
+
+        logger.info("Loading " + configFile);
+        ConfigStorage storage = new FileConfigStore(configFile);
+        CAEngineConfig cs = new CAEngineConfig(storage);
+        cs.load();
+
+        String profileID = cmd.getOptionValue("profile");
+
+        String instanceRoot = cs.getInstanceDir();
+        String configurationRoot = cs.getString("configurationRoot");
+        String profilePath = instanceRoot + configurationRoot + profileID;
+
+        logger.info("Loading " + profilePath);
+        ConfigStorage profileStorage = new FileConfigStore(profilePath);
+        IConfigStore profileConfig = new PropConfigStore(profileStorage);
+        profileConfig.load();
+
+        DatabaseConfig dbConfig = cs.getDatabaseConfig();
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
+        PasswordStoreConfig psc = cs.getPasswordStoreConfig();
+        IPasswordStore passwordStore = IPasswordStore.create(psc);
+
+        String requestType = cmd.getOptionValue("type", "pkcs10");
+
+        String value = cmd.getOptionValue("dns-names");
+        String[] dnsNames = null;
+        if (value != null) {
+            dnsNames = value.split(",");
+        }
+
+        value = cmd.getOptionValue("adjust-validity", "false");
+        boolean adjustValidity = Boolean.parseBoolean(value);
+
+        DBSubsystem dbSubsystem = new DBSubsystem();
+        dbSubsystem.init(dbConfig, socketConfig, passwordStore);
+
+        try {
+            CertRequestRepository requestRepository = new CertRequestRepository(dbSubsystem);
+            requestRepository.init();
+
+            Request request = requestRepository.createRequest(requestID, "enrollment");
+
+            requestRepository.updateRequest(
+                    request,
+                    requestType,
+                    bytes,
+                    dnsNames);
+
+            requestRepository.updateRequest(
+                    request,
+                    profileConfig.getString("id"),
+                    profileConfig.getString("profileIDMapping"),
+                    profileConfig.getString("profileSetIDMapping"),
+                    adjustValidity);
+
+            requestRepository.updateRequest(request);
+
+        } finally {
+            dbSubsystem.shutdown();
+        }
+    }
+}
