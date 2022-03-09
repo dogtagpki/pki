@@ -21,17 +21,12 @@ import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.util.Date;
 
+import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
-import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
-import org.mozilla.jss.netscape.security.pkcs.PKCS9Attribute;
-import org.mozilla.jss.netscape.security.util.DerInputStream;
-import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -203,32 +198,6 @@ public class CAConfigurator extends Configurator {
 
         certificateRepository.addCertificateRecord(certRecord);
     }
-
-    public CertificateExtensions createRequestExtensions(PKCS10 pkcs10) throws Exception {
-
-        PKCS10Attributes attrs = pkcs10.getAttributes();
-        PKCS10Attribute extsAttr = attrs.getAttribute(CertificateExtensions.NAME);
-
-        CertificateExtensions extensions;
-
-        if (extsAttr != null && extsAttr.getAttributeId().equals(PKCS9Attribute.EXTENSION_REQUEST_OID)) {
-
-            Extensions exts = (Extensions) extsAttr.getAttributeValue();
-
-            // convert Extensions into CertificateExtensions
-            DerOutputStream os = new DerOutputStream();
-            exts.encode(os);
-            DerInputStream is = new DerInputStream(os.toByteArray());
-
-            extensions = new CertificateExtensions(is);
-
-        } else {
-            extensions = new CertificateExtensions();
-        }
-
-        return extensions;
-    }
-
     @Override
     public void importRequest(
             RequestId requestID,
@@ -254,7 +223,7 @@ public class CAConfigurator extends Configurator {
             PKCS10 pkcs10 = new PKCS10(binCertRequest);
             subjectName = pkcs10.getSubjectName();
             x509key = pkcs10.getSubjectPublicKeyInfo();
-            requestExtensions = createRequestExtensions(pkcs10);
+            requestExtensions = CertUtil.createRequestExtensions(pkcs10);
 
         } else {
             throw new Exception("Certificate request type not supported: " + certRequestType);

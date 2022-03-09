@@ -30,9 +30,13 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
+import org.mozilla.jss.netscape.security.pkcs.PKCS9Attribute;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertAttrSet;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.DNSName;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
@@ -138,6 +142,31 @@ public class CertUtil {
         } else {
             logger.warn("CertUtil: unsupported crypto store: " + store.getClass().getName());
         }
+    }
+
+    public static CertificateExtensions createRequestExtensions(PKCS10 pkcs10) throws Exception {
+
+        PKCS10Attributes attrs = pkcs10.getAttributes();
+        PKCS10Attribute extsAttr = attrs.getAttribute(CertificateExtensions.NAME);
+
+        CertificateExtensions extensions;
+
+        if (extsAttr != null && extsAttr.getAttributeId().equals(PKCS9Attribute.EXTENSION_REQUEST_OID)) {
+
+            Extensions exts = (Extensions) extsAttr.getAttributeValue();
+
+            // convert Extensions into CertificateExtensions
+            DerOutputStream os = new DerOutputStream();
+            exts.encode(os);
+            DerInputStream is = new DerInputStream(os.toByteArray());
+
+            extensions = new CertificateExtensions(is);
+
+        } else {
+            extensions = new CertificateExtensions();
+        }
+
+        return extensions;
     }
 
     /**
