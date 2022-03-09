@@ -156,7 +156,8 @@ class CACertImportCLI(pki.cli.CLI):
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'request=', 'profile=', 'cert=', 'format=',
+                'instance=',
+                'cert=', 'format=', 'profile=', 'request=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:

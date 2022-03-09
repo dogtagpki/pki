@@ -23,6 +23,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -30,6 +31,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -113,18 +115,6 @@ public class CACertImportCLI extends CommandCLI {
 
         X509CertImpl cert = new X509CertImpl(bytes);
 
-        if (!cmd.hasOption("profile")) {
-            throw new Exception("Missing profile ID");
-        }
-
-        String profileID = cmd.getOptionValue("profile");
-
-        if (!cmd.hasOption("request")) {
-            throw new Exception("Missing request ID");
-        }
-
-        RequestId requestID = new RequestId(cmd.getOptionValue("request"));
-
         String catalinaBase = System.getProperty("catalina.base");
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
@@ -139,6 +129,29 @@ public class CACertImportCLI extends CommandCLI {
         ConfigStorage storage = new FileConfigStore(configFile);
         CAEngineConfig cs = new CAEngineConfig(storage);
         cs.load();
+
+        if (!cmd.hasOption("profile")) {
+            throw new Exception("Missing profile ID");
+        }
+
+        String profileID = cmd.getOptionValue("profile");
+
+        String instanceRoot = cs.getInstanceDir();
+        String configurationRoot = cs.getString("configurationRoot");
+        String profilePath = instanceRoot + configurationRoot + profileID;
+
+        logger.info("Loading " + profilePath);
+        ConfigStorage profileStorage = new FileConfigStore(profilePath);
+        IConfigStore profileConfig = new PropConfigStore(profileStorage);
+        profileConfig.load();
+
+        String profileIDMapping = profileConfig.getString("profileIDMapping");
+
+        if (!cmd.hasOption("request")) {
+            throw new Exception("Missing request ID");
+        }
+
+        RequestId requestID = new RequestId(cmd.getOptionValue("request"));
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
         PKISocketConfig socketConfig = cs.getSocketConfig();
@@ -156,12 +169,12 @@ public class CACertImportCLI extends CommandCLI {
             logger.info("Creating cert record 0x" + cert.getSerialNumber().toString(16) + ":");
             logger.info("- subject: " + cert.getSubjectDN());
             logger.info("- issuer: " + cert.getIssuerDN());
-            logger.info("- profile ID: " + profileID);
+            logger.info("- profile ID: " + profileIDMapping);
             logger.info("- request ID: " + requestID.toHexString());
 
             CertRecord certRecord = certificateRepository.createCertRecord(
                     requestID,
-                    profileID,
+                    profileIDMapping,
                     cert);
 
             certificateRepository.addCertificateRecord(certRecord);
