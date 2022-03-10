@@ -883,11 +883,13 @@ class PKIDeployer:
             # might conflict with system certificates to be created later.
             # Also create the certificate request record for renewals.
 
-            logger.info('Importing %s cert request', tag)
+            logger.info('Creating request ID for %s cert', tag)
+            request.systemCert.requestID = client.createRequestID(request)
+            logger.info('- request ID: %s', request.systemCert.requestID)
+
+            logger.info('Importing request for %s cert', tag)
             logger.debug('- request: %s', system_cert['request'])
             response = client.importRequest(request)
-
-            logger.info('- request ID: %s', response['requestID'])
 
             logger.info('Importing %s cert', tag)
             logger.debug('- cert: %s', system_cert['data'])
@@ -898,7 +900,7 @@ class PKIDeployer:
                 cert_data=cert_data,
                 cert_format='PEM',
                 profile_id=request.systemCert.profile,
-                request_id=response['requestID'])
+                request_id=request.systemCert.requestID)
 
             return
 
@@ -960,11 +962,12 @@ class PKIDeployer:
 
         else:  # selfsign or local
 
-            logger.info('Importing %s cert request', tag)
-            response = client.importRequest(request)
-
-            request.systemCert.requestID = response['requestID']
+            logger.info('Creating request ID for %s cert', tag)
+            request.systemCert.requestID = client.createRequestID(request)
             logger.info('- request ID: %s', request.systemCert.requestID)
+
+            logger.info('Importing request for %s cert', tag)
+            response = client.importRequest(request)
 
             logger.info('Creating %s cert', tag)
             response = client.createCert(request)
@@ -1357,11 +1360,12 @@ class PKIDeployer:
         request.systemCert.keyAlgorithm = self.get_signing_algorithm(subsystem, profile)
         logger.info('Signing algorithm: %s', request.systemCert.keyAlgorithm)
 
-        logger.info('Importing admin cert request')
-        response = client.importRequest(request)
-
-        request.systemCert.requestID = response['requestID']
+        logger.info('Creating request ID for admin cert')
+        request.systemCert.requestID = client.createRequestID(request)
         logger.info('- request ID: %s', request.systemCert.requestID)
+
+        logger.info('Importing request for admin cert')
+        response = client.importRequest(request)
 
         logger.info('Creating admin cert')
         response = client.createCert(request)

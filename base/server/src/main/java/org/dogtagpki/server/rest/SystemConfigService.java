@@ -92,6 +92,34 @@ public class SystemConfigService extends PKIService {
     }
 
     @POST
+    @Path("createRequestID")
+    public RequestId createRequestID(CertificateSetupRequest request) throws Exception {
+        String tag = request.getTag();
+        logger.info("SystemConfigService: Creating cert request ID");
+
+        try {
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            RequestId requestID = configurator.createRequestID();
+            logger.info("SystemConfigService: - request ID: " + requestID.toHexString());
+
+            return requestID;
+
+        } catch (PKIException e) { // normal response
+            logger.error("Unable to import " + tag + " certificate request: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Unable to import " + tag + " certificate request: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @POST
     @Path("importRequest")
     public SystemCertData importRequest(CertificateSetupRequest request) throws Exception {
 
@@ -107,6 +135,9 @@ public class SystemConfigService extends PKIService {
 
             SystemCertData certData = request.getSystemCert();
 
+            RequestId requestID = certData.getRequestID();
+            logger.info("SystemConfigService: - request ID: " + requestID.toHexString());
+
             String profileID = certData.getProfile();
             String[] dnsNames = certData.getDNSNames();
 
@@ -116,9 +147,6 @@ public class SystemConfigService extends PKIService {
 
             boolean installAdjustValidity = certData.getAdjustValidity();
             logger.info("SystemConfigService: - adjust validity: " + installAdjustValidity);
-
-            RequestId requestID = configurator.createRequestID();
-            certData.setRequestID(requestID);
 
             configurator.importRequest(
                     requestID,
