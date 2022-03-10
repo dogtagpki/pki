@@ -162,7 +162,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             signedAuditLogger.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                     getRequestor(),
                     null,
-                    response.getRequestInfo().getRequestId(),
+                    response.getRequestInfo().getRequestID(),
                     data.getClientKeyId()));
 
             logger.info("Response:\n" + response.toJSON());
@@ -217,7 +217,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             response = (data.getCertificate() != null)?
                     dao.submitAsyncKeyRecoveryRequest(data, uriInfo, getRequestor(), getAuthToken()):
                     dao.submitRequest(data, uriInfo, getRequestor(), getAuthToken());
-            auditRecoveryRequestMade(response.getRequestInfo().getRequestId(),
+            auditRecoveryRequestMade(response.getRequestInfo().getRequestID(),
                     ILogger.SUCCESS, data.getKeyId());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
@@ -468,7 +468,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             }
 
             response = dao.submitRequest(data, uriInfo, getRequestor());
-            auditSymKeyGenRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS,
+            auditSymKeyGenRequestMade(response.getRequestInfo().getRequestID(), ILogger.SUCCESS,
                     data.getClientKeyId());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
@@ -502,7 +502,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             }
 
             response = dao.submitRequest(data, uriInfo, getRequestor());
-            auditAsymKeyGenRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS,
+            auditAsymKeyGenRequestMade(response.getRequestInfo().getRequestID(), ILogger.SUCCESS,
                     data.getClientKeyId());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));

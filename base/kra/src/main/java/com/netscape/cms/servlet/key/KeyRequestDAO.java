@@ -598,14 +598,16 @@ public class KeyRequestDAO extends CMSRequestDAO {
     private KeyRequestInfo createKeyRequestInfo(Request request, UriInfo uriInfo) {
         KeyRequestInfo ret = new KeyRequestInfo();
 
+        RequestId requestID = request.getRequestId();
+        ret.setRequestID(requestID);
+
         ret.setRequestType(request.getRequestType());
         ret.setRequestStatus(request.getRequestStatus());
 
         Path keyRequestPath = KeyRequestResource.class.getAnnotation(Path.class);
-        RequestId rid = request.getRequestId();
 
         UriBuilder reqBuilder = uriInfo.getBaseUriBuilder();
-        reqBuilder.path(keyRequestPath.value() + "/" + rid);
+        reqBuilder.path(keyRequestPath.value() + "/" + requestID);
         ret.setRequestURL(reqBuilder.build().toString());
 
         Path keyPath = KeyResource.class.getAnnotation(Path.class);

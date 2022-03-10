@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -14,6 +15,7 @@ public class CertRequestInfosTest {
 
     @Before
     public void setUpBefore() {
+        request.setRequestID(new RequestId("0x1"));
         request.setRequestType("enrollment");
         request.setRequestStatus(RequestStatus.COMPLETE);
         request.setCertRequestType("pkcs10");

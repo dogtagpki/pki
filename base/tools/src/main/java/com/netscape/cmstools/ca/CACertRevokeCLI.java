@@ -163,7 +163,7 @@ public class CACertRevokeCLI extends CommandCLI {
                 CACertCLI.printCertData(certData, false, false);
             }
         } else {
-            MainCLI.printMessage("Request \"" + certRequestInfo.getRequestId() + "\": "
+            MainCLI.printMessage("Request \"" + certRequestInfo.getRequestID() + "\": "
                     + certRequestInfo.getRequestStatus());
         }
     }

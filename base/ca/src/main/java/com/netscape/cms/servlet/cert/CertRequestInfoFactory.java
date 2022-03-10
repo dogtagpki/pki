@@ -41,6 +41,9 @@ public class CertRequestInfoFactory {
 
         CertRequestInfo info = new CertRequestInfo();
 
+        RequestId requestId = request.getRequestId();
+        info.setRequestID(requestId);
+
         String requestType = request.getRequestType();
         RequestStatus requestStatus = request.getRequestStatus();
 
@@ -50,7 +53,6 @@ public class CertRequestInfoFactory {
         info.setCertRequestType(request.getExtDataInString("cert_request_type"));
 
         Path certRequestPath = CertRequestResource.class.getMethod("getRequestInfo", RequestId.class ).getAnnotation(Path.class);
-        RequestId requestId = request.getRequestId();
 
         UriBuilder reqBuilder = uriInfo.getBaseUriBuilder();
         reqBuilder.path(certRequestPath.value());

@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class KeyRequestResponseTest {
@@ -14,6 +15,7 @@ public class KeyRequestResponseTest {
 
     @Before
     public void setUpBefore() {
+        requestInfo.setRequestID(new RequestId("0x1"));
         requestInfo.setRequestType("test");
         before.setRequestInfo(requestInfo);
 

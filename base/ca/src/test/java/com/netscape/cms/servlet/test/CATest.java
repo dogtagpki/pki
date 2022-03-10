@@ -299,7 +299,7 @@ public class CATest {
         for (CertRequestInfo info : reqInfo.getEntries()) {
             printRequestInfo(info);
 
-            CertReviewResponse reviewData = client.reviewRequest(info.getRequestId());
+            CertReviewResponse reviewData = client.reviewRequest(info.getRequestID());
             log(reviewData.toString());
 
             reviewData.setRequestNotes("This is an approval message");

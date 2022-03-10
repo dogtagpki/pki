@@ -42,10 +42,19 @@ import com.netscape.certsrv.util.JSONSerializer;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CMSRequestInfo implements JSONSerializer {
 
+    protected RequestId requestID;
     protected String requestType;
     protected RequestStatus requestStatus;
     protected String requestURL;
     protected String realm;
+
+    public RequestId getRequestID() {
+        return requestID;
+    }
+
+    public void setRequestID(RequestId requestID) {
+        this.requestID = requestID;
+    }
 
     /**
      * @return the requestType
@@ -84,7 +93,9 @@ public class CMSRequestInfo implements JSONSerializer {
 
     /**
      * @return the request ID in the requestURL
+     * @deprecated Use getRequestID() instead.
      */
+    @Deprecated(since = "11.2.0", forRemoval = true)
     public RequestId getRequestId() {
 
         if (requestURL == null) {
@@ -115,6 +126,7 @@ public class CMSRequestInfo implements JSONSerializer {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((realm == null) ? 0 : realm.hashCode());
+        result = prime * result + ((requestID == null) ? 0 : requestID.hashCode());
         result = prime * result + ((requestStatus == null) ? 0 : requestStatus.hashCode());
         result = prime * result + ((requestType == null) ? 0 : requestType.hashCode());
         result = prime * result + ((requestURL == null) ? 0 : requestURL.hashCode());
@@ -135,6 +147,11 @@ public class CMSRequestInfo implements JSONSerializer {
                 return false;
         } else if (!realm.equals(other.realm))
             return false;
+        if (requestID == null) {
+            if (other.requestID != null)
+                return false;
+        } else if (!requestID.equals(other.requestID))
+            return false;
         if (requestStatus == null) {
             if (other.requestStatus != null)
                 return false;
@@ -154,6 +171,12 @@ public class CMSRequestInfo implements JSONSerializer {
     }
 
     public void toDOM(Document document, Element infoElement) {
+
+        if (requestID != null) {
+            Element requestTypeElement = document.createElement("requestID");
+            requestTypeElement.appendChild(document.createTextNode(requestID.toHexString()));
+            infoElement.appendChild(requestTypeElement);
+        }
 
         if (requestType != null) {
             Element requestTypeElement = document.createElement("requestType");
@@ -187,6 +210,12 @@ public class CMSRequestInfo implements JSONSerializer {
     }
 
     public static void fromDOM(Element infoElement, CMSRequestInfo info) {
+
+        NodeList requestIDList = infoElement.getElementsByTagName("requestID");
+        if (requestIDList.getLength() > 0) {
+            String value = requestIDList.item(0).getTextContent();
+            info.setRequestID(new RequestId(value));
+        }
 
         NodeList requestTypeList = infoElement.getElementsByTagName("requestType");
         if (requestTypeList.getLength() > 0) {

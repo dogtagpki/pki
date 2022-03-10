@@ -169,6 +169,11 @@ public class CertRequestInfo extends CMSRequestInfo {
         toDOM(document, infoElement);
 
         if (certId != null) {
+            Element subjectDNElement = document.createElement("certID");
+            subjectDNElement.appendChild(document.createTextNode(certId.toHexString()));
+            infoElement.appendChild(subjectDNElement);
+
+            // TODO: remove in PKI 12
             infoElement.setAttribute("id", certId.toHexString());
         }
 
@@ -205,8 +210,16 @@ public class CertRequestInfo extends CMSRequestInfo {
 
         CMSRequestInfo.fromDOM(infoElement, info);
 
-        String id = infoElement.getAttribute("id");
-        info.setCertId(StringUtils.isEmpty(id) ? null : new CertId(id));
+        NodeList certIDLList = infoElement.getElementsByTagName("certID");
+        if (certIDLList.getLength() > 0) {
+            String value = certIDLList.item(0).getTextContent();
+            info.setCertId(new CertId(value));
+
+        } else {
+            // TODO: remove in PKI 12
+            String id = infoElement.getAttribute("id");
+            info.setCertId(StringUtils.isEmpty(id) ? null : new CertId(id));
+        }
 
         NodeList certURLList = infoElement.getElementsByTagName("certURL");
         if (certURLList.getLength() > 0) {

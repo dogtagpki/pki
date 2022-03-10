@@ -146,7 +146,7 @@ public class KRAKeyCLI extends CLI {
     }
 
     public static void printKeyRequestInfo(KeyRequestInfo info) {
-        System.out.println("  Request ID: "+info.getRequestId().toHexString());
+        System.out.println("  Request ID: "+info.getRequestID().toHexString());
         if (info.getKeyId() != null) System.out.println("  Key ID: "+info.getKeyId().toHexString());
         if (info.getRequestType() != null) System.out.println("  Type: "+info.getRequestType());
         if (info.getRequestStatus() != null) System.out.println("  Status: "+info.getRequestStatus());

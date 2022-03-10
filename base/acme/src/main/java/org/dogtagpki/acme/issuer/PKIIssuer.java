@@ -169,7 +169,7 @@ public class PKIIssuer extends ACMEIssuer {
             logger.info("Responses:");
             CertRequestInfo info = infos.getEntries().iterator().next();
 
-            RequestId requestId = info.getRequestId();
+            RequestId requestId = info.getRequestID();
 
             logger.info("- Request ID: " + requestId.toHexString());
             logger.info("  Type: " + info.getRequestType());

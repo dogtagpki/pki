@@ -53,7 +53,7 @@ public class KeyRequestResponse implements JSONSerializer {
     }
 
     public RequestId getRequestId(){
-        return this.requestInfo.getRequestId();
+        return this.requestInfo.getRequestID();
     }
 
     @Override

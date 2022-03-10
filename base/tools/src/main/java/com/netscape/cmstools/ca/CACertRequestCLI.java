@@ -108,7 +108,7 @@ public class CACertRequestCLI extends CLI {
     }
 
     public static void printCertRequestInfo(CertRequestInfo info) {
-        System.out.println("  Request ID: " + info.getRequestId().toHexString());
+        System.out.println("  Request ID: " + info.getRequestID().toHexString());
         System.out.println("  Type: " + info.getRequestType());
         System.out.println("  Request Status: " + info.getRequestStatus());
         System.out.println("  Operation Result: " + info.getOperationResult());

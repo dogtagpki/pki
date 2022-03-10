@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -13,6 +14,7 @@ public class KeyRequestInfoTest {
 
     @Before
     public void setUpBefore() {
+        before.setRequestID(new RequestId("0x1"));
         before.setRequestType("securityDataEnrollment");
         before.setRequestStatus(RequestStatus.COMPLETE);
         before.setKeyURL("https://localhost:8443/kra/rest/agent/keys/123");
