@@ -297,9 +297,10 @@ public abstract class Repository implements IRepository {
 
             logger.debug("Repository: Generating random serial number");
 
-            // JSS BigInt does not allow negative value
-            // so use the absolute (i.e. positive) value.
-            BigInteger id = new BigInteger(idLength, secureRandom).abs();
+            // JSS BigInt does not allow negative value.
+            // The following BigInteger constructor will
+            // always create a non-negative number.
+            BigInteger id = new BigInteger(idLength, secureRandom);
             logger.info("Repository: id: 0x" + id.toString(16));
 
             return id;

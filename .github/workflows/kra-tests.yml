@@ -940,7 +940,6 @@ jobs:
               -D pki_ds_hostname=primaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -D pki_cert_id_generator=random \
-              -D pki_cert_id_length=159 \
               -D pki_request_id_generator=random \
               -v
 
@@ -991,7 +990,6 @@ jobs:
               -D pki_ds_hostname=secondaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -D pki_cert_id_generator=random \
-              -D pki_cert_id_length=159 \
               -D pki_request_id_generator=random \
               -v
 
@@ -1054,7 +1052,6 @@ jobs:
               -D pki_ds_hostname=tertiaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -D pki_cert_id_generator=random \
-              -D pki_cert_id_length=159 \
               -D pki_request_id_generator=random \
               -v
 
@@ -1378,7 +1375,6 @@ jobs:
               -D pki_ds_hostname=ds.example.com \
               -D pki_ds_ldap_port=3389 \
               -D pki_cert_id_generator=random \
-              -D pki_cert_id_length=159 \
               -D pki_request_id_generator=random \
               -v
 
