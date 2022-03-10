@@ -18,6 +18,7 @@
 
 package com.netscape.cms.servlet.cert;
 
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 
 import javax.ws.rs.Path;
@@ -37,7 +38,7 @@ import com.netscape.cmscore.request.Request;
 
 public class CertRequestInfoFactory {
 
-    public static CertRequestInfo create(Request request, UriInfo uriInfo) throws SecurityException, NoSuchMethodException {
+    public static CertRequestInfo create(Request request) throws SecurityException, NoSuchMethodException {
 
         CertRequestInfo info = new CertRequestInfo();
 
@@ -51,12 +52,6 @@ public class CertRequestInfoFactory {
         info.setRequestStatus(requestStatus);
 
         info.setCertRequestType(request.getExtDataInString("cert_request_type"));
-
-        Path certRequestPath = CertRequestResource.class.getMethod("getRequestInfo", RequestId.class ).getAnnotation(Path.class);
-
-        UriBuilder reqBuilder = uriInfo.getBaseUriBuilder();
-        reqBuilder.path(certRequestPath.value());
-        info.setRequestURL(reqBuilder.build(requestId).toString());
 
         Integer result = request.getExtDataInInteger(Request.RESULT);
         if (result == null || result.equals(Request.RES_SUCCESS)) {
@@ -86,12 +81,31 @@ public class CertRequestInfoFactory {
         BigInteger serialNo = impl.getSerialNumber();
         info.setCertId(new CertId(serialNo));
 
+        return info;
+    }
 
-        Path certPath = CertResource.class.getMethod("getCert", CertId.class).getAnnotation(Path.class);
+    public static CertRequestInfo create(Request request, UriInfo uriInfo) throws SecurityException, NoSuchMethodException {
+
+        CertRequestInfo info = create(request);
+
+        Method getRequestInfo = CertRequestResource.class.getMethod("getRequestInfo", RequestId.class);
+        Path certRequestPath = getRequestInfo.getAnnotation(Path.class);
+
+        UriBuilder reqBuilder = uriInfo.getBaseUriBuilder();
+        reqBuilder.path(certRequestPath.value());
+        info.setRequestURL(reqBuilder.build(info.getRequestID()).toString());
+
+        Method getCert = CertResource.class.getMethod("getCert", CertId.class);
+        Path certPath = getCert.getAnnotation(Path.class);
+
         UriBuilder certBuilder = uriInfo.getBaseUriBuilder();
         certBuilder.path(certPath.value());
 
-        info.setCertURL(certBuilder.build(serialNo).toString());
+        CertId certID = info.getCertId();
+        if (certID != null) {
+            BigInteger serialNo = info.getCertId().toBigInteger();
+            info.setCertURL(certBuilder.build(serialNo).toString());
+        }
 
         return info;
     }
