@@ -21,9 +21,6 @@ import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.util.Date;
 
-import org.dogtag.util.cert.CertUtil;
-import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -93,26 +90,6 @@ public class CAConfigurator extends Configurator {
 
         logger.info("CAConfigurator: Importing " + certRequestType + " request");
 
-        X500Name subjectName;
-        X509Key x509key;
-        CertificateExtensions requestExtensions;
-
-        if (certRequestType.equals("crmf")) {
-            SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binCertRequest);
-            subjectName = CryptoUtil.getSubjectName(crmfMsgs);
-            x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
-            requestExtensions = new CertificateExtensions();
-
-        } else if (certRequestType.equals("pkcs10")) {
-            PKCS10 pkcs10 = new PKCS10(binCertRequest);
-            subjectName = pkcs10.getSubjectName();
-            x509key = pkcs10.getSubjectPublicKeyInfo();
-            requestExtensions = CertUtil.createRequestExtensions(pkcs10);
-
-        } else {
-            throw new Exception("Certificate request type not supported: " + certRequestType);
-        }
-
         String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
         String profilePath = instanceRoot + configurationRoot + profileID;
@@ -128,10 +105,7 @@ public class CAConfigurator extends Configurator {
                 request,
                 certRequestType,
                 binCertRequest,
-                subjectName,
-                x509key,
-                dnsNames,
-                requestExtensions);
+                dnsNames);
 
         requestRepository.updateRequest(
                 request,

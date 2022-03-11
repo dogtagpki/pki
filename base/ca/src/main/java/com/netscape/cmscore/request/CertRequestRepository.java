@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
+import org.dogtag.util.cert.CertUtil;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -61,33 +64,48 @@ public class CertRequestRepository extends RequestRepository {
             Request request,
             String requestType,
             byte[] binRequest,
-            X500Name subjectName,
-            X509Key x509key,
-            String[] dnsNames,
-            CertificateExtensions requestExtensions) throws Exception {
+            String[] dnsNames) throws Exception {
 
         logger.info("CertRequestRepository: Updating request " + request.getRequestId().toHexString());
 
         logger.info("CertRequestRepository: - type: " + requestType);
         request.setExtData("cert_request_type", requestType);
 
-        if (binRequest != null) {
-            String b64CertRequest = CryptoUtil.base64Encode(binRequest);
-            String pemCertRequest = CryptoUtil.reqFormat(b64CertRequest);
-            logger.debug("CertRequestRepository: - request:\n" + pemCertRequest);
-            request.setExtData("cert_request", pemCertRequest);
+        String b64CertRequest = CryptoUtil.base64Encode(binRequest);
+        String pemCertRequest = CryptoUtil.reqFormat(b64CertRequest);
+        logger.debug("CertRequestRepository: - request:\n" + pemCertRequest);
+        request.setExtData("cert_request", pemCertRequest);
+
+        X500Name subjectName;
+        X509Key x509key;
+        CertificateExtensions requestExtensions;
+
+        if (requestType.equals("crmf")) {
+            SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binRequest);
+            subjectName = CryptoUtil.getSubjectName(crmfMsgs);
+            x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
+            requestExtensions = new CertificateExtensions();
+
+        } else if (requestType.equals("pkcs10")) {
+            PKCS10 pkcs10 = new PKCS10(binRequest);
+            subjectName = pkcs10.getSubjectName();
+            x509key = pkcs10.getSubjectPublicKeyInfo();
+            requestExtensions = CertUtil.createRequestExtensions(pkcs10);
+
+        } else {
+            throw new Exception("Unsupported certificate request type: " + requestType);
         }
 
-        if (subjectName != null) {
-            logger.info("CertRequestRepository: - subject: " + subjectName);
-            request.setExtData("subject", subjectName.toString());
-        }
+        logger.info("CertRequestRepository: - subject: " + subjectName);
+        request.setExtData("subject", subjectName.toString());
 
         request.setExtData("req_key", x509key.toString());
 
+        request.setExtData(EnrollProfile.REQUEST_EXTENSIONS, requestExtensions);
+
         if (dnsNames != null) {
 
-            logger.info("CertRequestRepository: DNS names:");
+            logger.info("CertRequestRepository: - DNS names:");
 
             // Dynamically inject the SubjectAlternativeName extension to a
             // local/self-signed master CA's request for its SSL Server Certificate.
@@ -101,13 +119,11 @@ public class CertRequestRepository extends RequestRepository {
 
             int i = 0;
             for (String dnsName : dnsNames) {
-                logger.info("CertRequestRepository: - " + dnsName);
+                logger.info("CertRequestRepository:   - " + dnsName);
                 request.setExtData("req_san_pattern_" + i, dnsName);
                 i++;
             }
         }
-
-        request.setExtData(EnrollProfile.REQUEST_EXTENSIONS, requestExtensions);
     }
 
     public void updateRequest(
