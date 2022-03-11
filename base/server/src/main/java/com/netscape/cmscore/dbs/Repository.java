@@ -175,6 +175,10 @@ public abstract class Repository implements IRepository {
         mLastSerialNo = lastSN;
     }
 
+    public int getIDGenerator() throws Exception {
+        return idGenerator;
+    }
+
     protected void setIDGenerator(String generator) throws Exception {
         if ("random".equals(generator)) {
             idGenerator = RANDOM;

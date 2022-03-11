@@ -1835,7 +1835,7 @@ class CASubsystem(PKISubsystem):
 
     def import_cert_request(
             self,
-            request_id,
+            request_id=None,
             request_data=None,
             request_path=None,
             request_format=None,
@@ -1878,10 +1878,19 @@ class CASubsystem(PKISubsystem):
             if adjust_validity:
                 cmd.append('--adjust-validity')
 
-            cmd.append(request_id)
+            cmd.append('--output-format')
+            cmd.append('json')
+
+            if request_id:
+                cmd.append(request_id)
 
             # run as current user so it can read the input file
-            self.run(cmd, as_current_user=True)
+            result = self.run(
+                cmd,
+                as_current_user=True,
+                capture_output=True)
+
+            return json.loads(result.stdout.decode())
 
         finally:
             shutil.rmtree(tmpdir)

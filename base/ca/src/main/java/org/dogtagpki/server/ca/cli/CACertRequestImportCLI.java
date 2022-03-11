@@ -23,13 +23,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.servlet.cert.CertRequestInfoFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -73,6 +76,10 @@ public class CACertRequestImportCLI extends CommandCLI {
 
         options.addOption(null, "adjust-validity", false, "Adjust validity");
 
+        option = new Option(null, "output-format", true, "Output format: text (default), json.");
+        option.setArgName("format");
+        options.addOption(option);
+
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
@@ -96,11 +103,10 @@ public class CACertRequestImportCLI extends CommandCLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        if (cmdArgs.length < 1) {
-            throw new Exception("Missing request ID");
+        RequestId requestID = null;
+        if (cmdArgs.length >= 1) {
+            requestID = new RequestId(cmdArgs[0]);
         }
-
-        RequestId requestID = new RequestId(cmdArgs[0]);
 
         if (!cmd.hasOption("profile")) {
             throw new Exception("Missing profile ID");
@@ -180,6 +186,13 @@ public class CACertRequestImportCLI extends CommandCLI {
             CertRequestRepository requestRepository = new CertRequestRepository(dbSubsystem);
             requestRepository.init();
 
+            if (requestID == null) {
+                if (requestRepository.getIDGenerator() != Repository.RANDOM) {
+                    throw new Exception("Unable to generate random request ID");
+                }
+                requestID = requestRepository.createRequestID();
+            }
+
             Request request = requestRepository.createRequest(requestID, "enrollment");
 
             requestRepository.updateRequest(
@@ -196,6 +209,19 @@ public class CACertRequestImportCLI extends CommandCLI {
                     adjustValidity);
 
             requestRepository.updateRequest(request);
+
+            CertRequestInfo info = CertRequestInfoFactory.create(request);
+
+            String outputFormat = cmd.getOptionValue("output-format", "text");
+            if (outputFormat.equalsIgnoreCase("json")) {
+                System.out.println(info.toJSON());
+
+            } else if (outputFormat.equalsIgnoreCase("text")) {
+                CACertRequestCLI.printCertRequestInfo(info);
+
+            } else {
+                throw new Exception("Unsupported output format: " + outputFormat);
+            }
 
         } finally {
             dbSubsystem.shutdown();
