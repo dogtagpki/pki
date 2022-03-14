@@ -96,7 +96,7 @@ public class CAConfigurator extends Configurator {
 
         logger.info("CAConfigurator: Loading " + profilePath);
         CAEngine engine = CAEngine.getInstance();
-        IConfigStore profileConfig = engine.createFileConfigStore(profilePath);
+        IConfigStore profileConfig = engine.loadConfigStore(profilePath);
 
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         Request request = requestRepository.createRequest(requestID, "enrollment");
@@ -169,7 +169,7 @@ public class CAConfigurator extends Configurator {
         String profilePath = instanceRoot + configurationRoot + profileID;
 
         logger.info("CAConfigurator: Loading " + profilePath);
-        IConfigStore profileConfig = engine.createFileConfigStore(profilePath);
+        IConfigStore profileConfig = engine.loadConfigStore(profilePath);
         BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
         Date date = new Date();

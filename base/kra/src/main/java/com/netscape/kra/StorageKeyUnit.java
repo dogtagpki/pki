@@ -399,7 +399,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
             mTokenFile = mConfig.getString(PROP_MN);
             try {
                 // read m, n and no of identifier
-                mStorageConfig = engine.createFileConfigStore(mTokenFile);
+                mStorageConfig = engine.loadConfigStore(mTokenFile);
             } catch (EBaseException e) {
                 logger.error(CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_MN", e.toString()), e);
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"), e);

@@ -734,7 +734,7 @@ public class CMSEngine implements ServletContextListener {
         return new Configurator(this);
     }
 
-    public IConfigStore createFileConfigStore(String path) throws EBaseException {
+    public IConfigStore loadConfigStore(String path) throws EBaseException {
         try {
             /* if the file is not there, create one */
             File f = new File(path);

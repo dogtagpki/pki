@@ -133,7 +133,7 @@ public class ProfileSubsystem
 
         try {
             logger.debug("ProfileSubsystem: Loading " + configPath);
-            IConfigStore subStoreConfig = engine.createFileConfigStore(configPath);
+            IConfigStore subStoreConfig = engine.loadConfigStore(configPath);
 
             logger.debug("ProfileSubsystem: Initializing " + className);
             Profile profile = (Profile) Class.forName(className).getDeclaredConstructor().newInstance();
