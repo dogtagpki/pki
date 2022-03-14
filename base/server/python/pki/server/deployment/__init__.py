@@ -115,6 +115,7 @@ class PKIDeployer:
         self.sd_host = None
         self.install_token = None
 
+        self.client = None
         self.startup_timeout = None
         self.request_timeout = None
 
@@ -786,6 +787,21 @@ class PKIDeployer:
 
         self.get_install_token()
 
+    def pki_connect(self, subsystem):
+
+        ca_cert = os.path.join(subsystem.instance.nssdb_dir, "ca.crt")
+
+        connection = pki.client.PKIConnection(
+            protocol='https',
+            hostname=self.mdict['pki_hostname'],
+            port=self.mdict['pki_https_port'],
+            trust_env=False,
+            cert_paths=ca_cert)
+
+        self.client = pki.system.SystemConfigClient(
+            connection,
+            subsystem=self.mdict['pki_subsystem_type'])
+
     def create_cert_setup_request(self, subsystem, tag, cert):
 
         request = pki.system.CertificateSetupRequest()
@@ -845,7 +861,7 @@ class PKIDeployer:
 
         return request
 
-    def setup_system_cert(self, nssdb, subsystem, tag, system_cert, request, client):
+    def setup_system_cert(self, nssdb, subsystem, tag, system_cert, request):
 
         logger.debug('PKIDeployer.setup_system_cert()')
 
@@ -884,12 +900,12 @@ class PKIDeployer:
             # Also create the certificate request record for renewals.
 
             logger.info('Creating request ID for %s cert', tag)
-            request.systemCert.requestID = client.createRequestID(request)
+            request.systemCert.requestID = self.client.createRequestID(request)
             logger.info('- request ID: %s', request.systemCert.requestID)
 
             logger.info('Importing request for %s cert', tag)
             logger.debug('- request: %s', system_cert['request'])
-            response = client.importRequest(request)
+            self.client.importRequest(request)
 
             logger.info('Importing %s cert', tag)
             logger.debug('- cert: %s', system_cert['data'])
@@ -905,13 +921,13 @@ class PKIDeployer:
             return
 
         logger.info('Setting up %s key', tag)
-        response = client.setupKey(request)
+        response = self.client.setupKey(request)
 
         request.systemCert.keyID = response['keyID']
         logger.info('- key ID: %s', request.systemCert.keyID)
 
         logger.info('Creating %s cert request', tag)
-        response = client.createRequest(request)
+        response = self.client.createRequest(request)
 
         request.systemCert.request = response['request']
         logger.debug('- request: %s', request.systemCert.request)
@@ -963,14 +979,14 @@ class PKIDeployer:
         else:  # selfsign or local
 
             logger.info('Creating request ID for %s cert', tag)
-            request.systemCert.requestID = client.createRequestID(request)
+            request.systemCert.requestID = self.client.createRequestID(request)
             logger.info('- request ID: %s', request.systemCert.requestID)
 
             logger.info('Importing request for %s cert', tag)
-            response = client.importRequest(request)
+            self.client.importRequest(request)
 
             logger.info('Creating %s cert', tag)
-            response = client.createCert(request)
+            response = self.client.createCert(request)
 
         cert_pem = pki.nssdb.convert_cert(response['cert'], 'base64', 'pem').encode()
         cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
@@ -1001,7 +1017,7 @@ class PKIDeployer:
                 token=request.systemCert.token,
                 use_jss=True)
 
-    def setup_system_certs(self, nssdb, subsystem, client):
+    def setup_system_certs(self, nssdb, subsystem):
 
         logger.debug('PKIDeployer.setup_system_certs()')
         system_certs = {}
@@ -1039,7 +1055,7 @@ class PKIDeployer:
 
             request = self.create_cert_setup_request(subsystem, tag, system_certs[tag])
 
-            self.setup_system_cert(nssdb, subsystem, tag, system_certs[tag], request, client)
+            self.setup_system_cert(nssdb, subsystem, tag, system_certs[tag], request)
 
             if subsystem.type == 'CA' and tag == 'signing':
 
@@ -1048,7 +1064,7 @@ class PKIDeployer:
                 request = pki.system.CertificateSetupRequest()
                 request.pin = self.mdict['pki_one_time_pin']
 
-                client.initSubsystem(request)
+                self.client.initSubsystem(request)
 
         logger.info('Setting up trust flags')
 
@@ -1326,7 +1342,7 @@ class PKIDeployer:
 
         raise Exception('Unable to get signing algorithm')
 
-    def create_admin_cert(self, subsystem, csr, client):
+    def create_admin_cert(self, subsystem, csr):
 
         request = pki.system.CertificateSetupRequest()
         request.tag = 'admin'
@@ -1361,14 +1377,14 @@ class PKIDeployer:
         logger.info('Signing algorithm: %s', request.systemCert.keyAlgorithm)
 
         logger.info('Creating request ID for admin cert')
-        request.systemCert.requestID = client.createRequestID(request)
+        request.systemCert.requestID = self.client.createRequestID(request)
         logger.info('- request ID: %s', request.systemCert.requestID)
 
         logger.info('Importing request for admin cert')
-        response = client.importRequest(request)
+        self.client.importRequest(request)
 
         logger.info('Creating admin cert')
-        response = client.createCert(request)
+        response = self.client.createCert(request)
 
         cert_pem = pki.nssdb.convert_cert(response['cert'], 'base64', 'pem').encode()
         cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
@@ -1376,7 +1392,7 @@ class PKIDeployer:
 
         return response['cert']
 
-    def get_admin_cert(self, subsystem, client):
+    def get_admin_cert(self, subsystem):
 
         logger.debug('PKIDeployer.get_admin_cert()')
 
@@ -1396,7 +1412,7 @@ class PKIDeployer:
 
         elif subsystem.type == 'CA':
             b64csr = self.create_admin_csr()
-            b64cert = self.create_admin_cert(subsystem, b64csr, client)
+            b64cert = self.create_admin_cert(subsystem, b64csr)
 
         else:
             b64csr = self.create_admin_csr()

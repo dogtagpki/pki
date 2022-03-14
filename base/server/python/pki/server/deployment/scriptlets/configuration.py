@@ -37,7 +37,6 @@ import pki.encoder
 import pki.nssdb
 import pki.server
 import pki.server.instance
-import pki.system
 import pki.util
 
 logger = logging.getLogger(__name__)
@@ -783,18 +782,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
             config.wait_to_attach_an_external_java_debugger()
 
-        ca_cert = os.path.join(instance.nssdb_dir, "ca.crt")
-
-        connection = pki.client.PKIConnection(
-            protocol='https',
-            hostname=deployer.mdict['pki_hostname'],
-            port=deployer.mdict['pki_https_port'],
-            trust_env=False,
-            cert_paths=ca_cert)
-
-        client = pki.system.SystemConfigClient(
-            connection,
-            subsystem=deployer.mdict['pki_subsystem_type'])
+        deployer.pki_connect(subsystem)
 
         # If pki_one_time_pin is not already defined, load from CS.cfg
         if 'pki_one_time_pin' not in deployer.mdict:
@@ -803,7 +791,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = subsystem.instance.open_nssdb()
 
         try:
-            system_certs = deployer.setup_system_certs(nssdb, subsystem, client)
+            system_certs = deployer.setup_system_certs(nssdb, subsystem)
         finally:
             nssdb.close()
 
@@ -815,7 +803,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if not clone:
             logger.info('Getting admin certificate')
-            admin_cert = deployer.get_admin_cert(subsystem, client)
+            admin_cert = deployer.get_admin_cert(subsystem)
 
             logger.info('Setting up admin user')
             deployer.setup_admin_user(subsystem, admin_cert)
