@@ -25,7 +25,7 @@ import com.netscape.cmscore.apps.SubsystemConfig;
 import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
-import com.netscape.cmscore.base.LDAPConfigStore;
+import com.netscape.cmscore.base.LDAPConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -203,7 +203,7 @@ public class CAProfileImportCLI extends CommandCLI {
                 new LDAPAttribute("classId", classID)
         };
 
-        ConfigStorage storage = new LDAPConfigStore(conn, dn, createAttrs, "certProfileConfig");
+        ConfigStorage storage = new LDAPConfigStorage(conn, dn, createAttrs, "certProfileConfig");
         IConfigStore configStore = new PropConfigStore(storage);
 
         try (FileInputStream input = new FileInputStream(profilePath)) {

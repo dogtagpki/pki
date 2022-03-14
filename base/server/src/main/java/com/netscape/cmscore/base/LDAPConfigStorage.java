@@ -39,7 +39,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 
 /**
- * LDAPConfigStore:
+ * LDAPConfigStorage:
  * Extends PropConfigStore with methods to load/save from/to file for
  * persistent storage. This is a configuration store agent who
  * reads data from an LDAP entry.
@@ -48,9 +48,9 @@ import netscape.ldap.LDAPModification;
  * @version $Revision$, $Date$
  * @see PropConfigStore
  */
-public class LDAPConfigStore extends ConfigStorage {
+public class LDAPConfigStorage extends ConfigStorage {
 
-    public static Logger logger = LoggerFactory.getLogger(LDAPConfigStore.class);
+    public static Logger logger = LoggerFactory.getLogger(LDAPConfigStorage.class);
 
     private LDAPConnection conn;
     private String dn;
@@ -67,7 +67,7 @@ public class LDAPConfigStore extends ConfigStorage {
      * @param createAttrs Set of initial attributes if creating the entry.  Should
      *              contain cn, objectclass and possibly other attributes.
      */
-    public LDAPConfigStore(
+    public LDAPConfigStorage(
         LDAPConnection conn,
         String dn, LDAPAttribute[] createAttrs, String attr
     ) throws Exception {
