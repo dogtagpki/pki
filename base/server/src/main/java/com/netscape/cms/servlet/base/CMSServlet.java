@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -239,7 +237,6 @@ public abstract class CMSServlet extends HttpServlet {
 
     // system logger.
     protected LogSource mLogCategory = ILogger.S_OTHER;
-    private MessageDigest mSHADigest = null;
 
     protected String mGetClientCert = "false";
     protected String mAuthMgr = null;
@@ -366,13 +363,6 @@ public abstract class CMSServlet extends HttpServlet {
             getDontSaveHttpParams(sc);
             getSaveHttpHeaders(sc);
         } catch (Exception e) {
-            logger.error(CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS", e.toString()), e);
-            throw new ServletException(e);
-        }
-
-        try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
-        } catch (NoSuchAlgorithmException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS", e.toString()), e);
             throw new ServletException(e);
         }
@@ -1478,14 +1468,6 @@ public abstract class CMSServlet extends HttpServlet {
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         SecureRandom rnd = jssSubsystem.getRandomNumberGenerator();
         return Integer.toString(rnd.nextInt());
-    }
-
-    protected String hashPassword(String pwd) {
-        String salt = generateSalt();
-        byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
-        String b64E = Utils.base64encode(pwdDigest, true);
-
-        return "{SHA}" + salt + ";" + b64E;
     }
 
     /**

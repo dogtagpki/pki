@@ -584,12 +584,6 @@ public class HashEnrollServlet extends CMSServlet {
 
         req.setExtData(Request.CERT_INFO, certInfoArray);
 
-        if (challengePassword != null && !challengePassword.equals("")) {
-            String pwd = hashPassword(challengePassword);
-
-            req.setExtData(CHALLENGE_PASSWORD, pwd);
-        }
-
         // send request to request queue.
         mRequestQueue.processRequest(req);
         // process result.

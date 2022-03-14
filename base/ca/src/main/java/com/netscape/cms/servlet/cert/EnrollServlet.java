@@ -112,7 +112,6 @@ public class EnrollServlet extends CMSServlet {
     public static final String CRMF_REQUEST = "CRMFRequest";
     public static final String SUBJECT_NAME = "subject";
     public static final String CRMF_REQID = "crmfReqId";
-    public static final String CHALLENGE_PASSWORD = "challengePhrase";
 
     private static final String CERT_AUTH_DUAL = "dual";
     private static final String CERT_AUTH_ENCRYPTION = "encryption";
@@ -1277,12 +1276,6 @@ public class EnrollServlet extends CMSServlet {
             }
 
             req.setExtData(Request.CERT_INFO, certInfoArray);
-
-            if (challengePassword != null && !challengePassword.equals("")) {
-                String pwd = hashPassword(challengePassword);
-
-                req.setExtData(CHALLENGE_PASSWORD, pwd);
-            }
 
             // store a message in the signed audit log file
             // (either an "admin" cert request for an admin certificate,
