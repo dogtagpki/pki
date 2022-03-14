@@ -7,10 +7,10 @@ package com.netscape.cmscore.security;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class JssSubsystemConfig extends PropConfigStore {
+public class JssSubsystemConfig extends ConfigStore {
 
     public JssSubsystemConfig() {
     }

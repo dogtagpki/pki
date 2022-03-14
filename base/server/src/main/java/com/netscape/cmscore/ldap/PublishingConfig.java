@@ -7,10 +7,10 @@ package com.netscape.cmscore.ldap;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class PublishingConfig extends PropConfigStore {
+public class PublishingConfig extends ConfigStore {
 
     public PublishingConfig() {
     }

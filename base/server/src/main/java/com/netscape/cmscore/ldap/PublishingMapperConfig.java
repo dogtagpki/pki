@@ -6,10 +6,10 @@
 package com.netscape.cmscore.ldap;
 
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class PublishingMapperConfig extends PropConfigStore {
+public class PublishingMapperConfig extends ConfigStore {
 
     public PublishingMapperConfig() {
     }

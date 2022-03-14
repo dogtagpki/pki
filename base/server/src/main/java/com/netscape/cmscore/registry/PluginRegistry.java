@@ -27,8 +27,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.registry.ERegistryException;
 import com.netscape.certsrv.registry.IPluginInfo;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
 
 /**
  * This represents the registry subsystem that manages
@@ -50,7 +50,7 @@ public class PluginRegistry {
     private static final String PROP_CLASSPATH = "class";
     private static final String PROP_FILE = "file";
 
-    private PropConfigStore registryConfig;
+    private ConfigStore registryConfig;
     private Hashtable<String, Hashtable<String, IPluginInfo>> mTypes =
             new Hashtable<>();
 
@@ -75,7 +75,7 @@ public class PluginRegistry {
         f.createNewFile();
 
         FileConfigStorage storage = new FileConfigStorage(registryFile);
-        registryConfig = new PropConfigStore(storage);
+        registryConfig = new ConfigStore(storage);
         registryConfig.load();
 
         String types = registryConfig.getString(PROP_TYPES, null);

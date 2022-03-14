@@ -31,7 +31,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -142,7 +142,7 @@ public class CACertImportCLI extends CommandCLI {
 
         logger.info("Loading " + profilePath);
         ConfigStorage profileStorage = new FileConfigStorage(profilePath);
-        IConfigStore profileConfig = new PropConfigStore(profileStorage);
+        IConfigStore profileConfig = new ConfigStore(profileStorage);
         profileConfig.load();
 
         String profileIDMapping = profileConfig.getString("profileIDMapping");

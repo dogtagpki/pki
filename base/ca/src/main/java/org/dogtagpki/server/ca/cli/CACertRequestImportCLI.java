@@ -28,7 +28,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -149,7 +149,7 @@ public class CACertRequestImportCLI extends CommandCLI {
 
         logger.info("Loading " + profilePath);
         ConfigStorage profileStorage = new FileConfigStorage(profilePath);
-        IConfigStore profileConfig = new PropConfigStore(profileStorage);
+        IConfigStore profileConfig = new ConfigStore(profileStorage);
         profileConfig.load();
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();

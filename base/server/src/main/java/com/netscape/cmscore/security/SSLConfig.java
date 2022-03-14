@@ -7,10 +7,10 @@ package com.netscape.cmscore.security;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class SSLConfig extends PropConfigStore {
+public class SSLConfig extends ConfigStore {
 
     public SSLConfig() {
     }

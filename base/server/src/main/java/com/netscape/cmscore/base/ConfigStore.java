@@ -49,12 +49,12 @@ import com.netscape.cmscore.apps.CMS;
  * Note this class takes advantage of the recursive nature of
  * property names. The current property prefix is kept in
  * mStoreName and the mSource usually points back to another
- * occurance of the same PropConfigStore, with longer mStoreName. IE
+ * occurance of the same ConfigStore, with longer mStoreName. IE
  *
  * <PRE>{@Code
- * 	cms.ca0.http.service0 -> mSource=PropConfigStore ->
- * 		cms.ca0.http -> mSource=PropConfigStore ->
- * 			cms.ca0 -> mSource=PropConfigStore ->
+ * 	cms.ca0.http.service0 -> mSource=ConfigStore ->
+ * 		cms.ca0.http -> mSource=ConfigStore ->
+ * 			cms.ca0 -> mSource=ConfigStore ->
  * 					cms -> mSource=SourceConfigStore -> Properties
  * }</PRE>
  *
@@ -64,9 +64,9 @@ import com.netscape.cmscore.apps.CMS;
  *
  * @version $Revision$, $Date$
  */
-public class PropConfigStore implements IConfigStore, Cloneable {
+public class ConfigStore implements IConfigStore, Cloneable {
 
-    public final static Logger logger = LoggerFactory.getLogger(PropConfigStore.class);
+    public final static Logger logger = LoggerFactory.getLogger(ConfigStore.class);
 
     protected static final String PROP_SUBSTORES = "substores";
 
@@ -82,11 +82,11 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     protected ConfigStorage storage;
 
-    public PropConfigStore() {
+    public ConfigStore() {
         mSource = new SimpleProperties();
     }
 
-    public PropConfigStore(ConfigStorage storage) {
+    public ConfigStore(ConfigStorage storage) {
         mSource = new SimpleProperties();
         this.storage = storage;
     }
@@ -100,7 +100,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param storeName property store name
      * @exception EBaseException failed to create configuration
      */
-    public PropConfigStore(String storeName) {
+    public ConfigStore(String storeName) {
         mSource = new SimpleProperties();
         mStoreName = storeName;
     }
@@ -116,7 +116,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param source list of properties
      * @exception EBaseException failed to create configuration
      */
-    protected PropConfigStore(String name, SimpleProperties source) {
+    protected ConfigStore(String name, SimpleProperties source) {
         mStoreName = name;
         mSource = source;
     }
@@ -641,7 +641,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
          }
          mSource.put(getFullName(PROP_SUBSTORES), name);
          */
-        return new PropConfigStore(getFullName(name), mSource);
+        return new ConfigStore(getFullName(name), mSource);
     }
 
     /**
@@ -692,7 +692,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     @Override
     public IConfigStore getSubStore(String name) {
-        return getSubStore(name, PropConfigStore.class);
+        return getSubStore(name, ConfigStore.class);
     }
 
     @Override
@@ -815,7 +815,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     @Override
     public Object clone() {
         try {
-            PropConfigStore that = (PropConfigStore) super.clone();
+            ConfigStore that = (ConfigStore) super.clone();
 
             mStoreName = getName();
             mSource = new SimpleProperties();

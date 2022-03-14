@@ -6,10 +6,10 @@
 package com.netscape.cmscore.ldap;
 
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class PublishingRuleConfig extends PropConfigStore {
+public class PublishingRuleConfig extends ConfigStore {
 
     public PublishingRuleConfig() {
     }

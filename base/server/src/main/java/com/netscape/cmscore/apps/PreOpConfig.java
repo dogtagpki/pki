@@ -6,10 +6,10 @@
 package com.netscape.cmscore.apps;
 
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class PreOpConfig extends PropConfigStore {
+public class PreOpConfig extends ConfigStore {
 
     public PreOpConfig(ConfigStorage storage) {
         super(storage);

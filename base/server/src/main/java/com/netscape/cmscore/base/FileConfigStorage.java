@@ -30,13 +30,13 @@ import com.netscape.cmscore.apps.CMS;
 
 /**
  * FileConfigStorage:
- * Extends PropConfigStore with methods to load/save from/to file for
+ * Extends ConfigStore with methods to load/save from/to file for
  * persistent storage. This is a configuration store agent who
  * reads data from a file.
  * <P>
  *
  * @version $Revision$, $Date$
- * @see PropConfigStore
+ * @see ConfigStore
  */
 public class FileConfigStorage extends ConfigStorage {
 

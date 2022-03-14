@@ -39,7 +39,7 @@ import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.LDAPConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -245,7 +245,7 @@ public class LDAPProfileSubsystem
             };
 
             ConfigStorage storage = new LDAPConfigStorage(conn, createProfileDN(id), createAttrs, "certProfileConfig");
-            IConfigStore subStoreConfig = new PropConfigStore(storage);
+            IConfigStore subStoreConfig = new ConfigStore(storage);
 
             if (data != null)
                 subStoreConfig.load(data);
@@ -331,7 +331,7 @@ public class LDAPProfileSubsystem
     @Override
     protected void commitConfigStore(String id, IConfigStore configStore)
             throws EProfileException {
-        PropConfigStore propConfigStore = (PropConfigStore) configStore;
+        ConfigStore propConfigStore = (ConfigStore) configStore;
         LDAPConfigStorage storage = (LDAPConfigStorage) propConfigStore.getStorage();
         try {
             String[] attrs = {"entryUSN", "nsUniqueId"};

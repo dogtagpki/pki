@@ -7,11 +7,11 @@ package com.netscape.cmscore.usrgrp;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 
-public class UGSubsystemConfig extends PropConfigStore {
+public class UGSubsystemConfig extends ConfigStore {
 
     public UGSubsystemConfig() {
     }

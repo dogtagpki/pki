@@ -71,7 +71,7 @@ import com.netscape.cmscore.authentication.VerifiedCerts;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -741,7 +741,7 @@ public class CMSEngine implements ServletContextListener {
             f.createNewFile();
 
             ConfigStorage storage = new FileConfigStorage(path);
-            IConfigStore cs = new PropConfigStore(storage);
+            IConfigStore cs = new ConfigStore(storage);
             cs.load();
             return cs;
 

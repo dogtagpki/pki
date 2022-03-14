@@ -7,10 +7,10 @@ package com.netscape.cmscore.ldapconn;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class PKISocketConfig extends PropConfigStore {
+public class PKISocketConfig extends ConfigStore {
 
     public PKISocketConfig() {
     }

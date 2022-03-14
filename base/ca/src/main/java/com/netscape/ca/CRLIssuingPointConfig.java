@@ -9,10 +9,10 @@ import java.math.BigInteger;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class CRLIssuingPointConfig extends PropConfigStore {
+public class CRLIssuingPointConfig extends ConfigStore {
 
     public CRLIssuingPointConfig(ConfigStorage storage) {
         super(storage);

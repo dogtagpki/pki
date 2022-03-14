@@ -18,7 +18,7 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -80,7 +80,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
 
         logger.info("Loading {}", masterConfigFile);
         ConfigStorage masterStorage = new FileConfigStorage(masterConfigFile);
-        PropConfigStore masterConfig = new PropConfigStore(masterStorage);
+        ConfigStore masterConfig = new ConfigStore(masterStorage);
         masterConfig.load();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
@@ -100,7 +100,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
     public void setupReplication(
             EngineConfig cs,
             IPasswordStore passwordStore,
-            PropConfigStore masterConfig,
+            ConfigStore masterConfig,
             String masterReplicationPort,
             String replicaReplicationPort,
             String replicationSecurity) throws Exception {
@@ -194,7 +194,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
             if (!masterPassword.equals("")) {
                 String passwordFile = cs.getString("passwordFile");
                 ConfigStorage storage = new FileConfigStorage(passwordFile);
-                IConfigStore passwords = new PropConfigStore(storage);
+                IConfigStore passwords = new ConfigStore(storage);
                 passwords.load();
                 passwords.remove("master_internaldb");
                 passwords.commit(false);

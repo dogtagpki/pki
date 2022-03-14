@@ -42,7 +42,7 @@ import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 
@@ -865,7 +865,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         IConfigStore instanceStore =
                 policyStore.getSubStore(PROP_RULE);
         IConfigStore oldStore = instanceStore.getSubStore(id);
-        IConfigStore newStore = new PropConfigStore(id);
+        IConfigStore newStore = new ConfigStore(id);
 
         // See if the rule is disabled.
         String enabledStr = ht.get(IPolicyRule.PROP_ENABLE);

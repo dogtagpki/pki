@@ -7,11 +7,11 @@ package com.netscape.cmscore.apps;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
-public class DatabaseConfig extends PropConfigStore {
+public class DatabaseConfig extends ConfigStore {
 
     public DatabaseConfig(ConfigStorage storage) {
         super(storage);

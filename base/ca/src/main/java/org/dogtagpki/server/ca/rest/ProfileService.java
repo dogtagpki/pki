@@ -75,7 +75,7 @@ import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
@@ -625,7 +625,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             tempProfile.setId(profileId);
 
             try {
-                PropConfigStore tempConfig = new PropConfigStore();
+                ConfigStore tempConfig = new ConfigStore();
                 tempConfig.load(new ByteArrayInputStream(data));
                 tempProfile.init(tempConfig);
 
@@ -760,7 +760,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
             tempProfile.setId(profileId);
             try {
-                PropConfigStore tempConfig = new PropConfigStore();
+                ConfigStore tempConfig = new ConfigStore();
                 tempConfig.load(new ByteArrayInputStream(data));
                 tempProfile.init(tempConfig);
             } catch (Exception e) {

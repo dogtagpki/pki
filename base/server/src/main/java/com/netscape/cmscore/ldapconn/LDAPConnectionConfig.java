@@ -7,10 +7,10 @@ package com.netscape.cmscore.ldapconn;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class LDAPConnectionConfig extends PropConfigStore {
+public class LDAPConnectionConfig extends ConfigStore {
 
     public LDAPConnectionConfig(ConfigStorage storage) {
         super(storage);

@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class SubsystemsConfig extends PropConfigStore {
+public class SubsystemsConfig extends ConfigStore {
 
     public SubsystemsConfig(ConfigStorage storage) {
         super(storage);

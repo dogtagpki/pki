@@ -6,10 +6,10 @@
 package org.dogtagpki.server.authentication;
 
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class AuthManagersConfig extends PropConfigStore {
+public class AuthManagersConfig extends ConfigStore {
 
     public AuthManagersConfig(ConfigStorage storage) {
         super(storage);
