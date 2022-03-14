@@ -20,7 +20,6 @@ package com.netscape.cmscore.connector;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.netscape.cmscore.authentication.ChallengePhraseAuthentication;
 import com.netscape.cmscore.request.Request;
 
 public class RequestTransfer {
@@ -45,10 +44,6 @@ public class RequestTransfer {
             Request.REMOTE_REQID,
             Request.REVOKED_CERT_RECORDS,
             Request.CERT_STATUS,
-            ChallengePhraseAuthentication.CHALLENGE_PHRASE,
-            ChallengePhraseAuthentication.SUBJECTNAME,
-            ChallengePhraseAuthentication.SERIALNUMBER,
-            ChallengePhraseAuthentication.SERIALNOARRAY,
             Request.ISSUERDN,
             Request.CERT_FILTER,
             "keyRecord",

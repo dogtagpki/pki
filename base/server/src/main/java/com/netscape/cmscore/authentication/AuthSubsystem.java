@@ -97,11 +97,6 @@ public class AuthSubsystem implements ISubsystem {
     public final static String CERTUSERDB_AUTHMGR_ID = "certUserDBAuthMgr";
 
     /**
-     * Constant for challenge based authentication manager ID.
-     */
-    public final static String CHALLENGE_AUTHMGR_ID = "challengeAuthMgr";
-
-    /**
      * Constant for null authentication manager ID.
      */
     public final static String NULL_AUTHMGR_ID = "nullAuthMgr";
@@ -150,12 +145,6 @@ public class AuthSubsystem implements ISubsystem {
         plugin = new AuthMgrPlugin(CERTUSERDB_PLUGIN_ID, CertUserDBAuthentication.class.getName());
         plugin.setVisible(false);
         mAuthMgrPlugins.put(CERTUSERDB_PLUGIN_ID, plugin);
-
-        logger.info("AuthSubsystem: Loading auth manager plugin " + CHALLENGE_PLUGIN_ID);
-
-        plugin = new AuthMgrPlugin(CHALLENGE_PLUGIN_ID, ChallengePhraseAuthentication.class.getName());
-        plugin.setVisible(false);
-        mAuthMgrPlugins.put(CHALLENGE_PLUGIN_ID, plugin);
 
         // Bugscape #56659
         //   Removed NullAuthMgr to harden CMS. Otherwise,
@@ -206,13 +195,6 @@ public class AuthSubsystem implements ISubsystem {
         certUserDBAuth.setAuthenticationConfig(mConfig);
         certUserDBAuth.init(CERTUSERDB_AUTHMGR_ID, CERTUSERDB_PLUGIN_ID, null);
         mAuthMgrInsts.put(CERTUSERDB_AUTHMGR_ID, new AuthManagerProxy(true, certUserDBAuth));
-
-        logger.info("AuthSubsystem: Loading auth manager instance " + CHALLENGE_AUTHMGR_ID);
-
-        ChallengePhraseAuthentication challengeAuth = new ChallengePhraseAuthentication();
-        challengeAuth.setAuthenticationConfig(mConfig);
-        challengeAuth.init(CHALLENGE_AUTHMGR_ID, CHALLENGE_PLUGIN_ID, null);
-        mAuthMgrInsts.put(CHALLENGE_AUTHMGR_ID, new AuthManagerProxy(true, challengeAuth));
 
         logger.info("AuthSubsystem: Loading auth manager instance " + CMCAUTH_AUTHMGR_ID);
 
