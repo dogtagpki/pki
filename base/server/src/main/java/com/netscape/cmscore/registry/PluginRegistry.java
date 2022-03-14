@@ -50,7 +50,7 @@ public class PluginRegistry {
     private static final String PROP_CLASSPATH = "class";
     private static final String PROP_FILE = "file";
 
-    private PropConfigStore fileConfig;
+    private PropConfigStore registryConfig;
     private Hashtable<String, Hashtable<String, IPluginInfo>> mTypes =
             new Hashtable<>();
 
@@ -75,10 +75,10 @@ public class PluginRegistry {
         f.createNewFile();
 
         FileConfigStore storage = new FileConfigStore(registryFile);
-        fileConfig = new PropConfigStore(storage);
-        fileConfig.load();
+        registryConfig = new PropConfigStore(storage);
+        registryConfig.load();
 
-        String types = fileConfig.getString(PROP_TYPES, null);
+        String types = registryConfig.getString(PROP_TYPES, null);
 
         if (types == null) {
             return;
@@ -100,7 +100,7 @@ public class PluginRegistry {
     public void loadPlugins(IConfigStore config, String type)
             throws EBaseException {
 
-        String ids_str = fileConfig.getString(type + "." + PROP_IDS, null);
+        String ids_str = registryConfig.getString(type + "." + PROP_IDS, null);
 
         if (ids_str == null) {
             return;
@@ -126,9 +126,9 @@ public class PluginRegistry {
     public void loadPlugin(IConfigStore config, String type, String id)
             throws EBaseException {
 
-        String name = fileConfig.getString(type + "." + id + "." + PROP_NAME, null);
-        String desc = fileConfig.getString(type + "." + id + "." + PROP_DESC, null);
-        String classpath = fileConfig.getString(type + "." + id + "." + PROP_CLASSPATH, null);
+        String name = registryConfig.getString(type + "." + id + "." + PROP_NAME, null);
+        String desc = registryConfig.getString(type + "." + id + "." + PROP_DESC, null);
+        String classpath = registryConfig.getString(type + "." + id + "." + PROP_CLASSPATH, null);
 
         PluginInfo info = new PluginInfo(name, desc, classpath);
 
@@ -201,23 +201,23 @@ public class PluginRegistry {
 
                 IPluginInfo plugin = mPlugins.get(id);
 
-                fileConfig.putString(type + "." + id + ".class",
+                registryConfig.putString(type + "." + id + ".class",
                         plugin.getClassName());
-                fileConfig.putString(type + "." + id + ".name",
+                registryConfig.putString(type + "." + id + ".name",
                         plugin.getName(locale));
-                fileConfig.putString(type + "." + id + ".desc",
+                registryConfig.putString(type + "." + id + ".desc",
                         plugin.getDescription(locale));
             }
-            fileConfig.putString(type + ".ids", idsBuf.toString());
+            registryConfig.putString(type + ".ids", idsBuf.toString());
         }
 
-        fileConfig.putString("types", typesBuf.toString());
+        registryConfig.putString("types", typesBuf.toString());
 
-        File file = ((FileConfigStore) fileConfig.getStorage()).getFile();
+        File file = ((FileConfigStore) registryConfig.getStorage()).getFile();
 
         try {
             logger.info("PluginRegistry: Updating " + file.getAbsolutePath());
-            fileConfig.commit(false);
+            registryConfig.commit(false);
 
         } catch (Exception e) {
             logger.warn("Unable to update " + file.getAbsolutePath() + ": " + e.getMessage(), e);
@@ -238,13 +238,6 @@ public class PluginRegistry {
      */
     public void shutdown() {
         mTypes.clear();
-    }
-
-    /**
-     * Returns handle to the registry configuration file.
-     */
-    public IConfigStore getFileConfigStore() {
-        return fileConfig;
     }
 
     /**
