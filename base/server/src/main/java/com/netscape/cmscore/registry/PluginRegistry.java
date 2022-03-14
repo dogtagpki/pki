@@ -50,7 +50,6 @@ public class PluginRegistry {
     private static final String PROP_CLASSPATH = "class";
     private static final String PROP_FILE = "file";
 
-    private IConfigStore mConfig = null;
     private PropConfigStore fileConfig;
     private Hashtable<String, Hashtable<String, IPluginInfo>> mTypes =
             new Hashtable<>();
@@ -68,8 +67,6 @@ public class PluginRegistry {
      */
     public void init(IConfigStore config, String defaultRegistryFile)
             throws Exception {
-
-        mConfig = config;
 
         String registryFile = config.getString(PROP_FILE, defaultRegistryFile);
         logger.info("PluginRegistry: Loading plugin registry from " + registryFile);
@@ -241,16 +238,6 @@ public class PluginRegistry {
      */
     public void shutdown() {
         mTypes.clear();
-    }
-
-    /**
-     * Returns the root configuration storage of this system.
-     * <P>
-     *
-     * @return configuration store of this subsystem
-     */
-    public IConfigStore getConfigStore() {
-        return mConfig;
     }
 
     /**
