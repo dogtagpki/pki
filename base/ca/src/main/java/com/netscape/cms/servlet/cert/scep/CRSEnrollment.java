@@ -188,7 +188,6 @@ public class CRSEnrollment extends HttpServlet {
     private String[] mAllowedDynamicProfileId;
     private boolean mUseOAEPKeyWrap = false;
     /* for hashing challenge password */
-    protected MessageDigest mSHADigest = null;
 
     private static final String PROP_SUBSTORENAME = "substorename";
     private static final String PROP_AUTHORITY = "authority";
@@ -354,11 +353,6 @@ public class CRSEnrollment extends HttpServlet {
         OID_UNSTRUCTUREDNAME = X500NameAttrMap.getDefault().getOid("UNSTRUCTUREDNAME");
         OID_UNSTRUCTUREDADDRESS = X500NameAttrMap.getDefault().getOid("UNSTRUCTUREDADDRESS");
         OID_SERIALNUMBER = X500NameAttrMap.getDefault().getOid("SERIALNUMBER");
-
-        try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
-        } catch (NoSuchAlgorithmException e) {
-        }
 
         mRandom = jssSubsystem.getRandomNumberGenerator();
 
@@ -1365,15 +1359,6 @@ public class CRSEnrollment extends HttpServlet {
                 PKCS10Attribute p10a = e.nextElement();
                 CertAttrSet attr = p10a.getAttributeValue();
 
-                if (attr.getName().equals(ChallengePassword.NAME)) {
-                    if (attr.get(ChallengePassword.PASSWORD) != null) {
-                        req.put(AUTH_PASSWORD, attr.get(ChallengePassword.PASSWORD));
-                        req.put(ChallengePassword.NAME,
-                                hashPassword(
-                                    (String) attr.get(ChallengePassword.PASSWORD)));
-                    }
-                }
-
                 if (attr.getName().equals(ExtensionsRequested.NAME)) {
 
                     Enumeration<Extension> exts = ((ExtensionsRequested) attr).getExtensions().elements();
@@ -1922,13 +1907,6 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         return issuedCert;
-    }
-
-    protected String hashPassword(String pwd) {
-        String salt = "lala123";
-        byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
-        String b64E = Utils.base64encode(pwdDigest, true);
-        return "{SHA}" + b64E;
     }
 
     /**
