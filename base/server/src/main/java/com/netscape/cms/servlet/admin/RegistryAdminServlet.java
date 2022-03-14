@@ -36,6 +36,7 @@ import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
@@ -191,7 +192,7 @@ public class RegistryAdminServlet extends AdminServlet {
 
         NameValuePairs nvp = new NameValuePairs();
 
-        IPluginInfo info = registry.createPluginInfo(id, desc, classPath);
+        PluginInfo info = new PluginInfo(id, desc, classPath);
         try {
             registry.addPluginInfo(scope, id, info);
         } catch (Exception e) {

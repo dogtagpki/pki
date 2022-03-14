@@ -90,15 +90,14 @@ public class PluginRegistry {
             String type = st.nextToken();
             logger.debug("PluginRegistry: " + type + ":");
 
-            loadPlugins(config, type);
+            loadPlugins(type);
         }
     }
 
     /**
      * Load plugins of the given type.
      */
-    public void loadPlugins(IConfigStore config, String type)
-            throws EBaseException {
+    public void loadPlugins(String type) throws EBaseException {
 
         String ids_str = registryConfig.getString(type + "." + PROP_IDS, null);
 
@@ -112,19 +111,14 @@ public class PluginRegistry {
             String id = st.nextToken();
             logger.debug("PluginRegistry: - " + id);
 
-            loadPlugin(config, type, id);
+            loadPlugin(type, id);
         }
-    }
-
-    public IPluginInfo createPluginInfo(String name, String desc, String classPath) {
-        return new PluginInfo(name, desc, classPath);
     }
 
     /**
      * Load plugins of the given type.
      */
-    public void loadPlugin(IConfigStore config, String type, String id)
-            throws EBaseException {
+    public void loadPlugin(String type, String id) throws EBaseException {
 
         String name = registryConfig.getString(type + "." + id + "." + PROP_NAME, null);
         String desc = registryConfig.getString(type + "." + id + "." + PROP_DESC, null);
