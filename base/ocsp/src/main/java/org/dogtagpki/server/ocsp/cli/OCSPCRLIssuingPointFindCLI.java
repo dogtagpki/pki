@@ -26,7 +26,7 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.password.IPasswordStore;
@@ -67,7 +67,7 @@ public class OCSPCRLIssuingPointFindCLI extends CommandCLI {
                 "conf" + File.separator + CMS.CONFIG_FILE;
 
         logger.info("Loading " + configFile);
-        ConfigStorage storage = new FileConfigStore(configFile);
+        ConfigStorage storage = new FileConfigStorage(configFile);
         OCSPEngineConfig engineConfig = new OCSPEngineConfig(storage);
         engineConfig.load();
 

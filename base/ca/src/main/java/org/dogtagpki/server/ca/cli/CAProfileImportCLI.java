@@ -24,7 +24,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.SubsystemConfig;
 import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
@@ -80,7 +80,7 @@ public class CAProfileImportCLI extends CommandCLI {
                 "conf" + File.separator + CMS.CONFIG_FILE;
 
         logger.info("Loading " + configFile);
-        ConfigStorage storage = new FileConfigStore(configFile);
+        ConfigStorage storage = new FileConfigStorage(configFile);
         EngineConfig cs = new EngineConfig(storage);
         cs.load();
 

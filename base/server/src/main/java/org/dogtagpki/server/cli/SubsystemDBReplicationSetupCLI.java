@@ -17,7 +17,7 @@ import com.netscape.cms.servlet.csadmin.LDAPConfigurator;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -79,7 +79,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
         cs.load();
 
         logger.info("Loading {}", masterConfigFile);
-        ConfigStorage masterStorage = new FileConfigStore(masterConfigFile);
+        ConfigStorage masterStorage = new FileConfigStorage(masterConfigFile);
         PropConfigStore masterConfig = new PropConfigStore(masterStorage);
         masterConfig.load();
 
@@ -193,7 +193,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
 
             if (!masterPassword.equals("")) {
                 String passwordFile = cs.getString("passwordFile");
-                ConfigStorage storage = new FileConfigStore(passwordFile);
+                ConfigStorage storage = new FileConfigStorage(passwordFile);
                 IConfigStore passwords = new PropConfigStore(storage);
                 passwords.load();
                 passwords.remove("master_internaldb");

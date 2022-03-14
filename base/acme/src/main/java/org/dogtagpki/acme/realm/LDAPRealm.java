@@ -17,7 +17,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -146,7 +146,7 @@ public class LDAPRealm extends ACMERealm {
 
             logger.info("Loading LDAP realm config from " + configFile);
 
-            cs = new EngineConfig(new FileConfigStore(configFile));
+            cs = new EngineConfig(new FileConfigStorage(configFile));
             cs.load();
 
             ps = IPasswordStore.create(cs.getPasswordStoreConfig());

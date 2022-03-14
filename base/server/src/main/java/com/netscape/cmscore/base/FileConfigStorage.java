@@ -29,7 +29,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 
 /**
- * FileConfigStore:
+ * FileConfigStorage:
  * Extends PropConfigStore with methods to load/save from/to file for
  * persistent storage. This is a configuration store agent who
  * reads data from a file.
@@ -38,7 +38,7 @@ import com.netscape.cmscore.apps.CMS;
  * @version $Revision$, $Date$
  * @see PropConfigStore
  */
-public class FileConfigStore extends ConfigStorage {
+public class FileConfigStorage extends ConfigStorage {
 
     private File mFile;
 
@@ -49,7 +49,7 @@ public class FileConfigStore extends ConfigStorage {
      * @param fileName file name
      * @exception EBaseException failed to create file configuration
      */
-    public FileConfigStore(String fileName) throws Exception {
+    public FileConfigStorage(String fileName) throws Exception {
         mFile = new File(fileName);
     }
 

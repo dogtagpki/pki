@@ -17,7 +17,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
@@ -46,7 +46,7 @@ public abstract class SubsystemCLI extends CommandCLI {
         String configDir = catalinaBase + File.separator + subsystem;
         String configFile = configDir + File.separator + "conf" + File.separator + CMS.CONFIG_FILE;
         logger.info("Loading {}", configFile);
-        ConfigStorage storage = new FileConfigStore(configFile);
+        ConfigStorage storage = new FileConfigStorage(configFile);
         return new EngineConfig(storage);
     }
 

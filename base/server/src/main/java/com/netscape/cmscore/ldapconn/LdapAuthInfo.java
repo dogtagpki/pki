@@ -76,7 +76,7 @@ public class LdapAuthInfo {
         /*
                         IConfigStore mainConfig = CMS.getConfigStore();
                         String pwdFile = mainConfig.getString("passwordFile");
-                        FileConfigStore pstore = new FileConfigStore(pwdFile);
+                        FileConfigStorage pstore = new FileConfigStorage(pwdFile);
         */
         logger.debug("LdapAuthInfo: getPasswordFromStore: about to get from passwored store: " + prompt);
 

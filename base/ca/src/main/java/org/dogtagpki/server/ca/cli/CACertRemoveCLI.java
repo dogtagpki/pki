@@ -20,7 +20,7 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -79,7 +79,7 @@ public class CACertRemoveCLI extends CommandCLI {
         String configFile = confDir + File.separator + CMS.CONFIG_FILE;
 
         logger.info("Loading " + configFile);
-        ConfigStorage storage = new FileConfigStore(configFile);
+        ConfigStorage storage = new FileConfigStorage(configFile);
         EngineConfig cs = new EngineConfig(storage);
         cs.load();
 

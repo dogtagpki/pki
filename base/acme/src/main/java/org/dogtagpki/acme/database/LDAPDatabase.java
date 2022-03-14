@@ -27,7 +27,7 @@ import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWK;
 
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -211,7 +211,7 @@ public class LDAPDatabase extends ACMEDatabase {
 
             logger.info("Loading LDAP database configuration from " + configFile);
 
-            cs = new EngineConfig(new FileConfigStore(configFile));
+            cs = new EngineConfig(new FileConfigStorage(configFile));
             cs.load();
 
             ps = IPasswordStore.create(cs.getPasswordStoreConfig());

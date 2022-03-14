@@ -17,7 +17,7 @@ import org.dogtagpki.cli.CommandCLI;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -95,7 +95,7 @@ public class SDHostAddCLI extends CommandCLI {
         String configFile = subsystemConfDir + File.separator + CMS.CONFIG_FILE;
 
         logger.info("Loading " + configFile);
-        ConfigStorage storage = new FileConfigStore(configFile);
+        ConfigStorage storage = new FileConfigStorage(configFile);
         EngineConfig cs = new EngineConfig(storage);
         cs.load();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();

@@ -875,7 +875,7 @@ public class AdminServlet extends HttpServlet {
     }
 
     /**
-     * FileConfigStore functionality
+     * FileConfigStorage functionality
      *
      * The original config file is moved to <filename>.<date>.
      * Commits the current properties to the configuration file.

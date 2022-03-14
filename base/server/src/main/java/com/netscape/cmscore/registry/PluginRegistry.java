@@ -27,7 +27,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.registry.ERegistryException;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
 
 /**
@@ -74,7 +74,7 @@ public class PluginRegistry {
         File f = new File(registryFile);
         f.createNewFile();
 
-        FileConfigStore storage = new FileConfigStore(registryFile);
+        FileConfigStorage storage = new FileConfigStorage(registryFile);
         registryConfig = new PropConfigStore(storage);
         registryConfig.load();
 
@@ -207,7 +207,7 @@ public class PluginRegistry {
 
         registryConfig.putString("types", typesBuf.toString());
 
-        File file = ((FileConfigStore) registryConfig.getStorage()).getFile();
+        File file = ((FileConfigStorage) registryConfig.getStorage()).getFile();
 
         try {
             logger.info("PluginRegistry: Updating " + file.getAbsolutePath());
