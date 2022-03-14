@@ -72,7 +72,6 @@ public class Request {
     public static final String GETREVOCATIONINFO_REQUEST = "getRevocationInfo";
     public static final String GETCRL_REQUEST = "getCRL";
     public static final String GETCERTS_REQUEST = "getCertificates";
-    public static final String REVOCATION_CHECK_CHALLENGE_REQUEST = "revocationChallenge";
     public static final String GETCERT_STATUS_REQUEST = "getCertStatus";
     public static final String GETCERTS_FOR_CHALLENGE_REQUEST = "getCertsForChallenge";
     public static final String CLA_CERT4CRL_REQUEST = "cert4crl";

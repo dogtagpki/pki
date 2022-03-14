@@ -20,7 +20,6 @@ package com.netscape.ca;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.cert.CRLException;
@@ -29,7 +28,6 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import org.dogtagpki.ct.CTEngine;
 import org.dogtagpki.server.ca.CAEngine;
@@ -38,7 +36,6 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.util.BigInt;
 import org.mozilla.jss.netscape.security.util.DerValue;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
@@ -92,7 +89,6 @@ import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmscore.profile.ProfileSubsystem;
@@ -108,7 +104,6 @@ public class CAService implements IService {
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String CRMF_REQUEST = "CRMFRequest";
-    public static final String CHALLENGE_PHRASE = "challengePhrase";
     public static final String SERIALNO_ARRAY = "serialNoArray";
 
     // CCA->CLA connector
@@ -136,9 +131,6 @@ public class CAService implements IService {
         mServants.put(
                 Request.CMCREVOKE_REQUEST,
                 new serviceRevoke(this));
-        mServants.put(
-                Request.REVOCATION_CHECK_CHALLENGE_REQUEST,
-                new serviceCheckChallenge(this));
         mServants.put(
                 Request.GETCERTS_FOR_CHALLENGE_REQUEST,
                 new getCertsForChallenge(this));
@@ -581,11 +573,6 @@ public class CAService implements IService {
     void storeX509Cert(String rid, X509CertImpl cert, String crmfReqId)
             throws EBaseException {
         storeX509Cert(rid, cert, false, null, crmfReqId, null, null);
-    }
-
-    void storeX509Cert(String rid, X509CertImpl cert, String crmfReqId,
-            String challengePassword) throws EBaseException {
-        storeX509Cert(rid, cert, false, null, crmfReqId, challengePassword, null);
     }
 
     /**
@@ -1344,9 +1331,6 @@ class serviceIssue implements IServant {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository cr = engine.getCertificateRepository();
 
-        String challengePassword =
-                request.getExtDataInString(CAService.CHALLENGE_PHRASE);
-
         X509CertImpl[] certs = new X509CertImpl[certinfos.length];
         String rid = request.getRequestId().toString();
         int i;
@@ -1364,7 +1348,7 @@ class serviceIssue implements IServant {
 
         for (i = 0; i < certs.length; i++) {
             try {
-                mService.storeX509Cert(rid, certs[i], crmfReqId, challengePassword);
+                mService.storeX509Cert(rid, certs[i], crmfReqId);
             } catch (EBaseException e) {
                 String message = CMS.getLogMessage("CMSCORE_CA_STORE_ERROR", Integer.toString(i), rid, e.toString());
                 logger.warn(message, e);
@@ -1638,119 +1622,6 @@ class getCertStatus implements IServant {
     }
 }
 
-class serviceCheckChallenge implements IServant {
-
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceCheckChallenge.class);
-
-    private MessageDigest mSHADigest = null;
-
-    public serviceCheckChallenge(CAService service) {
-        try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
-        } catch (NoSuchAlgorithmException e) {
-            logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-        }
-    }
-
-    @Override
-    public boolean service(Request request)
-            throws EBaseException {
-        // note: some request attributes used below are set in
-        // authentication/ChallengePhraseAuthentication.java :(
-        BigInteger serialno = request.getExtDataInBigInteger("serialNumber");
-        String pwd = request.getExtDataInString(
-                CAService.CHALLENGE_PHRASE);
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certDB = engine.getCertificateRepository();
-
-        BigInteger[] bigIntArray = null;
-
-        if (serialno != null) {
-            CertRecord record = null;
-
-            try {
-                record = certDB.readCertificateRecord(serialno);
-            } catch (EBaseException ee) {
-                logger.warn(ee.toString());
-            }
-            if (record != null) {
-                String status = record.getStatus();
-
-                if (status.equals("VALID")) {
-                    boolean samepwd = compareChallengePassword(record, pwd);
-
-                    if (samepwd) {
-                        bigIntArray = new BigInteger[1];
-                        bigIntArray[0] = record.getSerialNumber();
-                    }
-                } else {
-                    bigIntArray = new BigInteger[0];
-                }
-            } else
-                bigIntArray = new BigInteger[0];
-        } else {
-            String subjectName = request.getExtDataInString("subjectName");
-
-            if (subjectName != null) {
-                String filter = "(&(x509cert.subject=" + subjectName + ")(certStatus=VALID))";
-                CertRecordList list = certDB.findCertRecordsInList(filter, null, 10);
-                int size = list.getSize();
-                Enumeration<CertRecord> en = list.getCertRecords(0, size - 1);
-
-                if (!en.hasMoreElements()) {
-                    bigIntArray = new BigInteger[0];
-                } else {
-                    Vector<BigInteger> idv = new Vector<>();
-
-                    while (en.hasMoreElements()) {
-                        CertRecord record = en.nextElement();
-                        boolean samepwd = compareChallengePassword(record, pwd);
-
-                        if (samepwd) {
-                            BigInteger id = record.getSerialNumber();
-
-                            idv.addElement(id);
-                        }
-                    }
-                    bigIntArray = new BigInteger[idv.size()];
-                    idv.copyInto(bigIntArray);
-                }
-            }
-        }
-
-        if (bigIntArray == null)
-            bigIntArray = new BigInteger[0];
-
-        request.setExtData(CAService.SERIALNO_ARRAY, bigIntArray);
-        return true;
-    }
-
-    private boolean compareChallengePassword(CertRecord record, String pwd)
-            throws EBaseException {
-        MetaInfo metaInfo = (MetaInfo) record.get(CertRecord.ATTR_META_INFO);
-
-        if (metaInfo == null) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "metaInfo"));
-        }
-
-        String hashpwd = hashPassword(pwd);
-
-        // got metaInfo
-        String challengeString =
-                (String) metaInfo.get(CertRecord.META_CHALLENGE_PHRASE);
-
-        return challengeString.equals(hashpwd);
-    }
-
-    private String hashPassword(String pwd) {
-        String salt = "lala123";
-        byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
-        String b64E = Utils.base64encode(pwdDigest, true);
-
-        return "{SHA}" + b64E;
-    }
-}
 
 class serviceRevoke implements IServant {
 
