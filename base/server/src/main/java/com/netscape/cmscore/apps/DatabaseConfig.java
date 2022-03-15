@@ -10,6 +10,7 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 
 public class DatabaseConfig extends ConfigStore {
 
@@ -243,5 +244,9 @@ public class DatabaseConfig extends ConfigStore {
 
     public void setReplicaIncrement(String replicaIncrement) {
         putString(DBSubsystem.PROP_REPLICA_INCREMENT, replicaIncrement);
+    }
+
+    public LDAPConfig getLDAPConfig() throws EBaseException {
+        return getSubStore("ldap", LDAPConfig.class);
     }
 }

@@ -608,10 +608,7 @@ public class CMSEngine implements ServletContextListener {
     public void initDBSubsystem() throws Exception {
 
         DatabaseConfig dbConfig = config.getDatabaseConfig();
-
-        String prefix = dbConfig.getString("ldap");
-        LDAPConfig ldapConfig = config.getSubStore(prefix, LDAPConfig.class);
-
+        LDAPConfig ldapConfig = dbConfig.getLDAPConfig();
         PKISocketConfig socketConfig = config.getSocketConfig();
         IPasswordStore passwordStore = getPasswordStore();
 

@@ -155,9 +155,7 @@ public class CACertImportCLI extends CommandCLI {
         RequestId requestID = new RequestId(cmd.getOptionValue("request"));
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
-
-        String prefix = dbConfig.getString("ldap");
-        LDAPConfig ldapConfig = cs.getSubStore(prefix, LDAPConfig.class);
+        LDAPConfig ldapConfig = dbConfig.getLDAPConfig();
         ldapConfig.putInteger("minConns", 1);
 
         PKISocketConfig socketConfig = cs.getSocketConfig();

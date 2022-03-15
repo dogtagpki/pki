@@ -113,9 +113,7 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
         }
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
-
-        String prefix = dbConfig.getString("ldap");
-        LDAPConfig ldapConfig = cs.getSubStore(prefix, LDAPConfig.class);
+        LDAPConfig ldapConfig = dbConfig.getLDAPConfig();
         ldapConfig.putInteger("minConns", 1);
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
