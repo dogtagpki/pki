@@ -65,8 +65,8 @@ public class DBSubsystem {
 
     public final static String ID = "dbs";
 
-    private LDAPConfig mConfig;
     private DatabaseConfig mDBConfig;
+    private LDAPConfig ldapConfig;
     private LdapBoundConnFactory mLdapConnFactory = null;
     private DBRegistry mRegistry = null;
     private String mBaseDN = null;
@@ -185,9 +185,9 @@ public class DBSubsystem {
 
         mDBConfig = config;
 
-        mConfig = config.getSubStore(PROP_LDAP, LDAPConfig.class);
+        ldapConfig = config.getSubStore(PROP_LDAP, LDAPConfig.class);
         try {
-            mBaseDN = mConfig.getBaseDN("o=NetscapeCertificateServer");
+            mBaseDN = ldapConfig.getBaseDN("o=NetscapeCertificateServer");
 
             mEnableSerialMgmt = mDBConfig.getEnableSerialManagement();
             logger.debug("DBSubsystem: init()  mEnableSerialMgmt="+mEnableSerialMgmt);
@@ -206,7 +206,7 @@ public class DBSubsystem {
         }
 
         try {
-            LDAPConfig tmpConfig = (LDAPConfig) mConfig.clone();
+            LDAPConfig tmpConfig = (LDAPConfig) ldapConfig.clone();
             tmpConfig.setBaseDN(mBaseDN);
 
             mLdapConnFactory.init(socketConfig, tmpConfig, passwordStore);
@@ -409,8 +409,8 @@ public class DBSubsystem {
     /**
      * Retrieves internal DB configuration store.
      */
-    public LDAPConfig getConfigStore() {
-        return mConfig;
+    public LDAPConfig getLDAPConfig() {
+        return ldapConfig;
     }
 
     /**
