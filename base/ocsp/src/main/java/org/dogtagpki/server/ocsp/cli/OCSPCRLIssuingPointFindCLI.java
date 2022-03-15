@@ -28,6 +28,7 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
@@ -68,19 +69,23 @@ public class OCSPCRLIssuingPointFindCLI extends CommandCLI {
 
         logger.info("Loading " + configFile);
         ConfigStorage storage = new FileConfigStorage(configFile);
-        OCSPEngineConfig engineConfig = new OCSPEngineConfig(storage);
-        engineConfig.load();
+        OCSPEngineConfig cs = new OCSPEngineConfig(storage);
+        cs.load();
 
-        DatabaseConfig dbConfig = engineConfig.getDatabaseConfig();
-        PKISocketConfig socketConfig = engineConfig.getSocketConfig();
+        DatabaseConfig dbConfig = cs.getDatabaseConfig();
 
-        PasswordStoreConfig psc = engineConfig.getPasswordStoreConfig();
+        String prefix = dbConfig.getString("ldap");
+        LDAPConfig ldapConfig = cs.getSubStore(prefix, LDAPConfig.class);
+
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
+        PasswordStoreConfig psc = cs.getPasswordStoreConfig();
         IPasswordStore passwordStore = IPasswordStore.create(psc);
 
         DBSubsystem dbSubsystem = new DBSubsystem();
-        dbSubsystem.init(dbConfig, socketConfig, passwordStore);
+        dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
-        OCSPConfig ocspConfig = engineConfig.getOCSPConfig();
+        OCSPConfig ocspConfig = cs.getOCSPConfig();
         String storeID = ocspConfig.getString(IOCSPAuthority.PROP_DEF_STORE_ID);
 
         String className = ocspConfig.getString(IOCSPAuthority.PROP_STORE + "." + storeID + ".class");

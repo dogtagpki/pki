@@ -178,14 +178,15 @@ public class DBSubsystem {
      * of the database.
      */
     public void init(
-            DatabaseConfig config,
+            DatabaseConfig dbConfig,
+            LDAPConfig ldapConfig,
             PKISocketConfig socketConfig,
             IPasswordStore passwordStore)
             throws EBaseException {
 
-        mDBConfig = config;
+        this.mDBConfig = dbConfig;
+        this.ldapConfig = ldapConfig;
 
-        ldapConfig = config.getSubStore(PROP_LDAP, LDAPConfig.class);
         try {
             mBaseDN = ldapConfig.getBaseDN("o=NetscapeCertificateServer");
 

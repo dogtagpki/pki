@@ -30,11 +30,12 @@ import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
@@ -154,13 +155,17 @@ public class CACertImportCLI extends CommandCLI {
         RequestId requestID = new RequestId(cmd.getOptionValue("request"));
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
+
+        String prefix = dbConfig.getString("ldap");
+        LDAPConfig ldapConfig = cs.getSubStore(prefix, LDAPConfig.class);
+
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
         IPasswordStore passwordStore = IPasswordStore.create(psc);
 
         DBSubsystem dbSubsystem = new DBSubsystem();
-        dbSubsystem.init(dbConfig, socketConfig, passwordStore);
+        dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
         try {
             CertificateRepository certificateRepository = new CertificateRepository(dbSubsystem);

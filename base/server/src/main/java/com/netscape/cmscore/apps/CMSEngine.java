@@ -70,8 +70,8 @@ import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.authentication.VerifiedCerts;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -608,10 +608,14 @@ public class CMSEngine implements ServletContextListener {
     public void initDBSubsystem() throws Exception {
 
         DatabaseConfig dbConfig = config.getDatabaseConfig();
+
+        String prefix = dbConfig.getString("ldap");
+        LDAPConfig ldapConfig = config.getSubStore(prefix, LDAPConfig.class);
+
         PKISocketConfig socketConfig = config.getSocketConfig();
         IPasswordStore passwordStore = getPasswordStore();
 
-        dbSubsystem.init(dbConfig, socketConfig, passwordStore);
+        dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
     }
 
     public void initUGSubsystem() throws Exception {

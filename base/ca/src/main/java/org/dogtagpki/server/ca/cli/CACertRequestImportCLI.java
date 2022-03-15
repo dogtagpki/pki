@@ -27,9 +27,10 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
@@ -153,6 +154,10 @@ public class CACertRequestImportCLI extends CommandCLI {
         profileConfig.load();
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
+
+        String prefix = dbConfig.getString("ldap");
+        LDAPConfig ldapConfig = cs.getSubStore(prefix, LDAPConfig.class);
+
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
@@ -170,7 +175,7 @@ public class CACertRequestImportCLI extends CommandCLI {
         boolean adjustValidity = Boolean.parseBoolean(value);
 
         DBSubsystem dbSubsystem = new DBSubsystem();
-        dbSubsystem.init(dbConfig, socketConfig, passwordStore);
+        dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
         try {
             CertRequestRepository requestRepository = new CertRequestRepository(dbSubsystem);
