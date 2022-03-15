@@ -63,6 +63,7 @@ public class SubsystemGroupMemberFindCLI extends SubsystemCLI {
 
         UGSubsystemConfig ugConfig = cs.getUGSubsystemConfig();
         LDAPConfig ldapConfig = ugConfig.getLDAPConfig();
+        ldapConfig.putInteger("minConns", 1);
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
