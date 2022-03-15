@@ -1,0 +1,8 @@
+= Server Changes =
+
+== Random Serial Numbers v3 ==
+
+Since PKI 11.2 the CA and KRA can be installed with Random Serial Numbers v3:
+
+* link:../../installation/ca/Installing-CA-with-Random-Serial-Numbers-v3.adoc[Installing CA with Random Serial Numbers v3]
+* link:../../installation/kra/Installing-KRA-with-Random-Serial-Numbers-v3.adoc[Installing KRA with Random Serial Numbers v3]
