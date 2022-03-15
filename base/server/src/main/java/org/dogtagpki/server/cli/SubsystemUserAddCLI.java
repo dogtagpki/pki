@@ -19,11 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
-import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
-import com.netscape.cmscore.ldapconn.LdapAuthInfo;
-import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
-import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 import com.netscape.cmscore.usrgrp.User;
@@ -110,33 +106,21 @@ public class SubsystemUserAddCLI extends SubsystemCLI {
         String subsystem = parent.getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();
-        LDAPConfig ldapConfig = cs.getInternalDBConfig();
+
+        UGSubsystemConfig ugConfig = cs.getUGSubsystemConfig();
+        LDAPConfig ldapConfig = ugConfig.getLDAPConfig();
+
+        PKISocketConfig socketConfig = cs.getSocketConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
         IPasswordStore passwordStore = IPasswordStore.create(psc);
 
-        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
-
-        LdapConnInfo connInfo = new LdapConnInfo(connConfig);
-        LdapAuthInfo authInfo = getAuthInfo(passwordStore, connInfo, ldapConfig);
-
-        PKISocketConfig socketConfig = cs.getSocketConfig();
-
-        PKISocketFactory socketFactory;
-        if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-            socketFactory = new PKISocketFactory(authInfo.getClientCertNickname());
-        } else {
-            socketFactory = new PKISocketFactory(connInfo.getSecure());
-        }
-        socketFactory.init(socketConfig);
-
-        UGSubsystemConfig ugConfig = cs.getUGSubsystemConfig();
         UGSubsystem ugSubsystem = new UGSubsystem();
 
         UserData userData = new UserData();
 
         try {
-            ugSubsystem.init(socketConfig, ugConfig, passwordStore);
+            ugSubsystem.init(ldapConfig, socketConfig, passwordStore);
 
             User user = new User();
             user.setUserID(userID);

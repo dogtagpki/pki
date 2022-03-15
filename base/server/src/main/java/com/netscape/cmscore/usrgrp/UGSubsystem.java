@@ -88,11 +88,10 @@ public class UGSubsystem {
     }
 
     public void init(
+            LDAPConfig ldapConfig,
             PKISocketConfig socketConfig,
-            UGSubsystemConfig config,
             IPasswordStore passwordStore) throws Exception {
 
-        LDAPConfig ldapConfig = config.getLDAPConfig();
         mBaseDN = ldapConfig.getBaseDN();
 
         mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
