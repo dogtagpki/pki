@@ -607,9 +607,13 @@ public abstract class DirBasedAuthentication
                 logger.info("DirBasedAuthentication: Searching for " + userdn);
 
                 String[] attrs = getLdapAttrs();
-                logger.info("DirBasedAuthentication: - attributes:");
-                for (String attr : attrs) {
-                    logger.info("DirBasedAuthentication:   - " + attr);
+                if (attrs == null) {
+                    logger.info("DirBasedAuthentication: - no attributes found");
+                } else {
+                    logger.info("DirBasedAuthentication: - attributes:");
+                    for (String attr : attrs) {
+                        logger.info("DirBasedAuthentication:   - " + attr);
+                    }
                 }
 
                 LDAPSearchResults results = conn.search(
