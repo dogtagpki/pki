@@ -26,7 +26,6 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -198,53 +197,6 @@ public class Configurator {
 
     public RequestId createRequestID() throws Exception {
         return null;
-    }
-
-    /**
-     * This method creates an ECC keypair for a system cert.
-     *
-     * For ECDHE SSL server cert, server.xml should have the following ciphers:
-     * +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
-     * -TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
-     *
-     * For ECDH SSL server cert, server.xml should have the following ciphers:
-     * -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
-     * +TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
-     */
-    public KeyPair createECCKeyPair(String tag, CryptoToken token, String curveName, String ecType)
-            throws Exception {
-
-        if (curveName == null) {
-            curveName = cs.getString("keys.ecc.curve.default");
-        }
-
-        logger.info("Configurator: Creating ECC keypair for " + tag);
-        logger.info("Configurator: - token: " + token);
-        logger.info("Configurator: - curve: " + curveName);
-
-        KeyPair pair = null;
-        logger.info("Configurator: - type: " + ecType);
-
-        do {
-            if (tag.equals("sslserver") && ecType.equalsIgnoreCase("ECDH")) {
-                pair = CryptoUtil.generateECCKeyPair(token, curveName, null, CryptoUtil.ECDH_USAGES_MASK);
-
-            } else {
-                pair = CryptoUtil.generateECCKeyPair(token, curveName, null, CryptoUtil.ECDHE_USAGES_MASK);
-            }
-
-            // XXX - store curve , w
-            byte id[] = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
-
-            // try to locate the private key
-            PrivateKey privk = CryptoUtil.findPrivateKey(token, id);
-            if (privk == null) {
-                logger.debug("Bad ECC key ID: " + CryptoUtil.encodeKeyID(id));
-                pair = null;
-            }
-        } while (pair == null);
-
-        return pair;
     }
 
     public X509CertImpl createCert(

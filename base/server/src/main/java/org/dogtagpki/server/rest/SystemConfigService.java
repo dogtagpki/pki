@@ -238,9 +238,39 @@ public class SystemConfigService extends PKIService {
                         usagesMask);
 
             } else if (keyType.equals("ecc")) {
+
+                logger.info("SystemConfigService: Creating ECC key pair");
+
                 String curveName = keySize;
+                if (curveName == null) {
+                    curveName = cs.getString("keys.ecc.curve.default");
+                }
+                logger.info("SystemConfigService: - curve: " + curveName);
+
                 String ecType = certData.getEcType();
-                keyPair = configurator.createECCKeyPair(tag, token, curveName, ecType);
+                logger.info("SystemConfigService: - type: " + ecType);
+
+                // For ECDH SSL server cert, server.xml should have the following ciphers:
+                // -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+                // +TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
+                //
+                // For ECDHE SSL server cert, server.xml should have the following ciphers:
+                // +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+                // -TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
+
+                Usage[] usages;
+                Usage[] usagesMask;
+
+                if (tag.equals("sslserver") && ecType.equalsIgnoreCase("ECDH")) {
+                    usages = null;
+                    usagesMask = CryptoUtil.ECDH_USAGES_MASK;
+
+                } else {
+                    usages = null;
+                    usagesMask = CryptoUtil.ECDHE_USAGES_MASK;
+                }
+
+                keyPair = CryptoUtil.generateECCKeyPair(token, keySize, usages, usagesMask);
 
             } else {
                 throw new Exception("Unsupported key type: " + keyType);
