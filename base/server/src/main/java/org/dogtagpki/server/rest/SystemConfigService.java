@@ -26,6 +26,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
@@ -210,7 +211,31 @@ public class SystemConfigService extends PKIService {
                 keyPair = new KeyPair(publicKey, privateKey);
 
             } else if (keyType.equals("rsa")) {
-                keyPair = configurator.createRSAKeyPair(tag, token, keySize);
+
+                logger.info("SystemConfigService: Creating RSA keypair");
+
+                if (keySize == null) {
+                    keySize = cs.getString("keys.rsa.keysize.default");
+                }
+                logger.info("Configurator: - key size: " + keySize);
+
+                Usage[] usages;
+                Usage[] usagesMask;
+
+                if (tag.equals("transport") || tag.equals("storage")) {
+                    usages = CryptoUtil.RSA_KEYPAIR_USAGES;
+                    usagesMask = CryptoUtil.RSA_KEYPAIR_USAGES_MASK;
+
+                } else {
+                    usages = null;
+                    usagesMask = null;
+                }
+
+                keyPair = CryptoUtil.generateRSAKeyPair(
+                        token,
+                        Integer.parseInt(keySize),
+                        usages,
+                        usagesMask);
 
             } else if (keyType.equals("ecc")) {
                 String curveName = keySize;

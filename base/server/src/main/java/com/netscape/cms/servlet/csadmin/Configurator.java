@@ -247,43 +247,6 @@ public class Configurator {
         return pair;
     }
 
-    public KeyPair createRSAKeyPair(String tag, CryptoToken token, String keySize)
-            throws Exception {
-
-        logger.info("Configurator: Creating RSA keypair for " + tag);
-        logger.info("Configurator: - token: " + token);
-
-        if (keySize == null) {
-            keySize = cs.getString("keys.rsa.keysize.default");
-        }
-
-        int size = Integer.parseInt(keySize);
-        logger.info("Configurator: - size: " + size);
-
-        KeyPair pair = null;
-        do {
-            if("transport".equals(tag) || "storage".equals(tag)) {
-                pair = CryptoUtil.generateRSAKeyPair(token,size,
-                                CryptoUtil.RSA_KEYPAIR_USAGES,
-                                CryptoUtil.RSA_KEYPAIR_USAGES_MASK);
-            } else {
-                pair = CryptoUtil.generateRSAKeyPair(token, size);
-            }
-
-            byte id[] = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
-
-            // try to locate the private key
-            PrivateKey privk = CryptoUtil.findPrivateKey(token, id);
-
-            if (privk == null) {
-                logger.error("Bad RSA key ID: " + CryptoUtil.encodeKeyID(id));
-                pair = null;
-            }
-        } while (pair == null);
-
-        return pair;
-    }
-
     public X509CertImpl createCert(
             RequestId requestID,
             String keyAlgorithm,
