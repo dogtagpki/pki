@@ -802,6 +802,22 @@ class PKIDeployer:
             connection,
             subsystem=self.mdict['pki_subsystem_type'])
 
+    def import_cert_request(self, subsystem, tag, request):
+
+        logger.info('Creating request ID for %s cert', tag)
+        request.systemCert.requestID = self.client.createRequestID(request)
+        logger.info('- request ID: %s', request.systemCert.requestID)
+
+        logger.info('Importing request for %s cert', tag)
+        request_pem = pki.nssdb.convert_csr(request.systemCert.request, 'base64', 'pem')
+        subsystem.import_cert_request(
+            request_id=request.systemCert.requestID,
+            request_data=request_pem,
+            request_type=request.systemCert.requestType,
+            profile_id=request.systemCert.profile,
+            dns_names=request.systemCert.dnsNames,
+            adjust_validity=request.systemCert.adjustValidity)
+
     def create_cert_setup_request(self, subsystem, tag, cert):
 
         request = pki.system.CertificateSetupRequest()
@@ -898,19 +914,7 @@ class PKIDeployer:
             # might conflict with system certificates to be created later.
             # Also create the certificate request record for renewals.
 
-            logger.info('Creating request ID for %s cert', tag)
-            request.systemCert.requestID = self.client.createRequestID(request)
-            logger.info('- request ID: %s', request.systemCert.requestID)
-
-            logger.info('Importing request for %s cert', tag)
-            request_pem = pki.nssdb.convert_csr(request.systemCert.request, 'base64', 'pem')
-            subsystem.import_cert_request(
-                request_id=request.systemCert.requestID,
-                request_data=request_pem,
-                request_type=request.systemCert.requestType,
-                profile_id=request.systemCert.profile,
-                dns_names=request.systemCert.dnsNames,
-                adjust_validity=request.systemCert.adjustValidity)
+            self.import_cert_request(subsystem, tag, request)
 
             logger.info('Importing %s cert', tag)
             logger.debug('- cert: %s', system_cert['data'])
@@ -983,19 +987,7 @@ class PKIDeployer:
 
         else:  # selfsign or local
 
-            logger.info('Creating request ID for %s cert', tag)
-            request.systemCert.requestID = self.client.createRequestID(request)
-            logger.info('- request ID: %s', request.systemCert.requestID)
-
-            logger.info('Importing request for %s cert', tag)
-            request_pem = pki.nssdb.convert_csr(request.systemCert.request, 'base64', 'pem')
-            subsystem.import_cert_request(
-                request_id=request.systemCert.requestID,
-                request_data=request_pem,
-                request_type=request.systemCert.requestType,
-                profile_id=request.systemCert.profile,
-                dns_names=request.systemCert.dnsNames,
-                adjust_validity=request.systemCert.adjustValidity)
+            self.import_cert_request(subsystem, tag, request)
 
             logger.info('Creating %s cert', tag)
             response = self.client.createCert(request)
@@ -1392,19 +1384,7 @@ class PKIDeployer:
         request.systemCert.keyAlgorithm = self.get_signing_algorithm(subsystem, profile)
         logger.info('Signing algorithm: %s', request.systemCert.keyAlgorithm)
 
-        logger.info('Creating request ID for admin cert')
-        request.systemCert.requestID = self.client.createRequestID(request)
-        logger.info('- request ID: %s', request.systemCert.requestID)
-
-        logger.info('Importing request for admin cert')
-        request_pem = pki.nssdb.convert_csr(request.systemCert.request, 'base64', 'pem')
-        subsystem.import_cert_request(
-            request_id=request.systemCert.requestID,
-            request_data=request_pem,
-            request_type=request.systemCert.requestType,
-            profile_id=request.systemCert.profile,
-            dns_names=request.systemCert.dnsNames,
-            adjust_validity=request.systemCert.adjustValidity)
+        self.import_cert_request(subsystem, 'admin', request)
 
         logger.info('Creating admin cert')
         response = self.client.createCert(request)
