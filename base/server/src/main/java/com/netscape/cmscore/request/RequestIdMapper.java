@@ -82,7 +82,7 @@ public class RequestIdMapper extends DBAttrMapper {
         LDAPAttribute attr = attrs.getAttribute(Schema.LDAP_ATTR_REQUEST_ID);
 
         if (attr == null) {
-            throw new EBaseException("schema violation");
+            throw new EBaseException("Missing LDAP attribute: " + Schema.LDAP_ATTR_REQUEST_ID);
         }
 
         String value = attr.getStringValues().nextElement();

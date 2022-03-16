@@ -80,7 +80,7 @@ public class RequestStateMapper extends DBAttrMapper {
         LDAPAttribute attr = attrs.getAttribute(Schema.LDAP_ATTR_REQUEST_STATE);
 
         if (attr == null) {
-            throw new EBaseException("schema violation");
+            throw new EBaseException("Missing LDAP attribute: " + Schema.LDAP_ATTR_REQUEST_STATE);
         }
 
         String value = attr.getStringValues().nextElement();
