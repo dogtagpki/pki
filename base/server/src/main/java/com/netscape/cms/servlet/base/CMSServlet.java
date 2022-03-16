@@ -388,10 +388,7 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     public boolean isClientCertRequired() {
-        if (mGetClientCert != null && mGetClientCert.equals("true"))
-            return true;
-        else
-            return false;
+        return mGetClientCert != null && mGetClientCert.equals("true");
     }
 
     public void outputHttpParameters(HttpServletRequest httpReq) {
@@ -404,13 +401,8 @@ public abstract class CMSServlet extends HttpServlet {
             // __ (double underscores); however, in the event that
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed
-            if (CMS.isSensitive(pn)) {
-                logger.debug("CMSServlet::service() param name='" + pn +
-                        "' value='(sensitive)'");
-            } else {
-                logger.debug("CMSServlet::service() param name='" + pn +
-                        "' value='" + httpReq.getParameter(pn) + "'");
-            }
+            String value = CMS.isSensitive(pn) ? "(sensitive)" : httpReq.getParameter(pn);
+            logger.debug("CMSServlet::service() param name='{}' value='{}'", pn, value);
         }
     }
 
@@ -679,7 +671,6 @@ public abstract class CMSServlet extends HttpServlet {
         } catch (Exception e) {
             logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_TEMPLATE", templateName, e.toString()), e);
             renderException(cmsReq, new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e));
-            return;
         }
     }
 
@@ -766,7 +757,6 @@ public abstract class CMSServlet extends HttpServlet {
                                     tokenIdx + ERROR_MSG_TOKEN.length());
         }
         out.println(finalErrMsg);
-        return;
     }
 
     /**
@@ -788,7 +778,6 @@ public abstract class CMSServlet extends HttpServlet {
          }catch (SocketException se) {
          }
          */
-        return;
     }
 
     /**
@@ -840,11 +829,10 @@ public abstract class CMSServlet extends HttpServlet {
         X509Certificate[] allCerts = (X509Certificate[]) httpReq.getAttribute(CERT_ATTR);
 
         if (allCerts == null || allCerts.length == 0) {
-            if (!clientCertRequired) {
-                return null;
-            } else {
+            if (clientCertRequired) {
                 throw new EBaseException("You did not provide a valid certificate for this operation");
             }
+            return null;
         }
 
         cert = allCerts[0];
@@ -881,10 +869,6 @@ public abstract class CMSServlet extends HttpServlet {
             logger.error("CMSServlet:getTemplate() - mServletConfig is null!");
             return null;
         }
-        if (mServletConfig.getServletContext() == null) {
-        }
-        if (templateName == null) {
-        }
         String realpath =
                 mServletConfig.getServletContext().getRealPath("/" + templateName);
 
@@ -901,10 +885,7 @@ public abstract class CMSServlet extends HttpServlet {
         if (charSet == null) {
             charSet = "UTF8";
         }
-        CMSTemplate template =
-                (CMSTemplate) mFileLoader.getCMSFile(templateFile, charSet);
-
-        return template;
+        return (CMSTemplate) mFileLoader.getCMSFile(templateFile, charSet);
     }
 
     /**
@@ -935,7 +916,6 @@ public abstract class CMSServlet extends HttpServlet {
             for (int i = 0; i < DONT_SAVE_HTTP_PARAMS.length; i++) {
                 mDontSaveHttpParams.addElement(DONT_SAVE_HTTP_PARAMS[i]);
             }
-            return;
         }
     }
 
@@ -965,7 +945,6 @@ public abstract class CMSServlet extends HttpServlet {
             }
         } catch (Exception e) {
             logger.warn(CMS.getLogMessage("CMSGW_NO_CONFIG_VALUE", PROP_SAVE_HTTP_HEADERS, e.toString()), e);
-            return;
         }
     }
 
@@ -1027,8 +1006,7 @@ public abstract class CMSServlet extends HttpServlet {
      * handy routine for getting a cert record given a serial number.
      */
     protected CertRecord getCertRecord(BigInteger serialNo) {
-        if (mAuthority == null ||
-                !(mAuthority instanceof ICertificateAuthority)) {
+        if (!(mAuthority instanceof ICertificateAuthority)) {
             logger.error(CMS.getLogMessage("CMSGW_NON_CERT_AUTH"));
             return null;
         }
@@ -1057,9 +1035,7 @@ public abstract class CMSServlet extends HttpServlet {
         BigInteger serialno = cert.getSerialNumber();
         X509CertImpl certInDB = (X509CertImpl) getX509Certificate(serialno);
 
-        if (certInDB == null || !certInDB.equals(cert))
-            return false;
-        return true;
+        return certInDB != null && certInDB.equals(cert);
     }
 
     /**
@@ -1079,8 +1055,7 @@ public abstract class CMSServlet extends HttpServlet {
      * repository. mAuthority must be a CA.
      */
     protected X509Certificate getX509Certificate(BigInteger serialNo) {
-        if (mAuthority == null ||
-                !(mAuthority instanceof ICertificateAuthority)) {
+        if (!(mAuthority instanceof ICertificateAuthority)) {
             logger.error(CMS.getLogMessage("CMSGW_NOT_CERT_AUTH"));
             return null;
         }
@@ -1114,10 +1089,9 @@ public abstract class CMSServlet extends HttpServlet {
         } catch (Exception e) {
             if ((e instanceof RuntimeException)) {
                 throw (RuntimeException) e;
-            } else {
-                logger.error(CMS.getLogMessage("CMSGW_CANT_LOAD_FILLER", fillerClass, e.toString()), e);
-                return null;
             }
+            logger.error(CMS.getLogMessage("CMSGW_CANT_LOAD_FILLER", fillerClass, e.toString()), e);
+            return null;
         }
         return filler;
     }
@@ -1259,10 +1233,7 @@ public abstract class CMSServlet extends HttpServlet {
     public static boolean clientIsNav(HttpServletRequest httpReq) {
         String useragent = httpReq.getHeader("user-agent");
 
-        if (useragent.startsWith("Mozilla") &&
-                useragent.indexOf("MSIE") == -1)
-            return true;
-        return false;
+        return useragent.startsWith("Mozilla") && useragent.indexOf("MSIE") == -1;
     }
 
     /**
@@ -1271,9 +1242,7 @@ public abstract class CMSServlet extends HttpServlet {
     public static boolean clientIsMSIE(HttpServletRequest httpReq) {
         String useragent = httpReq.getHeader("user-agent");
 
-        if (useragent != null && useragent.indexOf("MSIE") != -1)
-            return true;
-        return false;
+        return useragent != null && useragent.indexOf("MSIE") != -1;
     }
 
     /**
@@ -1283,10 +1252,7 @@ public abstract class CMSServlet extends HttpServlet {
     private static String CMMF_RESPONSE = "cmmfResponse";
 
     public static boolean doCMMFResponse(IArgBlock httpParams) {
-        if (httpParams.getValueAsBoolean(CMMF_RESPONSE, false))
-            return true;
-        else
-            return false;
+        return httpParams.getValueAsBoolean(CMMF_RESPONSE, false);
     }
 
     private static final String IMPORT_CERT = "importCert";
@@ -1308,10 +1274,7 @@ public abstract class CMSServlet extends HttpServlet {
     public static String FULL_RESPONSE = "fullResponse";
 
     public static boolean doFullResponse(IArgBlock httpParams) {
-        if (httpParams.getValueAsBoolean(FULL_RESPONSE, false))
-            return true;
-        else
-            return false;
+        return httpParams.getValueAsBoolean(FULL_RESPONSE, false);
     }
 
     /**
@@ -1491,10 +1454,7 @@ public abstract class CMSServlet extends HttpServlet {
             logger.error(CMS.getLogMessage("CMSGW_ERR_CRL_REASON", reason.toString(), e.toString()), e);
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_SETTING_CRLREASON"), e);
         }
-        RevokedCertImpl crlentry =
-                new RevokedCertImpl(serialNo, new Date(), crlentryexts);
-
-        return crlentry;
+        return new RevokedCertImpl(serialNo, new Date(), crlentryexts);
     }
 
     /**
@@ -1511,17 +1471,14 @@ public abstract class CMSServlet extends HttpServlet {
             logger.error(CMS.getLogMessage("CMSGW_BAD_CERT_SER_NUM", String.valueOf(serialNum)));
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_INVALID_CERT"));
         }
-        if (certRecord.getStatus().equals(CertRecord.STATUS_REVOKED))
-            return true;
-        return false;
+        return certRecord.getStatus().equals(CertRecord.STATUS_REVOKED);
     }
 
     public static String generateSalt() {
         CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         SecureRandom rnd = jssSubsystem.getRandomNumberGenerator();
-        String salt = Integer.valueOf(rnd.nextInt()).toString();
-        return salt;
+        return Integer.toString(rnd.nextInt());
     }
 
     protected String hashPassword(String pwd) {
@@ -1611,10 +1568,10 @@ public abstract class CMSServlet extends HttpServlet {
     public static Locale getLocale(String lang) {
         int dash = lang.indexOf('-');
 
-        if (dash == -1)
+        if (dash == -1) {
             return new Locale(lang, "");
-        else
-            return new Locale(lang.substring(0, dash), lang.substring(dash + 1));
+        }
+        return new Locale(lang.substring(0, dash), lang.substring(dash + 1));
     }
 
     public IAuthToken authenticate(CMSRequest req)
@@ -1699,28 +1656,27 @@ public abstract class CMSServlet extends HttpServlet {
 
                 logger.debug("CMSServlet: no authMgrName");
                 return null;
+            }
+            // save the "Subject DN" of this certificate in case it
+            // must be audited as an authentication failure
+            if (clientCert == null) {
+                logger.debug("CMSServlet: no client certificate found");
             } else {
-                // save the "Subject DN" of this certificate in case it
-                // must be audited as an authentication failure
-                if (clientCert == null) {
-                    logger.debug("CMSServlet: no client certificate found");
-                } else {
-                    String certUID = clientCert.getSubjectDN().getName();
-                    logger.debug("CMSServlet: certUID=" + certUID);
+                String certUID = clientCert.getSubjectDN().getName();
+                logger.debug("CMSServlet: certUID=" + certUID);
 
-                    if (certUID != null) {
-                        certUID = certUID.trim();
+                if (certUID != null) {
+                    certUID = certUID.trim();
 
-                        if (!(certUID.equals(""))) {
-                            // reset the "auditUID"
-                            auditUID = certUID;
-                        }
+                    if (!(certUID.equals(""))) {
+                        // reset the "auditUID"
+                        auditUID = certUID;
                     }
                 }
-
-                // reset the "auditAuthMgrID"
-                auditAuthMgrID = authMgrName;
             }
+
+            // reset the "auditAuthMgrID"
+            auditAuthMgrID = authMgrName;
             IAuthToken authToken = CMSGateway.checkAuthManager(httpReq,
                     httpArgs,
                     clientCert,
@@ -2055,7 +2011,7 @@ public abstract class CMSServlet extends HttpServlet {
         while (groups.hasMoreElements()) {
             Group group = groups.nextElement();
 
-            if (group.isMember(SubjectID) == true) {
+            if (group.isMember(SubjectID)) {
                 if (membersString.length() != 0) {
                     membersString.append(", ");
                 }
@@ -2128,7 +2084,6 @@ public abstract class CMSServlet extends HttpServlet {
             httpResp.setContentLength(cb.length);
             os.write(cb);
             os.flush();
-            return;
         } catch (Exception ee) {
             logger.warn(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", ee.toString()), ee);
         }
