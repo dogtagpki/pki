@@ -668,88 +668,22 @@ public class CryptoUtil {
         return false;
     }
 
-    /**
-     * Generates an ECC key pair.
-     */
-    public static KeyPair generateECCKeyPair(
-            CryptoToken token,
-            int keySize) throws Exception {
-
-        return generateECCKeyPair(token, keySize, null, null);
-    }
-
-    public static KeyPair generateECCKeyPair(
-            CryptoToken token,
-            int keySize,
-            KeyPairGeneratorSpi.Usage[] usageOps,
-            KeyPairGeneratorSpi.Usage[] usageMask) throws Exception {
-
-        return generateECCKeyPair(token, keySize, false, -1, -1, usageOps, usageMask);
-    }
-
-    /*
-     * temporary, sensitive, and extractable usages are per defined in
-     * JSS pkcs11/PK11KeyPairGenerator.java
-     */
-    public static KeyPair generateECCKeyPair(
-            CryptoToken token,
-            int keysize,
-            boolean temporary,
-            int sensitive,
-            int extractable,
-            KeyPairGeneratorSpi.Usage[] usage_ops,
-            KeyPairGeneratorSpi.Usage[] usage_mask) throws Exception {
-
-        logger.info("CryptoUtil: Generating ECC key pair");
-
-        KeyPairAlgorithm alg = KeyPairAlgorithm.EC;
-        KeyPairGenerator keygen = token.getKeyPairGenerator(alg);
-
-        keygen.setKeyPairUsages(usage_ops, usage_mask);
-        keygen.initialize(keysize);
-        keygen.setKeyPairUsages(usage_ops, usage_mask);
-
-        logger.info("CryptoUtil: - temporary: " + temporary);
-        keygen.temporaryPairs(temporary);
-
-        logger.info("CryptoUtil: - sensitive: " + sensitive);
-        if (sensitive == 1) {
-            keygen.sensitivePairs(true);
-        } else if (sensitive == 0) {
-            keygen.sensitivePairs(false);
-        }
-
-        logger.info("CryptoUtil: - extractable: " + extractable);
-        if (extractable == 1) {
-            keygen.extractablePairs(true);
-        } else if (extractable == 0) {
-            keygen.extractablePairs(false);
-        }
-
-        keygen.initialize(keysize);
-
-        KeyPair pair = keygen.genKeyPair();
-        PrivateKey privatKey = (PrivateKey) pair.getPrivate();
-        logger.info("CryptoUtil: - key ID: " + encodeKeyID(privatKey.getUniqueID()));
-
-        return pair;
-    }
-
-    /**
-     * Generates an ECC key pair by curve name.
-     */
     public static KeyPair generateECCKeyPair(
             CryptoToken token,
             String curveName) throws Exception {
 
-        return generateECCKeyPair(token, curveName, null, null);
+        return generateECCKeyPair(
+                token,
+                curveName,
+                null,
+                null);
     }
 
     public static KeyPair generateECCKeyPair(
             CryptoToken token,
             String curveName,
-            KeyPairGeneratorSpi.Usage[] usageOps,
-            KeyPairGeneratorSpi.Usage[] usageMask) throws Exception {
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
 
         return generateECCKeyPair(
                 token,
@@ -757,12 +691,14 @@ public class CryptoUtil {
                 false,
                 -1,
                 -1,
-                usageOps,
-                usageMask);
+                usages,
+                usagesMask);
     }
 
-    /*
-     * temporary, sensitive, and extractable usages are per defined in
+    /**
+     * Generate an ECC key pair.
+     *
+     * temporary, sensitive, extractable, and usages are per defined in
      * JSS pkcs11/PK11KeyPairGenerator.java
      */
     public static KeyPair generateECCKeyPair(
@@ -771,16 +707,14 @@ public class CryptoUtil {
             boolean temporary,
             int sensitive,
             int extractable,
-            KeyPairGeneratorSpi.Usage[] usage_ops,
-            KeyPairGeneratorSpi.Usage[] usage_mask) throws Exception {
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
 
         logger.info("CryptoUtil: Generating ECC key pair");
 
-        KeyPairAlgorithm alg = KeyPairAlgorithm.EC;
-        KeyPairGenerator keygen = token.getKeyPairGenerator(alg);
+        KeyPairGenerator keygen = token.getKeyPairGenerator(KeyPairAlgorithm.EC);
 
-        keygen.setKeyPairUsages(usage_ops, usage_mask);
-        keygen.setKeyPairUsages(usage_ops, usage_mask);
+        keygen.setKeyPairUsages(usages, usagesMask);
 
         logger.info("CryptoUtil: - temporary: " + temporary);
         keygen.temporaryPairs(temporary);
