@@ -145,39 +145,23 @@ public class SystemConfigService extends PKIService {
                 fullName = tokenName + ":" + nickname;
             }
 
+            CryptoManager cm = CryptoManager.getInstance();
             CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
-            X509Certificate x509Cert;
-            KeyPair keyPair;
-
             try {
-                logger.info("SystemConfigService: Loading " + tag + " cert from NSS database: " + fullName);
-                CryptoManager cm = CryptoManager.getInstance();
-                x509Cert = cm.findCertByNickname(fullName);
+                logger.info("SystemConfigService: Searching for " + tag + " cert");
+                X509Certificate x509Cert = cm.findCertByNickname(fullName);
 
-                logger.info("SystemConfigService: Loading " + tag + " key pair from NSS database");
-                keyPair = configurator.loadKeyPair(x509Cert);
+                logger.info("SystemConfigService: Searching for " + tag + " private key");
+                PrivateKey privateKey = cm.findPrivKeyByCert(x509Cert);
+                String keyID = Hex.encodeHexString(privateKey.getUniqueID());
+
+                logger.info("SystemConfigService: - key ID: " + keyID);
+                certData.setKeyID(keyID);
 
             } catch (ObjectNotFoundException e) {
                 logger.info("SystemConfigService: " + tag + " cert not found: " + fullName);
-                x509Cert = null;
-
-                String keyType = certData.getKeyType();
-                String keySize = certData.getKeySize();
-
-                if (keyType.equals("ecc")) {
-                    String ecType = certData.getEcType();
-                    keyPair = configurator.createECCKeyPair(tag, token, keySize, ecType);
-
-                } else {
-                    keyPair = configurator.createRSAKeyPair(tag, token, keySize);
-                }
             }
-
-            PrivateKey privateKey = (PrivateKey) keyPair.getPrivate();
-            String keyID = Hex.encodeHexString(privateKey.getUniqueID());
-            logger.info("SystemConfigService: - key ID: " + keyID);
-            certData.setKeyID(keyID);
 
             return certData;
 
@@ -214,12 +198,32 @@ public class SystemConfigService extends PKIService {
             String keyID = certData.getKeyID();
             logger.info("SystemConfigService: - key ID: " + keyID);
 
-            PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(
-                    token,
-                    Hex.decodeHex(keyID));
+            String keyType = certData.getKeyType();
+            String keySize = certData.getKeySize();
 
-            PK11PubKey publicKey = privateKey.getPublicKey();
-            KeyPair keyPair = new KeyPair(publicKey, privateKey);
+            KeyPair keyPair;
+
+            if (keyID != null) {
+                byte[] binKeyID = Hex.decodeHex(keyID);
+                PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(token, binKeyID);
+                PK11PubKey publicKey = privateKey.getPublicKey();
+                keyPair = new KeyPair(publicKey, privateKey);
+
+            } else if (keyType.equals("rsa")) {
+                keyPair = configurator.createRSAKeyPair(tag, token, keySize);
+
+            } else if (keyType.equals("ecc")) {
+                String curveName = keySize;
+                String ecType = certData.getEcType();
+                keyPair = configurator.createECCKeyPair(tag, token, curveName, ecType);
+
+            } else {
+                throw new Exception("Unsupported key type: " + keyType);
+            }
+
+            PrivateKey privateKey = (PrivateKey) keyPair.getPrivate();
+            keyID = Hex.encodeHexString(privateKey.getUniqueID());
+            certData.setKeyID(keyID);
 
             Extensions requestExtensions = new Extensions();
             if (tag.equals("signing")) {

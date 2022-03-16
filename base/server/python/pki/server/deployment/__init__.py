@@ -932,11 +932,16 @@ class PKIDeployer:
         logger.info('Setting up %s key', tag)
         response = self.client.setupKey(request)
 
-        request.systemCert.keyID = response['keyID']
-        logger.info('- key ID: %s', request.systemCert.keyID)
+        request.systemCert.keyID = response.get('keyID')
+        if request.systemCert.keyID:
+            logger.info('- key ID: %s', request.systemCert.keyID)
 
         logger.info('Creating %s cert request', tag)
         response = self.client.createRequest(request)
+
+        if not request.systemCert.keyID:
+            request.systemCert.keyID = response.get('keyID')
+            logger.info('- key ID: %s', request.systemCert.keyID)
 
         request.systemCert.request = response['request']
         logger.debug('- request: %s', request.systemCert.request)

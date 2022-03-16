@@ -20,16 +20,13 @@ package com.netscape.cms.servlet.csadmin;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -201,16 +198,6 @@ public class Configurator {
 
     public RequestId createRequestID() throws Exception {
         return null;
-    }
-
-    public KeyPair loadKeyPair(X509Certificate cert) throws Exception {
-
-        CryptoManager cm = CryptoManager.getInstance();
-
-        PublicKey publicKey = cert.getPublicKey();
-        PrivateKey privateKey = cm.findPrivKeyByCert(cert);
-
-        return new KeyPair(publicKey, privateKey);
     }
 
     /**
