@@ -97,6 +97,7 @@ import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
@@ -590,57 +591,72 @@ public class CryptoUtil {
         return cm.getTokenByName(name);
     }
 
+    public static KeyPair generateRSAKeyPair(
+            CryptoToken token,
+            int keySize) throws Exception {
+
+        return generateRSAKeyPair(
+                token,
+                keySize,
+                null,
+                null);
+    }
+
+    public static KeyPair generateRSAKeyPair(
+            CryptoToken token,
+            int keySize,
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
+
+        return generateRSAKeyPair(
+                token,
+                keySize,
+                false,
+                false,
+                false,
+                usages,
+                usagesMask);
+    }
+
     /**
-     * Generates a RSA key pair.
-     *
-     * @throws Exception
+     * Generates an RSA key pair.
      */
-    public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize) throws Exception {
-        return generateRSAKeyPair(token, keysize, false);
-    }
+    public static KeyPair generateRSAKeyPair(
+            CryptoToken token,
+            int keySize,
+            boolean temporary,
+            boolean sensitive,
+            boolean extractable,
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
 
-    public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize, boolean temporary) throws Exception {
-        KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+        logger.info("CryptoUtil: Generating KRA key pair");
 
-        if (temporary == true)
-            kg.temporaryPairs(true);
-
-        logger.debug("CryptoUtil: Keypair Generator initializing for: " + token.getName());
-        kg.initialize(keysize);
-        logger.debug("CryptoUtil: Initialization complete");
-        return kg.genKeyPair();
-    }
-
-    public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages[],
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[]) throws Exception {
-        return generateRSAKeyPair(token, keysize, false, false, false, usages, usages_mask);
-    }
-
-    public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize, boolean temporary,
-            boolean sensitive, boolean extractable,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages[],
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[]) throws Exception {
-        KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+        KeyPairGenerator keygen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
         if (usages != null) {
-            System.out.println("CryptoUtil: generateRSAKeyPair: calling kg.setKeyPairUsages");
-            kg.setKeyPairUsages(usages, usages_mask);
+            keygen.setKeyPairUsages(usages, usagesMask);
         }
 
-        if (extractable == true)
-            kg.extractablePairs(true);
+        logger.info("CryptoUtil: - extractable: " + extractable);
+        if (extractable) {
+            keygen.extractablePairs(true);
+        }
 
-        if (sensitive == true)
-            kg.sensitivePairs(true);
+        logger.info("CryptoUtil: - sensitive: " + sensitive);
+        if (sensitive) {
+            keygen.sensitivePairs(true);
+        }
 
-        if (temporary == true)
-            kg.temporaryPairs(true);
+        logger.info("CryptoUtil: - temporary: " + temporary);
+        if (temporary) {
+            keygen.temporaryPairs(true);
+        }
 
-        logger.debug("CryptoUtil: Keypair Generator initializing for: " + token.getName());
-        kg.initialize(keysize);
-        logger.debug("CryptoUtil: Initialization complete");
-        return kg.genKeyPair();
+        logger.info("CryptoUtil: - key size: " + keySize);
+        keygen.initialize(keySize);
+
+        return keygen.genKeyPair();
     }
 
     public static boolean isECCKey(X509Key key) {
