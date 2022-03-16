@@ -79,43 +79,6 @@ public class CAConfigurator extends Configurator {
 
         certificateRepository.addCertificateRecord(certRecord);
     }
-    @Override
-    public void importRequest(
-            RequestId requestID,
-            String profileID,
-            String[] dnsNames,
-            boolean installAdjustValidity,
-            String certRequestType,
-            byte[] binCertRequest) throws Exception {
-
-        logger.info("CAConfigurator: Importing " + certRequestType + " request");
-
-        String instanceRoot = cs.getInstanceDir();
-        String configurationRoot = cs.getString("configurationRoot");
-        String profilePath = instanceRoot + configurationRoot + profileID;
-
-        logger.info("CAConfigurator: Loading " + profilePath);
-        CAEngine engine = CAEngine.getInstance();
-        IConfigStore profileConfig = engine.loadConfigStore(profilePath);
-
-        CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        Request request = requestRepository.createRequest(requestID, "enrollment");
-
-        requestRepository.updateRequest(
-                request,
-                certRequestType,
-                binCertRequest,
-                dnsNames);
-
-        requestRepository.updateRequest(
-                request,
-                profileConfig.getString("id"),
-                profileConfig.getString("profileIDMapping"),
-                profileConfig.getString("profileSetIDMapping"),
-                installAdjustValidity);
-
-        requestRepository.updateRequest(request);
-    }
 
     @Override
     public X509CertImpl createCert(

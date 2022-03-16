@@ -384,15 +384,6 @@ public class Configurator {
         }
     }
 
-    public void importRequest(
-            RequestId requestID,
-            String profileID,
-            String[] dnsNames,
-            boolean installAdjustValidity,
-            String certRequestType,
-            byte[] binCertRequest) throws Exception {
-    }
-
     public void initSubsystem() throws Exception {
     }
 }

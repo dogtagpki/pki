@@ -30,7 +30,6 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -108,55 +107,6 @@ public class SystemConfigService extends PKIService {
             logger.info("SystemConfigService: - request ID: " + requestID.toHexString());
 
             return requestID;
-
-        } catch (PKIException e) { // normal response
-            logger.error("Unable to import " + tag + " certificate request: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Unable to import " + tag + " certificate request: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    @POST
-    @Path("importRequest")
-    public SystemCertData importRequest(CertificateSetupRequest request) throws Exception {
-
-        String tag = request.getTag();
-        logger.info("SystemConfigService: Importing " + tag + " cert request");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            SystemCertData certData = request.getSystemCert();
-
-            RequestId requestID = certData.getRequestID();
-            logger.info("SystemConfigService: - request ID: " + requestID.toHexString());
-
-            String profileID = certData.getProfile();
-            String[] dnsNames = certData.getDNSNames();
-
-            String certRequestType = certData.getRequestType();
-            String certRequest = certData.getRequest();
-            byte[] binCertRequest = Utils.base64decode(certRequest);
-
-            boolean installAdjustValidity = certData.getAdjustValidity();
-            logger.info("SystemConfigService: - adjust validity: " + installAdjustValidity);
-
-            configurator.importRequest(
-                    requestID,
-                    profileID,
-                    dnsNames,
-                    installAdjustValidity,
-                    certRequestType,
-                    binCertRequest);
-
-            return certData;
 
         } catch (PKIException e) { // normal response
             logger.error("Unable to import " + tag + " certificate request: " + e.getMessage());

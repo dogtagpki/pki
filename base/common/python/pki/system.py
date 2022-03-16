@@ -354,7 +354,6 @@ class SystemConfigClient(object):
         self.connection = connection
 
         self.create_request_id_url = '/rest/installer/createRequestID'
-        self.import_request_url = '/rest/installer/importRequest'
         self.setup_key_url = '/rest/installer/setupKey'
         self.create_request_url = '/rest/installer/createRequest'
         self.create_cert_url = '/rest/installer/createCert'
@@ -366,7 +365,6 @@ class SystemConfigClient(object):
                 raise Exception('Missing subsystem for SystemConfigClient')
 
             self.create_request_id_url = '/' + subsystem + self.create_request_id_url
-            self.import_request_url = '/' + subsystem + self.import_request_url
             self.setup_key_url = '/' + subsystem + self.setup_key_url
             self.create_request_url = '/' + subsystem + self.create_request_url
             self.create_cert_url = '/' + subsystem + self.create_cert_url
@@ -386,25 +384,6 @@ class SystemConfigClient(object):
 
         response = self.connection.post(
             self.create_request_id_url,
-            data,
-            headers)
-
-        return response.json()
-
-    def importRequest(self, request):
-        """
-        Import certificate request.
-
-        :param request: Certificate setup request
-        :type request: CertificateSetupRequest
-        :return: SystemCertData
-        """
-        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
-        headers = {'Content-type': 'application/json',
-                   'Accept': 'application/json'}
-
-        response = self.connection.post(
-            self.import_request_url,
             data,
             headers)
 
