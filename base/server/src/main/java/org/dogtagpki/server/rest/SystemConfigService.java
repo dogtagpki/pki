@@ -119,11 +119,11 @@ public class SystemConfigService extends PKIService {
     }
 
     @POST
-    @Path("setupKey")
-    public SystemCertData setupKey(CertificateSetupRequest request) throws Exception {
+    @Path("findKey")
+    public SystemCertData findKey(CertificateSetupRequest request) throws Exception {
 
         String tag = request.getTag();
-        logger.info("SystemConfigService: Setting up " + tag + " key");
+        logger.info("SystemConfigService: Searching for " + tag + " key");
 
         try {
             validatePin(request.getPin());

@@ -354,7 +354,7 @@ class SystemConfigClient(object):
         self.connection = connection
 
         self.create_request_id_url = '/rest/installer/createRequestID'
-        self.setup_key_url = '/rest/installer/setupKey'
+        self.find_key_url = '/rest/installer/findKey'
         self.create_request_url = '/rest/installer/createRequest'
         self.create_cert_url = '/rest/installer/createCert'
         self.init_subsystem_url = '/rest/installer/initSubsystem'
@@ -365,7 +365,7 @@ class SystemConfigClient(object):
                 raise Exception('Missing subsystem for SystemConfigClient')
 
             self.create_request_id_url = '/' + subsystem + self.create_request_id_url
-            self.setup_key_url = '/' + subsystem + self.setup_key_url
+            self.find_key_url = '/' + subsystem + self.find_key_url
             self.create_request_url = '/' + subsystem + self.create_request_url
             self.create_cert_url = '/' + subsystem + self.create_cert_url
             self.init_subsystem_url = '/' + subsystem + self.init_subsystem_url
@@ -389,9 +389,9 @@ class SystemConfigClient(object):
 
         return response.json()
 
-    def setupKey(self, request):
+    def findKey(self, request):
         """
-        Set up certificate key.
+        Find certificate key.
 
         :param request: Certificate setup request
         :type request: CertificateSetupRequest
@@ -402,7 +402,7 @@ class SystemConfigClient(object):
                    'Accept': 'application/json'}
 
         response = self.connection.post(
-            self.setup_key_url,
+            self.find_key_url,
             data,
             headers)
 

@@ -929,8 +929,8 @@ class PKIDeployer:
 
             return
 
-        logger.info('Setting up %s key', tag)
-        response = self.client.setupKey(request)
+        logger.info('Searching for %s key', tag)
+        response = self.client.findKey(request)
 
         request.systemCert.keyID = response.get('keyID')
         if request.systemCert.keyID:
