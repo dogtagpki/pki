@@ -38,6 +38,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.csadmin.BootstrapProfile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -132,7 +133,7 @@ public class CAConfigurator extends Configurator {
         String profilePath = instanceRoot + configurationRoot + profileID;
 
         logger.info("CAConfigurator: Loading " + profilePath);
-        IConfigStore profileConfig = engine.loadConfigStore(profilePath);
+        ConfigStore profileConfig = engine.loadConfigStore(profilePath);
         BootstrapProfile profile = new BootstrapProfile(profileConfig);
 
         Date date = new Date();

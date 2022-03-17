@@ -25,6 +25,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.profile.def.EnrollDefault;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 public class BootstrapProfile {
@@ -38,7 +39,7 @@ public class BootstrapProfile {
     private String mProfileIDMapping = null;
     private String mProfileSetIDMapping = null;
 
-    public BootstrapProfile(IConfigStore config) throws Exception {
+    public BootstrapProfile(ConfigStore config) throws Exception {
         mID = config.getString("id");
         mName = config.getString("name");
         mDescription = config.getString("description");

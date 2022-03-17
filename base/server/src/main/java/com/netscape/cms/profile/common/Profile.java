@@ -45,6 +45,7 @@ import com.netscape.cms.profile.input.EnrollInput;
 import com.netscape.cms.profile.updater.IProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.Request;
 
@@ -97,7 +98,7 @@ public abstract class Profile {
     public static final String PROP_NO_CONSTRAINT = "noConstraintImpl";
     public static final String PROP_GENERIC_EXT_DEFAULT = "genericExtDefaultImpl";
 
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected PluginRegistry registry;
 
     protected Vector<String> mInputNames = new Vector<>();
@@ -232,7 +233,7 @@ public abstract class Profile {
      *
      * @exception EBaseException failed to initialize
      */
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
 
         logger.debug("Profile: start init");
         mConfig = config;
@@ -387,7 +388,7 @@ public abstract class Profile {
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

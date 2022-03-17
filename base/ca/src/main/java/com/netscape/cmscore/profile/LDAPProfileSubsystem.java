@@ -38,8 +38,8 @@ import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.LDAPConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.base.LDAPConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -245,7 +245,7 @@ public class LDAPProfileSubsystem
             };
 
             ConfigStorage storage = new LDAPConfigStorage(conn, createProfileDN(id), createAttrs, "certProfileConfig");
-            IConfigStore subStoreConfig = new ConfigStore(storage);
+            ConfigStore subStoreConfig = new ConfigStore(storage);
 
             if (data != null)
                 subStoreConfig.load(data);

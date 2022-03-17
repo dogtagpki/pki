@@ -29,6 +29,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 public class ProfileSubsystem
@@ -133,7 +134,7 @@ public class ProfileSubsystem
 
         try {
             logger.debug("ProfileSubsystem: Loading " + configPath);
-            IConfigStore subStoreConfig = engine.loadConfigStore(configPath);
+            ConfigStore subStoreConfig = engine.loadConfigStore(configPath);
 
             logger.debug("ProfileSubsystem: Initializing " + className);
             Profile profile = (Profile) Class.forName(className).getDeclaredConstructor().newInstance();

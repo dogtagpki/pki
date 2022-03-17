@@ -70,6 +70,7 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -89,7 +90,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     // private RSAPublicKey mPublicKey = null;
     // private RSAPrivateKey mPrivateKey = null;
 
-    private IConfigStore mStorageConfig = null;
+    private ConfigStore mStorageConfig;
     private String mTokenFile = null;
     private X509Certificate mCert = null;
     private CryptoManager mManager = null;
