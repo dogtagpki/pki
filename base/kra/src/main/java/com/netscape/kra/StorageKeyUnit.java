@@ -146,7 +146,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
             return this.getOldWrappingParams();
         }
 
-        IConfigStore config = mConfig.getSubStore("wrapping." + choice);
+        ConfigStore config = mConfig.getSubStore("wrapping." + choice, ConfigStore.class);
         if (config == null) {
             throw new EBaseException("Invalid config: Wrapping parameters not defined");
         }

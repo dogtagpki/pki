@@ -79,6 +79,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
@@ -191,7 +192,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         mEntropyBitsPerKeyPair = 0;
         mEntropyBlockWarnMilliseconds = 50;
         // initialize entropy collection
-        IConfigStore ecs = config.getSubStore("entropy");
+        ConfigStore ecs = config.getSubStore("entropy", ConfigStore.class);
         if (ecs != null) {
             try {
                 mEntropyBitsPerKeyPair = ecs.getInteger("bitsperkeypair", 0);
@@ -297,7 +298,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         // initialize policy processor
         mPolicy = new KRAPolicy();
-        mPolicy.init(this, mConfig.getSubStore(PROP_POLICY));
+        mPolicy.init(this, mConfig.getSubStore(PROP_POLICY, ConfigStore.class));
 
         // create key repository
         int keydb_inc = mConfig.getInteger(PROP_KEYDB_INC, 5);
@@ -308,8 +309,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // read transport key from internal database
         mTransportKeyUnit = new TransportKeyUnit();
         try {
-            mTransportKeyUnit.init(mConfig.getSubStore(
-                    PROP_TRANSPORT_KEY));
+            mTransportKeyUnit.init(mConfig.getSubStore(PROP_TRANSPORT_KEY, ConfigStore.class));
         } catch (Exception e) {
             logger.warn("KeyRecoveryAuthority: transport unit exception " + e.getMessage(), e);
             //XXX            throw e;
@@ -337,7 +337,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         mStorageKeyUnit = new StorageKeyUnit();
         try {
             mStorageKeyUnit.init(
-                    mConfig.getSubStore(PROP_STORAGE_KEY),
+                    mConfig.getSubStore(PROP_STORAGE_KEY, ConfigStore.class),
                     mConfig.getBoolean("keySplitting", false));
         } catch (EBaseException e) {
             logger.error("KeyRecoveryAuthority: storage unit exception " + e.getMessage(), e);
@@ -1486,10 +1486,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * right now only RequestInQueue listener is available for KRA
      */
     private void initNotificationListeners() {
-        IConfigStore nc = null;
+        ConfigStore nc = null;
 
         try {
-            nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE);
+            nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE, ConfigStore.class);
             if (nc != null && nc.size() > 0) {
                 // Initialize Request In Queue notification listener
                 String requestInQListenerClassName =
@@ -1838,7 +1838,7 @@ public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
         */
         KeyPairGenerator kpGen = token.getKeyPairGenerator(kpAlg);
         EngineConfig config = engine.getConfig();
-        IConfigStore kgConfig = config.getSubStore("kra.keygen");
+        ConfigStore kgConfig = config.getSubStore("kra.keygen", ConfigStore.class);
         boolean tp = temp;
         boolean sp = false;
         boolean ep = false;
