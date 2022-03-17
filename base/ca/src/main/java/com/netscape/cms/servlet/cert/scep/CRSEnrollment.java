@@ -121,6 +121,7 @@ import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -258,7 +259,7 @@ public class CRSEnrollment extends HttpServlet {
 
         try {
             IConfigStore authorityConfig = ((ISubsystem) mAuthority).getConfigStore();
-            IConfigStore scepConfig = authorityConfig.getSubStore("scep");
+            ConfigStore scepConfig = authorityConfig.getSubStore("scep", ConfigStore.class);
             mEnabled = scepConfig.getBoolean("enable", false);
             mUseOAEPKeyWrap = authorityConfig.getBoolean("keyWrap.useOAEP",false);
             if (sc.getServletName().equals(SERVLET_NAME_DYN_PROFILE)) {

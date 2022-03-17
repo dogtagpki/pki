@@ -34,7 +34,6 @@ import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
@@ -52,6 +51,7 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.tomcat.ExternalPrincipal;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -229,7 +229,7 @@ public class CertProcessor extends CAProcessor {
 
         for (Request req : reqs) {
             try {
-                IConfigStore profileConf = profile.getConfigStore().getSubStore("auth");
+                ConfigStore profileConf = profile.getConfigStore().getSubStore("auth", ConfigStore.class);
                 boolean explicitApprovalRequired = profileConf.getBoolean("explicitApprovalRequired", false);
 
                 // reset the "auditRequesterID"

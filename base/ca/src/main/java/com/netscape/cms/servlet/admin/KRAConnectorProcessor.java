@@ -35,6 +35,7 @@ import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -178,7 +179,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAService caService = (CAService) ca.getCAService();
 
         EngineConfig cs = engine.getConfig();
-        IConnector kraConnector = caService.getConnector(cs.getSubStore(PREFIX));
+        IConnector kraConnector = caService.getConnector(cs.getSubStore(PREFIX, ConfigStore.class));
         caService.setKRAConnector(kraConnector);
 
         startConnector();

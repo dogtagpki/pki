@@ -52,7 +52,7 @@ public class BootstrapProfile {
             try {
                 /* load defaults */
                 EnrollDefault def = (EnrollDefault) Class.forName(c).getDeclaredConstructor().newInstance();
-                init(config.getSubStore(id + ".default"), def);
+                init(config.getSubStore(id + ".default", ConfigStore.class), def);
                 mDefaults.addElement(def);
             } catch (Exception e) {
                 logger.warn("BootstrapProfile: Unable to create PolicyDefault: " + e.getMessage(), e);

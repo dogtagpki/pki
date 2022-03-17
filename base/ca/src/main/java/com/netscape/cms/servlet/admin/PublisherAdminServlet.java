@@ -58,6 +58,7 @@ import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
 import com.netscape.cmscore.ldap.PublisherProcessor;
@@ -440,8 +441,8 @@ public class PublisherAdminServlet extends AdminServlet {
         CAEngine engine = CAEngine.getInstance();
         CAConfig config = engine.getConfig().getCAConfig();
         PublishingConfig publishcfg = config.getPublishingConfig();
-        IConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
-        IConfigStore ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP);
+        ConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE, ConfigStore.class);
+        ConfigStore ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP, ConfigStore.class);
 
         Enumeration<String> e = req.getParameterNames();
 
@@ -511,8 +512,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         //Save New Settings to the config file
         PublishingConfig publishcfg = config.getPublishingConfig();
-        IConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
-        IConfigStore ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP);
+        ConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE, ConfigStore.class);
+        ConfigStore ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP, ConfigStore.class);
 
         //set enable flag
         publishcfg.putString(PublisherProcessor.PROP_ENABLE, req.getParameter(Constants.PR_PUBLISHING_ENABLE));
@@ -635,7 +636,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         //Save New Settings to the config file
         PublishingConfig publishcfg = config.getPublishingConfig();
-        IConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
+        ConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE, ConfigStore.class);
         LDAPConfig ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP, LDAPConfig.class);
         LDAPAuthenticationConfig authConfig = ldap.getAuthenticationConfig();
 
@@ -1036,10 +1037,8 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        IConfigStore destStore = null;
-
-        destStore = mConfig.getSubStore(mAuth.getId() + ".publish.mapper");
-        IConfigStore instancesConfig = destStore.getSubStore("impl");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.mapper", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("impl", ConfigStore.class);
 
         // Does the class exist?
         Class<?> newImpl = null;
@@ -1152,8 +1151,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         Vector<String> configParams = mProcessor.getMapperDefaultParams(implname);
 
-        IConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.mapper");
-        IConfigStore instancesConfig = destStore.getSubStore("instance");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.mapper", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
         IConfigStore substore = instancesConfig.makeSubStore(id);
 
         if (configParams != null) {
@@ -1310,10 +1309,8 @@ public class PublisherAdminServlet extends AdminServlet {
         mProcessor.getMapperInsts().remove(id);
 
         // remove the configuration.
-        IConfigStore destStore =
-                mConfig.getSubStore(
-                        mAuth.getId() + ".publish.mapper");
-        IConfigStore instancesConfig = destStore.getSubStore("instance");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.mapper", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
 
         instancesConfig.removeSubStore(id);
         // commiting
@@ -1368,11 +1365,8 @@ public class PublisherAdminServlet extends AdminServlet {
         // then delete this mapper
         mProcessor.getMapperPlugins().remove(id);
 
-        IConfigStore destStore =
-                mConfig.getSubStore(
-                        mAuth.getId() + ".publish.mapper");
-        IConfigStore instancesConfig =
-                destStore.getSubStore("impl");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.mapper", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("impl", ConfigStore.class);
 
         instancesConfig.removeSubStore(id);
         // commiting
@@ -1528,10 +1522,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // remove old substore.
 
-        IConfigStore destStore =
-                mConfig.getSubStore(mAuth.getId() +
-                        ".publish.mapper");
-        IConfigStore instancesConfig = destStore.getSubStore("instance");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.mapper", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
 
         // create new substore.
 
@@ -1640,11 +1632,8 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        IConfigStore destStore = null;
-
-        destStore = mConfig.getSubStore(
-                    mAuth.getId() + ".publish.rule");
-        IConfigStore instancesConfig = destStore.getSubStore("impl");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.rule", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("impl", ConfigStore.class);
 
         // Does the class exist?
         Class<?> newImpl = null;
@@ -1745,11 +1734,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         Vector<String> configParams = mProcessor.getRuleDefaultParams(implname);
 
-        IConfigStore destStore =
-                mConfig.getSubStore(mAuth.getId()
-                        + ".publish.rule");
-        IConfigStore instancesConfig =
-                destStore.getSubStore("instance");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.rule", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
         IConfigStore substore = instancesConfig.makeSubStore(id);
 
         if (configParams != null) {
@@ -1913,10 +1899,8 @@ public class PublisherAdminServlet extends AdminServlet {
         // then delete this rule
         mProcessor.getRulePlugins().remove(id);
 
-        IConfigStore destStore =
-                mConfig.getSubStore(
-                        mAuth.getId() + ".rule");
-        IConfigStore instancesConfig = destStore.getSubStore("impl");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".rule", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("impl", ConfigStore.class);
 
         instancesConfig.removeSubStore(id);
         // commiting
@@ -1963,10 +1947,8 @@ public class PublisherAdminServlet extends AdminServlet {
         mProcessor.getRuleInsts().remove(id);
 
         // remove the configuration.
-        IConfigStore destStore =
-                mConfig.getSubStore(
-                        mAuth.getId() + ".publish.rule");
-        IConfigStore instancesConfig = destStore.getSubStore("instance");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.rule", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
 
         instancesConfig.removeSubStore(id);
         // commiting
@@ -2119,10 +2101,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // remove old substore.
 
-        IConfigStore destStore =
-                mConfig.getSubStore(
-                        mAuth.getId() + ".publish.rule");
-        IConfigStore instancesConfig = destStore.getSubStore("instance");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.rule", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
 
         // create new substore.
 
@@ -2236,11 +2216,8 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        IConfigStore destStore = null;
-
-        destStore = mConfig.getSubStore(
-                    mAuth.getId() + ".publish.publisher");
-        IConfigStore instancesConfig = destStore.getSubStore("impl");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.publisher", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("impl", ConfigStore.class);
 
         // Does the class exist?
         Class<?> newImpl = null;
@@ -2343,9 +2320,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         Vector<String> configParams = mProcessor.getPublisherDefaultParams(implname);
 
-        IConfigStore destStore =
-                mConfig.getSubStore(mAuth.getId() + ".publish.publisher");
-        IConfigStore instancesConfig = destStore.getSubStore("instance");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.publisher", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
         IConfigStore substore = instancesConfig.makeSubStore(id);
 
         if (configParams != null) {
@@ -2527,9 +2503,8 @@ public class PublisherAdminServlet extends AdminServlet {
         // then delete this publisher
         mProcessor.getPublisherPlugins().remove(id);
 
-        IConfigStore destStore =
-                mConfig.getSubStore(mAuth.getId() + ".publish.publisher");
-        IConfigStore instancesConfig = destStore.getSubStore("impl");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.publisher", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("impl", ConfigStore.class);
 
         instancesConfig.removeSubStore(id);
         // commiting
@@ -2578,9 +2553,8 @@ public class PublisherAdminServlet extends AdminServlet {
         mProcessor.getPublisherInsts().remove(id);
 
         // remove the configuration.
-        IConfigStore destStore =
-                mConfig.getSubStore(mAuth.getId() + ".publish.publisher");
-        IConfigStore instancesConfig = destStore.getSubStore("instance");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.publisher", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
 
         instancesConfig.removeSubStore(id);
         // commiting
@@ -2768,9 +2742,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // remove old substore.
 
-        IConfigStore destStore =
-                mConfig.getSubStore(mAuth.getId() + ".publish.publisher");
-        IConfigStore instancesConfig = destStore.getSubStore("instance");
+        ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.publisher", ConfigStore.class);
+        ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
 
         // get objects added and deleted
         if (pubType.equals("cacert")) {

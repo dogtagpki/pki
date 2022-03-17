@@ -49,6 +49,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
@@ -264,9 +265,8 @@ public class CAAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         IConfigStore config = mCA.getConfigStore();
-        IConfigStore nc =
-                config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
-        IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_REVOKED_SUBSTORE);
+        ConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_REVOKED_SUBSTORE, ConfigStore.class);
 
         getNotificationCompConfig(req, resp, rc);
     }
@@ -276,9 +276,8 @@ public class CAAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         IConfigStore config = mCA.getConfigStore();
-        IConfigStore nc =
-                config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
-        IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_ISSUED_SUBSTORE);
+        ConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_ISSUED_SUBSTORE, ConfigStore.class);
 
         getNotificationCompConfig(req, resp, rc);
     }
@@ -293,10 +292,8 @@ public class CAAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         IConfigStore config = mCA.getConfigStore();
-        IConfigStore nc =
-                config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
-
-        IConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE);
+        ConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE, ConfigStore.class);
 
         Enumeration<String> e = req.getParameterNames();
 
@@ -329,8 +326,8 @@ public class CAAdminServlet extends AdminServlet {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig engineConfig = engine.getConfig();
         CAConfig config = engineConfig.getCAConfig();
-        IConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
-        IConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE);
+        ConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE, ConfigStore.class);
 
         //set rest of the parameters
         Enumeration<String> e = req.getParameterNames();
@@ -436,8 +433,8 @@ public class CAAdminServlet extends AdminServlet {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig engineConfig = engine.getConfig();
         CAConfig config = engineConfig.getCAConfig();
-        IConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
-        IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_REVOKED_SUBSTORE);
+        ConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_REVOKED_SUBSTORE, ConfigStore.class);
 
         setNotificationCompConfig(req, resp, rc, engine.getCertRevokedListener());
     }
@@ -449,8 +446,8 @@ public class CAAdminServlet extends AdminServlet {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig engineConfig = engine.getConfig();
         CAConfig config = engineConfig.getCAConfig();
-        IConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
-        IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_ISSUED_SUBSTORE);
+        ConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_ISSUED_SUBSTORE, ConfigStore.class);
 
         setNotificationCompConfig(req, resp, rc, engine.getCertIssuedListener());
 
@@ -589,8 +586,7 @@ public class CAAdminServlet extends AdminServlet {
                 params.put(Constants.PR_ENABLED, Constants.TRUE);
             }
 
-            IConfigStore crlSubStore =
-                    mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+            ConfigStore crlSubStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
             Enumeration<String> crlNames = crlSubStore.getSubStoreNames();
 
             while (crlNames.hasMoreElements()) {
@@ -748,8 +744,7 @@ public class CAAdminServlet extends AdminServlet {
                 params.put(Constants.PR_ENABLED, Constants.TRUE);
             }
 
-            IConfigStore crlSubStore =
-                    mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+            ConfigStore crlSubStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
             boolean done = false;
             Enumeration<String> crlNames = crlSubStore.getSubStoreNames();
 
@@ -763,7 +758,7 @@ public class CAAdminServlet extends AdminServlet {
                         ip.setDescription(desc);
                         ip.enableCRLIssuingPoint(enable);
                     }
-                    IConfigStore c = crlSubStore.getSubStore(ipId);
+                    ConfigStore c = crlSubStore.getSubStore(ipId, ConfigStore.class);
 
                     if (c != null) {
                         c.putString(Constants.PR_DESCRIPTION, desc);
@@ -867,8 +862,7 @@ public class CAAdminServlet extends AdminServlet {
             String id = req.getParameter(Constants.RS_ID);
 
             if (id != null && id.length() > 0) {
-                IConfigStore crlSubStore =
-                        mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+                ConfigStore crlSubStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
                 boolean done = false;
                 Enumeration<String> crlNames = crlSubStore.getSubStoreNames();
 
@@ -1022,16 +1016,14 @@ public class CAAdminServlet extends AdminServlet {
             ICMSCRLExtensions crlExts = ip.getCRLExtensions();
 
             IConfigStore config = mCA.getConfigStore();
-            IConfigStore crlsSubStore =
-                    config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
-            IConfigStore crlSubStore = crlsSubStore.getSubStore(ipId);
-            IConfigStore crlExtsSubStore =
-                    crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE);
+            ConfigStore crlsSubStore = config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+            ConfigStore crlSubStore = crlsSubStore.getSubStore(ipId, ConfigStore.class);
+            ConfigStore crlExtsSubStore = crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
 
             String id = req.getParameter(Constants.RS_ID);
 
             if (id != null) {
-                IConfigStore crlExtSubStore = crlExtsSubStore.getSubStore(id);
+                ConfigStore crlExtSubStore = crlExtsSubStore.getSubStore(id, ConfigStore.class);
 
                 Enumeration<String> e = req.getParameterNames();
 
@@ -1119,9 +1111,9 @@ public class CAAdminServlet extends AdminServlet {
         }
 
         IConfigStore config = mCA.getConfigStore();
-        IConfigStore crlsSubStore = config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
-        IConfigStore crlSubStore = crlsSubStore.getSubStore(id);
-        IConfigStore crlExtsSubStore = crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE);
+        ConfigStore crlsSubStore = config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+        ConfigStore crlSubStore = crlsSubStore.getSubStore(id, ConfigStore.class);
+        ConfigStore crlExtsSubStore = crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
 
         if (crlExtsSubStore != null) {
             Enumeration<String> enumExts = crlExtsSubStore.getSubStoreNames();
@@ -1129,7 +1121,7 @@ public class CAAdminServlet extends AdminServlet {
             while (enumExts.hasMoreElements()) {
                 String extName = enumExts.nextElement();
                 boolean crlExtEnabled = false;
-                IConfigStore crlExtSubStore = crlExtsSubStore.getSubStore(extName);
+                ConfigStore crlExtSubStore = crlExtsSubStore.getSubStore(extName, ConfigStore.class);
                 Enumeration<String> properties = crlExtSubStore.getPropertyNames();
 
                 while (properties.hasMoreElements()) {
@@ -1244,8 +1236,8 @@ public class CAAdminServlet extends AdminServlet {
 
             //Save New Settings to the config file
             IConfigStore config = mCA.getConfigStore();
-            IConfigStore crlsSubStore = config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
-            IConfigStore crlSubStore = crlsSubStore.getSubStore(id);
+            ConfigStore crlsSubStore = config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+            ConfigStore crlSubStore = crlsSubStore.getSubStore(id, ConfigStore.class);
 
             //set reset of the parameters
             Enumeration<String> e = req.getParameterNames();
@@ -1334,9 +1326,8 @@ public class CAAdminServlet extends AdminServlet {
                 id.equals(Constants.RS_ID_CONFIG)) {
             id = ICertificateAuthority.PROP_MASTER_CRL;
         }
-        IConfigStore crlsSubStore =
-                mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
-        IConfigStore crlSubStore = crlsSubStore.getSubStore(id);
+        ConfigStore crlsSubStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+        ConfigStore crlSubStore = crlsSubStore.getSubStore(id, ConfigStore.class);
 
         Enumeration<String> e = req.getParameterNames();
 
@@ -1362,13 +1353,13 @@ public class CAAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         IConfigStore caConfig = mCA.getConfigStore();
-        IConfigStore connectorConfig = caConfig.getSubStore("connector");
-        IConfigStore caConnectorConfig = null;
+        ConfigStore connectorConfig = caConfig.getSubStore("connector", ConfigStore.class);
+        ConfigStore caConnectorConfig = null;
 
         if (isKRAConnector(req)) {
-            caConnectorConfig = connectorConfig.getSubStore("KRA");
+            caConnectorConfig = connectorConfig.getSubStore("KRA", ConfigStore.class);
         } else if (isCLAConnector(req)) {
-            caConnectorConfig = connectorConfig.getSubStore("CLA");
+            caConnectorConfig = connectorConfig.getSubStore("CLA", ConfigStore.class);
         }
 
         Enumeration<String> enum1 = req.getParameterNames();
@@ -1396,15 +1387,15 @@ public class CAAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         IConfigStore caConfig = mCA.getConfigStore();
-        IConfigStore connectorConfig = caConfig.getSubStore("connector");
-        IConfigStore caConnectorConfig = null;
+        ConfigStore connectorConfig = caConfig.getSubStore("connector", ConfigStore.class);
+        ConfigStore caConnectorConfig = null;
 
         //        String nickname = CMS.getServerCertNickname();
 
         if (isKRAConnector(req)) {
-            caConnectorConfig = connectorConfig.getSubStore("KRA");
+            caConnectorConfig = connectorConfig.getSubStore("KRA", ConfigStore.class);
         } else if (isCLAConnector(req)) {
-            caConnectorConfig = connectorConfig.getSubStore("CLA");
+            caConnectorConfig = connectorConfig.getSubStore("CLA", ConfigStore.class);
         }
 
         Enumeration<String> enum1 = req.getParameterNames();
