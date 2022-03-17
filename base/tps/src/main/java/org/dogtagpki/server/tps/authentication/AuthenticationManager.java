@@ -27,6 +27,7 @@ import org.dogtagpki.server.authentication.AuthenticationConfig;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * AuthenticationManager is a class for management of authentication
@@ -91,8 +92,7 @@ public class AuthenticationManager
         while (auth_enu.hasMoreElements()) {
             String authInstID = auth_enu.nextElement();
             logger.debug("AuthenticationManager: initAuthInstances(): initializing authentication instance " + authInstID);
-            IConfigStore authInstSub =
-                    authInstSubstore.getSubStore(authInstID);
+            ConfigStore authInstSub = authInstSubstore.getSubStore(authInstID, ConfigStore.class);
             TPSAuthenticator authInst =
                     createAuthentication(authInstSub, authInstID);
             authInstances.put(authInstID, authInst);
@@ -121,7 +121,7 @@ public class AuthenticationManager
 
         TPSAuthenticator auth = new TPSAuthenticator(authInstID);
 
-        IConfigStore uiSub = conf.getSubStore("ui");
+        ConfigStore uiSub = conf.getSubStore("ui", ConfigStore.class);
         if (uiSub == null) {
             logger.error("AuthenticationManager: createAuthentication(): conf "
                     + conf.getName() + ".ui" + " null or empty.");
@@ -129,7 +129,7 @@ public class AuthenticationManager
         }
 
         // init ui title
-        IConfigStore uiTitleSub = uiSub.getSubStore("title");
+        ConfigStore uiTitleSub = uiSub.getSubStore("title", ConfigStore.class);
         if (uiTitleSub == null) {
             logger.error("AuthenticationManager: createAuthentication(): conf "
                     + uiSub.getName() + ".title" + " null or empty.");
@@ -152,7 +152,7 @@ public class AuthenticationManager
         }
 
         // init ui description
-        IConfigStore uiDescSub = uiSub.getSubStore("description");
+        ConfigStore uiDescSub = uiSub.getSubStore("description", ConfigStore.class);
         if (uiDescSub == null) {
             logger.error("AuthenticationManager: createAuthentication(): conf "
                     + uiSub.getName() + ".description" + " null or empty.");
@@ -174,7 +174,7 @@ public class AuthenticationManager
         }
 
         // init ui parameters
-        IConfigStore uiParamSub = uiSub.getSubStore("id");
+        ConfigStore uiParamSub = uiSub.getSubStore("id", ConfigStore.class);
         if (uiParamSub == null) {
             logger.error("AuthenticationManager: createAuthentication(): conf "
                     + uiSub.getName() + ".id" + " null or empty.");
@@ -185,7 +185,7 @@ public class AuthenticationManager
             String id = uiParam_enu.nextElement();
             logger.debug("AuthenticationManager: createAuthentication(): id param=" +
                     id);
-            IConfigStore idNameSub = uiParamSub.getSubStore(id + ".name");
+            ConfigStore idNameSub = uiParamSub.getSubStore(id + ".name", ConfigStore.class);
             if (idNameSub == null) {
                 logger.debug("AuthenticationManager: createAuthentication(): conf "
                         + uiParamSub.getName() + ".name" + " null or empty.");
@@ -207,7 +207,7 @@ public class AuthenticationManager
                 up.setParamName(locale, name);
             }
 
-            IConfigStore idDescSub = uiParamSub.getSubStore(id + ".description");
+            ConfigStore idDescSub = uiParamSub.getSubStore(id + ".description", ConfigStore.class);
             if (idDescSub == null) {
                 logger.debug("AuthenticationManager: createAuthentication(): conf "
                         + uiParamSub.getName() + ".description" + " null or empty.");
@@ -230,7 +230,7 @@ public class AuthenticationManager
             logger.debug("AuthenticationManager: createAuthentication(): added param=" + id);
 
             // map the auth mgr required cred to cred name in request message
-            IConfigStore credMapSub = uiParamSub.getSubStore(id + ".credMap");
+            ConfigStore credMapSub = uiParamSub.getSubStore(id + ".credMap", ConfigStore.class);
             if (credMapSub == null) {
                 logger.debug("AuthenticationManager: createAuthentication(): conf "
                         + uiParamSub.getName() + ".credMap" + " null or empty.");
@@ -243,7 +243,7 @@ public class AuthenticationManager
                 continue;
             }
 
-            IConfigStore msgCredSub = credMapSub.getSubStore("msgCred");
+            ConfigStore msgCredSub = credMapSub.getSubStore("msgCred", ConfigStore.class);
             if (msgCredSub == null) {
                 logger.debug("AuthenticationManager: createAuthentication(): conf "
                         + uiParamSub.getName() + ".msgCred" + " null or empty.");

@@ -21,9 +21,9 @@ package org.dogtagpki.server.tps.mapping;
 import java.util.HashMap;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
@@ -90,7 +90,7 @@ public class MappingResolverManager
         }
 
         EngineConfig conf = engine.getConfig();
-        IConfigStore prConf = conf.getSubStore(MAPPING_RESOLVER_CFG);
+        ConfigStore prConf = conf.getSubStore(MAPPING_RESOLVER_CFG, ConfigStore.class);
         String profileList = prConf.getString(PROP_RESOLVER_LIST, "");
 
         for (String prInst : profileList.split(",")) {

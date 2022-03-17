@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IConnector;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;
 
@@ -101,14 +102,13 @@ public class ConnectionManager
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         IConfigStore conf = subsystem.getConfigStore();
-        IConfigStore connectorSubstore = conf.getSubStore("connector");
+        ConfigStore connectorSubstore = conf.getSubStore("connector", ConfigStore.class);
         Enumeration<String> connector_enu = connectorSubstore.getSubStoreNames();
         connectors = new Hashtable<>();
         while (connector_enu.hasMoreElements()) {
             String connectorID = connector_enu.nextElement();
             logger.debug("ConnectionManager: initConnectors(): initializing connector " + connectorID);
-            IConfigStore connectorConfig =
-                    connectorSubstore.getSubStore(connectorID);
+            ConfigStore connectorConfig = connectorSubstore.getSubStore(connectorID, ConfigStore.class);
             IConnector conn = null;
             boolean enable = connectorConfig.getBoolean("enable", false);
             if (!enable) {
@@ -151,7 +151,7 @@ public class ConnectionManager
         int port = conf.getInteger("port");
 
         Hashtable<String, String> uris = new Hashtable<>();
-        IConfigStore uriSubstore = conf.getSubStore("uri");
+        ConfigStore uriSubstore = conf.getSubStore("uri", ConfigStore.class);
         if (uriSubstore == null) {
             logger.error("ConnectionManager: createConnector(): uri(s) not found in config.");
             throw new EBaseException("uri(s) not found in config");
