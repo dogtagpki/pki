@@ -63,6 +63,7 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -154,14 +155,14 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
                     throw new EBaseException("default id not found");
                 }
 
-                IConfigStore storeConfig = mConfig.getSubStore(PROP_STORE);
+                ConfigStore storeConfig = mConfig.getSubStore(PROP_STORE, ConfigStore.class);
                 Enumeration<String> ids = storeConfig.getSubStoreNames();
 
                 while (ids.hasMoreElements()) {
                     String id = ids.nextElement();
                     String className = mConfig.getString(PROP_STORE + "." + id + ".class", null);
                     IOCSPStore store = (IOCSPStore) Class.forName(className).getDeclaredConstructor().newInstance();
-                    IConfigStore cfg = mConfig.getSubStore(PROP_STORE + "." + id);
+                    ConfigStore cfg = mConfig.getSubStore(PROP_STORE + "." + id, ConfigStore.class);
 
                     store.init(cfg, dbSubsystem);
 
@@ -200,8 +201,8 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
         return mStores.get(id);
     }
 
-    public IConfigStore getOCSPStoreConfig(String id) {
-        return mConfig.getSubStore(PROP_STORE + "." + id);
+    public ConfigStore getOCSPStoreConfig(String id) {
+        return mConfig.getSubStore(PROP_STORE + "." + id, ConfigStore.class);
     }
 
     public String getOCSPStoreClassPath(String id) {
@@ -312,7 +313,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
         logger.info("OCSPAuthority: Initializing OCSP signing unit");
 
         mSigningUnit = new OCSPSigningUnit();
-        mSigningUnit.init(mConfig.getSubStore(PROP_SIGNING_SUBSTORE));
+        mSigningUnit.init(mConfig.getSubStore(PROP_SIGNING_SUBSTORE, ConfigStore.class));
 
         getOCSPSigningAlgorithms();
     }

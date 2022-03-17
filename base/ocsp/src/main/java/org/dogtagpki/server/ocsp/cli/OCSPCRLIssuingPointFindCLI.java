@@ -19,13 +19,13 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -88,7 +88,7 @@ public class OCSPCRLIssuingPointFindCLI extends CommandCLI {
         String storeID = ocspConfig.getString(IOCSPAuthority.PROP_DEF_STORE_ID);
 
         String className = ocspConfig.getString(IOCSPAuthority.PROP_STORE + "." + storeID + ".class");
-        IConfigStore storeConfig = ocspConfig.getSubStore(IOCSPAuthority.PROP_STORE + "." + storeID);
+        ConfigStore storeConfig = ocspConfig.getSubStore(IOCSPAuthority.PROP_STORE + "." + storeID, ConfigStore.class);
 
         IDefStore store = (IDefStore) Class.forName(className).getDeclaredConstructor().newInstance();
         store.init(storeConfig, dbSubsystem);

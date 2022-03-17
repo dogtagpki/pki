@@ -40,6 +40,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ocsp.IOCSPStore;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.ocsp.OCSPAuthority;
 
 /**
@@ -426,7 +427,7 @@ public class OCSPAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
         IConfigStore config = mOCSP.getConfigStore();
         String defStore = config.getString(IOCSPAuthority.PROP_DEF_STORE_ID);
-        IConfigStore SubStore = config.getSubStore(IOCSPAuthority.PROP_STORE);
+        ConfigStore SubStore = config.getSubStore(IOCSPAuthority.PROP_STORE, ConfigStore.class);
         Enumeration<String> enumStores = SubStore.getSubStoreNames();
 
         while (enumStores.hasMoreElements()) {
