@@ -36,11 +36,11 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * An abstract class represents an authorization manager that governs the
@@ -121,8 +121,8 @@ public abstract class AAclAuthz implements IAuthzManager {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig mainConfig = engine.getConfig();
 
-        IConfigStore evalConfig = mainConfig.getSubStore(PROP_EVAL);
-        IConfigStore i = evalConfig.getSubStore(PROP_IMPL);
+        ConfigStore evalConfig = mainConfig.getSubStore(PROP_EVAL, ConfigStore.class);
+        ConfigStore i = evalConfig.getSubStore(PROP_IMPL, ConfigStore.class);
 
         IAccessEvaluator evaluator = null;
         Enumeration<String> mImpls = i.getSubStoreNames();

@@ -824,7 +824,7 @@ public class ConfigStore implements IConfigStore, Cloneable {
             while (subs.hasMoreElements()) {
                 String name = subs.nextElement();
 
-                IConfigStore sub = getSubStore(name);
+                ConfigStore sub = getSubStore(name, ConfigStore.class);
                 IConfigStore newSub = that.makeSubStore(sub.getName());
 
                 Enumeration<String> props = sub.getPropertyNames();

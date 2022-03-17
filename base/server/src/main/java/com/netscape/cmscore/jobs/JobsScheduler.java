@@ -30,6 +30,7 @@ import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.jobs.JobPlugin;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This is a daemon thread that handles scheduled jobs like cron would
@@ -159,7 +160,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
         }
         setInterval(i);
 
-        IConfigStore c = mConfig.getSubStore(PROP_IMPL);
+        ConfigStore c = mConfig.getSubStore(PROP_IMPL, ConfigStore.class);
         Enumeration<String> mImpls = c.getSubStoreNames();
 
         // register all job plugins
@@ -173,7 +174,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
         }
 
         // register all jobs
-        c = config.getSubStore(PROP_JOB);
+        c = config.getSubStore(PROP_JOB, ConfigStore.class);
         Enumeration<String> jobs = c.getSubStoreNames();
 
         while (jobs.hasMoreElements()) {
@@ -190,7 +191,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
             // instantiate and init the job
             try {
                 IJob job = (IJob) Class.forName(classPath).getDeclaredConstructor().newInstance();
-                IConfigStore jconfig = c.getSubStore(jobName);
+                ConfigStore jconfig = c.getSubStore(jobName, ConfigStore.class);
 
                 job.init(this, jobName, implName, jconfig);
 

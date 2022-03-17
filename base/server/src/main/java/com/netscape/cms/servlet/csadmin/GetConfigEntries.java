@@ -32,13 +32,13 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -125,7 +125,7 @@ public class GetConfigEntries extends CMSServlet {
 
             while (t.hasMoreTokens()) {
                 String name1 = t.nextToken();
-                IConfigStore cs = config.getSubStore(name1);
+                ConfigStore cs = config.getSubStore(name1, ConfigStore.class);
                 Enumeration<String> enum1 = cs.getPropertyNames();
 
                 while (enum1.hasMoreElements()) {

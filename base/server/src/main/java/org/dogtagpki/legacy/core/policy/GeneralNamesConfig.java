@@ -25,6 +25,7 @@ import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 public class GeneralNamesConfig implements IGeneralNamesConfig {
     public String mName = null; // substore name of config if any.
@@ -68,8 +69,10 @@ public class GeneralNamesConfig implements IGeneralNamesConfig {
 
             mGenNameConfigs[i] =
                     newGeneralNameConfig(
-                            storeName, mConfig.getSubStore(storeName),
-                            mIsValueConfigured, mIsPolicyEnabled);
+                            storeName,
+                            mConfig.getSubStore(storeName, ConfigStore.class),
+                            mIsValueConfigured,
+                            mIsPolicyEnabled);
         }
 
         if (mIsValueConfigured && mIsPolicyEnabled) {

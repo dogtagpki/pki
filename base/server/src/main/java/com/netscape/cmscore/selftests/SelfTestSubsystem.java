@@ -50,6 +50,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ConfigStore;
 
 //////////////////////
 // class definition //
@@ -180,7 +181,7 @@ public class SelfTestSubsystem
         String instanceValue = null;
 
         String instancePath = PROP_CONTAINER + "." + PROP_INSTANCE;
-        IConfigStore instanceConfig = mConfig.getSubStore(instancePath);
+        ConfigStore instanceConfig = mConfig.getSubStore(instancePath, ConfigStore.class);
 
         instanceName = element.getSelfTestName();
         if (instanceName != null) {
@@ -1244,7 +1245,7 @@ public class SelfTestSubsystem
 
         // compose self test plugins logger property prefix
         String loggerPath = PROP_CONTAINER + "." + PROP_LOGGER;
-        IConfigStore loggerConfig = mConfig.getSubStore(loggerPath);
+        ConfigStore loggerConfig = mConfig.getSubStore(loggerPath, ConfigStore.class);
 
         if ((loggerConfig != null) &&
                 (loggerConfig.getName() != null) &&
@@ -1391,7 +1392,7 @@ public class SelfTestSubsystem
 
         // compose self test plugins instance property prefix
         String instancePath = PROP_CONTAINER + "." + PROP_INSTANCE;
-        IConfigStore instanceConfig = mConfig.getSubStore(instancePath);
+        ConfigStore instanceConfig = mConfig.getSubStore(instancePath, ConfigStore.class);
 
         if ((instanceConfig != null) &&
                 (instanceConfig.getName() != null) &&

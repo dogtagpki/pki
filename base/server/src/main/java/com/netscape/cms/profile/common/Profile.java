@@ -27,7 +27,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
@@ -266,7 +265,7 @@ public abstract class Profile {
         }
 
         // handle profile input plugins
-        IConfigStore inputStore = config.getSubStore("input");
+        ConfigStore inputStore = config.getSubStore("input", ConfigStore.class);
         String input_list = inputStore.getString(PROP_INPUT_LIST, "");
         StringTokenizer input_st = new StringTokenizer(input_list, ",");
 
@@ -287,14 +286,14 @@ public abstract class Profile {
                 throw new EBaseException(e.toString());
             }
 
-            IConfigStore inputConfig = inputStore.getSubStore(input_id);
+            ConfigStore inputConfig = inputStore.getSubStore(input_id, ConfigStore.class);
             input.init(this, inputConfig);
             mInputs.put(input_id, input);
             mInputIds.addElement(input_id);
         }
 
         // handle profile output plugins
-        IConfigStore outputStore = config.getSubStore("output");
+        ConfigStore outputStore = config.getSubStore("output", ConfigStore.class);
         String output_list = outputStore.getString(PROP_OUTPUT_LIST, "");
         StringTokenizer output_st = new StringTokenizer(output_list, ",");
 
@@ -317,14 +316,14 @@ public abstract class Profile {
                         outputClass + " " + e.getMessage(), e);
                 throw new EBaseException(e.toString());
             }
-            IConfigStore outputConfig = outputStore.getSubStore(output_id);
+            ConfigStore outputConfig = outputStore.getSubStore(output_id, ConfigStore.class);
             output.init(outputConfig);
             mOutputs.put(output_id, output);
             mOutputIds.addElement(output_id);
         }
 
         // handle profile output plugins
-        IConfigStore updaterStore = config.getSubStore("updater");
+        ConfigStore updaterStore = config.getSubStore("updater", ConfigStore.class);
         String updater_list = updaterStore.getString(PROP_UPDATER_LIST, "");
         StringTokenizer updater_st = new StringTokenizer(updater_list, ",");
 
@@ -347,21 +346,21 @@ public abstract class Profile {
                         updaterClass + " " + e.getMessage(), e);
                 throw new EBaseException(e.toString());
             }
-            IConfigStore updaterConfig = updaterStore.getSubStore(updater_id);
+            ConfigStore updaterConfig = updaterStore.getSubStore(updater_id, ConfigStore.class);
             updater.init(this, updaterConfig);
             mUpdaters.put(updater_id, updater);
             mUpdaterIds.addElement(updater_id);
         }
 
         // handle profile policy plugins
-        IConfigStore policySetStore = config.getSubStore("policyset");
+        ConfigStore policySetStore = config.getSubStore("policyset", ConfigStore.class);
         String setlist = policySetStore.getString("list", "");
         StringTokenizer st = new StringTokenizer(setlist, ",");
 
         while (st.hasMoreTokens()) {
             String setId = st.nextToken();
 
-            IConfigStore policyStore = policySetStore.getSubStore(setId);
+            ConfigStore policyStore = policySetStore.getSubStore(setId, ConfigStore.class);
             String list = policyStore.getString(PROP_POLICY_LIST, "");
             StringTokenizer st1 = new StringTokenizer(list, ",");
 
@@ -483,8 +482,8 @@ public abstract class Profile {
             return;
         }
         try {
-            IConfigStore policySetSubStore = mConfig.getSubStore("policyset");
-            IConfigStore policySubStore = policySetSubStore.getSubStore(setId);
+            ConfigStore policySetSubStore = mConfig.getSubStore("policyset", ConfigStore.class);
+            ConfigStore policySubStore = policySetSubStore.getSubStore(setId, ConfigStore.class);
 
             policySubStore.removeSubStore(policyId);
             String list = policySubStore.getString(PROP_POLICY_LIST, null);
@@ -695,7 +694,7 @@ public abstract class Profile {
             NameValuePairs nvps, boolean createConfig)
 
     throws EProfileException {
-        IConfigStore outputStore = mConfig.getSubStore("output");
+        ConfigStore outputStore = mConfig.getSubStore("output", ConfigStore.class);
 
         IPluginInfo outputInfo = registry.getPluginInfo("profileOutput",
                 outputId);
@@ -796,7 +795,7 @@ public abstract class Profile {
     public ProfileInput createProfileInput(String id, String inputId,
             NameValuePairs nvps, boolean createConfig)
             throws EProfileException {
-        IConfigStore inputStore = mConfig.getSubStore("input");
+        ConfigStore inputStore = mConfig.getSubStore("input", ConfigStore.class);
 
         IPluginInfo inputInfo = registry.getPluginInfo("profileInput",
                 inputId);
@@ -912,7 +911,7 @@ public abstract class Profile {
 
         Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
-        IConfigStore policyStore = mConfig.getSubStore("policyset." + setId);
+        ConfigStore policyStore = mConfig.getSubStore("policyset." + setId, ConfigStore.class);
         if (policies == null) {
             policies = new Vector<>();
             mPolicySet.put(setId, policies);
@@ -967,7 +966,7 @@ public abstract class Profile {
         }
 
         // Now make sure we aren't trying to add a policy that already exists
-        IConfigStore policySetStore = mConfig.getSubStore("policyset");
+        ConfigStore policySetStore = mConfig.getSubStore("policyset", ConfigStore.class);
         String setlist = null;
         try {
             setlist = policySetStore.getString("list", "");
@@ -983,7 +982,7 @@ public abstract class Profile {
             if (!sId.equals(setId)) {
                 continue;
             }
-            IConfigStore pStore = policySetStore.getSubStore(sId);
+            ConfigStore pStore = policySetStore.getSubStore(sId, ConfigStore.class);
 
             String list = null;
             try {
@@ -1056,9 +1055,7 @@ public abstract class Profile {
         if (def == null) {
             logger.warn("Profile: failed to create " + defaultClass);
         } else {
-            IConfigStore defStore = null;
-
-            defStore = policyStore.getSubStore(defaultRoot);
+            ConfigStore defStore = policyStore.getSubStore(defaultRoot, ConfigStore.class);
             def.init(defStore);
             logger.debug(method + " default class initialized.");
         }
@@ -1084,9 +1081,7 @@ public abstract class Profile {
         if (constraint == null) {
             logger.warn(method + " failed to create " + constraintClass);
         } else {
-            IConfigStore conStore = null;
-
-            conStore = policyStore.getSubStore(constraintRoot);
+            ConfigStore conStore = policyStore.getSubStore(constraintRoot, ConfigStore.class);
             constraint.init(conStore);
             policy = new ProfilePolicy(id, def, constraint);
             policies.addElement(policy);

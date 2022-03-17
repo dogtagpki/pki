@@ -36,6 +36,7 @@ import com.netscape.cms.profile.input.SubmitterInfoInput;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.request.Request;
@@ -99,8 +100,8 @@ public class RequestInQListener implements IRequestListener {
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
-        IConfigStore nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE);
-        IConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE);
+        ConfigStore nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE, ConfigStore.class);
 
         mEnabled = rq.getBoolean(PROP_ENABLED, false);
 

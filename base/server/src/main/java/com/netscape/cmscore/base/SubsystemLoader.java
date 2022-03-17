@@ -42,7 +42,7 @@ public class SubsystemLoader {
 
         // load a list of installable subsystems (services)
         for (int i = 0;; i++) {
-            IConfigStore c = config.getSubStore(PROP_SUBSYSTEM + i);
+            ConfigStore c = config.getSubStore(PROP_SUBSYSTEM + i, ConfigStore.class);
 
             if (c == null)
                 break;

@@ -43,6 +43,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Default authorization subsystem
@@ -98,7 +99,7 @@ public class AuthzSubsystem implements ISubsystem {
 
             // get authz manager plugins.
 
-            IConfigStore c = mConfig.getSubStore(PROP_IMPL);
+            ConfigStore c = mConfig.getSubStore(PROP_IMPL, ConfigStore.class);
             Enumeration<String> mImpls = c.getSubStoreNames();
 
             while (mImpls.hasMoreElements()) {

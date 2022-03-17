@@ -336,7 +336,7 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void initDebug() throws Exception {
-        IConfigStore debugConfig = config.getSubStore(Debug.ID);
+        ConfigStore debugConfig = config.getSubStore(Debug.ID, ConfigStore.class);
         debug.init(debugConfig);
     }
 
@@ -344,10 +344,10 @@ public class CMSEngine implements ServletContextListener {
 
         logger.info("CMSEngine: Initializing subsystem listeners");
 
-        IConfigStore listenersConfig = config.getSubStore("listeners");
+        ConfigStore listenersConfig = config.getSubStore("listeners", ConfigStore.class);
 
         if (listenersConfig.size() == 0) {
-            listenersConfig = config.getSubStore("startupNotifiers");
+            listenersConfig = config.getSubStore("startupNotifiers", ConfigStore.class);
 
             if (listenersConfig.size() > 0) {
                 String subsystem = config.getType().toLowerCase();
@@ -363,7 +363,7 @@ public class CMSEngine implements ServletContextListener {
             id = id.trim();
             if (id.isEmpty()) continue;
 
-            IConfigStore instanceConfig = listenersConfig.getSubStore(id);
+            ConfigStore instanceConfig = listenersConfig.getSubStore(id, ConfigStore.class);
             String className = instanceConfig.getString("class");
             logger.info("CMSEngine: Initializing subsystem listener " + id + ": " + className);
 
@@ -586,7 +586,7 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void initPluginRegistry() throws Exception {
-        IConfigStore pluginRegistryConfig = config.getSubStore(PluginRegistry.ID);
+        ConfigStore pluginRegistryConfig = config.getSubStore(PluginRegistry.ID, ConfigStore.class);
         String subsystem = config.getType().toLowerCase();
         String defaultRegistryFile = instanceDir + "/conf/" + subsystem + "/registry.cfg";
         pluginRegistry.init(pluginRegistryConfig, defaultRegistryFile);
@@ -594,7 +594,7 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void initLogSubsystem() throws Exception {
-        IConfigStore logConfig = config.getSubStore(LogSubsystem.ID);
+        ConfigStore logConfig = config.getSubStore(LogSubsystem.ID, ConfigStore.class);
         logSubsystem.init(logConfig);
         logSubsystem.startup();
     }
@@ -626,19 +626,19 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void initOIDLoaderSubsystem() throws Exception {
-        IConfigStore oidLoaderConfig = config.getSubStore(OidLoaderSubsystem.ID);
+        ConfigStore oidLoaderConfig = config.getSubStore(OidLoaderSubsystem.ID, ConfigStore.class);
         oidLoaderSubsystem.init(oidLoaderConfig);
         oidLoaderSubsystem.startup();
     }
 
     public void initX500NameSubsystem() throws Exception {
-        IConfigStore x500NameConfig = config.getSubStore(X500NameSubsystem.ID);
+        ConfigStore x500NameConfig = config.getSubStore(X500NameSubsystem.ID, ConfigStore.class);
         x500NameSubsystem.init(x500NameConfig);
         x500NameSubsystem.startup();
     }
 
     public void initRequestSubsystem() throws Exception {
-        IConfigStore requestConfig = config.getSubStore(RequestSubsystem.ID);
+        ConfigStore requestConfig = config.getSubStore(RequestSubsystem.ID, ConfigStore.class);
         requestSubsystem.init(requestConfig, dbSubsystem);
         requestSubsystem.startup();
     }
@@ -651,13 +651,13 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void initAuthzSubsystem() throws Exception {
-        IConfigStore authzConfig = config.getSubStore(AuthzSubsystem.ID);
+        ConfigStore authzConfig = config.getSubStore(AuthzSubsystem.ID, ConfigStore.class);
         authzSubsystem.init(authzConfig);
         authzSubsystem.startup();
     }
 
     public void initJobsScheduler() throws Exception {
-        IConfigStore jobsSchedulerConfig = config.getSubStore(JobsScheduler.ID);
+        ConfigStore jobsSchedulerConfig = config.getSubStore(JobsScheduler.ID, ConfigStore.class);
         jobsScheduler.init(jobsSchedulerConfig);
         jobsScheduler.startup();
     }
@@ -871,7 +871,7 @@ public class CMSEngine implements ServletContextListener {
                 continue;
             }
 
-            IConfigStore subsystemConfig = mConfig.getSubStore(id);
+            ConfigStore subsystemConfig = mConfig.getSubStore(id, ConfigStore.class);
             initSubsystem(subsystem, subsystemConfig);
         }
     }
@@ -937,7 +937,7 @@ public class CMSEngine implements ServletContextListener {
                 id.equals("kra") || id.equals("tks")) {
 
             logger.info("CMSEngine: Configuring servlet certificate nickname");
-            IConfigStore serverCertStore = mConfig.getSubStore(id + "." + "sslserver");
+            ConfigStore serverCertStore = mConfig.getSubStore(id + "." + "sslserver", ConfigStore.class);
 
             if (serverCertStore != null && serverCertStore.size() > 0) {
                 String nickName = serverCertStore.getString("nickname");

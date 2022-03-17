@@ -21,12 +21,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Vector;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 
 import netscape.net.smtp.SmtpClient;
 
@@ -57,7 +57,7 @@ public class MailNotification implements IMailNotification {
             try {
                 CMSEngine engine = CMS.getCMSEngine();
                 EngineConfig config = engine.getConfig();
-                IConfigStore c = config.getSubStore(PROP_SMTP_SUBSTORE);
+                ConfigStore c = config.getSubStore(PROP_SMTP_SUBSTORE, ConfigStore.class);
 
                 if (c == null) {
                     return;

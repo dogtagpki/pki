@@ -35,6 +35,7 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 //////////////////////
 // class definition //
@@ -64,7 +65,7 @@ public abstract class ASelfTest
     // variables associated with this specific object
     protected ISelfTestSubsystem mSelfTestSubsystem = null;
     protected String mInstanceName = null;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected String mPrefix = null;
 
     /////////////////////
@@ -116,7 +117,7 @@ public abstract class ASelfTest
         // compose self test plugin parameter property prefix
         String pluginPath = PROP_PLUGIN + "." + instanceName;
 
-        mConfig = parameters.getSubStore(pluginPath);
+        mConfig = parameters.getSubStore(pluginPath, ConfigStore.class);
 
         if ((mConfig != null) &&
                 (mConfig.getName() != null) &&

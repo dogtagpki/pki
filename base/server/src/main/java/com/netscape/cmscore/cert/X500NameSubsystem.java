@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Subsystem for configuring X500Name related things.
@@ -151,12 +152,12 @@ public class X500NameSubsystem implements ISubsystem {
     private void loadX500NameAttrMaps()
             throws EBaseException {
         X500NameAttrMap globalMap = X500NameAttrMap.getDefault();
-        IConfigStore attrSubStore = mConfig.getSubStore(PROP_ATTR);
+        ConfigStore attrSubStore = mConfig.getSubStore(PROP_ATTR, ConfigStore.class);
         Enumeration<String> attrNames = attrSubStore.getSubStoreNames();
 
         while (attrNames.hasMoreElements()) {
             String name = attrNames.nextElement();
-            IConfigStore substore = attrSubStore.getSubStore(name);
+            ConfigStore substore = attrSubStore.getSubStore(name, ConfigStore.class);
             String oidString = substore.getString(PROP_OID);
             ObjectIdentifier oid = CertUtils.checkOID(name, oidString);
             String className = substore.getString(PROP_CLASS);

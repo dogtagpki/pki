@@ -45,6 +45,7 @@ import com.netscape.certsrv.logging.LogPlugin;
 import com.netscape.certsrv.logging.event.ConfigSignedAuditEvent;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.logging.LogSubsystem;
 
 /**
@@ -490,11 +491,8 @@ public class LogAdminServlet extends AdminServlet {
                 return;
             }
 
-            IConfigStore destStore = null;
-
-            destStore = mConfig.getSubStore("log");
-            IConfigStore instancesConfig =
-                    destStore.getSubStore("impl");
+            ConfigStore destStore = mConfig.getSubStore("log", ConfigStore.class);
+            ConfigStore instancesConfig = destStore.getSubStore("impl", ConfigStore.class);
 
             // Does the class exist?
             Class<ILogEventListener> newImpl = null;
@@ -779,10 +777,8 @@ public class LogAdminServlet extends AdminServlet {
 
             Vector<String> configParams = logSubsystem.getLogDefaultParams(implname);
 
-            IConfigStore destStore =
-                    mConfig.getSubStore("log");
-            IConfigStore instancesConfig =
-                    destStore.getSubStore("instance");
+            ConfigStore destStore = mConfig.getSubStore("log", ConfigStore.class);
+            ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
             IConfigStore substore = instancesConfig.makeSubStore(id);
 
             if (configParams != null) {
@@ -1058,10 +1054,8 @@ public class LogAdminServlet extends AdminServlet {
             logSubsystem.getLogInsts().remove(id);
 
             // remove the configuration.
-            IConfigStore destStore =
-                    mConfig.getSubStore("log");
-            IConfigStore instancesConfig =
-                    destStore.getSubStore("instance");
+            ConfigStore destStore = mConfig.getSubStore("log", ConfigStore.class);
+            ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
 
             instancesConfig.removeSubStore(id);
             // commiting
@@ -1228,10 +1222,8 @@ public class LogAdminServlet extends AdminServlet {
             // then delete this log
             logSubsystem.getLogPlugins().remove(id);
 
-            IConfigStore destStore =
-                    mConfig.getSubStore("log");
-            IConfigStore instancesConfig =
-                    destStore.getSubStore("impl");
+            ConfigStore destStore = mConfig.getSubStore("log", ConfigStore.class);
+            ConfigStore instancesConfig = destStore.getSubStore("impl", ConfigStore.class);
 
             instancesConfig.removeSubStore(id);
             // commiting
@@ -1459,10 +1451,8 @@ public class LogAdminServlet extends AdminServlet {
 
             // remove old substore.
 
-            IConfigStore destStore =
-                    mConfig.getSubStore("log");
-            IConfigStore instancesConfig =
-                    destStore.getSubStore("instance");
+            ConfigStore destStore = mConfig.getSubStore("log", ConfigStore.class);
+            ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
 
             // create new substore.
 

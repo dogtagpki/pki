@@ -35,6 +35,7 @@ import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.LogPlugin;
 import com.netscape.cms.logging.LogQueue;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * A class represents a log subsystem.
@@ -93,7 +94,7 @@ public class LogSubsystem implements ILogSubsystem {
         mLogQueue.init();
 
         // load log plugin implementation
-        IConfigStore c = config.getSubStore(PROP_IMPL);
+        ConfigStore c = config.getSubStore(PROP_IMPL, ConfigStore.class);
         Enumeration<String> mImpls = c.getSubStoreNames();
 
         while (mImpls.hasMoreElements()) {
@@ -106,7 +107,7 @@ public class LogSubsystem implements ILogSubsystem {
         logger.trace("loaded logger plugins");
 
         // load log instances
-        c = config.getSubStore(PROP_INSTANCE);
+        c = config.getSubStore(PROP_INSTANCE, ConfigStore.class);
         Enumeration<String> instances = c.getSubStoreNames();
 
         while (instances.hasMoreElements()) {
@@ -125,8 +126,7 @@ public class LogSubsystem implements ILogSubsystem {
 
             try {
                 logInst = (ILogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
-                IConfigStore pConfig =
-                        c.getSubStore(insName);
+                ConfigStore pConfig = c.getSubStore(insName, ConfigStore.class);
 
                 logInst.init(this, pConfig);
                 // for view from console

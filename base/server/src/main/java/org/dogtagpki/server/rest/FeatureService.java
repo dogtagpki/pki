@@ -18,6 +18,7 @@ import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 
 public class FeatureService extends PKIService implements FeatureResource {
     IConfigStore cs;
@@ -28,7 +29,7 @@ public class FeatureService extends PKIService implements FeatureResource {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig config = engine.getConfig();
 
-        IConfigStore cs = config.getSubStore("features");
+        ConfigStore cs = config.getSubStore("features", ConfigStore.class);
         ArrayList<Feature> features = new ArrayList<>();
         Enumeration<String> tags = cs.getSubStoreNames();
         while (tags.hasMoreElements()) {
@@ -46,7 +47,7 @@ public class FeatureService extends PKIService implements FeatureResource {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig config = engine.getConfig();
 
-        IConfigStore cs = config.getSubStore("features");
+        ConfigStore cs = config.getSubStore("features", ConfigStore.class);
         Enumeration<String> tags = cs.getSubStoreNames();
         while(tags.hasMoreElements()) {
             String tag = tags.nextElement();

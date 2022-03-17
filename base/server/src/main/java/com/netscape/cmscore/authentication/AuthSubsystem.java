@@ -42,6 +42,7 @@ import com.netscape.cms.authentication.CMCAuth;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Default authentication subsystem
@@ -174,7 +175,7 @@ public class AuthSubsystem implements ISubsystem {
         plugin.setVisible(false);
         mAuthMgrPlugins.put(SSLCLIENTCERT_PLUGIN_ID, plugin);
 
-        IConfigStore c = mConfig.getSubStore(PROP_IMPL);
+        ConfigStore c = mConfig.getSubStore(PROP_IMPL, ConfigStore.class);
         Enumeration<String> pluginIDs = c.getSubStoreNames();
 
         while (pluginIDs.hasMoreElements()) {

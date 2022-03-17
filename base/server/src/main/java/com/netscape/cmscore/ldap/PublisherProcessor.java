@@ -36,6 +36,7 @@ import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -74,7 +75,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
     protected LdapConnModule mLdapConnModule;
 
     protected PublishingConfig mConfig;
-    protected IConfigStore mLdapConfig;
+    protected ConfigStore mLdapConfig;
     protected String mId;
 
     protected IRequestListener requestListener;
@@ -110,7 +111,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
 
         PublishingPublisherConfig publisherConfig = config.getPublisherConfig();
 
-        IConfigStore c = publisherConfig.getSubStore(PROP_IMPL);
+        ConfigStore c = publisherConfig.getSubStore(PROP_IMPL, ConfigStore.class);
         Enumeration<String> mImpls = c.getSubStoreNames();
 
         while (mImpls.hasMoreElements()) {
@@ -122,7 +123,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
             mPublisherPlugins.put(id, plugin);
         }
 
-        c = publisherConfig.getSubStore(PROP_INSTANCE);
+        c = publisherConfig.getSubStore(PROP_INSTANCE, ConfigStore.class);
         Enumeration<String> instances = c.getSubStoreNames();
 
         while (instances.hasMoreElements()) {
@@ -145,7 +146,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
 
             try {
                 publisherInst = (ILdapPublisher) Class.forName(className).getDeclaredConstructor().newInstance();
-                IConfigStore pConfig = c.getSubStore(insName);
+                ConfigStore pConfig = c.getSubStore(insName, ConfigStore.class);
 
                 publisherInst.init(pConfig);
                 isEnable = true;
@@ -184,7 +185,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
 
         PublishingMapperConfig mapperConfig = config.getMapperConfig();
 
-        c = mapperConfig.getSubStore(PROP_IMPL);
+        c = mapperConfig.getSubStore(PROP_IMPL, ConfigStore.class);
         mImpls = c.getSubStoreNames();
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();
@@ -195,7 +196,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
             mMapperPlugins.put(id, plugin);
         }
 
-        c = mapperConfig.getSubStore(PROP_INSTANCE);
+        c = mapperConfig.getSubStore(PROP_INSTANCE, ConfigStore.class);
         instances = c.getSubStoreNames();
         while (instances.hasMoreElements()) {
             String insName = instances.nextElement();
@@ -217,7 +218,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
 
             try {
                 mapperInst = (ILdapMapper) Class.forName(className).getDeclaredConstructor().newInstance();
-                IConfigStore mConfig = c.getSubStore(insName);
+                ConfigStore mConfig = c.getSubStore(insName, ConfigStore.class);
 
                 mapperInst.init(mConfig);
                 isEnable = true;
@@ -252,7 +253,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
 
         PublishingRuleConfig ruleConfig = config.getRuleConfig();
 
-        c = ruleConfig.getSubStore(PROP_IMPL);
+        c = ruleConfig.getSubStore(PROP_IMPL, ConfigStore.class);
         mImpls = c.getSubStoreNames();
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();
@@ -264,7 +265,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
             mRulePlugins.put(id, plugin);
         }
 
-        c = ruleConfig.getSubStore(PROP_INSTANCE);
+        c = ruleConfig.getSubStore(PROP_INSTANCE, ConfigStore.class);
         instances = c.getSubStoreNames();
         while (instances.hasMoreElements()) {
             String insName = instances.nextElement();
@@ -281,13 +282,13 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
             String className = plugin.getClassPath();
 
             // Instantiate and init the rule
-            IConfigStore mConfig = null;
+            ConfigStore mConfig = null;
 
             try {
                 LdapRule ruleInst = null;
 
                 ruleInst = (LdapRule) Class.forName(className).getDeclaredConstructor().newInstance();
-                mConfig = c.getSubStore(insName);
+                mConfig = c.getSubStore(insName, ConfigStore.class);
                 ruleInst.init(this, mConfig);
                 ruleInst.setInstanceName(insName);
 
@@ -368,7 +369,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
 
     public void startup() throws EBaseException {
         logger.debug("PublisherProcessor: startup()");
-        mLdapConfig = mConfig.getSubStore(PROP_LDAP_PUBLISH_SUBSTORE);
+        mLdapConfig = mConfig.getSubStore(PROP_LDAP_PUBLISH_SUBSTORE, ConfigStore.class);
         if (mLdapConfig.getBoolean(PROP_ENABLE, false)) {
             logger.debug("PublisherProcessor: about to initLdapConn");
             initLdapConn(mLdapConfig);

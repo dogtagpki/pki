@@ -49,6 +49,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 
 /**
@@ -459,8 +460,7 @@ public class AuthAdminServlet extends AdminServlet {
             }
 
             AuthenticationConfig destStore = mConfig.getAuthenticationConfig();
-            IConfigStore instancesConfig =
-                    destStore.getSubStore(scope);
+            ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
 
             // Does the class exist?
 
@@ -1021,8 +1021,7 @@ public class AuthAdminServlet extends AdminServlet {
             mAuths.getPlugins().remove(id);
 
             AuthenticationConfig destStore = mConfig.getAuthenticationConfig();
-            IConfigStore instancesConfig =
-                    destStore.getSubStore(scope);
+            ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
 
             instancesConfig.removeSubStore(id);
             // commiting

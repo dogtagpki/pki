@@ -34,11 +34,11 @@ import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Return some javascript to the request which contains the list of
@@ -98,7 +98,7 @@ public class DynamicVariablesServlet extends CMSServlet {
     static {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-        IConfigStore config = cs.getSubStore(PROP_CLONING);
+        ConfigStore config = cs.getSubStore(PROP_CLONING, ConfigStore.class);
 
         try {
             mCrlurl = config.getString(PROP_CRLURL, "");

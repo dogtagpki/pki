@@ -66,7 +66,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
@@ -99,6 +98,7 @@ import com.netscape.cmscore.apps.CommandQueue;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.Request;
@@ -230,7 +230,7 @@ public abstract class CMSServlet extends HttpServlet {
     protected Vector<String> mSaveHttpHeaders = new Vector<>();
 
     protected String mId = null;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
 
     // the authority, RA, CA, KRA this servlet is serving.
     protected IAuthority mAuthority = null;
@@ -287,7 +287,7 @@ public abstract class CMSServlet extends HttpServlet {
             throw e;
         }
 
-        mConfig = cs.getSubStore(CMSGateway.PROP_CMSGATEWAY);
+        mConfig = cs.getSubStore(CMSGateway.PROP_CMSGATEWAY, ConfigStore.class);
         mServletConfig = sc;
         mServletContext = sc.getServletContext();
         mFileLoader = new CMSFileLoader();

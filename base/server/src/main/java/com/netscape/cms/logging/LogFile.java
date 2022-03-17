@@ -81,6 +81,7 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 
 import netscape.ldap.client.JDAPAVA;
 import netscape.ldap.client.JDAPFilter;
@@ -308,7 +309,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         }
 
         logger.debug("Event filters:");
-        IConfigStore filterStore = config.getSubStore(PROP_SIGNED_AUDIT_FILTERS);
+        ConfigStore filterStore = config.getSubStore(PROP_SIGNED_AUDIT_FILTERS, ConfigStore.class);
         for (Enumeration<String> e = filterStore.getPropertyNames(); e.hasMoreElements(); ) {
             String eventType = e.nextElement();
 

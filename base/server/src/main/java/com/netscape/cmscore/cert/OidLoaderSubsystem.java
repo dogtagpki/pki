@@ -35,6 +35,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  *
@@ -150,7 +151,7 @@ public class OidLoaderSubsystem implements ISubsystem {
 
         while (names.hasMoreElements()) {
             String substorename = names.nextElement();
-            IConfigStore substore = mConfig.getSubStore(substorename);
+            ConfigStore substore = mConfig.getSubStore(substorename, ConfigStore.class);
 
             try {
                 String oidname = substore.getString(PROP_OID);

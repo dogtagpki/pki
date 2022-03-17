@@ -31,19 +31,19 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthManager;
+import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This class is to hold some general method for servlets.
@@ -64,14 +64,14 @@ public class CMSGateway {
 
     protected static boolean mEnableFileServing;
     private static boolean mEnableAdminEnroll = true;
-    private static IConfigStore mConfig = null;
+    private static ConfigStore mConfig;
 
     static {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         mEnableFileServing = true;
-        mConfig = cs.getSubStore(PROP_CMSGATEWAY);
+        mConfig = cs.getSubStore(PROP_CMSGATEWAY, ConfigStore.class);
         try {
             mEnableAdminEnroll =
                     mConfig.getBoolean(PROP_ENABLE_ADMIN_ENROLL, false);

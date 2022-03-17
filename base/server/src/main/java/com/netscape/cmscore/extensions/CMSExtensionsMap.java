@@ -27,6 +27,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.extensions.CMSExtension;
 import com.netscape.certsrv.extensions.EExtensionsException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Loads extension classes from configuration file and return
@@ -62,7 +63,7 @@ public class CMSExtensionsMap {
 
         while (sstores.hasMoreElements()) {
             String name = sstores.nextElement();
-            IConfigStore c = mConfig.getSubStore(name);
+            ConfigStore c = mConfig.getSubStore(name, ConfigStore.class);
 
             String className = c.getString(PROP_CLASS);
             CMSExtension ext = null;

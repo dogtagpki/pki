@@ -50,7 +50,6 @@ import org.mozilla.jss.util.ConsolePasswordCallback;
 import org.mozilla.jss.util.PasswordCallback;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.certsrv.common.ConfigConstants;
@@ -72,6 +71,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -791,7 +791,7 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         DatabaseConfig dbConfig = mConfig.getDatabaseConfig();
-        IConfigStore ldapConfig = dbConfig.getSubStore("ldap");
+        ConfigStore ldapConfig = dbConfig.getSubStore("ldap", ConfigStore.class);
         NameValuePairs params = new NameValuePairs();
         Enumeration<String> e = req.getParameterNames();
 
@@ -819,7 +819,7 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         // XXX
-        IConfigStore sConfig = mConfig.getSubStore(PROP_SMTP);
+        ConfigStore sConfig = mConfig.getSubStore(PROP_SMTP, ConfigStore.class);
 
         String host = req.getParameter(Constants.PR_SERVER_NAME);
 
@@ -842,7 +842,7 @@ public class CMSAdminServlet extends AdminServlet {
     private void readSMTPConfig(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        IConfigStore dbConfig = mConfig.getSubStore(PROP_SMTP);
+        ConfigStore dbConfig = mConfig.getSubStore(PROP_SMTP, ConfigStore.class);
         NameValuePairs params = new NameValuePairs();
 
         params.put(Constants.PR_SERVER_NAME,

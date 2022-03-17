@@ -208,9 +208,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         initUndeletablePolicies(mConfig);
 
         // Read all registered policies first..
-        IConfigStore c;
-
-        c = config.getSubStore(PROP_IMPL);
+        ConfigStore c = config.getSubStore(PROP_IMPL, ConfigStore.class);
         Enumeration<String> mImpls = c.getSubStoreNames();
 
         while (mImpls.hasMoreElements()) {
@@ -271,7 +269,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
         // Now Read Policy configurations and construct policy objects
         int numPolicies = mPolicyOrder.size();
-        IConfigStore ruleStore = config.getSubStore(PROP_RULE);
+        ConfigStore ruleStore = config.getSubStore(PROP_RULE, ConfigStore.class);
 
         for (int i = 0; i < numPolicies; i++) {
             String instanceName = mPolicyOrder.elementAt(i);
@@ -281,7 +279,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 throw new EPolicyException(
                         CMS.getUserMessage("CMS_POLICY_DUPLICATE_INST_ID", instanceName));
 
-            c = ruleStore.getSubStore(instanceName);
+            c = ruleStore.getSubStore(instanceName, ConfigStore.class);
             if (c == null || c.size() == 0)
                 throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_NO_POLICY_CONFIG",
                             instanceName));
@@ -559,10 +557,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
         // Else delete the implementation
         mImplTable.remove(id);
-        IConfigStore policyStore =
-                mGlobalStore.getSubStore(getPolicySubstoreId());
-        IConfigStore implStore =
-                policyStore.getSubStore(PROP_IMPL);
+        ConfigStore policyStore = mGlobalStore.getSubStore(getPolicySubstoreId(), ConfigStore.class);
+        ConfigStore implStore = policyStore.getSubStore(PROP_IMPL, ConfigStore.class);
 
         implStore.removeSubStore(id);
 
@@ -610,10 +606,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         mImplTable.put(id, regPolicy);
 
         // Store the impl in the configuration.
-        IConfigStore policyStore =
-                mGlobalStore.getSubStore(getPolicySubstoreId());
-        IConfigStore implStore =
-                policyStore.getSubStore(PROP_IMPL);
+        ConfigStore policyStore = mGlobalStore.getSubStore(getPolicySubstoreId(), ConfigStore.class);
+        ConfigStore implStore = policyStore.getSubStore(PROP_IMPL, ConfigStore.class);
         IConfigStore newStore = implStore.makeSubStore(id);
 
         newStore.put(PROP_CLASS, classPath);
@@ -708,10 +702,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_INSTANCE", id));
 
-        IConfigStore policyStore =
-                mGlobalStore.getSubStore(getPolicySubstoreId());
-        IConfigStore instanceStore =
-                policyStore.getSubStore(PROP_RULE);
+        ConfigStore policyStore = mGlobalStore.getSubStore(getPolicySubstoreId(), ConfigStore.class);
+        ConfigStore instanceStore = policyStore.getSubStore(PROP_RULE, ConfigStore.class);
 
         instanceStore.removeSubStore(id);
 
@@ -772,10 +764,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                     CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL", implName));
 
         // Prepare config file entries.
-        IConfigStore policyStore =
-                mGlobalStore.getSubStore(getPolicySubstoreId());
-        IConfigStore instanceStore =
-                policyStore.getSubStore(PROP_RULE);
+        ConfigStore policyStore = mGlobalStore.getSubStore(getPolicySubstoreId(), ConfigStore.class);
+        ConfigStore instanceStore = policyStore.getSubStore(PROP_RULE, ConfigStore.class);
         IConfigStore newStore = instanceStore.makeSubStore(id);
 
         for (Enumeration<String> keys = ht.keys(); keys.hasMoreElements();) {
@@ -860,12 +850,10 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                     CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_IMPL", implId));
 
         // Try to init this rule.
-        IConfigStore policyStore =
-                mGlobalStore.getSubStore(getPolicySubstoreId());
-        IConfigStore instanceStore =
-                policyStore.getSubStore(PROP_RULE);
-        IConfigStore oldStore = instanceStore.getSubStore(id);
-        IConfigStore newStore = new ConfigStore(id);
+        ConfigStore policyStore = mGlobalStore.getSubStore(getPolicySubstoreId(), ConfigStore.class);
+        ConfigStore instanceStore = policyStore.getSubStore(PROP_RULE, ConfigStore.class);
+        ConfigStore oldStore = instanceStore.getSubStore(id, ConfigStore.class);
+        ConfigStore newStore = new ConfigStore(id);
 
         // See if the rule is disabled.
         String enabledStr = ht.get(IPolicyRule.PROP_ENABLE);
@@ -1049,8 +1037,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 String defRuleName = mSystemDefaults[i].substring(
                         mSystemDefaults[i].lastIndexOf('.') + 1);
                 IPolicyRule defRule = (IPolicyRule) Class.forName(mSystemDefaults[i]).getDeclaredConstructor().newInstance();
-                IConfigStore ruleConfig =
-                        mConfig.getSubStore(PROP_DEF_POLICIES + "." + defRuleName);
+                ConfigStore ruleConfig = mConfig.getSubStore(PROP_DEF_POLICIES + "." + defRuleName, ConfigStore.class);
 
                 defRule.init(this, ruleConfig);
                 if (defRule instanceof IEnrollmentPolicy)
@@ -1107,8 +1094,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         mPolicyOrder = policyOrder;
 
         // Now change the ordering in the config file.
-        IConfigStore policyStore =
-                mGlobalStore.getSubStore(getPolicySubstoreId());
+        ConfigStore policyStore = mGlobalStore.getSubStore(getPolicySubstoreId(), ConfigStore.class);
 
         policyStore.put(PROP_ORDER, policyOrderStr);
 
@@ -1238,7 +1224,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 IPolicyRule rule = (IPolicyRule) o;
 
                 String ruleName = className.substring(className.lastIndexOf('.') + 1);
-                IConfigStore ruleConfig = mConfig.getSubStore(PROP_DEF_POLICIES + "." + ruleName);
+                ConfigStore ruleConfig = mConfig.getSubStore(PROP_DEF_POLICIES + "." + ruleName, ConfigStore.class);
 
                 logger.info("GenericPolicyProcessor: Initializing system policy " + ruleName);
                 rule.init(this, ruleConfig);

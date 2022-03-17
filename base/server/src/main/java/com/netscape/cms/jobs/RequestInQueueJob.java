@@ -32,6 +32,7 @@ import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.request.RequestQueue;
@@ -144,7 +145,7 @@ public class RequestInQueueJob extends AJobBase
         mJobCron = scheduler.createJobCron(mCron);
 
         // initialize the summary related config info
-        IConfigStore sc = mConfig.getSubStore(PROP_SUMMARY);
+        ConfigStore sc = mConfig.getSubStore(PROP_SUMMARY, ConfigStore.class);
 
         if (sc.getBoolean(PROP_ENABLED, false)) {
             mSummary = true;

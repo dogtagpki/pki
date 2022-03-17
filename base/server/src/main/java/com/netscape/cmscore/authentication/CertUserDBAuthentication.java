@@ -30,12 +30,12 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.User;
 
@@ -76,7 +76,7 @@ public class CertUserDBAuthentication implements AuthManager {
     private CertUserLocator mCULocator = null;
 
     private boolean mRevocationCheckingEnabled = false;
-    private IConfigStore mRevocationChecking = null;
+    private ConfigStore mRevocationChecking;
 
     public CertUserDBAuthentication() {
     }
@@ -108,7 +108,7 @@ public class CertUserDBAuthentication implements AuthManager {
         mConfig = config;
 
         if (authenticationConfig != null) {
-            mRevocationChecking = authenticationConfig.getSubStore("revocationChecking");
+            mRevocationChecking = authenticationConfig.getSubStore("revocationChecking", ConfigStore.class);
         }
         if (mRevocationChecking != null) {
             mRevocationCheckingEnabled = mRevocationChecking.getBoolean("enabled", false);

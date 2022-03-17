@@ -41,6 +41,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.authorization.ACL;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Manage Access Control List configuration
@@ -531,10 +532,8 @@ public class ACLAdminServlet extends AdminServlet {
             // get class
             String classPath = super.getParameter(req, Constants.PR_ACL_CLASS);
 
-            IConfigStore destStore =
-                    mConfig.getSubStore(PROP_EVAL);
-            IConfigStore mStore =
-                    destStore.getSubStore(ScopeDef.SC_ACL_IMPLS);
+            ConfigStore destStore = mConfig.getSubStore(PROP_EVAL, ConfigStore.class);
+            ConfigStore mStore = destStore.getSubStore(ScopeDef.SC_ACL_IMPLS, ConfigStore.class);
 
             // Does the class exist?
             Class<?> newImpl = null;
@@ -782,10 +781,8 @@ public class ACLAdminServlet extends AdminServlet {
             mEvaluators.remove(id);
 
             try {
-                IConfigStore destStore =
-                        mConfig.getSubStore(PROP_EVAL);
-                IConfigStore mStore =
-                        destStore.getSubStore(ScopeDef.SC_ACL_IMPLS);
+                ConfigStore destStore = mConfig.getSubStore(PROP_EVAL, ConfigStore.class);
+                ConfigStore mStore = destStore.getSubStore(ScopeDef.SC_ACL_IMPLS, ConfigStore.class);
 
                 mStore.removeSubStore(id);
             } catch (Exception eeee) {
