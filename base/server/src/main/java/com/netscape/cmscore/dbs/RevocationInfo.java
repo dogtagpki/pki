@@ -22,8 +22,6 @@ import java.util.Date;
 
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 
-import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
-
 /**
  * A class represents a certificate revocation info. This
  * object is written as an attribute of certificate record
@@ -33,7 +31,7 @@ import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
  * @author galperin
  * @version $Revision$, $Date$
  */
-public class RevocationInfo implements IRevocationInfo, Serializable {
+public class RevocationInfo implements Serializable {
 
     /**
      *
@@ -64,7 +62,6 @@ public class RevocationInfo implements IRevocationInfo, Serializable {
     /**
      * Retrieves revocation date.
      */
-    @Override
     public Date getRevocationDate() {
         return mRevocationDate;
     }
@@ -72,7 +69,6 @@ public class RevocationInfo implements IRevocationInfo, Serializable {
     /**
      * Retrieves CRL extensions.
      */
-    @Override
     public CRLExtensions getCRLEntryExtensions() {
         return mCRLEntryExtensions;
     }

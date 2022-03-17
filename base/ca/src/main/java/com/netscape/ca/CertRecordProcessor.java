@@ -35,9 +35,9 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.dbs.IElementProcessor;
-import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.dbs.RevocationInfo;
 
 public class CertRecordProcessor implements IElementProcessor {
 
@@ -218,7 +218,7 @@ public class CertRecordProcessor implements IElementProcessor {
 
             BigInteger serialNumber = certRecord.getSerialNumber();
             Date revocationDate = certRecord.getRevocationDate();
-            IRevocationInfo revInfo = certRecord.getRevocationInfo();
+            RevocationInfo revInfo = certRecord.getRevocationInfo();
 
             CRLExtensions entryExt = null;
             CRLExtensions crlExts = null;

@@ -33,7 +33,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -289,7 +288,7 @@ public class CertRecord implements IDBObj {
      *
      * @return revocation information
      */
-    public IRevocationInfo getRevocationInfo() {
+    public RevocationInfo getRevocationInfo() {
         return mRevocationInfo;
     }
 
@@ -388,7 +387,7 @@ public class CertRecord implements IDBObj {
         String msg = "";
         // logger.debug(method + " checking for cert serial: "
         //        + getSerialNumber().toString());
-        IRevocationInfo revInfo = getRevocationInfo();
+        RevocationInfo revInfo = getRevocationInfo();
         if (revInfo == null) {
             msg = "revInfo null for" + getSerialNumber().toString();
             logger.debug(method + msg);

@@ -27,7 +27,6 @@ import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPEntry;
@@ -131,7 +130,7 @@ public class RetrieveModificationsTask implements Runnable {
                 continue;
             }
 
-            IRevocationInfo rInfo = certRecord.getRevocationInfo();
+            RevocationInfo rInfo = certRecord.getRevocationInfo();
             if (rInfo == null) {
                 continue;
             }

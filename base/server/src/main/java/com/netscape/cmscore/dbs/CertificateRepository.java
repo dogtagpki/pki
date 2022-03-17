@@ -39,7 +39,6 @@ import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.certdb.RenewableCertificateCollection;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.request.RequestId;
@@ -916,7 +915,7 @@ public class CertificateRepository extends Repository {
      * @param info revocation information
      * @exception EBaseException failed to mark
      */
-    public void markAsRevoked(BigInteger id, IRevocationInfo info)
+    public void markAsRevoked(BigInteger id, RevocationInfo info)
             throws EBaseException {
         markAsRevoked(id, info, false);
     }
@@ -929,7 +928,7 @@ public class CertificateRepository extends Repository {
      * @param isAlreadyRevoked boolean to indicate if the cert was revoked onHold
      * @exception EBaseException failed to mark
      */
-    public void markAsRevoked(BigInteger id, IRevocationInfo info, boolean isAlreadyRevoked)
+    public void markAsRevoked(BigInteger id, RevocationInfo info, boolean isAlreadyRevoked)
             throws EBaseException {
         ModificationSet mods = new ModificationSet();
         if (isAlreadyRevoked) {
@@ -980,7 +979,7 @@ public class CertificateRepository extends Repository {
      * @param revokedBy userid
      * @exception EBaseException failed to unmark
      */
-    public void unmarkRevoked(BigInteger id, IRevocationInfo info,
+    public void unmarkRevoked(BigInteger id, RevocationInfo info,
             Date revokedOn, String revokedBy)
             throws EBaseException {
         ModificationSet mods = new ModificationSet();
@@ -2174,7 +2173,7 @@ public class CertificateRepository extends Repository {
             }
         }
 
-        RevocationInfo info = (RevocationInfo) rec.getRevocationInfo();
+        RevocationInfo info = rec.getRevocationInfo();
         logger.info("CertificateRepository: - revocation date: " + info.getRevocationDate());
 
         return info;

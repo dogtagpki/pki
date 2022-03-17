@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
@@ -44,6 +43,7 @@ import com.netscape.cms.profile.def.UserSubjectNameDefault;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -181,7 +181,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
                 CertRecord rec = sameSubjRecords.nextElement();
                 String status = rec.getStatus();
 
-                IRevocationInfo revocationInfo = rec.getRevocationInfo();
+                RevocationInfo revocationInfo = rec.getRevocationInfo();
                 RevocationReason reason = null;
 
                 if (revocationInfo != null) {

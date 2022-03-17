@@ -49,7 +49,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -59,6 +58,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -739,7 +739,7 @@ public class SrchCerts extends CMSServlet {
         } else {
             rarg.addLongValue("revokedOn", rec.getRevokedOn().getTime() / 1000);
 
-            IRevocationInfo revocationInfo = rec.getRevocationInfo();
+            RevocationInfo revocationInfo = rec.getRevocationInfo();
 
             if (revocationInfo != null) {
                 CRLExtensions crlExts = revocationInfo.getCRLEntryExtensions();

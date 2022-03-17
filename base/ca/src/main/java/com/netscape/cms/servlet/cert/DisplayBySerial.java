@@ -54,7 +54,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
-import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -67,6 +66,7 @@ import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -339,7 +339,7 @@ public class DisplayBySerial extends CMSServlet {
             // Do base 64 encoding
             header.addStringValue("certChainBase64", Utils.base64encode(ba, true));
 
-            IRevocationInfo revocationInfo = rec.getRevocationInfo();
+            RevocationInfo revocationInfo = rec.getRevocationInfo();
 
             if (revocationInfo != null) {
                 CRLExtensions crlExts = revocationInfo.getCRLEntryExtensions();

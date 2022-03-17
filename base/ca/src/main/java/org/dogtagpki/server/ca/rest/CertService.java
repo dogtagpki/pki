@@ -69,7 +69,6 @@ import com.netscape.certsrv.cert.CertRevokeRequest;
 import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.PKIService;
@@ -81,6 +80,7 @@ import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -581,7 +581,7 @@ public class CertService extends PKIService implements CertResource {
         certData.setRevokedOn(record.getRevokedOn());
         certData.setRevokedBy(record.getRevokedBy());
 
-        IRevocationInfo revInfo = record.getRevocationInfo();
+        RevocationInfo revInfo = record.getRevocationInfo();
         if (revInfo != null) {
             CRLExtensions revExts = revInfo.getCRLEntryExtensions();
             if (revExts != null) {

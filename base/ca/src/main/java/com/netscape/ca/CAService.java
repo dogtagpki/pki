@@ -1162,7 +1162,7 @@ public class CAService implements IService {
                     CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
                             "0x" + serialNo.toString(16)));
         }
-        RevocationInfo revInfo = (RevocationInfo) certRec.getRevocationInfo();
+        RevocationInfo revInfo = certRec.getRevocationInfo();
         CRLExtensions exts = null;
         CRLReasonExtension reasonext = null;
 
