@@ -38,6 +38,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.request.Request;
 
@@ -337,7 +338,7 @@ class PolicyMap {
 
     protected String mName = null;
     protected String mNameDot = null;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected String mIssuerDomainPolicy = null;
     protected String mSubjectDomainPolicy = null;
     protected CertificatePolicyMap mCertificatePolicyMap = null;
@@ -352,7 +353,7 @@ class PolicyMap {
     protected PolicyMap(String name, IConfigStore config, boolean enabled)
             throws EBaseException {
         mName = name;
-        mConfig = config.getSubStore(mName);
+        mConfig = config.getSubStore(mName, ConfigStore.class);
         mNameDot = mName + ".";
 
         if (mConfig == null) {
@@ -364,7 +365,7 @@ class PolicyMap {
         if (mConfig.size() == 0) {
             config.putString(mNameDot + PROP_ISSUER_DOMAIN_POLICY, "");
             config.putString(mNameDot + PROP_SUBJECT_DOMAIN_POLICY, "");
-            mConfig = config.getSubStore(mName);
+            mConfig = config.getSubStore(mName, ConfigStore.class);
             if (mConfig == null || mConfig.size() == 0) {
                 logger.warn("PolicyMappingsExt::PolicyMap - mConfig " +
                            "is null or empty!");

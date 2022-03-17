@@ -40,6 +40,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -217,7 +218,7 @@ public class NameConstraintsExt extends APolicyRule
 
         for (int i = 0; i < numSubtrees; i++) {
             String subtreeName = subtreesName + i;
-            IConfigStore subtreeConfig = mConfig.getSubStore(subtreeName);
+            ConfigStore subtreeConfig = mConfig.getSubStore(subtreeName, ConfigStore.class);
             Subtree subtree =
                     new Subtree(subtreeName, subtreeConfig, mEnabled);
 
@@ -441,8 +442,10 @@ class Subtree {
         if (mMax < -1)
             mMax = -1;
         mBase = new GeneralNameAsConstraintsConfig(
-                    mNameDot + PROP_BASE, mConfig.getSubStore(PROP_BASE),
-                    true, policyEnabled);
+                    mNameDot + PROP_BASE,
+                    mConfig.getSubStore(PROP_BASE, ConfigStore.class),
+                    true,
+                    policyEnabled);
 
         if (policyEnabled) {
             mGeneralSubtree =

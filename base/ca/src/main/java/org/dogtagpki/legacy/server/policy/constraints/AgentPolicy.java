@@ -28,6 +28,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -73,7 +74,7 @@ public class AgentPolicy extends APolicyRule
 
         System.err.println("Creating agent policy with class " + className);
         if (className != null) {
-            IConfigStore substore = config.getSubStore("params");
+            ConfigStore substore = config.getSubStore("params", ConfigStore.class);
 
             try {
                 @SuppressWarnings("unchecked")

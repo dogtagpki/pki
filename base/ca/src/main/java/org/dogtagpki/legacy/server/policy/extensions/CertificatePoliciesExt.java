@@ -45,6 +45,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.request.Request;
 
@@ -324,7 +325,7 @@ class CertPolicy {
 
     protected String mName = null;
     protected String mNameDot = null;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
 
     protected String mPolicyId = null;
     protected String mNoticeRefOrg = null;
@@ -344,7 +345,7 @@ class CertPolicy {
     protected CertPolicy(String name, IConfigStore config, boolean enabled)
             throws EBaseException {
         mName = name;
-        mConfig = config.getSubStore(mName);
+        mConfig = config.getSubStore(mName, ConfigStore.class);
         mNameDot = mName + ".";
 
         if (mConfig == null) {
@@ -359,7 +360,7 @@ class CertPolicy {
             config.putString(mNameDot + PROP_NOTICE_REF_NUMS, "");
             config.putString(mNameDot + PROP_USER_NOTICE_TEXT, "");
             config.putString(mNameDot + PROP_CPS_URI, "");
-            mConfig = config.getSubStore(mName);
+            mConfig = config.getSubStore(mName, ConfigStore.class);
             if (mConfig == null || mConfig.size() == 0) {
                 logger.error("CertificatePoliciesExt::CertPolicy - mConfig is null or empty!");
                 throw new EBaseException("mConfig is null or empty");

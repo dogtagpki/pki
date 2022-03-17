@@ -41,6 +41,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -136,7 +137,7 @@ public class SubjectAltNameExt extends APolicyRule
         mGNs = new ISubjAltNameConfig[mNumGNs];
         for (int i = 0; i < mNumGNs; i++) {
             String name = IGeneralNameUtil.PROP_GENERALNAME + i;
-            IConfigStore substore = mConfig.getSubStore(name);
+            ConfigStore substore = mConfig.getSubStore(name, ConfigStore.class);
 
             mGNs[i] = new SubjAltNameGN(name, substore, mEnabled);
         }
