@@ -35,6 +35,7 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.input.CertReqInput;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 
@@ -96,7 +97,7 @@ public class ExternalProcessConstraint extends EnrollConstraint {
             }
         }
 
-        IConfigStore envConfig = config.getSubStore("params.env");
+        ConfigStore envConfig = config.getSubStore("params.env", ConfigStore.class);
         Enumeration<String> names = envConfig.getPropertyNames();
         while (names.hasMoreElements()) {
             String name = names.nextElement();

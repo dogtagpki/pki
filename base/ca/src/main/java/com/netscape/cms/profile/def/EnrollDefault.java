@@ -56,6 +56,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.request.Request;
 
@@ -127,7 +128,7 @@ public abstract class EnrollDefault extends PolicyDefault {
             return null;
         }
 
-        IConfigStore params = mConfig.getSubStore("params");
+        ConfigStore params = mConfig.getSubStore("params", ConfigStore.class);
         if (params == null) {
             logger.error("Missing constraint parameters");
             return null;

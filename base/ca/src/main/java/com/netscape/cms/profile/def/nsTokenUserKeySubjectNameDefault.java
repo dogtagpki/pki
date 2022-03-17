@@ -34,6 +34,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -85,7 +86,7 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
     boolean mldapEnabled = false;
     protected IConfigStore mInstConfig;
     protected LDAPConfig mLdapConfig;
-    protected IConfigStore mParamsConfig;
+    protected ConfigStore mParamsConfig;
 
     /* ldap base dn */
     protected String mBaseDN = null;
@@ -295,7 +296,7 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
         try {
             // cfu - XXX do more error handling here later
             /* initialize ldap server configuration */
-            mParamsConfig = mInstConfig.getSubStore(PROP_PARAMS);
+            mParamsConfig = mInstConfig.getSubStore(PROP_PARAMS, ConfigStore.class);
             mLdapConfig = mParamsConfig.getSubStore(PROP_LDAP, LDAPConfig.class);
             mldapEnabled = mParamsConfig.getBoolean(CONFIG_LDAP_ENABLE,
                     false);

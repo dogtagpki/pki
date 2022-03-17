@@ -44,6 +44,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -568,14 +569,14 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         int num1 = getNumQualifiers();
 
         try {
-            IConfigStore basesubstore = getConfigStore().getSubStore("params");
+            ConfigStore basesubstore = getConfigStore().getSubStore("params", ConfigStore.class);
             sb.append("{");
             sb.append(CONFIG_POLICY_NUM + ":");
             sb.append(num);
             sb.append(",");
             for (int i = 0; i < num; i++) {
                 sb.append("{");
-                IConfigStore substore = basesubstore.getSubStore(CONFIG_PREFIX + i);
+                ConfigStore substore = basesubstore.getSubStore(CONFIG_PREFIX + i, ConfigStore.class);
                 String enable = substore.getString(CONFIG_POLICY_ENABLE, "");
                 sb.append(POLICY_ID_ENABLE + ":");
                 sb.append(enable);
@@ -589,7 +590,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                 sb.append(qualifiersNum);
                 sb.append(",");
                 for (int j = 0; j < num1; j++) {
-                    IConfigStore substore1 = substore.getSubStore(CONFIG_PREFIX1 + j);
+                    ConfigStore substore1 = substore.getSubStore(CONFIG_PREFIX1 + j, ConfigStore.class);
                     sb.append("{");
                     String cpsuriEnable = substore1.getString(CONFIG_CPSURI_ENABLE, "");
                     sb.append(POLICY_QUALIFIER_CPSURI_ENABLE + ":");
@@ -653,8 +654,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
             for (int i = 0; i < num; i++) {
 
-                IConfigStore basesubstore = config.getSubStore("params");
-                IConfigStore substore = basesubstore.getSubStore(CONFIG_PREFIX + i);
+                ConfigStore basesubstore = config.getSubStore("params", ConfigStore.class);
+                ConfigStore substore = basesubstore.getSubStore(CONFIG_PREFIX + i, ConfigStore.class);
                 String enable = substore.getString(CONFIG_POLICY_ENABLE);
 
                 logger.info("CertificatePoliciesExtension: policy #" + i);
@@ -674,7 +675,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
                     for (int j = 0; j < qualifierNum; j++) {
 
-                        IConfigStore substore1 = substore.getSubStore(CONFIG_PREFIX1 + j);
+                        ConfigStore substore1 = substore.getSubStore(CONFIG_PREFIX1 + j, ConfigStore.class);
 
                         String cpsuriEnable = substore1.getString(CONFIG_CPSURI_ENABLE, "false");
                         logger.info("CertificatePoliciesExtension:   - CPS URI enable: " + cpsuriEnable);
