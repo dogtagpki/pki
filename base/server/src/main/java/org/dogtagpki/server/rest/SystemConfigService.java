@@ -212,7 +212,7 @@ public class SystemConfigService extends PKIService {
 
             } else if (keyType.equals("rsa")) {
 
-                logger.info("SystemConfigService: Creating RSA keypair");
+                logger.info("SystemConfigService: Creating RSA key pair");
 
                 if (keySize == null) {
                     keySize = cs.getString("keys.rsa.keysize.default");
@@ -270,7 +270,7 @@ public class SystemConfigService extends PKIService {
                     usagesMask = CryptoUtil.ECDHE_USAGES_MASK;
                 }
 
-                keyPair = CryptoUtil.generateECCKeyPair(token, keySize, usages, usagesMask);
+                keyPair = CryptoUtil.generateECCKeyPair(token, curveName, usages, usagesMask);
 
             } else {
                 throw new Exception("Unsupported key type: " + keyType);
