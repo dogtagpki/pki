@@ -24,9 +24,9 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.SubsystemConfig;
 import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.base.LDAPConfigStorage;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -87,7 +87,7 @@ public class CAProfileImportCLI extends CommandCLI {
         String pluginRegistryFile = catalinaBase + "/conf/" + subsystemName + "/registry.cfg";
         logger.info("Loading " + pluginRegistryFile);
 
-        IConfigStore pluginRegistryConfig = cs.getSubStore(PluginRegistry.ID);
+        ConfigStore pluginRegistryConfig = cs.getSubStore(PluginRegistry.ID, ConfigStore.class);
         PluginRegistry pluginRegistry = new PluginRegistry();
         pluginRegistry.init(pluginRegistryConfig, pluginRegistryFile);
         pluginRegistry.startup();
@@ -152,13 +152,13 @@ public class CAProfileImportCLI extends CommandCLI {
             String baseDN,
             String inputFolder) throws Exception {
 
-        IConfigStore profileCfg = cs.getSubStore("profile");
+        ConfigStore profileCfg = cs.getSubStore("profile", ConfigStore.class);
         String profileIds = profileCfg.getString("list", "");
         StringTokenizer st = new StringTokenizer(profileIds, ",");
 
         while (st.hasMoreTokens()) {
             String profileID = st.nextToken();
-            IConfigStore profileConfig = profileCfg.getSubStore(profileID);
+            ConfigStore profileConfig = profileCfg.getSubStore(profileID, ConfigStore.class);
             String classID = profileConfig.getString("class_id", "");
 
             try {

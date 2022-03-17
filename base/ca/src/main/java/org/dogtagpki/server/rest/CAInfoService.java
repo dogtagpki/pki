@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -40,6 +39,7 @@ import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -176,7 +176,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
 
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
-        IConfigStore kraConnectorConfig = cs.getSubStore(KRAConnectorProcessor.PREFIX);
+        ConfigStore kraConnectorConfig = cs.getSubStore(KRAConnectorProcessor.PREFIX, ConfigStore.class);
 
         ClientConfig config = new ClientConfig();
         int port = Integer.parseInt(connInfo.getPort());

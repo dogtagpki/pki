@@ -31,7 +31,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.CASigningUnit;
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -109,7 +108,7 @@ public class CAConfigurator extends Configurator {
 
             CAEngineConfig engineConfig = engine.getConfig();
             CAConfig caConfig = engineConfig.getCAConfig();
-            IConfigStore caSigningCfg = caConfig.getSubStore("signing");
+            ConfigStore caSigningCfg = caConfig.getSubStore("signing", ConfigStore.class);
 
             // create CA signing unit
             CASigningUnit signingUnit = new CASigningUnit();

@@ -17,7 +17,7 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * @author Dinesh Prasanth M K
@@ -26,20 +26,20 @@ import com.netscape.certsrv.base.IConfigStore;
 public class SCTProcessor {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SCTProcessor.class);
 
-    protected IConfigStore mConfig;
+    protected ConfigStore mConfig;
 
     public void init() throws Exception {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
-        mConfig = cs.getCAConfig().getSubStore("certTransparency");
+        mConfig = cs.getCAConfig().getSubStore("certTransparency", ConfigStore.class);
     }
 
     /*
      *  CT mode is controlled by ca.certTransparency.mode
      *  There are three CT modes:
      *      disabled: issued certs will not carry SCT extension
-     *      enabled: issued certs will carry SCT extension   
+     *      enabled: issued certs will carry SCT extension
      *      perProfile: certs enrolled through those profiles
      *          that contain the following policyset
      *          will carry SCT extension
@@ -92,14 +92,14 @@ public class SCTProcessor {
      */
     public List<LogServer> getLogServerConfig() throws EPropertyNotFound, EBaseException, MalformedURLException {
 
-        IConfigStore logSubstore = mConfig.getSubStore("log");
+        ConfigStore logSubstore = mConfig.getSubStore("log", ConfigStore.class);
         int numberOfLogServers = logSubstore.getInteger("num");
         List<LogServer> logServers = new ArrayList<>();
 
         for (int id = 1; id <= numberOfLogServers; id++) {
             logger.debug("Loading configuration for logserver ID: " + id);
             LogServer logServerConfig = new LogServer();
-            IConfigStore logServerSubstore = logSubstore.getSubStore(String.valueOf(id));
+            ConfigStore logServerSubstore = logSubstore.getSubStore(String.valueOf(id), ConfigStore.class);
 
             logServerConfig.setId(id);
             logServerConfig.setEnabled(logServerSubstore.getBoolean("enable"));

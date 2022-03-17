@@ -45,6 +45,7 @@ import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -201,7 +202,7 @@ public class LdapPublishModule implements IRequestListener {
 
     protected void initMappers(IConfigStore config)
             throws EBaseException {
-        IConfigStore types = mConfig.getSubStore(PROP_TYPE);
+        ConfigStore types = mConfig.getSubStore(PROP_TYPE, ConfigStore.class);
 
         if (types == null || types.size() <= 0) {
             // nothing configured.
@@ -212,25 +213,25 @@ public class LdapPublishModule implements IRequestListener {
 
         while (substores.hasMoreElements()) {
             String certType = substores.nextElement();
-            IConfigStore current = types.getSubStore(certType);
+            ConfigStore current = types.getSubStore(certType, ConfigStore.class);
 
             if (current == null || current.size() <= 0) {
                 logger.debug("No ldap publish configuration for " + certType + " found.");
                 continue;
             }
             ILdapPlugin mapper = null, publisher = null;
-            IConfigStore mapperConf = null, publisherConf = null;
+            ConfigStore mapperConf = null, publisherConf = null;
             String mapperClassName = null, publisherClassName = null;
 
             try {
-                mapperConf = current.getSubStore(PROP_MAPPER);
+                mapperConf = current.getSubStore(PROP_MAPPER, ConfigStore.class);
                 mapperClassName = mapperConf.getString(PROP_CLASS, null);
                 if (mapperClassName != null && mapperClassName.length() > 0) {
                     logger.debug("mapper " + mapperClassName + " for " + certType);
                     mapper = (ILdapPlugin) Class.forName(mapperClassName).getDeclaredConstructor().newInstance();
                     mapper.init(mapperConf);
                 }
-                publisherConf = current.getSubStore(PROP_PUBLISHER);
+                publisherConf = current.getSubStore(PROP_PUBLISHER, ConfigStore.class);
                 publisherClassName = publisherConf.getString(PROP_CLASS, null);
                 if (publisherClassName != null &&
                         publisherClassName.length() > 0) {

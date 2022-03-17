@@ -43,7 +43,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
@@ -295,8 +294,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     public ProfilePolicy createProfilePolicy(Profile profile, String setId, String policyId) throws EBaseException {
         com.netscape.cms.profile.common.ProfilePolicy policy = profile.getProfilePolicy(setId, policyId);
-        IConfigStore policyStore = profile.getConfigStore().getSubStore(
-                "policyset." + setId + "." + policy.getId());
+        ConfigStore policyStore = profile.getConfigStore().getSubStore("policyset." + setId + "." + policy.getId(), ConfigStore.class);
 
         ProfilePolicy p = new ProfilePolicy();
         String constraintClassId = policyStore.getString("constraint.class_id");
@@ -312,7 +310,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         if (profileInput == null)
             return null;
 
-        IConfigStore inputStore = profile.getConfigStore().getSubStore("input");
+        ConfigStore inputStore = profile.getConfigStore().getSubStore("input", ConfigStore.class);
         String name = profileInput.getName(locale);
         String classId = inputStore.getString(inputId + ".class_id");
 
@@ -336,7 +334,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         if (profileOutput == null)
             return null;
 
-        IConfigStore outputStore = profile.getConfigStore().getSubStore("output");
+        ConfigStore outputStore = profile.getConfigStore().getSubStore("output", ConfigStore.class);
         String name = profileOutput.getName(locale);
         String classId = outputStore.getString(outputId + ".class_id");
 
@@ -916,8 +914,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                             def.getClassId(), con.getClassId());
 
                     // change specific elements to match incoming data for PolicyDefault
-                    IConfigStore pstore = profile.getConfigStore().getSubStore(
-                            "policyset." + setId + "." + policy.getId());
+                    ConfigStore pstore = profile.getConfigStore().getSubStore("policyset." + setId + "." + policy.getId(), ConfigStore.class);
                     if (!def.getName().isEmpty()) {
                         pstore.putString("default.name", def.getName());
                     }

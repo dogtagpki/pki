@@ -28,7 +28,6 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -39,6 +38,7 @@ import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.cms.publish.mappers.LdapCertSubjMap;
 import com.netscape.cms.publish.publishers.FileBasedPublisher;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.Request;
@@ -91,7 +91,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                 ca.registerRequestListener(requestListener);
             }
 
-            IConfigStore queueConfig = mConfig.getSubStore(PROP_QUEUE_PUBLISH_SUBSTORE);
+            ConfigStore queueConfig = mConfig.getSubStore(PROP_QUEUE_PUBLISH_SUBSTORE, ConfigStore.class);
 
             if (queueConfig != null) {
 

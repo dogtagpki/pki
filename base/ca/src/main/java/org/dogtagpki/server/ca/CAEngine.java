@@ -71,6 +71,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.dbs.CRLRepository;
@@ -392,12 +393,12 @@ public class CAEngine extends CMSEngine {
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
-        IConfigStore listenersConfig = caConfig.getSubStore(CertificateAuthority.PROP_LISTENER_SUBSTORE);
+        ConfigStore listenersConfig = caConfig.getSubStore(CertificateAuthority.PROP_LISTENER_SUBSTORE, ConfigStore.class);
         if (listenersConfig == null) return;
 
         logger.info("CAEngine: Loading listener plugins");
 
-        IConfigStore pluginsConfig = listenersConfig.getSubStore(CertificateAuthority.PROP_IMPL);
+        ConfigStore pluginsConfig = listenersConfig.getSubStore(CertificateAuthority.PROP_IMPL, ConfigStore.class);
         Enumeration<String> pluginNames = pluginsConfig.getSubStoreNames();
 
         while (pluginNames.hasMoreElements()) {
@@ -411,13 +412,13 @@ public class CAEngine extends CMSEngine {
 
         logger.info("CAEngine: Creating listener instances");
 
-        IConfigStore instancesConfig = listenersConfig.getSubStore(CertificateAuthority.PROP_INSTANCE);
+        ConfigStore instancesConfig = listenersConfig.getSubStore(CertificateAuthority.PROP_INSTANCE, ConfigStore.class);
         Enumeration<String> instanceNames = instancesConfig.getSubStoreNames();
 
         while (instanceNames.hasMoreElements()) {
             String id = instanceNames.nextElement();
 
-            IConfigStore instanceConfig = instancesConfig.getSubStore(id);
+            ConfigStore instanceConfig = instancesConfig.getSubStore(id, ConfigStore.class);
             String pluginName = instancesConfig.getString(id + "." + CertificateAuthority.PROP_PLUGIN);
             logger.info("CAEngine: - " + id + ": " + pluginName);
 
@@ -446,7 +447,7 @@ public class CAEngine extends CMSEngine {
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
-        IConfigStore crlPublisherConfig = caConfig.getSubStore("crlPublisher");
+        ConfigStore crlPublisherConfig = caConfig.getSubStore("crlPublisher", ConfigStore.class);
         if (crlPublisherConfig == null || crlPublisherConfig.size() == 0) {
             return;
         }
@@ -498,7 +499,7 @@ public class CAEngine extends CMSEngine {
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
-        IConfigStore crlConfig = caConfig.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE);
+        ConfigStore crlConfig = caConfig.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
 
         if (crlConfig == null || crlConfig.size() <= 0) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL"));
@@ -600,7 +601,7 @@ public class CAEngine extends CMSEngine {
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
-        IConfigStore listenerConfig = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE);
+        ConfigStore listenerConfig = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
         if (listenerConfig == null || listenerConfig.size() == 0) {
             return;
         }
@@ -622,7 +623,7 @@ public class CAEngine extends CMSEngine {
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
-        IConfigStore listenerConfig = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE);
+        ConfigStore listenerConfig = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
         if (listenerConfig == null || listenerConfig.size() == 0) {
             return;
         }
@@ -644,7 +645,7 @@ public class CAEngine extends CMSEngine {
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
-        IConfigStore listenerConfig = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE);
+        ConfigStore listenerConfig = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
         if (listenerConfig == null || listenerConfig.size() == 0) {
             return;
         }
@@ -781,7 +782,7 @@ public class CAEngine extends CMSEngine {
         logger.info("CAEngine: - max nonces: " + maxNonces);
 
         logger.info("CAEngine: Initializing CA policy");
-        IConfigStore caPolicyConfig = caConfig.getSubStore(CertificateAuthority.PROP_POLICY);
+        ConfigStore caPolicyConfig = caConfig.getSubStore(CertificateAuthority.PROP_POLICY, ConfigStore.class);
         caPolicy = new CAPolicy();
         caPolicy.init(hostCA, caPolicyConfig);
 
@@ -830,7 +831,7 @@ public class CAEngine extends CMSEngine {
 
             startSerialNumberUpdateTask();
 
-            caService.init(caConfig.getSubStore("connector"));
+            caService.init(caConfig.getSubStore("connector", ConfigStore.class));
 
             initListeners();
 
@@ -1149,7 +1150,7 @@ public class CAEngine extends CMSEngine {
             return;
         }
 
-        IConfigStore keyRetrieverConfig = engineConfig.getSubStore("features.authority.keyRetrieverConfig");
+        ConfigStore keyRetrieverConfig = engineConfig.getSubStore("features.authority.keyRetrieverConfig", ConfigStore.class);
 
         KeyRetriever keyRetriever;
         try {
@@ -1605,7 +1606,7 @@ public class CAEngine extends CMSEngine {
 
         logger.info("CAEngine: Initializing cert repository");
 
-        IConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID);
+        ConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID, ConfigStore.class);
         int increment = caConfig.getInteger(CertificateRepository.PROP_INCREMENT, 5);
         logger.info("CAEngine: - increment: " + increment);
 
@@ -1617,7 +1618,7 @@ public class CAEngine extends CMSEngine {
 
         logger.info("CAEngine: Initializing CRL repository");
 
-        IConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID);
+        ConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID, ConfigStore.class);
         int increment = caConfig.getInteger(CRLRepository.PROP_INCREMENT, 5);
 
         crlRepository = new CRLRepository(dbSubsystem);

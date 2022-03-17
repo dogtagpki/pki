@@ -42,6 +42,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
@@ -116,8 +117,8 @@ public class CertificateRevokedListener implements IRequestListener {
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
-        IConfigStore nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE);
-        IConfigStore rc = nc.getSubStore(PROP_CERT_ISSUED_SUBSTORE);
+        ConfigStore nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore rc = nc.getSubStore(PROP_CERT_ISSUED_SUBSTORE, ConfigStore.class);
 
         mEnabled = rc.getBoolean(PROP_ENABLED, false);
 

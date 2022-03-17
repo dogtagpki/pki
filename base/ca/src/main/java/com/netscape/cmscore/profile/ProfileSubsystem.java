@@ -77,7 +77,7 @@ public class ProfileSubsystem
             String id = st.nextToken();
             logger.info("ProfileSubsystem: Loading profile " + id);
 
-            IConfigStore subStore = cs.getSubStore(id);
+            ConfigStore subStore = cs.getSubStore(id, ConfigStore.class);
 
             String classid = subStore.getString(PROP_CLASS_ID);
             logger.debug("- class ID: " + classid);
