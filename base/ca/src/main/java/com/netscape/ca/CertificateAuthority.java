@@ -740,7 +740,7 @@ public class CertificateAuthority implements ICertificateAuthority, IOCSPService
      */
     @Override
     @SuppressWarnings("unchecked")
-    public boolean addCRLIssuingPoint(IConfigStore crlSubStore, String id,
+    public boolean addCRLIssuingPoint(ConfigStore crlSubStore, String id,
                                       boolean enable, String description) {
 
         CAEngine engine = CAEngine.getInstance();

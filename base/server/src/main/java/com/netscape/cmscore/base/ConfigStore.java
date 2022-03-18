@@ -621,14 +621,12 @@ public class ConfigStore implements IConfigStore, Cloneable {
     }
 
     /**
-     * Creates a new sub store.
-     * <P>
+     * Creates a nested sub-store with the specified name.
      *
-     * @param name substore name
-     * @return substore
+     * @param name The name of the sub-store
+     * @return The sub-store created
      */
-    @Override
-    public IConfigStore makeSubStore(String name) {
+    public ConfigStore makeSubStore(String name) {
 
         /*
          String names=(String)mSource.get(getFullName(PROP_SUBSTORES));
@@ -825,7 +823,7 @@ public class ConfigStore implements IConfigStore, Cloneable {
                 String name = subs.nextElement();
 
                 ConfigStore sub = getSubStore(name, ConfigStore.class);
-                IConfigStore newSub = that.makeSubStore(sub.getName());
+                ConfigStore newSub = that.makeSubStore(sub.getName());
 
                 Enumeration<String> props = sub.getPropertyNames();
 

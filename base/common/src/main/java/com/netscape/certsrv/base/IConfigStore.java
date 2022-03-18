@@ -303,15 +303,6 @@ public interface IConfigStore {
     public void putBigInteger(String name, BigInteger value);
 
     /**
-     * Creates a nested sub-store with the specified name.
-     * <P>
-     *
-     * @param name The name of the sub-store
-     * @return The sub-store created
-     */
-    public IConfigStore makeSubStore(String name);
-
-    /**
      * Retrieves the given sub-store.
      * <P>
      *

@@ -1060,7 +1060,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        IConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.makeSubStore(id);
 
         substore.put(Constants.PR_MAPPER_CLASS, classPath);
 
@@ -1148,7 +1148,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.mapper", ConfigStore.class);
         ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
-        IConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.makeSubStore(id);
 
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
@@ -1526,7 +1526,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         instancesConfig.removeSubStore(id);
 
-        IConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.makeSubStore(id);
 
         substore.put("pluginName", implname);
         if (configParams != null) {
@@ -1655,7 +1655,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        IConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.makeSubStore(id);
 
         substore.put(Constants.PR_RULE_CLASS, classPath);
 
@@ -1731,7 +1731,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.rule", ConfigStore.class);
         ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
-        IConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.makeSubStore(id);
 
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
@@ -2105,7 +2105,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         instancesConfig.removeSubStore(id);
 
-        IConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.makeSubStore(id);
 
         substore.put("pluginName", implname);
         if (configParams != null) {
@@ -2239,7 +2239,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        IConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.makeSubStore(id);
 
         substore.put(Constants.PR_PUBLISHER_CLASS, classPath);
 
@@ -2317,7 +2317,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         ConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.publisher", ConfigStore.class);
         ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
-        IConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.makeSubStore(id);
 
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
@@ -2755,7 +2755,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         instancesConfig.removeSubStore(id);
 
-        IConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.makeSubStore(id);
 
         substore.put("pluginName", implname);
         if (configParams != null) {
@@ -2951,10 +2951,10 @@ public class PublisherAdminServlet extends AdminServlet {
     }
 
     // convenience routine.
-    private static void restore(IConfigStore store,
+    private static void restore(ConfigStore store,
             String id, NameValuePairs saveParams) {
         store.removeSubStore(id);
-        IConfigStore rstore = store.makeSubStore(id);
+        ConfigStore rstore = store.makeSubStore(id);
 
         for (String key : saveParams.keySet()) {
             String value = saveParams.get(key);

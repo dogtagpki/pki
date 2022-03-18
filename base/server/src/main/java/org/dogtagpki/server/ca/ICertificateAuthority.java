@@ -41,6 +41,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.SigningUnit;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 
@@ -198,7 +199,7 @@ public interface ICertificateAuthority extends IAuthority {
      * @param description CRL issuing point description
      * @return true if CRL issuing point was successfully added
      */
-    public boolean addCRLIssuingPoint(IConfigStore crlSubStore, String id,
+    public boolean addCRLIssuingPoint(ConfigStore crlSubStore, String id,
                                       boolean enable, String description);
 
     /**

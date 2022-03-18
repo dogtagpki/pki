@@ -31,7 +31,6 @@ import org.dogtagpki.server.authorization.IAuthzManager;
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
@@ -601,7 +600,7 @@ public class ACLAdminServlet extends AdminServlet {
                 return;
             }
 
-            IConfigStore substore = mStore.makeSubStore(type);
+            ConfigStore substore = mStore.makeSubStore(type);
 
             substore.put(Constants.PR_ACL_CLASS, classPath);
 

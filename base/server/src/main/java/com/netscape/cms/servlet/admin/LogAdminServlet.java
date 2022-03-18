@@ -562,7 +562,7 @@ public class LogAdminServlet extends AdminServlet {
                 return;
             }
 
-            IConfigStore substore = instancesConfig.makeSubStore(id);
+            ConfigStore substore = instancesConfig.makeSubStore(id);
 
             substore.put(Constants.PR_LOG_CLASS, classPath);
 
@@ -779,7 +779,7 @@ public class LogAdminServlet extends AdminServlet {
 
             ConfigStore destStore = mConfig.getSubStore("log", ConfigStore.class);
             ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
-            IConfigStore substore = instancesConfig.makeSubStore(id);
+            ConfigStore substore = instancesConfig.makeSubStore(id);
 
             if (configParams != null) {
                 for (int i = 0; i < configParams.size(); i++) {
@@ -1460,7 +1460,7 @@ public class LogAdminServlet extends AdminServlet {
 
             //instancesConfig.removeSubStore(id);
 
-            IConfigStore substore = instancesConfig.makeSubStore(id);
+            ConfigStore substore = instancesConfig.makeSubStore(id);
 
             substore.put("pluginName", implname);
 
@@ -2021,10 +2021,10 @@ public class LogAdminServlet extends AdminServlet {
     }
 
     // convenience routine.
-    private static void restore(IConfigStore store,
+    private static void restore(ConfigStore store,
             String id, NameValuePairs saveParams) {
         store.removeSubStore(id);
-        IConfigStore rstore = store.makeSubStore(id);
+        ConfigStore rstore = store.makeSubStore(id);
 
         for (String key : saveParams.keySet()) {
             String value = saveParams.get(key);

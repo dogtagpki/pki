@@ -608,7 +608,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         // Store the impl in the configuration.
         ConfigStore policyStore = mGlobalStore.getSubStore(getPolicySubstoreId(), ConfigStore.class);
         ConfigStore implStore = policyStore.getSubStore(PROP_IMPL, ConfigStore.class);
-        IConfigStore newStore = implStore.makeSubStore(id);
+        ConfigStore newStore = implStore.makeSubStore(id);
 
         newStore.put(PROP_CLASS, classPath);
         try {
@@ -766,7 +766,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         // Prepare config file entries.
         ConfigStore policyStore = mGlobalStore.getSubStore(getPolicySubstoreId(), ConfigStore.class);
         ConfigStore instanceStore = policyStore.getSubStore(PROP_RULE, ConfigStore.class);
-        IConfigStore newStore = instanceStore.makeSubStore(id);
+        ConfigStore newStore = instanceStore.makeSubStore(id);
 
         for (Enumeration<String> keys = ht.keys(); keys.hasMoreElements();) {
             String key = keys.nextElement();

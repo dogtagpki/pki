@@ -533,7 +533,7 @@ public class AuthAdminServlet extends AdminServlet {
                 return;
             }
 
-            IConfigStore substore = instancesConfig.makeSubStore(id);
+            ConfigStore substore = instancesConfig.makeSubStore(id);
 
             substore.put(Constants.PR_AUTH_CLASS, classPath);
 
@@ -1624,10 +1624,10 @@ public class AuthAdminServlet extends AdminServlet {
     }
 
     // convenience routine.
-    private static void restore(IConfigStore store,
+    private static void restore(ConfigStore store,
             String id, NameValuePairs saveParams) {
         store.removeSubStore(id);
-        IConfigStore rstore = store.makeSubStore(id);
+        ConfigStore rstore = store.makeSubStore(id);
 
         for (String key : saveParams.keySet()) {
             String value = saveParams.get(key);

@@ -343,7 +343,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        IConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.makeSubStore(id);
 
         substore.put(Constants.PR_JOBS_CLASS, classPath);
 
@@ -425,7 +425,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         ConfigStore destStore = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN, ConfigStore.class);
         ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
-        IConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.makeSubStore(id);
 
         if (configParams != null) {
             for (int i = 0; i < configParams.length; i++) {
@@ -820,7 +820,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         String[] configParams = mJobsSched.getConfigParams(implname);
 
-        IConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.makeSubStore(id);
 
         substore.put(JobsScheduler.PROP_PLUGIN, implname);
         if (configParams != null) {
@@ -954,10 +954,10 @@ public class JobsAdminServlet extends AdminServlet {
     }
 
     // convenience routine.
-    private static void restore(IConfigStore store,
+    private static void restore(ConfigStore store,
             String id, NameValuePairs saveParams) {
         store.removeSubStore(id);
-        IConfigStore rstore = store.makeSubStore(id);
+        ConfigStore rstore = store.makeSubStore(id);
 
         for (String key : saveParams.keySet()) {
             String value = saveParams.get(key);
