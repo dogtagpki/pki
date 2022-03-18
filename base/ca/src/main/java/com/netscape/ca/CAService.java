@@ -85,6 +85,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.LocalConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;
@@ -190,7 +191,7 @@ public class CAService implements IService {
     }
 
     public void startup() throws EBaseException {
-        IConfigStore kraConfig = mConfig.getSubStore("KRA");
+        ConfigStore kraConfig = mConfig.getSubStore("KRA", ConfigStore.class);
 
         if (kraConfig != null) {
             mArchivalRequired = kraConfig.getBoolean(
@@ -203,7 +204,7 @@ public class CAService implements IService {
         }
 
         // clone ca to CLA (clone master) connector
-        IConfigStore claConfig = mConfig.getSubStore("CLA");
+        ConfigStore claConfig = mConfig.getSubStore("CLA", ConfigStore.class);
 
         if (claConfig != null) {
             mCLAConnector = getConnector(claConfig);

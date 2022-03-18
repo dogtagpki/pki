@@ -53,6 +53,7 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 
 public class CMSCRLExtensions implements ICMSCRLExtensions {
 
@@ -70,7 +71,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
     @SuppressWarnings("unused")
     private CRLIssuingPointConfig mConfig;
-    private IConfigStore mCRLExtConfig = null;
+    private ConfigStore mCRLExtConfig;
 
     private Vector<String> mCRLExtensionNames = new Vector<>();
     private Vector<String> mCRLEntryExtensionNames = new Vector<>();
@@ -196,7 +197,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
         CAEngine engine = CAEngine.getInstance();
         mConfig = config;
-        mCRLExtConfig = config.getSubStore(PROP_EXTENSION);
+        mCRLExtConfig = config.getSubStore(PROP_EXTENSION, ConfigStore.class);
         mCRLIssuingPoint = crlIssuingPoint;
 
         EngineConfig mFileConfig = engine.getConfig();
@@ -206,7 +207,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
         while (st.hasMoreTokens()) {
             String subStoreName = st.nextToken();
-            IConfigStore newConfig = crlExtConfig.getSubStore(subStoreName);
+            ConfigStore newConfig = crlExtConfig.getSubStore(subStoreName, ConfigStore.class);
 
             if (newConfig != null) {
                 crlExtConfig = newConfig;
@@ -218,7 +219,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
             while (enumExts.hasMoreElements()) {
                 String extName = enumExts.nextElement();
-                IConfigStore extConfig = crlExtConfig.getSubStore(extName);
+                ConfigStore extConfig = crlExtConfig.getSubStore(extName, ConfigStore.class);
 
                 if (extConfig != null) {
                     modifiedConfig |= getEnableProperty(extName, extConfig);
@@ -476,9 +477,10 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                                             ext, isCRLExtensionCritical(extName));
                             }
                         } else {
-                            ext = cmsCRLExt.getCRLExtension(mCRLExtConfig.getSubStore(extName),
-                                        mCRLIssuingPoint,
-                                        isCRLExtensionCritical(extName));
+                            ext = cmsCRLExt.getCRLExtension(
+                                    mCRLExtConfig.getSubStore(extName, ConfigStore.class),
+                                    mCRLIssuingPoint,
+                                    isCRLExtensionCritical(extName));
                         }
 
                         if (crlExts != null && ext != null) {
@@ -538,7 +540,9 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                             ICMSCRLExtension cmsCRLExt = (ICMSCRLExtension) extClass.getDeclaredConstructor().newInstance();
 
                             if (cmsCRLExt != null) {
-                                cmsCRLExt.getConfigParams(mCRLExtConfig.getSubStore(id), nvp);
+                                cmsCRLExt.getConfigParams(
+                                        mCRLExtConfig.getSubStore(id, ConfigStore.class),
+                                        nvp);
                             }
                         }
 
@@ -660,9 +664,9 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
                 if (modifiedCRLConfig == true) {
                     //Commit to this CRL IssuingPoint's config store
-                    IConfigStore crlsSubStore = ca.getConfigStore();
-                    crlsSubStore = crlsSubStore.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
-                    crlsSubStore = crlsSubStore.getSubStore(ipId);
+                    ConfigStore crlsSubStore = ca.getConfigStore();
+                    crlsSubStore = crlsSubStore.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+                    crlsSubStore = crlsSubStore.getSubStore(ipId, ConfigStore.class);
 
                     try {
                         crlsSubStore.putString(Constants.PR_CA_CERTS_ONLY, newValue);

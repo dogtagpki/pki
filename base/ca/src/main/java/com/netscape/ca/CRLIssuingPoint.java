@@ -70,6 +70,7 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -531,7 +532,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         mConfigStore = (CRLIssuingPointConfig) config;
 
-        IConfigStore crlSubStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+        ConfigStore crlSubStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
         mPageSize = crlSubStore.getInteger(ICertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
         logger.debug("CRL Page Size: " + mPageSize);
 
@@ -711,7 +712,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private Vector<String> getProfileList(String list) {
         Enumeration<String> e = null;
         CAEngine engine = CAEngine.getInstance();
-        IConfigStore pc = engine.getConfig().getSubStore("profile");
+        ConfigStore pc = engine.getConfig().getSubStore("profile", ConfigStore.class);
         if (pc != null)
             e = pc.getSubStoreNames();
         if (list == null)
@@ -1004,7 +1005,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             // no crl was ever created, or crl in db is corrupted.
             logger.info("CRLIssuingPoint: creating new CRL issuing point: " + mId);
 
-            IConfigStore ipStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE).getSubStore(mId);
+            ConfigStore crlConfig = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+            ConfigStore ipStore = crlConfig.getSubStore(mId, ConfigStore.class);
 
             try {
                 BigInteger startingCrlNumberBig = ipStore.getBigInteger(PROP_CRL_STARTING_NUMBER, BigInteger.ZERO);
@@ -1302,14 +1304,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         boolean onlyContainsCACerts = issuingDistributionPoint.getOnlyContainsCACerts();
                         if (onlyContainsCACerts != mCACertsOnly) {
                             IConfigStore config = mCA.getConfigStore();
-                            IConfigStore crlsSubStore =
-                                    config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
-                            IConfigStore crlSubStore = crlsSubStore.getSubStore(mId);
-                            IConfigStore crlExtsSubStore =
-                                    crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE);
-                            crlExtsSubStore =
-                                    crlExtsSubStore
-                                            .getSubStore(IssuingDistributionPointExtension.NAME);
+                            ConfigStore crlsSubStore = config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+                            ConfigStore crlSubStore = crlsSubStore.getSubStore(mId, ConfigStore.class);
+                            ConfigStore crlExtsSubStore = crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
+                            crlExtsSubStore = crlExtsSubStore.getSubStore(IssuingDistributionPointExtension.NAME, ConfigStore.class);
 
                             if (crlExtsSubStore != null) {
                                 String val = "";

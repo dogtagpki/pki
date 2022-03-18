@@ -130,6 +130,7 @@ import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
@@ -1299,7 +1300,7 @@ public class CertificateAuthority
 
         logger.info("CertificateAuthority: Initializing cert signing unit");
 
-        IConfigStore caSigningCfg = mConfig.getSubStore(PROP_SIGNING_SUBSTORE);
+        ConfigStore caSigningCfg = mConfig.getSubStore(PROP_SIGNING_SUBSTORE, ConfigStore.class);
 
         mSigningUnit = new CASigningUnit();
         mSigningUnit.init(caSigningCfg, mNickname);
@@ -1345,7 +1346,7 @@ public class CertificateAuthority
 
         logger.info("CertificateAuthority: Initializing CRL signing unit");
 
-        IConfigStore crlSigningConfig = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE);
+        ConfigStore crlSigningConfig = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE, ConfigStore.class);
 
         if (hostCA && crlSigningConfig != null && crlSigningConfig.size() > 0) {
             mCRLSigningUnit = new CASigningUnit();
@@ -1373,7 +1374,7 @@ public class CertificateAuthority
 
         logger.info("CertificateAuthority: Initializing OCSP signing unit");
 
-        IConfigStore ocspSigningConfig = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
+        ConfigStore ocspSigningConfig = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE, ConfigStore.class);
 
         if (hostCA && ocspSigningConfig != null && ocspSigningConfig.size() > 0) {
             mOCSPSigningUnit = new CASigningUnit();
