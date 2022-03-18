@@ -863,8 +863,7 @@ public class CRSEnrollment extends HttpServlet {
                             StringBuffer subjAltNameStr = new StringBuffer();
                             while (gne.hasMoreElements()) {
                                 GeneralNameInterface gni = gne.nextElement();
-                                if (gni instanceof GeneralName) {
-                                    GeneralName genName = (GeneralName) gni;
+                                if (gni instanceof GeneralName genName) {
 
                                     String gn = genName.toString();
                                     int colon = gn.indexOf(':');
@@ -1405,8 +1404,7 @@ public class CRSEnrollment extends HttpServlet {
 
                             while (gne.hasMoreElements()) {
                                 GeneralNameInterface gni = gne.nextElement();
-                                if (gni instanceof GeneralName) {
-                                    GeneralName genName = (GeneralName) gni;
+                                if (gni instanceof GeneralName genName) {
 
                                     String gn = genName.toString();
                                     int colon = gn.indexOf(':');
