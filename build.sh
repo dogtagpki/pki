@@ -9,11 +9,12 @@ SCRIPT_PATH=`readlink -f "$0"`
 SCRIPT_NAME=`basename "$SCRIPT_PATH"`
 SRC_DIR=`dirname "$SCRIPT_PATH"`
 
-NAME=
-WORK_DIR=
+NAME=pki
+WORK_DIR="$HOME/build/$NAME"
 
 SOURCE_TAG=
-SPEC_TEMPLATE=
+SPEC_TEMPLATE="$SRC_DIR/$NAME.spec"
+SPEC_FILE=
 
 WITH_TIMESTAMP=
 WITH_COMMIT_ID=
@@ -32,10 +33,10 @@ usage() {
     echo "Usage: $SCRIPT_NAME [OPTIONS] <target>"
     echo
     echo "Options:"
-    echo "    --name=<name>          Package name (default: pki)."
-    echo "    --work-dir=<path>      Working directory (default: ~/build/pki)."
+    echo "    --name=<name>          Package name (default: $NAME)."
+    echo "    --work-dir=<path>      Working directory (default: $WORK_DIR)."
     echo "    --source-tag=<tag>     Generate RPM sources from a source tag."
-    echo "    --spec=<file>          Use the specified RPM spec."
+    echo "    --spec=<file>          Use the specified RPM spec (default: $SPEC_TEMPLATE)."
     echo "    --with-timestamp       Append timestamp to release number."
     echo "    --with-commit-id       Append commit ID to release number."
     echo "    --dist=<name>          Distribution name (e.g. fc28)."
@@ -124,43 +125,43 @@ generate_patch() {
 
 generate_rpm_spec() {
 
-    RPM_SPEC="$NAME.spec"
-
     if [ "$VERBOSE" = true ] ; then
-        echo "Generating $RPM_SPEC"
+        echo "Creating $SPEC_FILE"
     fi
+
+    cp "$SPEC_TEMPLATE" "$SPEC_FILE"
 
     # hard-code package name
-    commands="s/^\(Name: *\).*\$/\1${NAME}/g"
+    sed -i "s/^\(Name: *\).*\$/\1${NAME}/g" "$SPEC_FILE"
 
+    # hard-code timestamp
     if [ "$_TIMESTAMP" != "" ] ; then
-        # hard-code timestamp
-        commands="${commands}; s/%{?_timestamp}/${_TIMESTAMP}/g"
+        sed -i "s/%{?_timestamp}/${_TIMESTAMP}/g" "$SPEC_FILE"
     fi
 
+    # hard-code commit ID
     if [ "$_COMMIT_ID" != "" ] ; then
-        # hard-code commit ID
-        commands="${commands}; s/%{?_commit_id}/${_COMMIT_ID}/g"
+        sed -i "s/%{?_commit_id}/${_COMMIT_ID}/g" "$SPEC_FILE"
     fi
 
+    # hard-code phase
     if [ "$_PHASE" != "" ] ; then
-        # hard-code phase
-        commands="${commands}; s/%{?_phase}/${_PHASE}/g"
+        sed -i "s/%{?_phase}/${_PHASE}/g" "$SPEC_FILE"
     fi
 
     # hard-code patch
     if [ "$PATCH" != "" ] ; then
-        commands="${commands}; s/# Patch: pki-VERSION-RELEASE.patch/Patch: $PATCH/g"
+        sed -i "s/# Patch: pki-VERSION-RELEASE.patch/Patch: $PATCH/g" "$SPEC_FILE"
     fi
 
     if [ "$WITHOUT_TEST" = true ] ; then
         # convert bcond_without into bcond_with to skip unit tests by default
-        commands="${commands}; s/%bcond_without *test\$/%bcond_with test/g"
+        sed -i "s/%bcond_without *test\$/%bcond_with test/g" "$SPEC_FILE"
     fi
 
     if [ "$WITH_CONSOLE" = true ] ; then
         # convert bcond_with into bcond_without to build console by default
-        commands="${commands}; s/%bcond_with *console\$/%bcond_without console/g"
+        sed -i "s/%bcond_with *console\$/%bcond_without console/g" "$SPEC_FILE"
     fi
 
     # hard-code packages to build
@@ -171,7 +172,7 @@ generate_rpm_spec() {
         # with
         #   # bcond_with pkgs
         #   %global with_pkgs 1
-        commands="${commands}; s/^%\(bcond_with *pkgs\)\$/# \1\n%global with_pkgs 1/g"
+        sed -i "s/^%\(bcond_with *pkgs\)\$/# \1\n%global with_pkgs 1/g" "$SPEC_FILE"
 
         # include specified packages by replacing
         #   %package_option <package>
@@ -180,24 +181,24 @@ generate_rpm_spec() {
         #   %global with_<package> 1
         for package in `echo $WITH_PKGS | sed 's/,/\n/g'`
         do
-            commands="${commands}; s/^%\(package_option *$package\)\$/# \1\n%global with_$package 1/g"
+            sed -i "s/^%\(package_option *$package\)\$/# \1\n%global with_$package 1/g" "$SPEC_FILE"
         done
 
         # exclude other packages by removing
         #   %package_option <package>
-        commands="${commands}; s/^%\(package_option .*\)\$/# \1/g"
+        sed -i "s/^%\(package_option .*\)\$/# \1/g" "$SPEC_FILE"
 
     elif [ "$WITHOUT_PKGS" != "" ] ; then
 
         # use exclusion method by removing
         #   %bcond_with pkgs
-        commands="${commands}; s/^%\(bcond_with *pkgs\)\$/# \1/g"
+        sed -i "s/^%\(bcond_with *pkgs\)\$/# \1/g" "$SPEC_FILE"
 
         # exclude specified packages by removing
         #   %package_option <package>
         for package in `echo $WITHOUT_PKGS | sed 's/,/\n/g'`
         do
-            commands="${commands}; s/^%\(package_option *$package\)\$/# \1/g"
+            sed -i "s/^%\(package_option *$package\)\$/# \1/g" "$SPEC_FILE"
         done
 
         # include all other packages by replacing
@@ -205,12 +206,10 @@ generate_rpm_spec() {
         # with
         #   # package_option <package>
         #   %global with_<package> 1
-        commands="${commands}; s/^%\(package_option *\)\(.*\)\$/# \1\2\n%global with_\2 1/g"
+        sed -i "s/^%\(package_option *\)\(.*\)\$/# \1\2\n%global with_\2 1/g" "$SPEC_FILE"
     fi
 
-    sed "$commands" "$SPEC_TEMPLATE" > "$WORK_DIR/SPECS/$RPM_SPEC"
-
-    # rpmlint "$WORK_DIR/SPECS/$RPM_SPEC"
+    # rpmlint "$SPEC_FILE"
 }
 
 while getopts v-: arg ; do
@@ -303,6 +302,8 @@ else
 fi
 
 if [ "$DEBUG" = true ] ; then
+    echo "NAME: $NAME"
+    echo "WORK_DIR: $WORK_DIR"
     echo "BUILD_TARGET: $BUILD_TARGET"
 fi
 
@@ -312,26 +313,6 @@ if [ "$BUILD_TARGET" != "src" ] &&
         [ "$BUILD_TARGET" != "rpm" ] ; then
     echo "ERROR: Invalid build target: $BUILD_TARGET" >&2
     exit 1
-fi
-
-if [ "$NAME" = "" ] ; then
-    NAME="pki"
-fi
-
-if [ "$DEBUG" = true ] ; then
-    echo "NAME: $NAME"
-fi
-
-if [ "$WORK_DIR" = "" ] ; then
-    WORK_DIR="$HOME/build/$NAME"
-fi
-
-if [ "$DEBUG" = true ] ; then
-    echo "WORK_DIR: $WORK_DIR"
-fi
-
-if [ "$SPEC_TEMPLATE" = "" ] ; then
-    SPEC_TEMPLATE="$SRC_DIR/pki.spec"
 fi
 
 VERSION="$(rpmspec -P "$SPEC_TEMPLATE" | grep "^Version:" | awk '{print $2;}')"
@@ -404,6 +385,8 @@ mkdir SRPMS
 ################################################################################
 # Generate RPM sources
 ################################################################################
+
+SPEC_FILE="$WORK_DIR/SPECS/$NAME.spec"
 
 generate_rpm_sources
 
@@ -481,11 +464,11 @@ else
 fi
 
 if [ "$DEBUG" = true ] ; then
-    echo "rpmbuild -bs ${OPTIONS[@]} $WORK_DIR/SPECS/$RPM_SPEC"
+    echo "rpmbuild -bs ${OPTIONS[@]} $SPEC_FILE"
 fi
 
 # build SRPM with user-provided options
-rpmbuild -bs "${OPTIONS[@]}" "$WORK_DIR/SPECS/$RPM_SPEC"
+rpmbuild -bs "${OPTIONS[@]}" "$SPEC_FILE"
 
 rc=$?
 
