@@ -48,6 +48,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -87,8 +88,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
     }
 
     @Override
-    public void init(IConfigStore config)
-            throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
         super.init(config);
     }
 

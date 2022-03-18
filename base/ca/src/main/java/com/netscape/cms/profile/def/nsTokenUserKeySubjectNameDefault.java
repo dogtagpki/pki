@@ -125,8 +125,7 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
     }
 
     @Override
-    public void init(IConfigStore config)
-            throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
         super.init(config);
         mInstConfig = config;
     }

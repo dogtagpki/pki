@@ -20,11 +20,11 @@ package com.netscape.cms.profile.def;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -56,14 +56,14 @@ public abstract class PolicyDefault implements IConfigTemplate {
      * @param config configuration store for this default
      * @exception EProfileException failed to initialize
      */
-    public abstract void init(IConfigStore config) throws EProfileException;
+    public abstract void init(ConfigStore config) throws EProfileException;
 
     /**
      * Retrieves the configuration store of this default.
      *
      * @return configuration store of this default policy
      */
-    public abstract IConfigStore getConfigStore();
+    public abstract ConfigStore getConfigStore();
 
     /**
      * Populates the request with this policy default.

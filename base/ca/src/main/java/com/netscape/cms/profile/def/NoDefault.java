@@ -22,11 +22,11 @@ import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -40,7 +40,7 @@ public class NoDefault extends PolicyDefault {
 
     protected Vector<String> mValues = new Vector<>();
     protected Vector<String> mNames = new Vector<>();
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
 
     @Override
     public Enumeration<String> getConfigNames() {
@@ -67,12 +67,12 @@ public class NoDefault extends PolicyDefault {
     }
 
     @Override
-    public void init(IConfigStore config) throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
         mConfig = config;
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

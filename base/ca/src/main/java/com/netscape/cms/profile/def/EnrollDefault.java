@@ -48,7 +48,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IAttrSet;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.pattern.Pattern;
 import com.netscape.certsrv.profile.EProfileException;
@@ -80,7 +79,7 @@ public abstract class EnrollDefault extends PolicyDefault {
     public static final String GN_ANY_NAME = "OtherName";
     public static final String GN_OID_NAME = "OIDName";
 
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected Vector<String> mConfigNames = new Vector<>();
     protected Vector<String> mValueNames = new Vector<>();
 
@@ -144,7 +143,7 @@ public abstract class EnrollDefault extends PolicyDefault {
     }
 
     @Override
-    public void init(IConfigStore config) throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
         mConfig = config;
     }
 
@@ -158,7 +157,7 @@ public abstract class EnrollDefault extends PolicyDefault {
     public abstract String getText(Locale locale);
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

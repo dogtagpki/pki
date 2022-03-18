@@ -23,7 +23,6 @@ import java.util.Vector;
 
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.profile.def.EnrollDefault;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -60,7 +59,7 @@ public class BootstrapProfile {
         }
     }
 
-    private void init(IConfigStore config, EnrollDefault def)
+    private void init(ConfigStore config, EnrollDefault def)
             throws Exception {
         try {
             def.init(config);
