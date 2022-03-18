@@ -25,12 +25,12 @@ import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -174,14 +174,14 @@ public class SigningAlgorithmConstraints extends APolicyRule
         }
 
         // don't do this ever for DRM
-        if (!(mAuthority instanceof ICertAuthority)) {
+        if (!(mAuthority instanceof ICertificateAuthority)) {
             winnowedByKey = true;
             return;
         }
 
         // get list of algorithms allowed for the key
         String[] allowedByKey =
-                ((ICertAuthority) mAuthority).getCASigningAlgorithms();
+                ((ICertificateAuthority) mAuthority).getCASigningAlgorithms();
 
         if (allowedByKey != null) {
             // don't show algorithms that don't match CA's key in UI.

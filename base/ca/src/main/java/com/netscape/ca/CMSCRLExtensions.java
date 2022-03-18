@@ -28,7 +28,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICMSCRLExtension;
 import org.dogtagpki.server.ca.ICMSCRLExtensions;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
@@ -665,7 +664,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 if (modifiedCRLConfig == true) {
                     //Commit to this CRL IssuingPoint's config store
                     ConfigStore crlsSubStore = ca.getConfigStore();
-                    crlsSubStore = crlsSubStore.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+                    crlsSubStore = crlsSubStore.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
                     crlsSubStore = crlsSubStore.getSubStore(ipId, ConfigStore.class);
 
                     try {

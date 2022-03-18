@@ -518,7 +518,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mCA = (ICertificateAuthority) ca;
         mId = id;
 
-        if (mId.equals(ICertificateAuthority.PROP_MASTER_CRL)) {
+        if (mId.equals(CertificateAuthority.PROP_MASTER_CRL)) {
             mCrlUpdateStatus = Request.CRL_UPDATE_STATUS;
             mCrlUpdateError = Request.CRL_UPDATE_ERROR;
             mCrlPublishStatus = Request.CRL_PUBLISH_STATUS;
@@ -532,8 +532,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         mConfigStore = (CRLIssuingPointConfig) config;
 
-        ConfigStore crlSubStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
-        mPageSize = crlSubStore.getInteger(ICertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
+        ConfigStore crlSubStore = mCA.getConfigStore().getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+        mPageSize = crlSubStore.getInteger(CertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
         logger.debug("CRL Page Size: " + mPageSize);
 
         mCountMod = mConfigStore.getCountMod();
@@ -1005,7 +1005,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             // no crl was ever created, or crl in db is corrupted.
             logger.info("CRLIssuingPoint: creating new CRL issuing point: " + mId);
 
-            ConfigStore crlConfig = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+            ConfigStore crlConfig = mCA.getConfigStore().getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
             ConfigStore ipStore = crlConfig.getSubStore(mId, ConfigStore.class);
 
             try {
@@ -1304,9 +1304,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         boolean onlyContainsCACerts = issuingDistributionPoint.getOnlyContainsCACerts();
                         if (onlyContainsCACerts != mCACertsOnly) {
                             IConfigStore config = mCA.getConfigStore();
-                            ConfigStore crlsSubStore = config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+                            ConfigStore crlsSubStore = config.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
                             ConfigStore crlSubStore = crlsSubStore.getSubStore(mId, ConfigStore.class);
-                            ConfigStore crlExtsSubStore = crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
+                            ConfigStore crlExtsSubStore = crlSubStore.getSubStore(CertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
                             crlExtsSubStore = crlExtsSubStore.getSubStore(IssuingDistributionPointExtension.NAME, ConfigStore.class);
 
                             if (crlExtsSubStore != null) {

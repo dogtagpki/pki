@@ -36,6 +36,7 @@ import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -345,7 +346,7 @@ public class DoUnrevoke extends CMSServlet {
                 for (ICRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
                     String crlId = crl.getId();
 
-                    if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))
+                    if (crlId.equals(CertificateAuthority.PROP_MASTER_CRL))
                         continue;
 
                     String updateStatusStr = crl.getCrlUpdateStatusStr();

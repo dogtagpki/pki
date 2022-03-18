@@ -32,9 +32,9 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.request.IRequestListener;
@@ -51,7 +51,8 @@ import com.netscape.cmscore.dbs.ReplicaIDRepository;
  *
  * @version $Revision$, $Date$
  */
-public interface ICertificateAuthority extends ISubsystem {
+public interface ICertificateAuthority extends IAuthority {
+
 
     public static final String ID = "ca";
 
@@ -309,11 +310,11 @@ public interface ICertificateAuthority extends ISubsystem {
     public IRequestNotifier getRequestNotifier();
 
     /**
-     * Registers a request listener.
+     * Removes a request listener.
      *
-     * @param listener request listener to be registered
+     * @param listener request listener to be removed
      */
-    public void registerRequestListener(IRequestListener listener);
+    public void removeRequestListener(IRequestListener listener);
 
     /**
      * Registers a request listener.
@@ -355,13 +356,6 @@ public interface ICertificateAuthority extends ISubsystem {
      * @param msg logged message
      */
     public void log(int level, String msg);
-
-    /**
-     * Returns the nickname for the CA signing certificate.
-     *
-     * @return the nickname for the CA signing certificate
-     */
-    public String getNickname();
 
     /**
      * Signs a X.509 certificate template.

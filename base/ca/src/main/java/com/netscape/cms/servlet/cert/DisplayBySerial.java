@@ -49,7 +49,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
@@ -111,7 +110,7 @@ public class DisplayBySerial extends CMSServlet {
         }
 
         try {
-            mCACerts = ((ICertAuthority) mAuthority).getCACertChain().getChain();
+            mCACerts = ((ICertificateAuthority) mAuthority).getCACertChain().getChain();
         } catch (Exception e) {
             logger.warn(CMS.getLogMessage("CMSGW_CA_CHAIN_NOT_AVAILABLE"), e);
         }

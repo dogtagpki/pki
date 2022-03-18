@@ -62,7 +62,6 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -262,7 +261,7 @@ public class CheckRequest extends CMSServlet {
         X509Certificate mCACerts[] = null;
 
         try {
-            mCACerts = ((ICertAuthority) mAuthority).getCACertChain().getChain();
+            mCACerts = ((ICertificateAuthority) mAuthority).getCACertChain().getChain();
         } catch (Exception e) {
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_CA_CHAIN_NOT_AVAILABLE"));

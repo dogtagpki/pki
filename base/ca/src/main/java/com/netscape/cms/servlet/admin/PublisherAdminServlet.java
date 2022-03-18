@@ -32,7 +32,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ExtendedPluginInfo;
 import com.netscape.certsrv.base.IConfigStore;
@@ -937,11 +936,7 @@ public class PublisherAdminServlet extends AdminServlet {
             //params.add("restarted", "Publishing is restarted.");
 
             if (ldapcfg.getBoolean(PublisherProcessor.PROP_ENABLE)) {
-                ICertAuthority authority = mProcessor.getAuthority();
-
-                if (!(authority instanceof ICertificateAuthority))
-                    return;
-                ICertificateAuthority ca = (ICertificateAuthority) authority;
+                ICertificateAuthority ca = mProcessor.getAuthority();
 
                 // publish ca cert
                 try {

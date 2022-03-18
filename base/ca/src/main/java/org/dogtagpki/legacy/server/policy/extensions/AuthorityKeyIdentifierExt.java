@@ -35,7 +35,6 @@ import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -143,7 +142,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
         }
 
         // create authority key id extension.
-        ICertAuthority certAuthority = (ICertAuthority)
+        ICertificateAuthority certAuthority = (ICertificateAuthority)
                 owner.getAuthority();
 
         if (certAuthority == null) {
@@ -153,11 +152,6 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
 
             logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg));
-        }
-        if (!(certAuthority instanceof ICertificateAuthority)) {
-            logger.error(NAME + CMS.getLogMessage("POLICY_INVALID_POLICY", NAME));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                        NAME + " policy can only be used in a Certificate Authority."));
         }
         //CertificateChain caChain = certAuthority.getCACertChain();
         //X509Certificate caCert = caChain.getFirstCertificate();

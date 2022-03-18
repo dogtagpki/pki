@@ -38,7 +38,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.extensions.PresenceServerExtension;
 import org.mozilla.jss.netscape.security.util.DerValue;
@@ -55,6 +54,7 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -1161,7 +1161,7 @@ public class ProcessCertReq extends CMSServlet {
             // add authority names to know what privileges can be requested.
             if (engine.getSubsystem(IKeyRecoveryAuthority.ID) != null)
                 header.addStringValue("localkra", "yes");
-            if (engine.getSubsystem(ICertificateAuthority.ID) != null)
+            if (engine.getSubsystem(CertificateAuthority.ID) != null)
                 header.addStringValue("localca", "yes");
 
             header.addBigIntegerValue("seqNum", seqNum, 10);

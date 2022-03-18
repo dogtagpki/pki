@@ -32,7 +32,6 @@ import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -117,19 +116,15 @@ public class UniqueSubjectNameConstraints extends APolicyRule
     public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         // get CA's public key to create authority key id.
-        ICertAuthority certAuthority = (ICertAuthority)
+        ICertificateAuthority certAuthority = (ICertificateAuthority)
                 owner.getAuthority();
 
         if (certAuthority == null) {
             logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "Cannot find the Certificate Manager or Registration Manager"));
         }
-        if (!(certAuthority instanceof ICertificateAuthority)) {
-            logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "Cannot find the Certificate Manager"));
-        }
 
-        mCA = (ICertificateAuthority) certAuthority;
+        mCA = certAuthority;
         try {
             mPreAgentApprovalChecking =
                     config.getBoolean(PROP_PRE_AGENT_APPROVAL_CHECKING, false);

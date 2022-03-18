@@ -20,9 +20,9 @@ package com.netscape.cmscore.connector;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -40,11 +40,11 @@ public class LocalConnector implements IConnector {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LocalConnector.class);
 
-    ICertAuthority mSource = null;
+    ICertificateAuthority mSource = null;
     IAuthority mDest = null;
     Hashtable<String, Request> mSourceReqs = new Hashtable<>();
 
-    public LocalConnector(ICertAuthority source, IAuthority dest) {
+    public LocalConnector(ICertificateAuthority source, IAuthority dest) {
         mSource = source;
         // logger.debug("Local connector setup for source " + mSource.getId());
         mDest = dest;
