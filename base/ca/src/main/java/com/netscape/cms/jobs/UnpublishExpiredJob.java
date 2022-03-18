@@ -35,6 +35,7 @@ import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.jobs.JobsScheduler;
@@ -143,7 +144,7 @@ public class UnpublishExpiredJob extends AJobBase
         mJobCron = scheduler.createJobCron(mCron);
 
         // initialize the summary related config info
-        IConfigStore sc = mConfig.getSubStore(PROP_SUMMARY);
+        ConfigStore sc = mConfig.getSubStore(PROP_SUMMARY, ConfigStore.class);
 
         if (sc.getBoolean(PROP_ENABLED, false)) {
             mSummary = true;
