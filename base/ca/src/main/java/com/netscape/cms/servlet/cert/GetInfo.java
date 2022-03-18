@@ -34,6 +34,7 @@ import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -334,9 +335,9 @@ public class GetInfo extends CMSServlet {
             header.addStringValue("master_host", masterHost);
             header.addStringValue("master_port", masterPort);
 
-            header.addStringValue("masterCRLIssuingPoint", ICertificateAuthority.PROP_MASTER_CRL);
+            header.addStringValue("masterCRLIssuingPoint", CertificateAuthority.PROP_MASTER_CRL);
 
-            ICRLIssuingPoint ip0 = engine.getCRLIssuingPoint(ICertificateAuthority.PROP_MASTER_CRL);
+            ICRLIssuingPoint ip0 = engine.getCRLIssuingPoint(CertificateAuthority.PROP_MASTER_CRL);
 
             if (ip0 != null) {
                 header.addStringValue("defaultAlgorithm", ip0.getSigningAlgorithm());

@@ -35,7 +35,6 @@ import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -128,21 +127,19 @@ public class NSCertTypeExt extends APolicyRule
         //mAllowEEOverride = config.getBoolean(PROP_EE_OVERR, false);
         mCritical = config.getBoolean(PROP_CRITICAL, false);
 
-        ICertAuthority certAuthority = (ICertAuthority)
+        ICertificateAuthority certAuthority = (ICertificateAuthority)
                 owner.getAuthority();
 
-        if (certAuthority instanceof ICertificateAuthority) {
-            CertificateChain caChain = certAuthority.getCACertChain();
-            X509Certificate caCert = null;
+        CertificateChain caChain = certAuthority.getCACertChain();
+        X509Certificate caCert = null;
 
-            // Note that in RA the chain could be null if CA was not up when
-            // RA was started. In that case just set the length to -1 and let
-            // CA reject if it does not allow any subordinate CA certs.
-            if (caChain != null) {
-                caCert = caChain.getFirstCertificate();
-                if (caCert != null)
-                    mCAPathLen = caCert.getBasicConstraints();
-            }
+        // Note that in RA the chain could be null if CA was not up when
+        // RA was started. In that case just set the length to -1 and let
+        // CA reject if it does not allow any subordinate CA certs.
+        if (caChain != null) {
+            caCert = caChain.getFirstCertificate();
+            if (caCert != null)
+                mCAPathLen = caCert.getBasicConstraints();
         }
 
         mSetDefaultBits = mConfig.getBoolean(

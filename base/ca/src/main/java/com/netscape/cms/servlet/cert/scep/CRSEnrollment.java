@@ -98,7 +98,6 @@ import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -161,7 +160,7 @@ public class CRSEnrollment extends HttpServlet {
 
     protected ProfileSubsystem mProfileSubsystem;
     protected String mProfileId = null;
-    protected ICertAuthority mAuthority;
+    protected ICertificateAuthority mAuthority;
     protected IConfigStore mConfig = null;
     protected AuthSubsystem mAuthSubsystem;
     protected String mAppendDN = null;
@@ -250,8 +249,8 @@ public class CRSEnrollment extends HttpServlet {
         CAEngine engine = CAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        mAuthority = (ICertAuthority) engine.getSubsystem(crsCA);
-        ca = (ICertificateAuthority) mAuthority;
+        mAuthority = (ICertificateAuthority) engine.getSubsystem(crsCA);
+        ca = mAuthority;
 
         if (mAuthority == null) {
             logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_CANT_FIND_AUTHORITY", crsCA));

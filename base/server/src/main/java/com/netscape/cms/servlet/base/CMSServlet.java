@@ -63,7 +63,6 @@ import org.w3c.dom.Node;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
@@ -1324,7 +1323,7 @@ public abstract class CMSServlet extends HttpServlet {
                 X509Certificate[] caCerts = null;
                 PKCS7 p7 = null;
 
-                caChain = ((ICertAuthority) mAuthority).getCACertChain();
+                caChain = ((ICertificateAuthority) mAuthority).getCACertChain();
                 caCerts = caChain.getChain();
 
                 // set user + CA cert chain in pkcs7

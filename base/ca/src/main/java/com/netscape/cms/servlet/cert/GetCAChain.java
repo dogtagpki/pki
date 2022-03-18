@@ -30,11 +30,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -175,7 +175,7 @@ public class GetCAChain extends CMSServlet {
 
         if (clientIsMSIE(httpReq) && (op.equals("download") || op.equals("downloadBIN"))) {
             X509Certificate[] caCerts =
-                    ((ICertAuthority) mAuthority).getCACertChain().getChain();
+                    ((ICertificateAuthority) mAuthority).getCACertChain().getChain();
 
             try {
                 bytes = caCerts[0].getEncoded();
@@ -186,7 +186,7 @@ public class GetCAChain extends CMSServlet {
             }
         } else {
             CertificateChain certChain =
-                    ((ICertAuthority) mAuthority).getCACertChain();
+                    ((ICertificateAuthority) mAuthority).getCACertChain();
 
             if (certChain == null) {
                 logger.error(CMS.getLogMessage("CMSGW_CA_CHAIN_EMPTY"));
@@ -248,7 +248,7 @@ public class GetCAChain extends CMSServlet {
             throws EBaseException {
 
         CertificateChain certChain =
-                ((ICertAuthority) mAuthority).getCACertChain();
+                ((ICertificateAuthority) mAuthority).getCACertChain();
 
         if (certChain == null) {
             cmsReq.setStatus(CMSRequest.ERROR);

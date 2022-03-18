@@ -1974,7 +1974,7 @@ class serviceGetCRL implements IServant {
             CAEngine engine = CAEngine.getInstance();
             CRLRepository crlRepository = engine.getCRLRepository();
 
-            ICRLIssuingPointRecord crlRec = crlRepository.readCRLIssuingPointRecord(ICertificateAuthority.PROP_MASTER_CRL);
+            ICRLIssuingPointRecord crlRec = crlRepository.readCRLIssuingPointRecord(CertificateAuthority.PROP_MASTER_CRL);
             X509CRLImpl crl = new X509CRLImpl(crlRec.getCRL());
 
             request.setExtData(Request.CRL, crl.getEncoded());
@@ -1985,15 +1985,15 @@ class serviceGetCRL implements IServant {
                     CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_NOT_FOUND", e.toString()), e);
 
         } catch (CRLException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_GETCRL_INST_CRL", ICertificateAuthority.PROP_MASTER_CRL), e);
+            logger.error(CMS.getLogMessage("CMSCORE_CA_GETCRL_INST_CRL", CertificateAuthority.PROP_MASTER_CRL), e);
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_NOGOOD", ICertificateAuthority.PROP_MASTER_CRL), e);
+                    CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_NOGOOD", CertificateAuthority.PROP_MASTER_CRL), e);
 
         } catch (X509ExtensionException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_GETCRL_NO_ISSUING_REC"), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_EXT_NOGOOD",
-                            ICertificateAuthority.PROP_MASTER_CRL), e);
+                            CertificateAuthority.PROP_MASTER_CRL), e);
         }
         return true;
     }

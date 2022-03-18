@@ -42,6 +42,7 @@ import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -458,7 +459,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                     for (ICRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
                         String crlId = crl.getId();
 
-                        if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))
+                        if (crlId.equals(CertificateAuthority.PROP_MASTER_CRL))
                             continue;
                         String updateStatusStr = crl.getCrlUpdateStatusStr();
                         Integer updateResult = revReq.getExtDataInInteger(updateStatusStr);

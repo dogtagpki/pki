@@ -30,7 +30,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -65,7 +64,7 @@ public class LdapPublishModule implements IRequestListener {
     protected IConfigStore mConfig = null;
     protected LdapBoundConnFactory mLdapConnFactory = null;
     private boolean mInited = false;
-    protected ICertAuthority mAuthority = null;
+    protected ICertificateAuthority mAuthority = null;
 
     /**
      * hashtable of cert types to cert mappers and publishers.
@@ -121,7 +120,7 @@ public class LdapPublishModule implements IRequestListener {
 
     protected CAPublisherProcessor mPubProcessor;
 
-    public void init(ICertAuthority authority, CAPublisherProcessor p,
+    public void init(ICertificateAuthority authority, CAPublisherProcessor p,
             IConfigStore config)
             throws EBaseException {
         if (mInited)
@@ -145,7 +144,7 @@ public class LdapPublishModule implements IRequestListener {
         mAuthority.registerRequestListener(this);
     }
 
-    public void init(ICertAuthority authority, IConfigStore config)
+    public void init(ICertificateAuthority authority, IConfigStore config)
             throws EBaseException {
         if (mInited)
             return;
