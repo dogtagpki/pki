@@ -19,11 +19,11 @@ package com.netscape.cms.profile.constraint;
 
 import java.util.Locale;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.cms.profile.def.PolicyDefault;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -42,7 +42,7 @@ public abstract class PolicyConstraint implements IConfigTemplate {
      * @param config configuration store for this constraint
      * @exception EProfileException failed to initialize
      */
-    public abstract void init(IConfigStore config) throws EProfileException;
+    public abstract void init(ConfigStore config) throws EProfileException;
 
     /**
      * Returns the corresponding configuration store
@@ -50,7 +50,7 @@ public abstract class PolicyConstraint implements IConfigTemplate {
      *
      * @return config store of this constraint
      */
-    public abstract IConfigStore getConfigStore();
+    public abstract ConfigStore getConfigStore();
 
     /**
      * Validates the request. The request is not modified

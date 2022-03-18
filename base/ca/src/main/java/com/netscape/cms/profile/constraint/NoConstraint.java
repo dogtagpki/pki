@@ -22,13 +22,13 @@ import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -40,7 +40,7 @@ public class NoConstraint extends PolicyConstraint {
 
     public static final String CONFIG_NAME = "name";
 
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private Vector<String> mNames = new Vector<>();
 
     @Override
@@ -68,12 +68,12 @@ public class NoConstraint extends PolicyConstraint {
     }
 
     @Override
-    public void init(IConfigStore config) throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
         mConfig = config;
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

@@ -26,7 +26,6 @@ import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.EPropertyException;
@@ -48,7 +47,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
     public static final String CONFIG_NAME = "name";
     public static final String CONFIG_PARAMS = "params";
 
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected Vector<String> mConfigNames = new Vector<>();
 
     public EnrollConstraint() {
@@ -127,12 +126,12 @@ public abstract class EnrollConstraint extends PolicyConstraint {
     }
 
     @Override
-    public void init(IConfigStore config) throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
         mConfig = config;
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

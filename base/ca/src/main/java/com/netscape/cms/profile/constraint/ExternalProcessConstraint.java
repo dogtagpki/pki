@@ -29,7 +29,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
@@ -74,7 +73,7 @@ public class ExternalProcessConstraint extends EnrollConstraint {
     }
 
     @Override
-    public void init(IConfigStore config) throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
         super.init(config);
 
         this.executable = getConfig(CONFIG_EXECUTABLE);

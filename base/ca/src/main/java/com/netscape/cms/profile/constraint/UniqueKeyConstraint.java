@@ -31,7 +31,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
@@ -39,6 +38,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -81,8 +81,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
     }
 
     @Override
-    public void init(IConfigStore config)
-            throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
         super.init(config);
 
         CAEngine engine = CAEngine.getInstance();
