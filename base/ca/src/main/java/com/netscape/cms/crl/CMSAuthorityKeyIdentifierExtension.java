@@ -99,12 +99,8 @@ public class CMSAuthorityKeyIdentifierExtension
                         for (int i = 0; i < caCertExtensions.size(); i++) {
                             Extension caCertExt = caCertExtensions.elementAt(i);
 
-                            if (caCertExt instanceof SubjectKeyIdentifierExtension) {
-                                SubjectKeyIdentifierExtension id =
-                                        (SubjectKeyIdentifierExtension) caCertExt;
-
-                                keyId = (KeyIdentifier)
-                                        id.get(SubjectKeyIdentifierExtension.KEY_ID);
+                            if (caCertExt instanceof SubjectKeyIdentifierExtension id) {
+                                keyId = (KeyIdentifier) id.get(SubjectKeyIdentifierExtension.KEY_ID);
                             }
                         }
                     }

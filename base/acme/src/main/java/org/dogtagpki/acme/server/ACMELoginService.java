@@ -45,8 +45,7 @@ public class ACMELoginService {
         Account account = new Account();
         account.setID(username);
 
-        if (principal instanceof PKIPrincipal) {
-            PKIPrincipal pkiPrincipal = (PKIPrincipal) principal;
+        if (principal instanceof PKIPrincipal pkiPrincipal) {
 
             User user = pkiPrincipal.getUser();
             account.setFullName(user.getFullName());
