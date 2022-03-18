@@ -22,9 +22,9 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.certsrv.util.StatsEvent;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * A class represents a internal subsystem. This subsystem
@@ -75,8 +75,7 @@ public class StatsSubsystem implements IStatsSubsystem {
      * @param config configuration store
      */
     @Override
-    public synchronized void init(IConfigStore config)
-            throws EBaseException {
+    public synchronized void init(ConfigStore config) throws EBaseException {
     }
 
     @Override
@@ -173,7 +172,7 @@ public class StatsSubsystem implements IStatsSubsystem {
      * @return configuration store of this subsystem
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return null;
     }
 }

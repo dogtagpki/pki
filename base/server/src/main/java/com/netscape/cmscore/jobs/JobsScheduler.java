@@ -116,7 +116,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
     public Hashtable<String, IJob> mJobs = new Hashtable<>();
     private Hashtable<String, Thread> mJobThreads = new Hashtable<>();
 
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
 
     // in milliseconds. daemon wakeup interval, default 1 minute.
     private long mInterval = 0;
@@ -144,8 +144,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      * @param config jobsScheduler configStore
      */
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException, EJobsException {
+    public void init(ConfigStore config) throws EBaseException, EJobsException {
 
         // read in config parameters and set variables
         mConfig = config;
@@ -488,7 +487,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      * @return configuration store of this subsystem
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

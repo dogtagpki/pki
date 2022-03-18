@@ -28,7 +28,6 @@ import org.mozilla.jss.netscape.security.x509.DirStrConverter;
 import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -48,7 +47,7 @@ public class X500NameSubsystem implements ISubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(X500NameSubsystem.class);
 
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     public static final String ID = "X500Name";
     private String mId = ID;
 
@@ -133,8 +132,7 @@ public class X500NameSubsystem implements ISubsystem {
      * @param config configuration store
      */
     @Override
-    public synchronized void init(IConfigStore config)
-            throws EBaseException {
+    public synchronized void init(ConfigStore config) throws EBaseException {
         logger.trace(ID + " started");
         mConfig = config;
 
@@ -269,7 +267,7 @@ public class X500NameSubsystem implements ISubsystem {
      * @return configuration store of this subsystem
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 }

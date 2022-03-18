@@ -53,8 +53,8 @@ import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -101,7 +101,7 @@ public class TPSSubsystem implements IAuthority {
     }
 
     @Override
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
 
         logger.info("Initializing TPS subsystem");
 

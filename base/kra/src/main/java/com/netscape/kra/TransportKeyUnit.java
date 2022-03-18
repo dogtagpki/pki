@@ -19,6 +19,7 @@ package com.netscape.kra;
 
 import java.security.PublicKey;
 
+import org.dogtagpki.server.kra.KRAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -35,13 +36,12 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.dogtagpki.server.kra.KRAEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * A class represents the transport key pair. This key pair
@@ -61,7 +61,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
 
     // private RSAPublicKey mPublicKey = null;
     // private RSAPrivateKey mPrivateKey = null;
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private org.mozilla.jss.crypto.X509Certificate mCert = null;
     private org.mozilla.jss.crypto.X509Certificate[] chain;
     private org.mozilla.jss.crypto.X509Certificate mNewCert = null;
@@ -95,8 +95,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
      * Initializes this subsystem.
      */
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         mConfig = config;
         try {
             String nickname = getNickName();
@@ -183,7 +182,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
      * Returns the configuration store of this token.
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

@@ -283,7 +283,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @exception Exception failed to start subsystem
      */
     @Override
-    public void init(IConfigStore config) throws Exception {
+    public void init(ConfigStore config) throws Exception {
 
         logger.debug("KeyRecoveryAuthority init() begins");
 

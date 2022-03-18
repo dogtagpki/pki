@@ -20,12 +20,12 @@ package org.dogtagpki.server.ocsp;
 
 import javax.servlet.annotation.WebListener;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.ocsp.OCSPAuthority;
 
 @WebListener
@@ -55,7 +55,7 @@ public class OCSPEngine extends CMSEngine {
     }
 
     @Override
-    public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {
+    public void initSubsystem(ISubsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof OCSPAuthority) {
             // skip initialization during installation

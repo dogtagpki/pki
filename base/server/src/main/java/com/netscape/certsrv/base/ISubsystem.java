@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
+import com.netscape.cmscore.base.ConfigStore;
+
 /**
  * An interface represents a CMS subsystem. CMS is made up of a list
  * subsystems. Each subsystem is responsible for a set of
@@ -50,7 +52,7 @@ public interface ISubsystem {
      *
      * @exception Exception failed to initialize
      */
-    public void init(IConfigStore config) throws Exception;
+    public void init(ConfigStore config) throws Exception;
 
     /**
      * Notifies this subsystem if owner is in running mode.
@@ -72,5 +74,5 @@ public interface ISubsystem {
      *
      * @return configuration store of this subsystem
      */
-    public IConfigStore getConfigStore();
+    public ConfigStore getConfigStore();
 }

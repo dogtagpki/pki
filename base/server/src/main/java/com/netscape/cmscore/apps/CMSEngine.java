@@ -844,7 +844,7 @@ public class CMSEngine implements ServletContextListener {
         }
     }
 
-    public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {
+    public void initSubsystem(ISubsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof SelfTestSubsystem) {
             // skip initialization during installation

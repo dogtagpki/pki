@@ -42,7 +42,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
     protected static final String PROP_ENABLE = "enable";
     protected static final String PROP_ENABLE_BY = "enableBy";
 
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected LinkedHashMap<String, Profile> mProfiles = new LinkedHashMap<>();
     protected Hashtable<String, String> mProfileClassIds = new Hashtable<>();
 
@@ -53,7 +53,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
      * @return configuration store of this subsystem
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

@@ -23,8 +23,8 @@ import org.dogtagpki.server.tks.TKSEngineConfig;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.cmscore.base.ConfigStore;
 
 public class TKSAuthority implements IAuthority {
 
@@ -83,8 +83,7 @@ public class TKSAuthority implements IAuthority {
      * @exception EBaseException failed to initialize this RA
      */
     @Override
-    public void init(IConfigStore config) throws
-            EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
 
         TKSEngine engine = TKSEngine.getInstance();
         TKSEngineConfig engineConfig = engine.getConfig();

@@ -88,8 +88,7 @@ public class AuthzSubsystem implements ISubsystem {
      * @param config The configuration store.
      */
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig engineConfig = engine.getConfig();
@@ -465,7 +464,7 @@ public class AuthzSubsystem implements ISubsystem {
      * @return configuration store of this subsystem
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

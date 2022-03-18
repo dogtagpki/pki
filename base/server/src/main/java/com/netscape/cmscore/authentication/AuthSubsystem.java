@@ -36,7 +36,6 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cms.authentication.CMCAuth;
 import com.netscape.cmscore.apps.CMS;
@@ -299,7 +298,7 @@ public class AuthSubsystem implements ISubsystem {
      * @param config The configuration store.
      */
     @Override
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig engineConfig = engine.getConfig();

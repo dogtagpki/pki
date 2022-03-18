@@ -29,11 +29,11 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -76,7 +76,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     public static final String LDAP_ATTR_XCERT_PAIR = "crossCertificatePair;binary";
     protected static final String PROP_LDAP = "ldap";
 
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected LdapBoundConnFactory mLdapConnFactory = null;
     protected String mBaseDN = null;
     protected ICertificateAuthority mCa = null;
@@ -101,8 +101,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     }
 
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
 
         logger.debug("CrossCertPairSubsystem: initializing");
 
@@ -509,7 +508,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
      * @return configuration store of this subsystem
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 }

@@ -34,7 +34,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEventListener;
@@ -85,7 +84,7 @@ public class SelfTestSubsystem
     // SelfTestSubsystem parameters //
     //////////////////////////////////
 
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
 
     private String mRootPrefix = null;
     private String mPrefix = null;
@@ -1208,8 +1207,7 @@ public class SelfTestSubsystem
      * @exception EBaseException base CMS exception
      */
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
 
         logger.debug("SelfTestSubsystem: init()");
 
@@ -1845,7 +1843,7 @@ public class SelfTestSubsystem
      * @return configuration store of this subsystem
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 }

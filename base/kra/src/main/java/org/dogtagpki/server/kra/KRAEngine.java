@@ -20,12 +20,12 @@ package org.dogtagpki.server.kra;
 
 import javax.servlet.annotation.WebListener;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
@@ -60,7 +60,7 @@ public class KRAEngine extends CMSEngine {
     }
 
     @Override
-    public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {
+    public void initSubsystem(ISubsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof KeyRecoveryAuthority) {
             // skip initialization during installation

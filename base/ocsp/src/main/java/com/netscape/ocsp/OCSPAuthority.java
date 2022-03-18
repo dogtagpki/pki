@@ -50,7 +50,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IDefStore;
@@ -135,8 +134,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
      * @exception EBaseException failed to initialize
      */
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
 
         OCSPEngine engine = OCSPEngine.getInstance();
         OCSPEngineConfig engineConfig = engine.getConfig();

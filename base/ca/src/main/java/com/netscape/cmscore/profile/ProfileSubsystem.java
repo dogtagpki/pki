@@ -25,7 +25,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.Profile;
@@ -52,8 +51,7 @@ public class ProfileSubsystem
      * @exception EBaseException failed to initialize
      */
     @Override
-    public void init(IConfigStore cs)
-            throws EBaseException {
+    public void init(ConfigStore cs) throws EBaseException {
 
         logger.debug("ProfileSubsystem: initialization");
 

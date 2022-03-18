@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
+import com.netscape.cmscore.base.ConfigStore;
+
 /**
  * This class represents a basic subsystem. Each basic
  * subsystem is named with an identifier and has a
@@ -26,7 +28,7 @@ package com.netscape.certsrv.base;
  */
 public abstract class BaseSubsystem implements ISubsystem {
 
-    IConfigStore config;
+    ConfigStore config;
     String id;
 
     /**
@@ -34,8 +36,7 @@ public abstract class BaseSubsystem implements ISubsystem {
      * @param config configuration store
      */
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         this.config = config;
     }
 
@@ -45,7 +46,7 @@ public abstract class BaseSubsystem implements ISubsystem {
      * @return configuration store
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return config;
     }
 

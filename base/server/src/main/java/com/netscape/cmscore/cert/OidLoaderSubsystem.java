@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.OIDMap;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -46,7 +45,7 @@ public class OidLoaderSubsystem implements ISubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OidLoaderSubsystem.class);
 
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     public static final String ID = "oidmap";
     private String mId = ID;
 
@@ -129,8 +128,7 @@ public class OidLoaderSubsystem implements ISubsystem {
      * @param config configuration store
      */
     @Override
-    public synchronized void init(IConfigStore config)
-            throws EBaseException {
+    public synchronized void init(ConfigStore config) throws EBaseException {
         logger.trace("OIDLoaderSubsystem started");
         mConfig = config;
 
@@ -186,7 +184,7 @@ public class OidLoaderSubsystem implements ISubsystem {
      * @return configuration store of this subsystem
      */
     @Override
-    public synchronized IConfigStore getConfigStore() {
+    public synchronized ConfigStore getConfigStore() {
         return mConfig;
     }
 

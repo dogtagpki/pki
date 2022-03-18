@@ -93,8 +93,7 @@ public class LDAPProfileSubsystem
      * @exception EBaseException failed to initialize
      */
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
 
         logger.debug("LDAPProfileSubsystem: start init");
 

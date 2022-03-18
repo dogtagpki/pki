@@ -394,8 +394,7 @@ public class CertificateAuthority implements ICertificateAuthority, IOCSPService
      * @exception EBaseException failed to initialize this CA
      */
     @Override
-    public void init(IConfigStore config) throws
-            EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
 
         logger.info("CertificateAuthority: Initializing " +
                 (authorityID == null ? "host CA" : "authority " + authorityID));

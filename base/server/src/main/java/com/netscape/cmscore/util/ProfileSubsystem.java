@@ -34,8 +34,8 @@ import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * A class represents a internal subsystem. This subsystem
@@ -90,8 +90,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
      * @param config configuration store
      */
     @Override
-    public synchronized void init(IConfigStore config)
-            throws EBaseException {
+    public synchronized void init(ConfigStore config) throws EBaseException {
         JTabbedPane tabPane = new JTabbedPane();
 
         // general panel
@@ -141,7 +140,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
      * @return configuration store of this subsystem
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return null;
     }
 

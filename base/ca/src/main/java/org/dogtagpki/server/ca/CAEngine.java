@@ -848,7 +848,7 @@ public class CAEngine extends CMSEngine {
     }
 
     @Override
-    public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {
+    public void initSubsystem(ISubsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof CertificateAuthority) {
             // skip initialization during installation
