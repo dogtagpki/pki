@@ -60,7 +60,7 @@ public class FeatureService extends PKIService implements FeatureResource {
         throw new ResourceNotFoundException("Feature " + id + " not supported");
     }
 
-    private Feature createFeature(IConfigStore cs, String tag) {
+    private Feature createFeature(ConfigStore cs, String tag) {
         Map<String, String> props;
         try {
             props = cs.getSubStore(tag).getProperties();
