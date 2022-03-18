@@ -26,7 +26,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
@@ -40,6 +39,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -61,7 +61,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
 
     @SuppressWarnings("unused")
     private Profile mProfile;
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
 
     private Vector<String> mConfigNames = new Vector<>();
 
@@ -69,8 +69,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     }
 
     @Override
-    public void init(Profile profile, IConfigStore config)
-            throws EProfileException {
+    public void init(Profile profile, ConfigStore config) throws EProfileException {
         mConfig = config;
         mProfile = profile;
     }
@@ -110,7 +109,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

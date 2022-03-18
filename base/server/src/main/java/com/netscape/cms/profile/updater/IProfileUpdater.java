@@ -19,11 +19,11 @@ package com.netscape.cms.profile.updater;
 
 import java.util.Locale;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -41,15 +41,14 @@ public interface IProfileUpdater extends IConfigTemplate {
      * @param config configuration store
      * @exception EProfileException failed to initialize
      */
-    public void init(Profile profile, IConfigStore config)
-            throws EProfileException;
+    public void init(Profile profile, ConfigStore config) throws EProfileException;
 
     /**
      * Retrieves configuration store.
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore();
+    public ConfigStore getConfigStore();
 
     /**
      * Notifies of state change.
