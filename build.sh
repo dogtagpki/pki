@@ -313,19 +313,50 @@ fi
 mkdir -p "$WORK_DIR"
 cd "$WORK_DIR"
 
-VERSION="$(rpmspec -P "$SPEC_TEMPLATE" | grep "^Version:" | awk '{print $2;}')"
+spec=$(<"$SPEC_TEMPLATE")
+
+regex=$'%global *major_version *([^\n]+)'
+if [[ $spec =~ $regex ]] ; then
+    MAJOR_VERSION="${BASH_REMATCH[1]}"
+else
+    echo "ERROR: Missing major_version macro in $SPEC_TEMPLATE"
+    exit 1
+fi
+
+regex=$'%global *minor_version *([^\n]+)'
+if [[ $spec =~ $regex ]] ; then
+    MINOR_VERSION="${BASH_REMATCH[1]}"
+else
+    echo "ERROR: Missing minor_version macro in $SPEC_TEMPLATE"
+    exit 1
+fi
+
+regex=$'%global *update_version *([^\n]+)'
+if [[ $spec =~ $regex ]] ; then
+    UPDATE_VERSION="${BASH_REMATCH[1]}"
+else
+    echo "ERROR: Missing update_version macro in $SPEC_TEMPLATE"
+    exit 1
+fi
+
+VERSION="$MAJOR_VERSION.$MINOR_VERSION.$UPDATE_VERSION"
 
 if [ "$DEBUG" = true ] ; then
     echo "VERSION: $VERSION"
 fi
 
-RELEASE="$(rpmspec -P "$SPEC_TEMPLATE" --undefine dist | grep "^Release:" | awk '{print $2;}')"
-
-if [ "$DEBUG" = true ] ; then
-    echo "RELEASE: $RELEASE"
+regex=$'%global *release_number *([^\n]+)'
+if [[ $spec =~ $regex ]] ; then
+    RELEASE_NUMBER="${BASH_REMATCH[1]}"
+    RELEASE=$RELEASE_NUMBER
+else
+    echo "ERROR: Missing release_number macro in $SPEC_TEMPLATE"
+    exit 1
 fi
 
-spec=$(<"$SPEC_TEMPLATE")
+if [ "$DEBUG" = true ] ; then
+    echo "RELEASE_NUMBER: $RELEASE_NUMBER"
+fi
 
 regex=$'%global *phase *([^\n]+)'
 if [[ $spec =~ $regex ]] ; then
@@ -353,6 +384,10 @@ fi
 
 if [ "$DEBUG" = true ] ; then
     echo "COMMIT_ID: $COMMIT_ID"
+fi
+
+if [ "$DEBUG" = true ] ; then
+    echo "RELEASE: $RELEASE"
 fi
 
 echo "Building $NAME-$VERSION-$RELEASE"
