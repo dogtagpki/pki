@@ -28,7 +28,6 @@ import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -43,6 +42,7 @@ import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -56,7 +56,7 @@ public abstract class EnrollInput extends ProfileInput {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollInput.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected Vector<String> mValueNames = new Vector<>();
     protected Vector<String> mConfigNames = new Vector<>();
     protected Profile mProfile = null;
@@ -64,14 +64,14 @@ public abstract class EnrollInput extends ProfileInput {
     /**
      * Initializes this default policy.
      */
-    public void init(Profile profile, IConfigStore config)
+    public void init(Profile profile, ConfigStore config)
             throws EProfileException {
         mConfig = config;
         mProfile = profile;
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

@@ -24,12 +24,12 @@ import java.security.MessageDigest;
 import java.util.Locale;
 import java.util.Map;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -58,8 +58,7 @@ public class FileSigningInput extends EnrollInput {
      * Initializes this default policy.
      */
     @Override
-    public void init(Profile profile, IConfigStore config)
-            throws EProfileException {
+    public void init(Profile profile, ConfigStore config) throws EProfileException {
         super.init(profile, config);
     }
 

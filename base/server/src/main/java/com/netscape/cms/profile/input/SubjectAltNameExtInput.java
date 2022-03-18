@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
@@ -31,6 +30,7 @@ import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 
@@ -70,8 +70,7 @@ public class SubjectAltNameExtInput extends EnrollInput {
      * Initializes this default policy.
      */
     @Override
-    public void init(Profile profile, IConfigStore config)
-        throws EProfileException {
+    public void init(Profile profile, ConfigStore config) throws EProfileException {
         super.init(profile, config);
 
         CMSEngine engine = CMS.getCMSEngine();

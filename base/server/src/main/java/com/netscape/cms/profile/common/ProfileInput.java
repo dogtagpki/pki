@@ -21,11 +21,11 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -42,7 +42,7 @@ public abstract class ProfileInput implements IConfigTemplate {
      *
      * @return configuration store
      */
-    public abstract IConfigStore getConfigStore();
+    public abstract ConfigStore getConfigStore();
 
     /**
      * Populates the request with this policy default.
