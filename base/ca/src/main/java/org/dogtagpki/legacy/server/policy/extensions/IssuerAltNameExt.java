@@ -33,10 +33,10 @@ import org.mozilla.jss.netscape.security.x509.IssuerAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -83,7 +83,7 @@ public class IssuerAltNameExt extends APolicyRule
     }
 
     private Vector<String> mParams = new Vector<>();
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private boolean mCritical = DEFAULT_CRITICALITY;
     private boolean mEnabled = false;
     IGeneralNamesConfig mGNs = null;
@@ -103,8 +103,7 @@ public class IssuerAltNameExt extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         // get criticality

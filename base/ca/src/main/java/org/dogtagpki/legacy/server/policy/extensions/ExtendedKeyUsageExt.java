@@ -32,10 +32,10 @@ import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -56,7 +56,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
     protected static final String PROP_NUM_IDS = "numIds";
     protected static int MAX_PURPOSE_ID = 10;
     private boolean mCritical = false;
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private Vector<ObjectIdentifier> mUsages = null;
 
     private String[] mParams = null;
@@ -78,8 +78,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
      * Performs one-time initialization of the policy.
      */
     @Override
-    public void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
         setExtendedPluginInfo();
         setupParams();

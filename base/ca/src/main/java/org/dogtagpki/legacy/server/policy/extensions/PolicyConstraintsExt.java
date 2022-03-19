@@ -31,10 +31,10 @@ import org.mozilla.jss.netscape.security.x509.PolicyConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -64,7 +64,7 @@ public class PolicyConstraintsExt extends APolicyRule
     protected static final int DEF_INHIBIT_POLICY_MAPPING = -1; // not set
 
     protected boolean mEnabled = false;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
 
     protected boolean mCritical = DEF_CRITICAL;
     protected int mReqExplicitPolicy = DEF_REQ_EXPLICIT_POLICY;
@@ -99,8 +99,7 @@ public class PolicyConstraintsExt extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         // XXX should do do this ?

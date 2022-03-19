@@ -33,6 +33,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -67,7 +68,7 @@ public class AttributePresentConstraints extends APolicyRule
     protected String mName = null;
     protected String mImplName = null;
 
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private LDAPConfig mLdapConfig;
     private LdapBoundConnFactory mConnFactory;
     private LDAPConnection mCheckAttrLdapConnection = null;
@@ -242,8 +243,7 @@ public class AttributePresentConstraints extends APolicyRule
     }
 
     @Override
-    public void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();

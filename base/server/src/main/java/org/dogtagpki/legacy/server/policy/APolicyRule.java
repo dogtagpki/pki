@@ -34,10 +34,10 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -71,8 +71,7 @@ public abstract class APolicyRule implements IPolicyRule {
      * @param config The config store reference
      */
     @Override
-    public abstract void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException;
+    public abstract void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException;
 
     /**
      * Gets the description for this policy rule.

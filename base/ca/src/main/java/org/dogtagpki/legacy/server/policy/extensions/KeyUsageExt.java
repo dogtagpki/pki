@@ -34,10 +34,10 @@ import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -59,7 +59,7 @@ public class KeyUsageExt extends APolicyRule
     protected static final boolean[] DEF_BITS =
             new boolean[KeyUsageExtension.NBITS];
     protected int mCAPathLen = -1;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_DIGITAL_SIGNATURE = "digitalSignature";
     protected static final String PROP_NON_REPUDIATION = "nonRepudiation";
@@ -100,8 +100,7 @@ public class KeyUsageExt extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         ICertificateAuthority certAuthority = (ICertificateAuthority)

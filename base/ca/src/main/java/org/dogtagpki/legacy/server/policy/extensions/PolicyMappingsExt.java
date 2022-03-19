@@ -69,7 +69,7 @@ public class PolicyMappingsExt extends APolicyRule
     protected static final int DEF_NUM_POLICYMAPPINGS = 1;
 
     protected boolean mEnabled = false;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
 
     protected boolean mCritical = DEF_CRITICAL;
     protected int mNumPolicyMappings = DEF_NUM_POLICYMAPPINGS;
@@ -95,8 +95,7 @@ public class PolicyMappingsExt extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         // XXX should do do this ?

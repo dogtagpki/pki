@@ -72,7 +72,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     protected int mNumAttributes;
     protected AttributeConfig[] mAttributes = null;
 
-    protected IConfigStore mConfig;
+    protected ConfigStore mConfig;
     protected SubjectDirAttributesExtension mExt = null;
 
     protected Vector<String> mParams = new Vector<>();
@@ -90,8 +90,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     }
 
     @Override
-    public void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         boolean enabled = config.getBoolean("enabled", false);
 
         mConfig = config;

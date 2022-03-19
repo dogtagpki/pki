@@ -36,10 +36,10 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -70,7 +70,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
     protected static final String DEF_ALT_KEYID_TYPE = ALT_KEYID_TYPE_SPKISHA1;
 
     protected boolean mEnabled = false;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
 
     // config params.
     protected boolean mCritical = DEF_CRITICAL;
@@ -115,8 +115,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         mEnabled = mConfig.getBoolean(

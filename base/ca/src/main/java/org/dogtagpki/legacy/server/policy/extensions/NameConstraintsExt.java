@@ -73,7 +73,7 @@ public class NameConstraintsExt extends APolicyRule
     protected static final int DEF_NUM_EXCLUDEDSUBTREES = 8;
 
     protected boolean mEnabled = false;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
 
     protected boolean mCritical = DEF_CRITICAL;
     protected int mNumPermittedSubtrees = 0;
@@ -101,8 +101,7 @@ public class NameConstraintsExt extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         // XXX should do do this ?

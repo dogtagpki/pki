@@ -36,10 +36,10 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -87,7 +87,7 @@ public class NSCertTypeExt extends APolicyRule
 
     protected int mCAPathLen = -1;
 
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected boolean mSetDefaultBits = false;
 
     static {
@@ -118,8 +118,7 @@ public class NSCertTypeExt extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         // XXX future use.

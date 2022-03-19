@@ -25,9 +25,9 @@ import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.policy.IRevocationPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -62,8 +62,7 @@ public class DefaultRevocation extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, IConfigStore config)
-            throws EPolicyException {
+    public void init(IPolicyProcessor owner, ConfigStore config) throws EPolicyException {
     }
 
     /**

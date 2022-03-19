@@ -20,8 +20,8 @@ package org.dogtagpki.legacy.policy;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -47,8 +47,7 @@ public interface IPolicyRule
      *
      * @param config The config store reference
      */
-    void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException;
+    void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException;
 
     /**
      * Gets the description for this policy rule.

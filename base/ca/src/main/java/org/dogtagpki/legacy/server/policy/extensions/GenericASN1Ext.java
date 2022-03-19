@@ -38,10 +38,10 @@ import org.mozilla.jss.netscape.security.x509.OIDMap;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.request.Request;
 
@@ -113,7 +113,7 @@ public class GenericASN1Ext extends APolicyRule implements
     protected static final String PROP_ENABLE =
             "enable";
 
-    public IConfigStore mConfig = null;
+    public ConfigStore mConfig;
 
     private String pattern = null;
 
@@ -222,8 +222,7 @@ public class GenericASN1Ext extends APolicyRule implements
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
         if (mConfig == null) {
             logger.error(CMS.getLogMessage("POLICY_INIT_ERROR"));
