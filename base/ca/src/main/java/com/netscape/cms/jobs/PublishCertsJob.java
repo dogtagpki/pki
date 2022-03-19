@@ -27,7 +27,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
@@ -121,8 +120,7 @@ public class PublishCertsJob extends AJobBase
      * initialize from the configuration file
      */
     @Override
-    public void init(ISubsystem owner, String id, String implName, IConfigStore config) throws
-            EBaseException {
+    public void init(ISubsystem owner, String id, String implName, ConfigStore config) throws EBaseException {
         mConfig = config;
         mId = id;
         mImplName = implName;

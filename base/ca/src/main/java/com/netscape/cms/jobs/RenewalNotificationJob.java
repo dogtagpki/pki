@@ -28,7 +28,6 @@ import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
@@ -260,8 +259,7 @@ public class RenewalNotificationJob
      * @exception EBaseException
      */
     @Override
-    public void init(ISubsystem owner, String id, String implName, IConfigStore config) throws
-            EBaseException {
+    public void init(ISubsystem owner, String id, String implName, ConfigStore config) throws EBaseException {
         mConfig = config;
         mId = id;
         mImplName = implName;
@@ -528,7 +526,7 @@ public class RenewalNotificationJob
      * @return configuration store
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

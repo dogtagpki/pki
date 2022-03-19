@@ -23,7 +23,6 @@ import java.util.Locale;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.jobs.IJobCron;
@@ -114,7 +113,7 @@ public class RequestInQueueJob extends AJobBase
      * @exception EBaseException
      */
     @Override
-    public void init(ISubsystem owner, String id, String implName, IConfigStore config) throws
+    public void init(ISubsystem owner, String id, String implName, ConfigStore config) throws
             EBaseException {
         mConfig = config;
         mId = id;

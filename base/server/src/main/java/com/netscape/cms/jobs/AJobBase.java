@@ -23,7 +23,6 @@ import java.util.Hashtable;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
@@ -32,6 +31,7 @@ import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.request.Request;
 
@@ -60,7 +60,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     // variables used by the Job Scheduler Daemon
     protected String mImplName = null;
-    protected IConfigStore mConfig;
+    protected ConfigStore mConfig;
     protected String mId = null;
     protected String mCron = null;
     protected IJobCron mJobCron = null;
@@ -102,8 +102,7 @@ public abstract class AJobBase implements IJob, Runnable {
      * abstract methods
      ***********************/
     @Override
-    public abstract void init(ISubsystem owner, String id, String implName, IConfigStore
-            config) throws EBaseException;
+    public abstract void init(ISubsystem owner, String id, String implName, ConfigStore config) throws EBaseException;
 
     @Override
     public abstract void run();
@@ -158,7 +157,7 @@ public abstract class AJobBase implements IJob, Runnable {
      * @return configuration store
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

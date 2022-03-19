@@ -18,8 +18,8 @@
 package com.netscape.certsrv.jobs;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * An interface to be implemented from for a job to be scheduled by
@@ -37,8 +37,7 @@ public interface IJob {
      * @param config configuration store for this instance
      * @exception EBaseException any initilization failure
      */
-    public void init(ISubsystem owner, String id, String implName,
-            IConfigStore config) throws EBaseException;
+    public void init(ISubsystem owner, String id, String implName, ConfigStore config) throws EBaseException;
 
     /**
      * tells if the job is enabled
@@ -90,7 +89,7 @@ public interface IJob {
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore();
+    public ConfigStore getConfigStore();
 
     /**
      * Request the job to stop gracefully. The job may not stop immediately.
