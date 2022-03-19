@@ -24,7 +24,6 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
@@ -93,7 +92,7 @@ public class RequestInQListener implements IRequestListener {
      * initializes the listener from the configuration
      */
     @Override
-    public void init(ISubsystem sub, IConfigStore config)
+    public void init(ISubsystem sub, ConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();

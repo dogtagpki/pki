@@ -26,13 +26,13 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.Request;
@@ -48,7 +48,7 @@ public class LdapRevocationListener implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sys, IConfigStore config) throws EBaseException {
+    public void init(ISubsystem sys, ConfigStore config) throws EBaseException {
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -58,7 +59,7 @@ public class PinRemovalListener implements IRequestListener {
 
     private boolean mEnabled = false;
 
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private LDAPConfig mLdapConfig;
     private LdapBoundConnFactory mConnFactory;
     private LDAPConnection mRemovePinLdapConnection = null;
@@ -90,11 +91,11 @@ public class PinRemovalListener implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
+    public void init(ISubsystem sub, ConfigStore config) throws EBaseException {
         init(null, null, config);
     }
 
-    public void init(String name, String ImplName, IConfigStore config)
+    public void init(String name, String ImplName, ConfigStore config)
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();

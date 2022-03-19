@@ -106,7 +106,7 @@ public class LdapPublishModule implements IRequestListener {
      * initialize ldap publishing module with config store
      */
     @Override
-    public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
+    public void init(ISubsystem sub, ConfigStore config) throws EBaseException {
     }
 
     @Override
@@ -522,7 +522,7 @@ class HandleEnrollment implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
+    public void init(ISubsystem sub, ConfigStore config) throws EBaseException {
     }
 
     @Override
@@ -594,7 +594,7 @@ class HandleRenewal implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
+    public void init(ISubsystem sub, ConfigStore config) throws EBaseException {
     }
 
     @Override
@@ -660,7 +660,7 @@ class HandleRevocation implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
+    public void init(ISubsystem sub, ConfigStore config) throws EBaseException {
     }
 
     @Override
@@ -730,7 +730,7 @@ class HandleUnrevocation implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
+    public void init(ISubsystem sub, ConfigStore config) throws EBaseException {
     }
 
     @Override

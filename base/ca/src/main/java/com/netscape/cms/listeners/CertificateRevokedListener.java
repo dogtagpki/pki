@@ -31,7 +31,6 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
@@ -111,8 +110,7 @@ public class CertificateRevokedListener implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sub, IConfigStore config)
-            throws EListenersException, EPropertyNotFound, EBaseException {
+    public void init(ISubsystem sub, ConfigStore config) throws EListenersException, EPropertyNotFound, EBaseException {
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
         mSubsystem = (CertificateAuthority) sub;
