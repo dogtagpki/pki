@@ -25,6 +25,7 @@ import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -57,8 +58,7 @@ public class LdapConnModule implements ILdapConnModule {
     }
 
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
 
         logger.debug("LdapConnModule: init called");
         if (mInited) {

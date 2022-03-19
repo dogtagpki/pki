@@ -18,7 +18,7 @@
 package com.netscape.certsrv.ldap;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Class on behalf of the Publishing system that controls an instance of an ILdapConnFactory.
@@ -37,8 +37,7 @@ public interface ILdapConnModule {
      * @exception ELdapException Due to Ldap error.
      * @exception EBaseException Due to config value errors and all other errors.
      */
-    public void init(IConfigStore config)
-            throws EBaseException, ELdapException;
+    public void init(ConfigStore config) throws EBaseException, ELdapException;
 
     /**
      * Returns the internal ldap connection factory.

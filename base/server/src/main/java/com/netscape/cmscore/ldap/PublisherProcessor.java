@@ -22,7 +22,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnModule;
@@ -345,9 +344,9 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
     /**
      * init ldap connection
      */
-    private void initLdapConn(IConfigStore ldapConfig)
+    private void initLdapConn(ConfigStore ldapConfig)
             throws EBaseException {
-        IConfigStore c = ldapConfig;
+        ConfigStore c = ldapConfig;
 
         try {
             //c = authConfig.getSubStore(PROP_LDAP_PUBLISH_SUBSTORE);
