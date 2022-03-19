@@ -24,7 +24,6 @@ import java.util.Locale;
 import org.dogtagpki.server.tps.TPSSubsystem;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
@@ -33,6 +32,7 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This class implements a self test to check for TPS presence.
@@ -59,8 +59,10 @@ public class TPSPresence extends ASelfTest {
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
     @Override
-    public void initSelfTest(ISelfTestSubsystem subsystem, String instanceName,
-            IConfigStore parameters) throws EDuplicateSelfTestException, EInvalidSelfTestException,
+    public void initSelfTest(
+            ISelfTestSubsystem subsystem,
+            String instanceName,
+            ConfigStore parameters) throws EDuplicateSelfTestException, EInvalidSelfTestException,
             EMissingSelfTestException {
         super.initSelfTest(subsystem, instanceName, parameters);
 
@@ -123,7 +125,7 @@ public class TPSPresence extends ASelfTest {
      * @return configuration store (self test parameters) of this subsystem
      */
     @Override
-    public IConfigStore getSelfTestConfigStore() {
+    public ConfigStore getSelfTestConfigStore() {
         return super.getSelfTestConfigStore();
     }
 

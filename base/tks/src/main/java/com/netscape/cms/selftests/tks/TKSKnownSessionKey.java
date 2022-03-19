@@ -34,7 +34,6 @@ import org.dogtagpki.server.tks.TPSConnectorConfig;
 import org.mozilla.jss.symkey.SessionKey;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
@@ -95,7 +94,7 @@ public class TKSKnownSessionKey
     @Override
     public void initSelfTest(ISelfTestSubsystem subsystem,
                               String instanceName,
-                              IConfigStore parameters)
+                              ConfigStore parameters)
             throws EDuplicateSelfTestException,
             EInvalidSelfTestException,
             EMissingSelfTestException {
@@ -312,7 +311,7 @@ public class TKSKnownSessionKey
      * @return configuration store (self test parameters) of this subsystem
      */
     @Override
-    public IConfigStore getSelfTestConfigStore() {
+    public ConfigStore getSelfTestConfigStore() {
         return super.getSelfTestConfigStore();
     }
 

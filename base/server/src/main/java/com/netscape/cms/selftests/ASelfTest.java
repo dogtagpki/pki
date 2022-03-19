@@ -26,7 +26,6 @@ package com.netscape.cms.selftests;
 
 import java.util.Locale;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
@@ -91,7 +90,7 @@ public abstract class ASelfTest
     @Override
     public void initSelfTest(ISelfTestSubsystem subsystem,
             String instanceName,
-            IConfigStore parameters)
+            ConfigStore parameters)
             throws EDuplicateSelfTestException,
             EInvalidSelfTestException,
             EMissingSelfTestException {
@@ -173,7 +172,7 @@ public abstract class ASelfTest
      * @return configuration store (self test parameters) of this subsystem
      */
     @Override
-    public IConfigStore getSelfTestConfigStore() {
+    public ConfigStore getSelfTestConfigStore() {
         return mConfig;
     }
 

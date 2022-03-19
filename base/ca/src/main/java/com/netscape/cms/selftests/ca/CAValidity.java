@@ -33,7 +33,6 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
@@ -42,6 +41,7 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 //////////////////////
 // class definition //
@@ -92,7 +92,7 @@ public class CAValidity
     @Override
     public void initSelfTest(ISelfTestSubsystem subsystem,
                               String instanceName,
-                              IConfigStore parameters)
+                              ConfigStore parameters)
             throws EDuplicateSelfTestException,
             EInvalidSelfTestException,
             EMissingSelfTestException {
@@ -175,7 +175,7 @@ public class CAValidity
      * @return configuration store (self test parameters) of this subsystem
      */
     @Override
-    public IConfigStore getSelfTestConfigStore() {
+    public ConfigStore getSelfTestConfigStore() {
         return super.getSelfTestConfigStore();
     }
 

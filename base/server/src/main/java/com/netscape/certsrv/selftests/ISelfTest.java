@@ -26,8 +26,8 @@ package com.netscape.certsrv.selftests;
 
 import java.util.Locale;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.cmscore.base.ConfigStore;
 
 //////////////////////
 // class definition //
@@ -72,7 +72,7 @@ public interface ISelfTest {
      */
     public void initSelfTest(ISelfTestSubsystem subsystem,
             String instanceName,
-            IConfigStore parameters)
+            ConfigStore parameters)
             throws EDuplicateSelfTestException,
             EInvalidSelfTestException,
             EMissingSelfTestException;
@@ -109,7 +109,7 @@ public interface ISelfTest {
      *
      * @return configuration store (self test parameters) of this subsystem
      */
-    public IConfigStore getSelfTestConfigStore();
+    public ConfigStore getSelfTestConfigStore();
 
     /**
      * Retrieves description associated with an individual self test.
