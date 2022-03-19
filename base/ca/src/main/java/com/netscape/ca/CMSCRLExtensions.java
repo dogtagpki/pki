@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICMSCRLExtension;
 import org.dogtagpki.server.ca.ICMSCRLExtensions;
@@ -663,8 +664,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
                 if (modifiedCRLConfig == true) {
                     //Commit to this CRL IssuingPoint's config store
-                    ConfigStore crlsSubStore = ca.getConfigStore();
-                    crlsSubStore = crlsSubStore.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+                    CAConfig caConfig = ca.getConfigStore();
+                    ConfigStore crlsSubStore = caConfig.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
                     crlsSubStore = crlsSubStore.getSubStore(ipId, ConfigStore.class);
 
                     try {

@@ -257,7 +257,7 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         try {
-            IConfigStore authorityConfig = ((ISubsystem) mAuthority).getConfigStore();
+            ConfigStore authorityConfig = ((ISubsystem) mAuthority).getConfigStore();
             ConfigStore scepConfig = authorityConfig.getSubStore("scep", ConfigStore.class);
             mEnabled = scepConfig.getBoolean("enable", false);
             mUseOAEPKeyWrap = authorityConfig.getBoolean("keyWrap.useOAEP",false);

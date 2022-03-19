@@ -44,6 +44,7 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 //////////////////////
 // class definition //
@@ -98,8 +99,6 @@ public class TKSKnownSessionKey
             throws EDuplicateSelfTestException,
             EInvalidSelfTestException,
             EMissingSelfTestException {
-        ISubsystem tks = null;
-        IConfigStore tksConfig = null;
 
         super.initSelfTest(subsystem, instanceName, parameters);
 
@@ -155,9 +154,9 @@ public class TKSKnownSessionKey
         }
 
         String defKeySetMacKey = null;
-        tks = engine.getSubsystem(mTksSubId);
+        ISubsystem tks = engine.getSubsystem(mTksSubId);
         if (tks != null) {
-            tksConfig = tks.getConfigStore();
+            ConfigStore tksConfig = tks.getConfigStore();
             if (tksConfig != null) {
                 try {
                     defKeySetMacKey = tksConfig.getString("defKeySet.mac_key");

@@ -23,10 +23,11 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 
+import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
@@ -98,9 +99,9 @@ public class CertificateIssuedListener implements IRequestListener {
     private String mRejectPath = null;
     private Hashtable<String, Object> mContentParams = new Hashtable<>();
 
-    private IConfigStore mConfig = null;
+    private CAConfig mConfig;
     private DateFormat mDateFormat = null;
-    private ICertificateAuthority mSubsystem = null;
+    private CertificateAuthority mSubsystem;
     private String mHttpHost = null;
     private String mHttpPort = null;
     private RequestId mReqId = null;
@@ -115,7 +116,7 @@ public class CertificateIssuedListener implements IRequestListener {
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
-        mSubsystem = (ICertificateAuthority) sub;
+        mSubsystem = (CertificateAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
         ConfigStore nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE, ConfigStore.class);

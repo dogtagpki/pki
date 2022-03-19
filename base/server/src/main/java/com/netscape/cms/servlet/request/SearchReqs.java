@@ -33,7 +33,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -44,6 +43,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestRepository;
 
@@ -88,7 +88,7 @@ public class SearchReqs extends CMSServlet {
 
         CMSEngine engine = CMS.getCMSEngine();
         ISubsystem sub = mAuthority;
-        IConfigStore authConfig = sub.getConfigStore();
+        ConfigStore authConfig = sub.getConfigStore();
 
         if (authConfig != null) {
             try {

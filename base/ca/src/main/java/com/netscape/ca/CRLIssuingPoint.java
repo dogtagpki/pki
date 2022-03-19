@@ -29,10 +29,10 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICMSCRLExtensions;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLNumberExtension;
@@ -137,7 +137,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * Reference to the CertificateAuthority instance which owns this
      * issuing point.
      */
-    protected ICertificateAuthority mCA = null;
+    protected CertificateAuthority mCA;
 
     /**
      * Reference to the CRL repository maintained in CA.
@@ -515,7 +515,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     @Override
     public void init(ISubsystem ca, String id, IConfigStore config)
             throws EBaseException {
-        mCA = (ICertificateAuthority) ca;
+        mCA = (CertificateAuthority) ca;
         mId = id;
 
         if (mId.equals(CertificateAuthority.PROP_MASTER_CRL)) {
@@ -532,7 +532,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         mConfigStore = (CRLIssuingPointConfig) config;
 
-        ConfigStore crlSubStore = mCA.getConfigStore().getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+        CAConfig caConfig = mCA.getConfigStore();
+        ConfigStore crlSubStore = caConfig.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
         mPageSize = crlSubStore.getInteger(CertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
         logger.debug("CRL Page Size: " + mPageSize);
 
@@ -1005,7 +1006,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             // no crl was ever created, or crl in db is corrupted.
             logger.info("CRLIssuingPoint: creating new CRL issuing point: " + mId);
 
-            ConfigStore crlConfig = mCA.getConfigStore().getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+            CAConfig caConfig = mCA.getConfigStore();
+            ConfigStore crlConfig = caConfig.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
             ConfigStore ipStore = crlConfig.getSubStore(mId, ConfigStore.class);
 
             try {
@@ -1303,7 +1305,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     if (issuingDistributionPoint != null && params.size() > 1) {
                         boolean onlyContainsCACerts = issuingDistributionPoint.getOnlyContainsCACerts();
                         if (onlyContainsCACerts != mCACertsOnly) {
-                            IConfigStore config = mCA.getConfigStore();
+                            CAConfig config = mCA.getConfigStore();
                             ConfigStore crlsSubStore = config.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
                             ConfigStore crlSubStore = crlsSubStore.getSubStore(mId, ConfigStore.class);
                             ConfigStore crlExtsSubStore = crlSubStore.getSubStore(CertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);

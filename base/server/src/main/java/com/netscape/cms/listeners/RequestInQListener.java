@@ -76,7 +76,7 @@ public class RequestInQListener implements IRequestListener {
     private String mRecipientEmail = null;
     private String mEmailSubject = null;
     private String mFormPath = null;
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private Hashtable<String, Object> mContentParams = new Hashtable<>();
     private String mId = "RequestInQListener";
     private ICertificateAuthority mSubsystem = null;

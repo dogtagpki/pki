@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -37,6 +36,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Redirect a request to the Master. This servlet is used in
@@ -77,7 +77,7 @@ public class CloneRedirect extends CMSServlet {
 
         if (mAuthority instanceof ICertificateAuthority) {
             mCA = (ICertificateAuthority) mAuthority;
-            IConfigStore authConfig = mCA.getConfigStore();
+            ConfigStore authConfig = mCA.getConfigStore();
 
             if (authConfig != null) {
                 try {
