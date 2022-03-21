@@ -54,7 +54,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
@@ -188,7 +187,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     // initialize entropy collection parameters
-    private void initEntropy(IConfigStore config) {
+    private void initEntropy(ConfigStore config) {
         mEntropyBitsPerKeyPair = 0;
         mEntropyBlockWarnMilliseconds = 50;
         // initialize entropy collection

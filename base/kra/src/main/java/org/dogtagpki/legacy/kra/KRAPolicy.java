@@ -36,7 +36,7 @@ public class KRAPolicy implements IPolicy {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAPolicy.class);
 
-    ConfigStore mConfig = null;
+    ConfigStore mConfig;
     KeyRecoveryAuthority mKRA = null;
 
     public GenericPolicyProcessor mPolicies;

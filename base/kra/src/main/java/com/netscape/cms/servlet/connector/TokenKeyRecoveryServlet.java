@@ -155,7 +155,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         RequestQueue queue = engine.getRequestQueue();
         Request thisreq = null;
 
-        //        IConfigStore sconfig = CMS.getConfigStore();
+        //        ConfigStore sconfig = CMS.getConfigStore();
         boolean missingParam = false;
         String status = "0";
 

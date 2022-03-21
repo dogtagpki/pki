@@ -61,7 +61,6 @@ import org.mozilla.jss.netscape.security.util.WrappingParams;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IJoinShares;
 import com.netscape.certsrv.kra.IShare;
@@ -85,7 +84,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StorageKeyUnit.class);
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
 
     // private RSAPublicKey mPublicKey = null;
     // private RSAPrivateKey mPrivateKey = null;
@@ -196,7 +195,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         return params;
     }
 
-    private byte[] getConfigIV(IConfigStore config, String iv_label, String len_label)
+    private byte[] getConfigIV(ConfigStore config, String iv_label, String len_label)
             throws Exception{
         String iv_string = config.getString(iv_label, null);
         String iv_len = config.getString(len_label, null);
@@ -233,7 +232,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     /**
      * Initializes this subsystem.
      */
-    public void init(IConfigStore config, boolean keySplitting)
+    public void init(ConfigStore config, boolean keySplitting)
             throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
@@ -436,7 +435,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     /**
      * Returns the configuration store of this token.
      */
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 
