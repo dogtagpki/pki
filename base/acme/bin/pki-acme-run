@@ -205,4 +205,4 @@ fi
 echo "################################################################################"
 echo "INFO: Starting PKI ACME responder"
 
-${PYTHON_EXECUTABLE} -I -m pki.server.pkiserver run tomcat@pki --as-current-user
+pki-server run tomcat@pki --as-current-user

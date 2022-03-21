@@ -652,10 +652,20 @@ grant codeBase "file:%s" {
         self.create_logging_properties(force=force)
         self.create_server_xml()
 
+        # copy /etc/tomcat/tomcat.conf
         self.copy(Tomcat.TOMCAT_CONF, self.tomcat_conf, force=force)
 
-        with open(self.tomcat_conf, 'a') as f:
-            f.write('\nPKI_VERSION=%s\n' % pki.specification_version())
+        tomcat_conf = pki.PropertyFile(self.tomcat_conf)
+        tomcat_conf.read()
+
+        # store JAVA_HOME from /usr/share/pki/etc/pki.conf
+        java_home = os.getenv('JAVA_HOME')
+        tomcat_conf.set('JAVA_HOME', java_home)
+
+        # store current PKI version
+        tomcat_conf.set('PKI_VERSION', pki.specification_version())
+
+        tomcat_conf.write()
 
         web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
         self.symlink(web_xml, self.web_xml, force=force)
