@@ -25,11 +25,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
@@ -63,7 +63,7 @@ public class LdapPublishModule implements IRequestListener {
     protected ConfigStore mConfig;
     protected LdapBoundConnFactory mLdapConnFactory = null;
     private boolean mInited = false;
-    protected ICertificateAuthority mAuthority = null;
+    protected CertificateAuthority mAuthority = null;
 
     /**
      * hashtable of cert types to cert mappers and publishers.
@@ -119,10 +119,7 @@ public class LdapPublishModule implements IRequestListener {
 
     protected CAPublisherProcessor mPubProcessor;
 
-    public void init(
-            ICertificateAuthority authority,
-            CAPublisherProcessor p,
-            ConfigStore config)
+    public void init(CertificateAuthority authority, CAPublisherProcessor p, ConfigStore config)
             throws EBaseException {
         if (mInited)
             return;
@@ -145,7 +142,7 @@ public class LdapPublishModule implements IRequestListener {
         mAuthority.registerRequestListener(this);
     }
 
-    public void init(ICertificateAuthority authority, ConfigStore config) throws EBaseException {
+    public void init(CertificateAuthority authority, ConfigStore config) throws EBaseException {
         if (mInited)
             return;
 

@@ -38,7 +38,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -94,6 +93,7 @@ import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.PasswordCallback;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -159,7 +159,7 @@ public class CRSEnrollment extends HttpServlet {
 
     protected ProfileSubsystem mProfileSubsystem;
     protected String mProfileId = null;
-    protected ICertificateAuthority mAuthority;
+    protected CertificateAuthority mAuthority;
     protected ConfigStore mConfig;
     protected AuthSubsystem mAuthSubsystem;
     protected String mAppendDN = null;
@@ -182,7 +182,7 @@ public class CRSEnrollment extends HttpServlet {
     private String[] mAllowedEncryptionAlgorithm;
     private SecureRandom mRandom = null;
     private int mNonceSizeLimit = 0;
-    private ICertificateAuthority ca;
+    private CertificateAuthority ca;
     private boolean mIsDynamicProfileId = false;
     private String mAllowedDynamicProfileIdList = null;
     private String[] mAllowedDynamicProfileId;
@@ -248,7 +248,7 @@ public class CRSEnrollment extends HttpServlet {
         CAEngine engine = CAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        mAuthority = (ICertificateAuthority) engine.getSubsystem(crsCA);
+        mAuthority = (CertificateAuthority) engine.getSubsystem(crsCA);
         ca = mAuthority;
 
         if (mAuthority == null) {

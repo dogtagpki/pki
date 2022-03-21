@@ -91,6 +91,7 @@ import org.mozilla.jss.pkix.cert.Extension;
 import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Nonces;
@@ -161,7 +162,7 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
  * @author lhsiao
  * @version $Revision$, $Date$
  */
-public class CertificateAuthority implements ICertificateAuthority, IOCSPService {
+public class CertificateAuthority implements IAuthority, ICertificateAuthority, IOCSPService {
 
     public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateAuthority.class);
 
