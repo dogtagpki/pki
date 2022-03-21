@@ -20,8 +20,7 @@ package com.netscape.cms.listeners;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
-
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.ISubsystem;
@@ -78,7 +77,7 @@ public class RequestInQListener implements IRequestListener {
     private ConfigStore mConfig;
     private Hashtable<String, Object> mContentParams = new Hashtable<>();
     private String mId = "RequestInQListener";
-    private ICertificateAuthority mSubsystem = null;
+    private CertificateAuthority mSubsystem = null;
     private String mHttpHost = null;
     private String mAgentPort = null;
 
@@ -97,7 +96,7 @@ public class RequestInQListener implements IRequestListener {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-        mSubsystem = (ICertificateAuthority) sub;
+        mSubsystem = (CertificateAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
         ConfigStore nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE, ConfigStore.class);

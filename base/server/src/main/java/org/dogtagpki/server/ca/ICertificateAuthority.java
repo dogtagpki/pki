@@ -32,8 +32,8 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.request.IRequestListener;
@@ -51,7 +51,7 @@ import com.netscape.cmscore.dbs.ReplicaIDRepository;
  *
  * @version $Revision$, $Date$
  */
-public interface ICertificateAuthority extends IAuthority {
+public interface ICertificateAuthority extends ISubsystem {
 
 
     public static final String ID = "ca";

@@ -20,7 +20,6 @@ package org.dogtagpki.legacy.ca;
 import org.dogtagpki.legacy.core.policy.GenericPolicyProcessor;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -46,7 +45,7 @@ public class CAPolicy implements IPolicy {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAPolicy.class);
 
     ConfigStore mConfig;
-    ICertificateAuthority mCA = null;
+    CertificateAuthority mCA = null;
 
     public static String PROP_PROCESSOR =
             "processor";
