@@ -47,6 +47,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.DBSSession;
@@ -95,7 +96,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     protected boolean mByName = true;
     protected boolean mIncludeNextUpdate = false;
     protected Hashtable<String, CRLIPContainer> mCacheCRLIssuingPoints = new Hashtable<>();
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private String mId = null;
     private DBSubsystem dbSubsystem;
     private int mStateCount = 0;
@@ -126,7 +127,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     @Override
-    public void init(IConfigStore config, DBSubsystem dbSubsystem) throws EBaseException {
+    public void init(ConfigStore config, DBSubsystem dbSubsystem) throws EBaseException {
 
         mConfig = config;
         this.dbSubsystem = dbSubsystem;

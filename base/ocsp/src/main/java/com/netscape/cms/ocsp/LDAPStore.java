@@ -44,6 +44,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
@@ -86,7 +87,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private final static String PROP_INCLUDE_NEXT_UPDATE =
             "includeNextUpdate";
 
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private String mId = null;
     private String mCRLAttr = null;
     private boolean mByName = true;
@@ -127,7 +128,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
      * Fetch CA certificate and CRL from LDAP server.
      */
     @Override
-    public void init(IConfigStore config, DBSubsystem dbSubsystem) throws EBaseException {
+    public void init(ConfigStore config, DBSubsystem dbSubsystem) throws EBaseException {
 
         mConfig = config;
 

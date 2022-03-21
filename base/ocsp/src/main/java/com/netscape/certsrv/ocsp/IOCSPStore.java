@@ -18,8 +18,8 @@
 package com.netscape.certsrv.ocsp;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.ocsp.Request;
 import com.netscape.cmsutil.ocsp.SingleResponse;
@@ -39,7 +39,7 @@ public interface IOCSPStore {
 
     public boolean isByName();
 
-    public void init(IConfigStore config, DBSubsystem dbSubsystem) throws EBaseException;
+    public void init(ConfigStore config, DBSubsystem dbSubsystem) throws EBaseException;
 
     public void startup() throws EBaseException;
 
