@@ -21,7 +21,7 @@ import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * convenience class for policies use.
@@ -31,7 +31,7 @@ public class GeneralNameAsConstraintsConfig extends GeneralNameConfig implements
 
     public GeneralNameAsConstraintsConfig(
             String name,
-            IConfigStore config,
+            ConfigStore config,
             boolean isValueConfigured,
             boolean isPolicyEnabled)
             throws EBaseException {

@@ -35,7 +35,6 @@ import org.dogtagpki.legacy.policy.IRevocationPolicy;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.request.PolicyResult;
@@ -66,7 +65,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenericPolicyProcessor.class);
 
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected EngineConfig mGlobalStore = null;
     protected IAuthority mAuthority = null;
 
@@ -132,7 +131,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      *
      * @return configuration store
      */
-    public synchronized IConfigStore getConfigStore() {
+    public synchronized ConfigStore getConfigStore() {
         return mConfig;
     }
 
@@ -144,8 +143,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      * @param config configuration of this subsystem
      * @exception EBaseException failed to initialize this Subsystem.
      */
-    public synchronized void init(IAuthority owner, IConfigStore config)
-            throws EBaseException {
+    public synchronized void init(IAuthority owner, ConfigStore config) throws EBaseException {
         logger.debug("GenericPolicyProcessor::init begins");
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -1168,8 +1166,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      * <subsystemId>.Policy.systemPolicies.<ClassName>. An example is
      * ra.Policy.systemPolicies.ManualAuthentication.param1=value
      */
-    private void initSystemPolicies(IConfigStore mConfig)
-            throws EBaseException {
+    private void initSystemPolicies(ConfigStore mConfig) throws EBaseException {
         // If system policies are disabled, return. No Deferral of
         // requests may be done.
         String enable = mConfig.getString(PROP_DEF_POLICIES + "." +
@@ -1325,8 +1322,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      *
      * The other two rules do not have any predicates.
      */
-    private void initUndeletablePolicies(IConfigStore mConfig)
-            throws EBaseException {
+    private void initUndeletablePolicies(ConfigStore mConfig) throws EBaseException {
         // Read undeletable policies if any configured.
         String configuredUndeletables =
                 mConfig.getString(PROP_UNDELETABLE_POLICIES, null);

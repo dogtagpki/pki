@@ -23,14 +23,13 @@ import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 
 public class GeneralNamesConfig implements IGeneralNamesConfig {
     public String mName = null; // substore name of config if any.
     public GeneralNameConfig[] mGenNameConfigs = null;
-    public IConfigStore mConfig = null;
+    public ConfigStore mConfig;
     public boolean mIsValueConfigured = true;
     public boolean mIsPolicyEnabled = true;
     public int mDefNumGenNames = GeneralNameUtil.DEF_NUM_GENERALNAMES;
@@ -40,7 +39,7 @@ public class GeneralNamesConfig implements IGeneralNamesConfig {
 
     public GeneralNamesConfig(
             String name,
-            IConfigStore config,
+            ConfigStore config,
             boolean isValueConfigured,
             boolean isPolicyEnabled)
             throws EBaseException {
@@ -89,8 +88,10 @@ public class GeneralNamesConfig implements IGeneralNamesConfig {
     }
 
     protected GeneralNameConfig newGeneralNameConfig(
-            String name, IConfigStore config,
-            boolean isValueConfigured, boolean isPolicyEnabled)
+            String name,
+            ConfigStore config,
+            boolean isValueConfigured,
+            boolean isPolicyEnabled)
             throws EBaseException {
         return new GeneralNameConfig(
                 name, config, isValueConfigured, isPolicyEnabled);
@@ -104,7 +105,7 @@ public class GeneralNamesConfig implements IGeneralNamesConfig {
         return mGenNameConfigs.length;
     }
 
-    public IConfigStore getConfig() {
+    public ConfigStore getConfig() {
         return mConfig;
     }
 

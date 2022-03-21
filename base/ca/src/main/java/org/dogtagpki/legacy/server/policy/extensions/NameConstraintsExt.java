@@ -36,7 +36,6 @@ import org.mozilla.jss.netscape.security.x509.NameConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -403,7 +402,7 @@ class Subtree {
     protected static final String MINMAX_INFO = "number;See RFC 2459 section 4.2.1.11";
 
     String mName = null;
-    IConfigStore mConfig = null;
+    ConfigStore mConfig;
     int mMin = DEF_MIN, mMax = DEF_MAX;
     IGeneralNameAsConstraintsConfig mBase = null;
     GeneralSubtree mGeneralSubtree = null;
@@ -413,7 +412,9 @@ class Subtree {
     String mNameDotMax = null;
 
     public Subtree(
-            String subtreeName, IConfigStore config, boolean policyEnabled)
+            String subtreeName,
+            ConfigStore config,
+            boolean policyEnabled)
             throws EBaseException {
         mName = subtreeName;
         mConfig = config;

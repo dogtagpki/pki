@@ -23,8 +23,8 @@ import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 public class SubjAltNameGN extends GeneralNameConfig implements ISubjAltNameConfig {
     static final String REQUEST_ATTR_INFO =
@@ -39,7 +39,9 @@ public class SubjAltNameGN extends GeneralNameConfig implements ISubjAltNameConf
     String mAttr = null;
 
     public SubjAltNameGN(
-            String name, IConfigStore config, boolean isPolicyEnabled)
+            String name,
+            ConfigStore config,
+            boolean isPolicyEnabled)
             throws EBaseException {
         super(name, config, false, isPolicyEnabled);
 

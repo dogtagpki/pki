@@ -37,7 +37,6 @@ import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -302,7 +301,7 @@ class AttributeConfig {
     protected ObjectIdentifier mAttributeOID = null;
 
     protected String mName = null;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected Attribute mAttribute = null;
 
     protected static final String ATTRIBUTE_NAME_INFO = "Attribute name.";
@@ -313,8 +312,7 @@ class AttributeConfig {
             PROP_VALUE + ";string;" +
                     "Request attribute name or a fixed value to put into the extension.";
 
-    public AttributeConfig(String name, IConfigStore config, boolean enabled)
-            throws EBaseException {
+    public AttributeConfig(String name, ConfigStore config, boolean enabled) throws EBaseException {
         X500NameAttrMap map = X500NameAttrMap.getDefault();
 
         mName = name;

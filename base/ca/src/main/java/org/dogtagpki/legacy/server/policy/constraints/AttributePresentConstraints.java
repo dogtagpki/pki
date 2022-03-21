@@ -29,7 +29,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -132,7 +131,7 @@ public class AttributePresentConstraints extends APolicyRule
         return mImplName;
     }
 
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 
@@ -207,7 +206,7 @@ public class AttributePresentConstraints extends APolicyRule
         mParamDefault.put(name, value);
     }
 
-    protected void getStringConfigParam(IConfigStore config, String paramName) {
+    protected void getStringConfigParam(ConfigStore config, String paramName) {
         try {
             mParamValue.put(
                     paramName, config.getString(paramName, (String) mParamDefault.get(paramName))
@@ -216,7 +215,7 @@ public class AttributePresentConstraints extends APolicyRule
         }
     }
 
-    protected void getIntConfigParam(IConfigStore config, String paramName) {
+    protected void getIntConfigParam(ConfigStore config, String paramName) {
         try {
             mParamValue.put(
                     paramName, Integer.valueOf(
@@ -229,7 +228,7 @@ public class AttributePresentConstraints extends APolicyRule
         }
     }
 
-    protected void getBooleanConfigParam(IConfigStore config, String paramName) {
+    protected void getBooleanConfigParam(ConfigStore config, String paramName) {
         try {
             mParamValue.put(
                     paramName, Boolean.valueOf(

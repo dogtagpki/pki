@@ -24,7 +24,7 @@ import org.dogtagpki.legacy.policy.IGeneralNameConfig;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * convenience class for policies use.
@@ -32,7 +32,7 @@ import com.netscape.certsrv.base.IConfigStore;
 public class GeneralNameConfig implements IGeneralNameConfig {
     public String mName = null;
     public String mNameDot = null;
-    public IConfigStore mConfig = null;
+    public ConfigStore mConfig;
     public String mGenNameChoice = null;
     public boolean mIsValueConfigured = true;
     public String mValue = null; // used only if isValueConfigured
@@ -44,7 +44,7 @@ public class GeneralNameConfig implements IGeneralNameConfig {
 
     public GeneralNameConfig(
             String name,
-            IConfigStore config,
+            ConfigStore config,
             boolean isValueConfigured,
             boolean isPolicyEnabled)
             throws EBaseException {
@@ -153,7 +153,7 @@ public class GeneralNameConfig implements IGeneralNameConfig {
         return mName;
     }
 
-    public IConfigStore getConfig() {
+    public ConfigStore getConfig() {
         return mConfig;
     }
 

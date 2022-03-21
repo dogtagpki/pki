@@ -20,13 +20,13 @@ package org.dogtagpki.legacy.core.policy;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 
 public class GeneralNamesAsConstraintsConfig extends GeneralNamesConfig implements
         IGeneralNamesAsConstraintsConfig {
     public GeneralNamesAsConstraintsConfig(
             String name,
-            IConfigStore config,
+            ConfigStore config,
             boolean isValueConfigured,
             boolean isPolicyEnabled)
             throws EBaseException {
@@ -35,8 +35,10 @@ public class GeneralNamesAsConstraintsConfig extends GeneralNamesConfig implemen
 
     @Override
     protected GeneralNameConfig newGeneralNameConfig(
-            String name, IConfigStore config,
-            boolean isValueConfigured, boolean isPolicyEnabled)
+            String name,
+            ConfigStore config,
+            boolean isValueConfigured,
+            boolean isPolicyEnabled)
             throws EBaseException {
         return new GeneralNameAsConstraintsConfig(name, config,
                 isValueConfigured, isPolicyEnabled);
