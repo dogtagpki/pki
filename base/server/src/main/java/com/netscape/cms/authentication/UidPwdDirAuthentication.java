@@ -30,7 +30,6 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
@@ -40,6 +39,7 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -318,8 +318,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
     // Profile-related methods
 
     @Override
-    public void init(Profile profile, IConfigStore config)
-            throws EProfileException {
+    public void init(Profile profile, ConfigStore config) throws EProfileException {
     }
 
     /**

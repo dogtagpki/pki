@@ -35,7 +35,6 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ISSLClientCertProvider;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -47,6 +46,7 @@ import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -295,8 +295,7 @@ public class AgentCertAuthentication implements ProfileAuthenticator {
     // Profile-related methods
 
     @Override
-    public void init(Profile profile, IConfigStore config)
-            throws EProfileException {
+    public void init(Profile profile, ConfigStore config) throws EProfileException {
     }
 
     /**
