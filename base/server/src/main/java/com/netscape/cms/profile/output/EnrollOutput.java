@@ -22,11 +22,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.common.ProfileOutput;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -35,7 +35,7 @@ import com.netscape.cmscore.request.Request;
  * @version $Revision$, $Date$
  */
 public abstract class EnrollOutput extends ProfileOutput {
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private Vector<String> mValueNames = new Vector<>();
     protected Vector<String> mConfigNames = new Vector<>();
 
@@ -43,12 +43,12 @@ public abstract class EnrollOutput extends ProfileOutput {
      * Initializes this default policy.
      */
     @Override
-    public void init(IConfigStore config) throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
         mConfig = config;
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 
