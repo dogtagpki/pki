@@ -18,9 +18,9 @@
 package com.netscape.cms.profile.common;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cms.profile.def.PolicyDefault;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This class implements a Certificate Manager enrollment
@@ -54,7 +54,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile {
                 createProfilePolicy("set1", "p2",
                         "validityDefaultImpl", "noConstraintImpl");
         PolicyDefault def2 = policy2.getDefault();
-        IConfigStore defConfig2 = def2.getConfigStore();
+        ConfigStore defConfig2 = def2.getConfigStore();
         defConfig2.putString("params.range", "180");
         defConfig2.putString("params.startTime", "0");
 
@@ -62,7 +62,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile {
                 createProfilePolicy("set1", "p3",
                         "userKeyDefaultImpl", "noConstraintImpl");
         PolicyDefault def3 = policy3.getDefault();
-        IConfigStore defConfig3 = def3.getConfigStore();
+        ConfigStore defConfig3 = def3.getConfigStore();
         defConfig3.putString("params.keyType", "RSA");
         defConfig3.putString("params.keyMinLength", "512");
         defConfig3.putString("params.keyMaxLength", "4096");
@@ -71,7 +71,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile {
                 createProfilePolicy("set1", "p4",
                         "signingAlgDefaultImpl", "noConstraintImpl");
         PolicyDefault def4 = policy4.getDefault();
-        IConfigStore defConfig4 = def4.getConfigStore();
+        ConfigStore defConfig4 = def4.getConfigStore();
         defConfig4.putString("params.signingAlg", "-");
         defConfig4.putString("params.signingAlgsAllowed",
                 "SHA256withRSA,SHA512withRSA,SHA256withEC,SHA384withEC,SHA512withEC");
@@ -81,7 +81,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile {
                 createProfilePolicy("set1", "p5",
                         "keyUsageExtDefaultImpl", "noConstraintImpl");
         PolicyDefault def5 = policy5.getDefault();
-        IConfigStore defConfig5 = def5.getConfigStore();
+        ConfigStore defConfig5 = def5.getConfigStore();
         defConfig5.putString("params.keyUsageCritical", "true");
         defConfig5.putString("params.keyUsageCrlSign", "true");
         defConfig5.putString("params.keyUsageDataEncipherment", "false");
@@ -97,7 +97,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile {
                 createProfilePolicy("set1", "p6",
                         "basicConstraintsExtDefaultImpl", "noConstraintImpl");
         PolicyDefault def6 = policy6.getDefault();
-        IConfigStore defConfig6 = def6.getConfigStore();
+        ConfigStore defConfig6 = def6.getConfigStore();
         defConfig6.putString("params.basicConstraintsPathLen", "-1");
         defConfig6.putString("params.basicConstraintsIsCA", "true");
         defConfig6.putString("params.basicConstraintsPathLen", "-1");

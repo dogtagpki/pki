@@ -24,12 +24,12 @@ import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -52,7 +52,7 @@ public class nsTokenDeviceKeySubjectNameDefault extends EnrollDefault {
     protected static String DEFAULT_DNPATTERN =
             "Token Key Device - $request.tokencuid$";
 
-    protected IConfigStore mParamsConfig;
+    protected ConfigStore mParamsConfig;
 
     public nsTokenDeviceKeySubjectNameDefault() {
         super();

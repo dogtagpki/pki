@@ -320,7 +320,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                         EncryptionAlgorithm.AES_128_CBC_PAD;
 
                 CAEngine engine = CAEngine.getInstance();
-                IConfigStore caCfg = engine.getConfigStore();
+                ConfigStore caCfg = engine.getConfigStore();
 
                 boolean useOAEP = caCfg.getBoolean("keyWrap.useOAEP",false);
 

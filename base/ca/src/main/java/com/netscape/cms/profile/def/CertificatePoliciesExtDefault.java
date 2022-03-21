@@ -650,7 +650,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             int num = getNumPolicies();
             logger.info("CertificatePoliciesExtension: policies: " + num);
 
-            IConfigStore config = getConfigStore();
+            ConfigStore config = getConfigStore();
 
             for (int i = 0; i < num; i++) {
 

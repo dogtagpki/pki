@@ -28,7 +28,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
@@ -84,7 +83,7 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
     /* ldap configuration sub-store */
     boolean mldapInitialized = false;
     boolean mldapEnabled = false;
-    protected IConfigStore mInstConfig;
+    protected ConfigStore mInstConfig;
     protected LDAPConfig mLdapConfig;
     protected ConfigStore mParamsConfig;
 
