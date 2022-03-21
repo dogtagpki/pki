@@ -22,8 +22,8 @@ import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * The publishing rule which associates a Publisher with a Mapper.
@@ -38,7 +38,7 @@ public class LdapRule implements IExtendedPluginInfo {
 
     public final static String NOMAPPER = "<NONE>";
 
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     protected ILdapExpression mFilterExp = null;
     private String mInstanceName = null;
 
@@ -46,7 +46,7 @@ public class LdapRule implements IExtendedPluginInfo {
 
     private static String[] epi_params = null; // extendedpluginInfo
 
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 
@@ -68,7 +68,7 @@ public class LdapRule implements IExtendedPluginInfo {
      *
      * @exception EBaseException Initialization failed.
      */
-    public void init(PublisherProcessor processor, IConfigStore config) throws EBaseException {
+    public void init(PublisherProcessor processor, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         mProcessor = processor;
@@ -122,7 +122,7 @@ public class LdapRule implements IExtendedPluginInfo {
      * It can not set set mapper,publisher choice for console dynamicly
      * Should not use this method to init.
      */
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         mConfig = config;
 
         epi_params = new String[] {

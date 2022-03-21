@@ -34,7 +34,6 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ExtendedPluginInfo;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.Plugin;
 import com.netscape.certsrv.common.ConfigConstants;
@@ -1249,7 +1248,7 @@ public class PublisherAdminServlet extends AdminServlet {
     }
 
     public String getMapperPluginName(ILdapMapper mapper) {
-        IConfigStore cs = mapper.getConfigStore();
+        ConfigStore cs = mapper.getConfigStore();
 
         try {
             return cs.getString("pluginName", "");
@@ -1848,7 +1847,7 @@ public class PublisherAdminServlet extends AdminServlet {
     }
 
     public String getRulePluginName(LdapRule rule) {
-        IConfigStore cs = rule.getConfigStore();
+        ConfigStore cs = rule.getConfigStore();
 
         try {
             return cs.getString("pluginName", "");
@@ -2429,7 +2428,7 @@ public class PublisherAdminServlet extends AdminServlet {
     }
 
     public String getPublisherPluginName(ILdapPublisher pub) {
-        IConfigStore cs = pub.getConfigStore();
+        ConfigStore cs = pub.getConfigStore();
 
         try {
             return cs.getString("pluginName", "");
@@ -2895,7 +2894,7 @@ public class PublisherAdminServlet extends AdminServlet {
         return buffer.toString();
     }
 
-    private void processChangedOC(NameValuePairs saveParams, IConfigStore newstore, String objName) {
+    private void processChangedOC(NameValuePairs saveParams, ConfigStore newstore, String objName) {
         String newOC = null, oldOC = null;
         String oldAdded = null, oldDeleted = null;
 
