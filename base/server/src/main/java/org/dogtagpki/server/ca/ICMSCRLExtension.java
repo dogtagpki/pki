@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca;
 
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.common.NameValuePairs;
-
 import org.mozilla.jss.netscape.security.x509.Extension;
+
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * An interface representing a CRL extension plugin.
@@ -57,9 +57,7 @@ public interface ICMSCRLExtension {
      * @param critical criticality to be assigned to CRL extension
      * @return extension new CRL extension
      */
-    Extension getCRLExtension(IConfigStore config,
-            Object crlIssuingPoint,
-            boolean critical);
+    Extension getCRLExtension(ConfigStore config, Object crlIssuingPoint, boolean critical);
 
     /**
      * Reads configuration data and converts them to name value pairs.
@@ -67,6 +65,5 @@ public interface ICMSCRLExtension {
      * @param config configuration store
      * @param nvp name value pairs obtained from configuration data
      */
-    public void getConfigParams(IConfigStore config,
-            NameValuePairs nvp);
+    public void getConfigParams(ConfigStore config, NameValuePairs nvp);
 }

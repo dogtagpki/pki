@@ -35,10 +35,10 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This represents a issuing distribution point extension.
@@ -84,9 +84,7 @@ public class CMSIssuingDistributionPointExtension
     }
 
     @Override
-    public Extension getCRLExtension(IConfigStore config,
-            Object ip,
-            boolean critical) {
+    public Extension getCRLExtension(ConfigStore config, Object ip, boolean critical) {
 
         logger.debug("in CMSIssuingDistributionPointExtension::getCRLExtension.");
         IssuingDistributionPointExtension issuingDPointExt = null;
@@ -229,7 +227,7 @@ public class CMSIssuingDistributionPointExtension
     }
 
     @Override
-    public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
+    public void getConfigParams(ConfigStore config, NameValuePairs nvp) {
         String pointType = null;
 
         try {

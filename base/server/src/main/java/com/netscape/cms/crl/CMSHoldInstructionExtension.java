@@ -28,10 +28,10 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This represents a hold instruction extension.
@@ -69,9 +69,7 @@ public class CMSHoldInstructionExtension
     }
 
     @Override
-    public Extension getCRLExtension(IConfigStore config,
-            Object ip,
-            boolean critical) {
+    public Extension getCRLExtension(ConfigStore config, Object ip, boolean critical) {
         HoldInstructionExtension holdInstrExt = null;
         String instruction = null;
 
@@ -108,7 +106,7 @@ public class CMSHoldInstructionExtension
     }
 
     @Override
-    public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
+    public void getConfigParams(ConfigStore config, NameValuePairs nvp) {
         String instruction = null;
 
         try {

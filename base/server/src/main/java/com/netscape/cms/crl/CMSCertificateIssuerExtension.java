@@ -30,10 +30,10 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This represents a certificate issuer extension.
@@ -67,9 +67,7 @@ public class CMSCertificateIssuerExtension
     }
 
     @Override
-    public Extension getCRLExtension(IConfigStore config,
-            Object ip,
-            boolean critical) {
+    public Extension getCRLExtension(ConfigStore config, Object ip, boolean critical) {
         CertificateIssuerExtension certIssuerExt = null;
         int numNames = 0;
 
@@ -148,7 +146,7 @@ public class CMSCertificateIssuerExtension
     }
 
     @Override
-    public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
+    public void getConfigParams(ConfigStore config, NameValuePairs nvp) {
         int numNames = 0;
 
         try {

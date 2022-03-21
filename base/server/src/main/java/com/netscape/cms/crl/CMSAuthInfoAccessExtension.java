@@ -30,12 +30,12 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This represents a Authority Information Access CRL extension.
@@ -71,8 +71,7 @@ public class CMSAuthInfoAccessExtension
     }
 
     @Override
-    public Extension getCRLExtension(IConfigStore config, Object ip,
-            boolean critical) {
+    public Extension getCRLExtension(ConfigStore config, Object ip, boolean critical) {
         AuthInfoAccessExtension authInfoAccessExt = new AuthInfoAccessExtension(critical);
 
         int numberOfAccessDescriptions = 0;
@@ -164,7 +163,7 @@ public class CMSAuthInfoAccessExtension
     }
 
     @Override
-    public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
+    public void getConfigParams(ConfigStore config, NameValuePairs nvp) {
 
         int numberOfAccessDescriptions = 0;
 

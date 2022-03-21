@@ -36,10 +36,10 @@ import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This represents an authority key identifier extension.
@@ -77,9 +77,7 @@ public class CMSAuthorityKeyIdentifierExtension
     }
 
     @Override
-    public Extension getCRLExtension(IConfigStore config,
-            Object ip,
-            boolean critical) {
+    public Extension getCRLExtension(ConfigStore config, Object ip, boolean critical) {
         AuthorityKeyIdentifierExtension authKeyIdExt = null;
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
 
@@ -139,7 +137,7 @@ public class CMSAuthorityKeyIdentifierExtension
     }
 
     @Override
-    public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
+    public void getConfigParams(ConfigStore config, NameValuePairs nvp) {
     }
 
     @Override

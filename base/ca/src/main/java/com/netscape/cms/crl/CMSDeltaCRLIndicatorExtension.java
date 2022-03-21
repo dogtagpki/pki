@@ -27,10 +27,10 @@ import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This represents a delta CRL indicator extension.
@@ -64,9 +64,7 @@ public class CMSDeltaCRLIndicatorExtension
     }
 
     @Override
-    public Extension getCRLExtension(IConfigStore config,
-            Object ip,
-            boolean critical) {
+    public Extension getCRLExtension(ConfigStore config, Object ip, boolean critical) {
         DeltaCRLIndicatorExtension deltaCRLIndicatorExt = null;
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
 
@@ -86,7 +84,7 @@ public class CMSDeltaCRLIndicatorExtension
     }
 
     @Override
-    public void getConfigParams(IConfigStore config, NameValuePairs nvp) {
+    public void getConfigParams(ConfigStore config, NameValuePairs nvp) {
     }
 
     @Override
