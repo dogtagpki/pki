@@ -37,8 +37,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ECAException;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * A class represents the signing unit which is
@@ -76,7 +76,7 @@ public abstract class SigningUnit {
     protected String mNickname;
 
     protected boolean mInited;
-    protected IConfigStore mConfig;
+    protected ConfigStore mConfig;
 
     protected String mDefSigningAlgname;
     protected SignatureAlgorithm mDefSigningAlgorithm;

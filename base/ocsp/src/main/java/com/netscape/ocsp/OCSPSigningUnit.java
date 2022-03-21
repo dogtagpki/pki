@@ -28,9 +28,9 @@ import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -52,7 +52,7 @@ public final class OCSPSigningUnit extends SigningUnit {
         mConfig.putString(PROP_TOKEN_NAME, tokenname);
     }
 
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
 
         logger.debug("OCSPSigningUnit.init(" + config.getName() + ")");
 

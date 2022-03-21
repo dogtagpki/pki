@@ -31,12 +31,12 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -58,7 +58,7 @@ public final class CASigningUnit extends SigningUnit {
         mConfig.putString(PROP_TOKEN_NAME, tokenname);
     }
 
-    public void init(IConfigStore config, String nickname) throws EBaseException {
+    public void init(ConfigStore config, String nickname) throws EBaseException {
 
         logger.debug("CASigningUnit.init(" + config.getName() + ", " + nickname + ")");
 
