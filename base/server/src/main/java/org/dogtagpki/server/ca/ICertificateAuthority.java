@@ -34,7 +34,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.request.IRequestListener;
@@ -208,7 +207,7 @@ public interface ICertificateAuthority extends IAuthority {
      * @param crlSubStore sub-store with all CRL issuing points
      * @param id CRL issuing point id
      */
-    public void deleteCRLIssuingPoint(IConfigStore crlSubStore, String id);
+    public void deleteCRLIssuingPoint(ConfigStore crlSubStore, String id);
 
     /**
      * Retrieves the Replica ID repository.

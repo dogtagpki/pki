@@ -93,7 +93,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -888,7 +887,7 @@ public class CertificateAuthority implements ICertificateAuthority, IOCSPService
      * Deletes CRL issuing point with the given identifier.
      */
     @Override
-    public void deleteCRLIssuingPoint(IConfigStore crlSubStore, String id) {
+    public void deleteCRLIssuingPoint(ConfigStore crlSubStore, String id) {
 
         CAEngine engine = CAEngine.getInstance();
         CRLIssuingPoint ip = (CRLIssuingPoint) engine.removeCRLIssuingPoint(id);
