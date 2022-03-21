@@ -12,13 +12,12 @@ import org.dogtagpki.util.logging.PKILogger.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.csadmin.LDAPConfigurator;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -194,7 +193,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
             if (!masterPassword.equals("")) {
                 String passwordFile = cs.getString("passwordFile");
                 ConfigStorage storage = new FileConfigStorage(passwordFile);
-                IConfigStore passwords = new ConfigStore(storage);
+                ConfigStore passwords = new ConfigStore(storage);
                 passwords.load();
                 passwords.remove("master_internaldb");
                 passwords.commit(false);

@@ -18,7 +18,6 @@
 package com.netscape.cms.listeners;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
@@ -75,7 +74,7 @@ public class PinRemovalListener implements IRequestListener {
         return mImplName;
     }
 
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

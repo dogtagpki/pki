@@ -19,6 +19,8 @@ package com.netscape.certsrv.base;
 
 import java.util.Vector;
 
+import com.netscape.cmscore.base.ConfigStore;
+
 /**
  * This interface represents a plugin instance.
  *
@@ -62,9 +64,7 @@ public interface IPluginImpl {
      * @param config configuration store
      * @exception EBaseException failed to initialize
      */
-    public void init(ISubsystem sys, String instanceName, String className,
-            IConfigStore config)
-            throws EBaseException;
+    public void init(ISubsystem sys, String instanceName, String className, ConfigStore config) throws EBaseException;
 
     /**
      * Shutdowns this plugin.
@@ -76,7 +76,7 @@ public interface IPluginImpl {
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore();
+    public ConfigStore getConfigStore();
 
     /**
      * Return configured parameters for a plugin instance.

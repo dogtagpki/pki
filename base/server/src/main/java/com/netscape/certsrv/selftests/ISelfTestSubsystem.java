@@ -335,7 +335,7 @@ public interface ISelfTestSubsystem
      *    public void setId( String id )
      *    throws EBaseException;
      *
-     *    public void init( ISubsystem owner, IConfigStore config )
+     *    public void init( ISubsystem owner, ConfigStore config )
      *    throws EBaseException;
      *
      *    public void startup()
@@ -343,6 +343,6 @@ public interface ISelfTestSubsystem
      *
      *    public void shutdown();
      *
-     *    public IConfigStore getConfigStore();
+     *    public ConfigStore getConfigStore();
      */
 }

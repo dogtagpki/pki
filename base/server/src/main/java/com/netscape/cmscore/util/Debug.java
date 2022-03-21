@@ -19,7 +19,7 @@ package com.netscape.cmscore.util;
 
 import org.dogtagpki.util.logging.PKILogger;
 
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 
 public class Debug {
 
@@ -98,7 +98,7 @@ public class Debug {
      * Debug subsystem initialization. This subsystem is usually
      * given the following parameters:
      */
-    public void init(IConfigStore config) throws Exception {
+    public void init(ConfigStore config) throws Exception {
 
         int level = config.getInteger(PROP_LEVEL, INFORM);
         setLevel(level);

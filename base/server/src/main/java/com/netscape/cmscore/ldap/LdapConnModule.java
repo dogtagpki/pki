@@ -18,7 +18,6 @@
 package com.netscape.cmscore.ldap;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
@@ -41,7 +40,7 @@ public class LdapConnModule implements ILdapConnModule {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapConnModule.class);
 
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected LdapBoundConnFactory mLdapConnFactory = null;
     private boolean mInited = false;
 

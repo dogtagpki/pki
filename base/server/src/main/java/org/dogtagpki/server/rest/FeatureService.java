@@ -9,7 +9,6 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.system.Feature;
@@ -21,7 +20,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 
 public class FeatureService extends PKIService implements FeatureResource {
-    IConfigStore cs;
+    ConfigStore cs;
 
     @Override
     public Response listFeatures() {

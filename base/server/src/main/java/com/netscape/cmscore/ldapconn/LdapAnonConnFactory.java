@@ -62,7 +62,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
     /**
      * Constructor for initializing from the config store.
-     * must be followed by init(IConfigStore)
+     * must be followed by init(ConfigStore)
      */
     public LdapAnonConnFactory(String id) {
         logger.debug("Creating LdapAnonConnFactory(" + id + ")");

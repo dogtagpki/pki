@@ -23,7 +23,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * CMSFileLoader - file cache.
@@ -59,7 +59,7 @@ public class CMSFileLoader {
     public CMSFileLoader() {
     }
 
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         mMaxSize = config.getInteger(PROP_MAX_SIZE, MAX_SIZE);
         mClearSize = config.getInteger(PROP_CLEAR_SIZE, CLEAR_SIZE);
         mCacheTemplatesOnly =

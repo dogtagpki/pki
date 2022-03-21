@@ -18,8 +18,8 @@
 package com.netscape.cmscore.request;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
@@ -91,7 +91,7 @@ public class RequestSubsystem {
     }
 
     // ISubsystem.init
-    public void init(IConfigStore config, DBSubsystem dbSubsystem) {
+    public void init(ConfigStore config, DBSubsystem dbSubsystem) {
         this.mConfig = config;
         this.dbSubsystem = dbSubsystem;
     }
@@ -110,7 +110,7 @@ public class RequestSubsystem {
         logger.info("RequestSubsystem: Request subsystem stopped");
     }
 
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 
@@ -132,6 +132,6 @@ public class RequestSubsystem {
 
     // Instance variables
 
-    private IConfigStore mConfig;
+    private ConfigStore mConfig;
     private String mId = ID;
 }

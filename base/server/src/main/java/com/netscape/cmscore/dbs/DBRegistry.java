@@ -1,11 +1,11 @@
 package com.netscape.cmscore.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IFilterConverter;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.DBDynAttrMapper;
 
 import netscape.ldap.LDAPAttributeSet;
@@ -176,7 +176,7 @@ public class DBRegistry {
     public void setId(String id) throws EBaseException {
     }
 
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
     }
 
     public void startup() throws EBaseException {
@@ -185,7 +185,7 @@ public class DBRegistry {
     public void shutdown() {
     }
 
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return null;
     }
 }

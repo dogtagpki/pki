@@ -97,12 +97,12 @@ import org.mozilla.jss.pkcs11.PK11ECPublicKey;
 import org.mozilla.jss.util.Base64OutputStream;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.BigIntegerMapper;
 import com.netscape.cmscore.dbs.DateMapper;
@@ -312,7 +312,7 @@ public class KeyCertUtil {
         return sAlg;
     }
 
-    public static AlgorithmId getAlgorithmId(String algname, IConfigStore store)
+    public static AlgorithmId getAlgorithmId(String algname, ConfigStore store)
             throws EBaseException {
         try {
 
@@ -374,7 +374,7 @@ public class KeyCertUtil {
         }
     }
 
-    public static PQGParams getCAPQG(int keysize, IConfigStore store)
+    public static PQGParams getCAPQG(int keysize, ConfigStore store)
             throws EBaseException {
         if (store != null) {
             try {

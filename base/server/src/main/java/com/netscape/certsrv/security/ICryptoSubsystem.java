@@ -32,8 +32,8 @@ import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This interface represents the cryptographics subsystem
@@ -198,7 +198,7 @@ public interface ICryptoSubsystem {
      * @return algorithm id
      * @exception EBaseException failed to retrieve algorithm id
      */
-    public AlgorithmId getAlgorithmId(String algname, IConfigStore store) throws EBaseException;
+    public AlgorithmId getAlgorithmId(String algname, ConfigStore store) throws EBaseException;
 
     /**
      * Retrieves subject name of the certificate that is identified by
@@ -324,8 +324,7 @@ public interface ICryptoSubsystem {
      * @param store configuration store
      * @return pqg parameters
      */
-    public PQGParams getCAPQG(int keysize, IConfigStore store)
-            throws EBaseException;
+    public PQGParams getCAPQG(int keysize, ConfigStore store) throws EBaseException;
 
     /**
      * Retrieves extensions of the certificate that is identified by

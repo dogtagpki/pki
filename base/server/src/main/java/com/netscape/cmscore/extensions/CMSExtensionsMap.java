@@ -23,7 +23,6 @@ import java.util.Hashtable;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.extensions.CMSExtension;
 import com.netscape.certsrv.extensions.EExtensionsException;
 import com.netscape.cmscore.apps.CMS;
@@ -49,14 +48,13 @@ public class CMSExtensionsMap {
 
     private Hashtable<String, CMSExtension> mName2Ext = new Hashtable<>();
     private Hashtable<String, CMSExtension> mOID2Ext = new Hashtable<>();
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
 
     /**
      * Create extensions from configuration store.
      * @param config the configuration store.
      */
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         mConfig = config;
 
         Enumeration<String> sstores = mConfig.getSubStoreNames();
@@ -106,7 +104,7 @@ public class CMSExtensionsMap {
     /**
      * Get configuration store.
      */
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

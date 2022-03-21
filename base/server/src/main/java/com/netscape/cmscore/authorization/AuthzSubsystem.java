@@ -38,7 +38,6 @@ import com.netscape.certsrv.authorization.EAuthzMgrNotFound;
 import com.netscape.certsrv.authorization.EAuthzMgrPluginNotFound;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -514,7 +513,7 @@ public class AuthzSubsystem implements ISubsystem {
         for (AuthzManagerProxy proxy : mAuthzMgrInsts.values()) {
             IAuthzManager mgr = proxy.getAuthzManager();
             if (mgr != null) {
-                IConfigStore cfg = mgr.getConfigStore();
+                ConfigStore cfg = mgr.getConfigStore();
                 String mgrRealmString = null;
                 try {
                     mgrRealmString = cfg.getString(PROP_REALM, null);

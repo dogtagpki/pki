@@ -23,7 +23,6 @@ import org.dogtagpki.server.PKIClientSocketListener;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IRemoteAuthority;
@@ -31,6 +30,7 @@ import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
@@ -54,7 +54,7 @@ public class HttpConnector implements IConnector {
     private HttpConnFactory mConnFactory = null;
 
     public HttpConnector(IAuthority source, String nickName, String clientCiphers,
-            IRemoteAuthority dest, int resendInterval, IConfigStore config) throws EBaseException {
+            IRemoteAuthority dest, int resendInterval, ConfigStore config) throws EBaseException {
 
         mTimeout = 0;
         mSource = source;
@@ -86,7 +86,7 @@ public class HttpConnector implements IConnector {
 
     // Inserted by beomsuk
     public HttpConnector(IAuthority source, String nickName, String clientCiphers,
-            IRemoteAuthority dest, int resendInterval, IConfigStore config, int timeout) throws EBaseException {
+            IRemoteAuthority dest, int resendInterval, ConfigStore config, int timeout) throws EBaseException {
         mSource = source;
         mDest = dest;
         mTimeout = timeout;

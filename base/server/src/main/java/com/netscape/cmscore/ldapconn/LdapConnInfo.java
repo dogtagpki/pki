@@ -48,7 +48,7 @@ public class LdapConnInfo {
     private boolean mFollowReferrals = true;
 
     /**
-     * default constructor. must be followed by init(IConfigStore)
+     * default constructor. must be followed by init(ConfigStore)
      */
     public LdapConnInfo(LDAPConnectionConfig config) throws EBaseException, ELdapException {
         init(config);

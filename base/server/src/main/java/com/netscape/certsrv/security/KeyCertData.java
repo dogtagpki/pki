@@ -21,14 +21,13 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.Properties;
 
+import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 
-import org.mozilla.jss.crypto.SignatureAlgorithm;
-
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This class represents a container for storaging
@@ -253,8 +252,8 @@ public class KeyCertData extends Properties {
      *
      * @return configuration file
      */
-    public IConfigStore getConfigFile() {
-        return (IConfigStore) (get("cmsFile"));
+    public ConfigStore getConfigFile() {
+        return (ConfigStore) get("cmsFile");
     }
 
     /**
@@ -262,7 +261,7 @@ public class KeyCertData extends Properties {
      *
      * @param file configuration file
      */
-    public void setConfigFile(IConfigStore file) {
+    public void setConfigFile(ConfigStore file) {
         put("cmsFile", file);
     }
 

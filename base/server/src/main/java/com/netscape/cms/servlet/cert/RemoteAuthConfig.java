@@ -37,7 +37,6 @@ import org.dogtagpki.server.authentication.AuthenticationConfig;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -48,6 +47,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.base.ConfigStore;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -76,7 +76,7 @@ public class RemoteAuthConfig extends CMSServlet {
     private String mFormPath = null;
     private AuthSubsystem mAuthSubsystem;
     private AuthenticationConfig mAuthConfig = null;
-    private IConfigStore mFileConfig = null;
+    private ConfigStore mFileConfig;
     private Vector<String> mRemotelySetInstances = new Vector<>();
     private boolean mEnableRemoteConfiguration = false;
 

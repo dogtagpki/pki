@@ -23,7 +23,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.jobs.EJobsException;
 import com.netscape.certsrv.jobs.IJob;
@@ -308,7 +307,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
                 IJob job = e.nextElement();
 
                 // is it enabled?
-                IConfigStore cs = job.getConfigStore();
+                ConfigStore cs = job.getConfigStore();
 
                 try {
                     if (cs.getBoolean(PROP_ENABLED, false) == false)

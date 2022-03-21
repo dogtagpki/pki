@@ -22,7 +22,7 @@ import org.mozilla.jss.netscape.security.x509.Extension;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * CMS extension class, for creating extensions from http input and
@@ -38,7 +38,7 @@ public abstract class CMSExtension {
     /**
      * initialize from configuration file
      */
-    public abstract void init(IConfigStore config) throws EBaseException;
+    public abstract void init(ConfigStore config) throws EBaseException;
 
     /**
      * Get name of this extension.

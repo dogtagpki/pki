@@ -20,8 +20,8 @@ package com.netscape.cmscore.connector;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IRemoteAuthority;
+import com.netscape.cmscore.base.ConfigStore;
 
 public class RemoteAuthority implements IRemoteAuthority {
     String mHost = null;
@@ -66,8 +66,7 @@ public class RemoteAuthority implements IRemoteAuthority {
     }
 
 /*cfu what TODO?*/
-    public void init(IConfigStore c)
-            throws EBaseException {
+    public void init(ConfigStore c) throws EBaseException {
         mHost = c.getString("host");
         mPort = c.getInteger("port");
         mURI = c.getString("uri");

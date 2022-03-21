@@ -52,11 +52,11 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -70,7 +70,7 @@ public abstract class CertificateInfo {
 
     protected KeyCertData mProperties;
     protected KeyPair mKeyPair;
-    protected IConfigStore mConfig;
+    protected ConfigStore mConfig;
 
     public CertificateInfo(KeyCertData properties) {
         this(properties, null);
@@ -83,7 +83,7 @@ public abstract class CertificateInfo {
         } else {
             mKeyPair = pair;
         }
-        mConfig = (IConfigStore) (mProperties.get("cmsFile"));
+        mConfig = (ConfigStore) mProperties.get("cmsFile");
     }
 
     protected abstract KeyUsageExtension getKeyUsageExtension() throws IOException;

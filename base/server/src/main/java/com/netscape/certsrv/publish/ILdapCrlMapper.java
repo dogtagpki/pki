@@ -17,12 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
-import netscape.ldap.LDAPConnection;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.cmscore.base.ConfigStore;
+
+import netscape.ldap.LDAPConnection;
 
 /**
  * Interface for mapping a CRL to a LDAP entry.
@@ -55,6 +56,5 @@ public interface ILdapCrlMapper {
      * @exception ELdapException Initialization failed due to Ldap error.
      * @exception EBaseException Initialization failed.
      */
-    public void init(IConfigStore config)
-            throws ELdapException, EBaseException;
+    public void init(ConfigStore config) throws ELdapException, EBaseException;
 }

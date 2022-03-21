@@ -28,7 +28,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogSubsystem;
@@ -209,7 +208,7 @@ public class LogSubsystem implements ILogSubsystem {
 
     @Override
     public String getLogPluginName(ILogEventListener log) {
-        IConfigStore cs = log.getConfigStore();
+        ConfigStore cs = log.getConfigStore();
         if (cs == null) {
             return "";
         }

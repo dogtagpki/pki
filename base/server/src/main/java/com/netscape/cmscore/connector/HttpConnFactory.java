@@ -49,7 +49,7 @@ public class HttpConnFactory {
 
     /**
      * Constructor for initializing from the config store.
-     * must be followed by init(IConfigStore)
+     * must be followed by init(ConfigStore)
      */
     public HttpConnFactory() {
     }

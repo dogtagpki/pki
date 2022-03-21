@@ -90,12 +90,12 @@ import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.util.Debug;
@@ -747,7 +747,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     @Override
-    public AlgorithmId getAlgorithmId(String algname, IConfigStore store)
+    public AlgorithmId getAlgorithmId(String algname, ConfigStore store)
             throws EBaseException {
         try {
             if (algname.equals("DSA")) {
@@ -2171,7 +2171,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     @Override
-    public PQGParams getCAPQG(int keysize, IConfigStore store)
+    public PQGParams getCAPQG(int keysize, ConfigStore store)
             throws EBaseException {
         return KeyCertUtil.getCAPQG(keysize, store);
     }

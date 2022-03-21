@@ -26,11 +26,11 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.extensions.CMSExtension;
 import com.netscape.certsrv.extensions.EExtensionsException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.base.ConfigStore;
 
 public class KeyUsage extends CMSExtension {
 
@@ -40,7 +40,7 @@ public class KeyUsage extends CMSExtension {
     private final static ObjectIdentifier OID = PKIXExtensions.KeyUsage_Id;
 
     @SuppressWarnings("unused")
-    private IConfigStore mConfig;
+    private ConfigStore mConfig;
     private boolean mSetDefault = false;
 
     public KeyUsage(boolean setDefault) {
@@ -48,7 +48,7 @@ public class KeyUsage extends CMSExtension {
     }
 
     @Override
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         mConfig = config;
     }
 

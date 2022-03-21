@@ -28,12 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IFilterConverter;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.DBDynAttrMapper;
 
 import netscape.ldap.LDAPAttribute;
@@ -58,7 +58,7 @@ public class LDAPRegistry extends DBRegistry {
 
     public final static Logger logger = LoggerFactory.getLogger(LDAPRegistry.class);
 
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig = null;
     private Hashtable<String, String[]> mOCclassNames = new Hashtable<>();
     private Hashtable<String, NameAndObject> mOCldapNames = new Hashtable<>();
     private Hashtable<String, DBAttrMapper> mAttrufNames = new Hashtable<>();
@@ -95,7 +95,7 @@ public class LDAPRegistry extends DBRegistry {
      * of the database.
      */
     @Override
-    public void init(IConfigStore config)
+    public void init(ConfigStore config)
             throws EBaseException {
         mConfig = config;
         mConverter = new LdapFilterConverter(mAttrufNames);
@@ -105,7 +105,7 @@ public class LDAPRegistry extends DBRegistry {
      * Retrieves configuration store.
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

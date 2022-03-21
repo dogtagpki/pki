@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.registry.ERegistryException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cmscore.base.ConfigStore;
@@ -65,7 +64,7 @@ public class PluginRegistry {
      *
      * @exception EBaseException failed to initialize
      */
-    public void init(IConfigStore config, String defaultRegistryFile)
+    public void init(ConfigStore config, String defaultRegistryFile)
             throws Exception {
 
         String registryFile = config.getString(PROP_FILE, defaultRegistryFile);
