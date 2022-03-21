@@ -28,10 +28,10 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.IElementProcessor;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -170,8 +170,7 @@ public interface ICRLIssuingPoint {
      * @param config configuration sub-store for CRL issuing point
      * @exception EBaseException thrown if initialization failed
      */
-    public void init(ISubsystem ca, String id, IConfigStore config)
-            throws EBaseException;
+    public void init(ISubsystem ca, String id, ConfigStore config) throws EBaseException;
 
     /**
      * This method is called during shutdown.

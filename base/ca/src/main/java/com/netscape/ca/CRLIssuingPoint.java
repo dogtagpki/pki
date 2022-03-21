@@ -48,7 +48,6 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ECAException;
@@ -513,8 +512,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * @exception IOException
      */
     @Override
-    public void init(ISubsystem ca, String id, IConfigStore config)
-            throws EBaseException {
+    public void init(ISubsystem ca, String id, ConfigStore config) throws EBaseException {
         mCA = (CertificateAuthority) ca;
         mId = id;
 
