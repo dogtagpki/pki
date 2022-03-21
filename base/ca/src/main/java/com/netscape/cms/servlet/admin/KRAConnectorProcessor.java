@@ -28,7 +28,6 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.system.ConnectorNotFoundException;
@@ -299,7 +298,7 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     private void addHostPortToConnector(
-            IConfigStore cs,
+            ConfigStore cs,
             String newHost,
             String newPort,
             String currentHost,

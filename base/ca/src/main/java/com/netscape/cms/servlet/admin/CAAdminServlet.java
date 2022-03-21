@@ -38,7 +38,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
@@ -233,8 +232,10 @@ public class CAAdminServlet extends AdminServlet {
     /*
      * handle request completion (cert issued) notification config requests
      */
-    private void getNotificationCompConfig(HttpServletRequest req,
-            HttpServletResponse resp, IConfigStore rc) throws ServletException,
+    private void getNotificationCompConfig(
+            HttpServletRequest req,
+            HttpServletResponse resp,
+            ConfigStore rc) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
@@ -376,8 +377,11 @@ public class CAAdminServlet extends AdminServlet {
     /*
      * handle setting request complete notification config info
      */
-    private void setNotificationCompConfig(HttpServletRequest req,
-            HttpServletResponse resp, IConfigStore rc, IRequestListener thisListener) throws ServletException,
+    private void setNotificationCompConfig(
+            HttpServletRequest req,
+            HttpServletResponse resp,
+            ConfigStore rc,
+            IRequestListener thisListener) throws ServletException,
             IOException, EBaseException {
 
         //set rest of the parameters

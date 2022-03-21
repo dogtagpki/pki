@@ -30,7 +30,6 @@ import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
@@ -50,6 +49,7 @@ import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
 
@@ -1612,7 +1612,7 @@ public class ProfileAdminServlet extends AdminServlet {
             }
 
             ProfileInput input = profile.getProfileInput(inputId);
-            IConfigStore inputConfig = input.getConfigStore();
+            ConfigStore inputConfig = input.getConfigStore();
 
             Enumeration<String> names = req.getParameterNames();
 
@@ -1731,7 +1731,7 @@ public class ProfileAdminServlet extends AdminServlet {
             }
 
             ProfileOutput output = profile.getProfileOutput(outputId);
-            IConfigStore outputConfig = output.getConfigStore();
+            ConfigStore outputConfig = output.getConfigStore();
 
             Enumeration<String> names = req.getParameterNames();
 
