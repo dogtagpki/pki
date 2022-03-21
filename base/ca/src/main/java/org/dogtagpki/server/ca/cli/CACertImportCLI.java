@@ -23,7 +23,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -143,7 +142,7 @@ public class CACertImportCLI extends CommandCLI {
 
         logger.info("Loading " + profilePath);
         ConfigStorage profileStorage = new FileConfigStorage(profilePath);
-        IConfigStore profileConfig = new ConfigStore(profileStorage);
+        ConfigStore profileConfig = new ConfigStore(profileStorage);
         profileConfig.load();
 
         String profileIDMapping = profileConfig.getString("profileIDMapping");

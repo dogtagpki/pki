@@ -20,8 +20,8 @@ package com.netscape.certsrv.publish;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This interface represents a CRL publisher that is
@@ -46,7 +46,7 @@ import com.netscape.certsrv.base.ISubsystem;
  * <code>
  * public class CRLPublisher implements ICRLPublisher
  * {
- * 	public void init(ISubsystem owner, IConfigStore config)
+ * 	public void init(ISubsystem owner, ConfigStore config)
  * 		throws EBaseException
  * 	{
  * 		log(ILogger.LL_DEBUG, "CRLPublisher: Initialized");
@@ -90,7 +90,7 @@ public class CRLPublisher {
      *            in CMS.cfg as ca.crlPublisher.<paramType>=<paramValue>
      * @exception EBaseException failed to initialize this publisher
      */
-    public void init(ISubsystem owner, IConfigStore config) throws EBaseException {
+    public void init(ISubsystem owner, ConfigStore config) throws EBaseException {
     }
 
     /**

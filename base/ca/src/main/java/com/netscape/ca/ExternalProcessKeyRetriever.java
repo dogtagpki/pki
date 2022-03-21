@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.base.ConfigStore;
 
 
 public class ExternalProcessKeyRetriever implements KeyRetriever {
@@ -36,7 +36,7 @@ public class ExternalProcessKeyRetriever implements KeyRetriever {
 
     protected String executable;
 
-    public ExternalProcessKeyRetriever(IConfigStore config) {
+    public ExternalProcessKeyRetriever(ConfigStore config) {
         if (config == null)
             throw new IllegalArgumentException("Missing config");
 

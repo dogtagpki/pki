@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -204,7 +203,7 @@ public class CAProfileImportCLI extends CommandCLI {
         };
 
         ConfigStorage storage = new LDAPConfigStorage(conn, dn, createAttrs, "certProfileConfig");
-        IConfigStore configStore = new ConfigStore(storage);
+        ConfigStore configStore = new ConfigStore(storage);
 
         try (FileInputStream input = new FileInputStream(profilePath)) {
             configStore.load(input);

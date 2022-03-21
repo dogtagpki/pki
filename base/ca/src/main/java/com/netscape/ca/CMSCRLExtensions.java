@@ -47,7 +47,6 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
@@ -202,7 +201,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
         EngineConfig mFileConfig = engine.getConfig();
 
-        IConfigStore crlExtConfig = mFileConfig;
+        ConfigStore crlExtConfig = mFileConfig;
         StringTokenizer st = new StringTokenizer(mCRLExtConfig.getName(), ".");
 
         while (st.hasMoreTokens()) {
@@ -239,7 +238,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         }
     }
 
-    private boolean getEnableProperty(String extName, IConfigStore extConfig) {
+    private boolean getEnableProperty(String extName, ConfigStore extConfig) {
         boolean modifiedConfig = false;
 
         try {
@@ -278,7 +277,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         return modifiedConfig;
     }
 
-    private boolean getCriticalProperty(String extName, IConfigStore extConfig) {
+    private boolean getCriticalProperty(String extName, ConfigStore extConfig) {
         boolean modifiedConfig = false;
 
         try {
@@ -317,7 +316,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         return modifiedConfig;
     }
 
-    private boolean getTypeProperty(String extName, IConfigStore extConfig) {
+    private boolean getTypeProperty(String extName, ConfigStore extConfig) {
         boolean modifiedConfig = false;
         String extType = null;
 
@@ -367,7 +366,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         return modifiedConfig;
     }
 
-    private boolean getClassProperty(String extName, IConfigStore extConfig) {
+    private boolean getClassProperty(String extName, ConfigStore extConfig) {
         boolean modifiedConfig = false;
         String extClass = null;
 
@@ -566,7 +565,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     @Override
-    public void setConfigParams(String id, NameValuePairs nvp, IConfigStore config) {
+    public void setConfigParams(String id, NameValuePairs nvp, ConfigStore config) {
 
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();

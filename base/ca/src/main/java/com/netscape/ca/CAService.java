@@ -65,7 +65,6 @@ import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -118,7 +117,7 @@ public class CAService implements IService {
     private CertificateAuthority mCA = null;
     private Hashtable<String, IServant> mServants = new Hashtable<>();
     private IConnector mKRAConnector = null;
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private boolean mArchivalRequired = true;
 
     public CAService(CertificateAuthority ca) {
@@ -169,7 +168,7 @@ public class CAService implements IService {
                 new getCertStatus(this));
     }
 
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         mConfig = config;
 
         try {
@@ -233,8 +232,7 @@ public class CAService implements IService {
         mKRAConnector = c;
     }
 
-    public IConnector getConnector(IConfigStore config)
-            throws EBaseException {
+    public IConnector getConnector(ConfigStore config) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();

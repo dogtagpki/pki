@@ -55,7 +55,6 @@ import com.netscape.ca.KeyRetriever;
 import com.netscape.ca.KeyRetrieverRunner;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
@@ -1153,11 +1152,11 @@ public class CAEngine extends CMSEngine {
             Class<? extends KeyRetriever> clazz = Class.forName(className).asSubclass(KeyRetriever.class);
 
             // If there is an accessible constructor that takes
-            // an IConfigStore, invoke that; otherwise invoke
+            // a ConfigStore, invoke that; otherwise invoke
             // the nullary constructor.
 
             try {
-                keyRetriever = clazz.getDeclaredConstructor(IConfigStore.class).newInstance(keyRetrieverConfig);
+                keyRetriever = clazz.getDeclaredConstructor(ConfigStore.class).newInstance(keyRetrieverConfig);
 
             } catch (NoSuchMethodException | SecurityException | IllegalAccessException e) {
                 keyRetriever = clazz.getDeclaredConstructor().newInstance();

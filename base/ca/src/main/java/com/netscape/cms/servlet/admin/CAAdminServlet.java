@@ -1486,7 +1486,7 @@ public class CAAdminServlet extends AdminServlet {
          ISubsystem eeGateway =
          SubsystemRegistry.getInstance().get("eeGateway");
          if (eeGateway != null) {
-         IConfigStore eeConfig = eeGateway.getConfigStore();
+         ConfigStore eeConfig = eeGateway.getConfigStore();
          if (eeConfig != null)
          value = eeConfig.getString("enabled", "true");
          String ocspValue = "true";

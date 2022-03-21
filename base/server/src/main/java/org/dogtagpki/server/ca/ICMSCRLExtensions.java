@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * An interface representing a list of CRL extensions.
@@ -36,7 +36,7 @@ public interface ICMSCRLExtensions {
      * @param nvp name value pairs with new configuration data
      * @param config configuration store
      */
-    public void setConfigParams(String id, NameValuePairs nvp, IConfigStore config);
+    public void setConfigParams(String id, NameValuePairs nvp, ConfigStore config);
 
     /**
      * Reads configuration data and returns them as name value pairs.

@@ -53,7 +53,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.KeyGenInfo;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -73,6 +72,7 @@ import com.netscape.cms.servlet.processors.PKIProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
@@ -1632,8 +1632,7 @@ public class EnrollServlet extends CMSServlet {
     @SuppressWarnings("unused")
     private boolean mIsTestBed;
 
-    private void init_testbed_hack(IConfigStore config)
-            throws EBaseException {
+    private void init_testbed_hack(ConfigStore config) throws EBaseException {
         mIsTestBed = config.getBoolean("isTestBed", true);
     }
 }

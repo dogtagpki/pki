@@ -20,9 +20,9 @@ package com.netscape.certsrv.publish;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldap.LdapRule;
 import com.netscape.cmscore.request.Request;
 
@@ -46,7 +46,7 @@ import netscape.ldap.LDAPConnection;
  * @version $Revision$, $Date$
  */
 public interface IPublishRuleSet {
-    void init(ISubsystem sys, IConfigStore conf) throws EBaseException;
+    void init(ISubsystem sys, ConfigStore conf) throws EBaseException;
 
     /**
      * Returns the name of the publishing rule set.

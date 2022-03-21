@@ -99,7 +99,6 @@ import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
@@ -161,7 +160,7 @@ public class CRSEnrollment extends HttpServlet {
     protected ProfileSubsystem mProfileSubsystem;
     protected String mProfileId = null;
     protected ICertificateAuthority mAuthority;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected AuthSubsystem mAuthSubsystem;
     protected String mAppendDN = null;
     protected String mEntryObjectclass = null;

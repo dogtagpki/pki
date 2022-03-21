@@ -31,7 +31,6 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.Modification;
@@ -61,7 +60,7 @@ public class LdapPublishModule implements IRequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapPublishModule.class);
 
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     protected LdapBoundConnFactory mLdapConnFactory = null;
     private boolean mInited = false;
     protected ICertificateAuthority mAuthority = null;
@@ -120,8 +119,10 @@ public class LdapPublishModule implements IRequestListener {
 
     protected CAPublisherProcessor mPubProcessor;
 
-    public void init(ICertificateAuthority authority, CAPublisherProcessor p,
-            IConfigStore config)
+    public void init(
+            ICertificateAuthority authority,
+            CAPublisherProcessor p,
+            ConfigStore config)
             throws EBaseException {
         if (mInited)
             return;
@@ -144,8 +145,7 @@ public class LdapPublishModule implements IRequestListener {
         mAuthority.registerRequestListener(this);
     }
 
-    public void init(ICertificateAuthority authority, IConfigStore config)
-            throws EBaseException {
+    public void init(ICertificateAuthority authority, ConfigStore config) throws EBaseException {
         if (mInited)
             return;
 
@@ -199,8 +199,7 @@ public class LdapPublishModule implements IRequestListener {
         return mappers;
     }
 
-    protected void initMappers(IConfigStore config)
-            throws EBaseException {
+    protected void initMappers(ConfigStore config) throws EBaseException {
         ConfigStore types = mConfig.getSubStore(PROP_TYPE, ConfigStore.class);
 
         if (types == null || types.size() <= 0) {

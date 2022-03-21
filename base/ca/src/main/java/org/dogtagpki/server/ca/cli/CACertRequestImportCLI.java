@@ -22,7 +22,6 @@ import org.dogtagpki.util.logging.PKILogger.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.cert.CertRequestInfoFactory;
@@ -156,7 +155,7 @@ public class CACertRequestImportCLI extends CommandCLI {
 
         logger.info("Loading " + profilePath);
         ConfigStorage profileStorage = new FileConfigStorage(profilePath);
-        IConfigStore profileConfig = new ConfigStore(profileStorage);
+        ConfigStore profileConfig = new ConfigStore(profileStorage);
         profileConfig.load();
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
