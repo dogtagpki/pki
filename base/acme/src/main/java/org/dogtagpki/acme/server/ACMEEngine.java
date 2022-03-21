@@ -817,39 +817,38 @@ public class ACMEEngine implements ServletContextListener {
         database.addOrder(order);
     }
 
-    enum CheckOrderResult { OrderAccountMismatch , OrderExpired , OrderAccessOK };
+    enum CheckOrderResult { ORDER_ACCOUNT_MISMATCH , ORDER_EXPIRED , ORDER_ACCESS_OK, ORDER_NULL}
 
     public CheckOrderResult checkOrder(ACMEAccount account, ACMEOrder order) {
 
-        String orderID = order.getID();
+        if (order == null) {
+            return CheckOrderResult.ORDER_NULL;
+        }
+
         if (!order.getAccountID().equals(account.getID())) {
-            return CheckOrderResult.OrderAccountMismatch;
+            return CheckOrderResult.ORDER_ACCOUNT_MISMATCH;
         }
 
         Date expirationTime = order.getExpirationTime();
         if (expirationTime == null) {
-            return CheckOrderResult.OrderAccessOK;
+            return CheckOrderResult.ORDER_ACCESS_OK;
         }
 
         long currentTime = System.currentTimeMillis();
         if (expirationTime.getTime() <= currentTime) {
-            return CheckOrderResult.OrderExpired;
+            return CheckOrderResult.ORDER_EXPIRED;
         }
 
-        return CheckOrderResult.OrderAccessOK;
+        return CheckOrderResult.ORDER_ACCESS_OK;
     }
 
     public void validateOrder(ACMEAccount account, ACMEOrder order) throws Exception {
+        // TODO: generate proper exceptions
         switch (checkOrder(account, order)) {
-            case OrderAccountMismatch:
-                // TODO: generate proper exception
-                throw new Exception("Unable to access order " + order.getID());
-            case OrderExpired:
-                // TODO: generate proper exception
-                throw new Exception("Expired order: " + order.getID());
-            case OrderAccessOK:
-                logger.info("Valid order: " + order.getID());
-                return;
+            case ORDER_ACCOUNT_MISMATCH -> throw new Exception("Unable to access order " + order.getID());
+            case ORDER_EXPIRED -> throw new Exception("Expired order: " + order.getID());
+            case ORDER_NULL -> throw new Exception("Order not found");
+            case ORDER_ACCESS_OK -> logger.info("Valid order: " + order.getID());
         }
     }
 
@@ -868,7 +867,7 @@ public class ACMEEngine implements ServletContextListener {
             throws Exception {
         Collection<ACMEOrder> orders = database.getOrdersByAuthorizationAndStatus(authzID, status);
         // remove orders that are expired or don't match the account ID
-        orders.removeIf(o -> checkOrder(account, o) != CheckOrderResult.OrderAccessOK);
+        orders.removeIf(o -> checkOrder(account, o) != CheckOrderResult.ORDER_ACCESS_OK);
         return orders;
     }
 
