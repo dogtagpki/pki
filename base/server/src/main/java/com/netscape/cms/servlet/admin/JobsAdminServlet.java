@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.DestDef;
@@ -703,7 +702,7 @@ public class JobsAdminServlet extends AdminServlet {
         }
 
         IJob jobInst = mJobsSched.getInstances().get(id);
-        IConfigStore config = jobInst.getConfigStore();
+        ConfigStore config = jobInst.getConfigStore();
         String[] configParams = jobInst.getConfigParams();
         NameValuePairs params = new NameValuePairs();
 
@@ -788,7 +787,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         IJob oldinst =
                 mJobsSched.getInstances().get(id);
-        IConfigStore oldConfig = oldinst.getConfigStore();
+        ConfigStore oldConfig = oldinst.getConfigStore();
 
         String[] oldConfigParms = oldinst.getConfigParams();
         NameValuePairs saveParams = new NameValuePairs();

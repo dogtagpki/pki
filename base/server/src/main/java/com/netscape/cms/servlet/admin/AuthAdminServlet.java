@@ -37,7 +37,6 @@ import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EAuthMgrNotFound;
 import com.netscape.certsrv.authentication.EAuthMgrPluginNotFound;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
@@ -1311,7 +1310,7 @@ public class AuthAdminServlet extends AdminServlet {
         }
 
         AuthManager mgrInst = mAuths.get(id);
-        IConfigStore config = mgrInst.getConfigStore();
+        ConfigStore config = mgrInst.getConfigStore();
         String[] configParams = mgrInst.getConfigParams();
         NameValuePairs params = new NameValuePairs();
 
@@ -1451,7 +1450,7 @@ public class AuthAdminServlet extends AdminServlet {
             // save old instance substore params in case new one fails.
 
             AuthManager oldinst = mAuths.get(id);
-            IConfigStore oldConfig = oldinst.getConfigStore();
+            ConfigStore oldConfig = oldinst.getConfigStore();
 
             String[] oldConfigParms = oldinst.getConfigParams();
             NameValuePairs saveParams = new NameValuePairs();

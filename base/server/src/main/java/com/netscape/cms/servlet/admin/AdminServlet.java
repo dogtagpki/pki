@@ -45,7 +45,6 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
@@ -64,6 +63,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
@@ -734,7 +734,8 @@ public class AdminServlet extends HttpServlet {
      * Generic configuration store get operation.
      */
     protected synchronized void getConfig(
-            IConfigStore config, HttpServletRequest req,
+            ConfigStore config,
+            HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
@@ -765,7 +766,8 @@ public class AdminServlet extends HttpServlet {
      * calling this, and commit changes after this call.
      */
     protected synchronized void setConfig(
-            IConfigStore config, HttpServletRequest req,
+            ConfigStore config,
+            HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
@@ -794,7 +796,8 @@ public class AdminServlet extends HttpServlet {
      * Lists configuration store.
      */
     protected synchronized void listConfig(
-            IConfigStore config, HttpServletRequest req,
+            ConfigStore config,
+            HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration<String> e = config.getPropertyNames();

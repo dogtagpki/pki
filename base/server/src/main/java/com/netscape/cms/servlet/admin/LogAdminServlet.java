@@ -968,7 +968,7 @@ public class LogAdminServlet extends AdminServlet {
     }
 
     public String getLogPluginName(ILogEventListener log) {
-        IConfigStore cs = log.getConfigStore();
+        ConfigStore cs = log.getConfigStore();
 
         try {
             return cs.getString("pluginName", "");
