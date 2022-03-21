@@ -18,16 +18,15 @@
 package com.netscape.cmscore.base;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 
 public class ConfigStorage {
 
     public ConfigStorage() throws Exception {
     }
 
-    public void load(IConfigStore config) throws Exception {
+    public void load(ConfigStore config) throws Exception {
     }
 
-    public void commit(IConfigStore config, boolean createBackup) throws EBaseException {
+    public void commit(ConfigStore config, boolean createBackup) throws EBaseException {
     }
 }

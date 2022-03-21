@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
@@ -156,8 +155,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         commitConfigStore(id, cs);
     }
 
-    protected void commitConfigStore(String id, IConfigStore cs)
-            throws EProfileException {
+    protected void commitConfigStore(String id, ConfigStore cs) throws EProfileException {
         try {
             cs.commit(false);
         } catch (EBaseException e) {

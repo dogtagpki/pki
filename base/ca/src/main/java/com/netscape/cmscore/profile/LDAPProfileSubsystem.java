@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
@@ -328,9 +327,9 @@ public class LDAPProfileSubsystem
      * entryUSN and (in case of add) the nsUniqueId
      */
     @Override
-    protected void commitConfigStore(String id, IConfigStore configStore)
+    protected void commitConfigStore(String id, ConfigStore configStore)
             throws EProfileException {
-        ConfigStore propConfigStore = (ConfigStore) configStore;
+        ConfigStore propConfigStore = configStore;
         LDAPConfigStorage storage = (LDAPConfigStorage) propConfigStore.getStorage();
         try {
             String[] attrs = {"entryUSN", "nsUniqueId"};

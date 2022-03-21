@@ -25,7 +25,6 @@ import java.io.FileOutputStream;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -58,7 +57,7 @@ public class FileConfigStorage extends ConfigStorage {
     }
 
     @Override
-    public void load(IConfigStore config) throws Exception {
+    public void load(ConfigStore config) throws Exception {
 
         if (!mFile.exists()) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_CONFIG_FILE", mFile.getPath()));
@@ -76,7 +75,7 @@ public class FileConfigStorage extends ConfigStorage {
      * Commits the current properties to the configuration file.
      */
     @Override
-    public void commit(IConfigStore config, boolean createBackup) throws EBaseException {
+    public void commit(ConfigStore config, boolean createBackup) throws EBaseException {
         if (createBackup) {
             File newName = new File(mFile.getPath() + "." +
                     Long.toString(System.currentTimeMillis()));

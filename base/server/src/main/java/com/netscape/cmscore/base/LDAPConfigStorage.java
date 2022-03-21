@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -90,7 +89,7 @@ public class LDAPConfigStorage extends ConfigStorage {
      * @param createBackup Ignored.
      */
     @Override
-    public void commit(IConfigStore config, boolean createBackup) throws EBaseException {
+    public void commit(ConfigStore config, boolean createBackup) throws EBaseException {
         String[] attrs = {};
         commitReturn(config, createBackup, attrs);
     }
@@ -99,7 +98,7 @@ public class LDAPConfigStorage extends ConfigStorage {
      * This version of commit also returns the post-read entry that
      * the change resulted in.
      */
-    public LDAPEntry commitReturn(IConfigStore config, boolean createBackup, String[] attrs)
+    public LDAPEntry commitReturn(ConfigStore config, boolean createBackup, String[] attrs)
             throws EBaseException {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
 
