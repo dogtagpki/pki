@@ -51,60 +51,22 @@ public class ExternalAuthenticateAPDU extends APDU {
     }
 
     public static byte securityLevelToByte(SecurityLevel level) {
-        byte result = 0;
-
-        switch (level) {
-        case SECURE_MSG_ANY:
-            result = 0;
-            break;
-        case SECURE_MSG_MAC:
-            result = 1;
-            break;
-        case SECURE_MSG_NONE:
-            result = 2;
-            break;
-        case SECURE_MSG_MAC_ENC:
-            result = 3;
-            break;
-
-        default:
-            result = 0;
-            break;
-
-        }
-
-        return result;
+        return switch (level) {
+            case SECURE_MSG_ANY -> 0;
+            case SECURE_MSG_MAC -> 1;
+            case SECURE_MSG_NONE -> 2;
+            case SECURE_MSG_MAC_ENC -> 3;
+            default -> 0;
+        };
     }
 
     public static SecurityLevel byteToSecurityLevel(byte level) {
-
-        SecurityLevel result = SecurityLevel.SECURE_MSG_ANY;
-
-        switch (level) {
-
-        case 0:
-            result = SecurityLevel.SECURE_MSG_ANY;
-            break;
-        case 1:
-            result = SecurityLevel.SECURE_MSG_MAC;
-            break;
-        case 2:
-            result = SecurityLevel.SECURE_MSG_NONE;
-            break;
-        case 3:
-            result = SecurityLevel.SECURE_MSG_MAC_ENC;
-            break;
-        default:
-            result = SecurityLevel.SECURE_MSG_ANY;
-            break;
-        }
-
-        return result;
+        return switch (level) {
+            case 0 -> SecurityLevel.SECURE_MSG_ANY;
+            case 1 -> SecurityLevel.SECURE_MSG_MAC;
+            case 2 -> SecurityLevel.SECURE_MSG_NONE;
+            case 3 -> SecurityLevel.SECURE_MSG_MAC_ENC;
+            default -> SecurityLevel.SECURE_MSG_ANY;
+        };
     }
-
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
-    }
-
 }

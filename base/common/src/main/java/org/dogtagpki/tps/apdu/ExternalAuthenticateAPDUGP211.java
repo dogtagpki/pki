@@ -53,73 +53,25 @@ public class ExternalAuthenticateAPDUGP211 extends APDU {
     }
 
     public static byte securityLevelToByte(SecurityLevel level) {
-        byte result = 0;
-
-        switch (level) {
-        case SECURE_MSG_NONE:
-            result = 0x0;
-            break;
-        case CMAC:
-            result = 0x1;
-            break;
-        case CDEC_CMAC:
-            result = 0x03;
-            break;
-        case RMAC:
-            result = 0x10;
-            break;
-
-        case CMAC_RMAC:
-            result = 0x11;
-            break;
-
-        case CDEC_CMAC_RMAC:
-            result = 0x13;
-            break;
-
-        default:
-            result = 0;
-            break;
-
-        }
-
-        return result;
+        return switch (level) {
+            case SECURE_MSG_NONE -> 0x0;
+            case CMAC -> 0x1;
+            case CDEC_CMAC -> 0x03;
+            case RMAC -> 0x10;
+            case CMAC_RMAC -> 0x11;
+            case CDEC_CMAC_RMAC -> 0x13;
+            default -> 0;
+        };
     }
 
     public static SecurityLevel byteToSecurityLevel(byte level) {
-
-        SecurityLevel result = SecurityLevel.SECURE_MSG_NONE;
-
-        switch (level) {
-
-        case 0:
-            result = SecurityLevel.SECURE_MSG_NONE;
-            break;
-        case 1:
-            result = SecurityLevel.CMAC;
-            break;
-        case 0x03:
-            result = SecurityLevel.CDEC_CMAC;
-            break;
-        case 0x10:
-            result = SecurityLevel.RMAC;
-            break;
-
-        case 0x13:
-            result = SecurityLevel.CDEC_CMAC_RMAC;
-                break;
-        default:
-            result = SecurityLevel.SECURE_MSG_NONE;
-            break;
-        }
-
-        return result;
-
+        return switch (level) {
+            case 0 -> SecurityLevel.SECURE_MSG_NONE;
+            case 1 -> SecurityLevel.CMAC;
+            case 0x03 -> SecurityLevel.CDEC_CMAC;
+            case 0x10 -> SecurityLevel.RMAC;
+            case 0x13 -> SecurityLevel.CDEC_CMAC_RMAC;
+            default -> SecurityLevel.SECURE_MSG_NONE;
+        };
     }
-
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
-    }
-
 }
