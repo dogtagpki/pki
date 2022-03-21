@@ -310,7 +310,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         //It's working though.
 
         /*
-        IConfigStore conf = CMS.getConfigStore();
+        ConfigStore conf = CMS.getConfigStore();
         String configName = "tps.connector." + connid + ".uri.getBySerial";
         String servlet = conf.getString(configName, "/ca/ee/ca/displayBySerial");
         */
@@ -552,7 +552,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         logger.debug(method +": revoking serial#:" + serialno + "; reason String:" + reason.toString() + "; reason code:" + reason.getCode());
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        // IConfigStore conf = CMS.getConfigStore();
+        // ConfigStore conf = CMS.getConfigStore();
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =

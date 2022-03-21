@@ -46,7 +46,6 @@ import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.tps.token.TokenStatus;
@@ -128,7 +127,7 @@ public class TPSSubsystem implements IAuthority {
         profileDatabase = new ProfileDatabase();
         profileMappingDatabase = new ProfileMappingDatabase();
 
-        IConfigStore defaultConfig;
+        ConfigStore defaultConfig;
         try {
             ConfigStorage storage = new FileConfigStorage("/usr/share/pki/tps/conf/CS.cfg");
             defaultConfig = new ConfigStore(storage);
@@ -150,7 +149,7 @@ public class TPSSubsystem implements IAuthority {
         tpsEngine.init();
     }
 
-    public Map<TokenStatus, Collection<TokenStatus>> loadTokenStateTransitions(IConfigStore cs, String property) throws EBaseException {
+    public Map<TokenStatus, Collection<TokenStatus>> loadTokenStateTransitions(ConfigStore cs, String property) throws EBaseException {
 
         String value = cs.getString(property);
 
@@ -212,8 +211,8 @@ public class TPSSubsystem implements IAuthority {
     }
 
     public Map<TokenStatus, Collection<TokenStatus>> loadAndValidateTokenStateTransitions(
-            IConfigStore defaultConfig,
-            IConfigStore userDefinedConfig,
+            ConfigStore defaultConfig,
+            ConfigStore userDefinedConfig,
             String property) throws EBaseException {
 
         logger.debug("TokenSubsystem: Loading transitions in " + property);
@@ -280,7 +279,7 @@ public class TPSSubsystem implements IAuthority {
         return operationTransitions.get(currentState);
     }
 
-    public void configureTPSConnection(IConfigStore cs) {
+    public void configureTPSConnection(ConfigStore cs) {
         String configValue = TPSEngine.CFG_CONNECTION_PREFIX + "." + TPSEngine.CFG_CONNECTION_MAX_MESSAGE_SIZE;
         int configValueDefault = TPSConnection.MAX_MESSAGE_SIZE_DEFAULT;
 

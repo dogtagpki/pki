@@ -25,11 +25,11 @@ import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
+import org.dogtagpki.server.tps.TPSConfig;
 import org.dogtagpki.server.tps.TPSSubsystem;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.connector.HttpConnector;
@@ -53,7 +53,7 @@ public class ConnectionManager
         //    tps.connCAList=ca1,ca2...ca<n>
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
-        IConfigStore conf = subsystem.getConfigStore();
+        TPSConfig conf = subsystem.getConfigStore();
         String caListString;
 
         try {
@@ -101,7 +101,7 @@ public class ConnectionManager
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
-        IConfigStore conf = subsystem.getConfigStore();
+        TPSConfig conf = subsystem.getConfigStore();
         ConfigStore connectorSubstore = conf.getSubStore("connector", ConfigStore.class);
         Enumeration<String> connector_enu = connectorSubstore.getSubStoreNames();
         connectors = new Hashtable<>();
@@ -132,8 +132,7 @@ public class ConnectionManager
      * @param conf config store of the connector
      * @return IConnector the connector if created successfully; null if not
      */
-    private IConnector createConnector(IConfigStore conf)
-            throws EBaseException {
+    private IConnector createConnector(ConfigStore conf) throws EBaseException {
         IConnector connector = null;
 
         logger.debug("ConnectionManager: createConnector(): begins.");

@@ -25,7 +25,6 @@ import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -109,7 +108,7 @@ public class AuthenticationManager
      * @param conf config store of the authentication instance
      * @return Authentication the authentication instance
      */
-    private TPSAuthenticator createAuthentication(IConfigStore conf, String authInstID)
+    private TPSAuthenticator createAuthentication(ConfigStore conf, String authInstID)
             throws EBaseException {
 
         logger.debug("AuthenticationManager: createAuthentication(): begins for " + authInstID);
