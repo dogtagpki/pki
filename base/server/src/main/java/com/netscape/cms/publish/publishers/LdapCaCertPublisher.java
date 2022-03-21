@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
@@ -31,6 +30,7 @@ import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
@@ -65,7 +65,7 @@ public class LdapCaCertPublisher
     protected String mObjDeleted = "";
 
     private boolean mInited = false;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
 
     /**
      * constructor constructs default values.
@@ -119,13 +119,12 @@ public class LdapCaCertPublisher
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         if (mInited)
             return;
         mConfig = config;

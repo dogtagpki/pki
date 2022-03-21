@@ -25,12 +25,12 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPConnection;
@@ -49,7 +49,7 @@ import netscape.ldap.LDAPv3;
 public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCertExactMap.class);
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
     boolean mInited = false;
 
     /**
@@ -59,13 +59,12 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         if (mInited == true)
             return;
         mConfig = config;

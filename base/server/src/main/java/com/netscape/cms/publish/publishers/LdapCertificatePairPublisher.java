@@ -21,12 +21,12 @@ import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -60,7 +60,7 @@ public class LdapCertificatePairPublisher
     protected String mObjDeleted = "";
 
     private boolean mInited = false;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
 
     /**
      * constructor constructs default values.
@@ -118,13 +118,12 @@ public class LdapCertificatePairPublisher
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         if (mInited)
             return;
         mConfig = config;

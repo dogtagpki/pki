@@ -18,8 +18,8 @@
 package com.netscape.certsrv.publish;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Interface for any Ldap plugin.
@@ -35,11 +35,10 @@ public interface ILdapPlugin {
      * @exception ELdapException initialization failed due to Ldap error.
      * @exception EBaseException initialization failed.
      */
-    public void init(IConfigStore config)
-            throws EBaseException, ELdapException;
+    public void init(ConfigStore config) throws EBaseException, ELdapException;
 
     /**
      * Return config store.
      */
-    public IConfigStore getConfigStore();
+    public ConfigStore getConfigStore();
 }

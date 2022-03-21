@@ -31,12 +31,12 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.ILdapPlugin;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
@@ -69,7 +69,7 @@ public class LdapDNCompsMap
     protected ObjectIdentifier[] mFilterComps = null;
 
     private boolean mInited = false;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
 
     /**
      * Constructor.
@@ -99,7 +99,7 @@ public class LdapDNCompsMap
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 
@@ -107,8 +107,7 @@ public class LdapDNCompsMap
      * for initializing from config store.
      */
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         mConfig = config;
         String baseDN = mConfig.getString("baseDN");
         ObjectIdentifier[] dnComps =

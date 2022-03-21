@@ -35,13 +35,13 @@ import org.dogtagpki.server.PKIClientSocketListener;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
@@ -64,7 +64,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     private static final String PROP_NICK = "nickName";
     private static final String PROP_CLIENT_AUTH_ENABLE = "enableClientAuth";
 
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private String mHost = null;
     private String mPort = null;
     private String mPath = null;
@@ -176,7 +176,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
      * Initializes this plugin.
      */
     @Override
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         mConfig = config;
         mHost = mConfig.getString(PROP_HOST, "");
         mPort = mConfig.getString(PROP_PORT, "");
@@ -186,7 +186,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

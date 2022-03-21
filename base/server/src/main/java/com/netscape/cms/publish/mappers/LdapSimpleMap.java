@@ -29,12 +29,12 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPConnection;
@@ -62,7 +62,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     protected String mDnPattern = null;
 
     private boolean mInited = false;
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
 
     /* the subject DN pattern */
     protected MapDNPattern mPattern = null;
@@ -114,7 +114,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 
@@ -122,8 +122,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
      * for initializing from config store.
      */
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         mConfig = config;
         String dnPattern = mConfig.getString(PROP_DNPATTERN);
 

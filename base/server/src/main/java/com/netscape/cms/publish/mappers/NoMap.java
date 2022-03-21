@@ -21,10 +21,10 @@ import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapMapper;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPConnection;
@@ -36,7 +36,7 @@ import netscape.ldap.LDAPConnection;
  */
 public class NoMap implements ILdapMapper, IExtendedPluginInfo {
 
-    public IConfigStore mConfig = null;
+    public ConfigStore mConfig;
 
     /**
      * constructor if initializing from config store.
@@ -55,7 +55,7 @@ public class NoMap implements ILdapMapper, IExtendedPluginInfo {
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 
@@ -63,8 +63,7 @@ public class NoMap implements ILdapMapper, IExtendedPluginInfo {
      * for initializing from config store.
      */
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         mConfig = config;
     }
 

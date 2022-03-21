@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
@@ -33,6 +32,7 @@ import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
@@ -57,7 +57,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
     public static final String LDAP_USERCERT_ATTR = "userCertificate;binary";
 
     protected String mCertAttr = LDAP_USERCERT_ATTR;
-    private IConfigStore mConfig = null;
+    private ConfigStore mConfig;
     private boolean mInited = false;
 
     public LdapUserCertPublisher() {
@@ -104,13 +104,12 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 
     @Override
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
         if (mInited)
             return;
         mConfig = config;
