@@ -66,7 +66,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.util.Base64OutputStream;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.Constants;
@@ -122,7 +121,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     private final static String LOG_SIGNED_AUDIT_EXCEPTION =
                                "LOG_SIGNED_AUDIT_EXCEPTION_1";
 
-    protected IConfigStore mConfig = null;
+    protected ConfigStore mConfig;
 
     /**
      * The date string used in the log file name
@@ -258,8 +257,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     }
 
     @Override
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+    public void init(ISubsystem owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         try {
@@ -423,8 +421,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      *
      * @param config The property config store to find values in
      */
-    public void init(IConfigStore config) throws IOException,
-            EBaseException {
+    public void init(ConfigStore config) throws IOException, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
@@ -1439,7 +1436,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * @return configuration store
      */
     @Override
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

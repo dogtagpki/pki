@@ -25,9 +25,9 @@ import java.util.Vector;
 import javax.servlet.ServletException;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * An interface represents a log event listener.
@@ -65,7 +65,7 @@ public interface ILogEventListener extends EventListener {
      *
      * @return The configuration store of this log event listener.
      */
-    public IConfigStore getConfigStore();
+    public ConfigStore getConfigStore();
 
     /**
      * Initialize this log listener
@@ -74,8 +74,7 @@ public interface ILogEventListener extends EventListener {
      * @param config Configuration store for this log listener.
      * @exception initialization error.
      */
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException;
+    public void init(ISubsystem owner, ConfigStore config) throws EBaseException;
 
     /**
      * Startup the instance.
