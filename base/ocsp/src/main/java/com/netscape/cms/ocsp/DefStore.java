@@ -36,7 +36,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
@@ -295,7 +294,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public void shutdown() {
     }
 
-    public IConfigStore getConfigStore() {
+    public ConfigStore getConfigStore() {
         return mConfig;
     }
 

@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.ocsp.OCSPEngine;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
@@ -425,7 +424,7 @@ public class OCSPAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        IConfigStore config = mOCSP.getConfigStore();
+        ConfigStore config = mOCSP.getConfigStore();
         String defStore = config.getString(IOCSPAuthority.PROP_DEF_STORE_ID);
         ConfigStore SubStore = config.getSubStore(IOCSPAuthority.PROP_STORE, ConfigStore.class);
         Enumeration<String> enumStores = SubStore.getSubStoreNames();
