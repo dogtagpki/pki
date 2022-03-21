@@ -48,8 +48,8 @@ var TokenModel = Model.extend({
             appletID: response.AppletID,
             keyInfo: response.KeyInfo,
             policy: response.Policy,
-            createTimestamp: response.CreateTimestamp,
-            modifyTimestamp: respModifyTimestamp
+            createTimestamp: response.createTimestamp,
+            modifyTimestamp: response.modifyTimestamp
         };
     },
     createRequest: function(attributes) {
@@ -101,7 +101,7 @@ var TokenCollection = Collection.extend({
             keyInfo: entry.KeyInfo,
             policy: entry.Policy,
             createTimestamp: entry.CreateTimestamp,
-            modifyTimestamp: custModifyTimestamp
+            modifyTimestamp: entry.ModifyTimestamp
         });
     }
 });
