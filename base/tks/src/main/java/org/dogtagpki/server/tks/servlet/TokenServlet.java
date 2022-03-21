@@ -51,7 +51,6 @@ import org.mozilla.jss.symkey.SessionKey;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -62,6 +61,7 @@ import com.netscape.certsrv.logging.event.EncryptDataRequestProcessedEvent;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -3248,7 +3248,7 @@ public class TokenServlet extends CMSServlet {
         return params;
     }
 
-    private byte[] getDeveKeyArray(String keyType,IConfigStore sconfig,String keySet) throws EBaseException {
+    private byte[] getDeveKeyArray(String keyType, ConfigStore sconfig, String keySet) throws EBaseException {
         byte devKeyArray[] = null;
         try {
             devKeyArray = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
