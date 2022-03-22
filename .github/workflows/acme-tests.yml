@@ -538,7 +538,7 @@ jobs:
 
       - name: Verify certbot in client container
         run: |
-          tests/acme/bin/acme-wait.sh client http://pki.example.com:8080/acme/directory
+          tests/bin/pki-start-wait.sh client http://pki.example.com:8080/acme/directory
           docker exec client certbot register \
               --server http://pki.example.com:8080/acme/directory \
               --email user1@example.com \

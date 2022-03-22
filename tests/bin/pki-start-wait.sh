@@ -5,7 +5,7 @@ URL=$2
 
 if [ "$NAME" == "" -o "$URL" == "" ]
 then
-    echo "Usage: acme-wait.sh <name> <URL>"
+    echo "Usage: pki-start-wait.sh <name> <URL>"
     exit 1
 fi
 
@@ -20,7 +20,7 @@ while :
 do
     sleep 1
 
-    docker exec client curl -ISs $URL
+    docker exec $NAME curl -ISs $URL
 
     if [ $? -eq 0 ]
     then
@@ -32,11 +32,11 @@ do
 
     if [ $elapsed_time -ge $MAX_WAIT ]
     then
-        echo "ACME server did not start after ${MAX_WAIT}s"
+        echo "PKI server did not start after ${MAX_WAIT}s"
         exit 1
     fi
 
-    echo "Waiting for ACME server to start (${elapsed_time}s)"
+    echo "Waiting for PKI server to start (${elapsed_time}s)"
 done
 
-echo "ACME server is started"
+echo "PKI server is started"
