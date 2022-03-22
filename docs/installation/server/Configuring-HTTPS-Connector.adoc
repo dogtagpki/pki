@@ -1,0 +1,24 @@
+= Configuring HTTPS Connector =
+
+== Overview ==
+
+This page describes the process to configure HTTPS connector in PKI server.
+
+== Configuration ==
+
+There are several ways to configure an HTTPS connector:
+
+- link:Configuring-HTTPS-Connector-with-PEM-Files.adoc[Configuring HTTPS Connector with PEM Files]
+- link:Configuring-HTTPS-Connector-with-JKS-File.adoc[Configuring HTTPS Connector with JKS File]
+- link:Configuring-HTTPS-Connector-with-PKCS12-File.adoc[Configuring HTTPS Connector with PKCS #12 File]
+- link:Configuring-HTTPS-Connector-with-NSS-Database.adoc[Configuring HTTPS Connector with NSS Database]
+
+== Verification ==
+
+To verify the HTTPS connector, restart the server and execute the following command:
+
+----
+$ sslscan $HOSTNAME:8443
+----
+
+See also link:https://www.dogtagpki.org/wiki/Sslscan[sslscan].

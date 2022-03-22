@@ -1,0 +1,56 @@
+= Configuring HTTPS Connector with PEM Files =
+
+== Overview ==
+
+This page describes the process to configure HTTPS connector in PKI server with certificate and key in PEM files.
+
+== Creating SSL Server Certificate ==
+
+To generate an SSL server certificate and the key in PEM files:
+
+----
+$ openssl req \
+    -newkey rsa:2048 \
+    -x509 \
+    -nodes \
+    -days 365 \
+    -subj "/CN=$HOSTNAME" \
+    -keyout /var/lib/pki/pki-tomcat/conf/sslserver.key \
+    -out /var/lib/pki/pki-tomcat/conf/sslserver.crt
+$ chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.crt
+$ chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.crt
+$ chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.key
+$ chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.key
+----
+
+See also link:https://github.com/dogtagpki/pki/wiki/Creating-Self-Signed-SSL-Server-Certificate-with-OpenSSL[Creating Self-Signed SSL Server Certificate with OpenSSL].
+
+== Creating HTTPS Connector ==
+
+To create an HTTPS connector, execute the following command:
+
+----
+$ pki-server http-connector-add \
+    --port 8443 \
+    --scheme https \
+    --secure true \
+    --sslEnabled true \
+    --sslProtocol SSL \
+    Secure
+----
+
+This command will create a `<Connector>` and an `<SSLHost>` in `/var/lib/pki/pki-tomcat/conf/server.xml`.
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-CLI[PKI Server HTTP Connector CLI].
+
+To configure the certificate, execute the following command:
+
+----
+$ pki-server http-connector-cert-add \
+    --certFile /var/lib/pki/pki-tomcat/conf/sslserver.crt \
+    --keyFile /var/lib/pki/pki-tomcat/conf/sslserver.key
+----
+
+This command will create a `<Certificate>` in `/var/lib/pki/pki-tomcat/conf/server.xml`.
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-Cert-CLI[PKI Server HTTP Connector Cert CLI].
