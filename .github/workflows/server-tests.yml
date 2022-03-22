@@ -167,6 +167,15 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
+      - name: Download PKI runner image
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-runner-${{ matrix.os }}
+          path: /tmp
+
+      - name: Load PKI runner image
+        run: docker load --input /tmp/pki-runner.tar
+
       - name: Download PKI server image
         uses: actions/download-artifact@v2
         with:
@@ -185,3 +194,16 @@ jobs:
 
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh client
+        env:
+          HOSTNAME: client.example.com
+
+      - name: Connect client container to network
+        run: docker network connect example client --alias client.example.com
+
+      - name: Wait for PKI container to start
+        run: |
+          tests/bin/pki-start-wait.sh client http://pki.example.com:8080

@@ -54,7 +54,7 @@ RUN pki-server create tomcat@pki --user tomcat --group root
 RUN chgrp -Rf root /var/lib/tomcats/pki
 RUN chmod -Rf g+rw /var/lib/tomcats/pki
 
-CMD [ "pki-server", "run", "-v" ]
+CMD [ "pki-server", "run", "tomcat@pki", "-v" ]
 
 ################################################################################
 FROM registry.fedoraproject.org/fedora:$OS_VERSION AS pki-acme
