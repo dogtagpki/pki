@@ -71,7 +71,7 @@ jobs:
       - name: Upload runner image
         uses: actions/upload-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner-image-${{ matrix.os }}
           path: /tmp/pki-runner.tar
 
       - name: Build server image
@@ -88,7 +88,7 @@ jobs:
       - name: Upload server image
         uses: actions/upload-artifact@v2
         with:
-          name: pki-server-${{ matrix.os }}
+          name: pki-server-image-${{ matrix.os }}
           path: /tmp/pki-server.tar
 
   # docs/installation/server/Installing_Basic_PKI_Server.md
@@ -107,7 +107,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner-image-${{ matrix.os }}
           path: /tmp
 
       - name: Load runner image
@@ -116,13 +116,13 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Set up PKI container
+      - name: Set up server container
         run: |
           tests/bin/runner-init.sh pki
         env:
           HOSTNAME: pki.example.com
 
-      - name: Connect PKI container to network
+      - name: Connect server container to network
         run: docker network connect example pki --alias pki.example.com
 
       - name: Create PKI server
@@ -141,17 +141,17 @@ jobs:
         run: |
           docker exec pki pki-server remove -v
 
-      - name: Gather artifacts
+      - name: Gather artifacts from server container
         if: always()
         run: |
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
-      - name: Upload artifacts
+      - name: Upload artifacts from server container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-server-${{ matrix.os }}
+          name: pki-server-test-${{ matrix.os }}
           path: |
             /tmp/artifacts/pki
 
@@ -167,32 +167,32 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download PKI runner image
+      - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner-image-${{ matrix.os }}
           path: /tmp
 
-      - name: Load PKI runner image
+      - name: Load runner image
         run: docker load --input /tmp/pki-runner.tar
 
-      - name: Download PKI server image
+      - name: Download server image
         uses: actions/download-artifact@v2
         with:
-          name: pki-server-${{ matrix.os }}
+          name: pki-server-image-${{ matrix.os }}
           path: /tmp
 
-      - name: Load PKI server image
+      - name: Load server image
         run: docker load --input /tmp/pki-server.tar
 
       - name: Create network
         run: docker network create example
 
-      - name: Set up PKI container
+      - name: Set up server container
         run: |
           docker run --name pki --detach pki-server
 
-      - name: Connect PKI container to network
+      - name: Connect server container to network
         run: docker network connect example pki --alias pki.example.com
 
       - name: Set up client container
@@ -204,6 +204,22 @@ jobs:
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com
 
-      - name: Wait for PKI container to start
+      - name: Wait for server container to start
         run: |
           tests/bin/pki-start-wait.sh client http://pki.example.com:8080
+
+      - name: Gather artifacts from server container
+        if: always()
+        run: |
+          mkdir -p /tmp/artifacts/server
+          docker logs pki > /tmp/artifacts/server/container.out 2> /tmp/artifacts/server/container.err
+          mkdir -p /tmp/artifacts/server/var/lib
+          docker cp pki:/var/lib/tomcats /tmp/artifacts/server/var/lib
+        continue-on-error: true
+
+      - name: Upload artifacts from server container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: pki-container-test-${{ matrix.os }}
+          path: /tmp/artifacts/server
