@@ -20,7 +20,7 @@ while :
 do
     sleep 1
 
-    docker exec $NAME curl -ISs $URL
+    docker exec $NAME curl -IkSs $URL
 
     if [ $? -eq 0 ]
     then
