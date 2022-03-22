@@ -1,0 +1,98 @@
+= Configuring HTTPS Connector with NSS Database =
+
+== Overview ==
+
+This page describes the process to configure HTTPS connector in PKI server with certificate and key in NSS database.
+
+== Creating SSL Server Certificate ==
+
+To create an NSS database, execute the following command:
+
+----
+$ pki-server nss-create --no-password
+----
+
+See also link:https://github.com/dogtagpki/pki/wiki/NSS-Database[NSS Database].
+
+To create an SSL server certificate request, prepare the certificate extension configuration (e.g. link:../../../base/server/certs/sslserver.conf[/usr/share/pki/server/certs/sslserver.conf]):
+
+----
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always
+basicConstraints       = critical, CA:FALSE
+keyUsage               = critical, digitalSignature, keyEncipherment
+extendedKeyUsage       = serverAuth, clientAuth
+subjectAltName         = DNS:request_subject_cn, DNS:request_san_ext
+----
+
+Then execute the following command:
+
+----
+$ pki -d /var/lib/pki/pki-tomcat/conf/alias \
+    nss-cert-request \
+    --subject "CN=$HOSTNAME" \
+    --ext /usr/share/pki/server/certs/sslserver.conf \
+    --csr sslserver.csr
+----
+
+To issue a self-signed certificate, execute the following command:
+
+----
+$ pki -d /var/lib/pki/pki-tomcat/conf/alias \
+    nss-cert-issue \
+    --csr sslserver.csr \
+    --ext /usr/share/pki/server/certs/sslserver.conf \
+    --cert sslserver.crt
+----
+
+To import the certificate into the NSS database:
+
+----
+$ pki -d /var/lib/pki/pki-tomcat/conf/alias \
+    nss-cert-import \
+    --cert sslserver.crt \
+    sslserver
+----
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI[PKI NSS CLI].
+
+== Creating HTTPS Connector ==
+
+To enable JSS, execute the following command:
+
+----
+$ pki-server jss-enable
+----
+
+This command will install JSS libraries and create the initial JSS configuration
+in `/var/lib/pki/pki-tomcat/conf/jss.conf` which can be customized as needed.
+
+To create an HTTPS connector, execute the following command:
+
+----
+$ pki-server http-connector-add \
+    --port 8443 \
+    --scheme https \
+    --secure true \
+    --sslEnabled true \
+    --sslProtocol SSL \
+    --sslImpl org.dogtagpki.tomcat.JSSImplementation \
+    Secure
+----
+
+This command will create a `<Connector>` and an `<SSLHost>` in `/var/lib/pki/pki-tomcat/conf/server.xml`.
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-CLI[PKI Server HTTP Connector CLI].
+
+To configure the certificate, execute the following command:
+
+----
+$ pki-server http-connector-cert-add \
+    --keyAlias sslserver \
+    --keystoreType pkcs11 \
+    --keystoreProvider Mozilla-JSS
+----
+
+This command will create a `<Certificate>` in `/var/lib/pki/pki-tomcat/conf/server.xml`.
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-Cert-CLI[PKI Server HTTP Connector Cert CLI].

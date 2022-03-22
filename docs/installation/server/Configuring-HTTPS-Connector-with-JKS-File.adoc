@@ -1,0 +1,54 @@
+= Configuring HTTPS Connector with JKS File =
+
+== Overview ==
+
+This page describes the process to configure HTTPS connector in PKI server with certificate and key in Java keystore file.
+
+== Creating SSL Server Certificate ==
+
+To generate an SSL server certificate and the key in a JKS file:
+
+----
+$ keytool -genkeypair \
+    -keystore /var/lib/pki/pki-tomcat/conf/keystore.jks \
+    -storepass Secret.123 \
+    -alias "sslserver" \
+    -dname "CN=$HOSTNAME" \
+    -keyalg RSA \
+    -keypass Secret.123
+$ chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/keystore.jks
+$ chmod 660 /var/lib/pki/pki-tomcat/conf/keystore.jks
+----
+
+See also link:https://github.com/dogtagpki/pki/wiki/Creating-Self-Signed-SSL-Server-Certificate-with-Keytool[Creating Self-Signed SSL Server Certificate with Keytool].
+
+== Creating HTTPS Connector ==
+
+To create an HTTPS connector, execute the following command:
+
+----
+$ pki-server http-connector-add \
+    --port 8443 \
+    --scheme https \
+    --secure true \
+    --sslEnabled true \
+    --sslProtocol SSL \
+    Secure
+----
+
+This command will create a `<Connector>` and an `<SSLHost>` in `/var/lib/pki/pki-tomcat/conf/server.xml`.
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-CLI[PKI Server HTTP Connector CLI].
+
+To configure the certificate, execute the following command:
+
+----
+$ pki-server http-connector-cert-add \
+    --keyAlias sslserver \
+    --keystoreFile /var/lib/pki/pki-tomcat/conf/keystore.jks \
+    --keystorePassword Secret.123
+----
+
+This command will create a `<Certificate>` in `/var/lib/pki/pki-tomcat/conf/server.xml`.
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-Cert-CLI[PKI Server HTTP Connector Cert CLI].
