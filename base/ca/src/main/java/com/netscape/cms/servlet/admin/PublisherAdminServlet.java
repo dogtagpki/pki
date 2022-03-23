@@ -325,7 +325,6 @@ public class PublisherAdminServlet extends AdminServlet {
         sendResponse(ERROR,
                 CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
                 null, resp);
-        return;
     }
 
     private IExtendedPluginInfo getExtendedPluginInfo(CAPublisherProcessor p) {
@@ -1049,7 +1048,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // is the class an ILdapMapper?
         try {
-            if (ILdapMapper.class.isAssignableFrom(newImpl) == false) {
+            if (!ILdapMapper.class.isAssignableFrom(newImpl)) {
                 sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_CLASS", classPath), null,
                         resp);
                 return;
@@ -1083,7 +1082,6 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private boolean isValidID(String id) {
@@ -1216,7 +1214,6 @@ public class PublisherAdminServlet extends AdminServlet {
 
         params.put(Constants.PR_MAPPER_IMPL_NAME, implname);
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void listMapperPlugins(HttpServletRequest req,
@@ -1244,7 +1241,6 @@ public class PublisherAdminServlet extends AdminServlet {
             params.put(name, value.getClassPath() + "," + desc);
         }
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     public String getMapperPluginName(ILdapMapper mapper) {
@@ -1271,7 +1267,6 @@ public class PublisherAdminServlet extends AdminServlet {
             params.put(name, getMapperPluginName(value) + ";visible");
         }
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void delMapperInst(HttpServletRequest req,
@@ -1289,7 +1284,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // does a`mapper instance exist?
-        if (mProcessor.getMapperInsts().containsKey(id) == false) {
+        if (!mProcessor.getMapperInsts().containsKey(id)) {
             sendResponse(
                     ERROR,
                     new EMapperNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_MAPPER_NOT_FOUND", id)).toString(),
@@ -1318,7 +1313,6 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void delMapperPlugin(HttpServletRequest req,
@@ -1335,7 +1329,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        if (mProcessor.getMapperPlugins().containsKey(id) == false) {
+        if (!mProcessor.getMapperPlugins().containsKey(id)) {
             sendResponse(
                     ERROR,
                     new EMapperPluginNotFound(CMS
@@ -1374,7 +1368,6 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void getMapperConfig(HttpServletRequest req,
@@ -1406,7 +1399,6 @@ public class PublisherAdminServlet extends AdminServlet {
             }
         }
         sendResponse(0, null, params, resp);
-        return;
     }
 
     private synchronized void getMapperInstConfig(HttpServletRequest req,
@@ -1423,7 +1415,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // does mapper instance exist?
-        if (mProcessor.getMapperInsts().containsKey(id) == false) {
+        if (!mProcessor.getMapperInsts().containsKey(id)) {
             sendResponse(
                     ERROR,
                     new EMapperNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_MAPPER_NOT_FOUND", id)).toString(),
@@ -1449,7 +1441,6 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void modMapperInst(HttpServletRequest req,
@@ -1594,7 +1585,6 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void addRulePlugin(HttpServletRequest req,
@@ -1644,7 +1634,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // is the class an LdapRule?
         try {
-            if (LdapRule.class.isAssignableFrom(newImpl) == false) {
+            if (!LdapRule.class.isAssignableFrom(newImpl)) {
                 sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_CLASS", classPath), null,
                         resp);
                 return;
@@ -1678,7 +1668,6 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void addRuleInst(HttpServletRequest req,
@@ -1801,7 +1790,6 @@ public class PublisherAdminServlet extends AdminServlet {
 
         params.put(Constants.PR_RULE_IMPL_NAME, implname);
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void listRulePlugins(HttpServletRequest req,
@@ -1826,7 +1814,6 @@ public class PublisherAdminServlet extends AdminServlet {
             params.put(name, value.getClassPath() + "," + desc);
         }
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void listRuleInsts(HttpServletRequest req,
@@ -1843,7 +1830,6 @@ public class PublisherAdminServlet extends AdminServlet {
             params.put(name, value.getInstanceName() + ";visible;" + enabled);
         }
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     public String getRulePluginName(LdapRule rule) {
@@ -1871,7 +1857,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // does rule exist?
-        if (mProcessor.getRulePlugins().containsKey(id) == false) {
+        if (!mProcessor.getRulePlugins().containsKey(id)) {
             sendResponse(ERROR,
                     new ERulePluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_RULE_PLUGIN_NOT_FOUND", id))
                             .toString(),
@@ -1908,7 +1894,6 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void delRuleInst(HttpServletRequest req,
@@ -1928,7 +1913,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // prevent deletion of admin and agent.
 
         // does rule instance exist?
-        if (mProcessor.getRuleInsts().containsKey(id) == false) {
+        if (!mProcessor.getRuleInsts().containsKey(id)) {
             sendResponse(ERROR,
                     new ERuleNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_RULE_NOT_FOUND", id)).toString(),
                     null, resp);
@@ -1956,7 +1941,6 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void getRuleConfig(HttpServletRequest req,
@@ -1987,7 +1971,6 @@ public class PublisherAdminServlet extends AdminServlet {
             }
         }
         sendResponse(0, null, params, resp);
-        return;
     }
 
     private synchronized void getRuleInstConfig(HttpServletRequest req,
@@ -2004,7 +1987,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // does rule instance exist?
-        if (mProcessor.getRuleInsts().containsKey(id) == false) {
+        if (!mProcessor.getRuleInsts().containsKey(id)) {
             sendResponse(ERROR,
                     new ERuleNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_RULE_NOT_FOUND", id)).toString(),
                     null, resp);
@@ -2029,7 +2012,6 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void modRuleInst(HttpServletRequest req,
@@ -2177,7 +2159,6 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void addPublisherPlugin(HttpServletRequest req,
@@ -2228,7 +2209,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // is the class an ILdapPublisher?
         try {
-            if (ILdapPublisher.class.isAssignableFrom(newImpl) == false) {
+            if (!ILdapPublisher.class.isAssignableFrom(newImpl)) {
                 sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_CLASS", classPath), null,
                         resp);
                 return;
@@ -2262,7 +2243,6 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void addPublisherInst(HttpServletRequest req,
@@ -2398,7 +2378,6 @@ public class PublisherAdminServlet extends AdminServlet {
 
         params.put(Constants.PR_PUBLISHER_IMPL_NAME, implname);
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void listPublisherPlugins(HttpServletRequest req,
@@ -2424,7 +2403,6 @@ public class PublisherAdminServlet extends AdminServlet {
             params.put(name, value.getClassPath() + "," + desc);
         }
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     public String getPublisherPluginName(ILdapPublisher pub) {
@@ -2453,7 +2431,6 @@ public class PublisherAdminServlet extends AdminServlet {
             params.put(name, getPublisherPluginName(value) + ";visible");
         }
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void delPublisherPlugin(HttpServletRequest req,
@@ -2472,7 +2449,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // does publisher exist?
-        if (mProcessor.getPublisherPlugins().containsKey(id) == false) {
+        if (!mProcessor.getPublisherPlugins().containsKey(id)) {
             sendResponse(
                     ERROR,
                     new EPublisherPluginNotFound(CMS.getUserMessage(getLocale(req),
@@ -2512,7 +2489,6 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     private synchronized void delPublisherInst(HttpServletRequest req,
@@ -2533,7 +2509,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // prevent deletion of admin and agent.
 
         // does publisher instance exist?
-        if (mProcessor.getPublisherInsts().containsKey(id) == false) {
+        if (!mProcessor.getPublisherInsts().containsKey(id)) {
             sendResponse(ERROR,
                     new EPublisherNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_PUBLISHER_NOT_FOUND", id))
                             .toString(),
@@ -2562,7 +2538,6 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     /**
@@ -2607,7 +2582,6 @@ public class PublisherAdminServlet extends AdminServlet {
             }
         }
         sendResponse(0, null, params, resp);
-        return;
     }
 
     private synchronized void getInstConfig(HttpServletRequest req,
@@ -2625,7 +2599,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // does publisher instance exist?
-        if (mProcessor.getPublisherInsts().containsKey(id) == false) {
+        if (!mProcessor.getPublisherInsts().containsKey(id)) {
             sendResponse(ERROR,
                     new EPublisherNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_PUBLISHER_NOT_FOUND", id))
                             .toString(),
@@ -2651,7 +2625,6 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     /**
@@ -2834,7 +2807,6 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     // convenience function - takes list1, list2.  Returns what is in list1
