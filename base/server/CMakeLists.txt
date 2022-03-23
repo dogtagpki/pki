@@ -213,6 +213,17 @@ install(
 
 install(
     DIRECTORY
+        bin/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/server/bin/
+    FILE_PERMISSIONS
+        OWNER_EXECUTE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
+)
+
+install(
+    DIRECTORY
         certs/
     DESTINATION
         ${DATA_INSTALL_DIR}/server/certs
