@@ -49,49 +49,6 @@ EXPOSE 8080 8443
 # Create PKI server
 RUN pki-server create tomcat@pki --user tomcat --group root
 
-# Grant the root group the full access to PKI server files
-# https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chgrp -Rf root /var/lib/tomcats/pki
-RUN chmod -Rf g+rw /var/lib/tomcats/pki
-
-CMD [ "pki-server", "run", "tomcat@pki", "-v" ]
-
-################################################################################
-FROM registry.fedoraproject.org/fedora:$OS_VERSION AS pki-acme
-
-ARG SUMMARY="Dogtag PKI ACME Responder"
-ARG COPR_REPO
-
-LABEL name="pki-acme" \
-      summary="$SUMMARY" \
-      license="$LICENSE" \
-      version="$VERSION" \
-      architecture="$ARCH" \
-      maintainer="$MAINTAINER" \
-      vendor="$VENDOR" \
-      usage="podman run -p 8080:8080 -p 8443:8443 pki-acme" \
-      com.redhat.component="$COMPONENT"
-
-EXPOSE 8080 8443
-
-# Enable COPR repo if specified
-RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enable -y $COPR_REPO; fi
-
-# Install PKI dependencies
-RUN dnf install -y bind-utils iputils abrt-java-connector postgresql postgresql-jdbc
-
-# Import PKI packages
-COPY build/RPMS /tmp/RPMS/
-
-# Install PKI packages
-RUN dnf localinstall -y /tmp/RPMS/*; rm -rf /tmp/RPMS
-
-# Install PostgreSQL JDBC driver
-RUN ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib/postgresql.jar
-
-# Create PKI server
-RUN pki-server create tomcat@pki --user tomcat --group root
-
 # Create NSS database
 RUN pki-server nss-create -i tomcat@pki --no-password
 
@@ -113,6 +70,35 @@ RUN pki-server http-connector-cert-add -i tomcat@pki \
   --keyAlias sslserver \
   --keystoreType pkcs11 \
   --keystoreProvider Mozilla-JSS
+
+# Grant the root group the full access to PKI server files
+# https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
+RUN chgrp -Rf root /var/lib/tomcats/pki
+RUN chmod -Rf g+rw /var/lib/tomcats/pki
+
+CMD [ "/usr/share/pki/server/bin/pki-server-run" ]
+
+################################################################################
+FROM pki-server AS pki-acme
+
+ARG SUMMARY="Dogtag PKI ACME Responder"
+ARG COPR_REPO
+
+LABEL name="pki-acme" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-acme" \
+      com.redhat.component="$COMPONENT"
+
+# Install PKI dependencies
+RUN dnf install -y bind-utils iputils abrt-java-connector postgresql postgresql-jdbc
+
+# Install PostgreSQL JDBC driver
+RUN ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib/postgresql.jar
 
 # Create PKI ACME application
 RUN pki-server acme-create -i tomcat@pki
