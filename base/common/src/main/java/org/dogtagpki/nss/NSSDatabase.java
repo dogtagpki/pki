@@ -58,6 +58,7 @@ import org.dogtagpki.cli.CLIException;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.extensions.AccessDescription;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
@@ -113,6 +114,9 @@ public class NSSDatabase {
 
     Path path;
     IPasswordStore passwordStore;
+
+    public NSSDatabase() {
+    }
 
     public NSSDatabase(Path path) {
         this.path = path;
@@ -931,22 +935,40 @@ public class NSSDatabase {
 
     public KeyPair createRSAKeyPair(
             CryptoToken token,
-            int keySize) throws Exception {
+            int keySize,
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
 
         logger.info("NSSDatabase: Creating RSA key pair");
         logger.info("NSSDatabase: - size: " + keySize);
 
-        return CryptoUtil.generateRSAKeyPair(token, keySize);
+        return CryptoUtil.generateRSAKeyPair(token, keySize, usages, usagesMask);
+    }
+
+    public KeyPair createRSAKeyPair(
+            CryptoToken token,
+            int keySize) throws Exception {
+
+        return createRSAKeyPair(token, keySize, null, null);
     }
 
     public KeyPair createECKeyPair(
             CryptoToken token,
-            String curve) throws Exception {
+            String curveName,
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
 
         logger.info("NSSDatabase: Creating EC key pair");
-        logger.info("NSSDatabase: - curve: " + curve);
+        logger.info("NSSDatabase: - curve: " + curveName);
 
-        return CryptoUtil.generateECCKeyPair(token, curve);
+        return CryptoUtil.generateECCKeyPair(token, curveName, usages, usagesMask);
+    }
+
+    public KeyPair createECKeyPair(
+            CryptoToken token,
+            String curveName) throws Exception {
+
+        return createECKeyPair(token, curveName, null, null);
     }
 
     public PKCS10 createPKCS10Request(
