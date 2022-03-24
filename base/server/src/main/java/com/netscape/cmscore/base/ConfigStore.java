@@ -41,30 +41,61 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents a in-memory configuration store.
+ *
+ * A configuration store is an abstraction of a hierarchical store
+ * to keep arbitrary data indexed by string names.
+ *
+ * In the following example:
+ *
+ * <pre>{@Code
+ * param1=value1
+ * configStore1.param11=value11
+ * configStore1.param12=value12
+ * configStore1.subStore1.param111=value111
+ * configStore1.subStore1.param112=value112
+ * configStore2.param21=value21
+ * }</pre>
+ *
+ * The top config store has parameters <i>param1</i> and sub-stores <i>configStore1</i> and <i>configStore2</i>. <br>
+ * The following illustrates how a config store is used.
+ *
+ * <pre>{@Code
+ * // the top config store is passed to the following method.
+ * public void init(ConfigStore config) throws EBaseException {
+ *     ConfigStore store = config;
+ *     String valx = config.getString(&quot;param1&quot;);
+ *     // valx is &quot;value1&quot;
+ *
+ *     ConfigStore substore1 = config.getSubStore(&quot;configStore1&quot;);
+ *     String valy = substore1.getString(&quot;param11&quot;);
+ *     // valy is &quot;value11&quot;
+ *
+ *     ConfigStore substore2 = config.getSubStore(&quot;configStore2&quot;);
+ *     String valz = substore2.getString(&quot;param21&quot;);
+ *     // valz is &quot;value21&quot;
+ * }
+ * }</pre>
+ *
  * Note this class takes advantage of the recursive nature of
  * property names. The current property prefix is kept in
  * mStoreName and the mSource usually points back to another
  * occurance of the same ConfigStore, with longer mStoreName. IE
  *
- * <PRE>{@Code
+ * <pre>{@Code
  * 	cms.ca0.http.service0 -> mSource=ConfigStore ->
  * 		cms.ca0.http -> mSource=ConfigStore ->
  * 			cms.ca0 -> mSource=ConfigStore ->
  * 					cms -> mSource=SourceConfigStore -> Properties
- * }</PRE>
+ * }</pre>
  *
  * The chain ends when the store name is reduced down to it's original
  * value.
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public class ConfigStore implements IConfigStore, Cloneable {
+public class ConfigStore implements Cloneable {
 
     public final static Logger logger = LoggerFactory.getLogger(ConfigStore.class);
 
@@ -95,7 +126,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
      * Constructs a property configuration store. This must
      * be a brand new store without properties. The subclass
      * must be a SourceConfigStore.
-     * <P>
      *
      * @param storeName property store name
      * @exception EBaseException failed to create configuration
@@ -110,7 +140,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
      * a helper class for substores. Source is the one
      * that stores all the parameters. Each substore only
      * store a substore name, and a reference to the source.
-     * <P>
      *
      * @param name store name
      * @param source list of properties
@@ -123,11 +152,9 @@ public class ConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Returns the name of this store.
-     * <P>
      *
      * @return store name
      */
-    @Override
     public String getName() {
         return mStoreName;
     }
@@ -138,12 +165,10 @@ public class ConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Retrieves a property from the configuration file.
-     * <P>
      *
      * @param name property name
      * @return property value
      */
-    @Override
     public String get(String name) {
         return mSource.get(getFullName(name));
     }
@@ -151,7 +176,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
     /**
      * Retrieves a property from the configuration file. Does not prepend
      * the config store name to the property.
-     * <P>
      *
      * @param name property name
      * @return property value
@@ -164,12 +188,10 @@ public class ConfigStore implements IConfigStore, Cloneable {
      * Puts a property into the configuration file. The
      * values wont be updated to the file until save
      * method is invoked.
-     * <P>
      *
      * @param name property name
      * @param value property value
      */
-    @Override
     public String put(String name, String value) {
         String property = getFullName(name);
         logger.debug("Setting " + property + "=" + value);
@@ -181,7 +203,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
      *
      * @param name property name
      */
-    @Override
     public void remove(String name) {
         mSource.remove(getFullName(name));
     }
@@ -190,10 +211,10 @@ public class ConfigStore implements IConfigStore, Cloneable {
      * Returns an enumeration of the config store's keys, hidding the store
      * name.
      *
+     * @return a list of keys
      * @see java.util.Hashtable#elements
      * @see java.util.Enumeration
      */
-    @Override
     public Enumeration<String> keys() {
         Hashtable<String, String> h = new Hashtable<>();
         enumerate(h);
@@ -205,7 +226,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
      *
      * @return map
      */
-    @Override
     public Map<String, String> getProperties() {
         Map<String, String> map = new TreeMap<>();
         enumerate(map);
@@ -215,7 +235,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
     /**
      * Return the number of items in this substore
      */
-    @Override
     public int size() {
         Hashtable<String, String> h = new Hashtable<>();
         enumerate(h);
@@ -225,7 +244,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
     /**
      * Fills the given map with all key/value pairs in the current
      * config store, removing the config store name prefix
-     * <P>
      *
      * @param map the map
      */
@@ -246,19 +264,29 @@ public class ConfigStore implements IConfigStore, Cloneable {
         }
     }
 
-    @Override
+    /**
+     * Clear the config store.
+     */
     public synchronized void clear() {
         mSource.clear();
     }
 
-    @Override
+    /**
+     * Load config from storage storage (file or LDAP).
+     * @exception Exception If an error occurs while loading.
+     */
     public void load() throws Exception {
         if (storage != null) {
             storage.load(this);
         }
     }
 
-    @Override
+    /**
+     * Store config into storage (file or LDAP).
+     *
+     * @param createBackup true if a backup file should be created
+     * @exception EBaseException failed to commit
+     */
     public void commit(boolean createBackup) throws EBaseException {
         if (storage != null) {
             storage.commit(this, createBackup);
@@ -271,7 +299,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
      * @param in input stream where properties are located
      * @exception IOException failed to load
      */
-    @Override
     public synchronized void load(InputStream in) throws IOException {
         mSource.load(in);
     }
@@ -281,7 +308,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
      *
      * @param out outputstream where the properties are saved
      */
-    @Override
     public synchronized void store(OutputStream out) throws Exception {
         try (PrintWriter pw = new PrintWriter(out)) {
             Map<String, String> map = getProperties();
@@ -293,13 +319,13 @@ public class ConfigStore implements IConfigStore, Cloneable {
     }
 
     /**
-     * Retrieves a property value.
+     * Retrieves the value of the given property as a string.
      *
-     * @param name property key
-     * @return property value
-     * @exception EBaseException failed to retrieve value
+     * @param name The name of the property to get
+     * @return The value of the property as a String
+     * @exception EPropertyNotFound If the property is not present
+     * @exception EBaseException If an internal error occurred
      */
-    @Override
     public String getString(String name) throws EBaseException {
         String str = get(name);
 
@@ -324,14 +350,14 @@ public class ConfigStore implements IConfigStore, Cloneable {
     }
 
     /**
-     * Retrieves a String from the configuration file.
-     * <P>
+     * Retrieves the value of a given property as a string or the
+     * given default value if the property is not present.
      *
      * @param name property name
      * @param defval the default object to return if name does not exist
      * @return property value
+     * @exception EBaseException If an internal error occurred
      */
-    @Override
     public String getString(String name, String defval) throws EBaseException {
         String val;
 
@@ -351,21 +377,20 @@ public class ConfigStore implements IConfigStore, Cloneable {
      * @param name property key
      * @param value property value
      */
-    @Override
     public void putString(String name, String value) {
         put(name, value);
     }
 
     /**
      * Retrieves a byte array from the configuration file.
-     * <P>
      *
      * @param name property name
+     * @return The property value as a byte array
+     * @exception EPropertyNotFound If the property is not present
      * @exception IllegalArgumentException if name is not set or is null.
      *
      * @return property value
      */
-    @Override
     public byte[] getByteArray(String name) throws EBaseException {
         byte[] arr = getByteArray(name, new byte[0]);
 
@@ -377,16 +402,14 @@ public class ConfigStore implements IConfigStore, Cloneable {
     }
 
     /**
-     * Retrieves a byte array from the configuration file.
-     * <P>
+     * Retrieves the value of a property as a byte array, using the
+     * given default value if property is not present.
      *
-     * @param name property name
-     * @param defval the default byte array to return if name does
-     *            not exist
-     *
-     * @return property value
+     * @param name The name of the property
+     * @param defval The default value if the property is not present.
+     * @return The property value as a byte array.
+     * @exception EBaseException If an internal error occurred
      */
-    @Override
     public byte[] getByteArray(String name, byte defval[])
             throws EBaseException {
         String str = get(name);
@@ -408,7 +431,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
      * @param name property key
      * @param value byte array
      */
-    @Override
     public void putByteArray(String name, byte value[]) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try (Base64OutputStream b64 = new Base64OutputStream(new
@@ -425,13 +447,13 @@ public class ConfigStore implements IConfigStore, Cloneable {
     }
 
     /**
-     * Retrieves boolean-based property value.
+     * Retrieves the given property as a boolean.
      *
      * @param name property key
      * @return boolean value
+     * @exception EPropertyNotFound If the property is not present
      * @exception EBaseException failed to retrieve
      */
-    @Override
     public boolean getBoolean(String name) throws EBaseException {
         String value = get(name);
 
@@ -454,14 +476,13 @@ public class ConfigStore implements IConfigStore, Cloneable {
     }
 
     /**
-     * Retrieves boolean-based property value.
+     * Retrieves the given property as a boolean.
      *
      * @param name property key
      * @param defval default value
      * @return boolean value
      * @exception EBaseException failed to retrieve
      */
-    @Override
     public boolean getBoolean(String name, boolean defval)
             throws EBaseException {
         boolean val;
@@ -484,7 +505,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
      * @param name property key
      * @param value property value
      */
-    @Override
     public void putBoolean(String name, boolean value) {
         if (value) {
             put(name, "true");
@@ -496,11 +516,11 @@ public class ConfigStore implements IConfigStore, Cloneable {
     /**
      * Retrieves integer value.
      *
-     * @param name property key
-     * @return property value
-     * @exception EBaseException failed to retrieve value
+     * @param name The property name
+     * @return The property value as an integer
+     * @exception EPropertyNotFound If property is not found
+     * @exception EBaseException If an internal error occurred
      */
-    @Override
     public int getInteger(String name) throws EBaseException {
         String value = get(name);
 
@@ -528,7 +548,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
      * @return property value
      * @exception EBaseException failed to retrieve value
      */
-    @Override
     public int getInteger(String name, int defval) throws EBaseException {
         int val;
 
@@ -548,21 +567,19 @@ public class ConfigStore implements IConfigStore, Cloneable {
      *
      * @param name property key
      * @param val property value
-     * @exception EBaseException failed to retrieve value
      */
-    @Override
     public void putInteger(String name, int val) {
         put(name, Integer.toString(val));
     }
 
     /**
-     * Retrieves big integer value.
+     * Retrieves the given property as a big integer.
      *
      * @param name property key
      * @return property value
+     * @exception EPropertyNotFound If property is not found
      * @exception EBaseException failed to retrieve value
      */
-    @Override
     public BigInteger getBigInteger(String name) throws EBaseException {
         String value = get(name);
 
@@ -587,14 +604,13 @@ public class ConfigStore implements IConfigStore, Cloneable {
     }
 
     /**
-     * Retrieves integer value.
+     * Retrieves the given property as a big integer.
      *
      * @param name property key
      * @param defval default value
      * @return property value
      * @exception EBaseException failed to retrieve value
      */
-    @Override
     public BigInteger getBigInteger(String name, BigInteger defval)
             throws EBaseException {
         BigInteger val;
@@ -613,9 +629,8 @@ public class ConfigStore implements IConfigStore, Cloneable {
      * Puts a big integer value.
      *
      * @param name property key
-     * @param val default value
+     * @param val property value
      */
-    @Override
     public void putBigInteger(String name, BigInteger val) {
         put(name, val.toString());
     }
@@ -643,12 +658,10 @@ public class ConfigStore implements IConfigStore, Cloneable {
     }
 
     /**
-     * Removes a sub store.
-     * <p>
+     * Removes a sub store including all properties and sub-stores under this sub-store.
      *
      * @param name substore name
      */
-    @Override
     public void removeSubStore(String name) {
         // this operation is expensive!!!
 
@@ -671,30 +684,27 @@ public class ConfigStore implements IConfigStore, Cloneable {
      * Retrieves a sub store. A substore contains a list
      * of properties and substores. For example,
      *
-     * <PRE>
-     *    cms.ldap.host=ds.netscape.com
-     *    cms.ldap.port=389
-     * </PRE>
+     * <pre>{@Code
+     * cms.ldap.host=ds.netscape.com
+     * cms.ldap.port=389
+     * }</pre>
      *
      * "ldap" is a substore in above example. If the
      * substore property itself is set, this method
      * will treat the value as a reference. For example,
      *
-     * <PRE>
+     * <pre>{@Code
      * cms.ldap = kms.ldap
-     * </PRE>
-     * <P>
+     * }</pre>
      *
      * @param name substore name
      * @return substore
      */
-    @Override
-    public IConfigStore getSubStore(String name) {
+    public ConfigStore getSubStore(String name) {
         return getSubStore(name, ConfigStore.class);
     }
 
-    @Override
-    public <T extends IConfigStore> T getSubStore(String name, Class<T> clazz) {
+    public <T extends ConfigStore> T getSubStore(String name, Class<T> clazz) {
 
         String fullname = getFullName(name);
         String reference = mSource.get(fullname);
@@ -720,7 +730,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
      *
      * @return a list of string-based property names
      */
-    @Override
     public Enumeration<String> getPropertyNames() {
         // XXX - this operation is expensive!!!
         Map<String, String> map = getProperties();
@@ -739,11 +748,9 @@ public class ConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Returns a list of sub store names.
-     * <P>
      *
      * @return list of substore names
      */
-    @Override
     public Enumeration<String> getSubStoreNames() {
         // XXX - this operation is expensive!!!
         Map<String, String> map = getProperties();
@@ -765,7 +772,6 @@ public class ConfigStore implements IConfigStore, Cloneable {
     /**
      * Retrieves the source configuration store where
      * the properties are stored.
-     * <P>
      *
      * @return source configuration store
      */

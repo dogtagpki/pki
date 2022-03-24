@@ -8,8 +8,6 @@ import java.util.Map;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureResource;
@@ -60,17 +58,12 @@ public class FeatureService extends PKIService implements FeatureResource {
     }
 
     private Feature createFeature(ConfigStore cs, String tag) {
-        Map<String, String> props;
-        try {
-            props = cs.getSubStore(tag).getProperties();
-            Feature feature = new Feature();
-            feature.setId(tag);
-            feature.setEnabled(Boolean.parseBoolean(props.get("enabled")));
-            feature.setDescription(props.get("description"));
-            feature.setVersion(props.get("version"));
-            return feature;
-        } catch (EBaseException e) {
-            throw new PKIException(e);
-        }
+        Map<String, String> props = cs.getSubStore(tag).getProperties();
+        Feature feature = new Feature();
+        feature.setId(tag);
+        feature.setEnabled(Boolean.parseBoolean(props.get("enabled")));
+        feature.setDescription(props.get("description"));
+        feature.setVersion(props.get("version"));
+        return feature;
     }
 }
