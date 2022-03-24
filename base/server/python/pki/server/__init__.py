@@ -263,23 +263,41 @@ class PKIServer(object):
 
     def export_ca_cert(self):
 
-        token = pki.nssdb.INTERNAL_TOKEN_NAME
-        nickname = self.get_sslserver_cert_nickname()
+        server_config = self.get_server_config()
+        connector = server_config.get_connector('Secure')
 
-        if nickname is None:
+        if not connector:
+            # HTTPS connector not configured, skip
             return
 
-        if ':' in nickname:
-            parts = nickname.split(':', 1)
-            token = parts[0]
-            nickname = parts[1]
+        sslhost = server_config.get_sslhost(connector)
+        sslcert = server_config.get_sslcert(sslhost)
 
-        nssdb = self.open_nssdb(token=token)
+        keystore_type = sslcert.get('certificateKeystoreType')
+        keystore_provider = sslcert.get('certificateKeystoreProvider')
 
-        try:
-            nssdb.extract_ca_cert(self.ca_cert, nickname)
-        finally:
-            nssdb.close()
+        if keystore_type == 'pkcs11' and keystore_provider == 'Mozilla-JSS':
+
+            # export CA cert from NSS database
+
+            token = pki.nssdb.INTERNAL_TOKEN_NAME
+            nickname = self.get_sslserver_cert_nickname()
+
+            if nickname is None:
+                return
+
+            if ':' in nickname:
+                parts = nickname.split(':', 1)
+                token = parts[0]
+                nickname = parts[1]
+
+            nssdb = self.open_nssdb(token=token)
+            try:
+                nssdb.extract_ca_cert(self.ca_cert, nickname)
+            finally:
+                nssdb.close()
+
+        # TODO: handle other types of HTTP connector
 
     def create_catalina_policy(self):
 
