@@ -633,9 +633,11 @@ public class KeyService extends SubsystemService implements KeyResource {
 
         Path keyPath = KeyResource.class.getAnnotation(Path.class);
         BigInteger serial = rec.getSerialNumber();
+        KeyId keyID = new KeyId(serial);
+        ret.setKeyId(keyID);
 
         UriBuilder keyBuilder = uriInfo.getBaseUriBuilder();
-        keyBuilder.path(keyPath.value() + "/" + serial);
+        keyBuilder.path(keyPath.value() + "/" + keyID.toHexString());
         ret.setKeyURL(keyBuilder.build().toString());
 
         return ret;

@@ -22,7 +22,6 @@ package com.netscape.certsrv.key;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -37,6 +36,7 @@ import com.netscape.certsrv.util.JSONSerializer;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyInfo implements JSONSerializer {
 
+    protected KeyId keyId;
     protected String keyURL;
 
     protected String clientKeyID;
@@ -57,6 +57,17 @@ public class KeyInfo implements JSONSerializer {
     }
 
     /**
+     * @return the key ID
+     */
+    public KeyId getKeyId() {
+        return keyId;
+    }
+
+    public void setKeyId(KeyId keyId) {
+        this.keyId = keyId;
+    }
+
+    /**
      * @return the keyURL
      */
     public String getKeyURL() {
@@ -68,15 +79,6 @@ public class KeyInfo implements JSONSerializer {
      */
     public void setKeyURL(String keyURL) {
         this.keyURL = keyURL;
-    }
-
-    /**
-     * @return the key ID in the keyURL
-     */
-    @JsonIgnore
-    public KeyId getKeyId() {
-        String id = keyURL.substring(keyURL.lastIndexOf("/") + 1);
-        return new KeyId(id);
     }
 
     /**
@@ -166,6 +168,7 @@ public class KeyInfo implements JSONSerializer {
         int result = 1;
         result = prime * result + ((algorithm == null) ? 0 : algorithm.hashCode());
         result = prime * result + ((clientKeyID == null) ? 0 : clientKeyID.hashCode());
+        result = prime * result + ((keyId == null) ? 0 : keyId.hashCode());
         result = prime * result + ((keyURL == null) ? 0 : keyURL.hashCode());
         result = prime * result + ((ownerName == null) ? 0 : ownerName.hashCode());
         result = prime * result + ((publicKey == null) ? 0 : publicKey.hashCode());
@@ -193,6 +196,11 @@ public class KeyInfo implements JSONSerializer {
             if (other.clientKeyID != null)
                 return false;
         } else if (!clientKeyID.equals(other.clientKeyID))
+            return false;
+        if (keyId == null) {
+            if (other.keyId != null)
+                return false;
+        } else if (!keyId.equals(other.keyId))
             return false;
         if (keyURL == null) {
             if (other.keyURL != null)
@@ -227,4 +235,12 @@ public class KeyInfo implements JSONSerializer {
         return true;
     }
 
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

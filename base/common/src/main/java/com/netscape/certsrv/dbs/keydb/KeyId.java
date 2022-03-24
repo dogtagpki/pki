@@ -38,7 +38,6 @@ import com.netscape.certsrv.util.JSONSerializer;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyId implements JSONSerializer {
 
-    @JsonValue
     protected BigInteger value;
 
     /**
@@ -112,8 +111,9 @@ public class KeyId implements JSONSerializer {
      * @return
      *         a string containing the hex (hex 16) value for the identifier.
      */
+    @JsonValue
     public String toHexString() {
-        return "0x"+value.toString(16);
+        return "0x" + value.toString(16);
     }
 
     @Override
