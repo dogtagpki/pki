@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.math.BigInteger;
-import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.util.StringTokenizer;
 
@@ -26,13 +25,6 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.util.DerOutputStream;
-import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
-import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.Extensions;
-import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
@@ -50,7 +42,6 @@ import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.ServerXml;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Utility class for functions to be used by the RESTful installer.
@@ -212,78 +203,6 @@ public class Configurator {
             X500Name subjectName) throws Exception {
 
         return null;
-    }
-
-    public PKCS10 createPKCS10Request(
-            KeyPair keyPair,
-            String subjectDN,
-            String algorithm,
-            Extensions requestExtensionss) throws Exception {
-
-        logger.info("Configurator: Creating PKCS #10 request");
-        logger.info("Configurator: - subject: " + subjectDN);
-        logger.info("Configurator: - algorithm: " + algorithm);
-
-        return CryptoUtil.createCertificationRequest(
-                subjectDN,
-                keyPair,
-                algorithm,
-                requestExtensionss);
-    }
-
-    /*
-     * createBasicCAExtensions creates the basic Extensions needed for a CSR to a
-     * CA signing certificate
-     */
-    public void createBasicCAExtensions(Extensions exts) throws Exception {
-
-        logger.info("Configurator: Creating basic CA extensions");
-
-        // create BasicConstraintsExtension
-        BasicConstraintsExtension bcExt = new BasicConstraintsExtension(true, -1);
-        exts.add(bcExt);
-
-        // create KeyUsageExtension
-        boolean[] kuBits = new boolean[KeyUsageExtension.NBITS];
-        for (int i = 0; i < kuBits.length; i++) {
-            kuBits[i] = false;
-        }
-        kuBits[KeyUsageExtension.DIGITAL_SIGNATURE_BIT] = true;
-        kuBits[KeyUsageExtension.NON_REPUDIATION_BIT] = true;
-        kuBits[KeyUsageExtension.KEY_CERTSIGN_BIT] = true;
-        kuBits[KeyUsageExtension.CRL_SIGN_BIT] = true;
-        KeyUsageExtension kuExt = new KeyUsageExtension(true, kuBits);
-        exts.add(kuExt);
-
-        /* save this for later when we want to allow more selection for pkispawn configuration
-        // create NSCertTypeExtension
-        boolean[] nsBits = new boolean[NSCertTypeExtension.NBITS];
-        for (int i = 0; i < nsBits.length; i++) {
-            nsBits[i] = false;
-        }
-        nsBits[NSCertTypeExtension.SSL_CA_BIT] = true;
-        NSCertTypeExtension nsctExt = new NSCertTypeExtension(false, nsBits);
-        exts.add(nsctExt);
-        */
-    }
-
-    public Extension createGenericExtension(String oid, String data, boolean critical) throws Exception {
-
-        logger.info("Configurator: Creating generic extension");
-        logger.info("Configurator: - OID: " + oid);
-        logger.info("Configurator: - data: " + data);
-        logger.info("Configurator: - critical: " + critical);
-
-        try (DerOutputStream out = new DerOutputStream()) {
-
-            byte[] bytes = CryptoUtil.hexString2Bytes(data);
-            out.putOctetString(bytes);
-
-            return new Extension(
-                    new ObjectIdentifier(oid),
-                    critical,
-                    out.toByteArray());
-        }
     }
 
     public void initSubsystem() throws Exception {
