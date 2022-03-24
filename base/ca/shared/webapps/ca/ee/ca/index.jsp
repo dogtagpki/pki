@@ -141,13 +141,7 @@ function initRevocationMenu()
 	var name='usercert';
 	top.RevocationMenu[0] = new menuItem(name, 'UserRevocation.html',
 							  'User Certificate');
-	//name='servercert';
-	//top.RevocationMenu[1] = new menuItem(name, 'ServerRevocation.html',
-	//					      'Server Certificate');
 
-  //  name='othercert';
-   // top.RevocationMenu[1] = new menuItem(name, 'ChallengeRevoke1.html',
-    //                          'Certificate (challenge phrase-based)');
     name='othercert';	
     top.RevocationMenu[1] = new menuItem(name, 'CMCRevReq.html',
                               'CMC Revoke');
