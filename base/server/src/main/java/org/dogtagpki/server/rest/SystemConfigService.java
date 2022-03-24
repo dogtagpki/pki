@@ -23,6 +23,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import org.apache.commons.codec.binary.Hex;
+import org.dogtagpki.nss.NSSDatabase;
+import org.dogtagpki.nss.NSSExtensionGenerator;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -31,7 +33,6 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -192,6 +193,8 @@ public class SystemConfigService extends PKIService {
 
             SystemCertData certData = request.getSystemCert();
 
+            NSSDatabase nssdb = new NSSDatabase();
+
             String tokenName = certData.getToken();
             logger.info("SystemConfigService: - token: " + tokenName);
             CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
@@ -205,10 +208,9 @@ public class SystemConfigService extends PKIService {
             KeyPair keyPair;
 
             if (keyID != null) {
-                byte[] binKeyID = Hex.decodeHex(keyID);
-                PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(token, binKeyID);
-                PK11PubKey publicKey = privateKey.getPublicKey();
-                keyPair = new KeyPair(publicKey, privateKey);
+
+                logger.info("SystemConfigService: Loading key pair");
+                keyPair = nssdb.loadKeyPair(token, Hex.decodeHex(keyID));
 
             } else if (keyType.equals("rsa")) {
 
@@ -231,7 +233,7 @@ public class SystemConfigService extends PKIService {
                     usagesMask = null;
                 }
 
-                keyPair = CryptoUtil.generateRSAKeyPair(
+                keyPair = nssdb.createRSAKeyPair(
                         token,
                         Integer.parseInt(keySize),
                         usages,
@@ -270,7 +272,11 @@ public class SystemConfigService extends PKIService {
                     usagesMask = CryptoUtil.ECDHE_USAGES_MASK;
                 }
 
-                keyPair = CryptoUtil.generateECCKeyPair(token, curveName, usages, usagesMask);
+                keyPair = nssdb.createECKeyPair(
+                        token,
+                        curveName,
+                        usages,
+                        usagesMask);
 
             } else {
                 throw new Exception("Unsupported key type: " + keyType);
@@ -280,9 +286,23 @@ public class SystemConfigService extends PKIService {
             keyID = Hex.encodeHexString(privateKey.getUniqueID());
             certData.setKeyID(keyID);
 
-            Extensions requestExtensions = new Extensions();
+            NSSExtensionGenerator generator = new NSSExtensionGenerator();
+
             if (tag.equals("signing")) {
-                configurator.createBasicCAExtensions(requestExtensions);
+                // create BasicConstraintsExtension
+                generator.setParameter(
+                        "basicConstraints",
+                        "CA:TRUE,pathlen:-1,critical");
+
+                // create KeyUsageExtension
+                generator.setParameter(
+                        "keyUsage",
+                        "digitalSignature,nonRepudiation,keyCertSign,cRLSign,critical");
+
+                // create NSCertTypeExtension (not supported)
+                // generator.setParameter(
+                //         "nsCertType",
+                //         "ssl_ca");
             }
 
             String extOID = certData.getReqExtOID();
@@ -290,9 +310,25 @@ public class SystemConfigService extends PKIService {
             boolean extCritical = certData.getReqExtCritical();
 
             if (extOID != null && extData != null) {
-                Extension ext = configurator.createGenericExtension(extOID, extData, extCritical);
-                requestExtensions.add(ext);
+                // create generic Extension
+
+                // split extension data
+                // e.g. "abcdef" => ["ab", "cd", "ef"]
+                String[] array = extData.split("(?<=\\G.{2})");
+
+                // rejoin extension data
+                // e.g. ["ab", "cd", "ef"] => "DER:ab:cd:ef"
+                String der = "DER:" + String.join(":", array);
+
+                String value = der;
+                if (extCritical) {
+                    value = value + ",critical";
+                }
+
+                generator.setParameter(extOID, value);
             }
+
+            Extensions requestExtensions = generator.createExtensions();
 
             String subjectDN = certData.getSubjectDN();
             String keyAlgorithm = certData.getKeyAlgorithm();
@@ -304,7 +340,7 @@ public class SystemConfigService extends PKIService {
 
             if (certRequestType.equals("pkcs10")) {
 
-                PKCS10 pkcs10 = configurator.createPKCS10Request(
+                PKCS10 pkcs10 = nssdb.createPKCS10Request(
                         keyPair,
                         subjectDN,
                         keyAlgorithm,
