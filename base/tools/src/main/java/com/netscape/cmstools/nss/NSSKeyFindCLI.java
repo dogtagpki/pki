@@ -18,13 +18,20 @@
 
 package com.netscape.cmstools.nss;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.cli.CommandCLI;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyInfo;
@@ -51,7 +58,11 @@ public class NSSKeyFindCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
-        Option option = new Option(null, "output-format", true, "Output format: text (default), json.");
+        Option option = new Option(null, "nickname", true, "Certificate nickname");
+        option.setArgName("nickname");
+        options.addOption(option);
+
+        option = new Option(null, "output-format", true, "Output format: text (default), json.");
         option.setArgName("format");
         options.addOption(option);
     }
@@ -62,13 +73,31 @@ public class NSSKeyFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        String tokenName = getConfig().getTokenName();
-        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-        CryptoStore cryptoStore = token.getCryptoStore();
+        String nickname = cmd.getOptionValue("nickname");
 
-        PrivateKey[] privateKeys = cryptoStore.getPrivateKeys();
+        List<PrivateKey> privateKeys;
+
+        if (nickname != null) {
+            CryptoManager cm = CryptoManager.getInstance();
+            privateKeys = new ArrayList<>();
+            for (X509Certificate cert : cm.findCertsByNickname(nickname)) {
+                try {
+                    PrivateKey privateKey = cm.findPrivKeyByCert(cert);
+                    privateKeys.add(privateKey);
+                } catch (ObjectNotFoundException e) {
+                    // cert doesn't have a key, skip
+                }
+            }
+
+        } else {
+            String tokenName = getConfig().getTokenName();
+            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+            CryptoStore cryptoStore = token.getCryptoStore();
+            privateKeys = Arrays.asList(cryptoStore.getPrivateKeys());
+        }
+
         KeyInfoCollection keyInfoCollection = new KeyInfoCollection();
-        keyInfoCollection.setTotal(privateKeys.length);
+        keyInfoCollection.setTotal(privateKeys.size());
 
         for (PrivateKey privateKey : privateKeys) {
             KeyInfo keyInfo = new KeyInfo();
