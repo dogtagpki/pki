@@ -19,6 +19,7 @@
 package com.netscape.cmstools.nss;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.crypto.CryptoStore;
@@ -49,6 +50,13 @@ public class NSSKeyFindCLI extends CommandCLI {
     }
 
     @Override
+    public void createOptions() {
+        Option option = new Option(null, "output-format", true, "Output format: text (default), json.");
+        option.setArgName("format");
+        options.addOption(option);
+    }
+
+    @Override
     public void execute(CommandLine cmd) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();
@@ -70,17 +78,27 @@ public class NSSKeyFindCLI extends CommandCLI {
             keyInfoCollection.addEntry(keyInfo);
         }
 
-        boolean first = true;
+        String outputFormat = cmd.getOptionValue("output-format", "text");
 
-        for (KeyInfo keyInfo : keyInfoCollection.getEntries()) {
+        if (outputFormat.equalsIgnoreCase("json")) {
+            System.out.println(keyInfoCollection.toJSON());
 
-            if (first) {
-                first = false;
-            } else {
-                System.out.println();
+        } else if (outputFormat.equalsIgnoreCase("text")) {
+            boolean first = true;
+
+            for (KeyInfo keyInfo : keyInfoCollection.getEntries()) {
+
+                if (first) {
+                    first = false;
+                } else {
+                    System.out.println();
+                }
+
+                NSSKeyCLI.printKeyInfo(keyInfo);
             }
 
-            NSSKeyCLI.printKeyInfo(keyInfo);
+        } else {
+            throw new Exception("Unsupported output format: " + outputFormat);
         }
     }
 }
