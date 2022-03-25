@@ -609,10 +609,10 @@ public class MainCLI extends CLI {
 
             if (banner != null && !ignoreBanner) {
 
-                System.out.println(banner);
-                System.out.println();
-                System.out.print("Do you want to proceed (y/N)? ");
-                System.out.flush();
+                System.err.println(banner);
+                System.err.println();
+                System.err.print("Do you want to proceed (y/N)? ");
+                System.err.flush();
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
                 String line = reader.readLine().trim();
