@@ -59,9 +59,7 @@ PKCS7_FOOTER = '-----END PKCS7-----'
 INTERNAL_TOKEN_NAME = 'internal'
 INTERNAL_TOKEN_FULL_NAME = 'Internal Key Storage Token'
 
-logger = logging.LoggerAdapter(
-    logging.getLogger(__name__),
-    extra={'indent': ''})
+logger = logging.getLogger(__name__)
 
 
 def convert_data(data, input_format, output_format,
@@ -619,6 +617,12 @@ class NSSDatabase(object):
 
         if trust_attributes:
             cmd.extend(['--trust', trust_attributes])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
 
         logger.debug('Command: %s', ' '.join(map(str, cmd)))
         subprocess.check_call(cmd)
@@ -1644,6 +1648,12 @@ class NSSDatabase(object):
         if output_format:
             cmd.extend(['--format', output_format])
 
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
         cmd.extend([fullname, output_file])
 
         logger.debug('Command: %s', ' '.join(map(str, cmd)))
@@ -1720,7 +1730,10 @@ class NSSDatabase(object):
                 cmd.extend(['--no-chain'])
 
             if logger.isEnabledFor(logging.DEBUG):
-                cmd.extend(['--debug'])
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
 
             cmd.extend([full_name])
 
@@ -1864,6 +1877,12 @@ class NSSDatabase(object):
             if trust_attributes:
                 cmd.extend(['--trust', trust_attributes])
 
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
             logger.debug('Command: %s', ' '.join(map(str, cmd)))
 
             if pkcs7_data:
@@ -1892,6 +1911,12 @@ class NSSDatabase(object):
                 '--output-prefix', prefix,
                 '--output-suffix', suffix
             ]
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
 
             logger.debug('Command: %s', ' '.join(map(str, cmd)))
             subprocess.check_call(cmd)
@@ -1976,7 +2001,7 @@ class NSSDatabase(object):
                 cmd.append('--debug')
 
             elif logger.isEnabledFor(logging.INFO):
-                cmd.append('-v')
+                cmd.append('--verbose')
 
             logger.debug('Command: %s', ' '.join(map(str, cmd)))
             subprocess.check_call(cmd)
@@ -2047,7 +2072,10 @@ class NSSDatabase(object):
                 cmd.extend(['--no-chain'])
 
             if logger.isEnabledFor(logging.DEBUG):
-                cmd.extend(['--debug'])
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
 
             if nicknames:
                 cmd.extend(nicknames)
