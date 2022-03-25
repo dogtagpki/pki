@@ -222,6 +222,24 @@ class NSSDatabase(object):
         self.passwords = passwords
         self.password_conf = password_conf
 
+    def run(self,
+            cmd,
+            input=None,  # pylint: disable=W0622
+            stdout=None,
+            capture_output=False,
+            check=False,
+            text=None):
+
+        logger.debug('Command: %s', ' '.join(cmd))
+
+        return subprocess.run(
+            cmd,
+            input=input,
+            stdout=stdout,
+            capture_output=capture_output,
+            check=check,
+            text=text)
+
     def create(self, enable_trust_policy=False):
 
         cmd = [
@@ -235,8 +253,7 @@ class NSSDatabase(object):
         else:
             cmd.extend(['--empty-password'])
 
-        logger.debug('Command: %s', ' '.join(cmd))
-        subprocess.check_call(cmd)
+        self.run(cmd, check=True)
 
         if enable_trust_policy and not self.module_exists('p11-kit-trust'):
             self.add_module('p11-kit-trust', '/usr/share/pki/lib/p11-kit-trust.so')
@@ -342,8 +359,7 @@ class NSSDatabase(object):
                 '-@', self.password_file
             ])
 
-        logger.debug('Command: %s', ' '.join(map(str, cmd)))
-        subprocess.check_call(cmd)
+        self.run(cmd, check=True)
 
         migration = (
             ('cert8.db', 'cert9.db'),
@@ -378,8 +394,7 @@ class NSSDatabase(object):
         if self.password_file:
             cmd.extend(['-f', self.password_file])
 
-        with open(os.devnull, 'wb') as f:
-            subprocess.check_call(cmd, stdout=f)
+        self.run(cmd, stdout=subprocess.DEVNULL, check=True)
 
         for oldname, _ in migration:  # pylint: disable=unused-variable
             oldname = os.path.join(self.directory, oldname)
@@ -397,9 +412,7 @@ class NSSDatabase(object):
             '-rawlist'
         ]
 
-        logger.debug('Command: %s', ' '.join(cmd))
-
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
+        result = self.run(cmd, capture_output=True, check=True)
         output = result.stdout.decode('utf-8')
 
         pattern = re.compile(r' name="%s"' % name)
@@ -442,7 +455,7 @@ class NSSDatabase(object):
 
         # respond with <enter>
 
-        subprocess.run(
+        self.run(
             cmd,
             input='\n'.encode('utf-8'),
             stdout=subprocess.DEVNULL,
@@ -503,10 +516,9 @@ class NSSDatabase(object):
                     '-t', ''
                 ])
 
-                logger.debug('Command: %s', ' '.join(map(str, cmd)))
-                rc = subprocess.call(cmd)
+                result = self.run(cmd)
 
-                if rc:
+                if result.returncode:
                     logger.warning('certutil returned non-zero exit code (bug #1393668)')
 
             if not trust_attributes:
@@ -531,8 +543,7 @@ class NSSDatabase(object):
                     '-t', trust_attributes
                 ])
 
-                logger.debug('Command: %s', ' '.join(map(str, cmd)))
-                subprocess.check_call(cmd)
+                self.run(cmd, check=True)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -585,8 +596,7 @@ class NSSDatabase(object):
 
         cmd.append(nickname)
 
-        logger.debug('Command: %s', ' '.join(map(str, cmd)))
-        subprocess.run(cmd, input=cert_data, text=True, check=True)
+        self.run(cmd, input=cert_data, text=True, check=True)
 
     def add_ca_cert(self, cert_file, trust_attributes='CT,C,C'):
 
@@ -624,8 +634,7 @@ class NSSDatabase(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        logger.debug('Command: %s', ' '.join(map(str, cmd)))
-        subprocess.check_call(cmd)
+        self.run(cmd, check=True)
 
     def modify_cert(self, nickname, trust_attributes):
         cmd = [
@@ -645,8 +654,7 @@ class NSSDatabase(object):
             '-t', trust_attributes
         ])
 
-        logger.debug('Command: %s', ' '.join(map(str, cmd)))
-        subprocess.check_call(cmd)
+        self.run(cmd, check=True)
 
     def create_noise(self, noise_file, size=2048, key_type='rsa'):
         # Under EC keys, key_size parameter is actually the name of a curve.
@@ -665,8 +673,7 @@ class NSSDatabase(object):
             str(size)
         ]
 
-        logger.debug('Command: %s', ' '.join(map(str, cmd)))
-        subprocess.check_call(cmd)
+        self.run(cmd, check=True)
 
     def create_request(
             self,
@@ -872,17 +879,10 @@ class NSSDatabase(object):
 
                 cmd.append(','.join(exts))
 
-            logger.debug('Command: %s', ' '.join(map(str, cmd)))
-
             # generate binary request
-            p = subprocess.Popen(cmd,
-                                 stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.STDOUT)
+            result = self.run(cmd, input=keystroke.encode('ascii'))
 
-            p.communicate(keystroke.encode('ascii'))
-
-            rc = p.wait()
+            rc = result.returncode
 
             if rc:
                 msg = "Failed to generate certificate request. Return code: %d\n"
@@ -891,8 +891,8 @@ class NSSDatabase(object):
 
             # encode binary request in base-64
             b64_request_file = os.path.join(tmpdir, 'request.b64')
-            subprocess.check_call([
-                'BtoA', binary_request_file, b64_request_file])
+            cmd = ['BtoA', binary_request_file, b64_request_file]
+            self.run(cmd, check=True)
 
             # read base-64 request
             with open(b64_request_file, 'r') as f:
@@ -946,8 +946,7 @@ class NSSDatabase(object):
                 '-o', request_file,
             ])
 
-            logger.debug('Command: %s', ' '.join(map(str, cmd)))
-            subprocess.check_call(cmd)
+            self.run(cmd, check=True)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -1002,7 +1001,7 @@ class NSSDatabase(object):
         cmd.extend(['-z', noise_file])
 
         try:
-            subprocess.check_call(cmd)
+            self.run(cmd, check=True)
         finally:
             if temp_noise_file:
                 os.unlink(noise_file)
@@ -1028,13 +1027,16 @@ class NSSDatabase(object):
         if token:
             cmd.extend(['-h', token])
 
-        try:
-            out = subprocess.check_output(cmd)
-        except subprocess.CalledProcessError as e:
-            if e.returncode == 255:
-                return []  # no keys were found
-            else:
-                raise e  # other error; re-raise
+        result = self.run(cmd, capture_output=True)
+
+        out = result.stdout
+        err = result.stderr
+
+        if result.returncode == 255:
+            return []  # no keys were found
+        else:
+            # other error
+            raise Exception('Unable to get private keys: %s' % err)
 
         # output contains list that looks like:
         #   < 0> rsa      b995381610fb58e8b45d3c2401dfd30d6efdd595 (orphan)
@@ -1095,8 +1097,7 @@ class NSSDatabase(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        logger.debug('Command: %s', ' '.join(map(str, cmd)))
-        subprocess.check_call(cmd)
+        self.run(cmd, check=True)
 
     def create_cert(
             self,
@@ -1281,18 +1282,9 @@ class NSSDatabase(object):
 
             keystroke += '\n'
 
-        logger.debug('Command: %s', ' '.join(map(str, cmd)))
+        result = self.run(cmd, input=keystroke.encode('ascii'))
 
-        p = subprocess.Popen(cmd,
-                             stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
-
-        p.communicate(keystroke.encode('ascii'))
-
-        rc = p.wait()
-
-        return rc
+        return result.returncode
 
     def __create_cert(
             self,
@@ -1332,8 +1324,7 @@ class NSSDatabase(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        logger.debug('Command: %s', ' '.join(map(str, cmd)))
-        subprocess.check_call(cmd)
+        self.run(cmd, check=True)
 
     def create_self_signed_ca_cert(self, request_file, cert_file,
                                    serial='1', validity=240):
@@ -1396,8 +1387,7 @@ class NSSDatabase(object):
             '-d', self.directory
         ]
 
-        logger.debug('Command: %s', ' '.join(map(str, cmd)))
-        subprocess.check_call(cmd)
+        self.run(cmd, check=True)
 
     def get_trust(self, nickname, token=None):
         """
@@ -1433,13 +1423,10 @@ class NSSDatabase(object):
             if password_file:
                 cmd.extend(['-f', password_file])
 
-            logger.debug('Command: %s', ' '.join(map(str, cmd)))
+            result = self.run(cmd, capture_output=True)
 
-            p = subprocess.Popen(cmd,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-
-            output, error = p.communicate()
+            output = result.stdout
+            error = result.stderr
 
             if error:
                 # certutil returned an error
@@ -1450,7 +1437,7 @@ class NSSDatabase(object):
 
                 raise Exception('Could not find certificate: %s: %s' % (fullname, error.strip()))
 
-            if p.returncode != 0:
+            if result.returncode != 0:
                 logger.warning('certutil returned non-zero exit code (bug #1539996)')
 
             re_compile = re.compile(r'^' + fullname + r'\s+(\S+)$', re.MULTILINE)
@@ -1485,13 +1472,10 @@ class NSSDatabase(object):
 
             cmd.extend(['-n', fullname])
 
-            logger.debug('Command: %s', ' '.join(map(str, cmd)))
+            result = self.run(cmd, capture_output=True)
 
-            p = subprocess.Popen(cmd,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-
-            output, error = p.communicate()
+            output = result.stdout
+            error = result.stderr
 
             if error:
                 # certutil returned an error
@@ -1501,7 +1485,7 @@ class NSSDatabase(object):
 
                 raise Exception('Could not find certificate: %s: %s' % (fullname, error.strip()))
 
-            if p.returncode != 0:
+            if result.returncode != 0:
                 logger.warning('certutil returned non-zero exit code (bug #1539996)')
 
             print(output.decode('ascii'))
@@ -1551,12 +1535,10 @@ class NSSDatabase(object):
             if output_format_option:
                 cmd.extend([output_format_option])
 
-            logger.debug('Command: %s', ' '.join(map(str, cmd)))
+            result = self.run(cmd, capture_output=True)
 
-            p = subprocess.Popen(cmd,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-            cert_data, std_err = p.communicate()
+            cert_data = result.stdout
+            std_err = result.stderr
 
             if std_err:
                 # certutil returned an error
@@ -1573,9 +1555,9 @@ class NSSDatabase(object):
             else:
                 logger.debug('certutil returned cert data')
 
-            if p.returncode != 0:
+            if result.returncode != 0:
                 logger.warning('certutil returned non-zero exit code (bug #1539996)')
-                logger.debug('return code: %s', p.returncode)
+                logger.debug('return code: %s', result.returncode)
 
             if output_format == 'base64':
                 cert_data = base64.b64encode(cert_data).decode('utf-8')
@@ -1656,8 +1638,7 @@ class NSSDatabase(object):
 
         cmd.extend([fullname, output_file])
 
-        logger.debug('Command: %s', ' '.join(map(str, cmd)))
-        subprocess.check_call(cmd)
+        self.run(cmd, check=True)
 
     def export_cert(self,
                     nickname,
@@ -1737,8 +1718,7 @@ class NSSDatabase(object):
 
             cmd.extend([full_name])
 
-            logger.debug('Command: %s', ' '.join(map(str, cmd)))
-            subprocess.check_call(cmd)
+            self.run(cmd, check=True)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -1771,8 +1751,7 @@ class NSSDatabase(object):
 
             cmd.extend(['-n', nickname])
 
-            logger.debug('Command: %s', ' '.join(map(str, cmd)))
-            subprocess.check_call(cmd)
+            self.run(cmd, check=True)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -1883,14 +1862,12 @@ class NSSDatabase(object):
             elif logger.isEnabledFor(logging.INFO):
                 cmd.append('--verbose')
 
-            logger.debug('Command: %s', ' '.join(map(str, cmd)))
-
             if pkcs7_data:
                 data = pkcs7_data.encode('utf-8')
             else:
                 data = None
 
-            subprocess.run(cmd, input=data, check=True)
+            self.run(cmd, input=data, check=True)
 
             return
 
@@ -1918,8 +1895,7 @@ class NSSDatabase(object):
             elif logger.isEnabledFor(logging.INFO):
                 cmd.append('--verbose')
 
-            logger.debug('Command: %s', ' '.join(map(str, cmd)))
-            subprocess.check_call(cmd)
+            self.run(cmd, check=True)
 
             # Count the number of certs in the chain.
             n = 0
@@ -2003,8 +1979,7 @@ class NSSDatabase(object):
             elif logger.isEnabledFor(logging.INFO):
                 cmd.append('--verbose')
 
-            logger.debug('Command: %s', ' '.join(map(str, cmd)))
-            subprocess.check_call(cmd)
+            self.run(cmd, check=True)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -2080,8 +2055,7 @@ class NSSDatabase(object):
             if nicknames:
                 cmd.extend(nicknames)
 
-            logger.debug('Command: %s', ' '.join(map(str, cmd)))
-            subprocess.check_call(cmd)
+            self.run(cmd, check=True)
 
         finally:
             shutil.rmtree(tmpdir)
