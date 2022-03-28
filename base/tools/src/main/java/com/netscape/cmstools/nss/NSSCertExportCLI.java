@@ -96,6 +96,7 @@ public class NSSCertExportCLI extends CommandCLI {
             }
 
             output = buffer.toString().getBytes();
+
         } else if (format.equals("PEM")) {
             StringBuffer buffer = new StringBuffer();
 
@@ -109,15 +110,19 @@ public class NSSCertExportCLI extends CommandCLI {
             }
 
             output = buffer.toString().getBytes();
+
         } else if (format.equals("DER")) {
             for (X509Certificate cert : certs) {
                 output = cert.getEncoded();
             }
+
+        } else {
+            throw new Exception("Unsupported format: " + format);
         }
 
         if (path == null) {
-            System.out.print(new String(output));
-            System.out.flush();
+            System.out.write(output);
+
         } else {
             try (FileOutputStream fos = new FileOutputStream(path)) {
                 fos.write(output);
