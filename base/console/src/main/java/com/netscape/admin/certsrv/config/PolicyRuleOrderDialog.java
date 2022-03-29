@@ -60,7 +60,9 @@ import com.netscape.management.client.util.JButtonFactory;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class PolicyRuleOrderDialog extends JDialog
     implements ActionListener, MouseListener
 {

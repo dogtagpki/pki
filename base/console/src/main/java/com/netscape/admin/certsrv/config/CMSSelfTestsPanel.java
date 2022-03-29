@@ -46,7 +46,9 @@ import com.netscape.management.client.util.JButtonFactory;
  * @author Matt Harmsen
  * @author Christine Ho
  * @version $Revision$, $Date$
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSSelfTestsPanel extends CMSBaseTab
 {
     private static final String PROP_TITLE = "On-Demand Self Tests Results";

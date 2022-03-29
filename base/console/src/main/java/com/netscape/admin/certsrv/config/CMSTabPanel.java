@@ -17,21 +17,36 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.tree.*;
-import java.awt.event.*;
-import java.awt.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.tree.TreePath;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBasePanel;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.CMSResourcePage;
+import com.netscape.admin.certsrv.IRefreshTabPanel;
+import com.netscape.admin.certsrv.IResourceSelectionListener;
+import com.netscape.management.client.IResourceObject;
+import com.netscape.management.client.ResourceObject;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Base Class for Tabbed right hand pane
  *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSTabPanel extends CMSBaseConfigPanel
     implements IResourceSelectionListener, ChangeListener, IRefreshTabPanel
 {
