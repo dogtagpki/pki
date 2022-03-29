@@ -335,6 +335,9 @@ jobs:
 
           docker exec ca pki-server cert-find
 
+      - name: Install banner in CA container
+        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Set up KRA DS container
         run: |
           tests/bin/ds-container-create.sh krads
@@ -374,6 +377,9 @@ jobs:
 
           docker exec kra pki-server cert-find
 
+      - name: Install banner in KRA container
+        run: docker exec kra cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
       #   run: docker exec kra pki-healthcheck --failures-only
@@ -385,7 +391,7 @@ jobs:
           docker exec kra pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
-          docker exec kra pki -n caadmin kra-user-show kraadmin
+          docker exec kra pki -n caadmin --ignore-banner kra-user-show kraadmin
 
       - name: Verify KRA connector in CA
         run: |
@@ -393,9 +399,11 @@ jobs:
           docker exec ca pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
-          docker exec ca bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${SHARED}/kraconnector.host"
-          echo kra.example.com > kra.hostname
-          diff kra.hostname kraconnector.host
+
+          docker exec ca bash pki -n caadmin --ignore-banner ca-kraconnector-show | tee output
+          sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' output > actual
+          echo kra.example.com > expected
+          diff expected actual
 
       - name: Gather artifacts from CA containers
         if: always()

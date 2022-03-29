@@ -469,6 +469,9 @@ jobs:
 
           docker exec root pki-server cert-find
 
+      - name: Install banner in root container
+        run: docker exec root cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Set up subordinate DS container
         run: |
           tests/bin/ds-container-create.sh subds
@@ -501,6 +504,9 @@ jobs:
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
               -v
+
+      - name: Install banner in subordinate container
+        run: docker exec subordinate cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
 
       - name: Check CA signing cert
         run: |
@@ -540,11 +546,11 @@ jobs:
           docker exec subordinate pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
-          docker exec subordinate pki -n caadmin ca-user-show caadmin
+          docker exec subordinate pki -n caadmin --ignore-banner ca-user-show caadmin
 
       - name: Check cert requests in subordinate CA
         run: |
-          docker exec subordinate pki -n caadmin ca-cert-request-find
+          docker exec subordinate pki -n caadmin --ignore-banner ca-cert-request-find
 
       - name: Gather artifacts from root containers
         if: always()

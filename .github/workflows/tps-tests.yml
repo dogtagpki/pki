@@ -345,6 +345,9 @@ jobs:
 
           docker exec ca pki-server cert-find
 
+      - name: Install banner in CA container
+        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Set up KRA DS container
         run: |
           tests/bin/ds-container-create.sh krads
@@ -384,6 +387,9 @@ jobs:
 
           docker exec kra pki-server cert-find
 
+      - name: Install banner in KRA container
+        run: docker exec kra cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Set up TKS DS container
         run: |
           tests/bin/ds-container-create.sh tksds
@@ -418,6 +424,9 @@ jobs:
               -v
 
           docker exec tks pki-server cert-find
+
+      - name: Install banner in TKS container
+        run: docker exec tks cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
 
       - name: Set up TPS DS container
         run: |
@@ -459,6 +468,9 @@ jobs:
 
           docker exec tps pki-server cert-find
 
+      - name: Install banner in TPS container
+        run: docker exec tps cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Run PKI healthcheck
         run: docker exec tps pki-healthcheck --failures-only
 
@@ -469,7 +481,7 @@ jobs:
           docker exec tps pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
-          docker exec tps pki -n caadmin tps-user-show tpsadmin
+          docker exec tps pki -n caadmin --ignore-banner tps-user-show tpsadmin
 
       - name: Gather artifacts from CA containers
         if: always()

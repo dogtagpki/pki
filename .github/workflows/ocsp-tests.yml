@@ -389,6 +389,9 @@ jobs:
 
           docker exec ca pki-server cert-find
 
+      - name: Install banner in CA container
+        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Set up OCSP DS container
         run: |
           tests/bin/ds-container-create.sh ocspds
@@ -426,6 +429,9 @@ jobs:
 
           docker exec ocsp pki-server cert-find
 
+      - name: Install banner in OCSP container
+        run: docker exec ocsp cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Run PKI healthcheck
         run: docker exec ocsp pki-healthcheck --failures-only
 
@@ -436,7 +442,7 @@ jobs:
           docker exec ocsp pki client-cert-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
-          docker exec ocsp pki -n caadmin ocsp-user-show ocspadmin
+          docker exec ocsp pki -n caadmin --ignore-banner ocsp-user-show ocspadmin
 
       - name: Gather artifacts from CA containers
         if: always()
