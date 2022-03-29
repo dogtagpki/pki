@@ -172,6 +172,9 @@ jobs:
       - name: Install CA in CA container
         run: docker exec ca pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
 
+      - name: Install banner in CA container
+        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Setup OCSP container
         run: |
           IMAGE=pki-runner \
@@ -196,6 +199,9 @@ jobs:
           docker exec ocsp cp ${PKIDIR}/ca_admin.cert .
           docker exec ocsp pkispawn -f /usr/share/pki/server/examples/installation/ocsp-separate.cfg -s OCSP -v
 
+      - name: Install banner in OCSP container
+        run: docker exec ocsp cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Run PKI healthcheck
         run: docker exec ocsp pki-healthcheck --debug
 
@@ -207,7 +213,7 @@ jobs:
           docker exec ocsp pki client-cert-import \
               --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
-          docker exec pki pki -n caadmin ocsp-user-show ocspadmin
+          docker exec ocsp pki -n caadmin --ignore-banner ocsp-user-show ocspadmin
 
       - name: Gather artifacts from CA container
         if: always()

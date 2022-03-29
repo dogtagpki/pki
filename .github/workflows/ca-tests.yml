@@ -267,6 +267,9 @@ jobs:
       - name: Install root CA in root container
         run: docker exec root pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
 
+      - name: Install banner in root container
+        run: docker exec root cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Setup subordinate container
         run: |
           IMAGE=pki-runner \
@@ -289,6 +292,9 @@ jobs:
           docker exec subordinate cp ${PKIDIR}/root-ca_signing.crt .
           docker exec subordinate pkispawn -f /usr/share/pki/server/examples/installation/subca.cfg -s CA -v
 
+      - name: Install banner in subordinate container
+        run: docker exec subordinate cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Run PKI healthcheck
         run: docker exec subordinate pki-healthcheck --failures-only
 
@@ -298,7 +304,7 @@ jobs:
           docker exec subordinate pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
-          docker exec subordinate pki -n caadmin ca-user-show caadmin
+          docker exec subordinate pki -n caadmin --ignore-banner ca-user-show caadmin
 
       - name: Gather artifacts from root container
         if: always()
