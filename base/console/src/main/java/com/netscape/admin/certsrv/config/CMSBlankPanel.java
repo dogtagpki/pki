@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.management.client.*;
+import com.netscape.management.client.ResourceModel;
 
 /**
  * Blank Panel to be displayed at the right hand side
@@ -26,7 +26,9 @@ import com.netscape.management.client.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSBlankPanel extends CMSBaseTab {
 
     /*==========================================================

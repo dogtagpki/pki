@@ -17,20 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.util.MissingResourceException;
+
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.ListSelectionEvent;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBasePanel;
 
 /**
  * Netscape Certificate Server 4.0 Default Base Panel
  *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public abstract class CMSBaseConfigPanel extends CMSBasePanel {
 
     /*==========================================================
