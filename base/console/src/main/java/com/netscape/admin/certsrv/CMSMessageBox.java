@@ -17,14 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.util.*;
-import java.awt.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Insets;
+import java.awt.Label;
+import java.util.ResourceBundle;
 
-/*
-		A basic implementation of the JDialog class.
-*/
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 
+/**
+    A basic implementation of the JDialog class.
+    @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
+**/
+
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSMessageBox extends JDialog
 {
     private Label message;

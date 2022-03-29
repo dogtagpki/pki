@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 /**
  * A class represents an administartive exception. By
@@ -29,7 +31,9 @@ import java.util.*;
  * @author jpanchen
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class EAdminException extends Exception {
 
     /*==========================================================

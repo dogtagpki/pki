@@ -17,14 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import com.netscape.management.client.*;
+import com.netscape.management.client.IResourceObject;
 
 /**
   * Resource Selection Notification
   *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
   */
+@Deprecated(since="10.14.0", forRemoval=true)
 public interface IResourceSelectionListener
 {
     /**

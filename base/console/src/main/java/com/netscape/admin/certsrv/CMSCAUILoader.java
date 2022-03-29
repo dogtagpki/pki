@@ -17,13 +17,39 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.ug.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.notification.*;
+import com.netscape.admin.certsrv.config.CMSCAConnectorPanel;
+import com.netscape.admin.certsrv.config.CMSCAGeneralPanel;
+import com.netscape.admin.certsrv.config.CMSCALDAPPanel;
+import com.netscape.admin.certsrv.config.CMSCRLCachePanel;
+import com.netscape.admin.certsrv.config.CMSCRLFormatPanel;
+import com.netscape.admin.certsrv.config.CMSCRLIPPanel;
+import com.netscape.admin.certsrv.config.CMSCRLSettingPanel;
+import com.netscape.admin.certsrv.config.CMSTabPanel;
+import com.netscape.admin.certsrv.config.CRLExtensionsInstanceTab;
+import com.netscape.admin.certsrv.config.JobsImplTab;
+import com.netscape.admin.certsrv.config.JobsInstanceTab;
+import com.netscape.admin.certsrv.config.JobsSettingPanel;
+import com.netscape.admin.certsrv.config.MapperImplTab;
+import com.netscape.admin.certsrv.config.MapperInstanceTab;
+import com.netscape.admin.certsrv.config.PolicyImplTab;
+import com.netscape.admin.certsrv.config.PolicyInstanceTab;
+import com.netscape.admin.certsrv.config.ProfileImplTab;
+import com.netscape.admin.certsrv.config.ProfileInstanceTab;
+import com.netscape.admin.certsrv.config.PublisherImplTab;
+import com.netscape.admin.certsrv.config.PublisherInstanceTab;
+import com.netscape.admin.certsrv.config.RuleInstanceTab;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.notification.RequestCompletePanel;
+import com.netscape.admin.certsrv.notification.RequestInQPanel;
+import com.netscape.admin.certsrv.notification.RequestRevokedPanel;
+import com.netscape.admin.certsrv.ug.AuthImplTab;
+import com.netscape.admin.certsrv.ug.AuthInstanceTab;
+import com.netscape.admin.certsrv.ug.CMSUGTabPanel;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Netscape Certificate Server 4.0 Certificate Authority UI Loader.
@@ -34,7 +60,9 @@ import com.netscape.admin.certsrv.notification.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @date        03/30/97
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSCAUILoader implements ISubSystemUILoader {
 
     /*==========================================================

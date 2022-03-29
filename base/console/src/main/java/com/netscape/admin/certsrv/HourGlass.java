@@ -17,8 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Cursor;
+
+import javax.swing.JFrame;
 
 /**
  * This class changes the cursor to the busy mode.
@@ -26,7 +27,9 @@ import java.awt.*;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @date 03/19/99
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class HourGlass extends Thread {
 
     private JFrame mActiveFrame;
