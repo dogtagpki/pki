@@ -236,6 +236,9 @@ jobs:
       - name: Install CA in CA container
         run: docker exec ca pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
 
+      - name: Install banner in CA container
+        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Setup KRA container
         run: |
           IMAGE=pki-runner \
@@ -260,6 +263,9 @@ jobs:
           docker exec kra cp ${PKIDIR}/ca_admin.cert .
           docker exec kra pkispawn -f /usr/share/pki/server/examples/installation/kra-separate.cfg -s KRA -v
 
+      - name: Install banner in KRA container
+        run: docker exec kra cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Setup TKS container
         run: |
           IMAGE=pki-runner \
@@ -281,6 +287,9 @@ jobs:
           docker exec tks cp ${PKIDIR}/ca_signing.crt .
           docker exec tks cp ${PKIDIR}/ca_admin.cert .
           docker exec tks pkispawn -f /usr/share/pki/server/examples/installation/tks-separate.cfg -s TKS -v
+
+      - name: Install banner in TKS container
+        run: docker exec tks cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
 
       - name: Setup TPS container
         run: |
@@ -304,6 +313,9 @@ jobs:
           docker exec tps cp ${PKIDIR}/ca_admin.cert .
           docker exec tps pkispawn -f /usr/share/pki/server/examples/installation/tps-separate.cfg -s TPS -v
 
+      - name: Install banner in TPS container
+        run: docker exec tps cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
       - name: Run PKI healthcheck
         run: docker exec tps pki-healthcheck --debug
 
@@ -315,7 +327,7 @@ jobs:
           docker exec tps pki client-cert-import \
               --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
-          docker exec tps pki -n caadmin tps-user-show tpsadmin
+          docker exec tps pki -n caadmin --ignore-banner tps-user-show tpsadmin
 
       - name: Gather artifacts from CA container
         if: always()
