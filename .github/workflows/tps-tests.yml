@@ -193,6 +193,225 @@ jobs:
           path: |
             /tmp/artifacts/pki
 
+  tps-separate-test:
+    name: Testing TPS on separate instance
+    needs: [init, build]
+    runs-on: ubuntu-latest
+    env:
+      PKIDIR: /tmp/workdir/pki
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download runner image
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-runner-${{ matrix.os }}
+          path: /tmp
+
+      - name: Load runner image
+        run: docker load --input /tmp/pki-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Setup CA container
+        run: |
+          IMAGE=pki-runner \
+          NAME=ca \
+          HOSTNAME=ca.example.com \
+          tests/bin/runner-init.sh
+
+      - name: Connect CA container to network
+        run: docker network connect example ca --alias ca.example.com
+
+      - name: Install dependencies in CA container
+        run: docker exec ca dnf install -y 389-ds-base
+
+      - name: Install DS in CA container
+        run: docker exec ca ${PKIDIR}/tests/bin/ds-create.sh
+
+      - name: Install CA in CA container
+        run: docker exec ca pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+
+      - name: Setup KRA container
+        run: |
+          IMAGE=pki-runner \
+          NAME=kra \
+          HOSTNAME=kra.example.com \
+          tests/bin/runner-init.sh
+
+      - name: Connect KRA container to network
+        run: docker network connect example kra --alias kra.example.com
+
+      - name: Install dependencies in KRA container
+        run: docker exec kra dnf install -y 389-ds-base
+
+      - name: Install DS in KRA container
+        run: docker exec kra ${PKIDIR}/tests/bin/ds-create.sh
+
+      - name: Install KRA in KRA container
+        run: |
+          docker exec ca pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${PKIDIR}/ca_admin.cert
+          docker exec kra cp ${PKIDIR}/ca_signing.crt .
+          docker exec kra cp ${PKIDIR}/ca_admin.cert .
+          docker exec kra pkispawn -f /usr/share/pki/server/examples/installation/kra-separate.cfg -s KRA -v
+
+      - name: Setup TKS container
+        run: |
+          IMAGE=pki-runner \
+          NAME=tks \
+          HOSTNAME=tks.example.com \
+          tests/bin/runner-init.sh
+
+      - name: Connect TKS container to network
+        run: docker network connect example tks --alias tks.example.com
+
+      - name: Install dependencies in TKS container
+        run: docker exec tks dnf install -y 389-ds-base
+
+      - name: Install DS in TKS container
+        run: docker exec tks ${PKIDIR}/tests/bin/ds-create.sh
+
+      - name: Install TKS in TKS container
+        run: |
+          docker exec tks cp ${PKIDIR}/ca_signing.crt .
+          docker exec tks cp ${PKIDIR}/ca_admin.cert .
+          docker exec tks pkispawn -f /usr/share/pki/server/examples/installation/tks-separate.cfg -s TKS -v
+
+      - name: Setup TPS container
+        run: |
+          IMAGE=pki-runner \
+          NAME=tps \
+          HOSTNAME=tps.example.com \
+          tests/bin/runner-init.sh
+
+      - name: Connect TPS container to network
+        run: docker network connect example tps --alias tps.example.com
+
+      - name: Install dependencies in TPS container
+        run: docker exec tps dnf install -y 389-ds-base
+
+      - name: Install DS in TPS container
+        run: docker exec tps ${PKIDIR}/tests/bin/ds-create.sh
+
+      - name: Install TPS in TPS container
+        run: |
+          docker exec tps cp ${PKIDIR}/ca_signing.crt .
+          docker exec tps cp ${PKIDIR}/ca_admin.cert .
+          docker exec tps pkispawn -f /usr/share/pki/server/examples/installation/tps-separate.cfg -s TPS -v
+
+      - name: Run PKI healthcheck
+        run: docker exec tps pki-healthcheck --debug
+
+      - name: Verify TPS admin
+        run: |
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
+          docker exec tps pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec tps pki client-cert-import \
+              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
+          docker exec tps pki -n caadmin tps-user-show tpsadmin
+
+      - name: Gather artifacts from CA container
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ca
+          tests/bin/pki-artifacts-save.sh ca
+
+      - name: Gather artifacts from KRA container
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh kra
+          tests/bin/pki-artifacts-save.sh kra
+
+      - name: Gather artifacts from TKS container
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh tks
+          tests/bin/pki-artifacts-save.sh tks
+
+      - name: Gather artifacts from TPS container
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh tps
+          tests/bin/pki-artifacts-save.sh tps
+
+      - name: Remove TPS from TPS container
+        run: docker exec tps pkidestroy -i pki-tomcat -s TPS -v
+
+      - name: Remove DS from TPS container
+        run: docker exec tps ${PKIDIR}/tests/bin/ds-remove.sh
+
+      - name: Disconnect TPS container from network
+        run: docker network disconnect example tps
+
+      - name: Remove TKS from TKS container
+        run: docker exec tks pkidestroy -i pki-tomcat -s TKS -v
+
+      - name: Remove DS from TKS container
+        run: docker exec tks ${PKIDIR}/tests/bin/ds-remove.sh
+
+      - name: Disconnect TKS container from network
+        run: docker network disconnect example tks
+
+      - name: Remove KRA from KRA container
+        run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove DS from KRA container
+        run: docker exec kra ${PKIDIR}/tests/bin/ds-remove.sh
+
+      - name: Disconnect KRA container from network
+        run: docker network disconnect example kra
+
+      - name: Remove CA from CA container
+        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS from CA container
+        run: docker exec ca ${PKIDIR}/tests/bin/ds-remove.sh
+
+      - name: Disconnect CA container from network
+        run: docker network disconnect example ca
+
+      - name: Remove network
+        run: docker network rm example
+
+      - name: Upload artifacts from CA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: tps-separate-ca-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/ca
+
+      - name: Upload artifacts from KRA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: tps-separate-kra-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/kra
+
+      - name: Upload artifacts from TKS container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: tps-separate-tks-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/tks
+
+      - name: Upload artifacts from TPS container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: tps-separate-tps-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/tps
+
   # docs/installation/tps/Installing_TPS_Clone.md
   # This test installs DS, CA, KRA, TKS, and TPS in the primary container,
   # then installs DS clone, CA clone, KRA clone, TKS clone, and TPS clone in the secondary container.
