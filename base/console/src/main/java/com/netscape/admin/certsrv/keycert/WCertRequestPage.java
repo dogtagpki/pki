@@ -17,9 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.admin.certsrv.config.*;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.config.WBaseCertRequestPage;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
 
 /**
  * Introduction page for installation wizard.
@@ -27,7 +28,9 @@ import com.netscape.admin.certsrv.config.*;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 class WCertRequestPage extends WBaseCertRequestPage implements IWizardPanel {
     private static final String PANELNAME = "COPYCERTREQUESTWIZARD";
     private static final String HELPINDEX =

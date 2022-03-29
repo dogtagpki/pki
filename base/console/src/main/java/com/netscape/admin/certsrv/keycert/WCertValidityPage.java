@@ -17,13 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.config.*;
+import java.util.Date;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.border.TitledBorder;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.config.WBaseValidityPage;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
 
 /**
  * CA signing cert for installation wizard.
@@ -31,7 +35,9 @@ import com.netscape.admin.certsrv.config.*;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 class WCertValidityPage extends WBaseValidityPage implements IWizardPanel {
     private static final String PANELNAME = "CERTVALIDWIZARD";
     private String mCertType = "";
