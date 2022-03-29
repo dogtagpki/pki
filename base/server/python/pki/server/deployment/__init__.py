@@ -1219,6 +1219,7 @@ class PKIDeployer:
                 '-d', instance.nssdb_dir,
                 '-f', instance.password_conf,
                 '-U', subsystem_url,
+                '--ignore-banner',
                 '%s-user-add' % subsystem_type,
                 uid,
                 '--security-domain', sd_url,
@@ -1252,6 +1253,7 @@ class PKIDeployer:
             '-f', instance.password_conf,
             '-U', ca_url,
             '--ignore-cert-status', 'UNTRUSTED_ISSUER',
+            '--ignore-banner',
             'ca-cert-signing-export',
             '--pkcs7'
         ]
@@ -1274,6 +1276,7 @@ class PKIDeployer:
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
             '-U', ca_url,
+            '--ignore-banner',
             'ca-cert-subsystem-export'
         ]
 
@@ -1313,6 +1316,7 @@ class PKIDeployer:
                 '-d', instance.nssdb_dir,
                 '-f', instance.password_conf,
                 '-U', ca_url,
+                '--ignore-banner',
                 'ca-kraconnector-add',
                 '--url', kra_url,
                 '--transport-cert', transport_cert_file,
@@ -1352,6 +1356,7 @@ class PKIDeployer:
                 '-d', instance.nssdb_dir,
                 '-f', instance.password_conf,
                 '-U', ca_url,
+                '--ignore-banner',
                 'ca-publisher-ocsp-add',
                 '--url', ocsp_url,
                 '--install-token', install_token
@@ -1378,6 +1383,7 @@ class PKIDeployer:
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
             '-U', kra_url,
+            '--ignore-banner',
             'kra-cert-transport-export'
         ]
 
@@ -1416,6 +1422,7 @@ class PKIDeployer:
                 '-d', instance.nssdb_dir,
                 '-f', instance.password_conf,
                 '-U', tks_url,
+                '--ignore-banner',
                 'tks-cert-transport-import',
                 '--security-domain', sd_url,
                 '--install-token', install_token,
@@ -1458,6 +1465,7 @@ class PKIDeployer:
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
             '-n', nickname,
+            '--ignore-banner',
             'tks-tpsconnector-show',
             '--host', self.mdict['pki_hostname'],
             '--port', securePort,
@@ -1492,6 +1500,7 @@ class PKIDeployer:
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
             '-n', nickname,
+            '--ignore-banner',
             'tks-tpsconnector-add',
             '--host', self.mdict['pki_hostname'],
             '--port', securePort,
@@ -1523,6 +1532,7 @@ class PKIDeployer:
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
             '-n', nickname,
+            '--ignore-banner',
             'tks-key-export', tps_connector_id
         ]
 
@@ -1551,6 +1561,7 @@ class PKIDeployer:
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
             '-n', nickname,
+            '--ignore-banner',
             'tks-key-create', tps_connector_id,
             '--output-format', 'json'
         ]
@@ -1580,6 +1591,7 @@ class PKIDeployer:
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
             '-n', nickname,
+            '--ignore-banner',
             'tks-key-replace', tps_connector_id,
             '--output-format', 'json'
         ]
