@@ -36,7 +36,9 @@ import com.netscape.certsrv.common.Constants;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.keycert
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 class WManualCertRequestPage extends WBaseManualCertRequestPage implements IWizardPanel {
 
     public static final String SERVER_CERT = "server";
