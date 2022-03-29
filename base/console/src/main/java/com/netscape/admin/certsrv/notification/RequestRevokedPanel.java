@@ -45,7 +45,9 @@ import com.netscape.certsrv.common.ScopeDef;
  *
  * @author cfu
  * @version $Revision$, $Date$
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class RequestRevokedPanel extends CMSBaseTab {
     private static final String RA_HELPINDEX =
       "configuration-notifications";
