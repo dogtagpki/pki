@@ -51,7 +51,9 @@ import com.netscape.management.client.util.MultilineLabel;
 /**
  * Dialog box that prompts user to either accept or reject
  * an untrusted certificate.
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class PromptForTrustDialog extends AbstractDialog {
 
     private static boolean certIsAccepted = false;

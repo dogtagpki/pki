@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.connection;
 
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
+import java.net.UnknownHostException;
 
 /**
  * Interface for all connection factory. Primarily act as
@@ -27,7 +27,9 @@ import java.io.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @see com.netscape.certsrv.client.connection
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public interface IConnectionFactory {
 
     /**
