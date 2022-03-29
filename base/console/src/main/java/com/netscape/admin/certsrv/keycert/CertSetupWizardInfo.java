@@ -17,12 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.console.*;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.CMSServerInfo;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.management.client.console.ConsoleInfo;
 
 /**
  * WizardInfo for certificate setup wizard
@@ -31,7 +34,9 @@ import com.netscape.management.client.console.*;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.keycert
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CertSetupWizardInfo extends WizardInfo {
 
     private AdminConnection mConnection;
