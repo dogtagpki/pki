@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import com.netscape.management.client.*;
+import com.netscape.management.client.IPage;
 
 /**
  * This class represents the interface for the menu action listener
@@ -26,7 +26,9 @@ import com.netscape.management.client.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public interface IMenuAction {
 
     /**

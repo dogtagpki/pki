@@ -17,9 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.*;
-import java.util.*;
+import java.util.ResourceBundle;
+
+import com.netscape.management.client.TaskObject;
+import com.netscape.management.client.console.ConsoleInfo;
 
 /**
  * Represents the task entry on the task Tab.
@@ -28,7 +29,9 @@ import java.util.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @see com.netscape.management.client.TaskObject
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSTaskObject extends TaskObject
 {
     /*==========================================================

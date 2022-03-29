@@ -17,11 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.ug.*;
-import com.netscape.certsrv.common.*;
+import com.netscape.admin.certsrv.config.CMSOCSPGeneralPanel;
+import com.netscape.admin.certsrv.config.CMSTabPanel;
+import com.netscape.admin.certsrv.config.OCSPStoresInstanceTab;
+import com.netscape.admin.certsrv.ug.CMSUGTabPanel;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Netscape Certificate Server 4.0 Certificate Authority UI Loader.
@@ -32,7 +34,9 @@ import com.netscape.certsrv.common.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @date        03/30/97
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSOCSPUILoader implements ISubSystemUILoader {
 
     /*==========================================================

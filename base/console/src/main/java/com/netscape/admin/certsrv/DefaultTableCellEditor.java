@@ -17,14 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import com.netscape.certsrv.common.*;
 import java.awt.Component;
-import java.awt.event.*;
-import javax.swing.table.*;
-import javax.swing.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.EventObject;
-import javax.swing.*;
-import com.netscape.management.client.util.*;
+
+import javax.swing.JPasswordField;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.EventListenerList;
+import javax.swing.table.TableCellEditor;
+
+import com.netscape.certsrv.common.Constants;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Default Table Cell Editor. Since we need to display different
@@ -34,7 +42,9 @@ import com.netscape.management.client.util.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class DefaultTableCellEditor
     implements TableCellEditor, ActionListener
 {

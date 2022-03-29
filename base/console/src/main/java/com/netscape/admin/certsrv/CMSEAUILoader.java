@@ -17,9 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.config.*;
+import com.netscape.admin.certsrv.config.CMSEAGeneralPanel;
+import com.netscape.admin.certsrv.config.CMSTabPanel;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Netscape Certificate Server 4.0 Escrow Authority UI Loader.
@@ -30,7 +31,9 @@ import com.netscape.admin.certsrv.config.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @date	 	03/30/97
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSEAUILoader implements ISubSystemUILoader {
 
     /*==========================================================
