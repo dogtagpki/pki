@@ -1337,6 +1337,7 @@ class PKISubsystem(object):
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
                 '-U', sd_url,
+                '--ignore-banner',
                 'securitydomain-join',
                 '--install-token', install_token,
                 '--type', self.type,
