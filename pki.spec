@@ -13,7 +13,7 @@ License:          GPLv2 and LGPLv2
 
 # For development (i.e. unsupported) releases, use x.y.z-0.n.<phase>.
 # For official (i.e. supported) releases, use x.y.z-r where r >=1.
-Version:          11.0.3
+Version:          11.0.4
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 #global           _phase -alpha1
 
