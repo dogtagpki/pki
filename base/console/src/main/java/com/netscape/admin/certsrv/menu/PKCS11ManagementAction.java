@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.menu;
 
-import com.netscape.management.client.*;
-import com.netscape.management.client.console.*;
-import com.netscape.admin.certsrv.security.*;
-import com.netscape.admin.certsrv.*;
+import com.netscape.admin.certsrv.IMenuAction;
+import com.netscape.admin.certsrv.security.PKCS11ManagementDialog;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.console.ConsoleInfo;
 
 /**
  * PKCS#11 Management
@@ -31,7 +31,9 @@ import com.netscape.admin.certsrv.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @date	 	04/07/97
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class PKCS11ManagementAction implements IMenuAction {
 
     protected ConsoleInfo mConsoleInfo;
