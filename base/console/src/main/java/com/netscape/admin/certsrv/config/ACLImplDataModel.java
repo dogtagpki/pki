@@ -17,14 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
+import com.netscape.admin.certsrv.CMSTableModel;
 
 /**
  * ACL data model - represents the evaluator table information
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class ACLImplDataModel extends CMSTableModel {
     /*==========================================================
      * variables

@@ -50,7 +50,9 @@ import com.netscape.management.client.util.UtilConsoleGlobals;
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public abstract class CMSBaseLDAPPanel extends CMSBaseTab {
     private static final String SERVER_CERT_NICKNAME = "Server-Cert";
     private JTextField mHostNameText;

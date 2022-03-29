@@ -17,7 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.IRefreshTab;
 
 /**
  * Netscape Certificate Server 4.0 Deafult Base TAB
@@ -25,7 +26,9 @@ import com.netscape.admin.certsrv.*;
  *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public abstract class CMSBaseTab extends CMSBaseConfigPanel
   implements IRefreshTab {
 

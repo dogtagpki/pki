@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
+import com.netscape.admin.certsrv.CMSTableModel;
 
 /**
  * Table Model for configuration parameters
@@ -25,7 +25,9 @@ import com.netscape.admin.certsrv.*;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class ConfigTableModel extends CMSTableModel {
     private static String[] mColumns = {CONFIG, VALUE};
 

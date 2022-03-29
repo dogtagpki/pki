@@ -37,7 +37,9 @@ import com.netscape.admin.certsrv.wizard.WizardBasePanel;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class WBaseDNValidityPage extends WizardBasePanel {
     public JTextField mCNText, mOUText, mOText, mLText, mSTText, mCText;
     public JTextField mValidityText;
