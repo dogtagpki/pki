@@ -129,6 +129,135 @@ jobs:
           path: |
             /tmp/artifacts/pki
 
+  tks-separate-test:
+    name: Testing TKS on separate instance
+    needs: [init, build]
+    runs-on: ubuntu-latest
+    env:
+      PKIDIR: /tmp/workdir/pki
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download runner image
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-runner-${{ matrix.os }}
+          path: /tmp
+
+      - name: Load runner image
+        run: docker load --input /tmp/pki-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Setup CA container
+        run: |
+          IMAGE=pki-runner \
+          NAME=ca \
+          HOSTNAME=ca.example.com \
+          tests/bin/runner-init.sh
+
+      - name: Connect CA container to network
+        run: docker network connect example ca --alias ca.example.com
+
+      - name: Install dependencies in CA container
+        run: docker exec ca dnf install -y 389-ds-base
+
+      - name: Install DS in CA container
+        run: docker exec ca ${PKIDIR}/tests/bin/ds-create.sh
+
+      - name: Install CA in CA container
+        run: docker exec ca pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+
+      - name: Setup TKS container
+        run: |
+          IMAGE=pki-runner \
+          NAME=tks \
+          HOSTNAME=tks.example.com \
+          tests/bin/runner-init.sh
+
+      - name: Connect TKS container to network
+        run: docker network connect example tks --alias tks.example.com
+
+      - name: Install dependencies in TKS container
+        run: docker exec tks dnf install -y 389-ds-base
+
+      - name: Install DS in TKS container
+        run: docker exec tks ${PKIDIR}/tests/bin/ds-create.sh
+
+      - name: Install TKS in TKS container
+        run: |
+          docker exec ca pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${PKIDIR}/ca_admin.cert
+          docker exec tks cp ${PKIDIR}/ca_signing.crt .
+          docker exec tks cp ${PKIDIR}/ca_admin.cert .
+          docker exec tks pkispawn -f /usr/share/pki/server/examples/installation/tks-separate.cfg -s TKS -v
+
+      - name: Run PKI healthcheck
+        run: docker exec tks pki-healthcheck --debug
+
+      - name: Verify TKS admin
+        run: |
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
+          docker exec tks pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec tks pki client-cert-import \
+              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
+          docker exec tks pki -n caadmin tks-user-show tksadmin
+
+      - name: Gather artifacts from CA container
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ca
+          tests/bin/pki-artifacts-save.sh ca
+
+      - name: Gather artifacts from TKS container
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh tks
+          tests/bin/pki-artifacts-save.sh tks
+
+      - name: Remove TKS from TKS container
+        run: docker exec tks pkidestroy -i pki-tomcat -s TKS -v
+
+      - name: Remove DS from TKS container
+        run: docker exec tks ${PKIDIR}/tests/bin/ds-remove.sh
+
+      - name: Disconnect TKS container from network
+        run: docker network disconnect example tks
+
+      - name: Remove CA from CA container
+        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS from CA container
+        run: docker exec ca ${PKIDIR}/tests/bin/ds-remove.sh
+
+      - name: Disconnect CA container from network
+        run: docker network disconnect example ca
+
+      - name: Remove network
+        run: docker network rm example
+
+      - name: Upload artifacts from CA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: tks-separate-ca-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/ca
+
+      - name: Upload artifacts from TKS container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: tks-separate-tks-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/tks
+
   # docs/installation/tks/Installing_TKS_Clone.md
   # This test installs DS, CA, and TKS in the primary container,
   # then installs DS clone, CA clone, and TKS clone in the secondary container.
