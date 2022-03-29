@@ -17,12 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.ug.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.notification.*;
+import com.netscape.admin.certsrv.config.CMSRAConnectorPanel;
+import com.netscape.admin.certsrv.config.CMSTabPanel;
+import com.netscape.admin.certsrv.config.JobsImplTab;
+import com.netscape.admin.certsrv.config.JobsInstanceTab;
+import com.netscape.admin.certsrv.config.JobsSettingPanel;
+import com.netscape.admin.certsrv.config.PolicyImplTab;
+import com.netscape.admin.certsrv.config.PolicyInstanceTab;
+import com.netscape.admin.certsrv.config.ProfileImplTab;
+import com.netscape.admin.certsrv.config.ProfileInstanceTab;
+import com.netscape.admin.certsrv.notification.RequestCompletePanel;
+import com.netscape.admin.certsrv.notification.RequestInQPanel;
+import com.netscape.admin.certsrv.ug.AuthImplTab;
+import com.netscape.admin.certsrv.ug.AuthInstanceTab;
+import com.netscape.admin.certsrv.ug.CMSUGTabPanel;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Netscape Certificate Server 4.0 Kernel UI Loader.
@@ -33,7 +44,9 @@ import com.netscape.admin.certsrv.notification.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @date	 	03/30/97
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSRAUILoader implements ISubSystemUILoader {
 
     /*==========================================================

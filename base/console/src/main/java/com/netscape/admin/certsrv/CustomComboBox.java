@@ -35,7 +35,9 @@ import javax.swing.ListCellRenderer;
  * @version $Revision$, $Date$
  * @see     com.netscape.admin.certsrv
  * @see     CustomComboBoxModel
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CustomComboBox<E> extends JComboBox<E> {
 
     public CustomComboBox(ComboBoxModel<E> m) {
