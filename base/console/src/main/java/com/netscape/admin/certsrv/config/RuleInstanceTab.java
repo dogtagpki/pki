@@ -17,11 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Publishing Rules  -  Instances Management Tab
@@ -29,10 +32,12 @@ import com.netscape.certsrv.common.*;
  * @author Steve Parkinson
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
 
 /* A Rule Rule? Hmmm */
 
+@Deprecated(since="10.14.0", forRemoval=true)
 public class RuleInstanceTab extends CMSPluginInstanceTab {
 
     /*==========================================================

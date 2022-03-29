@@ -30,6 +30,7 @@ import com.netscape.management.client.util.Debug;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config
  * @see com.netscape.management.admserv.config
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
 
 /* replace "implements ActionListener" with
@@ -38,6 +39,7 @@ import com.netscape.management.client.util.Debug;
 
 public class CMStoAdminEncryptionPane extends EncryptionPane implements IPluginConfigPanel{
 */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMStoAdminEncryptionPane extends EncryptionPane
 {
     protected boolean mEncryptionPaneDirty = false;

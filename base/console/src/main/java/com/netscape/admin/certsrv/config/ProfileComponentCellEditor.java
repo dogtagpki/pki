@@ -18,11 +18,19 @@
 package com.netscape.admin.certsrv.config;
 
 import java.awt.Component;
-import javax.swing.table.*;
-import javax.swing.event.*;
 import java.util.EventObject;
-import javax.swing.*;
 
+import javax.swing.JComponent;
+import javax.swing.JTable;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.EventListenerList;
+import javax.swing.table.TableCellEditor;
+
+/**
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
+ */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class ProfileComponentCellEditor implements TableCellEditor {
     protected EventListenerList listenerList = new EventListenerList();
     protected ChangeEvent changeEvent = null;

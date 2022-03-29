@@ -17,11 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
+import java.awt.event.ActionEvent;
 
-import java.awt.event.*;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * CA Certificate Setting
@@ -29,7 +32,9 @@ import java.awt.event.*;
  * @author Christine Ho
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSCACertSettingPanel extends CMSCertSettingPanel {
 
     /*==========================================================
