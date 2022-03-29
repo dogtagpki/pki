@@ -41,7 +41,9 @@ import com.netscape.management.client.IPage;
  * @see com.netscape.admin.certsrv.IRefreshTabPanel
  * @see com.netscape.admin.certsrv.CMSBaseResourceModel
  * @see com.netscape.admin.certsrv.IMenuAction
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class RefreshTabPane implements IMenuAction {
 
     /*==========================================================
