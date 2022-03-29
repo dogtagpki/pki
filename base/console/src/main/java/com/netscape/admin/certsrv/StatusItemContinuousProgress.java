@@ -31,7 +31,9 @@ import com.netscape.management.client.util.Debug;
  * @version %I%, %G%
  * @date    4/8/98
  * @see     com.netscape.admin.certsrv
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class StatusItemContinuousProgress extends StatusItemProgress
 {
     private int _val = 0;

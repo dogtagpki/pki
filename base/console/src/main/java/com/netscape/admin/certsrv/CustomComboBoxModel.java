@@ -32,7 +32,9 @@ import javax.swing.ImageIcon;
  * @version $Revision$, $Date$
  * @see     com.netscape.admin.certsrv
  * @see     CustomComboBox
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 class CustomComboBoxModel extends AbstractListModel<Object> implements ComboBoxModel<Object> {
 
     private static final long serialVersionUID = 1L;

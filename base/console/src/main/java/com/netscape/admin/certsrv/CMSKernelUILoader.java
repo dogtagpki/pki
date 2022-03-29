@@ -54,7 +54,9 @@ import com.netscape.management.client.util.Debug;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @date        03/30/97
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSKernelUILoader implements ISubSystemUILoader {
 
     protected static final int ERROR_MESSAGE = JOptionPane.ERROR_MESSAGE;

@@ -17,10 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.util.*;
-import java.awt.*;
-import javax.swing.*;
-import com.netscape.management.client.*;
+import java.awt.Component;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
+import javax.swing.Icon;
+import javax.swing.JPanel;
+
+import com.netscape.management.client.MenuItemText;
+import com.netscape.management.client.ResourceObject;
 
 /**
  *	Netscape Certificate Server 4.0 Node Object.<br>
@@ -28,7 +33,9 @@ import com.netscape.management.client.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSResourceObject extends ResourceObject {
 
     /*==========================================================
