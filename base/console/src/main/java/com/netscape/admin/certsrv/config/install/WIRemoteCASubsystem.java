@@ -45,8 +45,10 @@ import com.netscape.management.client.console.ConsoleInfo;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
 
+@Deprecated(since="10.14.0", forRemoval=true)
 class WIRemoteCASubsystem extends WizardBasePanel implements IWizardPanel {
     protected JTextField mHostText;
     protected JTextField mPortText;

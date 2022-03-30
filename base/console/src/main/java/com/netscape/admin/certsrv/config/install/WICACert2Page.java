@@ -27,7 +27,9 @@ import com.netscape.admin.certsrv.wizard.WizardInfo;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 class WICACert2Page extends WBaseDNPage {
     private static final String PANELNAME = "CACERT2WIZARD";
     private static final String HELPINDEX =
