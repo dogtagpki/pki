@@ -48,7 +48,9 @@ import com.netscape.management.client.util.JButtonFactory;
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class AuthDialog extends JDialog
     implements ActionListener, DocumentListener, MouseListener
 {
