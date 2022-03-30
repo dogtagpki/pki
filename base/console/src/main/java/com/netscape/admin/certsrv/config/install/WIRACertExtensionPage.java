@@ -17,8 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.wizard.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.WizardInfo;
 
 /**
  * Certificate Extension page for RA signing Certificate.
@@ -26,7 +28,9 @@ import com.netscape.admin.certsrv.wizard.*;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 class WIRACertExtensionPage extends WICertExtensionPage {
     private static final String PANELNAME = "INSTALLRACERTEXTENSION1WIZARD";
     private static final String RAHELPINDEX = "install-racert-extension-wizard-help";

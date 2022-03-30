@@ -17,8 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import com.netscape.admin.certsrv.wizard.*;
-import javax.swing.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.WizardInfo;
 
 /**
  * Subject DN page for SSL server certificate
@@ -26,7 +28,9 @@ import javax.swing.*;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 class WIServerCertDNPage extends WICertDNPage {
     private static final String PANELNAME = "INSTALLSSLCERTDNWIZARD";
     private static final String LOCALHELPINDEX = "install-sslcertlocal-subjectdn-wizard-help";

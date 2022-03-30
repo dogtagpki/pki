@@ -17,12 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Introduction page for installation wizard.
@@ -30,7 +41,9 @@ import com.netscape.management.client.util.*;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 class WIClonePage extends WizardBasePanel implements IWizardPanel {
 
     private static final String PANELNAME = "CLONEINSTALLWIZARD";

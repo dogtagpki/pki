@@ -17,10 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.table.*;
+import java.awt.Component;
 
+import javax.swing.JComponent;
+import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
+
+/**
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
+ */
+@Deprecated(since="10.14.0", forRemoval=true)
 class ComponentCellRenderer implements TableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table,
