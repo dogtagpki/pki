@@ -32,6 +32,10 @@ import com.netscape.management.client.util.ResourceSet;
 //has not response in a resonable amount of time...and should check
 //the server or call the cgi again.
 
+/**
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
+ */
+@Deprecated(since="10.14.0", forRemoval=true)
 class KeyCertTaskInfo extends Hashtable<String, Object> {
 
     //need to replace this by useful name later since the name will

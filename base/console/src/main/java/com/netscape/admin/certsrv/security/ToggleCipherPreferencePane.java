@@ -45,7 +45,9 @@ import com.netscape.management.nmclf.SuiConstants;
  *
  * @see com.netscape.admin.certsrv.security.SSL2CipherPreference
  * @see com.netscape.admin.certsrv.security.SSL3CipherPreference
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class ToggleCipherPreferencePane extends AbstractCipherPreference implements ICipherConstants {
     private JCheckBox on;
     private JPanel top = new JPanel();
