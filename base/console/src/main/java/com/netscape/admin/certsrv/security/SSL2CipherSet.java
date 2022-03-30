@@ -27,7 +27,9 @@ import java.util.Vector;
  * @author     <A HREF="mailto:shihcm@netscape.com">shihcm@netscape.com</A>
  *
  * @see com.netscape.admin.certsrv.security.SSL2CipherPreference
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public final class SSL2CipherSet implements ICipherConstants,
 IAbstractCipherSet {
 

@@ -25,8 +25,10 @@ import java.util.Vector;
  *
  * @version    1.0    98/07/10
  * @author     <A HREF="mailto:shihcm@netscape.com">shihcm@netscape.com</A>
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  *
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public abstract interface IAbstractCipherSet {
 
     /**

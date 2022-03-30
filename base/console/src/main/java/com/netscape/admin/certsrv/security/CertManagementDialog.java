@@ -17,13 +17,32 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
 import com.netscape.management.client.console.ConsoleInfo;
-import com.netscape.management.client.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-import java.awt.event.*;
-import com.netscape.management.nmclf.*;
+import com.netscape.management.client.util.AbstractDialog;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.Help;
+import com.netscape.management.client.util.JButtonFactory;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiConstants;
 
 /**
  *
@@ -36,8 +55,10 @@ import com.netscape.management.nmclf.*;
  *
  * @version    1.0    98/07/10
  * @author     <A HREF="mailto:shihcm@netscape.com">shihcm@netscape.com</A>
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  *
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CertManagementDialog extends AbstractDialog {
 
     CertListTable certListTable;

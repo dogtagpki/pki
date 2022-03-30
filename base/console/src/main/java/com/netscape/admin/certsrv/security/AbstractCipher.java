@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
 
 /**
  *
@@ -29,8 +29,10 @@ import javax.swing.*;
  * @see        com.netscape.admin.certsrv.security.AbstractCipher
  * @see        com.netscape.admin.certsrv.security.IAbstractCipherSet
  * @see        com.netscape.admin.certsrv.security.AbstractCipher
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
 
+@Deprecated(since="10.14.0", forRemoval=true)
 public final class AbstractCipher extends JCheckBox {
 
     /**

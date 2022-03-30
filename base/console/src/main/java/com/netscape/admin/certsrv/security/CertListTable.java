@@ -40,6 +40,10 @@ import com.netscape.management.client.util.UtilConsoleGlobals;
 //import crysec.X500Name;
 //import crysec.Utils;
 
+/**
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
+ */
+@Deprecated(since="10.14.0", forRemoval=true)
 class CertListTable extends JPanel implements MouseListener, Runnable {
     JTable _table;
     CertListTableModel _dataModel;
