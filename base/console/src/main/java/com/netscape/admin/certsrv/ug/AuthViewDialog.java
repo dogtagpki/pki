@@ -17,10 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.config.*;
-import java.awt.event.*;
-import com.netscape.certsrv.common.*;
+import java.awt.event.ActionEvent;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.config.ViewTableModel;
+import com.netscape.certsrv.common.Constants;
 
 /**
  * Authentication Parameter View Dialog
@@ -28,7 +30,9 @@ import com.netscape.certsrv.common.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.ug
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class AuthViewDialog extends AuthBaseDialog
 {
     /*==========================================================

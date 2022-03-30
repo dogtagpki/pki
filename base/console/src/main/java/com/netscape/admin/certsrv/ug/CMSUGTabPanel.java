@@ -17,18 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import com.netscape.admin.certsrv.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import com.netscape.management.client.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+
+import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import com.netscape.admin.certsrv.CMSBasePanel;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.IRefreshTabPanel;
+import com.netscape.admin.certsrv.IResourceSelectionListener;
+import com.netscape.management.client.IResourceObject;
+import com.netscape.management.client.ResourceObject;
 
 /**
  * Base Class for Tabbed right hand pane
  *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CMSUGTabPanel extends CMSBasePanel
     implements IResourceSelectionListener, ChangeListener,
     IRefreshTabPanel

@@ -65,7 +65,9 @@ import com.netscape.management.client.util.Debug;
  * @version $Revision$, $Date$
  *
  * @see com.netscape.admin.certsrv.ug.UserTab
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class UserEditor extends JDialog
     implements ActionListener, MouseListener, DocumentListener
 {
