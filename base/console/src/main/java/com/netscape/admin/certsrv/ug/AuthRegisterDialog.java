@@ -17,9 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.config.RegisterDialog;
+import com.netscape.admin.certsrv.connection.AdminConnection;
 
 /**
  * Auth Plugin Implementation Registration Editor
@@ -27,8 +28,10 @@ import javax.swing.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.ug
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
 
+@Deprecated(since="10.14.0", forRemoval=true)
 public class AuthRegisterDialog extends RegisterDialog {
 
     private final static String PREFIX = "AUTHREGISTERDIALOG";

@@ -59,7 +59,9 @@ import com.netscape.management.client.util.JButtonFactory;
  * @see com.netscape.admin.certsrv.ug.CertManagementDialog
  * @see com.netscape.admin.certsrv.ug.CertViewDialog
  * @see com.netscape.admin.certsrv.ug.UserEditor
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class UserTab extends CMSBaseUGTab {
 
     /*==========================================================
