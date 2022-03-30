@@ -34,7 +34,9 @@ package com.netscape.admin.certsrv.wizard;
  * @version %I%, %G%
  * @date	 	12/02/97
  * @see     com.netscape.admin.certsrv.wizard
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public interface IWizardPanel {
 
     /**
