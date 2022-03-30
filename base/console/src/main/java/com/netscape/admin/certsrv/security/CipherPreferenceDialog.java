@@ -17,17 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.awt.*;
-import javax.swing.*;
-import com.netscape.management.client.util.*;
+import java.awt.Dimension;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import com.netscape.management.client.util.AbstractDialog;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.Help;
+import com.netscape.management.client.util.ResourceSet;
 
 /**
  * General dialog which display the ciper preference.
  *
  * @author  <a href=mailto:shihcm@netscape.com>Chih Ming Shih</a>
  * @version 0.2 9/3/97
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
 
+@Deprecated(since="10.14.0", forRemoval=true)
 public class CipherPreferenceDialog extends AbstractDialog implements ICipherConstants {
     SSL2CipherPreference ssl2CipherPref = null;
     SSL3CipherPreference ssl3CipherPref = null;

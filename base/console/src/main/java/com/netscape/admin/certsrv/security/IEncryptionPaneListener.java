@@ -22,8 +22,10 @@ package com.netscape.admin.certsrv.security;
  *
  * @author  <a href=mailto:dshihcm@netscape.com>Chih Ming Shih</a>
  * @version 0.2 9/3/97
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
 
+@Deprecated(since="10.14.0", forRemoval=true)
 public interface IEncryptionPaneListener {
 
     /**

@@ -38,7 +38,10 @@ import com.netscape.management.client.console.ConsoleInfo;
 import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.UtilConsoleGlobals;
 
-
+/**
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
+ */
+@Deprecated(since="10.14.0", forRemoval=true)
 class CRLTable extends JPanel implements MouseListener {
 
     ResourceSet _resource;
