@@ -153,6 +153,10 @@ jobs:
           sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:ca_signing$/\1/p' output > actual
           diff actual expected
 
+          pki nss-key-find --nickname ca_signing | tee output
+          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          diff actual expected
+
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
       - name: Create SSL server cert request with new RSA key
         run: |
@@ -201,6 +205,10 @@ jobs:
 
           certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:sslserver$/\1/p' output > actual
+          diff actual expected
+
+          pki nss-key-find --nickname sslserver | tee output
+          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       - name: Delete SSL server cert
@@ -257,6 +265,10 @@ jobs:
           certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:new_sslserver$/\1/p' output > new_sslserver_key_id
           diff sslserver_key_id new_sslserver_key_id
+
+          pki nss-key-find --nickname new_sslserver | tee output
+          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          diff actual expected
 
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-ecc-test:
@@ -326,6 +338,10 @@ jobs:
           sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:ca_signing$/\1/p' output > actual
           diff actual expected
 
+          pki nss-key-find --nickname ca_signing | tee output
+          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          diff actual expected
+
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
       - name: Create SSL server cert request with new EC key
         run: |
@@ -377,6 +393,10 @@ jobs:
           sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:sslserver$/\1/p' output > actual
           diff actual expected
 
+          pki nss-key-find --nickname sslserver | tee output
+          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          diff actual expected
+
       - name: Delete SSL server cert
         run: |
           certutil -D -d /root/.dogtag/nssdb -n sslserver
@@ -425,6 +445,10 @@ jobs:
 
           certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:new_sslserver$/\1/p' output > actual
+          diff actual expected
+
+          pki nss-key-find --nickname new_sslserver | tee output
+          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       - name: Verify key ID
@@ -495,7 +519,7 @@ jobs:
               --trust CT,C,C \
               ca_signing
 
-      - name: Verify cert in internal token
+      - name: Verify CA signing cert in internal token
         run: |
           echo "CT,C,C" > expected
 
@@ -507,7 +531,11 @@ jobs:
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-      - name: Verify cert in HSM
+          pki -f password.conf nss-key-find --nickname ca_signing | tee actual
+          echo -n "" > expected
+          diff actual expected
+
+      - name: Verify CA signing cert in HSM
         run: |
           echo "CTu,Cu,Cu" > expected
 
@@ -517,6 +545,12 @@ jobs:
 
           pki --token HSM -f password.conf nss-cert-show HSM:ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+          echo rsa > expected
+
+          pki --token HSM -f password.conf nss-key-find --nickname HSM:ca_signing | tee output
+          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
@@ -548,16 +582,38 @@ jobs:
               --cert sslserver.crt \
               sslserver
 
-          # verify SSL server cert trust flags in internal token
+      - name: Verify SSL server cert in internal token
+        run: |
+          echo ",," > expected
+
           certutil -L -d /root/.dogtag/nssdb | tee output
           sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
-          echo ",," > expected
           diff actual expected
 
-          # verify SSL server cert trust flags in HSM
+          pki nss-cert-show sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+          pki -f password.conf nss-key-find --nickname sslserver | tee actual
+          echo -n "" > expected
+          diff actual expected
+
+      - name: Verify SSL server cert in HSM
+        run: |
+          echo "u,u,u" > expected
+
           certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
           sed -n 's/^HSM:sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
-          echo "u,u,u" > expected
+          diff actual expected
+
+          pki --token HSM -f password.conf nss-cert-show HSM:sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+          echo rsa > expected
+
+          pki --token HSM -f password.conf nss-key-find --nickname HSM:sslserver | tee output
+          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       - name: Remove HSM token
