@@ -24,6 +24,10 @@ import com.netscape.management.client.util.Debug;
 import com.netscape.management.client.util.ModalDialogUtil;
 import com.netscape.management.client.util.ResourceSet;
 
+/**
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
+ */
+@Deprecated(since="10.14.0", forRemoval=true)
 class KeyCertUtility {
 
     static ResourceSet _resource = null;

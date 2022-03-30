@@ -39,7 +39,10 @@ import com.netscape.management.client.util.Help;
 import com.netscape.management.client.util.ResourceSet;
 import com.netscape.management.client.util.UtilConsoleGlobals;
 
-
+/**
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
+ */
+@Deprecated(since="10.14.0", forRemoval=true)
 class PKCS11AddModuleDialog extends AbstractDialog {
 
     KeyCertTaskInfo taskInfo;
