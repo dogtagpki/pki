@@ -17,16 +17,31 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.status;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import com.netscape.admin.certsrv.*;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
 
-import java.awt.event.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBasePanel;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.IRefreshTab;
+import com.netscape.admin.certsrv.IRefreshTabPanel;
+import com.netscape.admin.certsrv.IResourceSelectionListener;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.IResourceObject;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Status to be placed at the right hand side
@@ -34,7 +49,9 @@ import com.netscape.certsrv.common.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.status
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class StatusPanel extends CMSBasePanel
     implements IResourceSelectionListener, IRefreshTab, IRefreshTabPanel
 {

@@ -18,12 +18,17 @@
 package com.netscape.admin.certsrv.status;
 
 
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
+import java.awt.event.ActionEvent;
 
-import java.awt.event.*;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Transactions Log Panel to be displayed at the right hand side
@@ -32,7 +37,9 @@ import java.awt.event.*;
  * @author Michelle Zhao
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.status
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class LogInstancePanel extends CMSLogPanel {
 
     /*==========================================================
