@@ -34,6 +34,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
+import org.mozilla.jss.netscape.security.util.Cert;
+
 import com.netscape.admin.certsrv.CMSAdminUtil;
 import com.netscape.admin.certsrv.wizard.IWizardPanel;
 import com.netscape.admin.certsrv.wizard.WizardBasePanel;
@@ -42,7 +44,6 @@ import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.TaskId;
-import org.mozilla.jss.netscape.security.util.Cert;
 
 /**
  * This page is to install the certificate in the internal token. The user can
@@ -52,7 +53,9 @@ import org.mozilla.jss.netscape.security.util.Cert;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {
     private JRadioButton mFileBtn;
     private JRadioButton mBase64Btn;
