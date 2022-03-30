@@ -50,8 +50,10 @@ import com.netscape.management.client.util.Debug;
  * @author Christina Fu
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
 
+@Deprecated(since="10.14.0", forRemoval=true)
 class WICloneMasterPage extends WizardBasePanel implements IWizardPanel {
     protected JTextField mHostText, mPortText, mPortEEText, mTimeoutText;
     protected JLabel mHostLbl, mPortLbl, mPortEELbl, mTimeoutLbl, mTimeunitLbl;

@@ -17,9 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import com.netscape.admin.certsrv.wizard.*;
-import javax.swing.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
 
 /**
  * The panel displays the certificate which will be installed in the token.
@@ -27,7 +29,9 @@ import com.netscape.certsrv.common.*;
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 class WIDisplaySSLCertPage extends WIDisplayCertPage {
     private static final String PANELNAME = "INSTALLDISPLAYSSLCERTWIZARD";
     private static final String HELPINDEX = "install-sslcert-display-wizard-help";
