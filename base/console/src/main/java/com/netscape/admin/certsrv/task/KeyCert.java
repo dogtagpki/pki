@@ -17,18 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.task;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.console.*;
-import com.netscape.admin.certsrv.keycert.*;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.CMSServerInfo;
+import com.netscape.admin.certsrv.CMSTaskObject;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.keycert.CertSetupWizard;
+import com.netscape.admin.certsrv.keycert.CertSetupWizardInfo;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.console.ConsoleInfo;
 
 /**
  * Restart the server
  *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
+ * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
+@Deprecated(since="10.14.0", forRemoval=true)
 public class KeyCert extends CMSTaskObject
 {
     /*==========================================================
