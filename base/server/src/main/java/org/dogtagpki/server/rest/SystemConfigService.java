@@ -25,13 +25,10 @@ import javax.ws.rs.Path;
 import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
-import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -116,66 +113,6 @@ public class SystemConfigService extends PKIService {
 
         } catch (Throwable e) { // unexpected error
             logger.error("Unable to import " + tag + " certificate request: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    @POST
-    @Path("findKey")
-    public SystemCertData findKey(CertificateSetupRequest request) throws Exception {
-
-        String tag = request.getTag();
-        logger.info("SystemConfigService: Searching for " + tag + " key");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            SystemCertData certData = request.getSystemCert();
-
-            String nickname = certData.getNickname();
-            logger.info("SystemConfigService: - nickname: " + nickname);
-
-            String tokenName = certData.getToken();
-            logger.info("SystemConfigService: - token: " + tokenName);
-
-            String fullName = nickname;
-            if (!CryptoUtil.isInternalToken(tokenName)) {
-                fullName = tokenName + ":" + nickname;
-            }
-
-            CryptoManager cm = CryptoManager.getInstance();
-            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-
-            try {
-                logger.info("SystemConfigService: Searching for " + tag + " cert");
-                X509Certificate x509Cert = cm.findCertByNickname(fullName);
-
-                logger.info("SystemConfigService: Searching for " + tag + " private key");
-                PrivateKey privateKey = cm.findPrivKeyByCert(x509Cert);
-
-                String keyID = Hex.encodeHexString(privateKey.getUniqueID());
-                if (keyID.length() % 2 == 1) keyID = "0" + keyID;
-                keyID = "0x" + keyID;
-
-                logger.info("SystemConfigService: - key ID: " + keyID);
-                certData.setKeyID(keyID);
-
-            } catch (ObjectNotFoundException e) {
-                logger.info("SystemConfigService: " + tag + " cert not found: " + fullName);
-            }
-
-            return certData;
-
-        } catch (PKIException e) { // normal response
-            logger.error("Configuration failed: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Configuration failed: " + e.getMessage(), e);
             throw e;
         }
     }
