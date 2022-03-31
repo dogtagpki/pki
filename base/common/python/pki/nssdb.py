@@ -23,6 +23,7 @@
 from __future__ import absolute_import
 import base64
 import binascii
+import json
 import logging
 import os
 import re
@@ -460,6 +461,42 @@ class NSSDatabase(object):
             input='\n'.encode('utf-8'),
             stdout=subprocess.DEVNULL,
             check=True)
+
+    def find_cert_keys(self, nickname=None, token=None):
+
+        cmd = [
+            'pki',
+            '-d', self.directory
+        ]
+
+        if self.password_conf:
+            cmd.extend(['-f', self.password_conf])
+
+        elif self.password_file:
+            cmd.extend(['-C', self.password_file])
+
+        token = self.get_effective_token(token)
+        if self.token:
+            cmd.extend(['--token', self.token])
+            fullname = self.token + ':' + nickname
+        else:
+            fullname = nickname
+
+        cmd.extend([
+            'nss-key-find',
+            '--nickname', fullname,
+            '--output-format', 'json'
+        ])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        result = self.run(cmd, capture_output=True, check=True, text=True)
+
+        return json.loads(result.stdout)
 
     def add_cert(
             self,
