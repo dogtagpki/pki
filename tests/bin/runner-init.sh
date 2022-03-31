@@ -41,5 +41,3 @@ docker ps -a
 # to startup. This avoids the following error:
 # [Errno 2] No such file or directory: '/var/cache/dnf/metadata_lock.pid'
 sleep 5
-
-docker exec -i ${NAME} dnf update -y
