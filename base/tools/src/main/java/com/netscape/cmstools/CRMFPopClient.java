@@ -109,24 +109,6 @@ public class CRMFPopClient {
     public boolean verbose;
     private boolean useOAEP = false;
 
-    private static org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage rsa_keypair_usages[] = {
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.ENCRYPT,
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DECRYPT,
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.WRAP,
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.UNWRAP,
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
-    };
-
-    private static org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage rsa_keypair_usages_mask[] = {
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.ENCRYPT,
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DECRYPT,
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.WRAP,
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.UNWRAP,
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
-    };
-
     public static Options createOptions() {
 
         Options options = new Options();
@@ -499,7 +481,15 @@ public class CRMFPopClient {
             if (algorithm.equals("rsa")) {
                 boolean sens = false;
                 boolean extract = true;
-                keyPair = CryptoUtil.generateRSAKeyPair(token, keySize, temporary,sens, extract, rsa_keypair_usages, rsa_keypair_usages_mask);
+                keyPair = CryptoUtil.generateRSAKeyPair(
+                        token,
+                        keySize,
+                        temporary,
+                        sens,
+                        extract,
+                        CryptoUtil.RSA_KEYPAIR_USAGES,
+                        CryptoUtil.RSA_KEYPAIR_USAGES_MASK);
+
             } else if (algorithm.equals("ec")) {
                 keyPair = client.generateECCKeyPair(token, curve, sslECDH, temporary, sensitive, extractable);
 
