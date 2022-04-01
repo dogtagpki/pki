@@ -261,15 +261,28 @@ public class PKCS10Client {
             KeyPair pair = null;
 
             if (alg.equals("rsa")) {
-                if (!rsa_keygen_wrap_unwrap_ops) {
-                    pair = CryptoUtil.generateRSAKeyPair(token, rsa_keylen);
-                } else {
+
+                Usage[] usages;
+                Usage[] usagesMask;
+
+                if (rsa_keygen_wrap_unwrap_ops) {
+
                     if (verbose)
                         System.out.println("PKCS10Client: rsa_keygen_wrap_unwrap_ops is true");
-                    pair = CryptoUtil.generateRSAKeyPair(token, rsa_keylen,
-                            CryptoUtil.RSA_KEYPAIR_USAGES,
-                            CryptoUtil.RSA_KEYPAIR_USAGES_MASK);
+
+                    usages = CryptoUtil.RSA_KEYPAIR_USAGES;
+                    usagesMask = CryptoUtil.RSA_KEYPAIR_USAGES_MASK;
+
+                } else {
+                    usages = null;
+                    usagesMask = null;
                 }
+
+                pair = CryptoUtil.generateRSAKeyPair(
+                        token,
+                        rsa_keylen,
+                        usages,
+                        usagesMask);
 
             }  else if (alg.equals("ec")) {
 

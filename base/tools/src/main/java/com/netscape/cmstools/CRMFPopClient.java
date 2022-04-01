@@ -478,17 +478,23 @@ public class CRMFPopClient {
 
             if (verbose) System.out.println("Generating key pair: temporary: " + temporary);
             KeyPair keyPair;
+
             if (algorithm.equals("rsa")) {
+
                 boolean sens = false;
                 boolean extract = true;
+
+                Usage[] usages = CryptoUtil.RSA_KEYPAIR_USAGES;
+                Usage[] usagesMask = CryptoUtil.RSA_KEYPAIR_USAGES_MASK;
+
                 keyPair = CryptoUtil.generateRSAKeyPair(
                         token,
                         keySize,
                         temporary,
                         sens,
                         extract,
-                        CryptoUtil.RSA_KEYPAIR_USAGES,
-                        CryptoUtil.RSA_KEYPAIR_USAGES_MASK);
+                        usages,
+                        usagesMask);
 
             } else if (algorithm.equals("ec")) {
                 keyPair = client.generateECCKeyPair(token, curve, sslECDH, temporary, sensitive, extractable);

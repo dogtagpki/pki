@@ -459,7 +459,15 @@ public class ClientCertRequestCLI extends CommandCLI {
 
         KeyPair keyPair;
         if (algorithm.equals("rsa")) {
-            keyPair = CryptoUtil.generateRSAKeyPair(token, length);
+
+            Usage[] usages = null;
+            Usage[] usagesMask = null;
+
+            keyPair = CryptoUtil.generateRSAKeyPair(
+                    token,
+                    length,
+                    usages,
+                    usagesMask);
 
         } else if (algorithm.equals("ec")) {
             keyPair = client.generateECCKeyPair(token, curve, sslECDH, temporary, sensitive, extractable);
