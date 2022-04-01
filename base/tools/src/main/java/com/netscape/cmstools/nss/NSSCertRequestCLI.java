@@ -16,6 +16,7 @@ import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.pkcs11.PK11PrivKey;
@@ -54,6 +55,8 @@ public class NSSCertRequestCLI extends CommandCLI {
         option = new Option(null, "key-size", true, "RSA key size (default: 2048)");
         option.setArgName("size");
         options.addOption(option);
+
+        options.addOption(null, "key-wrap", false, "Generate RSA key for wrapping/unwrapping.");
 
         option = new Option(null, "curve", true, "Elliptic curve name");
         option.setArgName("name");
@@ -94,6 +97,7 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         String keyType = cmd.getOptionValue("key-type", "RSA");
         String keySize = cmd.getOptionValue("key-size", "2048");
+        boolean keyWrap = cmd.hasOption("key-wrap");
         String curve = cmd.getOptionValue("curve");
         String hash = cmd.getOptionValue("hash", "SHA256");
         String extConf = cmd.getOptionValue("ext");
@@ -120,7 +124,24 @@ public class NSSCertRequestCLI extends CommandCLI {
             keyPair = nssdb.loadKeyPair(token, keyID);
 
         } else if ("rsa".equalsIgnoreCase(keyType)) {
-            keyPair = nssdb.createRSAKeyPair(token, Integer.parseInt(keySize));
+
+            Usage[] usages;
+            Usage[] usagesMask;
+
+            if (keyWrap) {
+                usages = CryptoUtil.RSA_KEYPAIR_USAGES;
+                usagesMask = CryptoUtil.RSA_KEYPAIR_USAGES_MASK;
+
+            } else {
+                usages = null;
+                usagesMask = null;
+            }
+
+            keyPair = nssdb.createRSAKeyPair(
+                    token,
+                    Integer.parseInt(keySize),
+                    usages,
+                    usagesMask);
 
         } else if ("ec".equalsIgnoreCase(keyType)) {
             keyPair = nssdb.createECKeyPair(token, curve);
