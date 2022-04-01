@@ -184,21 +184,13 @@ public class SystemConfigService extends PKIService {
                 String curveName = certData.getKeyCurveName();
                 logger.info("SystemConfigService: - curve: " + curveName);
 
-                String ecType = certData.getEcType();
-                logger.info("SystemConfigService: - type: " + ecType);
-
-                // For ECDH SSL server cert, server.xml should have the following ciphers:
-                // -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
-                // +TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
-                //
-                // For ECDHE SSL server cert, server.xml should have the following ciphers:
-                // +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
-                // -TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
+                boolean sslECDH = certData.getSslECDH();
+                logger.info("SystemConfigService: - SSL ECDH: " + sslECDH);
 
                 Usage[] usages;
                 Usage[] usagesMask;
 
-                if (tag.equals("sslserver") && ecType.equalsIgnoreCase("ECDH")) {
+                if (sslECDH) {
                     usages = null;
                     usagesMask = CryptoUtil.ECDH_USAGES_MASK;
 
