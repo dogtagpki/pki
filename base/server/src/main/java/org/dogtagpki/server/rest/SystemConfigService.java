@@ -143,8 +143,6 @@ public class SystemConfigService extends PKIService {
             logger.info("SystemConfigService: - key ID: " + keyID);
 
             String keyType = certData.getKeyType();
-            String keySize = certData.getKeySize();
-
             KeyPair keyPair;
 
             if (keyID != null) {
@@ -158,10 +156,8 @@ public class SystemConfigService extends PKIService {
 
                 logger.info("SystemConfigService: Creating RSA key pair");
 
-                if (keySize == null) {
-                    keySize = cs.getString("keys.rsa.keysize.default");
-                }
-                logger.info("Configurator: - key size: " + keySize);
+                String keySize = certData.getKeySize();
+                logger.info("SystemConfigService: - key size: " + keySize);
 
                 Usage[] usages;
                 Usage[] usagesMask;
@@ -185,10 +181,7 @@ public class SystemConfigService extends PKIService {
 
                 logger.info("SystemConfigService: Creating ECC key pair");
 
-                String curveName = keySize;
-                if (curveName == null) {
-                    curveName = cs.getString("keys.ecc.curve.default");
-                }
+                String curveName = certData.getKeyCurveName();
                 logger.info("SystemConfigService: - curve: " + curveName);
 
                 String ecType = certData.getEcType();

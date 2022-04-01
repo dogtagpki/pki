@@ -850,11 +850,27 @@ class PKIDeployer:
                 subsystem.config.get('preop.cert.signing.signingalgorithm', 'SHA256withRSA')
 
         # key type: rsa or ecc
-        request.systemCert.keyType = subsystem.config['preop.cert.%s.keytype' % tag]
+        key_type = subsystem.config['preop.cert.%s.keytype' % tag]
+        request.systemCert.keyType = key_type
 
-        # Default SSL server cert to ECDHE unless stated otherwise.
-        # Note: IE only supports ECDHE, but ECDH is more efficient.
-        request.systemCert.ecType = subsystem.config.get('preop.cert.%s.ec.type' % tag, 'ECDHE')
+        if key_type == 'rsa':
+
+            if not request.systemCert.keySize:
+                request.systemCert.keySize = subsystem.config['keys.rsa.keysize.default']
+
+        elif key_type == 'ecc':
+
+            request.systemCert.keyCurveName = request.systemCert.keySize
+
+            if not request.systemCert.keyCurveName:
+                request.systemCert.keyCurveName = subsystem.config['keys.ecc.curve.default']
+
+            # Default SSL server cert to ECDHE unless stated otherwise.
+            # Note: IE only supports ECDHE, but ECDH is more efficient.
+            request.systemCert.ecType = subsystem.config.get('preop.cert.%s.ec.type' % tag, 'ECDHE')
+
+        else:
+            raise Exception('Unsupported key type: %s' % key_type)
 
         request.systemCert.keyAlgorithm = subsystem.config['preop.cert.%s.keyalgorithm' % tag]
 
