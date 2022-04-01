@@ -21,15 +21,14 @@ import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.security.KeyPair;
 
 import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.InitializationValues;
-import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
@@ -286,14 +285,27 @@ public class PKCS10Client {
 
             }  else if (alg.equals("ec")) {
 
+                Usage[] usages;
+                Usage[] usagesMask;
+
+                if (ec_ssl_ecdh) {
+                    usages = null;
+                    usagesMask = CryptoUtil.ECDH_USAGES_MASK;
+
+                } else {
+                    usages = null;
+                    usagesMask = CryptoUtil.ECDHE_USAGES_MASK;
+                }
+
                 pair = CryptoUtil.generateECCKeyPair(
                         token,
                         ecc_curve,
                         ec_temporary,
                         ec_sensitive,
                         ec_extractable,
-                        null,
-                        ec_ssl_ecdh ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK);
+                        usages,
+                        usagesMask);
+
                 if (pair == null) {
                     System.out.println("PKCS10Client: pair null.");
                     System.exit(1);
