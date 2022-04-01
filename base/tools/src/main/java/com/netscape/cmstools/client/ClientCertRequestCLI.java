@@ -38,6 +38,7 @@ import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.X509Certificate;
@@ -470,7 +471,27 @@ public class ClientCertRequestCLI extends CommandCLI {
                     usagesMask);
 
         } else if (algorithm.equals("ec")) {
-            keyPair = client.generateECCKeyPair(token, curve, sslECDH, temporary, sensitive, extractable);
+
+            Usage[] usages;
+            Usage[] usagesMask;
+
+            if (sslECDH) {
+                usages = null;
+                usagesMask = CryptoUtil.ECDH_USAGES_MASK;
+
+            } else {
+                usages = null;
+                usagesMask = CryptoUtil.ECDHE_USAGES_MASK;
+            }
+
+            keyPair = CryptoUtil.generateECCKeyPair(
+                    token,
+                    curve,
+                    temporary,
+                    sensitive,
+                    extractable,
+                    usages,
+                    usagesMask);
 
         } else {
             throw new Exception("Unknown algorithm: " + algorithm);

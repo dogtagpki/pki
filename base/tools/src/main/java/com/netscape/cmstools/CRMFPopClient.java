@@ -63,6 +63,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
@@ -497,7 +498,33 @@ public class CRMFPopClient {
                         usagesMask);
 
             } else if (algorithm.equals("ec")) {
-                keyPair = client.generateECCKeyPair(token, curve, sslECDH, temporary, sensitive, extractable);
+
+                // ECDH_USAGES_MASK: used with SSL server cert that does ECDH ECDSA;
+                // can only be used with POP_NONE
+
+                // ECDHE_USAGES_MASK: used for other certs including SSL server cert
+                // that does ECDHE ECDSA
+
+                Usage[] usages;
+                Usage[] usagesMask;
+
+                if (sslECDH) {
+                    usages = null;
+                    usagesMask = CryptoUtil.ECDH_USAGES_MASK;
+
+                } else {
+                    usages = null;
+                    usagesMask = CryptoUtil.ECDHE_USAGES_MASK;
+                }
+
+                keyPair = CryptoUtil.generateECCKeyPair(
+                        token,
+                        curve,
+                        temporary,
+                        sensitive,
+                        extractable,
+                        usages,
+                        usagesMask);
 
             } else {
                 throw new Exception("Unknown algorithm: " + algorithm);
@@ -646,30 +673,6 @@ public class CRMFPopClient {
 
     public boolean isVerbose() {
         return verbose;
-    }
-
-    public KeyPair generateECCKeyPair(
-            CryptoToken token,
-            String curve,
-            boolean sslECDH,
-            boolean temporary,
-            int sensitive,
-            int extractable) throws Exception {
-
-        // ECDH_USAGES_MASK: used with SSL server cert that does ECDH ECDSA;
-        // can only be used with POP_NONE
-
-        // ECDHE_USAGES_MASK: used for other certs including SSL server cert
-        // that does ECDHE ECDSA
-
-        return CryptoUtil.generateECCKeyPair(
-                token,
-                curve,
-                temporary,
-                sensitive,
-                extractable,
-                null,
-                sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK);
     }
 
     public CertRequest createCertRequest(

@@ -62,6 +62,8 @@ public class NSSCertRequestCLI extends CommandCLI {
         option.setArgName("name");
         options.addOption(option);
 
+        options.addOption(null, "ssl-ecdh", false, "Generate EC key for SSL with ECDH ECDSA.");
+
         option = new Option(null, "hash", true, "Hash algorithm (default: SHA256)");
         option.setArgName("name");
         options.addOption(option);
@@ -99,6 +101,7 @@ public class NSSCertRequestCLI extends CommandCLI {
         String keySize = cmd.getOptionValue("key-size", "2048");
         boolean keyWrap = cmd.hasOption("key-wrap");
         String curve = cmd.getOptionValue("curve");
+        boolean sslECDH = cmd.hasOption("ssl-ecdh");
         String hash = cmd.getOptionValue("hash", "SHA256");
         String extConf = cmd.getOptionValue("ext");
 
@@ -144,7 +147,24 @@ public class NSSCertRequestCLI extends CommandCLI {
                     usagesMask);
 
         } else if ("ec".equalsIgnoreCase(keyType)) {
-            keyPair = nssdb.createECKeyPair(token, curve);
+
+            Usage[] usages;
+            Usage[] usagesMask;
+
+            if (sslECDH) {
+                usages = null;
+                usagesMask = CryptoUtil.ECDH_USAGES_MASK;
+
+            } else {
+                usages = null;
+                usagesMask = CryptoUtil.ECDHE_USAGES_MASK;
+            }
+
+            keyPair = nssdb.createECKeyPair(
+                    token,
+                    curve,
+                    usages,
+                    usagesMask);
 
         } else {
             throw new Exception("Unsupported key type: " + keyType);
