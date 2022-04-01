@@ -159,10 +159,13 @@ public class SystemConfigService extends PKIService {
                 String keySize = certData.getKeySize();
                 logger.info("SystemConfigService: - key size: " + keySize);
 
+                boolean keyWrap = certData.getKeyWrap();
+                logger.info("SystemConfigService: - key wrap: " + keyWrap);
+
                 Usage[] usages;
                 Usage[] usagesMask;
 
-                if (tag.equals("transport") || tag.equals("storage")) {
+                if (keyWrap) {
                     usages = CryptoUtil.RSA_KEYPAIR_USAGES;
                     usagesMask = CryptoUtil.RSA_KEYPAIR_USAGES_MASK;
 

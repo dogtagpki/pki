@@ -858,6 +858,11 @@ class PKIDeployer:
             if not request.systemCert.keySize:
                 request.systemCert.keySize = subsystem.config['keys.rsa.keysize.default']
 
+            if tag == 'transport' or tag == 'storage':
+                request.systemCert.keyWrap = True
+            else:
+                request.systemCert.keyWrap = False
+
         elif key_type == 'ecc':
 
             request.systemCert.keyCurveName = request.systemCert.keySize
