@@ -873,7 +873,6 @@ class PKIDeployer:
             # Default SSL server cert to ECDHE unless stated otherwise.
             # Note: IE only supports ECDHE, but ECDH is more efficient.
             ec_type = subsystem.config.get('preop.cert.%s.ec.type' % tag, 'ECDHE')
-            request.systemCert.ecType = ec_type
 
             # For ECDH SSL server cert server.xml should have the following ciphers:
             # -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
