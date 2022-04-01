@@ -101,7 +101,11 @@ public class NSSKeyFindCLI extends CommandCLI {
 
         for (PrivateKey privateKey : privateKeys) {
             KeyInfo keyInfo = new KeyInfo();
-            String keyID = "0x" + Hex.encodeHexString(privateKey.getUniqueID());
+
+            String keyID = Hex.encodeHexString(privateKey.getUniqueID());
+            if (keyID.length() % 2 == 1) keyID = "0" + keyID;
+            keyID = "0x" + keyID;
+
             keyInfo.setKeyId(new KeyId(keyID));
             keyInfo.setAlgorithm(privateKey.getAlgorithm());
             keyInfoCollection.addEntry(keyInfo);

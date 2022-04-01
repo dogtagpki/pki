@@ -156,7 +156,10 @@ public class SystemConfigService extends PKIService {
 
                 logger.info("SystemConfigService: Searching for " + tag + " private key");
                 PrivateKey privateKey = cm.findPrivKeyByCert(x509Cert);
-                String keyID = "0x" + Hex.encodeHexString(privateKey.getUniqueID());
+
+                String keyID = Hex.encodeHexString(privateKey.getUniqueID());
+                if (keyID.length() % 2 == 1) keyID = "0" + keyID;
+                keyID = "0x" + keyID;
 
                 logger.info("SystemConfigService: - key ID: " + keyID);
                 certData.setKeyID(keyID);
@@ -211,6 +214,7 @@ public class SystemConfigService extends PKIService {
 
                 logger.info("SystemConfigService: Loading key pair");
                 if (keyID.startsWith("0x")) keyID = keyID.substring(2);
+                if (keyID.length() % 2 == 1) keyID = "0" + keyID;
                 keyPair = nssdb.loadKeyPair(token, Hex.decodeHex(keyID));
 
             } else if (keyType.equals("rsa")) {
@@ -284,7 +288,11 @@ public class SystemConfigService extends PKIService {
             }
 
             PrivateKey privateKey = (PrivateKey) keyPair.getPrivate();
-            keyID = "0x" + Hex.encodeHexString(privateKey.getUniqueID());
+
+            keyID = Hex.encodeHexString(privateKey.getUniqueID());
+            if (keyID.length() % 2 == 1) keyID = "0" + keyID;
+            keyID = "0x" + keyID;
+
             certData.setKeyID(keyID);
 
             NSSExtensionGenerator generator = new NSSExtensionGenerator();
@@ -431,6 +439,7 @@ public class SystemConfigService extends PKIService {
                 logger.info("SystemConfigService: - key ID: " + keyID);
 
                 if (keyID.startsWith("0x")) keyID = keyID.substring(2);
+                if (keyID.length() % 2 == 1) keyID = "0" + keyID;
                 PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(
                         token,
                         Hex.decodeHex(keyID));
