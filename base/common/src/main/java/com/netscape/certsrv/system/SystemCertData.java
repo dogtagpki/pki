@@ -48,6 +48,7 @@ public class SystemCertData implements JSONSerializer {
     protected String keyID;
     protected String keyType;
     protected String keySize;
+    protected boolean keyWrap;
 
     protected String keyCurveName;
     protected String ecType;
@@ -163,6 +164,14 @@ public class SystemCertData implements JSONSerializer {
      */
     public void setKeySize(String keySize) {
         this.keySize = keySize;
+    }
+
+    public boolean getKeyWrap() {
+        return keyWrap;
+    }
+
+    public void setKeyWrap(boolean keyWrap) {
+        this.keyWrap = keyWrap;
     }
 
     /**
@@ -317,6 +326,7 @@ public class SystemCertData implements JSONSerializer {
             + ", keyID=" + keyID
             + ", keyType=" + keyType
             + ", keySize=" + keySize
+            + ", keyWrap=" + keyWrap
             + ", keyCurveName=" + keyCurveName
             + ", ecType=" + ecType
             + ", sslECDH=" + sslECDH
@@ -345,6 +355,7 @@ public class SystemCertData implements JSONSerializer {
                 keyID,
                 keyType,
                 keySize,
+                keyWrap,
                 keyCurveName,
                 ecType,
                 sslECDH,
@@ -380,6 +391,7 @@ public class SystemCertData implements JSONSerializer {
                 && Objects.equals(keyID, other.keyID)
                 && Objects.equals(keyType, other.keyType)
                 && Objects.equals(keySize, other.keySize)
+                && Objects.equals(keyWrap, other.keyWrap)
                 && Objects.equals(keyCurveName, other.keyCurveName)
                 && Objects.equals(ecType, other.ecType)
                 && Objects.equals(sslECDH, other.sslECDH)
