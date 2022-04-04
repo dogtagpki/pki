@@ -10,7 +10,7 @@ CERTPATH="$SCRIPTPATH/../resources/certs"
 NSSDBPATH="$SCRIPTPATH/../resources/dbs"
 
 ### Absolute path to the PKICertImport script.
-PCI="$(realpath "$SCRIPTPATH/../../main/shell/PKICertImport.bash")"
+PCI="/usr/bin/PKICertImport"
 
 ## 0.1 Names of Certificates
 CA_ROOT="CA Root - A"

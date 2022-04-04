@@ -93,6 +93,25 @@ install(
     RENAME
         PKICertImport
     PERMISSIONS
-        OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE
+)
+
+install(
+    FILES
+        src/test/shell/test_PKICertImport.bash
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/tests/util/bin
+    PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE
+)
+
+install(
+    DIRECTORY
+        src/test/resources/certs/
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/tests/util/resources/certs
 )

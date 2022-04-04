@@ -84,7 +84,7 @@ jobs:
           dnf -y localinstall build/RPMS/*
 
       - name: Run PKICertImport test
-        run: bash base/util/src/test/shell/test_PKICertImport.bash
+        run: bash /usr/share/pki/tests/util/bin/test_PKICertImport.bash
 
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-rsa-test:
