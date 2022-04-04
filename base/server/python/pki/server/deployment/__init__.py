@@ -938,6 +938,43 @@ class PKIDeployer:
         # get the first key
         return keys[0]['keyId']
 
+    def create_cert_key(self, subsystem, tag, request):
+
+        logger.info('Creating %s key', tag)
+
+        token = request.systemCert.token
+        key_type = request.systemCert.keyType
+
+        key_size = None
+        key_wrap = False
+        curve = None
+        ssl_ecdh = False
+
+        if request.systemCert.keyType == 'RSA':
+            key_size = request.systemCert.keySize
+            key_wrap = request.systemCert.keyWrap
+
+        elif request.systemCert.keyType == 'EC':
+            curve = request.systemCert.keyCurveName
+            ssl_ecdh = request.systemCert.sslECDH
+
+        else:
+            raise Exception('Unsupported key type: %s' % key_type)
+
+        nssdb = subsystem.instance.open_nssdb()
+        try:
+            result = nssdb.create_key(
+                token=token,
+                key_type=key_type,
+                key_size=key_size,
+                key_wrap=key_wrap,
+                curve=curve,
+                ssl_ecdh=ssl_ecdh)
+        finally:
+            nssdb.close()
+
+        return result['keyId']
+
     def setup_system_cert(self, nssdb, subsystem, tag, system_cert, request):
 
         logger.debug('PKIDeployer.setup_system_cert()')
@@ -993,15 +1030,13 @@ class PKIDeployer:
 
         request.systemCert.keyID = self.find_cert_key(subsystem, tag, request)
 
-        if request.systemCert.keyID:
-            logger.info('- key ID: %s', request.systemCert.keyID)
+        if not request.systemCert.keyID:
+            request.systemCert.keyID = self.create_cert_key(subsystem, tag, request)
+
+        logger.info('- key ID: %s', request.systemCert.keyID)
 
         logger.info('Creating %s cert request', tag)
         response = self.client.createRequest(request)
-
-        if not request.systemCert.keyID:
-            request.systemCert.keyID = response.get('keyID')
-            logger.info('- key ID: %s', request.systemCert.keyID)
 
         request.systemCert.request = response['request']
         logger.debug('- request: %s', request.systemCert.request)
