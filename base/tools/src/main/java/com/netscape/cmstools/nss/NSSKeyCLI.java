@@ -15,6 +15,7 @@ public class NSSKeyCLI extends CLI {
     public NSSKeyCLI(NSSCLI nssCLI) {
         super("key", "NSS key management commands", nssCLI);
 
+        addModule(new NSSKeyCreateCLI(this));
         addModule(new NSSKeyExportCLI(this));
         addModule(new NSSKeyFindCLI(this));
         addModule(new NSSKeyImportCLI(this));
