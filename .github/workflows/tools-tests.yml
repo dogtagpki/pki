@@ -45,7 +45,7 @@ jobs:
         run: |
           # keep packages after installation
           echo "keepcache=True" >> /etc/dnf/dnf.conf
-          dnf install -y dnf-plugins-core rpm-build
+          dnf install -y dnf-plugins-core rpm-build moby-engine
           dnf copr enable -y ${{ needs.init.outputs.repo }}
           dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
           # don't cache COPR packages
@@ -54,81 +54,106 @@ jobs:
       - name: Build PKI packages
         run: ./build.sh --with-pkgs=base,server,tests --with-timestamp --work-dir=build rpm
 
-      - name: Store PKI packages
-        uses: actions/upload-artifact@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build runner image
+        uses: docker/build-push-action@v2
         with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS/
+          context: .
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: pki-runner
+          target: pki-runner
+          outputs: type=docker,dest=pki-tools-runner.tar
+
+      - name: Store runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
 
   PKICertImport-test:
     name: Testing PKICertImport
     needs: [init, build]
     runs-on: ubuntu-latest
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    env:
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Retrieve PKI packages
-        uses: actions/download-artifact@v2
+      - name: Retrieve runner image
+        uses: actions/cache@v3
         with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
+          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
 
-      - name: Install PKI packages
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
         run: |
-          dnf install -y dnf-plugins-core
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf -y localinstall build/RPMS/*
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       - name: Run PKICertImport test
-        run: bash /usr/share/pki/tests/util/bin/test_PKICertImport.bash
+        run: docker exec pki bash /usr/share/pki/tests/util/bin/test_PKICertImport.bash
 
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-rsa-test:
     name: Testing PKI NSS CLI with RSA
     needs: [init, build]
     runs-on: ubuntu-latest
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    env:
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - name: Retrieve PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
+      - name: Clone repository
+        uses: actions/checkout@v2
 
-      - name: Install PKI packages
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
         run: |
-          dnf install -y dnf-plugins-core
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf -y localinstall build/RPMS/*
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
       - name: Create CA signing cert request with new RSA key
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --key-type RSA \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
-          openssl req -text -noout -in ca_signing.csr
+          docker exec pki openssl req -text -noout -in ca_signing.csr
 
       # https://github.com/dogtagpki/pki/wiki/Issuing-CA-Signing-Certificate-with-PKI-NSS
       - name: Issue self-signed CA signing cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
-          openssl x509 -text -noout -in ca_signing.crt
+          docker exec pki openssl x509 -text -noout -in ca_signing.crt
 
       - name: Import CA signing cert
         run: |
-          pki nss-cert-import \
+          docker exec pki pki nss-cert-import \
               --cert ca_signing.crt \
               --trust CT,C,C \
               ca_signing
@@ -137,11 +162,11 @@ jobs:
         run: |
           echo "CTu,Cu,Cu" > expected
 
-          certutil -L -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
           sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki nss-cert-show ca_signing | tee output
+          docker exec pki pki nss-cert-show ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
@@ -149,53 +174,53 @@ jobs:
         run: |
           echo rsa > expected
 
-          certutil -K -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:ca_signing$/\1/p' output > actual
           diff actual expected
 
-          pki nss-key-find --nickname ca_signing | tee output
+          docker exec pki pki nss-key-find --nickname ca_signing | tee output
           sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
       - name: Create SSL server cert request with new RSA key
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --key-type RSA \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr sslserver.csr
-          openssl req -text -noout -in sslserver.csr
+          docker exec pki openssl req -text -noout -in sslserver.csr
 
       # https://github.com/dogtagpki/pki/wiki/Issuing-SSL-Server-Certificate-with-PKI-NSS
       - name: Issue SSL server cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --issuer ca_signing \
               --csr sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert sslserver.crt
-          openssl x509 -text -noout -in sslserver.crt
+          docker exec pki openssl x509 -text -noout -in sslserver.crt
 
       - name: Import SSL server cert
         run: |
-          pki nss-cert-import \
+          docker exec pki pki nss-cert-import \
               --cert sslserver.crt \
               sslserver
 
           # get key ID
-          certutil -K -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:sslserver$/\1/p' output > sslserver_key_id
 
       - name: Verify trust flags
         run: |
           echo "u,u,u" > expected
 
-          certutil -L -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
           sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki nss-cert-show sslserver | tee output
+          docker exec pki pki nss-cert-show sslserver | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
@@ -203,41 +228,41 @@ jobs:
         run: |
           echo rsa > expected
 
-          certutil -K -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:sslserver$/\1/p' output > actual
           diff actual expected
 
-          pki nss-key-find --nickname sslserver | tee output
+          docker exec pki pki nss-key-find --nickname sslserver | tee output
           sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       - name: Delete SSL server cert
         run: |
-          certutil -D -d /root/.dogtag/nssdb -n sslserver
-          certutil -L -d /root/.dogtag/nssdb
-          certutil -K -d /root/.dogtag/nssdb
+          docker exec pki certutil -D -d /root/.dogtag/nssdb -n sslserver
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
+          docker exec pki certutil -K -d /root/.dogtag/nssdb
 
       - name: Create new SSL server cert request with existing RSA key
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --key-id "0x`cat sslserver_key_id`" \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr new_sslserver.csr
-          openssl req -text -noout -in new_sslserver.csr
+          docker exec pki openssl req -text -noout -in new_sslserver.csr
 
       - name: Issue new SSL server cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --issuer ca_signing \
               --csr new_sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert new_sslserver.crt
-          openssl x509 -text -noout -in new_sslserver.crt
+          docker exec pki openssl x509 -text -noout -in new_sslserver.crt
 
       - name: Import new SSL server cert
         run: |
-          pki nss-cert-import \
+          docker exec pki pki nss-cert-import \
               --cert new_sslserver.crt \
               new_sslserver
 
@@ -245,11 +270,11 @@ jobs:
         run: |
           echo "u,u,u" > expected
 
-          certutil -L -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
           sed -n 's/^new_sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki nss-cert-show new_sslserver | tee output
+          docker exec pki pki nss-cert-show new_sslserver | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
@@ -257,16 +282,16 @@ jobs:
         run: |
           echo rsa > expected
 
-          certutil -K -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:new_sslserver$/\1/p' output > actual
           diff actual expected
 
           # verify key ID
-          certutil -K -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:new_sslserver$/\1/p' output > new_sslserver_key_id
           diff sslserver_key_id new_sslserver_key_id
 
-          pki nss-key-find --nickname new_sslserver | tee output
+          docker exec pki pki nss-key-find --nickname new_sslserver | tee output
           sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
@@ -275,44 +300,51 @@ jobs:
     name: Testing PKI NSS CLI with ECC
     needs: [init, build]
     runs-on: ubuntu-latest
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    env:
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - name: Retrieve PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
+      - name: Clone repository
+        uses: actions/checkout@v2
 
-      - name: Install PKI packages
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
         run: |
-          dnf install -y dnf-plugins-core
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf -y localinstall build/RPMS/*
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
       - name: Create CA signing cert request with new EC key
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --key-type EC \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
-          openssl req -text -noout -in ca_signing.csr
+          docker exec pki openssl req -text -noout -in ca_signing.csr
 
       # https://github.com/dogtagpki/pki/wiki/Issuing-CA-Signing-Certificate-with-PKI-NSS
       - name: Issue self-signed CA signing cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
-          openssl x509 -text -noout -in ca_signing.crt
+          docker exec pki openssl x509 -text -noout -in ca_signing.crt
 
       - name: Import CA signing cert
         run: |
-          pki nss-cert-import \
+          docker exec pki pki nss-cert-import \
               --cert ca_signing.crt \
               --trust CT,C,C \
               ca_signing
@@ -321,11 +353,11 @@ jobs:
         run: |
           echo "CTu,Cu,Cu" > expected
 
-          certutil -L -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
           sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki nss-cert-show ca_signing | tee output
+          docker exec pki pki nss-cert-show ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
@@ -333,53 +365,53 @@ jobs:
         run: |
           echo ec > expected
 
-          certutil -K -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:ca_signing$/\1/p' output > actual
           diff actual expected
 
-          pki nss-key-find --nickname ca_signing | tee output
+          docker exec pki pki nss-key-find --nickname ca_signing | tee output
           sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
       - name: Create SSL server cert request with new EC key
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --key-type EC \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr sslserver.csr
-          openssl req -text -noout -in sslserver.csr
+          docker exec pki openssl req -text -noout -in sslserver.csr
 
       # https://github.com/dogtagpki/pki/wiki/Issuing-SSL-Server-Certificate-with-PKI-NSS
       - name: Issue SSL server cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --issuer ca_signing \
               --csr sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert sslserver.crt
-          openssl x509 -text -noout -in sslserver.crt
+          docker exec pki openssl x509 -text -noout -in sslserver.crt
 
       - name: Import SSL server cert
         run: |
-          pki nss-cert-import \
+          docker exec pki pki nss-cert-import \
               --cert sslserver.crt \
               sslserver
 
           # get key ID
-          certutil -K -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:sslserver$/\1/p' output > sslserver_key_id
 
       - name: Verify trust flags
         run: |
           echo "u,u,u" > expected
 
-          certutil -L -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
           sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki nss-cert-show sslserver | tee output
+          docker exec pki pki nss-cert-show sslserver | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
@@ -387,41 +419,41 @@ jobs:
         run: |
           echo ec > expected
 
-          certutil -K -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:sslserver$/\1/p' output > actual
           diff actual expected
 
-          pki nss-key-find --nickname sslserver | tee output
+          docker exec pki pki nss-key-find --nickname sslserver | tee output
           sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       - name: Delete SSL server cert
         run: |
-          certutil -D -d /root/.dogtag/nssdb -n sslserver
-          certutil -L -d /root/.dogtag/nssdb
-          certutil -K -d /root/.dogtag/nssdb
+          docker exec pki certutil -D -d /root/.dogtag/nssdb -n sslserver
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
+          docker exec pki certutil -K -d /root/.dogtag/nssdb
 
       - name: Create new SSL server cert request with existing EC key
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --key-id "0x`cat sslserver_key_id`" \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr new_sslserver.csr
-          openssl req -text -noout -in new_sslserver.csr
+          docker exec pki openssl req -text -noout -in new_sslserver.csr
 
       - name: Issue new SSL server cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --issuer ca_signing \
               --csr new_sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert new_sslserver.crt
-          openssl x509 -text -noout -in new_sslserver.crt
+          docker exec pki openssl x509 -text -noout -in new_sslserver.crt
 
       - name: Import new SSL server cert
         run: |
-          pki nss-cert-import \
+          docker exec pki pki nss-cert-import \
               --cert new_sslserver.crt \
               new_sslserver
 
@@ -429,11 +461,11 @@ jobs:
         run: |
           echo "u,u,u" > expected
 
-          certutil -L -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
           sed -n 's/^new_sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki nss-cert-show new_sslserver | tee output
+          docker exec pki pki nss-cert-show new_sslserver | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
@@ -441,17 +473,17 @@ jobs:
         run: |
           echo ec > expected
 
-          certutil -K -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:new_sslserver$/\1/p' output > actual
           diff actual expected
 
-          pki nss-key-find --nickname new_sslserver | tee output
+          docker exec pki pki nss-key-find --nickname new_sslserver | tee output
           sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       - name: Verify key ID
         run: |
-          certutil -K -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:new_sslserver$/\1/p' output > new_sslserver_key_id
           diff sslserver_key_id new_sslserver_key_id
 
@@ -460,59 +492,79 @@ jobs:
     name: Testing PKI NSS CLI with HSM
     needs: [init, build]
     runs-on: ubuntu-latest
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    env:
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - name: Retrieve PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
+      - name: Clone repository
+        uses: actions/checkout@v2
 
-      - name: Install PKI packages
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
         run: |
-          dnf install -y dnf-plugins-core softhsm
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf -y localinstall build/RPMS/*
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       - name: Create HSM token
         run: |
-          softhsm2-util --init-token \
+          docker exec pki dnf install -y dnf-plugins-core softhsm
+          docker exec pki softhsm2-util --init-token \
               --label HSM \
               --so-pin Secret.123 \
               --pin Secret.123 \
               --free
-          softhsm2-util --show-slots
+          docker exec pki softhsm2-util --show-slots
 
       # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
       - name: Generate CA signing cert request with key in HSM
         run: |
           echo "internal=" > password.conf
           echo "hardware-HSM=Secret.123" >> password.conf
-          pki --token HSM -f password.conf nss-cert-request \
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-request \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
-          openssl req -text -noout -in ca_signing.csr
+          docker exec pki openssl req -text -noout -in ca_signing.csr
 
-          certutil -K -d /root/.dogtag/nssdb || true
+          docker exec pki certutil -K -d /root/.dogtag/nssdb || true
 
           echo "Secret.123" > password.txt
-          certutil -K -d /root/.dogtag/nssdb -f password.txt -h HSM
+          docker exec pki certutil -K \
+              -d /root/.dogtag/nssdb \
+              -f $SHARED/password.txt \
+              -h HSM
 
       # https://github.com/dogtagpki/pki/wiki/Issuing-CA-Signing-Certificate-with-PKI-NSS
       - name: Issue self-signed CA signing cert
         run: |
-          pki --token HSM -f password.conf nss-cert-issue \
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-issue \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
-          openssl x509 -text -noout -in ca_signing.crt
+          docker exec pki openssl x509 -text -noout -in ca_signing.crt
 
       - name: Import CA signing cert into internal token and HSM
         run: |
-          pki --token HSM -f password.conf nss-cert-import \
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-import \
               --cert ca_signing.crt \
               --trust CT,C,C \
               ca_signing
@@ -521,15 +573,18 @@ jobs:
         run: |
           echo "CT,C,C" > expected
 
-          certutil -L -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
           sed -n 's/^ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki nss-cert-show ca_signing | tee output
+          docker exec pki pki nss-cert-show ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki -f password.conf nss-key-find --nickname ca_signing | tee actual
+          docker exec pki pki \
+              -f $SHARED/password.conf \
+              nss-key-find \
+              --nickname ca_signing | tee actual
           echo -n "" > expected
           diff actual expected
 
@@ -537,46 +592,69 @@ jobs:
         run: |
           echo "CTu,Cu,Cu" > expected
 
-          certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
+          docker exec pki certutil -L \
+              -d /root/.dogtag/nssdb \
+              -h HSM \
+              -f $SHARED/password.txt | tee output
           sed -n 's/^HSM:ca_signing\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki --token HSM -f password.conf nss-cert-show HSM:ca_signing | tee output
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-show \
+              HSM:ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
           echo rsa > expected
 
-          pki --token HSM -f password.conf nss-key-find --nickname HSM:ca_signing | tee output
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-key-find \
+              --nickname HSM:ca_signing | tee output
           sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
       - name: Create SSL server cert request with key in HSM
         run: |
-          pki --token HSM -f password.conf nss-cert-request \
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-request \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr sslserver.csr
-          openssl req -text -noout -in sslserver.csr
+          docker exec pki openssl req -text -noout -in sslserver.csr
 
-          certutil -K -d /root/.dogtag/nssdb || true
+          docker exec pki certutil -K -d /root/.dogtag/nssdb || true
 
-          certutil -K -d /root/.dogtag/nssdb -f password.txt -h HSM
+          docker exec pki certutil -K \
+              -d /root/.dogtag/nssdb \
+              -f $SHARED/password.txt \
+              -h HSM
 
       # https://github.com/dogtagpki/pki/wiki/Issuing-SSL-Server-Certificate-with-PKI-NSS
       - name: Issue SSL server cert
         run: |
-          pki --token HSM -f password.conf nss-cert-issue \
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-issue \
               --issuer HSM:ca_signing \
               --csr sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert sslserver.crt
-          openssl x509 -text -noout -in sslserver.crt
+          docker exec pki openssl x509 -text -noout -in sslserver.crt
 
       - name: Import SSL server cert into internal token and HSM
         run: |
-          pki --token HSM -f password.conf nss-cert-import \
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-import \
               --cert sslserver.crt \
               sslserver
 
@@ -584,15 +662,18 @@ jobs:
         run: |
           echo ",," > expected
 
-          certutil -L -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
           sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki nss-cert-show sslserver | tee output
+          docker exec pki pki nss-cert-show sslserver | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki -f password.conf nss-key-find --nickname sslserver | tee actual
+          docker exec pki pki \
+              -f $SHARED/password.conf \
+              nss-key-find \
+              --nickname sslserver | tee actual
           echo -n "" > expected
           diff actual expected
 
@@ -600,236 +681,277 @@ jobs:
         run: |
           echo "u,u,u" > expected
 
-          certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
+          docker exec pki certutil -L \
+              -d /root/.dogtag/nssdb \
+              -h HSM \
+              -f $SHARED/password.txt | tee output
           sed -n 's/^HSM:sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki --token HSM -f password.conf nss-cert-show HSM:sslserver | tee output
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-show \
+              HSM:sslserver | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
           echo rsa > expected
 
-          pki --token HSM -f password.conf nss-key-find --nickname HSM:sslserver | tee output
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-key-find \
+              --nickname HSM:sslserver | tee output
           sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       - name: Remove HSM token
-        run: softhsm2-util --delete-token --token HSM
+        run: docker exec pki softhsm2-util --delete-token --token HSM
 
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-exts-test:
     name: Testing PKI NSS CLI with Extensions
     needs: [init, build]
     runs-on: ubuntu-latest
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    env:
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - name: Retrieve PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
+      - name: Clone repository
+        uses: actions/checkout@v2
 
-      - name: Install PKI packages
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
         run: |
-          dnf install -y dnf-plugins-core
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf -y localinstall build/RPMS/*
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       - name: Create CA signing cert request
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
 
-          /usr/share/pki/tests/ca/bin/test-ca-signing-csr-ext.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/test-ca-signing-csr-ext.sh
 
       - name: Issue self-signed CA signing cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
 
-          /usr/share/pki/tests/ca/bin/test-ca-signing-cert-ext.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/test-ca-signing-cert-ext.sh
 
       - name: Import CA signing cert
         run: |
-          pki nss-cert-import \
+          docker exec pki pki nss-cert-import \
               --cert ca_signing.crt \
               --trust CT,C,C \
               ca_signing
-          certutil -L -d /root/.dogtag/nssdb -n ca_signing
+          docker exec pki certutil -L -d /root/.dogtag/nssdb -n ca_signing
 
       - name: Create subordinate CA signing cert request
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --subject "CN=Subordinate CA" \
               --ext /usr/share/pki/server/certs/subca_signing.conf \
               --csr subca_signing.csr
 
-          /usr/share/pki/tests/ca/bin/test-subca-signing-csr-ext.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/test-subca-signing-csr-ext.sh
 
       - name: Issue subordinate CA signing cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --issuer ca_signing \
               --csr subca_signing.csr \
               --ext /usr/share/pki/server/certs/subca_signing.conf \
               --cert subca_signing.crt
 
-          /usr/share/pki/tests/ca/bin/test-subca-signing-cert-ext.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/test-subca-signing-cert-ext.sh
 
       - name: Create SSL server cert request
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr sslserver.csr
 
-          /usr/share/pki/tests/bin/test-sslserver-csr-ext.sh
+          docker exec pki /usr/share/pki/tests/bin/test-sslserver-csr-ext.sh
 
       - name: Issue SSL server cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --issuer ca_signing \
               --csr sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert sslserver.crt
 
-          /usr/share/pki/tests/bin/test-sslserver-cert-ext.sh
+          docker exec pki /usr/share/pki/tests/bin/test-sslserver-cert-ext.sh
 
   # docs/user/tools/Using-PKI-PKCS7-CLI.adoc
   pki-pkcs7-test:
     name: Testing PKI PKCS7 CLI
     needs: [init, build]
     runs-on: ubuntu-latest
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    env:
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - name: Retrieve PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
+      - name: Clone repository
+        uses: actions/checkout@v2
 
-      - name: Install PKI packages
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
         run: |
-          dnf install -y dnf-plugins-core
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf -y localinstall build/RPMS/*
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       - name: Generate CA signing cert request
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
 
       - name: Issue self-signed CA signing cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
 
       - name: Import CA signing cert
         run: |
-          pki nss-cert-import \
+          docker exec pki pki nss-cert-import \
               --cert ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 
       - name: Generate SSL server cert request
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --subject "CN=localhost.localdomain" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr sslserver.csr
 
       - name: Issue SSL server cert signed by CA signing cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --issuer ca_signing \
               --csr sslserver.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert sslserver.crt
 
       - name: Import SSL server cert
-        run: pki nss-cert-import sslserver --cert sslserver.crt
+        run: docker exec pki pki nss-cert-import sslserver --cert sslserver.crt
 
       - name: "Export SSL server cert chain into PKCS #7 chain"
         run: |
-          pki pkcs7-export sslserver --pkcs7 cert_chain.p7b
-          pki pkcs7-cert-find --pkcs7 cert_chain.p7b
+          docker exec pki pki pkcs7-export sslserver --pkcs7 cert_chain.p7b
+          docker exec pki pki pkcs7-cert-find --pkcs7 cert_chain.p7b
 
       - name: Convert cert chain into separate PEM certificates
         run: |
-          pki pkcs7-cert-export --pkcs7 cert_chain.p7b --output-prefix cert- --output-suffix .pem
-          cat cert-0.pem
-          cat cert-1.pem
+          docker exec pki pki pkcs7-cert-export \
+              --pkcs7 cert_chain.p7b \
+              --output-prefix cert- \
+              --output-suffix .pem
+          docker exec pki cat cert-0.pem
+          docker exec pki cat cert-1.pem
 
       - name: "Merge PEM certificates into a PKCS #7 chain"
         run: |
-          rm -f cert_chain.p7b
-          pki pkcs7-cert-import --pkcs7 cert_chain.p7b --input-file cert-0.pem
-          pki pkcs7-cert-import --pkcs7 cert_chain.p7b --input-file cert-1.pem --append
-          pki pkcs7-cert-find --pkcs7 cert_chain.p7b
+          docker exec pki rm -f cert_chain.p7b
+          docker exec pki pki pkcs7-cert-import \
+              --pkcs7 cert_chain.p7b \
+              --input-file cert-0.pem
+          docker exec pki pki pkcs7-cert-import \
+              --pkcs7 cert_chain.p7b \
+              --input-file cert-1.pem \
+              --append
+          docker exec pki pki pkcs7-cert-find --pkcs7 cert_chain.p7b
 
       - name: Remove certs from NSS database
         run: |
-          certutil -D -d /root/.dogtag/nssdb -n sslserver
-          certutil -D -d /root/.dogtag/nssdb -n ca_signing
-          certutil -L -d /root/.dogtag/nssdb
+          docker exec pki certutil -D -d /root/.dogtag/nssdb -n sslserver
+          docker exec pki certutil -D -d /root/.dogtag/nssdb -n ca_signing
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
 
       - name: "Import PKCS #7 chain into NSS database"
         run: |
-          pki pkcs7-import sslserver --pkcs7 cert_chain.p7b
-          certutil -L -d /root/.dogtag/nssdb
+          docker exec pki pki pkcs7-import sslserver --pkcs7 cert_chain.p7b
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
 
       - name: Verify CA signing cert trust flags
         run: |
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^Certificate Authority *\(\S\+\)/\1/p' > actual
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^Certificate Authority *\(\S\+\)/\1/p' output > actual
           echo "CTu,Cu,Cu" > expected
           diff actual expected
 
       - name: Verify SSL server cert trust flags
         run: |
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^sslserver *\(\S\+\)/\1/p' > actual
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^sslserver *\(\S\+\)/\1/p' output > actual
           echo "u,u,u" > expected
           diff actual expected
 
       - name: "Convert PKCS #7 chain into a series of PEM certificates"
         run: |
-          pki pkcs7-cert-export --pkcs7 cert_chain.p7b --output-file cert_chain.pem
-          cat cert_chain.pem
+          docker exec pki pki pkcs7-cert-export \
+              --pkcs7 cert_chain.p7b \
+              --output-file cert_chain.pem
+          docker exec pki cat cert_chain.pem
 
       - name: Remove certs from NSS database
         run: |
-          certutil -D -d /root/.dogtag/nssdb -n sslserver
-          certutil -D -d /root/.dogtag/nssdb -n "Certificate Authority"
-          certutil -L -d /root/.dogtag/nssdb
+          docker exec pki certutil -D -d /root/.dogtag/nssdb -n sslserver
+          docker exec pki certutil -D -d /root/.dogtag/nssdb -n "Certificate Authority"
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
 
       - name: Import PEM certificates into NSS database
         run: |
-          rm -f cert_chain.p7b
-          pki pkcs7-cert-import --pkcs7 cert_chain.p7b --input-file cert_chain.pem
-          pki pkcs7-import sslserver --pkcs7 cert_chain.p7b
-          certutil -L -d /root/.dogtag/nssdb
+          docker exec pki rm -f cert_chain.p7b
+          docker exec pki pki pkcs7-cert-import \
+              --pkcs7 cert_chain.p7b \
+              --input-file cert_chain.pem
+          docker exec pki pki pkcs7-import sslserver --pkcs7 cert_chain.p7b
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
 
       - name: Verify CA signing cert trust flags
         run: |
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^Certificate Authority *\(\S\+\)/\1/p' > actual
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^Certificate Authority *\(\S\+\)/\1/p' output > actual
           echo "CTu,Cu,Cu" > expected
           diff actual expected
 
       - name: Verify SSL server cert trust flags
         run: |
-          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^sslserver *\(\S\+\)/\1/p' > actual
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^sslserver *\(\S\+\)/\1/p' output > actual
           echo "u,u,u" > expected
           diff actual expected
 
@@ -838,42 +960,50 @@ jobs:
     name: Testing PKI PKCS11 CLI
     needs: [init, build]
     runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     steps:
-      - name: Retrieve PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
+      - name: Clone repository
+        uses: actions/checkout@v2
 
-      - name: Install PKI packages
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
         run: |
-          dnf install -y dnf-plugins-core softhsm
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf -y localinstall build/RPMS/*
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       - name: Create HSM token
         run: |
-          softhsm2-util --init-token \
+          docker exec pki dnf install -y dnf-plugins-core softhsm
+          docker exec pki softhsm2-util --init-token \
               --label HSM \
               --so-pin Secret.123 \
               --pin Secret.123 \
               --free
-          softhsm2-util --show-slots
+          docker exec pki softhsm2-util --show-slots
 
       - name: Create cert in internal token
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --subject "CN=Certificate 1" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr cert1.csr
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --csr cert1.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert cert1.crt
-          pki nss-cert-import \
+          docker exec pki pki nss-cert-import \
               --cert cert1.crt \
               --trust CT,C,C \
               cert1
@@ -883,15 +1013,24 @@ jobs:
           echo "internal=" > password.conf
           echo "hardware-HSM=Secret.123" >> password.conf
 
-          pki --token HSM -f password.conf nss-cert-request \
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-request \
               --subject "CN=Certificate 2" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr cert2.csr
-          pki --token HSM -f password.conf nss-cert-issue \
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-issue \
               --csr cert2.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert cert2.crt
-          pki --token HSM -f password.conf nss-cert-import \
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-import \
               --cert cert2.crt \
               --trust CT,C,C \
               cert2
@@ -899,195 +1038,244 @@ jobs:
       - name: Verify certs creation
         run: |
           # internal token should have cert1 and cert2
-          certutil -L -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
           cat output | sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' > expected
 
-          pki pkcs11-cert-find | sed -n 's/^\s*Cert ID:\s*\(\S\+\)\s*$/\1/p' > actual
+          docker exec pki pki pkcs11-cert-find | tee output
+          sed -n 's/^\s*Cert ID:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki pkcs11-cert-show cert1
-          pki pkcs11-cert-export cert1
+          docker exec pki pki pkcs11-cert-show cert1
+          docker exec pki pki pkcs11-cert-export cert1
 
-          pki pkcs11-cert-show cert2
-          pki pkcs11-cert-export cert2
+          docker exec pki pki pkcs11-cert-show cert2
+          docker exec pki pki pkcs11-cert-export cert2
 
           # HSM should have cert2 only
           echo "Secret.123" > password.txt
-          certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
-          cat output | sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' > expected
+          docker exec pki certutil -L \
+              -d /root/.dogtag/nssdb \
+              -h HSM \
+              -f $SHARED/password.txt | tee output
+          sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' output > expected
 
-          pki --token HSM -f password.conf pkcs11-cert-find | sed -n 's/^\s*Cert ID:\s*\(\S\+\)\s*$/\1/p' > actual
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              pkcs11-cert-find | tee output
+          sed -n 's/^\s*Cert ID:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
-          pki --token HSM -f password.conf pkcs11-cert-show HSM:cert2
-          pki --token HSM -f password.conf pkcs11-cert-export HSM:cert2
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              pkcs11-cert-show \
+              HSM:cert2
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              pkcs11-cert-export \
+              HSM:cert2
 
       - name: Verify cert keys creation
         run: |
           # internal token should have cert1's key
-          certutil -K -d /root/.dogtag/nssdb | tee output
-          cat output | sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' > cert1key
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' output > cert1key
 
-          pki pkcs11-key-find | sed -n 's/^\s*Key ID:\s*\(\S\+\)\s*$/\1/p' > actual
+          docker exec pki pki pkcs11-key-find | tee output
+          sed -n 's/^\s*Key ID:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual cert1key
 
-          pki pkcs11-key-show `cat cert1key`
+          docker exec pki pki pkcs11-key-show `cat cert1key`
 
           # HSM should have cert2's key
-          certutil -K -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
-          cat output | sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' > cert2key
+          docker exec pki certutil -K \
+              -d /root/.dogtag/nssdb \
+              -h HSM \
+              -f $SHARED/password.txt | tee output
+          sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' output > cert2key
 
-          pki --token HSM -f password.conf pkcs11-key-find | sed -n 's/^\s*Key ID:\s*HSM:\(\S\+\)\s*$/\1/p' > actual
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              pkcs11-key-find | tee output
+          sed -n 's/^\s*Key ID:\s*HSM:\(\S\+\)\s*$/\1/p' output > actual
           diff actual cert2key
 
-          pki --token HSM -f password.conf pkcs11-key-show HSM:`cat cert2key`
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              pkcs11-key-show \
+              HSM:`cat cert2key`
 
       - name: Remove certs
         run: |
-          pki pkcs11-cert-del cert1
-          pki pkcs11-cert-del cert2
-          pki --token HSM -f password.conf pkcs11-cert-del HSM:cert2
+          docker exec pki pki pkcs11-cert-del cert1
+          docker exec pki pki pkcs11-cert-del cert2
+          docker exec pki pki --token HSM -f $SHARED/password.conf pkcs11-cert-del HSM:cert2
 
       - name: Remove cert keys
         run: |
-          pki pkcs11-key-del `cat cert1key`
-          pki --token HSM -f password.conf pkcs11-key-del HSM:`cat cert2key`
+          docker exec pki pki pkcs11-key-del `cat cert1key`
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              pkcs11-key-del \
+              HSM:`cat cert2key`
 
       - name: Verify certs removal
         run: |
           # internal token should have no certs
-          certutil -L -d /root/.dogtag/nssdb | tee output
-          cat output | sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' > actual
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' output > actual
           diff actual /dev/null
 
           # HSM should have no certs
-          certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
-          cat output | sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' > actual
+          docker exec pki certutil -L \
+              -d /root/.dogtag/nssdb \
+              -h HSM \
+              -f $SHARED/password.txt | tee output
+          sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' output > actual
           diff actual /dev/null
 
       - name: Verify cert keys removal
         run: |
           # internal token should have no cert keys
-          certutil -K -d /root/.dogtag/nssdb | tee output
-          cat output | sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' > actual
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' output > actual
           diff actual /dev/null
 
           # HSM should have no cert keys
-          certutil -K -d /root/.dogtag/nssdb -h HSM -f password.txt | tee output
-          cat output | sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' > actual
+          docker exec pki certutil -K \
+              -d /root/.dogtag/nssdb \
+              -h HSM \
+              -f $SHARED/password.txt | tee output
+          sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' output > actual
           diff actual /dev/null
 
       - name: Remove HSM token
-        run: softhsm2-util --delete-token --token HSM
+        run: docker exec pki softhsm2-util --delete-token --token HSM
 
   # https://github.com/dogtagpki/pki/wiki/PKI-PKCS12-CLI
   pki-pkcs12-test:
     name: Testing PKI PKCS12 CLI
     needs: [init, build]
     runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     steps:
-      - name: Retrieve PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
+      - name: Clone repository
+        uses: actions/checkout@v2
 
-      - name: Install PKI packages
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
         run: |
-          dnf install -y dnf-plugins-core
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf -y localinstall build/RPMS/*
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       - name: Generate CA signing cert request in NSS database
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
 
       - name: Issue self-signed CA signing cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
-          cat ca_signing.crt
+          docker exec pki cat ca_signing.crt
 
       - name: Import CA signing cert into NSS database
         run: |
-          pki nss-cert-import \
+          docker exec pki pki nss-cert-import \
               --cert ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 
       - name: Generate SSL server cert request in NSS database
         run: |
-          pki nss-cert-request \
+          docker exec pki pki nss-cert-request \
               --subject "CN=localhost.localdomain" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr sslserver.csr
 
       - name: Issue SSL server cert signed by CA signing cert
         run: |
-          pki nss-cert-issue \
+          docker exec pki pki nss-cert-issue \
               --issuer ca_signing \
               --csr sslserver.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert sslserver.crt
-          cat sslserver.crt
+          docker exec pki cat sslserver.crt
 
       - name: Import SSL server cert into NSS database
-        run: pki nss-cert-import --cert sslserver.crt sslserver
+        run: docker exec pki pki nss-cert-import --cert sslserver.crt sslserver
 
       - name: "Export all certs and keys from NSS database into PKCS #12 file"
         run: |
-          pki pkcs12-export \
+          docker exec pki pki pkcs12-export \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123
 
       - name: "List certs in PKCS #12 file"
         run: |
-          pki pkcs12-cert-find \
+          docker exec pki pki pkcs12-cert-find \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 | tee output
+
           # compare certs in PKCS #12 file and in NSS database
           sed -n 's/^\s*Friendly Name:\s*\(.\+\)\s*$/\1/p' output | sort > actual
-          certutil -L -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
           tail -n +5 output | awk '{print $1;}' | sort > expected
           diff actual expected
 
       - name: "List keys in PKCS #12 file"
         run: |
-          pki pkcs12-key-find \
+          docker exec pki pki pkcs12-key-find \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 | tee output
+
           # compare keys in PKCS #12 file and in NSS database
           sed -n 's/^\s*Key ID:\s*\(.\+\)\s*$/\1/p' output | sort > actual
-          certutil -K -d /root/.dogtag/nssdb | tee output
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output | sort > expected
           diff actual expected
 
       - name: "Export SSL server cert from PKCS #12 file"
         run: |
-          pki pkcs12-cert-export \
+          docker exec pki pki pkcs12-cert-export \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 \
               --cert-file sslserver2.crt \
               sslserver
+
           # verify exported cert
-          diff sslserver.crt sslserver2.crt
+          docker exec pki diff sslserver.crt sslserver2.crt
 
       - name: "Remove SSL server cert from PKCS #12 file"
         run: |
-          pki pkcs12-cert-del \
+          docker exec pki pki pkcs12-cert-del \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 \
               sslserver
+
           # verify cert removal
-          pki pkcs12-cert-find \
+          docker exec pki pki pkcs12-cert-find \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 | tee output
           sed -n 's/^\s*Friendly Name:\s*\(.\+\)\s*$/\1/p' output | sort > actual
@@ -1096,39 +1284,47 @@ jobs:
 
       - name: "Re-import SSL server cert from NSS database into PKCS #12 file"
         run: |
-          pki pkcs12-cert-import \
+          docker exec pki pki pkcs12-cert-import \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 \
               --append \
               --no-chain \
               sslserver
+
           # compare certs in PKCS #12 file and in NSS database
-          pki pkcs12-cert-find \
+          docker exec pki pki pkcs12-cert-find \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 | tee output
           sed -n 's/^\s*Friendly Name:\s*\(.\+\)\s*$/\1/p' output | sort > actual
-          certutil -L -d /root/.dogtag/nssdb | tail -n +5 | awk '{print $1;}' | sort > expected
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          tail -n +5 output | awk '{print $1;}' | sort > expected
           diff actual expected
+
           # compare keys in PKCS #12 file and in NSS database
-          pki pkcs12-key-find \
+          docker exec pki pki pkcs12-key-find \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 | tee output
           sed -n 's/^\s*Key ID:\s*\(.\+\)\s*$/\1/p' output | sort > actual
-          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' | sort > expected
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output| sort > expected
           diff actual expected
 
       - name: "Import all certs and keys from PKCS #12 file into a new NSS database"
         run: |
-          pki -d nssdb pkcs12-import \
+          docker exec pki pki -d nssdb pkcs12-import \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123
+
           # compare certs in new and old NSS databases
-          certutil -L -d nssdb | tee output
+          docker exec pki certutil -L -d nssdb | tee output
           tail -n +5 output | awk '{print $1;}' | sort > actual
-          certutil -L -d /root/.dogtag/nssdb | tail -n +5 | awk '{print $1;}' | sort > expected
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          tail -n +5 output | awk '{print $1;}' | sort > expected
           diff actual expected
+
           # compare keys in new and old NSS databases
-          certutil -K -d nssdb | tee output
+          docker exec pki certutil -K -d nssdb | tee output
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output | sort > actual
-          certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' | sort > expected
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output | sort > expected
           diff actual expected
