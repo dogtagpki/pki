@@ -126,6 +126,8 @@ jobs:
               -s CA \
               -D pki_ds_hostname=ds.example.com \
               -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
               -v
 
           docker exec pki pki-server cert-find
@@ -251,6 +253,8 @@ jobs:
               -s CA \
               -D pki_ds_hostname=cads.example.com \
               -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
               -v
 
           docker exec ca pki-server cert-find
@@ -397,6 +401,8 @@ jobs:
               -s CA \
               -D pki_ds_hostname=cads.example.com \
               -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
               -v
 
           docker exec ca pki-server cert-find
@@ -604,6 +610,8 @@ jobs:
               -s CA \
               -D pki_ds_hostname=primaryds.example.com \
               -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
               -v
 
           docker exec primary pki-server cert-find
@@ -650,6 +658,8 @@ jobs:
               -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_ds_hostname=secondaryds.example.com \
               -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
               -v
 
           docker exec secondary pki-server cert-find
@@ -708,6 +718,8 @@ jobs:
               -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_ds_hostname=tertiaryds.example.com \
               -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
               -v
 
           docker exec tertiary pki-server cert-find
