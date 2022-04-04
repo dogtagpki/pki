@@ -124,7 +124,7 @@ public class NSSCertRequestCLI extends CommandCLI {
 
             keyPair = nssdb.loadKeyPair(token, Hex.decodeHex(keyID));
 
-        } else if ("rsa".equalsIgnoreCase(keyType)) {
+        } else if ("RSA".equalsIgnoreCase(keyType)) {
 
             Usage[] usages;
             Usage[] usagesMask;
@@ -144,7 +144,7 @@ public class NSSCertRequestCLI extends CommandCLI {
                     usages,
                     usagesMask);
 
-        } else if ("ec".equalsIgnoreCase(keyType)) {
+        } else if ("EC".equalsIgnoreCase(keyType)) {
 
             Usage[] usages;
             Usage[] usagesMask;

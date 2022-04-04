@@ -853,7 +853,7 @@ class PKIDeployer:
         key_type = subsystem.config['preop.cert.%s.keytype' % tag]
         request.systemCert.keyType = key_type
 
-        if key_type == 'rsa':
+        if key_type == 'RSA':
 
             if not request.systemCert.keySize:
                 request.systemCert.keySize = subsystem.config['keys.rsa.keysize.default']
@@ -863,7 +863,7 @@ class PKIDeployer:
             else:
                 request.systemCert.keyWrap = False
 
-        elif key_type == 'ecc':
+        elif key_type == 'EC':
 
             request.systemCert.keyCurveName = request.systemCert.keySize
 
@@ -885,9 +885,6 @@ class PKIDeployer:
                 request.systemCert.sslECDH = True
             else:
                 request.systemCert.sslECDH = False
-
-        else:
-            raise Exception('Unsupported key type: %s' % key_type)
 
         request.systemCert.keyAlgorithm = subsystem.config['preop.cert.%s.keyalgorithm' % tag]
 
@@ -1338,13 +1335,13 @@ class PKIDeployer:
 
     def valid_algorithm(self, key_type, algorithm):
 
-        if key_type == 'rsa' and 'RSA' in algorithm:
+        if key_type == 'RSA' and 'RSA' in algorithm:
             return True
 
-        if key_type == 'ecc' and 'EC' in algorithm:
+        if key_type == 'EC' and 'EC' in algorithm:
             return True
 
-        if key_type == 'dsa' and 'DSA' in algorithm:
+        if key_type == 'DSA' and 'DSA' in algorithm:
             return True
 
         return False
@@ -1363,7 +1360,7 @@ class PKIDeployer:
         that matches the CA signing key type.
         '''
 
-        key_type = subsystem.config.get('preop.cert.signing.keytype', 'rsa')
+        key_type = subsystem.config['preop.cert.signing.keytype']
         logger.info('Key type: %s', key_type)
 
         algorithm = None

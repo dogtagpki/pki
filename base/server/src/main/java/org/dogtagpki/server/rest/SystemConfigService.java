@@ -152,7 +152,7 @@ public class SystemConfigService extends PKIService {
                 if (keyID.length() % 2 == 1) keyID = "0" + keyID;
                 keyPair = nssdb.loadKeyPair(token, Hex.decodeHex(keyID));
 
-            } else if (keyType.equals("rsa")) {
+            } else if ("RSA".equalsIgnoreCase(keyType)) {
 
                 logger.info("SystemConfigService: Creating RSA key pair");
 
@@ -180,7 +180,7 @@ public class SystemConfigService extends PKIService {
                         usages,
                         usagesMask);
 
-            } else if (keyType.equals("ecc")) {
+            } else if ("EC".equalsIgnoreCase(keyType)) {
 
                 logger.info("SystemConfigService: Creating ECC key pair");
 

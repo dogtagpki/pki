@@ -221,20 +221,27 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if config_tag == 'signing':  # for CA and OCSP
                 deploy_tag = subsystem.name + '_signing'
 
-            keytype = deployer.mdict['pki_%s_key_type' % deploy_tag]
-            subsystem.config['preop.cert.%s.keytype' % config_tag] = keytype
+            key_type = deployer.mdict['pki_%s_key_type' % deploy_tag].upper()
+
+            if key_type == 'ECC':
+                key_type = 'EC'
+
+            if key_type not in ['RSA', 'EC']:
+                raise Exception('Unsupported key type: %s' % key_type)
+
+            subsystem.config['preop.cert.%s.keytype' % config_tag] = key_type
 
         # configure SSL server cert
         if subsystem.type == 'CA' and clone or subsystem.type != 'CA':
 
             subsystem.config['preop.cert.sslserver.type'] = 'remote'
-            keytype = subsystem.config['preop.cert.sslserver.keytype']
+            key_type = subsystem.config['preop.cert.sslserver.keytype']
 
-            if keytype.lower() == 'ecc':
-                subsystem.config['preop.cert.sslserver.profile'] = 'caECInternalAuthServerCert'
-
-            elif keytype.lower() == 'rsa':
+            if key_type == 'RSA':
                 subsystem.config['preop.cert.sslserver.profile'] = 'caInternalAuthServerCert'
+
+            elif key_type == 'EC':
+                subsystem.config['preop.cert.sslserver.profile'] = 'caECInternalAuthServerCert'
 
         # configure subsystem cert
         if deployer.mdict['pki_security_domain_type'] == 'new':
@@ -245,13 +252,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         else:  # deployer.mdict['pki_security_domain_type'] == 'existing':
 
             subsystem.config['preop.cert.subsystem.type'] = 'remote'
-            keytype = subsystem.config['preop.cert.subsystem.keytype']
+            key_type = subsystem.config['preop.cert.subsystem.keytype']
 
-            if keytype.lower() == 'ecc':
-                subsystem.config['preop.cert.subsystem.profile'] = 'caECInternalAuthSubsystemCert'
-
-            elif keytype.lower() == 'rsa':
+            if key_type == 'RSA':
                 subsystem.config['preop.cert.subsystem.profile'] = 'caInternalAuthSubsystemCert'
+
+            elif key_type == 'EC':
+                subsystem.config['preop.cert.subsystem.profile'] = 'caECInternalAuthSubsystemCert'
 
         if external or standalone:
 
