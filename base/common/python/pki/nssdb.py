@@ -504,6 +504,60 @@ class NSSDatabase(object):
 
         return json.loads(result.stdout)
 
+    def create_key(
+            self,
+            token=None,
+            key_type=None,
+            key_size=None,
+            key_wrap=False,
+            curve=None,
+            ssl_ecdh=False):
+
+        cmd = [
+            'pki',
+            '-d', self.directory
+        ]
+
+        if self.password_conf:
+            cmd.extend(['-f', self.password_conf])
+
+        elif self.password_file:
+            cmd.extend(['-C', self.password_file])
+
+        token = self.get_effective_token(token)
+        if token:
+            cmd.extend(['--token', token])
+
+        cmd.extend([
+            'nss-key-create',
+            '--output-format', 'json'
+        ])
+
+        if key_type:
+            cmd.extend(['--key-type', key_type])
+
+        if key_size:
+            cmd.extend(['--key-size', key_size])
+
+        if key_wrap:
+            cmd.append('--key-wrap')
+
+        if curve:
+            cmd.extend(['--curve', curve])
+
+        if ssl_ecdh:
+            cmd.append('--ssl-ecdh')
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        result = self.run(cmd, capture_output=True, check=True, text=True)
+
+        return json.loads(result.stdout)
+
     def add_cert(
             self,
             nickname,
