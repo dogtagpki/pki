@@ -924,7 +924,7 @@ class PKIDeployer:
 
         nssdb = subsystem.instance.open_nssdb()
         try:
-            result = nssdb.find_cert_keys(
+            result = nssdb.find_keys(
                 nickname=request.systemCert.nickname,
                 token=request.systemCert.token)
         finally:
@@ -932,15 +932,11 @@ class PKIDeployer:
 
         keys = result['entries']
 
-        if keys:
-            # use the first key
-            key_id = keys[0]['keyId']
-            logger.info('- key ID: %s', key_id)
+        if not keys:
+            return None
 
-        else:
-            key_id = None
-
-        request.systemCert.keyID = key_id
+        # get the first key
+        return keys[0]['keyId']
 
     def setup_system_cert(self, nssdb, subsystem, tag, system_cert, request):
 
@@ -995,7 +991,10 @@ class PKIDeployer:
 
             return
 
-        self.find_cert_key(subsystem, tag, request)
+        request.systemCert.keyID = self.find_cert_key(subsystem, tag, request)
+
+        if request.systemCert.keyID:
+            logger.info('- key ID: %s', request.systemCert.keyID)
 
         logger.info('Creating %s cert request', tag)
         response = self.client.createRequest(request)

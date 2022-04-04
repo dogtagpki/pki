@@ -462,7 +462,7 @@ class NSSDatabase(object):
             stdout=subprocess.DEVNULL,
             check=True)
 
-    def find_cert_keys(self, nickname=None, token=None):
+    def find_keys(self, nickname=None, token=None):
 
         cmd = [
             'pki',
@@ -476,17 +476,23 @@ class NSSDatabase(object):
             cmd.extend(['-C', self.password_file])
 
         token = self.get_effective_token(token)
-        if self.token:
-            cmd.extend(['--token', self.token])
-            fullname = self.token + ':' + nickname
+        if token:
+            cmd.extend(['--token', token])
+            fullname = token + ':' + nickname
         else:
             fullname = nickname
 
         cmd.extend([
             'nss-key-find',
-            '--nickname', fullname,
             '--output-format', 'json'
         ])
+
+        if nickname:
+            if token:
+                fullname = token + ':' + nickname
+            else:
+                fullname = nickname
+            cmd.extend(['--nickname', fullname])
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
