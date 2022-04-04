@@ -11,6 +11,7 @@ import java.security.KeyPair;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.codec.binary.Hex;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
@@ -48,7 +49,7 @@ public class NSSCertRequestCLI extends CommandCLI {
         option.setArgName("ID");
         options.addOption(option);
 
-        option = new Option(null, "key-type", true, "Key type: RSA (default), EC, DSA");
+        option = new Option(null, "key-type", true, "Key type: RSA (default), EC");
         option.setArgName("type");
         options.addOption(option);
 
@@ -58,7 +59,7 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         options.addOption(null, "key-wrap", false, "Generate RSA key for wrapping/unwrapping.");
 
-        option = new Option(null, "curve", true, "Elliptic curve name");
+        option = new Option(null, "curve", true, "Elliptic curve name (default: nistp256)");
         option.setArgName("name");
         options.addOption(option);
 
@@ -89,18 +90,11 @@ public class NSSCertRequestCLI extends CommandCLI {
             throw new Exception("Missing subject name");
         }
 
-        String hexKeyID = cmd.getOptionValue("key-id");
-        byte[] keyID = null;
-
-        if (hexKeyID != null) {
-            logger.info("Key ID: " + hexKeyID);
-            keyID = CryptoUtil.hexString2Bytes(hexKeyID);
-        }
-
+        String keyID = cmd.getOptionValue("key-id");
         String keyType = cmd.getOptionValue("key-type", "RSA");
         String keySize = cmd.getOptionValue("key-size", "2048");
         boolean keyWrap = cmd.hasOption("key-wrap");
-        String curve = cmd.getOptionValue("curve");
+        String curve = cmd.getOptionValue("curve", "nistp256");
         boolean sslECDH = cmd.hasOption("ssl-ecdh");
         String hash = cmd.getOptionValue("hash", "SHA256");
         String extConf = cmd.getOptionValue("ext");
@@ -124,7 +118,11 @@ public class NSSCertRequestCLI extends CommandCLI {
         KeyPair keyPair;
 
         if (keyID != null) {
-            keyPair = nssdb.loadKeyPair(token, keyID);
+
+            if (keyID.startsWith("0x")) keyID = keyID.substring(2);
+            if (keyID.length() % 2 == 1) keyID = "0" + keyID;
+
+            keyPair = nssdb.loadKeyPair(token, Hex.decodeHex(keyID));
 
         } else if ("rsa".equalsIgnoreCase(keyType)) {
 
@@ -172,7 +170,7 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
         String keyAlgorithm = hash + "with" + privateKey.getType();
-        logger.info("NSSDatabase: - key algorithm: " + keyAlgorithm);
+        logger.info("- key algorithm: " + keyAlgorithm);
 
         PKCS10 pkcs10 = nssdb.createPKCS10Request(
                 keyPair,

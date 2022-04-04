@@ -220,7 +220,7 @@ jobs:
       - name: Create new SSL server cert request with existing RSA key
         run: |
           pki nss-cert-request \
-              --key-id `cat sslserver_key_id` \
+              --key-id "0x`cat sslserver_key_id`" \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr new_sslserver.csr
@@ -296,7 +296,6 @@ jobs:
         run: |
           pki nss-cert-request \
               --key-type EC \
-              --curve nistp256 \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
@@ -347,7 +346,6 @@ jobs:
         run: |
           pki nss-cert-request \
               --key-type EC \
-              --curve nistp256 \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr sslserver.csr
@@ -406,7 +404,7 @@ jobs:
       - name: Create new SSL server cert request with existing EC key
         run: |
           pki nss-cert-request \
-              --key-id `cat sslserver_key_id` \
+              --key-id "0x`cat sslserver_key_id`" \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr new_sslserver.csr
