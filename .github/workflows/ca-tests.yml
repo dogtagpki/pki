@@ -1891,6 +1891,33 @@ jobs:
               -D pki_random_serial_numbers_enable=True \
               -v
 
+          # switch cert request ID generator to RSNv3
+          docker exec pki pki-server ca-config-unset dbs.beginRequestNumber
+          docker exec pki pki-server ca-config-unset dbs.endRequestNumber
+          docker exec pki pki-server ca-config-unset dbs.requestIncrement
+          docker exec pki pki-server ca-config-unset dbs.requestLowWaterMark
+          docker exec pki pki-server ca-config-unset dbs.requestCloneTransferNumber
+          docker exec pki pki-server ca-config-unset dbs.requestRangeDN
+
+          docker exec pki pki-server ca-config-set dbs.request.id.generator random
+          docker exec pki pki-server ca-config-set dbs.request.id.length 128
+
+          # switch cert ID generator to RSNv3
+          docker exec pki pki-server ca-config-unset dbs.beginSerialNumber
+          docker exec pki pki-server ca-config-unset dbs.endSerialNumber
+          docker exec pki pki-server ca-config-unset dbs.serialIncrement
+          docker exec pki pki-server ca-config-unset dbs.serialLowWaterMark
+          docker exec pki pki-server ca-config-unset dbs.serialCloneTransferNumber
+          docker exec pki pki-server ca-config-unset dbs.serialRangeDN
+          docker exec pki pki-server ca-config-unset dbs.enableRandomSerialNumbers
+          docker exec pki pki-server ca-config-unset dbs.randomSerialNumberCounter
+
+          docker exec pki pki-server ca-config-set dbs.cert.id.generator random
+          docker exec pki pki-server ca-config-set dbs.cert.id.length 128
+
+          # restart PKI server
+          docker exec pki pki-server restart --wait
+
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
@@ -1901,6 +1928,11 @@ jobs:
           docker exec pki pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
+
+      - name: Test CA agent
+        run: |
+          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-create.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-create.sh
 
       - name: Check cert requests in CA
         run: |

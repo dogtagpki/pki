@@ -265,6 +265,9 @@ class PKIDeployer:
                 subsystem.config['dbs.serialLowWaterMark'] = '2000000'
                 subsystem.config['dbs.serialCloneTransferNumber'] = '10000'
                 subsystem.config['dbs.serialRangeDN'] = 'ou=certificateRepository,ou=ranges'
+                subsystem.config['dbs.enableRandomSerialNumbers'] = \
+                    self.mdict['pki_random_serial_numbers_enable'].lower()
+                subsystem.config['dbs.randomSerialNumberCounter'] = '0'
 
         if subsystem.type == 'KRA':
 
