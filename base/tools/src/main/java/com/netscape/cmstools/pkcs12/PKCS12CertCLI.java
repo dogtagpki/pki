@@ -18,10 +18,10 @@
 
 package com.netscape.cmstools.pkcs12;
 
-import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12CertInfo;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 
@@ -46,8 +46,8 @@ public class PKCS12CertCLI extends CLI {
 
     public static void printCertInfo(PKCS12 pkcs12, PKCS12CertInfo certInfo) throws Exception {
 
-        byte[] id = certInfo.getID();
-        System.out.println("  Certificate ID: " + Hex.encodeHexString(id));
+        String hexCertID = "0x" + Utils.HexEncode(certInfo.getID());
+        System.out.println("  Certificate ID: " + hexCertID);
 
         System.out.println("  Serial Number: " + new CertId(certInfo.getCert().getSerialNumber()).toHexString());
         System.out.println("  Friendly Name: " + certInfo.getFriendlyName());
@@ -61,7 +61,8 @@ public class PKCS12CertCLI extends CLI {
         byte[] keyID = certInfo.getKeyID();
         System.out.println("  Has Key: " + (keyID != null));
         if (keyID != null) {
-            System.out.println("  Key ID: " + Hex.encodeHexString(keyID));
+            String hexKeyID = "0x" + Utils.HexEncode(keyID);
+            System.out.println("  Key ID: " + hexKeyID);
         }
     }
 }

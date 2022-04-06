@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
@@ -32,6 +31,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyInfo;
@@ -102,11 +102,9 @@ public class NSSKeyFindCLI extends CommandCLI {
         for (PrivateKey privateKey : privateKeys) {
             KeyInfo keyInfo = new KeyInfo();
 
-            String keyID = Hex.encodeHexString(privateKey.getUniqueID());
-            if (keyID.length() % 2 == 1) keyID = "0" + keyID;
-            keyID = "0x" + keyID;
+            String hexKeyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
+            keyInfo.setKeyId(new KeyId(hexKeyID));
 
-            keyInfo.setKeyId(new KeyId(keyID));
             keyInfo.setAlgorithm(privateKey.getAlgorithm());
             keyInfoCollection.addEntry(keyInfo);
         }

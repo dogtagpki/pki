@@ -58,7 +58,6 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
@@ -739,8 +738,9 @@ public class CryptoUtil {
         keygen.initialize(curveCode);
 
         KeyPair pair = keygen.genKeyPair();
-        PrivateKey privatKey = (PrivateKey) pair.getPrivate();
-        logger.info("CryptoUtil: - key ID: " + encodeKeyID(privatKey.getUniqueID()));
+        PrivateKey privateKey = (PrivateKey) pair.getPrivate();
+        String hexKeyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
+        logger.info("CryptoUtil: - key ID: " + hexKeyID);
 
         return pair;
     }
@@ -1803,8 +1803,8 @@ public class CryptoUtil {
     public static String encodeKeyID(byte[] keyID) {
 
         if (keyID.length != KEY_ID_LENGTH) {
-            throw new IllegalArgumentException(
-                    "Unable to encode Key ID: " + Hex.encodeHexString(keyID));
+            String hexKeyID = "0x" + Utils.HexEncode(keyID);
+            throw new IllegalArgumentException("Unable to encode Key ID: " + hexKeyID);
         }
 
         return new BigInteger(keyID).toString(16);

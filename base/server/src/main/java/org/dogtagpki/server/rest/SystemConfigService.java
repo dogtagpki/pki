@@ -30,6 +30,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -214,10 +215,7 @@ public class SystemConfigService extends PKIService {
 
             PrivateKey privateKey = (PrivateKey) keyPair.getPrivate();
 
-            keyID = Hex.encodeHexString(privateKey.getUniqueID());
-            if (keyID.length() % 2 == 1) keyID = "0" + keyID;
-            keyID = "0x" + keyID;
-
+            keyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
             certData.setKeyID(keyID);
 
             NSSExtensionGenerator generator = new NSSExtensionGenerator();

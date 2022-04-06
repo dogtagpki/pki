@@ -18,9 +18,9 @@
 
 package com.netscape.cmstools.pkcs12;
 
-import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12KeyInfo;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * @author Endi S. Dewata
@@ -39,7 +39,8 @@ public class PKCS12KeyCLI extends CLI {
 
     public static void printKeyInfo(PKCS12KeyInfo keyInfo) throws Exception {
 
-        System.out.println("  Key ID: " + Hex.encodeHexString(keyInfo.getID()));
+        String hexKeyID = "0x" + Utils.HexEncode(keyInfo.getID());
+        System.out.println("  Key ID: " + hexKeyID);
         System.out.println("  Friendly Name: " + keyInfo.getFriendlyName());
     }
 }

@@ -72,7 +72,8 @@ public class PKCS12KeyRemoveCLI extends CommandCLI {
             throw new Exception("Missing key ID.");
         }
 
-        byte[] keyID = Hex.decodeHex(cmdArgs[0].toCharArray());
+        String keyID = cmdArgs[0];
+        byte[] id = Hex.decodeHex(keyID.toCharArray());
 
         String filename = cmd.getOptionValue("pkcs12-file");
 
@@ -105,13 +106,13 @@ public class PKCS12KeyRemoveCLI extends CommandCLI {
             PKCS12Util util = new PKCS12Util();
 
             PKCS12 pkcs12 = util.loadFromFile(filename, password);
-            pkcs12.removeKeyInfoByID(keyID);
+            pkcs12.removeKeyInfoByID(id);
             util.storeIntoFile(pkcs12, filename, password);
 
         } finally {
             password.clear();
         }
 
-        MainCLI.printMessage("Deleted key \"" + Hex.encodeHexString(keyID) + "\"");
+        MainCLI.printMessage("Deleted key \"" + keyID + "\"");
     }
 }

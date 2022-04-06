@@ -25,6 +25,7 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -82,7 +83,7 @@ public final class OCSPSigningUnit extends SigningUnit {
             logger.debug("SigningUnit: Loading private key");
             mPrivk = mManager.findPrivKeyByCert(mCert);
 
-            String privateKeyID = CryptoUtil.encodeKeyID(mPrivk.getUniqueID());
+            String privateKeyID = "0x" + Utils.HexEncode(mPrivk.getUniqueID());
             logger.debug("SigningUnit: private key ID: " + privateKeyID);
 
             mPubk = mCert.getPublicKey();

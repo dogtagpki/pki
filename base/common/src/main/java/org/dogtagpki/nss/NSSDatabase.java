@@ -909,7 +909,8 @@ public class NSSDatabase {
 
         logger.info("NSSDatabase: Loading key pair");
 
-        logger.info("NSSDatabase: - key ID: " + CryptoUtil.encodeKeyID(keyID));
+        String hexKeyID = "0x" + Utils.HexEncode(keyID);
+        logger.info("NSSDatabase: - key ID: " + hexKeyID);
         PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(token, keyID);
 
         logger.info("NSSDatabase: - class: " + privateKey.getClass().getName());

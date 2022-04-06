@@ -1251,7 +1251,7 @@ jobs:
               --pkcs12-password Secret.123 | tee output
 
           # compare keys in PKCS #12 file and in NSS database
-          sed -n 's/^\s*Key ID:\s*\(.\+\)\s*$/\1/p' output | sort > actual
+          sed -n 's/^\s*Key ID:\s*0x\(.\+\)\s*$/\1/p' output | sort > actual
           docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output | sort > expected
           diff actual expected
@@ -1304,7 +1304,7 @@ jobs:
           docker exec pki pki pkcs12-key-find \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 | tee output
-          sed -n 's/^\s*Key ID:\s*\(.\+\)\s*$/\1/p' output | sort > actual
+          sed -n 's/^\s*Key ID:\s*0x\(.\+\)\s*$/\1/p' output | sort > actual
           docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output| sort > expected
           diff actual expected
