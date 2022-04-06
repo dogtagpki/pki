@@ -913,6 +913,10 @@ public class NSSDatabase {
         logger.info("NSSDatabase: - key ID: " + hexKeyID);
         PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(token, keyID);
 
+        if (privateKey == null) {
+            throw new Exception("Private key not found: " + hexKeyID);
+        }
+
         logger.info("NSSDatabase: - class: " + privateKey.getClass().getName());
         logger.info("NSSDatabase: - algorithm: " + privateKey.getAlgorithm());
         logger.info("NSSDatabase: - format: " + privateKey.getFormat());

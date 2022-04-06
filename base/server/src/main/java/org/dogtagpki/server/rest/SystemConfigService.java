@@ -358,14 +358,19 @@ public class SystemConfigService extends PKIService {
                 logger.info("SystemConfigService: - token: " + tokenName);
                 CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
-                String keyID = certData.getKeyID();
-                logger.info("SystemConfigService: - key ID: " + keyID);
+                String hexKeyID = certData.getKeyID();
+                logger.info("SystemConfigService: - key ID: " + hexKeyID);
 
+                String keyID = hexKeyID;
                 if (keyID.startsWith("0x")) keyID = keyID.substring(2);
                 if (keyID.length() % 2 == 1) keyID = "0" + keyID;
                 PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(
                         token,
                         Hex.decodeHex(keyID));
+
+                if (privateKey == null) {
+                    throw new Exception("Private key not found: " + hexKeyID);
+                }
 
                 PK11PubKey publicKey = privateKey.getPublicKey();
                 KeyPair keyPair = new KeyPair(publicKey, privateKey);
