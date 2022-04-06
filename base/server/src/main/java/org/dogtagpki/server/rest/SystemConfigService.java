@@ -27,10 +27,8 @@ import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -143,80 +141,11 @@ public class SystemConfigService extends PKIService {
             String keyID = certData.getKeyID();
             logger.info("SystemConfigService: - key ID: " + keyID);
 
-            String keyType = certData.getKeyType();
-            KeyPair keyPair;
+            if (keyID.startsWith("0x")) keyID = keyID.substring(2);
+            if (keyID.length() % 2 == 1) keyID = "0" + keyID;
 
-            if (keyID != null) {
-
-                logger.info("SystemConfigService: Loading key pair");
-                if (keyID.startsWith("0x")) keyID = keyID.substring(2);
-                if (keyID.length() % 2 == 1) keyID = "0" + keyID;
-                keyPair = nssdb.loadKeyPair(token, Hex.decodeHex(keyID));
-
-            } else if ("RSA".equalsIgnoreCase(keyType)) {
-
-                logger.info("SystemConfigService: Creating RSA key pair");
-
-                String keySize = certData.getKeySize();
-                logger.info("SystemConfigService: - key size: " + keySize);
-
-                boolean keyWrap = certData.getKeyWrap();
-                logger.info("SystemConfigService: - key wrap: " + keyWrap);
-
-                Usage[] usages;
-                Usage[] usagesMask;
-
-                if (keyWrap) {
-                    usages = CryptoUtil.RSA_KEYPAIR_USAGES;
-                    usagesMask = CryptoUtil.RSA_KEYPAIR_USAGES_MASK;
-
-                } else {
-                    usages = null;
-                    usagesMask = null;
-                }
-
-                keyPair = nssdb.createRSAKeyPair(
-                        token,
-                        Integer.parseInt(keySize),
-                        usages,
-                        usagesMask);
-
-            } else if ("EC".equalsIgnoreCase(keyType)) {
-
-                logger.info("SystemConfigService: Creating ECC key pair");
-
-                String curveName = certData.getKeyCurveName();
-                logger.info("SystemConfigService: - curve: " + curveName);
-
-                boolean sslECDH = certData.getSslECDH();
-                logger.info("SystemConfigService: - SSL ECDH: " + sslECDH);
-
-                Usage[] usages;
-                Usage[] usagesMask;
-
-                if (sslECDH) {
-                    usages = null;
-                    usagesMask = CryptoUtil.ECDH_USAGES_MASK;
-
-                } else {
-                    usages = null;
-                    usagesMask = CryptoUtil.ECDHE_USAGES_MASK;
-                }
-
-                keyPair = nssdb.createECKeyPair(
-                        token,
-                        curveName,
-                        usages,
-                        usagesMask);
-
-            } else {
-                throw new Exception("Unsupported key type: " + keyType);
-            }
-
+            KeyPair keyPair = nssdb.loadKeyPair(token, Hex.decodeHex(keyID));
             PrivateKey privateKey = (PrivateKey) keyPair.getPrivate();
-
-            keyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
-            certData.setKeyID(keyID);
 
             NSSExtensionGenerator generator = new NSSExtensionGenerator();
 
