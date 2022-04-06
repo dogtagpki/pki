@@ -185,8 +185,11 @@ public class HttpConnection implements IHttpConnection {
      * @throws EBaseException if request could not be encoded
      */
     @Override
-    public IPKIMessage send(IPKIMessage tomsg)
-            throws EBaseException {
+    public IPKIMessage send(IPKIMessage tomsg) throws EBaseException {
+
+        String url = "https://" + mDest.getHost() + ":" + mDest.getPort() + mHttpreq.getURI();
+        logger.info("HttpConnection: Sending request to " + url);
+
         IPKIMessage replymsg = null;
         HttpResponse resp = null;
 
@@ -235,8 +238,11 @@ public class HttpConnection implements IHttpConnection {
      * @throws EBaseException for any failure
      */
     @Override
-    public HttpResponse send(String content)
-            throws EBaseException {
+    public HttpResponse send(String content) throws EBaseException {
+
+        String url = "https://" + mDest.getHost() + ":" + mDest.getPort() + mHttpreq.getURI();
+        logger.info("HttpConnection: Sending request to " + url);
+
         // cfu: multi-uri support
         HttpResponse resp = null;
         if ((content == null) || content.equals("")) {
