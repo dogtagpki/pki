@@ -266,7 +266,7 @@ class PKIServer(object):
         server_config = self.get_server_config()
         connector = server_config.get_connector('Secure')
 
-        if not connector:
+        if connector is None:
             # HTTPS connector not configured, skip
             return
 
