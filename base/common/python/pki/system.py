@@ -337,7 +337,13 @@ class SystemCertData(object):
     """
 
     def __init__(self):
-        pass
+        self.token = None
+        self.keyID = None
+        self.keyType = None
+        self.keySize = None
+        self.keyWrap = False
+        self.keyCurveName = None
+        self.sslECDH = False
 
 
 class SystemConfigClient(object):
