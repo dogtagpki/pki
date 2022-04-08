@@ -645,6 +645,7 @@ class SSLHostCLI(pki.cli.CLI):
         self.add_module(SSLHostAddCLI())
         self.add_module(SSLHostDeleteCLI())
         self.add_module(SSLHostFindCLI())
+        self.add_module(SSLHostModifyCLI())
         self.add_module(SSLHostShowCLI())
 
     @staticmethod
@@ -920,6 +921,118 @@ class SSLHostFindCLI(pki.cli.CLI):
                 print()
 
             SSLHostCLI.print_sslhost(sslhost)
+
+
+class SSLHostModifyCLI(pki.cli.CLI):
+    '''
+    Modify SSL host configuration
+    '''
+
+    help = '''\
+        Usage: pki-server http-connector-host-mod [OPTIONS] <connector ID> <hostname>
+
+          -i, --instance <instance ID>              Instance ID (default: pki-tomcat)
+              --sslProtocol <protocol>              SSL protocol
+              --certVerification <verification>     Certificate verification
+              --trustManager <class>                Trust manager
+          -v, --verbose                             Run in verbose mode.
+              --debug                               Run in debug mode.
+              --help                                Show help message.
+        '''
+
+    def __init__(self):
+        super().__init__('mod', inspect.cleandoc(self.__class__.__doc__))
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help))
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'sslProtocol=', 'certVerification=', 'trustManager=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        sslProtocol = None
+        certVerification = None
+        trustManager = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--sslProtocol':
+                sslProtocol = a
+
+            elif o == '--certVerification':
+                certVerification = a
+
+            elif o == '--trustManager':
+                trustManager = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing connector ID')
+            self.print_help()
+            sys.exit(1)
+
+        connector_name = args[0]
+
+        if len(args) < 2:
+            logger.error('Missing hostname')
+            self.print_help()
+            sys.exit(1)
+
+        hostname = args[1]
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        server_config = instance.get_server_config()
+        connector = server_config.get_connector(connector_name)
+
+        if connector is None:
+            logger.error('Connector not found: %s', connector_name)
+            sys.exit(1)
+
+        sslhost = server_config.get_sslhost(connector, hostname)
+
+        if connector is None:
+            logger.error('SSL host not found: %s', hostname)
+            sys.exit(1)
+
+        HTTPConnectorCLI.set_param(sslhost, 'sslProtocol', sslProtocol)
+        HTTPConnectorCLI.set_param(sslhost, 'certificateVerification', certVerification)
+        HTTPConnectorCLI.set_param(sslhost, 'trustManagerClassName', trustManager)
+
+        server_config.save()
+
+        SSLHostCLI.print_sslhost(sslhost)
 
 
 class SSLHostShowCLI(pki.cli.CLI):
