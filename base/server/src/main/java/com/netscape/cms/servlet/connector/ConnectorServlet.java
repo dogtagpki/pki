@@ -120,12 +120,36 @@ public class ConnectorServlet extends CMSServlet {
             HttpServletResponse response)
             throws ServletException, IOException {
 
+        try {
+            serviceImpl(request, response);
+
+        } catch (ServletException e) {
+            logger.error("ConnectorServlet: " + e.getMessage(), e);
+            throw e;
+
+        } catch (IOException e) {
+            logger.error("ConnectorServlet: " + e.getMessage(), e);
+            throw e;
+
+        } catch (Throwable t) {
+            logger.error("ConnectorServlet: " + t.getMessage(), t);
+            throw new RuntimeException(t);
+        }
+    }
+
+    public void serviceImpl(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
+
+        logger.info("ConnectorServlet: Processing request for " + request.getRequestURI());
+
         CMSEngine engine = CMS.getCMSEngine();
         boolean running_state = engine.isInRunningState();
 
-        if (!running_state)
-            throw new IOException(
-                    "CMS server is not ready to serve.");
+        if (!running_state) {
+            logger.error("ConnectorServlet: Server is not ready");
+            throw new IOException("Server is not ready");
+        }
 
         HttpServletRequest req = request;
         HttpServletResponse resp = response;
@@ -177,6 +201,7 @@ public class ConnectorServlet extends CMSServlet {
                 done = reader.read(content, total, len - total);
                 total += done;
             }
+
             reader.close();
             encodedreq = new String(content);
         }
@@ -189,14 +214,15 @@ public class ConnectorServlet extends CMSServlet {
 
         try {
             peerCert = getPeerCert(req);
+
         } catch (EBaseException e) {
-            logger.warn(CMS.getLogMessage("CMSGW_HAS_NO_CLIENT_CERT"), e);
+            logger.warn("ConnectorServlet: Unable to get peer certificate: " + e.getMessage(), e);
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         if (peerCert == null) {
-            // XXX log something here.
+            logger.warn("ConnectorServlet: Missing peer certificate");
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
@@ -211,17 +237,19 @@ public class ConnectorServlet extends CMSServlet {
             token = authenticate(request);
             raUserId = token.getInString("userid");
             RA_Id = peerCert.getSubjectDN().toString();
+
         } catch (EInvalidCredentials e) {
-            // already logged.
+            logger.warn("ConnectorServlet: Invalid credentials: " + e.getMessage(), e);
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
+
         } catch (EBaseException e) {
-            // already logged.
+            logger.warn("ConnectorServlet: " + e.getMessage(), e);
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
 
-        logger.info("ConnectorServlet: Remote Authority authenticated: " + peerCert.getSubjectDN());
+        logger.info("ConnectorServlet: Subject DN: " + peerCert.getSubjectDN());
 
         // authorize
         AuthzToken authzToken = null;
@@ -231,46 +259,53 @@ public class ConnectorServlet extends CMSServlet {
                         mAuthzResourceName, "submit");
         } catch (Exception e) {
             // do nothing for now
+            logger.warn("ConnectorServlet: Unable to get authorization token: " + e.getMessage(), e);
         }
 
         if (authzToken == null) {
+            logger.warn("ConnectorServlet: Missing authorization token");
             cmsRequest.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
 
         // after cert validated, check http request.
         if (!method.equalsIgnoreCase("POST")) {
+            logger.warn("ConnectorServlet: Method not allowed: " + method);
             resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             return;
         }
+
         if (len <= 0) {
+            logger.warn("ConnectorServlet: Missing request content");
             resp.sendError(HttpServletResponse.SC_LENGTH_REQUIRED);
             return;
         }
 
-        // now process request.
+        logger.info("ConnectorServlet: RA ID: " + RA_Id);
 
-        logger.debug("ConnectorServlet: process request RA_Id=" + RA_Id);
         try {
             // decode request.
             msg = (IPKIMessage) mReqEncoder.decode(encodedreq);
             // process request
             replymsg = processRequest(RA_Id, raUserId, msg, token);
+
         } catch (IOException e) {
-            logger.error("ConnectorServlet: service " + e.getMessage(), e);
+            logger.error("ConnectorServlet: " + e.getMessage(), e);
             logger.error(CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
+
         } catch (EBaseException e) {
-            logger.error("ConnectorServlet: service " + e.getMessage(), e);
+            logger.error("ConnectorServlet: " + e.getMessage(), e);
             logger.error(CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
+
         } catch (Exception e) {
             logger.warn("ConnectorServlet: service " + e.getMessage(), e);
         }
 
-        logger.debug("ConnectorServlet: done processRequest");
+        logger.info("ConnectorServlet: Request processed");
 
         // encode reply
         try {
@@ -288,10 +323,10 @@ public class ConnectorServlet extends CMSServlet {
             writer.flush();
             writer.close();
             out.flush();
+
         } catch (Exception e) {
-            logger.warn("ConnectorServlet: error writing e=" + e.getMessage(), e);
+            logger.warn("ConnectorServlet: " + e.getMessage(), e);
         }
-        logger.debug("ConnectorServlet: send response RA_Id=" + RA_Id);
     }
 
     public static boolean isProfileRequest(Request request) {
