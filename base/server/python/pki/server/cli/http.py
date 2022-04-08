@@ -21,8 +21,10 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import getopt
+import inspect
 import logging
 import sys
+import textwrap
 
 import pki.cli
 import pki.nssdb
@@ -30,6 +32,8 @@ import pki.server
 import pki.server.cli.nuxwdog
 import pki.server.instance
 import pki.util
+
+logger = logging.getLogger(__name__)
 
 
 class HTTPCLI(pki.cli.CLI):
@@ -641,6 +645,7 @@ class SSLHostCLI(pki.cli.CLI):
         self.add_module(SSLHostAddCLI())
         self.add_module(SSLHostDeleteCLI())
         self.add_module(SSLHostFindCLI())
+        self.add_module(SSLHostShowCLI())
 
     @staticmethod
     def print_sslhost(sslhost):
@@ -915,6 +920,95 @@ class SSLHostFindCLI(pki.cli.CLI):
                 print()
 
             SSLHostCLI.print_sslhost(sslhost)
+
+
+class SSLHostShowCLI(pki.cli.CLI):
+    '''
+    Display SSL host configuration
+    '''
+
+    help = '''\
+        Usage: pki-server http-connector-host-show [OPTIONS] <connector ID> <hostname>
+
+          -i, --instance <instance ID>    Instance ID (default: pki-tomcat)
+          -v, --verbose                   Run in verbose mode.
+              --debug                     Run in debug mode.
+              --help                      Show help message.
+    '''
+
+    def __init__(self):
+        super().__init__('show', inspect.cleandoc(self.__class__.__doc__))
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help))
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing connector ID')
+            self.print_help()
+            sys.exit(1)
+
+        connector_name = args[0]
+
+        if len(args) < 2:
+            logger.error('Missing hostname')
+            self.print_help()
+            sys.exit(1)
+
+        hostname = args[1]
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        server_config = instance.get_server_config()
+        connector = server_config.get_connector(connector_name)
+
+        if connector is None:
+            logger.error('Connector not found: %s', connector_name)
+
+        sslhost = server_config.get_sslhost(connector, hostname)
+
+        if connector is None:
+            logger.error('SSL host not found: %s', hostname)
+            sys.exit(1)
+
+        SSLHostCLI.print_sslhost(sslhost)
 
 
 class SSLCertCLI(pki.cli.CLI):
