@@ -171,7 +171,7 @@ public class CACertImportCLI extends CommandCLI {
 
             logger.info("Creating cert record 0x" + cert.getSerialNumber().toString(16) + ":");
             logger.info("- subject: " + cert.getSubjectName());
-            logger.info("- issuer: " + cert.getIssuerDN());
+            logger.info("- issuer: " + cert.getIssuerName());
             logger.info("- profile ID: " + profileIDMapping);
             logger.info("- request ID: " + requestID.toHexString());
 

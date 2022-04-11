@@ -242,7 +242,7 @@ public class EnrolledCertsInfo {
             }
 
             //Issuer
-            String issuedBy = cert.getIssuerDN().toString();
+            String issuedBy = cert.getIssuerName().toString();
             certRecord.setIssuedBy(issuedBy);
             logger.debug("EnrolledCertsInfo.toTPSCertRecords: issuer ="+ issuedBy);
 

@@ -1545,7 +1545,7 @@ public class CertificateAuthority implements ICertificateAuthority, IOCSPService
             CertificateRepository certificateRepository = engine.getCertificateRepository();
             X509CertImpl cert = certificateRepository.getX509Certificate(serialNo);
 
-            X500Name certIssuerDN = (X500Name) cert.getIssuerDN();
+            X500Name certIssuerDN = cert.getIssuerName();
             ocspCA = engine.getCA(certIssuerDN);
         }
 

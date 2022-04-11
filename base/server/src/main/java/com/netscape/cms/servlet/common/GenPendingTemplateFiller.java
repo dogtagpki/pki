@@ -34,7 +34,6 @@ import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkix.cmc.CMCStatusInfoV2;
 import org.mozilla.jss.pkix.cmc.OtherInfo;
@@ -191,8 +190,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                     return params;
                 try {
                     X509CertImpl cert = new X509CertImpl(x509cert.getEncoded());
-                    ByteArrayInputStream issuer1 = new
-                            ByteArrayInputStream(((X500Name) cert.getIssuerDN()).getEncoded());
+                    ByteArrayInputStream issuer1 = new ByteArrayInputStream(cert.getIssuerName().getEncoded());
                     Name issuer = (Name) Name.getTemplate().decode(issuer1);
                     IssuerAndSerialNumber ias = new
                             IssuerAndSerialNumber(issuer, new INTEGER(cert.getSerialNumber().toString()));

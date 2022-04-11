@@ -545,7 +545,7 @@ public class CertService extends PKIService implements CertResource {
 
         certData.setSerialNumber(certId);
 
-        Principal issuerDN = cert.getIssuerDN();
+        Principal issuerDN = cert.getIssuerName();
         if (issuerDN != null) certData.setIssuerDN(issuerDN.toString());
 
         Principal subjectDN = cert.getSubjectName();

@@ -67,7 +67,7 @@ public class CAConfigurator extends Configurator {
 
         logger.info("CAConfigurator: Creating cert record 0x" + cert.getSerialNumber().toString(16));
         logger.info("CAConfigurator: - subject: " + cert.getSubjectName());
-        logger.info("CAConfigurator: - issuer: " + cert.getIssuerDN());
+        logger.info("CAConfigurator: - issuer: " + cert.getIssuerName());
 
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();

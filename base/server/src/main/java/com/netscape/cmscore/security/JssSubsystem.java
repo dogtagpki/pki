@@ -1052,7 +1052,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             NameValuePairs results = new NameValuePairs();
 
             results.put(Constants.PR_CERT_SUBJECT_NAME, impl.getSubjectName().getName());
-            results.put(Constants.PR_ISSUER_NAME, impl.getIssuerDN().getName());
+            results.put(Constants.PR_ISSUER_NAME, impl.getIssuerName().getName());
             results.put(Constants.PR_SERIAL_NUMBER, impl.getSerialNumber().toString());
             results.put(Constants.PR_BEFORE_VALIDDATE, impl.getNotBefore().toString());
             results.put(Constants.PR_AFTER_VALIDDATE, impl.getNotAfter().toString());
@@ -1122,7 +1122,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                     X509Certificate cert = certs[i];
                     X509CertImpl impl = new X509CertImpl(cert.getEncoded());
                     String num = impl.getSerialNumber().toString();
-                    String issuer = impl.getIssuerDN().toString();
+                    String issuer = impl.getIssuerName().toString();
                     logger.debug("*** num " + num);
                     logger.debug("*** issuer " + issuer);
                     if (num.equals(serialno) && issuername.equals(issuer)) {
@@ -1213,7 +1213,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                             continue;
                         }
                         String serialno = impl.getSerialNumber().toString();
-                        String issuer = impl.getIssuerDN().toString();
+                        String issuer = impl.getIssuerName().toString();
                         nvps.put(nickname + "," + serialno, issuer);
                         logger.trace("getRootCerts: nickname=" + nickname + ", serialno=" +
                                 serialno + ", issuer=" + issuer);
@@ -1275,7 +1275,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                             continue;
                         }
                         String serialno = impl.getSerialNumber().toString();
-                        String issuer = impl.getIssuerDN().toString();
+                        String issuer = impl.getIssuerName().toString();
                         nvps.put(nickname + "," + serialno, issuer);
                         logger.trace("getUserCerts: nickname=" + nickname + ", serialno=" +
                                 serialno + ", issuer=" + issuer);
@@ -1781,7 +1781,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             if (certs != null && certs.length > 0) {
                 for (; i < certs.length; i++) {
                     impl = new X509CertImpl(certs[i].getEncoded());
-                    if (impl.getIssuerDN().toString().equals(issuerName) &&
+                    if (impl.getIssuerName().toString().equals(issuerName) &&
                             impl.getSerialNumber().toString().equals(serialno))
                         return certs[i];
                 }
@@ -1820,7 +1820,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             if (certs != null && certs.length > 0) {
                 for (; i < certs.length; i++) {
                     impl = new X509CertImpl(certs[i].getEncoded());
-                    if (impl.getIssuerDN().toString().equals(issuerName) &&
+                    if (impl.getIssuerName().toString().equals(issuerName) &&
                             impl.getSerialNumber().toString().equals(serialno))
                         break;
                 }
@@ -1866,7 +1866,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             if (certs != null && certs.length > 0) {
                 for (int i = 0; i < certs.length; i++) {
                     impl = new X509CertImpl(certs[i].getEncoded());
-                    if (impl.getIssuerDN().toString().equals(issuerName) &&
+                    if (impl.getIssuerName().toString().equals(issuerName) &&
                             impl.getSerialNumber().toString().equals(serialno))
                         break;
                 }
@@ -1908,7 +1908,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             if (certs != null && certs.length > 0) {
                 for (int i = 0; i < certs.length; i++) {
                     impl = new X509CertImpl(certs[i].getEncoded());
-                    if (impl.getIssuerDN().toString().equals(issuerName) &&
+                    if (impl.getIssuerName().toString().equals(issuerName) &&
                             impl.getSerialNumber().toString().equals(serialno))
                         break;
                 }

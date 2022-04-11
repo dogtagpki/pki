@@ -712,7 +712,7 @@ public class CertificateRepository extends Repository {
 
             X509CertImpl x509cert = (X509CertImpl) record.get(CertRecord.ATTR_X509CERT);
             logger.info("CertificateRepository: - subject: " + x509cert.getSubjectName());
-            logger.info("CertificateRepository: - issuer: " + x509cert.getIssuerDN());
+            logger.info("CertificateRepository: - issuer: " + x509cert.getIssuerName());
 
             SessionContext ctx = SessionContext.getContext();
             String uid = (String) ctx.get(SessionContext.USER_ID);

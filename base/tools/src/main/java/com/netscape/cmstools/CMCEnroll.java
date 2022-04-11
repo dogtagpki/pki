@@ -151,7 +151,7 @@ public class CMCEnroll {
             BigInteger serialno = signerCert.getSerialNumber();
             byte[] certB = signerCert.getEncoded();
             X509CertImpl impl = new X509CertImpl(certB);
-            X500Name issuerName = (X500Name) impl.getIssuerDN();
+            X500Name issuerName = impl.getIssuerName();
             byte[] issuerByte = issuerName.getEncoded();
             ByteArrayInputStream istream = new ByteArrayInputStream(issuerByte);
 

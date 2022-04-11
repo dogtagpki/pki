@@ -137,7 +137,7 @@ public class SSLClientCertAuthentication implements AuthManager {
                     "Invalid serial number."));
         }
 
-        String clientCertIssuerDN = clientCert.getIssuerDN().toString();
+        String clientCertIssuerDN = clientCert.getIssuerName().toString();
 
         if (mCertDB != null) { /* is CA */
             CertRecord record = null;

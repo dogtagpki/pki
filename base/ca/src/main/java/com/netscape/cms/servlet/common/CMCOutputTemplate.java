@@ -605,7 +605,7 @@ public class CMCOutputTemplate {
             org.mozilla.jss.crypto.X509Certificate x509CAcert = null;
             x509CAcert = ca.getCaX509Cert();
             X509CertImpl caimpl = new X509CertImpl(x509CAcert.getEncoded());
-            X500Name issuerName = (X500Name) caimpl.getIssuerDN();
+            X500Name issuerName = caimpl.getIssuerName();
             byte[] issuerByte = issuerName.getEncoded();
             ByteArrayInputStream istream = new ByteArrayInputStream(issuerByte);
             Name issuer = (Name) Name.getTemplate().decode(istream);
@@ -1257,7 +1257,7 @@ public class CMCOutputTemplate {
                     X509CertImpl impl = record.getCertificate();
 
                     X500Name certPrincipal = impl.getSubjectName();
-                    X500Name certIssuerPrincipal = (X500Name) impl.getIssuerDN();
+                    X500Name certIssuerPrincipal = impl.getIssuerName();
                     auditSubjectID = certPrincipal.toString();
 
                     // for Shared Secret case, check if issuer DN matches
