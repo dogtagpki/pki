@@ -923,7 +923,7 @@ public class CAProcessor extends Processor {
         // Initialize subjectID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        logger.debug("CAProcessor: auditSubjectID auditContext " + auditContext);
+        //logger.debug("CAProcessor: auditSubjectID auditContext " + auditContext);
         if (auditContext != null) {
             subjectID = (String)
                     auditContext.get(SessionContext.USER_ID);
