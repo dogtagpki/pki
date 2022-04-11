@@ -139,7 +139,9 @@ public class PKCS12CertModCLI extends CommandCLI {
 
         byte[] certID;
         try {
-            certID = Hex.decodeHex(nickname.toCharArray());
+            String id = nickname;
+            if (id.startsWith("0x")) id = id.substring(2);
+            certID = Hex.decodeHex(id);
         } catch (DecoderException e) {
             // nickname is not an ID
             certID = null;

@@ -99,7 +99,8 @@ public class PKCS12CertExportCLI extends CommandCLI {
         if (cmdArgs.length >= 1) {
             nickname = cmdArgs[0];
         } else {
-            certID = Hex.decodeHex(id.toCharArray());
+            if (id.startsWith("0x")) id = id.substring(2);
+            certID = Hex.decodeHex(id);
         }
 
         String pkcs12File = cmd.getOptionValue("pkcs12-file");
