@@ -811,7 +811,7 @@ public class TokenService extends SubsystemService implements TokenResource {
     public Response changeTokenStatus(String tokenID, TokenStatus tokenStatus) {
 
         String method = "TokenService.changeTokenStatus: ";
-        logger.debug(method + "begins: with tokenStatus=" + tokenStatus.getName());
+        logger.debug(method + "begins: with tokenStatus=" + tokenStatus);
         if (tokenID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing token ID");
             throw new BadRequestException(method + "Missing token ID");
