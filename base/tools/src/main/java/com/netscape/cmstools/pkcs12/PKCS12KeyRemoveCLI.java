@@ -23,12 +23,12 @@ import java.io.FileReader;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -72,8 +72,7 @@ public class PKCS12KeyRemoveCLI extends CommandCLI {
             throw new Exception("Missing key ID.");
         }
 
-        String keyID = cmdArgs[0];
-        byte[] id = Hex.decodeHex(keyID.toCharArray());
+        KeyId keyID = new KeyId(cmdArgs[0]);
 
         String filename = cmd.getOptionValue("pkcs12-file");
 
@@ -106,7 +105,7 @@ public class PKCS12KeyRemoveCLI extends CommandCLI {
             PKCS12Util util = new PKCS12Util();
 
             PKCS12 pkcs12 = util.loadFromFile(filename, password);
-            pkcs12.removeKeyInfoByID(id);
+            pkcs12.removeKeyInfoByID(keyID.toByteArray());
             util.storeIntoFile(pkcs12, filename, password);
 
         } finally {
