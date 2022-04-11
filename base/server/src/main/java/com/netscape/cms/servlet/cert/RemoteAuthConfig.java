@@ -54,7 +54,7 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * Allow agent to turn on/off authentication managers
@@ -402,7 +402,7 @@ public class RemoteAuthConfig extends CMSServlet {
             c.connect(host, p);
             connected = true;
             boolean memberOf = false;
-            LDAPSearchResults results = c.search(baseDN, LDAPv2.SCOPE_SUB,
+            LDAPSearchResults results = c.search(baseDN, LDAPv3.SCOPE_SUB,
                     "(uid=" + uid + ")",
                     null, false);
 

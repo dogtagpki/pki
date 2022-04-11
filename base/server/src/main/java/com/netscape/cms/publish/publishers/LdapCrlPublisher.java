@@ -43,7 +43,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * For publishing master or global CRL.
@@ -221,14 +221,14 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
             if (mCrlAttr.equals(LDAP_CRL_ATTR)) {
                 res = conn.search(
                         dn,
-                        LDAPv2.SCOPE_BASE,
+                        LDAPv3.SCOPE_BASE,
                         "(objectclass=*)",
                         new String[] { LDAP_CACERT_ATTR, LDAP_ARL_ATTR },
                         true);
             } else {
                 res = conn.search(
                         dn,
-                        LDAPv2.SCOPE_BASE,
+                        LDAPv3.SCOPE_BASE,
                         "(objectclass=*)",
                         new String[] { LDAP_CRL_ATTR, LDAP_CACERT_ATTR, LDAP_ARL_ATTR },
                         true);
@@ -243,7 +243,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
             /* get object class values */
             LDAPSearchResults res1 = conn.search(
                     dn,
-                    LDAPv2.SCOPE_BASE,
+                    LDAPv3.SCOPE_BASE,
                     "(objectclass=*)",
                     new String[] { "objectclass" },
                     false);
@@ -386,7 +386,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
             } catch (EBaseException e) {
             }
 
-            LDAPSearchResults res = conn.search(dn, LDAPv2.SCOPE_BASE,
+            LDAPSearchResults res = conn.search(dn, LDAPv3.SCOPE_BASE,
                     "(objectclass=*)", new String[] { mCrlAttr, "objectclass" }, false);
             LDAPEntry e = res.next();
             LDAPAttribute crls = e.getAttribute(mCrlAttr);

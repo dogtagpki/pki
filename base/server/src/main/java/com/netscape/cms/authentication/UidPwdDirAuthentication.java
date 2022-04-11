@@ -48,7 +48,7 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * uid/pwd directory based authentication manager
@@ -128,7 +128,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
         logger.debug(method + "searching " + getGroupBaseDN() + " for (&(objectclass=" + mGroupObjectClass + ")(" + filter + "))");
         LDAPSearchResults res = ldapconn.search(
             getGroupBaseDN(),
-            LDAPv2.SCOPE_SUB,
+            LDAPv3.SCOPE_SUB,
             "(&(objectclass=" + mGroupObjectClass + ")(" + filter + "))",
             attrs, true /* attrsOnly */ );
 
@@ -210,7 +210,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
 
             LDAPSearchResults results = conn.search(
                     mBaseDN,
-                    LDAPv2.SCOPE_SUB,
+                    LDAPv3.SCOPE_SUB,
                     filter,
                     attrs,
                     false);

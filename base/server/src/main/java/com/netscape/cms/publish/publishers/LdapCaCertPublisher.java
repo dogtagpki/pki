@@ -42,7 +42,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * Interface for publishing a CA certificate to
@@ -229,7 +229,7 @@ public class LdapCaCertPublisher
 
             /* search for attribute names to determine existence of attributes */
             LDAPSearchResults res =
-                    conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)",
+                    conn.search(dn, LDAPv3.SCOPE_BASE, "(objectclass=*)",
                             new String[] { LDAP_CRL_ATTR, LDAP_ARL_ATTR }, true);
             LDAPEntry entry = res.next();
             LDAPAttribute arls = entry.getAttribute(LDAP_ARL_ATTR);
@@ -237,7 +237,7 @@ public class LdapCaCertPublisher
 
             /* search for objectclass and caCert values */
             LDAPSearchResults res1 =
-                    conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)",
+                    conn.search(dn, LDAPv3.SCOPE_BASE, "(objectclass=*)",
                             new String[] { "objectclass", mCaCertAttr }, false);
             LDAPEntry entry1 = res1.next();
             LDAPAttribute ocs = entry1.getAttribute("objectclass");
@@ -376,7 +376,7 @@ public class LdapCaCertPublisher
             byte[] certEnc = cert.getEncoded();
 
             LDAPSearchResults res =
-                    conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)",
+                    conn.search(dn, LDAPv3.SCOPE_BASE, "(objectclass=*)",
                             new String[] { mCaCertAttr, "objectclass" }, false);
 
             LDAPEntry entry = res.next();

@@ -25,7 +25,7 @@ import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * Factory for getting LDAP Connections to a LDAP server with the same
@@ -504,7 +504,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
             // ensures that if the connection is recycled and the previous owner
             // changed the SIZELIMIT option to a different value, the next owner
             // always starts with the default.
-            conn.setOption(LDAPv2.SIZELIMIT, mMaxResults);
+            conn.setOption(LDAPv3.SIZELIMIT, mMaxResults);
         } catch (LDAPException e) {
             throw new ELdapException("Unable to set LDAP size limit: " + e.getMessage(), e);
         }

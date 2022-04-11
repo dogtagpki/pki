@@ -37,7 +37,6 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPv3;
 
 /**
@@ -145,7 +144,7 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
             logger.info("Searching for " + subjectDN.toString());
 
             LDAPSearchResults results =
-                    conn.search(subjectDN.toString(), LDAPv2.SCOPE_BASE,
+                    conn.search(subjectDN.toString(), LDAPv3.SCOPE_BASE,
                             "(objectclass=*)", attrs, false);
 
             LDAPEntry entry = results.next();

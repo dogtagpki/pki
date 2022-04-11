@@ -35,7 +35,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * module for publishing a cross certificate pair to ldap
@@ -197,7 +197,7 @@ public class LdapCertificatePairPublisher
         try {
             // search for attributes to determine if they exist
             LDAPSearchResults res =
-                    conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)",
+                    conn.search(dn, LDAPv3.SCOPE_BASE, "(objectclass=*)",
                             new String[] { LDAP_CACERT_ATTR, LDAP_CRL_ATTR, LDAP_ARL_ATTR }, true);
             LDAPEntry entry = res.next();
             LDAPAttribute certs = entry.getAttribute(LDAP_CACERT_ATTR);
@@ -206,7 +206,7 @@ public class LdapCertificatePairPublisher
 
             // search for objectclass and crosscertpair attributes and values
             LDAPSearchResults res1 =
-                    conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)",
+                    conn.search(dn, LDAPv3.SCOPE_BASE, "(objectclass=*)",
                             new String[] { "objectclass", mCrossCertPairAttr }, false);
             LDAPEntry entry1 = res1.next();
             LDAPAttribute ocs = entry1.getAttribute("objectclass");

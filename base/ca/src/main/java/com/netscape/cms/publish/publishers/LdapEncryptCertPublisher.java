@@ -50,7 +50,7 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * Interface for mapping a X509 certificate to a LDAP entry
@@ -154,7 +154,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
             byte[] certEnc = cert.getEncoded();
 
             // check if cert already exists.
-            LDAPSearchResults res = conn.search(dn, LDAPv2.SCOPE_BASE,
+            LDAPSearchResults res = conn.search(dn, LDAPv3.SCOPE_BASE,
                     "(objectclass=*)", new String[] { mCertAttr }, false);
             LDAPEntry entry = res.next();
             LDAPAttribute attr = getModificationAttribute(entry.getAttribute(mCertAttr), certEnc);
@@ -203,7 +203,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
             byte[] certEnc = cert.getEncoded();
 
             // check if cert already deleted.
-            LDAPSearchResults res = conn.search(dn, LDAPv2.SCOPE_BASE,
+            LDAPSearchResults res = conn.search(dn, LDAPv3.SCOPE_BASE,
                     "(objectclass=*)", new String[] { mCertAttr }, false);
             LDAPEntry entry = res.next();
 

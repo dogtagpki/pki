@@ -26,7 +26,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPRebind;
 import netscape.ldap.LDAPRebindAuth;
 import netscape.ldap.LDAPSocketFactory;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * A LDAP connection that is bound to a server host, port, secure type.
@@ -66,7 +66,7 @@ public class LdapBoundConnection extends LDAPConnection {
 
         boolean followReferrals = connInfo.getFollowReferrals();
 
-        setOption(LDAPv2.REFERRALS,Boolean.valueOf(followReferrals));
+        setOption(LDAPv3.REFERRALS,Boolean.valueOf(followReferrals));
         if (followReferrals &&
                 authInfo.getAuthType() != LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
 
@@ -94,7 +94,7 @@ public class LdapBoundConnection extends LDAPConnection {
                 }
             };
 
-            setOption(LDAPv2.REFERRALS_REBIND_PROC, rebindInfo);
+            setOption(LDAPv3.REFERRALS_REBIND_PROC, rebindInfo);
         }
 
         String hostname = connInfo.getHost();

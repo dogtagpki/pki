@@ -38,7 +38,7 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * This object stores the values for IP, uid and group based on the cookie id in LDAP.
@@ -183,7 +183,7 @@ public class LDAPSecurityDomainSessionTable
             String[] attrs = { "cn" };
 
             conn = mLdapConnFactory.getConn();
-            LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB, filter, attrs, false);
+            LDAPSearchResults res = conn.search(sessionsdn, LDAPv3.SCOPE_SUB, filter, attrs, false);
             if (res.getCount() > 0)
                 ret = true;
 
@@ -219,7 +219,7 @@ public class LDAPSecurityDomainSessionTable
             logger.debug("LDAPSecurityDomainSessionTable: searching " + sessionsdn);
 
             conn = mLdapConnFactory.getConn();
-            LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB, filter, attrs, false);
+            LDAPSearchResults res = conn.search(sessionsdn, LDAPv3.SCOPE_SUB, filter, attrs, false);
             while (res.hasMoreElements()) {
                 LDAPEntry entry = res.next();
                 LDAPAttribute sid = entry.getAttribute("cn");
@@ -266,7 +266,7 @@ public class LDAPSecurityDomainSessionTable
             String[] attrs = { attr };
 
             conn = mLdapConnFactory.getConn();
-            LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB, filter, attrs, false);
+            LDAPSearchResults res = conn.search(sessionsdn, LDAPv3.SCOPE_SUB, filter, attrs, false);
             if (res.getCount() > 0) {
                 LDAPEntry entry = res.next();
                 LDAPAttribute searchAttribute = entry.getAttribute(attr);
@@ -333,7 +333,7 @@ public class LDAPSecurityDomainSessionTable
             String[] attrs = { "cn" };
 
             conn = mLdapConnFactory.getConn();
-            LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB, filter, attrs, false);
+            LDAPSearchResults res = conn.search(sessionsdn, LDAPv3.SCOPE_SUB, filter, attrs, false);
             ret = res.getCount();
 
         } finally {

@@ -41,7 +41,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * A class for ldap acls based authorization manager
@@ -160,7 +160,7 @@ public class DirAclAuthz extends AAclAuthz
 
         try {
             conn = getConn();
-            LDAPSearchResults res = conn.search(basedn, LDAPv2.SCOPE_SUB, filter, null, false);
+            LDAPSearchResults res = conn.search(basedn, LDAPv3.SCOPE_SUB, filter, null, false);
             returnConn(conn);
 
             if (res.hasMoreElements()) {

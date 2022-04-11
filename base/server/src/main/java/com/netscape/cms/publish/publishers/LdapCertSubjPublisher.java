@@ -41,7 +41,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * Interface for mapping a X509 certificate to a LDAP entry
@@ -170,7 +170,7 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
             String subjName = ((X500Name) cert.getSubjectDN()).toLdapDNString();
 
             LDAPSearchResults res =
-                    conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)",
+                    conn.search(dn, LDAPv3.SCOPE_BASE, "(objectclass=*)",
                             new String[] { mCertAttr, mSubjNameAttr }, false);
 
             LDAPEntry entry = res.next();
@@ -250,7 +250,7 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
             byte[] certEnc = cert.getEncoded();
 
             LDAPSearchResults res =
-                    conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)",
+                    conn.search(dn, LDAPv3.SCOPE_BASE, "(objectclass=*)",
                             new String[] { mCertAttr, mSubjNameAttr }, false);
 
             LDAPEntry entry = res.next();

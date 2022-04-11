@@ -37,7 +37,6 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPv3;
 
 /**
@@ -216,7 +215,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
             logger.info("LdapCertSubjMap: search " + mSearchBase + " (" + mCertSubjNameAttr + "=" + subjectDN + ") " + mCertSubjNameAttr);
 
             LDAPSearchResults results =
-                    conn.search(mSearchBase, LDAPv2.SCOPE_SUB,
+                    conn.search(mSearchBase, LDAPv3.SCOPE_SUB,
                             "(" + mCertSubjNameAttr + "=" + subjectDN + ")", attrs, false);
 
             LDAPEntry entry = results.next();
@@ -284,7 +283,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
             logger.info("LdapCertSubjMap: search " + mSearchBase + " (" + mCertSubjNameAttr + "=" + subjectDN + ") " + mCertSubjNameAttr);
 
             LDAPSearchResults results =
-                    conn.search(mSearchBase, LDAPv2.SCOPE_SUB,
+                    conn.search(mSearchBase, LDAPv3.SCOPE_SUB,
                             "(" + mCertSubjNameAttr + "=" + subjectDN + ")", attrs, false);
 
             while (results.hasMoreElements()) {

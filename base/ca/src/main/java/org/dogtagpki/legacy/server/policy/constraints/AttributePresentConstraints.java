@@ -43,7 +43,7 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * This checks if attribute present.
@@ -297,7 +297,7 @@ public class AttributePresentConstraints extends APolicyRule
                 String[] attrs = { (String) mParamValue.get(PROP_ATTR) };
                 LDAPSearchResults searchResult =
                         mCheckAttrLdapConnection.search((String) mParamValue.get(PROP_LDAP_BASE),
-                                LDAPv2.SCOPE_SUB, "(uid=" + uid + ")", attrs, false);
+                                LDAPv3.SCOPE_SUB, "(uid=" + uid + ")", attrs, false);
 
                 if (!searchResult.hasMoreElements()) {
                     logger.error(CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));

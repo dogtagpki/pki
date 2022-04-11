@@ -46,7 +46,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * Subsystem for handling cross certificate pairing and publishing
@@ -199,7 +199,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
         try {
             conn = getConn();
-            LDAPSearchResults res = conn.search(mBaseDN, LDAPv2.SCOPE_SUB,
+            LDAPSearchResults res = conn.search(mBaseDN, LDAPv3.SCOPE_SUB,
                     DN_XCERTS, null, false);
 
             if (res.hasMoreElements()) {
@@ -416,7 +416,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         try {
             conn = getConn();
             // search in internal db for xcerts
-            LDAPSearchResults res = conn.search(mBaseDN, LDAPv2.SCOPE_SUB,
+            LDAPSearchResults res = conn.search(mBaseDN, LDAPv3.SCOPE_SUB,
                     DN_XCERTS, null, false);
 
             logger.debug("CrossCertPairSubsystem: trying to publish cert pairs, if any");

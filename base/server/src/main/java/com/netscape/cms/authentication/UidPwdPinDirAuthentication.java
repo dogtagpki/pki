@@ -55,7 +55,7 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * uid/pwd/pin directory based authentication manager
@@ -241,7 +241,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
 
             // get user dn.
             LDAPSearchResults res = conn.search(mBaseDN,
-                    LDAPv2.SCOPE_SUB, "(uid=" + uid + ")", null, false);
+                    LDAPv3.SCOPE_SUB, "(uid=" + uid + ")", null, false);
 
             if (res.hasMoreElements()) {
                 LDAPEntry entry = (LDAPEntry) res.nextElement();
@@ -313,7 +313,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
 
         // get pin.
 
-        res = conn.search(userdn, LDAPv2.SCOPE_BASE,
+        res = conn.search(userdn, LDAPv3.SCOPE_BASE,
                     "(objectclass=*)", new String[] { mPinAttr }, false);
         if (res.hasMoreElements()) {
             entry = (LDAPEntry) res.nextElement();

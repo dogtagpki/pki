@@ -43,7 +43,6 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPv3;
 import netscape.ldap.util.DN;
 
@@ -202,7 +201,7 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_DN_MATCH", s1));
             }
 
-            int scope = LDAPv2.SCOPE_BASE;
+            int scope = LDAPv3.SCOPE_BASE;
             String filter = "(objectclass=*)";
 
             // search for entry

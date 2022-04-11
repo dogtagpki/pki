@@ -50,7 +50,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPObjectClassSchema;
 import netscape.ldap.LDAPSchema;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * uid/pwd directory based authentication manager
@@ -209,7 +209,7 @@ public class PortalEnroll extends DirBasedAuthentication {
 
             // get user dn.
             LDAPSearchResults res = conn.search(mBaseDN,
-                    LDAPv2.SCOPE_SUB, "(uid=" + uid + ")", null, false);
+                    LDAPv3.SCOPE_SUB, "(uid=" + uid + ")", null, false);
 
             if (res.hasMoreElements()) {
                 res.nextElement(); // consume the entry

@@ -40,7 +40,7 @@ import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPSortKey;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 import netscape.ldap.controls.LDAPPersistSearchControl;
 import netscape.ldap.controls.LDAPSortControl;
 
@@ -72,7 +72,7 @@ public class LDAPSession extends DBSSession {
         mConn = c;
         try {
             // no limit
-            mConn.setOption(LDAPv2.SIZELIMIT, Integer.valueOf(0));
+            mConn.setOption(LDAPv3.SIZELIMIT, Integer.valueOf(0));
         } catch (LDAPException e) {
             throw new EDBException("Unable to create LDAP session: " + e.getMessage(), e);
         }
@@ -172,7 +172,7 @@ public class LDAPSession extends DBSSession {
              * @message LDAPSession: begin LDAP read <entry>
              */
             LDAPSearchResults res = mConn.search(name,
-                    LDAPv2.SCOPE_BASE, "(objectclass=*)",
+                    LDAPv3.SCOPE_BASE, "(objectclass=*)",
                     ldapattrs, false);
             LDAPEntry entry = (LDAPEntry) res.nextElement();
             LDAPAttributeSet attrSet = entry.getAttributeSet();
@@ -319,7 +319,7 @@ public class LDAPSession extends DBSSession {
             cons.setMaxResults(maxSize);
 
             LDAPSearchResults res = mConn.search(base,
-                    LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
+                    LDAPv3.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
 
             return new DBSearchResults(dbSubsystem.getRegistry(),
                     res);
@@ -355,7 +355,7 @@ public class LDAPSession extends DBSSession {
             }
 
             LDAPSearchResults res = mConn.search(base,
-                    LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
+                    LDAPv3.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
 
             return new DBSearchResults(dbSubsystem.getRegistry(),
                     res);
@@ -386,7 +386,7 @@ public class LDAPSession extends DBSSession {
             cons.setServerTimeLimit(timeLimit);
 
             LDAPSearchResults res = mConn.search(base,
-                    LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
+                    LDAPv3.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
 
             return new DBSearchResults(dbSubsystem.getRegistry(),
                     res);
@@ -423,7 +423,7 @@ public class LDAPSession extends DBSSession {
             }
 
             LDAPSearchResults res = mConn.search(base,
-                    LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
+                    LDAPv3.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
 
             return new DBSearchResults(dbSubsystem.getRegistry(),
                     res);
@@ -468,7 +468,7 @@ public class LDAPSession extends DBSSession {
             cons.setMaxResults(0);
 
             LDAPSearchResults res = mConn.search(base,
-                    LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
+                    LDAPv3.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
 
             return new DBSearchResults(dbSubsystem.getRegistry(),
                     res);
@@ -497,11 +497,11 @@ public class LDAPSession extends DBSSession {
             String ldapfilter =
                     dbSubsystem.getRegistry().getFilter(filter);
 
-            Integer version = (Integer) (mConn.getOption(LDAPv2.PROTOCOL_VERSION));
+            Integer version = (Integer) (mConn.getOption(LDAPv3.PROTOCOL_VERSION));
 
             // Only version 3 protocol supports persistent search.
             if (version.intValue() == 2) {
-                mConn.setOption(LDAPv2.PROTOCOL_VERSION, Integer.valueOf(3));
+                mConn.setOption(LDAPv3.PROTOCOL_VERSION, Integer.valueOf(3));
             }
 
             int op = LDAPPersistSearchControl.MODIFY;
@@ -518,7 +518,7 @@ public class LDAPSession extends DBSSession {
             cons.setServerControls(persistCtrl);
 
             LDAPSearchResults res = mConn.search(base,
-                    LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
+                    LDAPv3.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
             return res;
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)

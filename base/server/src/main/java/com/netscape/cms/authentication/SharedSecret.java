@@ -56,7 +56,7 @@ import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * SharedSecret provides methods to retrieve shared secrets between users and
@@ -292,7 +292,7 @@ public class SharedSecret extends DirBasedAuthentication
             // get user dn.
             String userdn = null;
             res = shrTokLdapConnection.search(mBaseDN,
-                    LDAPv2.SCOPE_SUB, "(uid=" + identification + ")", null, false);
+                    LDAPv3.SCOPE_SUB, "(uid=" + identification + ")", null, false);
             if (res == null) {
                 msg = method + "shrTokLdapConnection.search returns null!!";
                 logger.error(msg);
@@ -318,7 +318,7 @@ public class SharedSecret extends DirBasedAuthentication
             logger.debug(method + "found user ldap entry: userdn = " + userdn);
             authToken.set(IAuthToken.TOKEN_CERT_SUBJECT, userdn);
 
-            res = shrTokLdapConnection.search(userdn, LDAPv2.SCOPE_BASE,
+            res = shrTokLdapConnection.search(userdn, LDAPv3.SCOPE_BASE,
                     "(objectclass=*)", new String[] { mShrTokAttr }, false);
             if (res != null && res.hasMoreElements()) {
                 entry = (LDAPEntry) res.nextElement();

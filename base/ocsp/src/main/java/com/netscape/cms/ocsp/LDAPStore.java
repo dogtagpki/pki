@@ -58,7 +58,7 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * This is the LDAP OCSP store. It reads CA certificate and
@@ -145,7 +145,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             throws EBaseException {
         try {
             LDAPSearchResults results = conn.search(baseDN,
-                    LDAPv2.SCOPE_SUB, mCACertAttr + "=*",
+                    LDAPv3.SCOPE_SUB, mCACertAttr + "=*",
                     null, false);
 
             if (!results.hasMoreElements()) {
@@ -176,7 +176,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             throws EBaseException {
         try {
             LDAPSearchResults results = conn.search(baseDN,
-                    LDAPv2.SCOPE_SUB, mCRLAttr + "=*",
+                    LDAPv3.SCOPE_SUB, mCRLAttr + "=*",
                     null, false);
 
             if (!results.hasMoreElements()) {

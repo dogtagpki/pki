@@ -52,7 +52,7 @@ import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * This class defines low-level LDAP usr/grp management
@@ -149,7 +149,7 @@ public class UGSubsystem {
 
             LDAPSearchResults res = ldapconn.search(
                     userDN,
-                    LDAPv2.SCOPE_BASE,
+                    LDAPv3.SCOPE_BASE,
                     "(objectclass=*)",
                     null,
                     false);
@@ -242,7 +242,7 @@ public class UGSubsystem {
         try {
             ldapconn = getConn();
             LDAPSearchResults res = ldapconn.search(getUserBaseDN(),
-                    LDAPv2.SCOPE_SUB, "(" + filter + ")",
+                    LDAPv3.SCOPE_SUB, "(" + filter + ")",
                     null, false);
 
             Enumeration<User> e = buildUsers(res);
@@ -294,7 +294,7 @@ public class UGSubsystem {
             // use one-level search to search users in flat tree
             LDAPSearchResults res = ldapconn.search(
                     baseDN,
-                    LDAPv2.SCOPE_ONE,
+                    LDAPv3.SCOPE_ONE,
                     filter,
                     null,
                     false);
@@ -340,7 +340,7 @@ public class UGSubsystem {
 
             cons.setMaxResults(0);
             LDAPSearchResults res = ldapconn.search(getUserBaseDN(),
-                    LDAPv2.SCOPE_SUB, "(uid=" + filter + ")", attrs, false, cons);
+                    LDAPv3.SCOPE_SUB, "(uid=" + filter + ")", attrs, false, cons);
             Enumeration<User> e = lbuildUsers(res);
 
             return e;
@@ -1236,7 +1236,7 @@ public class UGSubsystem {
             ldapconn = getConn();
             LDAPSearchResults res = ldapconn.search(
                     baseDN,
-                    LDAPv2.SCOPE_SUB,
+                    LDAPv3.SCOPE_SUB,
                     "(&(objectclass=groupofuniquenames)(cn=" + filter + "))",
                     null,
                     false);
@@ -1291,7 +1291,7 @@ public class UGSubsystem {
             ldapconn = getConn();
             LDAPSearchResults res = ldapconn.search(
                     getGroupBaseDN(),
-                    LDAPv2.SCOPE_ONE,
+                    LDAPv3.SCOPE_ONE,
                     ldapFilter,
                     attrs,
                     false);
@@ -1341,7 +1341,7 @@ public class UGSubsystem {
 
             LDAPSearchResults res = ldapconn.search(
                     getGroupBaseDN(),
-                    LDAPv2.SCOPE_ONE,
+                    LDAPv3.SCOPE_ONE,
                     ldapFilter,
                     attrs,
                     false);
@@ -1568,7 +1568,7 @@ public class UGSubsystem {
             logger.trace("authorization search base: " + basedn);
             logger.trace("authorization search filter: " + filter);
             LDAPSearchResults res =
-                    ldapconn.search(basedn, LDAPv2.SCOPE_BASE,
+                    ldapconn.search(basedn, LDAPv3.SCOPE_BASE,
                             filter,
                             attrs, false);
             // If the result had at least one entry, we know
@@ -1785,7 +1785,7 @@ public class UGSubsystem {
         try {
             ldapconn = getConn();
             LDAPSearchResults res = ldapconn.search(getUserBaseDN(),
-                    LDAPv2.SCOPE_SUB, "(uid=" + LDAPUtil.escapeFilter(u) + ")", null, false);
+                    LDAPv3.SCOPE_SUB, "(uid=" + LDAPUtil.escapeFilter(u) + ")", null, false);
 
             if (res.hasMoreElements()) {
                 LDAPEntry entry = (LDAPEntry) res.nextElement();

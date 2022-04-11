@@ -20,7 +20,7 @@ package com.netscape.cmscore.ldapconn;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSocketFactory;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * A LDAP connection that is bound to a server host, port and secure type.
@@ -49,9 +49,9 @@ public class LdapAnonConnection extends LDAPConnection {
         // rebind info is also anonymous.
         boolean followReferrals = connInfo.getFollowReferrals();
 
-        setOption(LDAPv2.REFERRALS, Boolean.valueOf(followReferrals));
+        setOption(LDAPv3.REFERRALS, Boolean.valueOf(followReferrals));
 
-        if (connInfo.getVersion() == LDAPv2.PROTOCOL_VERSION) {
+        if (connInfo.getVersion() == LDAPv3.PROTOCOL_VERSION) {
             super.connect(connInfo.getVersion(),
                 connInfo.getHost(), connInfo.getPort(), null, null);
         } else {
@@ -68,7 +68,7 @@ public class LdapAnonConnection extends LDAPConnection {
             LDAPSocketFactory fac)
             throws LDAPException {
         super(fac);
-        if (version == LDAPv2.PROTOCOL_VERSION) {
+        if (version == LDAPv3.PROTOCOL_VERSION) {
             super.connect(version, host, port, null, null);
         } else {
             // use the following connect() call because it connects but does
@@ -83,7 +83,7 @@ public class LdapAnonConnection extends LDAPConnection {
     public LdapAnonConnection(String host, int port, int version)
             throws LDAPException {
         super();
-        if (version == LDAPv2.PROTOCOL_VERSION) {
+        if (version == LDAPv3.PROTOCOL_VERSION) {
             super.connect(version, host, port, null, null);
         } else {
             // use the following connect() call because it connects but does

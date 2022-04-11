@@ -35,7 +35,7 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * This represnets a listener that removes pin from LDAP directory.
@@ -147,7 +147,7 @@ public class PinRemovalListener implements IRequestListener {
 
             try {
                 LDAPSearchResults res = mRemovePinLdapConnection.search(mBaseDN,
-                        LDAPv2.SCOPE_SUB, "(uid=" + uid + ")", null, false);
+                        LDAPv3.SCOPE_SUB, "(uid=" + uid + ")", null, false);
 
                 if (!res.hasMoreElements()) {
                     logger.warn("PinRemovalListener: uid " + uid + " does not exist in the ldap server. Could not remove pin");

@@ -22,7 +22,7 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
 
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * class for reading ldap connection from the config store.
@@ -44,7 +44,7 @@ public class LdapConnInfo {
     private String mHost = null;
     private int mPort = -1;
     private boolean mSecure = false;
-    private int mVersion = LDAPv2.PROTOCOL_VERSION;
+    private int mVersion = LDAPv3.PROTOCOL_VERSION;
     private boolean mFollowReferrals = true;
 
     /**

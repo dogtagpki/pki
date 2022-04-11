@@ -43,7 +43,7 @@ import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * This class implements an enrollment default policy
@@ -386,7 +386,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
             // get user dn.
             logger.debug("nsNKeySubjectNameDefault: getSubjectName(): about to search with basedn = " + mBaseDN);
             LDAPSearchResults res = conn.search(mBaseDN,
-                    LDAPv2.SCOPE_SUB, "(aoluid=" + request.getExtDataInString("aoluid") + ")", null, false);
+                    LDAPv3.SCOPE_SUB, "(aoluid=" + request.getExtDataInString("aoluid") + ")", null, false);
 
             if (res.hasMoreElements()) {
                 LDAPEntry entry = res.next();
@@ -403,7 +403,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
             logger.debug("nsNKeySubjectNameDefault: getSubjectName(): about to search with "
                     + mLdapStringAttrs.length + " attributes");
             LDAPSearchResults results =
-                    conn.search(userdn, LDAPv2.SCOPE_BASE, "objectclass=*",
+                    conn.search(userdn, LDAPv3.SCOPE_BASE, "objectclass=*",
                             mLdapStringAttrs, false);
 
             if (!results.hasMoreElements()) {

@@ -33,7 +33,7 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPSortKey;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 import netscape.ldap.controls.LDAPSortControl;
 import netscape.ldap.controls.LDAPVirtualListControl;
 import netscape.ldap.controls.LDAPVirtualListResponse;
@@ -444,22 +444,22 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
             String ldapAttrs[] = null;
             LDAPSearchResults result;
 
-            Integer size_limit = (Integer) mConn.getOption(LDAPv2.SIZELIMIT);
+            Integer size_limit = (Integer) mConn.getOption(LDAPv3.SIZELIMIT);
             if (size_limit == 0 ||
                     (size_limit > 0 && mPageSize != 0 && Math.abs(mPageSize) < size_limit))
             {
-                mConn.setOption(LDAPv2.SIZELIMIT, Math.abs(mPageSize));
+                mConn.setOption(LDAPv3.SIZELIMIT, Math.abs(mPageSize));
             }
 
             if (mAttrs != null) {
                 ldapAttrs = mRegistry.getLDAPAttributes(mAttrs);
 
                 /*
-                 LDAPv2.SCOPE_BASE:
+                 LDAPv3.SCOPE_BASE:
                  (search only the base DN)
-                 LDAPv2.SCOPE_ONE:
+                 LDAPv3.SCOPE_ONE:
                  (search only entries under the base DN)
-                 LDAPv2.SCOPE_SUB:
+                 LDAPv3.SCOPE_SUB:
                  (search the base DN and all entries within its subtree)
                  */
                 result = mConn.search(mBase,

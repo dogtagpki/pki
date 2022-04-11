@@ -61,7 +61,7 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
 
 /**
  * Abstract class for directory based authentication managers
@@ -618,7 +618,7 @@ public abstract class DirBasedAuthentication
 
                 LDAPSearchResults results = conn.search(
                         userdn,
-                        LDAPv2.SCOPE_BASE,
+                        LDAPv3.SCOPE_BASE,
                         "(objectClass=*)",
                         attrs,
                         false);

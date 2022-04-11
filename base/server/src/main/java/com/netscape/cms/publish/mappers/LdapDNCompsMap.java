@@ -42,7 +42,6 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPv3;
 
 /**
@@ -246,10 +245,10 @@ public class LdapDNCompsMap
                 }
                 dn = mBaseDN;
             }
-            int scope = LDAPv2.SCOPE_SUB;
+            int scope = LDAPv3.SCOPE_SUB;
 
             if (filter == null) {
-                scope = LDAPv2.SCOPE_BASE;
+                scope = LDAPv3.SCOPE_BASE;
                 filter = "(objectclass=*)";
             }
 
@@ -259,7 +258,7 @@ public class LdapDNCompsMap
             attrs = new String[] { LDAPv3.NO_ATTRS };
 
             logger.info("LdapDNCompsMap: searching for " + dn + " " + filter + " " +
-                    ((scope == LDAPv2.SCOPE_SUB) ? "sub" : "base"));
+                    ((scope == LDAPv3.SCOPE_SUB) ? "sub" : "base"));
 
             LDAPSearchResults results =
                     conn.search(dn, scope, filter, attrs, false);
