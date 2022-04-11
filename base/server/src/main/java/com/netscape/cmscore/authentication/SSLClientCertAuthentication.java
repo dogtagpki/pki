@@ -153,7 +153,7 @@ public class SSLClientCertAuthentication implements AuthManager {
                 if (status.equals("VALID")) {
 
                     X509CertImpl cacert = mCA.getCACert();
-                    Principal p = cacert.getSubjectDN();
+                    Principal p = cacert.getSubjectName();
 
                     if (!p.toString().equals(clientCertIssuerDN)) {
                         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ISSUER_NAME"));

@@ -111,7 +111,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
 
         if (cert == null)
             return;
-        X500Name issuerName = (X500Name) cert.getSubjectDN();
+        X500Name issuerName = cert.getSubjectName();
 
         if (issuerName == null)
             return;

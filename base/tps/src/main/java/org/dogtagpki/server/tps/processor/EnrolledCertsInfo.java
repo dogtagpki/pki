@@ -247,7 +247,7 @@ public class EnrolledCertsInfo {
             logger.debug("EnrolledCertsInfo.toTPSCertRecords: issuer ="+ issuedBy);
 
             //Subject
-            String subject = cert.getSubjectDN().toString();
+            String subject = cert.getSubjectName().toString();
             certRecord.setSubject(subject);
             logger.debug("EnrolledCertsInfo.toTPSCertRecords: subject ="+ subject);
 

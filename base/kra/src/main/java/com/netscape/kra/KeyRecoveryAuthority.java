@@ -321,7 +321,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             X509CertImpl certImpl = new
                     X509CertImpl(mJssCert.getEncoded());
 
-            mName = (X500Name) certImpl.getSubjectDN();
+            mName = certImpl.getSubjectName();
         } catch (CertificateEncodingException e) {
             logger.error("KeyRecoveryAuthority: " + e.getMessage(), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_LOAD_FAILED",

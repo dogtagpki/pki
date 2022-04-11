@@ -210,7 +210,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
                 return; // no update
             }
         }
-        logger.debug("Added '" + caCert.getSubjectDN() + "' into CRL hash");
+        logger.debug("Added '" + caCert.getSubjectName() + "' into CRL hash");
         mCRLs.put(caCert, crl);
     }
 
@@ -393,7 +393,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             }
 
             theCert = caCert;
-            incReqCount(caCert.getSubjectDN().toString());
+            incReqCount(caCert.getSubjectName().toString());
             theCRL = mCRLs.get(caCert);
             break;
         }
@@ -537,7 +537,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
 
     @Override
     public String getId() {
-        return mCACert.getSubjectDN().toString();
+        return mCACert.getSubjectName().toString();
     }
 
     /**

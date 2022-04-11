@@ -205,7 +205,7 @@ public class RevocationProcessor extends CertProcessor {
 
         X509CertImpl targetCert = targetRecord.getCertificate();
         BigInteger targetSerialNumber = targetCert.getSerialNumber();
-        Principal targetSubjectDN = targetCert.getSubjectDN();
+        Principal targetSubjectDN = targetCert.getSubjectName();
 
         // Verify the subject DN matches the target cert's subject DN.
         // Agent has null subject DN so he can revoke any certificate.
@@ -320,7 +320,7 @@ public class RevocationProcessor extends CertProcessor {
         logger.debug("RevocationProcessor: - certs:");
         for (X509CertImpl cert : certificates) {
             logger.debug("RevocationProcessor:   - serial number: " + cert.getSerialNumber().toString(16));
-            logger.debug("RevocationProcessor:   - subject: " + cert.getSubjectDN());
+            logger.debug("RevocationProcessor:   - subject: " + cert.getSubjectName());
         }
 
         requestQueue.processRequest(request);
@@ -384,7 +384,7 @@ public class RevocationProcessor extends CertProcessor {
         logger.debug("RevocationProcessor: - certs:");
         for (X509CertImpl cert : certificates) {
             logger.debug("RevocationProcessor:   - serial number: " + cert.getSerialNumber().toString(16));
-            logger.debug("RevocationProcessor:   - subject: " + cert.getSubjectDN());
+            logger.debug("RevocationProcessor:   - subject: " + cert.getSubjectName());
         }
 
         requestQueue.processRequest(request);

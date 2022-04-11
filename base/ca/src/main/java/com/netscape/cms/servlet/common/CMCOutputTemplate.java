@@ -1256,7 +1256,7 @@ public class CMCOutputTemplate {
                     }
                     X509CertImpl impl = record.getCertificate();
 
-                    X500Name certPrincipal = (X500Name) impl.getSubjectDN();
+                    X500Name certPrincipal = impl.getSubjectName();
                     X500Name certIssuerPrincipal = (X500Name) impl.getIssuerDN();
                     auditSubjectID = certPrincipal.toString();
 
@@ -1396,7 +1396,7 @@ public class CMCOutputTemplate {
                             revReq.getRequestId(),
                             initiative,
                             "completed",
-                            impl.getSubjectDN(),
+                            impl.getSubjectName(),
                             impl.getSerialNumber().toString(16),
                             reason
                     );

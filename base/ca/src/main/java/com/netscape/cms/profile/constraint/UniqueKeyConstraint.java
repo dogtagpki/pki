@@ -249,7 +249,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                             }
                             // only VALID or EXPIRED certs could have reached here
                             X509CertImpl origCert = rec.getCertificate();
-                            sjname_in_db = (X500Name) origCert.getSubjectDN();
+                            sjname_in_db = origCert.getSubjectName();
 
                             if (sjname_in_db.equals(sjname_in_req) == false) {
                                 msg = msg + "subject name not match in same key renewal;";

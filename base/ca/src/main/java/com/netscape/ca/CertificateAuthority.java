@@ -928,12 +928,12 @@ public class CertificateAuthority implements ICertificateAuthority, IOCSPService
     @Override
     public X500Name getCRLX500Name() {
         X509CertImpl crlCertImpl = mCRLSigningUnit.getCertImpl();
-        return (X500Name) crlCertImpl.getSubjectDN();
+        return crlCertImpl.getSubjectName();
     }
 
     public X500Name getOCSPX500Name() {
         X509CertImpl certImpl = mOCSPSigningUnit.getCertImpl();
-        return (X500Name) certImpl.getSubjectDN();
+        return certImpl.getSubjectName();
     }
 
     /**
@@ -1310,7 +1310,7 @@ public class CertificateAuthority implements ICertificateAuthority, IOCSPService
         logger.info("CertificateAuthority: - nickname: " + caCert.getNickname());
 
         X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
-        mName = (X500Name) caCertImpl.getSubjectDN();
+        mName = caCertImpl.getSubjectName();
 
         getCASigningAlgorithms();
 

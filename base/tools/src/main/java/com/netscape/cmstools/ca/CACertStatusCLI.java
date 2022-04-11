@@ -124,7 +124,7 @@ public class CACertStatusCLI extends CommandCLI {
         byte[] binCert = Cert.parseCertificate(pemCert);
 
         X509CertImpl caCert = new X509CertImpl(binCert);
-        X500Name caDN = (X500Name)caCert.getSubjectDN();
+        X500Name caDN = caCert.getSubjectName();
         X509Key caKey = (X509Key)caCert.getPublicKey();
 
         // submit OCSP request

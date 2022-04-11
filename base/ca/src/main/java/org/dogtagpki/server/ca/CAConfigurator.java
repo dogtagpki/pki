@@ -66,7 +66,7 @@ public class CAConfigurator extends Configurator {
     public void createCertRecord(X509CertImpl cert, RequestId requestID, String profileID) throws Exception {
 
         logger.info("CAConfigurator: Creating cert record 0x" + cert.getSerialNumber().toString(16));
-        logger.info("CAConfigurator: - subject: " + cert.getSubjectDN());
+        logger.info("CAConfigurator: - subject: " + cert.getSubjectName());
         logger.info("CAConfigurator: - issuer: " + cert.getIssuerDN());
 
         CAEngine engine = CAEngine.getInstance();

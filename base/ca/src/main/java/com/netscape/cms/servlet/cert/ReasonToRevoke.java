@@ -276,7 +276,7 @@ public class ReasonToRevoke extends CMSServlet {
                         rarg.addStringValue("serialNumberDecimal",
                                 xcert.getSerialNumber().toString());
                         rarg.addStringValue("subject",
-                                xcert.getSubjectDN().toString());
+                                xcert.getSubjectName().toString());
                         rarg.addLongValue("validNotBefore",
                                 xcert.getNotBefore().getTime() / 1000);
                         rarg.addLongValue("validNotAfter",

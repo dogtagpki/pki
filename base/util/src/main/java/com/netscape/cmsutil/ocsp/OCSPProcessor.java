@@ -85,7 +85,7 @@ public class OCSPProcessor {
         X509Certificate caCert = manager.findCertByNickname(caNickname);
         X509CertImpl cert = new X509CertImpl(caCert.getEncoded());
 
-        X500Name issuerName = (X500Name)cert.getSubjectDN();
+        X500Name issuerName = cert.getSubjectName();
         X509Key issuerKey = (X509Key)cert.getPublicKey();
 
         return createRequest(issuerName, issuerKey, serialNumber);

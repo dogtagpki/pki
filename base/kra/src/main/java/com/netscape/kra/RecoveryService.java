@@ -445,7 +445,7 @@ public class RecoveryService implements IService {
                 initiative,
                 authMgr,
                 "completed",
-                ((X509CertImpl) x509cert).getSubjectDN(),
+                ((X509CertImpl) x509cert).getSubjectName(),
                 "serial number: 0x" + serialno.toString(16)
         );
 

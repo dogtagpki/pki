@@ -332,8 +332,8 @@ public class CertUtils {
     public static boolean isSmimePair(X509CertImpl cert1, X509CertImpl cert2, boolean matchSubjectDN) {
         // Check for subjectDN equality.
         if (matchSubjectDN) {
-            String dn1 = cert1.getSubjectDN().toString();
-            String dn2 = cert2.getSubjectDN().toString();
+            String dn1 = cert1.getSubjectName().toString();
+            String dn2 = cert2.getSubjectName().toString();
 
             if (!sameSubjectDN(dn1, dn2))
                 return false;
@@ -449,7 +449,7 @@ public class CertUtils {
         // We assume that the given pair is a valid S/MIME pair.
         StringBuffer sb = new StringBuffer(1024);
 
-        sb.append("Subject DN: " + validCerts[0].getSubjectDN().toString());
+        sb.append("Subject DN: " + validCerts[0].getSubjectName().toString());
         sb.append("\n");
         X509CertImpl signingCert, encryptionCert;
 

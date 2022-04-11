@@ -711,7 +711,7 @@ public class CertificateRepository extends Repository {
             logger.info("CertificateRepository: Adding certificate record " + name);
 
             X509CertImpl x509cert = (X509CertImpl) record.get(CertRecord.ATTR_X509CERT);
-            logger.info("CertificateRepository: - subject: " + x509cert.getSubjectDN());
+            logger.info("CertificateRepository: - subject: " + x509cert.getSubjectName());
             logger.info("CertificateRepository: - issuer: " + x509cert.getIssuerDN());
 
             SessionContext ctx = SessionContext.getContext();
@@ -1451,7 +1451,7 @@ public class CertificateRepository extends Repository {
             while (e.hasMoreElements()) {
                 CertRecord rec = e.nextElement();
                 X509CertImpl cert = rec.getCertificate();
-                String subjectDN = cert.getSubjectDN().toString();
+                String subjectDN = cert.getSubjectName().toString();
                 String renewalFlag = rec.getAutoRenew();
 
                 // See if the subjectDN is in the table
@@ -2139,8 +2139,8 @@ public class CertificateRepository extends Repository {
             return null;
         }
 
-        X500Name name = (X500Name) cert.getSubjectDN();
-        X500Name repCertName = (X500Name) rec.getCertificate().getSubjectDN();
+        X500Name name = cert.getSubjectName();
+        X500Name repCertName = rec.getCertificate().getSubjectName();
 
         if (!name.equals(repCertName)) {
             logger.info("CertificateRepository: Certificate subjects do not match");

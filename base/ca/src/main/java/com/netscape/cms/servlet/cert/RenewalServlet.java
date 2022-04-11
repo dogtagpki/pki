@@ -289,7 +289,7 @@ public class RenewalServlet extends CMSServlet {
                             initiative,
                             authMgr,
                             status,
-                            old_cert.getSubjectDN(),
+                            old_cert.getSubjectName(),
                             old_cert.getSerialNumber().toString(16),
                             "violation: " + wholeMsg
                     );
@@ -300,7 +300,7 @@ public class RenewalServlet extends CMSServlet {
                             initiative,
                             authMgr,
                             status,
-                            old_cert.getSubjectDN(),
+                            old_cert.getSubjectName(),
                             old_cert.getSerialNumber().toString(16),
                             ""
                     );
@@ -312,7 +312,7 @@ public class RenewalServlet extends CMSServlet {
                         initiative,
                         authMgr,
                         status,
-                        old_cert.getSubjectDN(),
+                        old_cert.getSubjectName(),
                         old_cert.getSerialNumber().toString(16),
                         ""
                 );
@@ -347,7 +347,7 @@ public class RenewalServlet extends CMSServlet {
                                 initiative,
                                 authMgr,
                                 "completed with error: " + err,
-                                old_cert.getSubjectDN(),
+                                old_cert.getSubjectName(),
                                 old_cert.getSerialNumber().toString(16),
                                 ""
                         );
@@ -371,7 +371,7 @@ public class RenewalServlet extends CMSServlet {
                 initiative,
                 authMgr,
                 "completed",
-                old_cert.getSubjectDN(),
+                old_cert.getSubjectName(),
                 old_cert.getSerialNumber().toString(16),
                 "new serial number: 0x" +
                         renewed_cert.getSerialNumber().toString(16) + " time: " + (endTime - startTime)

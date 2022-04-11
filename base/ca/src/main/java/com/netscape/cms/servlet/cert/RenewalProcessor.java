@@ -204,7 +204,7 @@ public class RenewalProcessor extends CertProcessor {
             Date origNotAfter = origCert.getNotAfter();
             logger.debug("processRenewal: origNotAfter =" + origNotAfter.toString());
 
-            String origSubjectDN = origCert.getSubjectDN().getName();
+            String origSubjectDN = origCert.getSubjectName().getName();
             logger.debug("processRenewal: orig subj dn =" + origSubjectDN);
 
             Request origReq = getOriginalRequest(certSerial, rec);

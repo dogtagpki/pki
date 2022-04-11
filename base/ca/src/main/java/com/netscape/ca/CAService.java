@@ -1623,7 +1623,7 @@ class getCertStatus implements IServant {
                 status = record.getStatus();
                 if (status.equals("VALID")) {
                     X509CertImpl cacert = mCA.getCACert();
-                    Principal p = cacert.getSubjectDN();
+                    Principal p = cacert.getSubjectName();
 
                     if (!p.toString().equals(issuerDN)) {
                         status = "INVALIDCERTROOT";

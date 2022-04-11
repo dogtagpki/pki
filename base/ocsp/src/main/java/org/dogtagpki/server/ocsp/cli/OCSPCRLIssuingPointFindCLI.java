@@ -108,7 +108,7 @@ public class OCSPCRLIssuingPointFindCLI extends CommandCLI {
             System.out.println("  CRL Issuing Point ID: " + record.getId());
 
             X509CertImpl certImpl = new X509CertImpl(record.getCACert());
-            System.out.println("  CA Subject DN: " + certImpl.getSubjectDN());
+            System.out.println("  CA Subject DN: " + certImpl.getSubjectName());
             System.out.println("  CA Issuer DN: " + certImpl.getIssuerDN());
 
             System.out.println("  CRL Number: " + record.getCRLNumber());

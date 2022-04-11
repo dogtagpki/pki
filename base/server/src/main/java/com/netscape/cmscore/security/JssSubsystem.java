@@ -1051,7 +1051,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             X509CertImpl impl = new X509CertImpl(b);
             NameValuePairs results = new NameValuePairs();
 
-            results.put(Constants.PR_CERT_SUBJECT_NAME, impl.getSubjectDN().getName());
+            results.put(Constants.PR_CERT_SUBJECT_NAME, impl.getSubjectName().getName());
             results.put(Constants.PR_ISSUER_NAME, impl.getIssuerDN().getName());
             results.put(Constants.PR_SERIAL_NUMBER, impl.getSerialNumber().toString());
             results.put(Constants.PR_BEFORE_VALIDDATE, impl.getNotBefore().toString());
@@ -1691,7 +1691,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 for (int i = 0; i < allcerts.length; i++) {
                     try {
                         X509CertImpl certImpl = new X509CertImpl(allcerts[i].getEncoded());
-                        Principal certPrincipal = certImpl.getSubjectDN();
+                        Principal certPrincipal = certImpl.getSubjectName();
                         DN certdn = new DN(certPrincipal.getName());
                         BigInteger certSerialNo = certImpl.getSerialNumber();
 
@@ -1731,7 +1731,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             X509Certificate cert = CryptoManager.getInstance().findCertByNickname(nickname);
             X509CertImpl impl = new X509CertImpl(cert.getEncoded());
 
-            return impl.getSubjectDN().getName();
+            return impl.getSubjectName().getName();
         } catch (NotInitializedException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_SUBJECT_NAME", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));

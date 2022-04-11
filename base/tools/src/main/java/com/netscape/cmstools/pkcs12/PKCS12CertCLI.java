@@ -51,7 +51,7 @@ public class PKCS12CertCLI extends CLI {
 
         System.out.println("  Serial Number: " + new CertId(certInfo.getCert().getSerialNumber()).toHexString());
         System.out.println("  Friendly Name: " + certInfo.getFriendlyName());
-        System.out.println("  Subject DN: " + certInfo.getCert().getSubjectDN());
+        System.out.println("  Subject DN: " + certInfo.getCert().getSubjectName());
         System.out.println("  Issuer DN: " + certInfo.getCert().getIssuerDN());
 
         if (certInfo.getTrustFlags() != null) {

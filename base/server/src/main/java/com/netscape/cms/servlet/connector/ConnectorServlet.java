@@ -781,7 +781,7 @@ public class ConnectorServlet extends CMSServlet {
                                         initiative,
                                         authMgr,
                                         "completed",
-                                        x509Certs[i].getSubjectDN(),
+                                        x509Certs[i].getSubjectName(),
                                         "cert issued serial number: 0x" +
                                                 x509Certs[i].getSerialNumber().toString(16)
                                 );
@@ -811,7 +811,7 @@ public class ConnectorServlet extends CMSServlet {
                                     initiative,
                                     authMgr,
                                     "completed",
-                                    old_cert.getSubjectDN(),
+                                    old_cert.getSubjectName(),
                                     old_cert.getSerialNumber().toString(16),
                                     "new serial number: 0x" +
                                             renewed_cert.getSerialNumber().toString(16)
@@ -869,7 +869,7 @@ public class ConnectorServlet extends CMSServlet {
                                                             thisreq.getRequestId(),
                                                             initiative,
                                                             "completed with error: " + err,
-                                                            cert.getSubjectDN(),
+                                                            cert.getSubjectName(),
                                                             cert.getSerialNumber().toString(16),
                                                             RevocationReason.valueOf(reason)
                                                     );
@@ -891,7 +891,7 @@ public class ConnectorServlet extends CMSServlet {
                                                 thisreq.getRequestId(),
                                                 initiative,
                                                 "completed",
-                                                cert.getSubjectDN(),
+                                                cert.getSubjectName(),
                                                 cert.getSerialNumber().toString(16),
                                                 RevocationReason.valueOf(reason)
                                         );

@@ -408,7 +408,7 @@ public class CertificateIssuedListener implements IRequestListener {
         mContentParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,
                 issuedCert[0].getIssuerDN().toString());
         mContentParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
-                issuedCert[0].getSubjectDN().toString());
+                issuedCert[0].getSubjectName().toString());
 
         Date date = issuedCert[0].getNotAfter();
 

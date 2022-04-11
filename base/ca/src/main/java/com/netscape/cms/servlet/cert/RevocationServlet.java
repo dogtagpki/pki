@@ -222,7 +222,7 @@ public class RevocationServlet extends CMSServlet {
             }
 
             certsToRevoke = cr.getX509Certificates(
-                        old_cert.getSubjectDN().toString(),
+                        old_cert.getSubjectName().toString(),
                         CertificateRepository.ALL_UNREVOKED_CERTS);
         }
 

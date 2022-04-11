@@ -250,7 +250,7 @@ public class CMCRevReqServlet extends CMSServlet {
                 rarg.addBigIntegerValue("serialNumber",
                         serialNoArray[i], 16);
                 rarg.addStringValue("subject",
-                        certs[i].getSubjectDN().toString());
+                        certs[i].getSubjectName().toString());
                 rarg.addLongValue("validNotBefore",
                         certs[i].getNotBefore().getTime() / 1000);
                 rarg.addLongValue("validNotAfter",
@@ -499,7 +499,7 @@ public class CMCRevReqServlet extends CMSServlet {
                                                 revReq.getRequestId(),
                                                 initiative,
                                                 "completed with error: " + err,
-                                                oldCerts[j].getSubjectDN(),
+                                                oldCerts[j].getSubjectName(),
                                                 oldCerts[j].getSerialNumber().toString(16),
                                                 RevocationReason.valueOf(reason)
                                         );
@@ -519,7 +519,7 @@ public class CMCRevReqServlet extends CMSServlet {
                                 revReq.getRequestId(),
                                 initiative,
                                 "completed",
-                                oldCerts[j].getSubjectDN(),
+                                oldCerts[j].getSubjectName(),
                                 oldCerts[j].getSerialNumber().toString(16),
                                 RevocationReason.valueOf(reason)
                         );
@@ -656,7 +656,7 @@ public class CMCRevReqServlet extends CMSServlet {
                                 revReq.getRequestId(),
                                 initiative,
                                 "pending",
-                                oldCerts[j].getSubjectDN(),
+                                oldCerts[j].getSubjectName(),
                                 oldCerts[j].getSerialNumber().toString(16),
                                 RevocationReason.valueOf(reason)
                         );
@@ -683,7 +683,7 @@ public class CMCRevReqServlet extends CMSServlet {
                                 revReq.getRequestId(),
                                 initiative,
                                 stat.toString(),
-                                oldCerts[j].getSubjectDN(),
+                                oldCerts[j].getSubjectName(),
                                 oldCerts[j].getSerialNumber().toString(16),
                                 RevocationReason.valueOf(reason)
                         );

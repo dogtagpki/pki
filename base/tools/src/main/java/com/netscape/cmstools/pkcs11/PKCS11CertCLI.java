@@ -54,7 +54,7 @@ public class PKCS11CertCLI extends CLI {
         CertId serialNumber = new CertId(certImpl.getSerialNumber());
         System.out.println("  Serial Number: " + serialNumber.toHexString());
 
-        System.out.println("  Subject DN: " + certImpl.getSubjectDN());
+        System.out.println("  Subject DN: " + certImpl.getSubjectName());
         System.out.println("  Issuer DN: " + certImpl.getIssuerDN());
 
         System.out.println("  Not Valid Before: " + certImpl.getNotBefore());

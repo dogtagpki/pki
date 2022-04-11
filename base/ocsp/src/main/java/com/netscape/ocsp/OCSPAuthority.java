@@ -292,7 +292,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     @Override
     public X500Name getName() {
         X509CertImpl certImpl = mSigningUnit.getCertImpl();
-        return (X500Name) certImpl.getSubjectDN();
+        return certImpl.getSubjectName();
     }
 
     /**

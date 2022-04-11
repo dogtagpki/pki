@@ -204,7 +204,7 @@ public class CertService extends PKIService implements CertResource {
 
             processor.setAuthority(authority);
 
-            caX500DN = (X500Name) authority.getCACert().getSubjectDN();
+            caX500DN = authority.getCACert().getSubjectName();
 
         } catch (EBaseException e) {
             logger.error("Unable to revoke certificate: " + e.getMessage(), e);
@@ -548,7 +548,7 @@ public class CertService extends PKIService implements CertResource {
         Principal issuerDN = cert.getIssuerDN();
         if (issuerDN != null) certData.setIssuerDN(issuerDN.toString());
 
-        Principal subjectDN = cert.getSubjectDN();
+        Principal subjectDN = cert.getSubjectName();
         if (subjectDN != null) certData.setSubjectDN(subjectDN.toString());
 
         String base64 = CertUtil.toPEM(cert);

@@ -582,7 +582,7 @@ public class DoRevokeTPS extends CMSServlet {
                                                 revReq.getRequestId(),
                                                 initiative,
                                                 "completed with error: " + err,
-                                                cert.getSubjectDN(),
+                                                cert.getSubjectName(),
                                                 cert.getSerialNumber().toString(16),
                                                 RevocationReason.valueOf(reason)
                                         );
@@ -624,7 +624,7 @@ public class DoRevokeTPS extends CMSServlet {
                                 revReq.getRequestId(),
                                 initiative,
                                 "completed",
-                                cert.getSubjectDN(),
+                                cert.getSubjectName(),
                                 cert.getSerialNumber().toString(16),
                                 RevocationReason.valueOf(reason)
                                         + " time: " + (endTime - startTime)
@@ -761,7 +761,7 @@ public class DoRevokeTPS extends CMSServlet {
                                 revReq.getRequestId(),
                                 initiative,
                                 stat,
-                                cert.getSubjectDN(),
+                                cert.getSubjectName(),
                                 cert.getSerialNumber().toString(16),
                                 RevocationReason.valueOf(reason)
                         );
