@@ -19,11 +19,10 @@ package org.dogtagpki.server;
 
 import java.net.InetAddress;
 import java.security.Principal;
+import java.security.cert.Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import java.security.cert.Certificate;
 
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLAlertDescription;
@@ -31,8 +30,9 @@ import org.mozilla.jss.ssl.SSLAlertEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLSecurityStatus;
 import org.mozilla.jss.ssl.SSLSocket;
-import org.mozilla.jss.nss.SSLFDProxy;
 import org.mozilla.jss.ssl.SSLSocketListener;
+import org.mozilla.jss.ssl.javax.JSSEngine;
+import org.mozilla.jss.ssl.javax.JSSSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,6 @@ import com.netscape.certsrv.logging.event.AccessSessionTerminatedEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import org.mozilla.jss.ssl.javax.*;
 
 public class PKIServerSocketListener implements SSLSocketListener {
 
@@ -78,12 +77,12 @@ public class PKIServerSocketListener implements SSLSocketListener {
              * can't get some of this info, but with a Socket we can
              */
             String clientIP = defaultUnknown;
-            String serverIP = defaultUnknown; 
+            String serverIP = defaultUnknown;
             String subjectID = defaultUnknown;
             String hostname = defaultUnknown;
             SSLSecurityStatus status = null;
 
-            if(socket != null) { 
+            if(socket != null) {
                 clientAddress = socket.getInetAddress();
                 serverAddress = socket.getLocalAddress();
                 clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
@@ -267,7 +266,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
                             X509Certificate cert = (X509Certificate) certs[0];
                             if(cert != null) {
                                 subjectID = cert.getSubjectDN().toString();
-                            }    
+                            }
                         }
                     }
                 }

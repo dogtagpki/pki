@@ -41,7 +41,6 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.base.UserNotFoundException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -49,10 +48,10 @@ import com.netscape.certsrv.tps.profile.ProfileCollection;
 import com.netscape.certsrv.tps.profile.ProfileData;
 import com.netscape.certsrv.tps.profile.ProfileResource;
 import com.netscape.certsrv.user.UserResource;
-import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * @author Endi S. Dewata

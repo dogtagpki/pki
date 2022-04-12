@@ -318,8 +318,6 @@ public class LdapPublishModule implements IRequestListener {
      * not exist means not published.
      */
     public void setPublishedFlag(BigInteger serialNo, boolean published) {
-        if (!(mAuthority instanceof ICertificateAuthority))
-            return;
 
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certdb = engine.getCertificateRepository();

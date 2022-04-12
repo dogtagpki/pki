@@ -95,10 +95,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
             logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "Cannot find the Certificate Manager"));
         }
-        if (!(certAuthority instanceof ICertificateAuthority)) {
-            logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "Cannot find the Certificate Manager"));
-        }
+
         mCA = certAuthority;
         CASigningUnit su = (CASigningUnit) mCA.getSigningUnit();
         CAEngine engine = CAEngine.getInstance();
