@@ -1986,7 +1986,7 @@ public abstract class CMSServlet extends HttpServlet {
         // Initialize subjectID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        logger.debug("CMSServlet: auditSubjectID auditContext " + auditContext);
+        // logger.debug("CMSServlet: auditSubjectID auditContext " + auditContext);
         if (auditContext != null) {
             subjectID = (String)
                     auditContext.get(SessionContext.USER_ID);
@@ -2022,7 +2022,7 @@ public abstract class CMSServlet extends HttpServlet {
         // Initialize groupID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        logger.debug("CMSServlet: auditGroupID auditContext " + auditContext);
+        // logger.debug("CMSServlet: auditGroupID auditContext " + auditContext);
         if (auditContext != null) {
             groupID = (String)
                     auditContext.get(SessionContext.GROUP_ID);
