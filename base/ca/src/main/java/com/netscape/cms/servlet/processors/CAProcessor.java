@@ -949,7 +949,7 @@ public class CAProcessor extends Processor {
         // Initialize groupID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        logger.debug("CAProcessor: auditGroupID auditContext " + auditContext);
+        // logger.debug("CAProcessor: auditGroupID auditContext " + auditContext);
         if (auditContext != null) {
             groupID = (String)
                     auditContext.get(SessionContext.GROUP_ID);
