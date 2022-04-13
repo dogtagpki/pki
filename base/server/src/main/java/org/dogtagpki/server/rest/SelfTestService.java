@@ -21,7 +21,6 @@ package org.dogtagpki.server.rest;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +29,6 @@ import java.util.Iterator;
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.base.BadRequestException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
@@ -75,8 +73,6 @@ public class SelfTestService extends PKIService implements SelfTestResource {
         }
 
         selfTestID = URLEncoder.encode(selfTestID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(SelfTestResource.class).path("{selfTestID}").build(selfTestID);
-        selfTestData.setLink(new Link("self", uri));
 
         return selfTestData;
     }
@@ -120,16 +116,6 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             // count the total entries
             for ( ; entries.hasNext(); i++) entries.next();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 

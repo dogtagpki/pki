@@ -26,7 +26,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.dbs.certdb.CertId;
 
@@ -43,8 +42,6 @@ public class UserCertData {
     String subjectDN;
     String prettyPrint;
     String encoded;
-
-    Link link;
 
     public String getID() {
         if (version == null && serialNumber == null && issuerDN == null && subjectDN == null) {
@@ -109,14 +106,6 @@ public class UserCertData {
 
     public void setEncoded(String encoded) {
         this.encoded = encoded;
-    }
-
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
     }
 
     @Override

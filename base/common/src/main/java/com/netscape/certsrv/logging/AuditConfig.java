@@ -25,7 +25,6 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -41,8 +40,6 @@ public class AuditConfig implements JSONSerializer {
     Integer bufferSize;
 
     Map<String, String> eventConfigs;
-
-    Link link;
 
     public String getStatus() {
         return status;
@@ -95,14 +92,6 @@ public class AuditConfig implements JSONSerializer {
         public String value;
     }
 
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -111,7 +100,6 @@ public class AuditConfig implements JSONSerializer {
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((eventConfigs == null) ? 0 : eventConfigs.hashCode());
         result = prime * result + ((interval == null) ? 0 : interval.hashCode());
-        result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((signed == null) ? 0 : signed.hashCode());
         return result;
     }
@@ -144,11 +132,6 @@ public class AuditConfig implements JSONSerializer {
             if (other.interval != null)
                 return false;
         } else if (!interval.equals(other.interval))
-            return false;
-        if (link == null) {
-            if (other.link != null)
-                return false;
-        } else if (!link.equals(other.link))
             return false;
         if (signed == null) {
             if (other.signed != null)

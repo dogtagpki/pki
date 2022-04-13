@@ -21,7 +21,6 @@ package com.netscape.cmstools.user;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserData;
@@ -111,9 +110,6 @@ public class UserCLI extends CLI {
         String state = userData.getState();
         if (!StringUtils.isEmpty(state))
             System.out.println("  State: " + state);
-
-        Link link = userData.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
 
         String tpsProfiles = userData.getAttribute(UserResource.ATTR_TPS_PROFILES);
         if (tpsProfiles != null) {

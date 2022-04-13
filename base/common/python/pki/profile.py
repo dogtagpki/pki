@@ -96,13 +96,6 @@ class ProfileDataInfoCollection(object):
                 ret.profile_data_list.append(
                     ProfileDataInfo.from_json(profile_info))
 
-        links = attr_list['Link']
-        if not isinstance(links, list):
-            ret.links.append(pki.Link.from_json(links))
-        else:
-            for link in links:
-                ret.links.append(pki.Link.from_json(link))
-
         return ret
 
 
@@ -950,8 +943,6 @@ class Profile(object):
         profile_data.policy_set_list = \
             PolicySetList.from_json(attr_list['PolicySets'])
 
-        profile_data.link = pki.Link.from_json(attr_list['link'])
-
         return profile_data
 
     def __repr__(self):
@@ -1158,7 +1149,6 @@ class ProfileClient(object):
     encoder.NOTYPES['PolicyConstraint'] = PolicyConstraint
     encoder.NOTYPES['ProfileParameter'] = ProfileParameter
     encoder.NOTYPES['PolicyConstraintValue'] = PolicyConstraintValue
-    encoder.NOTYPES['Link'] = pki.Link
 
 
 def main():

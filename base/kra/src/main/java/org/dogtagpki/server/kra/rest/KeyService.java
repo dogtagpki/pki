@@ -20,7 +20,6 @@ package org.dogtagpki.server.kra.rest;
 
 
 import java.math.BigInteger;
-import java.net.URI;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,7 +42,6 @@ import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.HTTPGoneException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
@@ -543,17 +541,6 @@ public class KeyService extends SubsystemService implements KeyResource {
             for (int i = start; i < start + size && i < total; i++) {
                 infos.addEntry(results.get(i));
             }
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                infos.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < total) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                infos.addLink(new Link("next", uri));
-            }
-
         } catch (EBaseException e) {
             throw new PKIException("Unable to list keys: " + e.getMessage(), e);
         }

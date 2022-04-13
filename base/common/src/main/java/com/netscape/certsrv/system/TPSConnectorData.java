@@ -3,7 +3,6 @@ package com.netscape.certsrv.system;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.util.JSONSerializer;
 
 @JsonInclude(Include.NON_NULL)
@@ -15,8 +14,6 @@ public class TPSConnectorData implements JSONSerializer {
     String port;
     String userID;
     String nickname;
-
-    Link link;
 
     public String getID() {
         return id;
@@ -56,14 +53,6 @@ public class TPSConnectorData implements JSONSerializer {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
-    }
-
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
     }
 
     @Override

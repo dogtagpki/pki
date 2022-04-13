@@ -81,7 +81,6 @@ public class ProfileCLI extends CLI {
 
     public static void printProfile(ProfileData data) {
         System.out.println("  Profile ID: " + data.getId());
-        logger.info("URL: " + data.getLink().getHref().toString());
 
         System.out.println("  Name: " + data.getName());
         System.out.println("  Description: " + data.getDescription());

@@ -121,8 +121,6 @@ public class CertRequestDAO extends CMSRequestDAO {
         List<CertRequestInfo> list = (List<CertRequestInfo>) cmsList;
         ret.setEntries(list);
 
-        ret.setLinks(cmsInfos.getLinks());
-
         return ret;
     }
 

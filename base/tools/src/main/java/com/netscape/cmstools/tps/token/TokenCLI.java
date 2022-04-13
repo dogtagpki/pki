@@ -24,7 +24,6 @@ import java.util.Collection;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
@@ -85,8 +84,5 @@ public class TokenCLI extends CLI {
         if (token.getPolicy() != null) System.out.println("  Policy: " + token.getPolicy());
         if (token.getCreateTimestamp() != null) System.out.println("  Date Created: " + token.getCreateTimestamp());
         if (token.getModifyTimestamp() != null) System.out.println("  Date Modified: " + token.getModifyTimestamp());
-
-        Link link = token.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

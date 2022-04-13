@@ -149,8 +149,6 @@ public class KeyRequestDAO extends CMSRequestDAO {
         List<KeyRequestInfo> list = (List<KeyRequestInfo>) cmsList;
         ret.setEntries(list);
 
-        ret.setLinks(cmsInfos.getLinks());
-
         return ret;
     }
 

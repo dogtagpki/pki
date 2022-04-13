@@ -44,7 +44,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -69,7 +68,6 @@ public class CertData implements JSONSerializer {
     protected Date revokedOn;
     protected String revokedBy;
     protected Integer revocationReason;
-    protected Link link;
 
     @JsonProperty("id")
     public CertId getSerialNumber() {
@@ -186,15 +184,6 @@ public class CertData implements JSONSerializer {
 
     public void setRevocationReason(Integer revocationReason) {
         this.revocationReason = revocationReason;
-    }
-
-    @JsonProperty("Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
     }
 
     @Override
@@ -367,12 +356,6 @@ public class CertData implements JSONSerializer {
             revocationReasonElement.appendChild(document.createTextNode(Integer.toString(revocationReason)));
             dataElement.appendChild(revocationReasonElement);
         }
-
-        if (link != null) {
-            Element linkElement = link.toDOM(document);
-            dataElement.appendChild(linkElement);
-        }
-
         return dataElement;
     }
 
@@ -454,14 +437,6 @@ public class CertData implements JSONSerializer {
             String value = revocationReasonList.item(0).getTextContent();
             data.setRevocationReason(Integer.parseInt(value));
         }
-
-        NodeList linkList = dataElement.getElementsByTagName("Link");
-        if (linkList.getLength() > 0) {
-           Element linkElement = (Element) linkList.item(0);
-           Link link = Link.fromDOM(linkElement);
-           data.setLink(link);
-        }
-
         return data;
     }
 

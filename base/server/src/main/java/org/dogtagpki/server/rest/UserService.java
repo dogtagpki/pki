@@ -46,7 +46,6 @@ import org.mozilla.jss.pkcs11.PK11Cert;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UserNotFoundException;
@@ -101,10 +100,6 @@ public class UserService extends SubsystemService implements UserResource {
         String fullName = user.getFullName();
         if (!StringUtils.isEmpty(fullName)) userData.setFullName(fullName);
 
-        String encodedUserID = URLEncoder.encode(userID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(UserResource.class).path("{userID}").build(encodedUserID);
-        userData.setLink(new Link("self", uri));
-
         return userData;
     }
 
@@ -144,16 +139,6 @@ public class UserService extends SubsystemService implements UserResource {
             // count the total entries
             for ( ; users.hasMoreElements(); i++) users.nextElement();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 
@@ -576,12 +561,6 @@ public class UserService extends SubsystemService implements UserResource {
         userCertData.setSubjectDN(cert.getSubjectDN().toString());
 
         userID = URLEncoder.encode(userID, "UTF-8");
-        String certID = URLEncoder.encode(userCertData.getID(), "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder()
-                .path(UserResource.class)
-                .path("{userID}/certs/{certID}")
-                .build(userID, certID);
-        userCertData.setLink(new Link("self", uri));
 
         return userCertData;
     }
@@ -635,16 +614,6 @@ public class UserService extends SubsystemService implements UserResource {
             // count the total entries
             for ( ; entries.hasNext(); i++) entries.next();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 
@@ -1002,20 +971,11 @@ public class UserService extends SubsystemService implements UserResource {
     }
 
 
-    public UserMembershipData createUserMembershipData(String userID, String groupID) throws UnsupportedEncodingException {
+    public UserMembershipData createUserMembershipData(String userID, String groupID) {
 
         UserMembershipData userMembershipData = new UserMembershipData();
         userMembershipData.setID(groupID);
         userMembershipData.setUserID(userID);
-
-        URI uri = uriInfo.getBaseUriBuilder()
-                .path(UserResource.class)
-                .path("{userID}/memberships/{groupID}")
-                .build(
-                        URLEncoder.encode(userID, "UTF-8"),
-                        URLEncoder.encode(groupID, "UTF-8"));
-
-        userMembershipData.setLink(new Link("self", uri));
 
         return userMembershipData;
     }
@@ -1062,16 +1022,6 @@ public class UserService extends SubsystemService implements UserResource {
             // count the total entries
             for ( ; groups.hasMoreElements(); i++) groups.nextElement();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 

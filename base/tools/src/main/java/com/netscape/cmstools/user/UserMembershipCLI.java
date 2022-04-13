@@ -20,7 +20,6 @@ package com.netscape.cmstools.user;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserMembershipData;
 
@@ -49,8 +48,5 @@ public class UserMembershipCLI extends CLI {
 
     public static void printUserMembership(UserMembershipData userMembershipData) {
         System.out.println("  Group: "+userMembershipData.getID());
-
-        Link link = userMembershipData.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

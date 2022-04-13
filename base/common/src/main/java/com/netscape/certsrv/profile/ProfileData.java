@@ -49,7 +49,6 @@ import org.xml.sax.InputSource;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -76,15 +75,6 @@ public class ProfileData implements JSONSerializer {
     protected List<ProfileInput> inputs = new ArrayList<>();
     protected List<ProfileOutput> outputs = new ArrayList<>();
     protected Map<String, List<ProfilePolicy>> policySets = new LinkedHashMap<>();
-    protected Link link;
-
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
 
     public String getAuthenticatorId() {
         return authenticatorId;
@@ -226,7 +216,7 @@ public class ProfileData implements JSONSerializer {
 
     @Override
     public int hashCode() {
-        return Objects.hash(authenticatorId, authzAcl, classId, description, enabled, enabledBy, id, inputs, link, name,
+        return Objects.hash(authenticatorId, authzAcl, classId, description, enabled, enabledBy, id, inputs, name,
                 outputs, policySets, renewal, visible, xmlOutput);
     }
 
@@ -243,7 +233,7 @@ public class ProfileData implements JSONSerializer {
                 && Objects.equals(classId, other.classId) && Objects.equals(description, other.description)
                 && enabled == other.enabled && Objects.equals(enabledBy, other.enabledBy)
                 && Objects.equals(id, other.id) && Objects.equals(inputs, other.inputs)
-                && Objects.equals(link, other.link) && Objects.equals(name, other.name)
+                && Objects.equals(name, other.name)
                 && Objects.equals(outputs, other.outputs) && Objects.equals(policySets, other.policySets)
                 && renewal == other.renewal && visible == other.visible && xmlOutput == other.xmlOutput;
     }
@@ -393,10 +383,6 @@ public class ProfileData implements JSONSerializer {
             }
             pdElement.appendChild(policysetsElement);
         }
-        if (link != null) {
-            Element linkElement = link.toDOM(document);
-            pdElement.appendChild(linkElement);
-        }
         return pdElement;
     }
 
@@ -533,14 +519,6 @@ public class ProfileData implements JSONSerializer {
             }
 
             profileData.addProfilePolicySet(policySetId, policies);
-        }
-
-        NodeList LinkList = profileDataElement.getElementsByTagName("Link");
-        int linkCount = LinkList.getLength();
-        for (int i = 0; i < linkCount; i++) {
-            Element linkElement = (Element) LinkList.item(i);
-            Link link = Link.fromDOM(linkElement);
-            profileData.setLink(link);
         }
         return profileData;
     }

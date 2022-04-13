@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileData;
@@ -81,8 +80,5 @@ public class ProfileCLI extends CLI {
                 }
             }
         }
-
-        Link link = profileData.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

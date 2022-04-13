@@ -22,7 +22,6 @@ import java.io.IOException;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.selftests.SelfTestData;
@@ -59,8 +58,5 @@ public class SelfTestCLI extends CLI {
         if (selfTestData.isCriticalAtStartup() != null) System.out.println("  Critical at startup: " + selfTestData.isCriticalAtStartup());
         if (selfTestData.isEnabledOnDemand() != null) System.out.println("  Enabled on demand: " + selfTestData.isEnabledOnDemand());
         if (selfTestData.isCriticalOnDemand() != null) System.out.println("  Critical on demand: " + selfTestData.isCriticalOnDemand());
-
-        Link link = selfTestData.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

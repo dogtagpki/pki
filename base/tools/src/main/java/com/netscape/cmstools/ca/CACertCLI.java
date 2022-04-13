@@ -23,7 +23,6 @@ import java.util.Date;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
@@ -147,9 +146,6 @@ public class CACertCLI extends CLI {
         if (revokedBy != null) {
             System.out.println("  Revoked By: " + revokedBy);
         }
-
-        Link link = info.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 
     public static void printCertData(
@@ -173,9 +169,6 @@ public class CACertCLI extends CLI {
         if (revokedBy != null) {
             System.out.println("  Revoked By: " + revokedBy);
         }
-
-        Link link = certData.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
 
         String prettyPrint = certData.getPrettyPrint();
         if (showPrettyPrint && prettyPrint != null) {

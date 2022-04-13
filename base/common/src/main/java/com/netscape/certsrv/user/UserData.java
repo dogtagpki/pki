@@ -29,7 +29,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.common.Constants;
 
 /**
@@ -47,8 +46,6 @@ public class UserData {
     String phone;
     String type;
     String state;
-
-    Link link;
 
     Map<String, String> attributes = new LinkedHashMap<>();
 
@@ -130,14 +127,6 @@ public class UserData {
         this.state = state;
     }
 
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -146,7 +135,6 @@ public class UserData {
         result = prime * result + ((email == null) ? 0 : email.hashCode());
         result = prime * result + ((fullName == null) ? 0 : fullName.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((password == null) ? 0 : password.hashCode());
         result = prime * result + ((phone == null) ? 0 : phone.hashCode());
         result = prime * result + ((state == null) ? 0 : state.hashCode());
@@ -183,11 +171,6 @@ public class UserData {
             if (other.id != null)
                 return false;
         } else if (!id.equals(other.id))
-            return false;
-        if (link == null) {
-            if (other.link != null)
-                return false;
-        } else if (!link.equals(other.link))
             return false;
         if (password == null) {
             if (other.password != null)

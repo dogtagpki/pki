@@ -1,7 +1,5 @@
 package org.dogtagpki.common;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -9,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class ConfigDataTest {
@@ -18,11 +15,10 @@ public class ConfigDataTest {
     private static Map<String, String> properties = new TreeMap<>();
 
     @Before
-    public void setUpBefore() throws URISyntaxException {
+    public void setUpBefore() {
         properties.put("param1", "value1");
         properties.put("param2", "value2");
 
-        before.setLink(new Link("self", new URI("https://www.example.com")));
         before.setProperties(properties);
         before.setStatus("ENABLED");
     }

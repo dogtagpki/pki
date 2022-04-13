@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,7 +42,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.logging.AuditConfig;
@@ -130,9 +128,6 @@ public class AuditService extends SubsystemService implements AuditResource {
         }
 
         auditConfig.setEventConfigs(eventConfigs);
-
-        URI uri = uriInfo.getBaseUriBuilder().path(AuditResource.class).build();
-        auditConfig.setLink(new Link("self", uri));
 
         return auditConfig;
     }

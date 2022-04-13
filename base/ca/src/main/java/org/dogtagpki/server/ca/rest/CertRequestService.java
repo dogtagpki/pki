@@ -19,7 +19,6 @@
 package org.dogtagpki.server.ca.rest;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -38,7 +37,6 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.HTTPGoneException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.ServiceUnavailableException;
@@ -523,16 +521,6 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         // return entries in the requested page
         for (int i = start; i < start + size && i < total; i++) {
             infos.addEntry(results.get(i));
-        }
-
-        if (start > 0) {
-            URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-            infos.addLink(new Link("prev", uri));
-        }
-
-        if (start + size < total) {
-            URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-            infos.addLink(new Link("next", uri));
         }
 
         return createOKResponse(infos);

@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -17,7 +16,6 @@ public class ProfileDataTest {
 
     private static ProfileData before = new ProfileData();
     private static List<ProfileInput> inputs = new ArrayList<>();
-    private static Link link = new Link();
     private static ProfileInput profileInput = new ProfileInput("i1", "SubjectNameInput", null);
     private static ProfileOutput profileOutput = new ProfileOutput();
     private static ProfilePolicy pp = new ProfilePolicy();
@@ -124,11 +122,6 @@ public class ProfileDataTest {
         pp.setId("foo");
         policySet.add(pp);
         before.addProfilePolicySet("ppSet", policySet);
-
-        link.setHref("http://example.com");
-        link.setRelationship("next");
-        link.setType("application/json");
-        before.setLink(link);
     }
 
     @Test
