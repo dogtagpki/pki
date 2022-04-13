@@ -21,8 +21,6 @@ package com.netscape.certsrv.base;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * @author Endi S. Dewata
  */
@@ -30,7 +28,6 @@ public class DataCollection<E> {
 
     protected int total;
     protected Collection<E> entries = new ArrayList<>();
-    protected Collection<Link> links = new ArrayList<>();
 
     public int getTotal() {
         return total;
@@ -58,31 +55,11 @@ public class DataCollection<E> {
         entries.remove(entry);
     }
 
-    @JsonProperty("Link")
-    public Collection<Link> getLinks() {
-        return links;
-    }
-
-    public void setLinks(Collection<Link> links) {
-        this.links.clear();
-        if (links == null) return;
-        this.links.addAll(links);
-    }
-
-    public void addLink(Link link) {
-        links.add(link);
-    }
-
-    public void removeLink(Link link) {
-        links.remove(link);
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((entries == null) ? 0 : entries.hashCode());
-        result = prime * result + ((links == null) ? 0 : links.hashCode());
         result = prime * result + total;
         return result;
     }
@@ -100,11 +77,6 @@ public class DataCollection<E> {
             if (other.entries != null)
                 return false;
         } else if (!entries.equals(other.entries))
-            return false;
-        if (links == null) {
-            if (other.links != null)
-                return false;
-        } else if (!links.equals(other.links))
             return false;
         if (total != other.total)
             return false;

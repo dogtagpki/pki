@@ -23,7 +23,6 @@ import javax.ws.rs.FormParam;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -36,8 +35,6 @@ public class UserMembershipData implements JSONSerializer {
 
     String id;
     String userID;
-
-    Link link;
 
     @FormParam(Constants.PR_GROUP_GROUP)
     public String getID() {
@@ -54,14 +51,6 @@ public class UserMembershipData implements JSONSerializer {
 
     public void setUserID(String userID) {
         this.userID = userID;
-    }
-
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
     }
 
     @Override

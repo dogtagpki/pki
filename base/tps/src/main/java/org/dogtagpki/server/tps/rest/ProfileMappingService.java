@@ -35,7 +35,6 @@ import org.dogtagpki.server.tps.config.ProfileMappingRecord;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -68,9 +67,6 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
         profileMappingData.setProperties(profileMappingRecord.getProperties());
 
         profileMappingID = URLEncoder.encode(profileMappingID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(ProfileMappingResource.class).path("{profileMappingID}")
-                .build(profileMappingID);
-        profileMappingData.setLink(new Link("self", uri));
 
         return profileMappingData;
     }
@@ -120,16 +116,6 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
             for (; profileMappings.hasNext(); i++)
                 profileMappings.next();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 

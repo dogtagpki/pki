@@ -30,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.common.OpDef;
@@ -72,10 +71,6 @@ public class GroupService extends SubsystemService implements GroupResource {
         String description = group.getDescription();
         if (!StringUtils.isEmpty(description)) groupData.setDescription(description);
 
-        String encodedGroupID = URLEncoder.encode(groupData.getID(), "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(GroupResource.class).path("{groupID}").build(encodedGroupID);
-        groupData.setLink(new Link("self", uri));
-
         return groupData;
     }
 
@@ -114,16 +109,6 @@ public class GroupService extends SubsystemService implements GroupResource {
             // count the total entries
             for ( ; groups.hasMoreElements(); i++) groups.nextElement();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 

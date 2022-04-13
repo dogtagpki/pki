@@ -27,7 +27,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.util.JSONSerializer;
 
 @JsonInclude(Include.NON_NULL)
@@ -132,12 +131,6 @@ public class AuthorityData implements JSONSerializer {
         this.ready = ready;
     }
 
-    private Link link;
-
-    public Link getLink() {
-        return link;
-    }
-
     protected AuthorityData() {
     }
 
@@ -160,7 +153,7 @@ public class AuthorityData implements JSONSerializer {
 
     @Override
     public int hashCode() {
-        return Objects.hash(description, dn, enabled, id, isHostAuthority, issuerDN, link, parentID, ready, serial);
+        return Objects.hash(description, dn, enabled, id, isHostAuthority, issuerDN, parentID, ready, serial);
     }
 
     @Override
@@ -175,7 +168,6 @@ public class AuthorityData implements JSONSerializer {
         return Objects.equals(description, other.description) && Objects.equals(dn, other.dn)
                 && Objects.equals(enabled, other.enabled) && Objects.equals(id, other.id)
                 && Objects.equals(isHostAuthority, other.isHostAuthority) && Objects.equals(issuerDN, other.issuerDN)
-                && Objects.equals(link, other.link) && Objects.equals(parentID, other.parentID)
                 && Objects.equals(ready, other.ready) && Objects.equals(serial, other.serial);
     }
 

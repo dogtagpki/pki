@@ -19,7 +19,6 @@
 package org.dogtagpki.server.tps.config;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +28,6 @@ import org.dogtagpki.common.ConfigData;
 import org.dogtagpki.common.ConfigResource;
 
 import com.netscape.certsrv.base.BadRequestException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.SubsystemService;
@@ -49,9 +47,6 @@ public class ConfigService extends SubsystemService implements ConfigResource {
 
         ConfigData configData = new ConfigData();
         configData.setProperties(properties);
-
-        URI uri = uriInfo.getBaseUriBuilder().path(ConfigResource.class).build();
-        configData.setLink(new Link("self", uri));
 
         return configData;
     }

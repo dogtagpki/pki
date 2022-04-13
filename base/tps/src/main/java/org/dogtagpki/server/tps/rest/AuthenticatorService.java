@@ -35,7 +35,6 @@ import org.dogtagpki.server.tps.config.AuthenticatorRecord;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -68,10 +67,6 @@ public class AuthenticatorService extends SubsystemService implements Authentica
         authenticatorData.setProperties(authenticatorRecord.getProperties());
 
         authenticatorID = URLEncoder.encode(authenticatorID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(AuthenticatorResource.class).path("{authenticatorID}")
-                .build(authenticatorID);
-        authenticatorData.setLink(new Link("self", uri));
-
         return authenticatorData;
     }
 
@@ -120,16 +115,6 @@ public class AuthenticatorService extends SubsystemService implements Authentica
             for (; authenticators.hasNext(); i++)
                 authenticators.next();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 

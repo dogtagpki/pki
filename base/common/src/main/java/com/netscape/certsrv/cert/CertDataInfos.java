@@ -37,7 +37,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.DataCollection;
-import com.netscape.certsrv.base.Link;
 
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -54,11 +53,6 @@ public class CertDataInfos extends DataCollection<CertDataInfo> {
 
         for (CertDataInfo certDataInfo : getEntries()) {
             Element infoElement = certDataInfo.toDOM(document);
-            infosElement.appendChild(infoElement);
-        }
-
-        for (Link link : getLinks()) {
-            Element infoElement = link.toDOM(document);
             infosElement.appendChild(infoElement);
         }
 
@@ -102,14 +96,6 @@ public class CertDataInfos extends DataCollection<CertDataInfo> {
            Element infoElement = (Element) infoList.item(i);
            CertDataInfo info = CertDataInfo.fromDOM(infoElement);
            infos.addEntry(info);
-        }
-
-        NodeList linkList = infosElement.getElementsByTagName("Link");
-        int linkCount = linkList.getLength();
-        for (int i=0; i<linkCount; i++) {
-           Element linkElement = (Element) linkList.item(i);
-           Link link = Link.fromDOM(linkElement);
-           infos.addLink(link);
         }
 
         return infos;

@@ -21,7 +21,6 @@ package org.dogtagpki.server.ca.rest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.Principal;
 import java.security.PublicKey;
@@ -55,7 +54,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.cert.CertData;
@@ -457,17 +455,6 @@ public class CertService extends PKIService implements CertResource {
             for (int i = start; i < start + size && i < total ; i++) {
                 infos.addEntry(results.get(i));
             }
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                infos.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < total) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                infos.addLink(new Link("next", uri));
-            }
-
         } catch (Exception e) {
             logger.error("Unable to list certificates: " + e.getMessage(), e);
             throw new PKIException("Unable to list certificates: " + e.getMessage(), e);
@@ -512,17 +499,6 @@ public class CertService extends PKIService implements CertResource {
             }
 
             infos.setTotal(total);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                infos.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < total) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                infos.addLink(new Link("next", uri));
-            }
-
         } catch (Exception e) {
             logger.error("Unable to search for certificates: " + e.getMessage(), e);
             throw new PKIException("Unable to search for certificates: " + e.getMessage(), e);
@@ -606,10 +582,6 @@ public class CertService extends PKIService implements CertResource {
             // return nonce to client
             certData.setNonce(n);
         }
-
-        URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class, "getCert").build(certId.toHexString());
-        certData.setLink(new Link("self", uri));
-
         return certData;
     }
 
@@ -645,9 +617,6 @@ public class CertService extends PKIService implements CertResource {
 
         info.setRevokedOn(record.getRevokedOn());
         info.setRevokedBy(record.getRevokedBy());
-
-        URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class, "getCert").build(id.toHexString());
-        info.setLink(new Link("self", uri));
 
         return info;
     }

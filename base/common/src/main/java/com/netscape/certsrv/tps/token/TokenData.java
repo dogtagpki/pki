@@ -27,7 +27,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netscape.certsrv.base.Link;
 
 /**
  * @author Endi S. Dewata
@@ -71,8 +70,6 @@ public class TokenData {
     String policy;
     Date createTimestamp;
     Date modifyTimestamp;
-
-    Link link;
 
     public String getID() {
         return id;
@@ -162,19 +159,9 @@ public class TokenData {
         this.modifyTimestamp = modifyTimestamp;
     }
 
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
-
-
     @Override
     public int hashCode() {
-        return Objects.hash(appletID, createTimestamp, id, keyInfo, link, modifyTimestamp, nextStates, policy, status,
+        return Objects.hash(appletID, createTimestamp, id, keyInfo, modifyTimestamp, nextStates, policy, status,
                 tokenID, type, userID);
     }
 
@@ -189,7 +176,7 @@ public class TokenData {
         TokenData other = (TokenData) obj;
         return Objects.equals(appletID, other.appletID) && Objects.equals(createTimestamp, other.createTimestamp)
                 && Objects.equals(id, other.id) && Objects.equals(keyInfo, other.keyInfo)
-                && Objects.equals(link, other.link) && Objects.equals(modifyTimestamp, other.modifyTimestamp)
+                && Objects.equals(modifyTimestamp, other.modifyTimestamp)
                 && Objects.equals(nextStates, other.nextStates) && Objects.equals(policy, other.policy)
                 && Objects.equals(status, other.status) && Objects.equals(tokenID, other.tokenID)
                 && Objects.equals(type, other.type) && Objects.equals(userID, other.userID);

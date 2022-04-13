@@ -42,7 +42,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -68,8 +67,6 @@ public class CertDataInfo implements JSONSerializer {
     String issuedBy;
     Date revokedOn;
     String revokedBy;
-
-    Link link;
 
     public CertId getID() {
         return id;
@@ -196,15 +193,6 @@ public class CertDataInfo implements JSONSerializer {
         this.revokedBy = revokedBy;
     }
 
-    @JsonProperty("Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -214,7 +202,6 @@ public class CertDataInfo implements JSONSerializer {
         result = prime * result + ((issuedOn == null) ? 0 : issuedOn.hashCode());
         result = prime * result + ((keyAlgorithmOID == null) ? 0 : keyAlgorithmOID.hashCode());
         result = prime * result + ((keyLength == null) ? 0 : keyLength.hashCode());
-        result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((notValidAfter == null) ? 0 : notValidAfter.hashCode());
         result = prime * result + ((notValidBefore == null) ? 0 : notValidBefore.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
@@ -260,11 +247,6 @@ public class CertDataInfo implements JSONSerializer {
             if (other.keyLength != null)
                 return false;
         } else if (!keyLength.equals(other.keyLength))
-            return false;
-        if (link == null) {
-            if (other.link != null)
-                return false;
-        } else if (!link.equals(other.link))
             return false;
         if (notValidAfter == null) {
             if (other.notValidAfter != null)
@@ -400,11 +382,6 @@ public class CertDataInfo implements JSONSerializer {
             infoElement.appendChild(revokedByElement);
         }
 
-        if (link != null) {
-            Element linkElement = link.toDOM(document);
-            infoElement.appendChild(linkElement);
-        }
-
         return infoElement;
     }
 
@@ -492,14 +469,6 @@ public class CertDataInfo implements JSONSerializer {
             String value = revokedByList.item(0).getTextContent();
             info.setRevokedBy(value);
         }
-
-        NodeList linkList = infoElement.getElementsByTagName("Link");
-        if (linkList.getLength() > 0) {
-            Element linkElement = (Element) linkList.item(0);
-            Link link = Link.fromDOM(linkElement);
-            info.setLink(link);
-        }
-
         return info;
     }
 

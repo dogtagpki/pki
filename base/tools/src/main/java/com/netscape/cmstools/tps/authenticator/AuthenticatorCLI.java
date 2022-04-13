@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
@@ -71,8 +70,5 @@ public class AuthenticatorCLI extends CLI {
                 }
             }
         }
-
-        Link link = authenticatorData.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

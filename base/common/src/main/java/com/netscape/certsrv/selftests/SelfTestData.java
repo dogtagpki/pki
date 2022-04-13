@@ -21,7 +21,6 @@ package com.netscape.certsrv.selftests;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -36,8 +35,6 @@ public class SelfTestData implements JSONSerializer {
     Boolean criticalAtStartup;
     Boolean enabledOnDemand;
     Boolean criticalOnDemand;
-
-    Link link;
 
     public String getID() {
         return id;
@@ -79,14 +76,6 @@ public class SelfTestData implements JSONSerializer {
         this.criticalOnDemand = criticalOnDemand;
     }
 
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -94,7 +83,6 @@ public class SelfTestData implements JSONSerializer {
         result = prime * result + ((criticalOnDemand == null) ? 0 : criticalOnDemand.hashCode());
         result = prime * result + ((enabledOnDemand == null) ? 0 : enabledOnDemand.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((link == null) ? 0 : link.hashCode());
         return result;
     }
 
@@ -121,11 +109,6 @@ public class SelfTestData implements JSONSerializer {
             if (other.id != null)
                 return false;
         } else if (!id.equals(other.id))
-            return false;
-        if (link == null) {
-            if (other.link != null)
-                return false;
-        } else if (!link.equals(other.link))
             return false;
         return true;
     }

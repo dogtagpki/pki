@@ -38,7 +38,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.DataCollection;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.util.JSONSerializer;
 
 @JsonInclude(Include.NON_NULL)
@@ -48,24 +47,6 @@ public class CertRequestInfos extends DataCollection<CertRequestInfo> implements
     @Override
     public Collection<CertRequestInfo> getEntries() {
         return super.getEntries();
-    }
-
-    public String getNext() {
-        for (Link link : getLinks()) {
-            if ("next".equals(link.getRelationship())) {
-                return link.getHref().toString();
-            }
-        }
-        return null;
-    }
-
-    public String getPrevious() {
-        for (Link link : getLinks()) {
-            if ("previous".equals(link.getRelationship())) {
-                return link.getHref().toString();
-            }
-        }
-        return null;
     }
 
     @Override
@@ -87,11 +68,6 @@ public class CertRequestInfos extends DataCollection<CertRequestInfo> implements
 
         for (CertRequestInfo certRequestInfo : getEntries()) {
             Element infoElement = certRequestInfo.toDOM(document);
-            infosElement.appendChild(infoElement);
-        }
-
-        for (Link link : getLinks()) {
-            Element infoElement = link.toDOM(document);
             infosElement.appendChild(infoElement);
         }
 
@@ -136,14 +112,6 @@ public class CertRequestInfos extends DataCollection<CertRequestInfo> implements
            Element infoElement = (Element) infoList.item(i);
            CertRequestInfo info = CertRequestInfo.fromDOM(infoElement);
            infos.addEntry(info);
-        }
-
-        NodeList linkList = infosElement.getElementsByTagName("Link");
-        int linkCount = linkList.getLength();
-        for (int i=0; i<linkCount; i++) {
-           Element linkElement = (Element) linkList.item(i);
-           Link link = Link.fromDOM(linkElement);
-           infos.addLink(link);
         }
 
         return infos;

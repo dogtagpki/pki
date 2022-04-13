@@ -26,7 +26,6 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -38,8 +37,6 @@ public class ConfigData implements JSONSerializer {
 
     String status;
     Map<String, String> properties;
-
-    Link link;
 
     public String getStatus() {
         return status;
@@ -68,19 +65,10 @@ public class ConfigData implements JSONSerializer {
         public String value;
     }
 
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((properties == null) ? 0 : properties.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         return result;
@@ -95,11 +83,6 @@ public class ConfigData implements JSONSerializer {
         if (getClass() != obj.getClass())
             return false;
         ConfigData other = (ConfigData) obj;
-        if (link == null) {
-            if (other.link != null)
-                return false;
-        } else if (!link.equals(other.link))
-            return false;
         if (properties == null) {
             if (other.properties != null)
                 return false;

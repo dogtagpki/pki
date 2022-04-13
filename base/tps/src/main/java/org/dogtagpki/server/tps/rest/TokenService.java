@@ -40,7 +40,6 @@ import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 
 import com.netscape.certsrv.base.BadRequestException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBVirtualList;
@@ -228,10 +227,6 @@ public class TokenService extends SubsystemService implements TokenResource {
             logger.error("TokenService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
-
-        URI uri = uriInfo.getBaseUriBuilder().path(TokenResource.class).path("{tokenID}").build(tokenID);
-        tokenData.setLink(new Link("self", uri));
-
         return tokenData;
     }
 
@@ -310,17 +305,6 @@ public class TokenService extends SubsystemService implements TokenResource {
             } else {
                 retrieveTokensWithoutVLV(database, filter, attributes, start, size, response);
             }
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < response.getTotal()) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
-            }
-
             return createOKResponse(response);
 
         } catch (EDBException e) {

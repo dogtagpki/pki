@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.logging.AuditConfig;
@@ -85,9 +84,6 @@ public class AuditCLI extends CLI {
                 System.out.println("    " + name + ": " + value);
             }
         }
-
-        Link link = auditConfig.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 
     public static void printAuditFile(AuditFile auditFile) {

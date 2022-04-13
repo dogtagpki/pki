@@ -77,14 +77,10 @@ class AuthorityData(object):
         ca_data = cls()
 
         for k, v in iteritems(attr_list):
-            if k not in ['link']:
-                if k in AuthorityData.json_attribute_names:
-                    setattr(ca_data, AuthorityData.json_attribute_names[k], v)
-                else:
-                    setattr(ca_data, k, v)
-
-        if 'link' in attr_list:
-            ca_data.link = pki.Link.from_json(attr_list['link'])
+            if k in AuthorityData.json_attribute_names:
+                setattr(ca_data, AuthorityData.json_attribute_names[k], v)
+            else:
+                setattr(ca_data, k, v)
 
         return ca_data
 

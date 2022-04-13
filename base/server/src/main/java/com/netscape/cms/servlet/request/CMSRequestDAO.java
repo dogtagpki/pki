@@ -17,14 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request;
 
-import java.net.URI;
-
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequestList;
@@ -164,22 +161,6 @@ public abstract class CMSRequestDAO {
         }
         builder.queryParam("start", "{start}");
         builder.queryParam("pageSize", "{pageSize}");
-
-        // next link
-        if (totalSize > current + pageSize) {
-            int next = current + pageSize + 1;
-            URI nextUri = builder.clone().build(next, pageSize);
-            Link nextLink = new Link("next", nextUri.toString(), "application/xml");
-            ret.addLink(nextLink);
-        }
-
-        // previous link
-        if (current > 0) {
-            int previous = current - pageSize;
-            URI previousUri = builder.clone().build(previous, pageSize);
-            Link previousLink = new Link("previous", previousUri.toString(), "application/xml");
-            ret.addLink(previousLink);
-        }
 
         return ret;
     }

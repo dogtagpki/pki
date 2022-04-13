@@ -35,7 +35,6 @@ import org.dogtagpki.server.tps.config.ConnectorRecord;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -67,8 +66,6 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
         connectorData.setProperties(connectionRecord.getProperties());
 
         connectorID = URLEncoder.encode(connectorID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(ConnectorResource.class).path("{connectorID}").build(connectorID);
-        connectorData.setLink(new Link("self", uri));
 
         return connectorData;
     }
@@ -118,16 +115,6 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             for (; connections.hasNext(); i++)
                 connections.next();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 

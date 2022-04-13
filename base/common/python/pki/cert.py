@@ -45,7 +45,7 @@ class CertData(object):
         'SubjectDN': 'subject_dn', 'PrettyPrint': 'pretty_repr',
         'Encoded': 'encoded', 'NotBefore': 'not_before',
         'NotAfter': 'not_after', 'Status': 'status', 'Nonce': 'nonce',
-        'Link': 'link', 'PKCS7CertChain': 'pkcs7_cert_chain'
+        'PKCS7CertChain': 'pkcs7_cert_chain'
     }
 
     def __init__(self):
@@ -80,14 +80,10 @@ class CertData(object):
         cert_data = cls()
 
         for k, v in iteritems(attr_list):
-            if k not in ['Link']:
-                if k in CertData.json_attribute_names:
-                    setattr(cert_data, CertData.json_attribute_names[k], v)
-                else:
-                    setattr(cert_data, k, v)
-
-        if 'Link' in attr_list:
-            cert_data.link = pki.Link.from_json(attr_list['Link'])
+            if k in CertData.json_attribute_names:
+                setattr(cert_data, CertData.json_attribute_names[k], v)
+            else:
+                setattr(cert_data, k, v)
 
         return cert_data
 
@@ -101,7 +97,7 @@ class CertDataInfo(object):
     json_attribute_names = {
         'id': 'serial_number', 'SubjectDN': 'subject_dn', 'Status': 'status',
         'Type': 'type', 'Version': 'version', 'KeyLength': 'key_length',
-        'KeyAlgorithmOID': 'key_algorithm_oid', 'Link': 'link',
+        'KeyAlgorithmOID': 'key_algorithm_oid',
         'NotValidBefore': 'not_valid_before',
         'NotValidAfter': 'not_valid_after', 'IssuedOn': 'issued_on',
         'IssuedBy': 'issued_by'}
@@ -136,15 +132,11 @@ class CertDataInfo(object):
         """ Return CertDataInfo object from JSON dict """
         cert_data_info = cls()
         for k, v in iteritems(attr_list):
-            if k not in ['Link']:
-                if k in CertDataInfo.json_attribute_names:
-                    setattr(cert_data_info,
-                            CertDataInfo.json_attribute_names[k], v)
-                else:
-                    setattr(cert_data_info, k, v)
-
-        if 'Link' in attr_list:
-            cert_data_info.link = pki.Link.from_json(attr_list['Link'])
+            if k in CertDataInfo.json_attribute_names:
+                setattr(cert_data_info,
+                        CertDataInfo.json_attribute_names[k], v)
+            else:
+                setattr(cert_data_info, k, v)
 
         return cert_data_info
 
@@ -175,13 +167,6 @@ class CertDataInfoCollection(object):
             for cert_info in cert_infos:
                 ret.cert_data_info_list.append(
                     CertDataInfo.from_json(cert_info))
-
-        links = json_value['Link']
-        if not isinstance(links, list):
-            ret.links.append(pki.Link.from_json(links))
-        else:
-            for link in links:
-                ret.links.append(pki.Link.from_json(link))
 
         return ret
 
@@ -226,12 +211,11 @@ class CertRequestInfo(object):
         cert_request_info = cls()
 
         for k, v in iteritems(attr_list):
-            if k not in ['Link']:
-                if k in CertRequestInfo.json_attribute_names:
-                    setattr(cert_request_info,
-                            CertRequestInfo.json_attribute_names[k], v)
-                else:
-                    setattr(cert_request_info, k, v)
+            if k in CertRequestInfo.json_attribute_names:
+                setattr(cert_request_info,
+                        CertRequestInfo.json_attribute_names[k], v)
+            else:
+                setattr(cert_request_info, k, v)
 
         cert_request_info.request_id = \
             str(cert_request_info.request_url)[(str(
@@ -293,13 +277,6 @@ class CertRequestInfoCollection(object):
             for cert_info in cert_req_infos:
                 ret.cert_request_info_list.append(
                     CertRequestInfo.from_json(cert_info))
-
-        links = json_value['Link']
-        if not isinstance(links, list):
-            ret.links.append(pki.Link.from_json(links))
-        else:
-            for link in links:
-                ret.links.append(pki.Link.from_json(link))
 
         return ret
 

@@ -1,13 +1,9 @@
 package com.netscape.certsrv.group;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class GroupDataTest {
@@ -15,11 +11,10 @@ public class GroupDataTest {
     private static GroupData before = new GroupData();
 
     @Before
-    public void setUpBefore() throws URISyntaxException {
+    public void setUpBefore() {
         before.setDescription("Test GroupData");
         before.setID("foo");
         before.setGroupID("bar");
-        before.setLink(new Link("self", new URI("https://www.example.com")));
     }
 
     @Test

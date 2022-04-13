@@ -39,7 +39,6 @@ import org.dogtagpki.server.tps.config.ProfileRecord;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -74,8 +73,6 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
         profileData.setProperties(profileRecord.getProperties());
 
         profileID = URLEncoder.encode(profileID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(ProfileResource.class).path("{profileID}").build(profileID);
-        profileData.setLink(new Link("self", uri));
 
         return profileData;
     }
@@ -145,16 +142,6 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             for (; profileIterator.hasNext(); i++)
                 profileIterator.next();
             response.setTotal(i);
-
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
-            }
 
             return createOKResponse(response);
 

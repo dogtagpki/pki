@@ -20,7 +20,6 @@ package com.netscape.cmstools.user;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserClient;
 
@@ -63,9 +62,6 @@ public class UserCertCLI extends CLI {
         System.out.println("  Serial Number: " + userCertData.getSerialNumber().toHexString());
         System.out.println("  Issuer: " + userCertData.getIssuerDN());
         System.out.println("  Subject: " + userCertData.getSubjectDN());
-
-        Link link = userCertData.getLink();
-        logger.info("Link: " + (link == null ? null : link.getHref()));
 
         String prettyPrint = userCertData.getPrettyPrint();
         if (showPrettyPrint && prettyPrint != null) {

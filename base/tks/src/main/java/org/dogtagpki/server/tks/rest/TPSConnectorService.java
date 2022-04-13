@@ -22,7 +22,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
@@ -84,16 +83,6 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
                 entries.next();
             response.setTotal(i);
 
-            if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
-                response.addLink(new Link("prev", uri));
-            }
-
-            if (start + size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
-                response.addLink(new Link("next", uri));
-            }
-
             return createOKResponse(response);
 
         } catch (EBaseException e) {
@@ -112,10 +101,6 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
         data.setPort(tpsConfig.getPort());
         data.setUserID(tpsConfig.getUserID());
         data.setNickname(tpsConfig.getNickname());
-
-        URI uri = uriInfo.getBaseUriBuilder().path(TPSCertResource.class).path("{id}").build(tpsID);
-        data.setLink(new Link("self", uri));
-
         return data;
     }
 
@@ -168,7 +153,6 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             newData.setPort(tpsPort);
             newData.setUserID("TPS-" + tpsHost + "-" + tpsPort);
             URI uri = uriInfo.getBaseUriBuilder().path(TPSCertResource.class).path("{id}").build(newID);
-            newData.setLink(new Link("self", uri));
             saveClientData(newData);
 
             addToConnectorList(newID);

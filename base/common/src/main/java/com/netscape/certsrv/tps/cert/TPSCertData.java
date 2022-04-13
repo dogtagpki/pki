@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netscape.certsrv.base.Link;
 
 /**
  * @author Endi S. Dewata
@@ -44,8 +43,6 @@ public class TPSCertData {
     String status;
     Date createTime;
     Date modifyTime;
-
-    Link link;
 
     public String getID() {
         return id;
@@ -135,14 +132,6 @@ public class TPSCertData {
         this.modifyTime = modifyTime;
     }
 
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -150,7 +139,6 @@ public class TPSCertData {
         result = prime * result + ((createTime == null) ? 0 : createTime.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((keyType == null) ? 0 : keyType.hashCode());
-        result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((modifyTime == null) ? 0 : modifyTime.hashCode());
         result = prime * result + ((origin == null) ? 0 : origin.hashCode());
         result = prime * result + ((serialNumber == null) ? 0 : serialNumber.hashCode());
@@ -185,11 +173,6 @@ public class TPSCertData {
             if (other.keyType != null)
                 return false;
         } else if (!keyType.equals(other.keyType))
-            return false;
-        if (link == null) {
-            if (other.link != null)
-                return false;
-        } else if (!link.equals(other.link))
             return false;
         if (modifyTime == null) {
             if (other.modifyTime != null)

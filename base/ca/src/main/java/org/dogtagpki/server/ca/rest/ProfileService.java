@@ -43,7 +43,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.common.NameValuePairs;
@@ -144,16 +143,6 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             infos.addEntry(results.get(i));
         }
 
-        if (start > 0) {
-            URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-            infos.addLink(new Link("prev", uri));
-        }
-
-        if (start + size < total) {
-            URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-            infos.addLink(new Link("next", uri));
-        }
-
         return createOKResponse(infos);
     }
 
@@ -207,12 +196,6 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             e.printStackTrace();
             throw new ProfileNotFoundException(profileId);
         }
-
-        UriBuilder profileBuilder = uriInfo.getBaseUriBuilder();
-        URI uri = profileBuilder.path(ProfileResource.class).path("{id}").
-                build(profileId);
-        data.setLink(new Link("self", uri));
-
         return createOKResponse(data);
     }
 
@@ -283,12 +266,6 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                 }
             }
         }
-
-        UriBuilder profileBuilder = uriInfo.getBaseUriBuilder();
-        URI uri = profileBuilder.path(ProfileResource.class).path("{id}").
-                build(profileId);
-        data.setLink(new Link("self", uri));
-
         return data;
     }
 
