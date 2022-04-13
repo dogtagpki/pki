@@ -892,7 +892,7 @@ public class CAProcessor extends Processor {
         // Initialize subjectID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        CMS.debug("CMSServlet: auditSubjectID auditContext " + auditContext);
+        //CMS.debug("CMSServlet: auditSubjectID auditContext " + auditContext);
         if (auditContext != null) {
             subjectID = (String)
                     auditContext.get(SessionContext.USER_ID);
@@ -918,7 +918,7 @@ public class CAProcessor extends Processor {
         // Initialize groupID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        CMS.debug("CMSServlet: auditGroupID auditContext " + auditContext);
+        //CMS.debug("CMSServlet: auditGroupID auditContext " + auditContext);
         if (auditContext != null) {
             groupID = (String)
                     auditContext.get(SessionContext.GROUP_ID);
