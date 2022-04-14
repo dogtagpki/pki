@@ -32,13 +32,8 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 #     > pki-VERSION-RELEASE.patch
 # Patch: pki-VERSION-RELEASE.patch
 
-# md2man isn't available on i686. Additionally, we aren't generally multi-lib
-# compatible (https://fedoraproject.org/wiki/Packaging:Java)
-# so dropping i686 everywhere but RHEL-8 (which we've already shipped) seems
-# safest.
-%if ! 0%{?rhel} || 0%{?rhel} > 8
+# Java 17 and md2man are not available on i686
 ExcludeArch: i686
-%endif
 
 ################################################################################
 # NSS
@@ -50,11 +45,7 @@ ExcludeArch: i686
 # Python
 ################################################################################
 
-%if 0%{?rhel} && 0%{?rhel} <= 8
-%global python_executable /usr/libexec/platform-python
-%else
 %global python_executable /usr/bin/python3
-%endif
 
 ################################################################################
 # Java
@@ -212,11 +203,7 @@ BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
 # build dependency to build man pages
-%if 0%{?fedora} && 0%{?fedora} <= 30 || 0%{?rhel} && 0%{?rhel} <= 8
-BuildRequires:    go-md2man
-%else
 BuildRequires:    golang-github-cpuguy83-md2man
-%endif
 
 # pki-healthcheck depends on the following library
 %if 0%{?rhel}
@@ -342,9 +329,7 @@ Provides:         python3-pki = %{version}-%{release}
 Obsoletes:        pki-base-python3 < %{version}-%{release}
 Provides:         pki-base-python3 = %{version}-%{release}
 
-%if 0%{?fedora} || 0%{?rhel} > 8
 %{?python_provide:%python_provide python3-pki}
-%endif
 
 Requires:         %{product_id}-base = %{version}-%{release}
 Requires:         python3 >= 3.9
@@ -383,14 +368,9 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 5.2.0
 Requires:         ldapjdk >= 5.2.0
 Requires:         %{product_id}-base = %{version}-%{release}
-
-%if 0%{?rhel} && 0%{?rhel} <= 8
-Requires:         resteasy >= 3.0.26
-%else
 Requires:         resteasy-client >= 3.0.17-1
 Requires:         resteasy-core >= 3.0.17-1
 Requires:         resteasy-jackson2-provider >= 3.0.17-1
-%endif
 
 %description -n   %{product_id}-java
 This package provides common and client libraries for Java.
@@ -817,11 +797,6 @@ java_version=`echo $java_version | sed -e 's/^1\.//' -e 's/\..*$//'`
 # assume tomcat app_server
 app_server=tomcat-9.0
 
-%if 0%{?rhel} && 0%{?rhel} <= 8
-%{__mkdir_p} build
-cd build
-%endif
-
 %cmake \
     --no-warn-unused-cli \
     -DVERSION=%{version}-%{release} \
@@ -848,15 +823,9 @@ cd build
     -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
     -DTHEME=%{?with_theme:%{theme}} \
-%if 0%{?rhel} && 0%{?rhel} <= 8
-    ..
-%else
     -B %{_vpath_builddir}
-%endif
 
-%if 0%{?fedora} || 0%{?rhel} > 8
 cd %{_vpath_builddir}
-%endif
 
 # Do not use _smp_mflags to preserve build order
 %{__make} \
@@ -871,11 +840,7 @@ cd %{_vpath_builddir}
 %install
 ################################################################################
 
-%if 0%{?rhel} && 0%{?rhel} <= 8
-cd build
-%else
 cd %{_vpath_builddir}
-%endif
 
 %{__make} \
     VERBOSE=%{?_verbose} \
