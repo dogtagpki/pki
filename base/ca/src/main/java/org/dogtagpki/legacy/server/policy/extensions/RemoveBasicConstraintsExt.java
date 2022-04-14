@@ -19,7 +19,6 @@ package org.dogtagpki.legacy.server.policy.extensions;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
@@ -135,7 +134,7 @@ public class RemoveBasicConstraintsExt extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-policyrules-removebasicconstraints",

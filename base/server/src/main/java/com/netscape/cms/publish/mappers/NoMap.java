@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.mappers;
 
-import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -45,7 +44,7 @@ public class NoMap implements ILdapMapper, IExtendedPluginInfo {
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String params[] = {
                 IExtendedPluginInfo.HELP_TOKEN + ";configuration-ldappublish-mapper-simplemapper",
                 IExtendedPluginInfo.HELP_TEXT + ";Describes how to form the name of the entry to publish to"

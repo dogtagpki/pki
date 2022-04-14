@@ -20,7 +20,6 @@ package org.dogtagpki.legacy.server.policy.extensions;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -206,7 +205,7 @@ public class CRLDistributionPointsExt extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         if (mExtParams == null) {
             setExtendedPluginInfo();
         }

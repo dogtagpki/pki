@@ -19,7 +19,6 @@ package org.dogtagpki.legacy.server.policy.extensions;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
@@ -399,7 +398,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 PROP_CRITICAL + ";boolean;" +
                         "RFC 2459 recommendation: MUST NOT be marked critical.",

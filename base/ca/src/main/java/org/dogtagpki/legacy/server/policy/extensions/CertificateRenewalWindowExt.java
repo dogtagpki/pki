@@ -20,7 +20,6 @@ package org.dogtagpki.legacy.server.policy.extensions;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
@@ -196,7 +195,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 PROP_CRITICAL + ";boolean;Netscape recommendation: non-critical.",
                 PROP_BEGIN_TIME

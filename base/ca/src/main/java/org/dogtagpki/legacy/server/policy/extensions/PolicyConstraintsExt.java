@@ -19,7 +19,6 @@ package org.dogtagpki.legacy.server.policy.extensions;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
@@ -267,7 +266,7 @@ public class PolicyConstraintsExt extends APolicyRule
      * gets plugin info for pretty console edit displays.
      */
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(
                 PROP_REQ_EXPLICIT_POLICY + "=" + mReqExplicitPolicy);

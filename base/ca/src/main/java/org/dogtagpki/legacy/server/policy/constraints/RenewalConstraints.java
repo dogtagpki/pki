@@ -18,7 +18,6 @@
 package org.dogtagpki.legacy.server.policy.constraints;
 
 import java.util.Date;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
@@ -76,7 +75,7 @@ public class RenewalConstraints extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 PROP_ALLOW_EXPIRED_CERTS + ";boolean;Allow a user to renew an already-expired certificate",
                 PROP_RENEWAL_NOT_AFTER

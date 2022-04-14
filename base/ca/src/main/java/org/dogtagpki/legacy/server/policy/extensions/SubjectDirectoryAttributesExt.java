@@ -20,7 +20,6 @@ package org.dogtagpki.legacy.server.policy.extensions;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
@@ -201,7 +200,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         return mEPI; // inited in the constructor.
     }
 

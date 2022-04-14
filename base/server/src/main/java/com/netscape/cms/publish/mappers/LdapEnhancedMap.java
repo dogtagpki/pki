@@ -27,7 +27,6 @@ package com.netscape.cms.publish.mappers;
 /* cert server imports */
 import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -553,7 +552,7 @@ public class LdapEnhancedMap
     /////////////////////////////////
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         Vector<String> v = new Vector<>();
 
         v.addElement(PROP_DNPATTERN +

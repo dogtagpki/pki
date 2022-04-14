@@ -18,7 +18,6 @@
 package com.netscape.cmscore.ldap;
 
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -51,7 +50,7 @@ public class LdapRule implements IExtendedPluginInfo {
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         //dont know why it's null here.
         //if (mProcessor == null) logger.warn("p null");
 

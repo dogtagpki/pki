@@ -931,6 +931,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
      *
      * @return help messages
      */
+    @Override
     public String[] getExtendedPluginInfo() {
         String method = "CMCUserSignedAuth: getExtendedPluginInfo: ";
         logger.debug(method + " begins");
@@ -1228,11 +1229,6 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
 
         logger.debug(method + " Principal name = " + principal.toString());
         auditContext.put(SessionContext.USER_ID, principal.toString());
-    }
-
-    @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
-        return null;
     }
 
     // Profile-related methods

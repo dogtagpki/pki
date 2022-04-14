@@ -20,7 +20,6 @@ package com.netscape.cms.publish.publishers;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -74,7 +73,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 "certAttr;string;LDAP attribute in which to store the certificate",
                 IExtendedPluginInfo.HELP_TOKEN +

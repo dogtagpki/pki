@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.server.policy.constraints;
 
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
@@ -65,7 +64,7 @@ public class IssuerConstraints extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 PROP_ISSUER_DN
                         + ";string;Subject DN of the Issuer. The IssuerDN of the authenticating cert must match what's specified here",

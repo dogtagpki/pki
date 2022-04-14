@@ -19,7 +19,6 @@ package org.dogtagpki.legacy.server.policy.extensions;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
@@ -296,7 +295,7 @@ public class PolicyMappingsExt extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         Vector<String> theparams = new Vector<>();
 
         theparams.addElement(PROP_CRITICAL + ";boolean;RFC 2459 recommendation: MUST be non-critical.");

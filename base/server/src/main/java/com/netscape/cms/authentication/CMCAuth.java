@@ -765,6 +765,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
      *
      * @return help messages
      */
+    @Override
     public String[] getExtendedPluginInfo() {
         logger.debug("CMCAuth: getExtendedPluginInfo()");
         String[] s = Utils.getStringArrayFromVector(mExtendedPluginInfo);
@@ -1006,11 +1007,6 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
         }
         return null;
 
-    }
-
-    @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
-        return null;
     }
 
     // Profile-related methods

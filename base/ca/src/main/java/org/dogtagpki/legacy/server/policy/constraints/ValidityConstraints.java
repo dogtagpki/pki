@@ -18,7 +18,6 @@
 package org.dogtagpki.legacy.server.policy.constraints;
 
 import java.util.Date;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
@@ -88,7 +87,7 @@ public class ValidityConstraints extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 PROP_MIN_VALIDITY + ";number;Minimum Validity time, in days",
                 PROP_MAX_VALIDITY + ";number;Maximum Validity time, in days",

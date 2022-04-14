@@ -19,7 +19,6 @@ package com.netscape.cms.authorization;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -231,11 +230,8 @@ public abstract class AAclAuthz implements IAuthzManager {
         return mConfig;
     }
 
-    public String[] getExtendedPluginInfo(Locale locale) {
-        String[] s = Utils.getStringArrayFromVector(mExtendedPluginInfo);
-
-        return s;
-
+    public String[] getExtendedPluginInfo() {
+        return Utils.getStringArrayFromVector(mExtendedPluginInfo);
     }
 
     /**
@@ -857,8 +853,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         } catch (EACLsException e) {
             // audit here later
             logger.error("AAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_AUTHORIZATION_FAILED"), e);
-            String params[] = { resource, operation };
-            logger.error("AAclAuthz: " + CMS.getLogMessage("AUTHZ_AUTHZ_ACCESS_DENIED_2", params));
+            logger.error("AAclAuthz: " + CMS.getLogMessage("AUTHZ_AUTHZ_ACCESS_DENIED_2", resource, operation));
 
             throw new EAuthzAccessDenied(CMS.getUserMessage("CMS_AUTHORIZATION_ERROR"));
         }
@@ -869,10 +864,9 @@ public abstract class AAclAuthz implements IAuthzManager {
             throws EAuthzAccessDenied {
         if (evaluateACLs(authToken, expression)) {
             return (new AuthzToken(this));
-        } else {
-            String params[] = { expression };
-            throw new EAuthzAccessDenied(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZ_ACCESS_DENIED", params));
         }
+        String params[] = { expression };
+        throw new EAuthzAccessDenied(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZ_ACCESS_DENIED", params));
     }
 
     public static EvaluationOrder getOrder() {
@@ -883,10 +877,7 @@ public abstract class AAclAuthz implements IAuthzManager {
 
         try {
             String order = authzConfig.getString("evaluateOrder", "");
-            if (order.startsWith("allow"))
-                return EvaluationOrder.AllowDeny;
-            else
-                return EvaluationOrder.DenyAllow;
+            return order.startsWith("allow") ? EvaluationOrder.AllowDeny : EvaluationOrder.DenyAllow;
         } catch (Exception e) {
             return EvaluationOrder.DenyAllow;
         }

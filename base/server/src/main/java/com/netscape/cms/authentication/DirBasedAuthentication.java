@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -781,11 +780,8 @@ public abstract class DirBasedAuthentication
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
-        String[] s = Utils.getStringArrayFromVector(mExtendedPluginInfo);
-
-        return s;
-
+    public String[] getExtendedPluginInfo() {
+        return Utils.getStringArrayFromVector(mExtendedPluginInfo);
     }
 
 }

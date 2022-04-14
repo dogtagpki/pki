@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.server.policy.extensions;
 
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
@@ -40,7 +39,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class PresenceExt extends APolicyRule {
+public class PresenceExt extends APolicyRule implements IExtendedPluginInfo {
     private static Vector<String> mDefParams = new Vector<>();
     @SuppressWarnings("unused")
     private ConfigStore mConfig;
@@ -126,7 +125,8 @@ public class PresenceExt extends APolicyRule {
         return params;
     }
 
-    public String[] getExtendedPluginInfo(Locale locale) {
+    @Override
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 PROP_IS_CRITICAL + ";boolean;Criticality",
                 PROP_OID + ";string; Object identifier of this extension",

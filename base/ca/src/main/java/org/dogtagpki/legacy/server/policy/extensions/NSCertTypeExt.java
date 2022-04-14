@@ -20,7 +20,6 @@ package org.dogtagpki.legacy.server.policy.extensions;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
@@ -503,7 +502,7 @@ public class NSCertTypeExt extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 PROP_CRITICAL + ";boolean;Netscape recommendation: non-critical.",
                 PROP_SET_DEFAULT_BITS + ";boolean;Specify whether to set the Netscape certificate " +

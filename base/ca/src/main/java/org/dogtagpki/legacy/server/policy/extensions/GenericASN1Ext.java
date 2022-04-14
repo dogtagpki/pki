@@ -24,7 +24,6 @@ import java.security.cert.CertificateException;
 import java.text.ParseException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
@@ -118,7 +117,7 @@ public class GenericASN1Ext extends APolicyRule implements
     private String pattern = null;
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String s[] = {
                 "enable" + ";boolean;Enable this policy",
                 "predicate" + ";string;",

@@ -19,7 +19,6 @@ package com.netscape.cms.servlet.admin;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -197,16 +196,14 @@ public class OCSPAdminServlet extends AdminServlet {
         String id = req.getParameter(Constants.RS_ID);
         int colon = id.indexOf(':');
 
-        String implType = id.substring(0, colon);
         String implName = id.substring(colon + 1);
 
-        NameValuePairs params =
-                getExtendedPluginInfo(getLocale(req), implType, implName);
+        NameValuePairs params = getExtendedPluginInfo(implName);
 
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    private NameValuePairs getExtendedPluginInfo(Locale locale, String implType, String implName) {
+    private NameValuePairs getExtendedPluginInfo(String implName) {
         IExtendedPluginInfo ext_info = null;
         Object impl = null;
 
@@ -222,7 +219,7 @@ public class OCSPAdminServlet extends AdminServlet {
         if (ext_info == null) {
             nvps = new NameValuePairs();
         } else {
-            nvps = convertStringArrayToNVPairs(ext_info.getExtendedPluginInfo(locale));
+            nvps = convertStringArrayToNVPairs(ext_info.getExtendedPluginInfo());
         }
 
         return nvps;

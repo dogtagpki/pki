@@ -19,7 +19,6 @@ package com.netscape.cms.crl;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Locale;
 
 import org.dogtagpki.server.ca.ICMSCRLExtension;
 import org.mozilla.jss.netscape.security.x509.Extension;
@@ -77,7 +76,7 @@ public class CMSInvalidityDateExtension
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 //"type;choice(CRLExtension,CRLEntryExtension);"+
                 //"CRL Entry Extension type. This field is not editable.",

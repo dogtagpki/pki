@@ -18,7 +18,6 @@
 package org.dogtagpki.legacy.server.policy.constraints;
 
 import java.util.Date;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
@@ -71,7 +70,7 @@ public class RevocationConstraints extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 PROP_ALLOW_EXPIRED_CERTS + ";boolean;Allow a user to revoke an already-expired certificate",
                 PROP_ALLOW_ON_HOLD + ";boolean;Allow a user to set reason to On-Hold",

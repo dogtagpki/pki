@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.server.policy.constraints;
 
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
@@ -63,7 +62,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-policyrules-subcanamecheck",

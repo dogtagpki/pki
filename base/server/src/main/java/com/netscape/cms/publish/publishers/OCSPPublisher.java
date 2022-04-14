@@ -27,7 +27,6 @@ import java.net.URLEncoder;
 import java.security.cert.CRLException;
 import java.security.cert.X509CRL;
 import java.util.Date;
-import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -88,7 +87,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 PROP_HOST + ";string;Host of CMS's OCSP Secure agent service",
                 PROP_PORT + ";string;Port of CMS's OCSP Secure agent service",

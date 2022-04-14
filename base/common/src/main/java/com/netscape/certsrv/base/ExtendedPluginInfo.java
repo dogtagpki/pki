@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-import java.util.Locale;
-
 /**
  * Plugin which can return extended information to console
  * <p>
@@ -83,7 +81,7 @@ public class ExtendedPluginInfo implements IExtendedPluginInfo {
      *
      */
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         return _epi;
     }
 }

@@ -19,7 +19,6 @@ package com.netscape.cms.authentication;
 
 // ldap java sdk
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthManagerConfig;
@@ -279,7 +278,7 @@ public class PortalEnroll extends DirBasedAuthentication {
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] s = {
                 PROP_DNPATTERN + ";string;Template for cert" +
                         " Subject Name. ($dn.xxx - get value from user's LDAP " +

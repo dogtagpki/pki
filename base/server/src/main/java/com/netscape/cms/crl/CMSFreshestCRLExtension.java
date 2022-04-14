@@ -18,7 +18,6 @@
 package com.netscape.cms.crl;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import org.dogtagpki.server.ca.ICMSCRLExtension;
 import org.mozilla.jss.netscape.security.x509.CRLDistributionPoint;
@@ -208,7 +207,7 @@ public class CMSFreshestCRLExtension
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 "enable;boolean;Check to enable Freshest CRL extension.",
                 "critical;boolean;Set criticality for Freshest CRL extension.",
