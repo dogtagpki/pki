@@ -129,6 +129,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_BASE_JAR} common/lib/jackson-jaxrs-base.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_JSON_PROVIDER_JAR} common/lib/jackson-jaxrs-json-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXB_ANNOTATIONS_JAR} common/lib/jackson-module-jaxb-annotations.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAVAX_ANNOTATIONS_API_JAR} common/lib/javax.annotations-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} common/lib/jaxrs-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JBOSS_LOGGING_JAR} common/lib/jboss-logging.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_SYMKEY_JAR} common/lib/jss-symkey.jar

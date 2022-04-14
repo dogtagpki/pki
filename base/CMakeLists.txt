@@ -172,6 +172,16 @@ find_file(JAKARTA_ACTIVATION_JAR
         /usr/share/java
 )
 
+find_file(JAVAX_ANNOTATIONS_API_JAR
+    NAMES
+        jakarta.annotation-api.jar
+        jboss-annotations-api_1.2_spec.jar
+    PATHS
+        /usr/share/java/jakarta-annotations
+        /usr/share/java/jboss-annotations-1.2-api
+        /usr/share/java
+)
+
 find_file(JBOSS_LOGGING_JAR
     NAMES
         jboss-logging.jar
