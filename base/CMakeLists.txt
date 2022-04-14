@@ -367,40 +367,48 @@ if(WITH_SERVER)
         pki-tomcat-jar
         pki-cms-jar)
 
+    if(WITH_CA)
+        add_subdirectory(ca)
+        list(APPEND PKI_JAVADOC_DEPENDS pki-ca-jar)
+    endif(WITH_CA)
+
+    if(WITH_KRA)
+        add_subdirectory(kra)
+        list(APPEND PKI_JAVADOC_DEPENDS pki-kra-jar)
+    endif(WITH_KRA)
+
+    if(WITH_OCSP)
+        add_subdirectory(ocsp)
+        list(APPEND PKI_JAVADOC_DEPENDS pki-ocsp-jar)
+    endif(WITH_OCSP)
+
+    if(WITH_TKS)
+        add_subdirectory(tks)
+        list(APPEND PKI_JAVADOC_DEPENDS pki-tks-jar)
+    endif(WITH_TKS)
+
+    if(WITH_TPS)
+        add_subdirectory(tps)
+        list(APPEND PKI_JAVADOC_DEPENDS pki-tps-jar)
+    endif(WITH_TPS)
+
+    if(WITH_ACME)
+        add_subdirectory(acme)
+    endif(WITH_ACME)
+
 endif(WITH_SERVER)
-
-if(WITH_CA)
-    add_subdirectory(ca)
-    list(APPEND PKI_JAVADOC_DEPENDS pki-ca-jar)
-endif(WITH_CA)
-
-if(WITH_KRA)
-    add_subdirectory(kra)
-    list(APPEND PKI_JAVADOC_DEPENDS pki-kra-jar)
-endif(WITH_KRA)
-
-if(WITH_OCSP)
-    add_subdirectory(ocsp)
-    list(APPEND PKI_JAVADOC_DEPENDS pki-ocsp-jar)
-endif(WITH_OCSP)
-
-if(WITH_TKS)
-    add_subdirectory(tks)
-    list(APPEND PKI_JAVADOC_DEPENDS pki-tks-jar)
-endif(WITH_TKS)
-
-if(WITH_TPS)
-    add_subdirectory(tps)
-    list(APPEND PKI_JAVADOC_DEPENDS pki-tps-jar)
-endif(WITH_TPS)
-
-if(WITH_ACME)
-    add_subdirectory(acme)
-endif(WITH_ACME)
 
 if(WITH_JAVADOC)
     add_subdirectory(javadoc)
 endif(WITH_JAVADOC)
+
+if (WITH_CONSOLE)
+    add_subdirectory(console)
+endif (WITH_CONSOLE)
+
+if(WITH_META)
+    add_subdirectory(meta)
+endif(WITH_META)
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/VERSION
@@ -413,11 +421,3 @@ install(
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}
 )
-
-if (WITH_CONSOLE)
-    add_subdirectory(console)
-endif (WITH_CONSOLE)
-
-if(WITH_META)
-    add_subdirectory(meta)
-endif(WITH_META)

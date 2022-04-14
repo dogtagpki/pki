@@ -802,9 +802,7 @@ app_server=tomcat-9.0
     -DAPP_SERVER=$app_server \
     -DNSS_DEFAULT_DB_TYPE=%{nss_default_db_type} \
     -DPYTHON_EXECUTABLE=%{python_executable} \
-%if ! %{with server} && ! %{with acme} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
-    -DWITH_SERVER:BOOL=OFF \
-%endif
+    -DWITH_SERVER:BOOL=%{?with_server:ON}%{!?with_server:OFF} \
     -DWITH_CA:BOOL=%{?with_ca:ON}%{!?with_ca:OFF} \
     -DWITH_KRA:BOOL=%{?with_kra:ON}%{!?with_kra:OFF} \
     -DWITH_OCSP:BOOL=%{?with_ocsp:ON}%{!?with_ocsp:OFF} \
