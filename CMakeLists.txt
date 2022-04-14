@@ -49,6 +49,7 @@ option(WITH_TKS "Build TKS package" ON)
 option(WITH_TPS "Build TPS package" ON)
 option(WITH_ACME "Build ACME package" ON)
 option(WITH_JAVADOC "Build Javadoc package" ON)
+option(WITH_TESTS "Build tests package" ON)
 option(WITH_META "Build meta package" ON)
 option(RUN_TESTS "Run unit tests" ON)
 
@@ -157,7 +158,9 @@ if (NOT "${THEME}" STREQUAL "")
     add_subdirectory(themes)
 endif ()
 
-add_subdirectory(tests)
+if(WITH_TESTS)
+    add_subdirectory(tests)
+endif(WITH_TESTS)
 
 install(
     FILES
