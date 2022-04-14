@@ -172,6 +172,14 @@ find_file(JAKARTA_ACTIVATION_JAR
         /usr/share/java
 )
 
+find_file(JBOSS_LOGGING_JAR
+    NAMES
+        jboss-logging.jar
+    PATHS
+        /usr/share/java/jboss-logging
+        /usr/share/java
+)
+
 find_file(JSS_JAR
     NAMES
         jss.jar

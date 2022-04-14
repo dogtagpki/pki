@@ -112,6 +112,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_IO_JAR} lib/commons-io.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LANG3_JAR} lib/commons-lang3.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LOGGING_JAR} lib/commons-logging.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_NET_JAR} lib/commons-net.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCLIENT_JAR} lib/httpclient.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCORE_JAR} lib/httpcore.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_CORE_JAR} lib/jackson-core.jar
@@ -120,20 +121,20 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_BASE_JAR} lib/jackson-jaxrs-base.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_JSON_PROVIDER_JAR} lib/jackson-jaxrs-json-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXB_ANNOTATIONS_JAR} lib/jackson-module-jaxb-annotations.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} lib/jaxrs-api.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JBOSS_LOGGING_JAR} lib/jboss-logging.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} lib/jss.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} lib/ldapjdk.jar
+    COMMAND ln -sf ${P11_KIT_TRUST} lib/p11-kit-trust.so
     COMMAND ln -sf /usr/share/java/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-certsrv.jar
     COMMAND ln -sf /usr/share/java/pki/pki-cmsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-cmsutil.jar
     COMMAND ln -sf /usr/share/java/pki/pki-tools.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-tools.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_CLIENT_JAR} lib/resteasy-client.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JACKSON2_PROVIDER_JAR} lib/resteasy-jackson2-provider.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} lib/jaxrs-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JAXRS_JAR} lib/resteasy-jaxrs.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${SERVLET_JAR} lib/servlet.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_API_JAR} lib/slf4j-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_JDK14_JAR} lib/slf4j-jdk14.jar
-    COMMAND ln -sf ${P11_KIT_TRUST} lib/p11-kit-trust.so
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_NET_JAR} lib/commons-net.jar
 )
 
 if(JAVA_VERSION GREATER 10)

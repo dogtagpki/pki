@@ -120,6 +120,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_IO_JAR} common/lib/commons-io.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LANG3_JAR} common/lib/commons-lang3.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LOGGING_JAR} common/lib/commons-logging.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_NET_JAR} common/lib/commons-net.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCLIENT_JAR} common/lib/httpclient.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCORE_JAR} common/lib/httpcore.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_CORE_JAR} common/lib/jackson-core.jar
@@ -128,17 +129,17 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_BASE_JAR} common/lib/jackson-jaxrs-base.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_JSON_PROVIDER_JAR} common/lib/jackson-jaxrs-json-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXB_ANNOTATIONS_JAR} common/lib/jackson-module-jaxb-annotations.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} common/lib/jss.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} common/lib/jaxrs-api.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JBOSS_LOGGING_JAR} common/lib/jboss-logging.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_SYMKEY_JAR} common/lib/jss-symkey.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} common/lib/jss.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} common/lib/ldapjdk.jar
     COMMAND ln -sf /usr/share/java/pki/pki-cmsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-cmsutil.jar
     COMMAND ln -sf /usr/share/java/pki/pki-tomcat.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-tomcat.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_CLIENT_JAR} common/lib/resteasy-client.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JACKSON2_PROVIDER_JAR} common/lib/resteasy-jackson2-provider.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} common/lib/jaxrs-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JAXRS_JAR} common/lib/resteasy-jaxrs.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${TOMCATJSS_JAR} common/lib/tomcatjss.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_NET_JAR} common/lib/commons-net.jar
 )
 
 if(JAVA_VERSION GREATER 10)

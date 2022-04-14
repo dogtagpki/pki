@@ -856,7 +856,6 @@ ctest --output-on-failure
 %endif
 
 # Customize client library links in /usr/share/pki/lib
-ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/lib/jboss-logging.jar
 %if 0%{?fedora} && 0%{?fedora} <= 34
 ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/lib/jboss-annotations-api_1.2_spec.jar
 %else
@@ -866,7 +865,6 @@ ln -sf /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar %{buildroo
 %if %{with server}
 
 # Customize server common library links in /usr/share/pki/server/common/lib
-ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-logging.jar
 %if 0%{?fedora} && 0%{?fedora} <= 34
 ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-annotations-api_1.2_spec.jar
 %else
