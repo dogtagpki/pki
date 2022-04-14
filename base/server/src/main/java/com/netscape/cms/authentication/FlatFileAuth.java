@@ -83,7 +83,7 @@ public class FlatFileAuth
         };
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String s[] = {
                 PROP_FILENAME + ";string;Pathname of password file",
                 PROP_KEYATTRIBUTES + ";string;Comma-separated list of attributes" +

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.server.policy.constraints;
 
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
@@ -98,7 +97,7 @@ public class DefaultRevocation extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 IExtendedPluginInfo.HELP_TOKEN + ";configuration-policyrules-defaultrevocation"
             };

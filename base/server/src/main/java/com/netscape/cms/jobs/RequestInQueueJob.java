@@ -19,7 +19,6 @@ package com.netscape.cms.jobs;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -79,7 +78,7 @@ public class RequestInQueueJob extends AJobBase
      * holds help text for this plugin
      */
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String s[] = {
                 IExtendedPluginInfo.HELP_TEXT +
                         "; A job that checks for enrollment requests in the " +

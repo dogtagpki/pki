@@ -20,7 +20,6 @@ package com.netscape.cms.servlet.admin;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.Vector;
 
 import javax.servlet.ServletConfig;
@@ -217,7 +216,6 @@ public class PolicyAdminServlet extends AdminServlet {
 
         int colon = id.indexOf(':');
 
-        String implType = id.substring(0, colon);
         String implName1 = id.substring(colon + 1);
         String implName = implName1;
         String instName = null;
@@ -226,14 +224,14 @@ public class PolicyAdminServlet extends AdminServlet {
         if (colon > -1) {
             implName = implName1.substring(0, colon);
             instName = implName1.substring(colon + 1);
-            params = getExtendedPluginInfo(getLocale(req), implType, implName, instName);
+            params = getExtendedPluginInfo(implName, instName);
         } else {
-            params = getExtendedPluginInfo(getLocale(req), implType, implName);
+            params = getExtendedPluginInfo(implName);
         }
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    private NameValuePairs getExtendedPluginInfo(Locale locale, String implType, String implName) {
+    private NameValuePairs getExtendedPluginInfo(String implName) {
         IExtendedPluginInfo ext_info = null;
         Object impl = null;
         IPolicyRule policy = mProcessor.getPolicyImpl(implName);
@@ -251,15 +249,13 @@ public class PolicyAdminServlet extends AdminServlet {
         if (ext_info == null) {
             nvps = new NameValuePairs();
         } else {
-            nvps = convertStringArrayToNVPairs(ext_info.getExtendedPluginInfo(locale));
+            nvps = convertStringArrayToNVPairs(ext_info.getExtendedPluginInfo());
         }
 
         return nvps;
     }
 
-    public NameValuePairs getExtendedPluginInfo(Locale locale, String pluginType,
-            String implName,
-            String instName) {
+    public NameValuePairs getExtendedPluginInfo(String implName, String instName) {
         IExtendedPluginInfo ext_info = null;
 
         Object impl = null;
@@ -281,7 +277,7 @@ public class PolicyAdminServlet extends AdminServlet {
         if (ext_info == null) {
             nvps = new NameValuePairs();
         } else {
-            nvps = convertStringArrayToNVPairs(ext_info.getExtendedPluginInfo(locale));
+            nvps = convertStringArrayToNVPairs(ext_info.getExtendedPluginInfo());
 
         }
 

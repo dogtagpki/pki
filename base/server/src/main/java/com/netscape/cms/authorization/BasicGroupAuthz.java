@@ -19,7 +19,6 @@ package com.netscape.cms.authorization;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.server.authorization.AuthzManagerConfig;
@@ -74,9 +73,8 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
-        String[] s = Utils.getStringArrayFromVector(extendedPluginInfo);
-        return s;
+    public String[] getExtendedPluginInfo() {
+        return Utils.getStringArrayFromVector(extendedPluginInfo);
     }
 
     @Override

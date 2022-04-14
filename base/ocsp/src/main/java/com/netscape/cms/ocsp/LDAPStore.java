@@ -106,6 +106,10 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     }
 
     @Override
+    public String[] getExtendedPluginInfo() {
+        return getExtendedPluginInfo(Locale.getDefault());
+    }
+
     public String[] getExtendedPluginInfo(Locale locale) {
         Vector<String> v = new Vector<>();
 

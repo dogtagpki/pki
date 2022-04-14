@@ -20,7 +20,6 @@ package com.netscape.cms.crl;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
-import java.util.Locale;
 
 import org.dogtagpki.server.ca.ICMSCRLExtension;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
@@ -141,7 +140,7 @@ public class CMSAuthorityKeyIdentifierExtension
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 //"type;choice(CRLExtension,CRLEntryExtension);CRL Extension Type. "+
                 //"This field is not editable.",

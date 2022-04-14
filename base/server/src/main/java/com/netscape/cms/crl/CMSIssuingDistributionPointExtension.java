@@ -18,7 +18,6 @@
 package com.netscape.cms.crl;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.dogtagpki.server.ca.ICMSCRLExtension;
@@ -311,7 +310,7 @@ public class CMSIssuingDistributionPointExtension
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         StringBuffer sb_reasons = new StringBuffer();
         sb_reasons.append(reasonFlags[1]);
 

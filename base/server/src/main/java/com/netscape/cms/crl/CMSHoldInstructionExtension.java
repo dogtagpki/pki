@@ -18,7 +18,6 @@
 package com.netscape.cms.crl;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import org.dogtagpki.server.ca.ICMSCRLExtension;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -129,7 +128,7 @@ public class CMSHoldInstructionExtension
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 //"type;choice(CRLExtension,CRLEntryExtension);"+
                 //"CRL Entry Extension type. This field is not editable.",

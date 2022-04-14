@@ -19,7 +19,6 @@ package com.netscape.cms.publish.mappers;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -102,7 +101,7 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String params[] = {
                 "dnPattern;string;Describes how to form the Ldap Subject name in" +
                         " the directory.  Example 1:  'uid=CertMgr, o=Fedora'.  Example 2:" +

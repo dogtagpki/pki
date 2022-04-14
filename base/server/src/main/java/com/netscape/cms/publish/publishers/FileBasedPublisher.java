@@ -31,7 +31,6 @@ import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -109,7 +108,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 PROP_DIR
                         + ";string;Directory in which to put the files (absolute path or relative path to cert-* instance directory).",

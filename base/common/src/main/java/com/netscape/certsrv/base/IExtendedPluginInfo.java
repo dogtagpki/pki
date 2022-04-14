@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-import java.util.Locale;
-
 /**
  * Plugin which can return extended information to console
  * <p>
@@ -74,6 +72,6 @@ public interface IExtendedPluginInfo {
      * "port;number;Which port number do you want to use"
      *
      */
-    public String[] getExtendedPluginInfo(Locale locale);
+    public String[] getExtendedPluginInfo();
 
 }

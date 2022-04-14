@@ -23,7 +23,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.Vector;
 
 import javax.servlet.ServletException;
@@ -612,8 +611,8 @@ public class RollingLogFile extends LogFile {
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
-        String[] p = super.getExtendedPluginInfo(locale);
+    public String[] getExtendedPluginInfo() {
+        String[] p = super.getExtendedPluginInfo();
         Vector<String> info = new Vector<>();
 
         for (int i = 0; i < p.length; i++) {

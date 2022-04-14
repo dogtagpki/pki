@@ -23,7 +23,6 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.server.ca.CAEngine;
@@ -82,7 +81,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 "certAttr;string;LDAP attribute in which to store the certificate",
                 IExtendedPluginInfo.HELP_TOKEN +

@@ -20,7 +20,6 @@ package org.dogtagpki.legacy.server.policy.extensions;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.core.policy.SubjAltNameGN;
@@ -305,7 +304,7 @@ public class SubjectAltNameExt extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
 
         // extended plugin info.
         Vector<String> info = new Vector<>();

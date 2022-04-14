@@ -20,7 +20,6 @@ package com.netscape.cms.jobs;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Locale;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -90,7 +89,7 @@ public class PublishCertsJob extends AJobBase
         };
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String s[] = {
                 IExtendedPluginInfo.HELP_TEXT +
                         "; A job that checks for valid certificates in the " +

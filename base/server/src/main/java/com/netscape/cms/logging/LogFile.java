@@ -48,7 +48,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -1582,7 +1581,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         if (mType.equals(ILogger.PROP_SIGNED_AUDIT)) {
             String[] params = {
                     PROP_TYPE

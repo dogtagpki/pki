@@ -18,7 +18,6 @@
 package org.dogtagpki.legacy.server.policy.constraints;
 
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -65,7 +64,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String params[] = {
                 "algorithms;choice(RSA\\,DSA,RSA,DSA);Certificate's key can be one of these algorithms",
                 IExtendedPluginInfo.HELP_TOKEN +

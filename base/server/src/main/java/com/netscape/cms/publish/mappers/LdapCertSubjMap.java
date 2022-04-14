@@ -18,7 +18,6 @@
 package com.netscape.cms.publish.mappers;
 
 import java.security.cert.X509Certificate;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -126,7 +125,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 "certSubjNameAttr;string;Name of Ldap attribute containing cert subject name",
                 "searchBase;string;Base DN to search from",

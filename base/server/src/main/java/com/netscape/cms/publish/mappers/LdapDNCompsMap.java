@@ -19,7 +19,6 @@ package com.netscape.cms.publish.mappers;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -126,7 +125,7 @@ public class LdapDNCompsMap
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] s = {
                 "baseDN;string;Base to search from. E.g ou=Engineering,o=Fedora",
                 "dnComps;string;Comma-separated list of attributes to put in the DN",

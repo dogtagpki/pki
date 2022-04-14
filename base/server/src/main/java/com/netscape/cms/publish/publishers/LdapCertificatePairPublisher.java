@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.publishers;
 
-import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -69,7 +68,7 @@ public class LdapCertificatePairPublisher
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String s[] = {
                 "crossCertPairAttr;string;Name of Ldap attribute in which to store cross certificates",
                 "caObjectClass;string;The name of the objectclasses which should be " +

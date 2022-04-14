@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.dogtagpki.server.ca.CAEngine;
@@ -207,7 +206,7 @@ public class RenewalNotificationJob
      * holds help text for this plugin
      */
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String s[] = {
                 IExtendedPluginInfo.HELP_TEXT +
                         "; A job that checks for expiring or expired certs" +

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
@@ -107,7 +106,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         Vector<String> v = new Vector<>();
 
         v.addElement(PROP_CRITICAL +

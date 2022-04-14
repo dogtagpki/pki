@@ -19,7 +19,6 @@ package org.dogtagpki.legacy.server.policy.extensions;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.core.policy.GeneralNamesConfig;
@@ -243,7 +242,7 @@ public class IssuerAltNameExt extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         return mInfo;
     }
 

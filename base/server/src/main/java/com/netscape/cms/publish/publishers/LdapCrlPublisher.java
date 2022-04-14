@@ -19,7 +19,6 @@ package com.netscape.cms.publish.publishers;
 
 import java.security.cert.CRLException;
 import java.security.cert.X509CRL;
-import java.util.Locale;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -86,7 +85,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 "crlAttr;string;Name of Ldap attribute in which to store the CRL",
                 "crlObjectClass;string;The name of the objectclasses which should be " +

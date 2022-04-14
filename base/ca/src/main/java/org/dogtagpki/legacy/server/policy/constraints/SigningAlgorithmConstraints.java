@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.server.policy.constraints;
 
-import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -368,7 +367,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         if (!winnowedByKey) {
             try {
                 winnowByKey();

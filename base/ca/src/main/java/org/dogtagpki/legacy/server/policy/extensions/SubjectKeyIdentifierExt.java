@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
@@ -354,7 +353,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
      * Gets extended plugin info for pretty Console displays.
      */
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 PROP_CRITICAL + ";boolean;RFC 2459 recommendation: MUST NOT be marked critical.",
                 PROP_KEYID_TYPE + ";" +

@@ -19,7 +19,6 @@ package org.dogtagpki.legacy.server.policy.constraints;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
@@ -83,7 +82,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
     }
 
     @Override
-    public String[] getExtendedPluginInfo(Locale locale) {
+    public String[] getExtendedPluginInfo() {
         String[] params = {
                 PROP_PRE_AGENT_APPROVAL_CHECKING
                         + ";boolean;If checked, check subject name uniqueness BEFORE agent approves, (else checks AFTER approval)",
