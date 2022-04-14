@@ -1,0 +1,2 @@
+This package is a "meta-package" whose dependencies pull in all of the
+packages comprising the ${PRODUCT_NAME} Suite.

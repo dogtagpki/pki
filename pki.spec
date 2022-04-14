@@ -799,6 +799,7 @@ app_server=tomcat-9.0
 
 %cmake \
     --no-warn-unused-cli \
+    -DPRODUCT_NAME="%{product_name}" \
     -DVERSION=%{version}-%{release} \
     -DVAR_INSTALL_DIR:PATH=/var \
     -DP11_KIT_TRUST=/etc/alternatives/libnssckbi.so.%{_arch} \
@@ -820,9 +821,10 @@ app_server=tomcat-9.0
     -DWITH_TPS:BOOL=%{?with_tps:ON}%{!?with_tps:OFF} \
     -DWITH_ACME:BOOL=%{?with_acme:ON}%{!?with_acme:OFF} \
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
-    -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
     -DTHEME=%{?with_theme:%{theme}} \
+    -DWITH_META:BOOL=%{?with_meta:ON}%{!?with_meta:OFF} \
+    -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
     -B %{_vpath_builddir}
 
 cd %{_vpath_builddir}
@@ -852,17 +854,6 @@ cd %{_vpath_builddir}
 
 %if %{with test}
 ctest --output-on-failure
-%endif
-
-%if %{with meta}
-%{__mkdir_p} %{buildroot}%{_datadir}/doc/pki
-
-cat > %{buildroot}%{_datadir}/doc/pki/README << EOF
-This package is a "meta-package" whose dependencies pull in all of the
-packages comprising the %{product_name} Suite.
-EOF
-
-# with meta
 %endif
 
 # Customize client library links in /usr/share/pki/lib

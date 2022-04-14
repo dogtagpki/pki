@@ -404,3 +404,7 @@ endif (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
 if (BUILD_PKI_CONSOLE)
     add_subdirectory(console)
 endif (BUILD_PKI_CONSOLE)
+
+if(WITH_META)
+    add_subdirectory(meta)
+endif(WITH_META)

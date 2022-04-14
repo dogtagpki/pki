@@ -15,6 +15,10 @@ set(CMAKE_INSTALL_MESSAGE NEVER)
 # Un-comment the following line to add 'javac' options (e. g. - "-g" debugging)
 set(CMAKE_JAVA_COMPILE_FLAGS "-Xlint:deprecation")
 
+if (NOT DEFINED PRODUCT_NAME)
+    set(PRODUCT_NAME "Dogtag PKI")
+endif(NOT DEFINED PRODUCT_NAME)
+
 if (NOT DEFINED VERSION)
     set(VERSION "10.0.0")
 endif(NOT DEFINED VERSION)
@@ -49,6 +53,7 @@ option(WITH_TKS "Build TKS package" ON)
 option(WITH_TPS "Build TPS package" ON)
 option(WITH_ACME "Build ACME package" ON)
 option(WITH_JAVADOC "Build Javadoc package" ON)
+option(WITH_META "Build meta package" ON)
 option(WITH_TEST "Run unit tests" ON)
 
 set(APPLICATION_VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}.${APPLICATION_VERSION_PATCH}")
