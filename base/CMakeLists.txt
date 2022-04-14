@@ -326,80 +326,75 @@ find_file(NMCLF_EN_JAR
         /usr/share/java
 )
 
+add_subdirectory(util)
+add_subdirectory(common)
+add_subdirectory(tools)
 
-# The order is important!
-if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
-    add_subdirectory(util)
-    add_subdirectory(common)
-    add_subdirectory(tools)
+if(WITH_SERVER)
 
-    if(WITH_SERVER)
+    add_subdirectory(${APP_SERVER})
+    add_subdirectory(server)
 
-        add_subdirectory(${APP_SERVER})
-        add_subdirectory(server)
+    list(APPEND PKI_JAVADOC_SOURCEPATH
+        ${CMAKE_SOURCE_DIR}/base/server/src/main/java)
 
-        list(APPEND PKI_JAVADOC_SOURCEPATH
-            ${CMAKE_SOURCE_DIR}/base/server/src/main/java)
+    list(APPEND PKI_JAVADOC_SUBPACKAGES
+        com.netscape.cms)
 
-        list(APPEND PKI_JAVADOC_SUBPACKAGES
-            com.netscape.cms)
+    list(APPEND PKI_JAVADOC_CLASSPATH
+        ${PKI_TOMCAT_JAR}
+        ${PKI_CMS_JAR})
 
-        list(APPEND PKI_JAVADOC_CLASSPATH
-            ${PKI_TOMCAT_JAR}
-            ${PKI_CMS_JAR})
+    list(APPEND PKI_JAVADOC_DEPENDS
+        pki-tomcat-jar
+        pki-cms-jar)
 
-        list(APPEND PKI_JAVADOC_DEPENDS
-            pki-tomcat-jar
-            pki-cms-jar)
+endif(WITH_SERVER)
 
-    endif(WITH_SERVER)
+if(WITH_CA)
+    add_subdirectory(ca)
+    list(APPEND PKI_JAVADOC_DEPENDS pki-ca-jar)
+endif(WITH_CA)
 
-    if(WITH_CA)
-        add_subdirectory(ca)
-        list(APPEND PKI_JAVADOC_DEPENDS pki-ca-jar)
-    endif(WITH_CA)
+if(WITH_KRA)
+    add_subdirectory(kra)
+    list(APPEND PKI_JAVADOC_DEPENDS pki-kra-jar)
+endif(WITH_KRA)
 
-    if(WITH_KRA)
-        add_subdirectory(kra)
-        list(APPEND PKI_JAVADOC_DEPENDS pki-kra-jar)
-    endif(WITH_KRA)
+if(WITH_OCSP)
+    add_subdirectory(ocsp)
+    list(APPEND PKI_JAVADOC_DEPENDS pki-ocsp-jar)
+endif(WITH_OCSP)
 
-    if(WITH_OCSP)
-        add_subdirectory(ocsp)
-        list(APPEND PKI_JAVADOC_DEPENDS pki-ocsp-jar)
-    endif(WITH_OCSP)
+if(WITH_TKS)
+    add_subdirectory(tks)
+    list(APPEND PKI_JAVADOC_DEPENDS pki-tks-jar)
+endif(WITH_TKS)
 
-    if(WITH_TKS)
-        add_subdirectory(tks)
-        list(APPEND PKI_JAVADOC_DEPENDS pki-tks-jar)
-    endif(WITH_TKS)
+if(WITH_TPS)
+    add_subdirectory(tps)
+    list(APPEND PKI_JAVADOC_DEPENDS pki-tps-jar)
+endif(WITH_TPS)
 
-    if(WITH_TPS)
-        add_subdirectory(tps)
-        list(APPEND PKI_JAVADOC_DEPENDS pki-tps-jar)
-    endif(WITH_TPS)
+if(WITH_ACME)
+    add_subdirectory(acme)
+endif(WITH_ACME)
 
-    if(WITH_ACME)
-        add_subdirectory(acme)
-    endif(WITH_ACME)
+if(WITH_JAVADOC)
+    add_subdirectory(javadoc)
+endif(WITH_JAVADOC)
 
-    if(WITH_JAVADOC)
-        add_subdirectory(javadoc)
-    endif(WITH_JAVADOC)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/VERSION
+    ${CMAKE_CURRENT_BINARY_DIR}/VERSION
+)
 
-    configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/VERSION
+install(
+    FILES
         ${CMAKE_CURRENT_BINARY_DIR}/VERSION
-    )
-
-    install(
-        FILES
-            ${CMAKE_CURRENT_BINARY_DIR}/VERSION
-        DESTINATION
-            ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}
-    )
-
-endif (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}
+)
 
 if (BUILD_PKI_CONSOLE)
     add_subdirectory(console)

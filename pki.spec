@@ -809,7 +809,6 @@ app_server=tomcat-9.0
     -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
     -DAPP_SERVER=$app_server \
     -DNSS_DEFAULT_DB_TYPE=%{nss_default_db_type} \
-    -DBUILD_PKI_CORE:BOOL=ON \
     -DPYTHON_EXECUTABLE=%{python_executable} \
 %if ! %{with server} && ! %{with acme} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
     -DWITH_SERVER:BOOL=OFF \

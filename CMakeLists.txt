@@ -89,21 +89,15 @@ include(JUnit)
 
 # search for libraries
 
-# required for all PKI components EXCEPT Theme-based components
-if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
-    find_package(NSPR REQUIRED)
-    find_package(NSS REQUIRED)
-endif ()
+find_package(NSPR REQUIRED)
+find_package(NSS REQUIRED)
 
 find_package(Java REQUIRED)
 find_package(JNI REQUIRED)
 
-# ONLY required for PKI_CORE
-if (BUILD_PKI_CORE)
-    find_package(Ldap REQUIRED)
-    # required for native 'tpsclient' utility
-    find_package(APR REQUIRED)
-endif ()
+find_package(Ldap REQUIRED)
+# required for native 'tpsclient' utility
+find_package(APR REQUIRED)
 
 # Find out if we have threading available
 set(CMAKE_THREAD_PREFER_PTHREADS ON)
@@ -120,9 +114,7 @@ endif()
 
 # Detect default Python interpreter
 # Set PYTHON3_SITE_PACKAGES
-if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
-    include(DefinePythonSitePackages)
-endif ()
+include(DefinePythonSitePackages)
 
 # config.h checks
 include(ConfigureChecks)
@@ -163,10 +155,7 @@ add_custom_target(clean-cmake
         ${CMAKE_BINARY_DIR}/Makefile
 )
 
-# check subdirectories
-if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
-    add_subdirectory(base)
-endif ()
+add_subdirectory(base)
 
 if (NOT "${THEME}" STREQUAL "")
     add_subdirectory(themes)
