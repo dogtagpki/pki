@@ -13,6 +13,6 @@ set(CERTIFICATE_SYSTEM_NAME "${CERTIFICATE_SYSTEM_THEME} Certificate System ${CE
 
 add_subdirectory(common-ui)
 
-if (BUILD_PKI_CONSOLE)
+if (WITH_CONSOLE)
     add_subdirectory(console-ui)
-endif (BUILD_PKI_CONSOLE)
+endif (WITH_CONSOLE)

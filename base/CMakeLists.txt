@@ -396,9 +396,9 @@ install(
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}
 )
 
-if (BUILD_PKI_CONSOLE)
+if (WITH_CONSOLE)
     add_subdirectory(console)
-endif (BUILD_PKI_CONSOLE)
+endif (WITH_CONSOLE)
 
 if(WITH_META)
     add_subdirectory(meta)
