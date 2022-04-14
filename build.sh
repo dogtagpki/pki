@@ -10,7 +10,7 @@ SCRIPT_NAME=`basename "$SCRIPT_PATH"`
 SRC_DIR=`dirname "$SCRIPT_PATH"`
 
 NAME=pki
-WORK_DIR="$HOME/build/$NAME"
+WORK_DIR=
 
 SOURCE_TAG=
 SPEC_TEMPLATE="$SRC_DIR/$NAME.spec"
@@ -34,7 +34,7 @@ usage() {
     echo
     echo "Options:"
     echo "    --name=<name>          Package name (default: $NAME)."
-    echo "    --work-dir=<path>      Working directory (default: $WORK_DIR)."
+    echo "    --work-dir=<path>      Working directory (default: ~/build/$NAME)."
     echo "    --source-tag=<tag>     Generate RPM sources from a source tag."
     echo "    --spec=<file>          Use the specified RPM spec (default: $SPEC_TEMPLATE)."
     echo "    --with-timestamp       Append timestamp to release number."
@@ -225,7 +225,7 @@ while getopts v-: arg ; do
             NAME="$LONG_OPTARG"
             ;;
         work-dir=?*)
-            WORK_DIR="$(readlink -f "$LONG_OPTARG")"
+            WORK_DIR=$(readlink -f "$LONG_OPTARG")
             ;;
         source-tag=?*)
             SOURCE_TAG="$LONG_OPTARG"
@@ -301,6 +301,10 @@ else
     BUILD_TARGET=$1
 fi
 
+if [ "$WORK_DIR" = "" ] ; then
+    WORK_DIR="$HOME/build/$NAME"
+fi
+
 if [ "$DEBUG" = true ] ; then
     echo "NAME: $NAME"
     echo "WORK_DIR: $WORK_DIR"
@@ -314,6 +318,17 @@ if [ "$BUILD_TARGET" != "src" ] &&
     echo "ERROR: Invalid build target: $BUILD_TARGET" >&2
     exit 1
 fi
+
+################################################################################
+# Initialization
+################################################################################
+
+if [ "$VERBOSE" = true ] ; then
+    echo "Initializing $WORK_DIR"
+fi
+
+mkdir -p "$WORK_DIR"
+cd "$WORK_DIR"
 
 VERSION="$(rpmspec -P "$SPEC_TEMPLATE" | grep "^Version:" | awk '{print $2;}')"
 
@@ -356,17 +371,6 @@ if [ "$DEBUG" = true ] ; then
 fi
 
 echo "Building $NAME-$VERSION-$RELEASE${_TIMESTAMP}${_COMMIT_ID}"
-
-################################################################################
-# Initialize working directory
-################################################################################
-
-if [ "$VERBOSE" = true ] ; then
-    echo "Initializing $WORK_DIR"
-fi
-
-mkdir -p "$WORK_DIR"
-cd "$WORK_DIR"
 
 rm -rf BUILD
 rm -rf BUILDROOT
