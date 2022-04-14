@@ -52,7 +52,7 @@ if(WITH_TEST)
         SOURCES
             src/test/java/*.java
         CLASSPATH
-            ${JAKARTA_ACTIVATION_JAR}
+            ${JAVAX_ACTIVATION_JAR}
             ${JAXB_API_JAR} ${JAXB_IMPL_JAR}
             ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
             ${JSS_JAR}
@@ -80,7 +80,7 @@ if(WITH_TEST)
     
     add_junit_test(test-pki-certsrv
         CLASSPATH
-            ${JAKARTA_ACTIVATION_JAR}
+            ${JAVAX_ACTIVATION_JAR}
             ${JAXB_API_JAR} ${JAXB_IMPL_JAR}
             ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
             ${JSS_JAR}
@@ -121,7 +121,9 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_BASE_JAR} lib/jackson-jaxrs-base.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_JSON_PROVIDER_JAR} lib/jackson-jaxrs-json-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXB_ANNOTATIONS_JAR} lib/jackson-module-jaxb-annotations.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAVAX_ACTIVATION_JAR} lib/javax.activation.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAVAX_ANNOTATIONS_API_JAR} lib/javax.annotations-api.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} lib/jaxb-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} lib/jaxrs-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JBOSS_LOGGING_JAR} lib/jboss-logging.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} lib/jss.jar
@@ -137,18 +139,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_API_JAR} lib/slf4j-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_JDK14_JAR} lib/slf4j-jdk14.jar
 )
-
-if(JAVA_VERSION GREATER 10)
-    add_custom_target(pki-java11plus-lib ALL
-        DEPENDS pki-lib
-        COMMENT "Creating links for library required in Java 11+")
-
-    add_custom_command(
-        TARGET pki-java11plus-lib
-        COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} lib/jaxb-api.jar
-        COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAKARTA_ACTIVATION_JAR} lib/jakarta.activation.jar
-    )
-endif(JAVA_VERSION GREATER 10)
 
 add_custom_target(pki-man ALL
     COMMENT "Creating PKI manuals")

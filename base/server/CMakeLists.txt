@@ -129,7 +129,9 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_BASE_JAR} common/lib/jackson-jaxrs-base.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_JSON_PROVIDER_JAR} common/lib/jackson-jaxrs-json-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXB_ANNOTATIONS_JAR} common/lib/jackson-module-jaxb-annotations.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAVAX_ACTIVATION_JAR} common/lib/javax.activation.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAVAX_ANNOTATIONS_API_JAR} common/lib/javax.annotations-api.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} common/lib/jaxb-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} common/lib/jaxrs-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JBOSS_LOGGING_JAR} common/lib/jboss-logging.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_SYMKEY_JAR} common/lib/jss-symkey.jar
@@ -142,18 +144,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JAXRS_JAR} common/lib/resteasy-jaxrs.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${TOMCATJSS_JAR} common/lib/tomcatjss.jar
 )
-
-if(JAVA_VERSION GREATER 10)
-    add_custom_target(pki-server-java11plus-lib ALL
-        DEPENDS pki-server-common-lib
-        COMMENT "Creating links for server library required in Java 11+")
-
-    add_custom_command(
-        TARGET pki-server-java11plus-lib
-        COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} common/lib/jaxb-api.jar
-        COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAKARTA_ACTIVATION_JAR} common/lib/jakarta.activation.jar
-    )
-endif(JAVA_VERSION GREATER 10)
 
 # Create /usr/share/pki/server/webapps/pki/WEB-INF/lib. This can be customized for different platforms in RPM spec.
 

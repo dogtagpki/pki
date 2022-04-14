@@ -158,7 +158,7 @@ find_file(JAXB_API_JAR
         /usr/share/java
 )
 
-find_file(JAKARTA_ACTIVATION_JAR
+find_file(JAVAX_ACTIVATION_JAR
     NAMES
         jakarta.activation.jar
         jakarta-activation.jar

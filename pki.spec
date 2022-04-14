@@ -787,13 +787,6 @@ This package provides test suite for %{product_name}.
 %build
 ################################################################################
 
-# get Java <major>.<minor> version number
-java_version=`%{java_home}/bin/java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java.version *= *\([0-9]\+\.[0-9]\+\).*/\1/p'`
-
-# if <major> == 1, get <minor> version number
-# otherwise get <major> version number
-java_version=`echo $java_version | sed -e 's/^1\.//' -e 's/\..*$//'`
-
 # assume tomcat app_server
 app_server=tomcat-9.0
 
@@ -803,7 +796,6 @@ app_server=tomcat-9.0
     -DVERSION=%{version}-%{release} \
     -DVAR_INSTALL_DIR:PATH=/var \
     -DP11_KIT_TRUST=/etc/alternatives/libnssckbi.so.%{_arch} \
-    -DJAVA_VERSION=${java_version} \
     -DJAVA_HOME=%{java_home} \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
     -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
