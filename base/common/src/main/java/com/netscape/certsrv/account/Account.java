@@ -39,6 +39,7 @@ import org.xml.sax.InputSource;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.base.RESTMessage;
 
 /**
@@ -49,8 +50,11 @@ import com.netscape.certsrv.base.RESTMessage;
 public class Account extends RESTMessage {
 
     String id;
+    @JsonProperty("FullName")
     String fullName;
+    @JsonProperty("Email")
     String email;
+    @JsonProperty("Roles")
     Collection<String> roles = new TreeSet<>();
 
     public String getID() {
