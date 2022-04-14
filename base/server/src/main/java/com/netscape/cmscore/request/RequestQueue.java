@@ -143,7 +143,7 @@ public class RequestQueue {
      * The cloned request that is returned is LOCKED.
      * The caller MUST release the request object by calling releaseRequest().
      *
-     * @param r request to be cloned
+     * @param request request to be cloned
      * @return cloned request
      * @exception EBaseException failed to clone request
      */

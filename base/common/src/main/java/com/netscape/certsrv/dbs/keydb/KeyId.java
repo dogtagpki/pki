@@ -75,7 +75,7 @@ public class KeyId implements JSONSerializer {
     /**
      * Creates a new KeyId from its byte array representation.
      *
-     * @param id a byte array containing the identifier.
+     * @param bytes a byte array containing the identifier.
      */
     public KeyId(byte[] bytes) {
         value = bytes;
