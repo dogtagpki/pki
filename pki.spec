@@ -813,9 +813,9 @@ app_server=tomcat-9.0
     -DWITH_ACME:BOOL=%{?with_acme:ON}%{!?with_acme:OFF} \
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
     -DWITH_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
-    -DTHEME=%{?with_theme:%{theme}} \
     -DWITH_META:BOOL=%{?with_meta:ON}%{!?with_meta:OFF} \
-    -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
+    -DTHEME=%{?with_theme:%{theme}} \
+    -DRUN_TESTS:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
     -B %{_vpath_builddir}
 
 cd %{_vpath_builddir}

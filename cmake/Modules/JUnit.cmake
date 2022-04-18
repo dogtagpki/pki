@@ -50,7 +50,7 @@ function(add_junit_test target)
         DEPENDS ${depends}
         COMMENT "Running JUnit ${target}")
 
-    if(WITH_TEST)
+    if(RUN_TESTS)
         add_custom_command(
             TARGET ${target}
             COMMAND
@@ -62,6 +62,6 @@ function(add_junit_test target)
                 com.netscape.test.TestRunner
                 ${tests}
         )
-    endif(WITH_TEST)
+    endif(RUN_TESTS)
 
 endfunction(add_junit_test)

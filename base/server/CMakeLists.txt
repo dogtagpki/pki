@@ -47,7 +47,7 @@ jar(pki-cms-jar
 
 set(PKI_CMS_JAR ${CMAKE_BINARY_DIR}/dist/pki-cms.jar CACHE INTERNAL "pki-cms jar file")
 
-if(WITH_TEST)
+if(RUN_TESTS)
     # build pki-server-test
     javac(pki-server-test-classes
         DEPENDS
@@ -94,7 +94,7 @@ if(WITH_TEST)
         REPORTS_DIR
             reports
     )
-endif(WITH_TEST)
+endif(RUN_TESTS)
 
 # Create /usr/share/pki/server/lib. This can be customized for different platforms in RPM spec.
 

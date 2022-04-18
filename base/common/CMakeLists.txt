@@ -47,7 +47,7 @@ jar(pki-certsrv-jar
 
 set(PKI_CERTSRV_JAR ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar CACHE INTERNAL "pki-certsrv jar file")
 
-if(WITH_TEST)
+if(RUN_TESTS)
     javac(pki-certsrv-test-classes
         SOURCES
             src/test/java/*.java
@@ -97,7 +97,7 @@ if(WITH_TEST)
         DEPENDS
             pki-certsrv-test-classes
     )
-endif(WITH_TEST)
+endif(RUN_TESTS)
 
 # Create /usr/share/pki/lib. This can be customized for different platforms in RPM spec.
 

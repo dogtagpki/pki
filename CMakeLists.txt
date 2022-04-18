@@ -50,13 +50,13 @@ option(WITH_TPS "Build TPS package" ON)
 option(WITH_ACME "Build ACME package" ON)
 option(WITH_JAVADOC "Build Javadoc package" ON)
 option(WITH_META "Build meta package" ON)
-option(WITH_TEST "Run unit tests" ON)
+option(RUN_TESTS "Run unit tests" ON)
 
 set(APPLICATION_VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}.${APPLICATION_VERSION_PATCH}")
 
-if(WITH_TEST)
+if(RUN_TESTS)
     enable_testing()
-endif(WITH_TEST)
+endif(RUN_TESTS)
 
 # where to look first for cmake modules
 # (before ${CMAKE_ROOT}/Modules/ is checked)

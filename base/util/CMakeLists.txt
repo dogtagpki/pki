@@ -42,7 +42,7 @@ install(
 
 set(PKI_CMSUTIL_JAR ${CMAKE_BINARY_DIR}/dist/pki-cmsutil.jar CACHE INTERNAL "pki-cmsutil jar file")
 
-if(WITH_TEST)
+if(RUN_TESTS)
     javac(pki-util-test-classes
         SOURCES
             src/test/java/*.java
@@ -83,7 +83,7 @@ if(WITH_TEST)
         DEPENDS
             pki-util-test-classes
     )
-endif(WITH_TEST)
+endif(RUN_TESTS)
 
 install(
     FILES
