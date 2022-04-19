@@ -261,21 +261,12 @@ public class PKCS10Client {
 
             if (alg.equals("rsa")) {
 
-                Usage[] usages;
-                Usage[] usagesMask;
-
-                if (rsa_keygen_wrap_unwrap_ops) {
-
-                    if (verbose)
-                        System.out.println("PKCS10Client: rsa_keygen_wrap_unwrap_ops is true");
-
-                    usages = CryptoUtil.RSA_KEYPAIR_USAGES;
-                    usagesMask = CryptoUtil.RSA_KEYPAIR_USAGES_MASK;
-
-                } else {
-                    usages = null;
-                    usagesMask = null;
+                if (verbose) {
+                    System.out.println("PKCS10Client: rsa_keygen_wrap_unwrap_ops: " + rsa_keygen_wrap_unwrap_ops);
                 }
+
+                Usage[] usages = rsa_keygen_wrap_unwrap_ops ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
+                Usage[] usagesMask = rsa_keygen_wrap_unwrap_ops ? CryptoUtil.RSA_KEYPAIR_USAGES_MASK : null;
 
                 pair = CryptoUtil.generateRSAKeyPair(
                         token,
@@ -285,17 +276,8 @@ public class PKCS10Client {
 
             }  else if (alg.equals("ec")) {
 
-                Usage[] usages;
-                Usage[] usagesMask;
-
-                if (ec_ssl_ecdh) {
-                    usages = null;
-                    usagesMask = CryptoUtil.ECDH_USAGES_MASK;
-
-                } else {
-                    usages = null;
-                    usagesMask = CryptoUtil.ECDHE_USAGES_MASK;
-                }
+                Usage[] usages = null;
+                Usage[] usagesMask = ec_ssl_ecdh ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
 
                 pair = CryptoUtil.generateECCKeyPair(
                         token,

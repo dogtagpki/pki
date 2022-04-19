@@ -61,6 +61,7 @@ import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PQGParamGenException;
@@ -987,10 +988,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
         String ectype = getECType(certType);
 
         try {
-            if (ectype.equals("ECDHE"))
-                pair = CryptoUtil.generateECCKeyPair(token, keyCurve, null, CryptoUtil.ECDHE_USAGES_MASK);
-            else
-                pair = CryptoUtil.generateECCKeyPair(token, keyCurve, null, CryptoUtil.ECDH_USAGES_MASK);
+            Usage[] usages = null;
+            Usage[] usagesMask = ectype.equals("ECDHE") ? CryptoUtil.ECDHE_USAGES_MASK : CryptoUtil.ECDH_USAGES_MASK;
+
+            pair = CryptoUtil.generateECCKeyPair(
+                    token,
+                    keyCurve,
+                    usages,
+                    usagesMask);
 
         } catch (NotInitializedException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()), e);

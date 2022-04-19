@@ -505,17 +505,8 @@ public class CRMFPopClient {
                 // ECDHE_USAGES_MASK: used for other certs including SSL server cert
                 // that does ECDHE ECDSA
 
-                Usage[] usages;
-                Usage[] usagesMask;
-
-                if (sslECDH) {
-                    usages = null;
-                    usagesMask = CryptoUtil.ECDH_USAGES_MASK;
-
-                } else {
-                    usages = null;
-                    usagesMask = CryptoUtil.ECDHE_USAGES_MASK;
-                }
+                Usage[] usages = null;
+                Usage[] usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
 
                 keyPair = CryptoUtil.generateECCKeyPair(
                         token,

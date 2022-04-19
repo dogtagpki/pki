@@ -126,17 +126,8 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         } else if ("RSA".equalsIgnoreCase(keyType)) {
 
-            Usage[] usages;
-            Usage[] usagesMask;
-
-            if (keyWrap) {
-                usages = CryptoUtil.RSA_KEYPAIR_USAGES;
-                usagesMask = CryptoUtil.RSA_KEYPAIR_USAGES_MASK;
-
-            } else {
-                usages = null;
-                usagesMask = null;
-            }
+            Usage[] usages = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
+            Usage[] usagesMask = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES_MASK : null;
 
             keyPair = nssdb.createRSAKeyPair(
                     token,
@@ -146,17 +137,8 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         } else if ("EC".equalsIgnoreCase(keyType)) {
 
-            Usage[] usages;
-            Usage[] usagesMask;
-
-            if (sslECDH) {
-                usages = null;
-                usagesMask = CryptoUtil.ECDH_USAGES_MASK;
-
-            } else {
-                usages = null;
-                usagesMask = CryptoUtil.ECDHE_USAGES_MASK;
-            }
+            Usage[] usages = null;
+            Usage[] usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
 
             keyPair = nssdb.createECKeyPair(
                     token,
