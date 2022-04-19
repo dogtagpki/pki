@@ -180,7 +180,7 @@ BuildRequires:    python3-six
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 5.2.0
-BuildRequires:    tomcatjss >= 8.1.0
+BuildRequires:    tomcatjss >= 8.2.0
 BuildRequires:    ldapjdk >= 5.2.0
 
 BuildRequires:    systemd-units
@@ -442,7 +442,7 @@ Requires:         systemd
 Requires(post):   systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
-Requires:         tomcatjss >= 8.1.0
+Requires:         tomcatjss >= 8.2.0
 
 # pki-healthcheck depends on the following library
 %if 0%{?rhel}
