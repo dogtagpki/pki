@@ -975,6 +975,13 @@ class PKIDeployer:
 
         return result['keyId']
 
+    def create_cert_request(self, tag, request):
+
+        logger.info('Creating %s cert request', tag)
+        response = self.client.createRequest(request)
+
+        return response['request']
+
     def setup_system_cert(self, nssdb, subsystem, tag, system_cert, request):
 
         logger.debug('PKIDeployer.setup_system_cert()')
@@ -1035,11 +1042,11 @@ class PKIDeployer:
 
         logger.info('- key ID: %s', request.systemCert.keyID)
 
-        logger.info('Creating %s cert request', tag)
-        response = self.client.createRequest(request)
-
-        request.systemCert.request = response['request']
+        request.systemCert.request = self.create_cert_request(tag, request)
         logger.debug('- request: %s', request.systemCert.request)
+
+        system_cert['token'] = request.systemCert.token
+        system_cert['request'] = request.systemCert.request
 
         if request.systemCert.type == 'remote':
 
@@ -1075,7 +1082,7 @@ class PKIDeployer:
 
             logger.info('Requesting %s cert from %s', tag, ca_url)
 
-            response['cert'] = self.request_cert(
+            system_cert['data'] = self.request_cert(
                 subsystem,
                 ca_url,
                 request.systemCert.requestType,
@@ -1092,15 +1099,13 @@ class PKIDeployer:
             logger.info('Creating %s cert', tag)
             response = self.client.createCert(request)
 
-        cert_pem = pki.nssdb.convert_cert(response['cert'], 'base64', 'pem').encode()
+            system_cert['data'] = response['cert']
+
+        cert_pem = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem').encode()
         cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
         logger.info('- serial: %s', hex(cert_obj.serial_number))
 
         logger.info('Storing cert and request for %s', tag)
-        system_cert['data'] = response['cert']
-        system_cert['request'] = response['request']
-        system_cert['token'] = response['token']
-
         subsystem.update_system_cert(system_cert)
 
         if tag != 'sslserver':
@@ -1116,7 +1121,7 @@ class PKIDeployer:
 
             nssdb.add_cert(
                 nickname=request.systemCert.nickname,
-                cert_data=response['cert'],
+                cert_data=system_cert['data'],
                 cert_format='base64',
                 token=request.systemCert.token,
                 use_jss=True)
