@@ -26,6 +26,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -58,17 +59,27 @@ public class TokenData {
     }
 
     String id;
+    @JsonProperty("TokenID")
     String tokenID;
+    @JsonProperty("UserID")
     String userID;
+    @JsonProperty("Type")
     String type;
 
+    @JsonProperty("Status")
     TokenStatusData status;
+    @JsonProperty("NextStates")
     Collection<TokenStatusData> nextStates;
 
+    @JsonProperty("AppletID")
     String appletID;
+    @JsonProperty("KeyInfo")
     String keyInfo;
+    @JsonProperty("Policy")
     String policy;
+    @JsonProperty("CreateTimestamp")
     Date createTimestamp;
+    @JsonProperty("ModifyTimestamp")
     Date modifyTimestamp;
 
     public String getID() {
