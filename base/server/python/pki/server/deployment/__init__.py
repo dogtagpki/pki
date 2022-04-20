@@ -982,6 +982,13 @@ class PKIDeployer:
 
         return response['request']
 
+    def create_cert(self, tag, request):
+
+        logger.info('Creating %s cert', tag)
+        response = self.client.createCert(request)
+
+        return response['cert']
+
     def setup_system_cert(self, nssdb, subsystem, tag, system_cert, request):
 
         logger.debug('PKIDeployer.setup_system_cert()')
@@ -1096,10 +1103,7 @@ class PKIDeployer:
 
             self.import_cert_request(subsystem, tag, request)
 
-            logger.info('Creating %s cert', tag)
-            response = self.client.createCert(request)
-
-            system_cert['data'] = response['cert']
+            system_cert['data'] = self.create_cert(tag, request)
 
         cert_pem = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem').encode()
         cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
