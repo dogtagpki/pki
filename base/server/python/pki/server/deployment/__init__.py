@@ -232,6 +232,43 @@ class PKIDeployer:
             subsystem_dict[0] = None
             self.mdict.update(subsystem_dict)
 
+    def get_key_params(self, cert_id):
+
+        key_type = self.mdict['pki_%s_key_type' % cert_id]
+        key_alg = self.mdict['pki_%s_key_algorithm' % cert_id]
+        key_size = self.mdict['pki_%s_key_size' % cert_id]
+
+        if key_type == 'rsa':
+
+            key_size = int(key_size)
+            curve = None
+
+            m = re.match(r'(.*)withRSA', key_alg)
+            if not m:
+                raise Exception('Invalid key algorithm: %s' % key_alg)
+
+            hash_alg = m.group(1)
+
+        elif key_type == 'ec' or key_type == 'ecc':
+
+            key_type = 'ec'
+            curve = key_size
+            key_size = None
+
+            if (cert_id in ['storage', 'transport']):
+                raise Exception('Invalid key type for KRA %s cert: %s' % (cert_id, key_type))
+
+            m = re.match(r'(.*)withEC', key_alg)
+            if not m:
+                raise Exception('Invalid key algorithm: %s' % key_alg)
+
+            hash_alg = m.group(1)
+
+        else:
+            raise Exception('Invalid key type: %s' % key_type)
+
+        return (key_type, key_size, curve, hash_alg)
+
     def configure_id_generators(self, subsystem):
 
         if subsystem.type in ['CA', 'KRA']:
