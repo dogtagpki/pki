@@ -824,7 +824,9 @@ class NSSDatabase(object):
                 request_file,
                 token=token,
                 key_type=key_type,
-                key_size=key_size)
+                key_size=key_size,
+                curve=curve,
+                hash_alg=hash_alg)
             return
 
         if cka_id is not None and not isinstance(cka_id, six.text_type):
@@ -1148,7 +1150,9 @@ class NSSDatabase(object):
             request_file,
             token=None,
             key_type=None,
-            key_size=None):
+            key_size=None,
+            curve=None,
+            hash_alg=None):
         '''
         Generate CSR using pki nss-cert-request command.
         In the future this will replace create_request().
@@ -1183,10 +1187,13 @@ class NSSDatabase(object):
             cmd.extend(['--key-type', key_type])
 
         if key_size:
-            if key_type == 'EC':
-                cmd.extend(['--curve', key_size])
-            else:
-                cmd.extend(['--key-size', key_size])
+            cmd.extend(['--key-size', str(key_size)])
+
+        if curve:
+            cmd.extend(['--curve', curve])
+
+        if hash_alg:
+            cmd.extend(['--hash', hash_alg])
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
