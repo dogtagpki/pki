@@ -88,12 +88,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             csr_file = os.path.join(tmpdir, 'sslserver.csr')
             cert_file = os.path.join(tmpdir, 'sslserver.crt')
 
+            (key_type, key_size, curve, hash_alg) = deployer.get_key_params('sslserver')
+
             nssdb.create_request(
                 subject_dn=deployer.mdict['pki_self_signed_subject'],
                 request_file=csr_file,
                 token=deployer.mdict['pki_self_signed_token'],
-                key_type=deployer.mdict['pki_sslserver_key_type'],
-                key_size=deployer.mdict['pki_sslserver_key_size'],
+                key_type=key_type,
+                key_size=key_size,
+                curve=curve,
+                hash_alg=hash_alg,
                 use_jss=True
             )
 
