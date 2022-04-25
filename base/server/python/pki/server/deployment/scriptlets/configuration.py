@@ -40,33 +40,6 @@ logger = logging.getLogger(__name__)
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def remove_temp_sslserver_cert(self, instance, sslserver):
-
-        # TODO: replace with pki-server cert-import sslserver
-
-        nickname = sslserver['nickname']
-        token = sslserver['token']
-
-        logger.info(
-            'Removing temp SSL server cert from internal token: %s',
-            nickname)
-
-        nssdb = instance.open_nssdb()
-
-        try:
-            # Remove temp SSL server cert from internal token.
-            # Remove temp key too if the perm cert uses HSM.
-            if pki.nssdb.normalize_token(token):
-                remove_key = True
-            else:
-                remove_key = False
-            nssdb.remove_cert(
-                nickname=nickname,
-                remove_key=remove_key)
-
-        finally:
-            nssdb.close()
-
     def import_perm_sslserver_cert(self, deployer, instance, cert):
 
         nickname = cert['nickname']
@@ -801,7 +774,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 timeout=deployer.request_timeout)
 
             # Remove temp SSL server cert.
-            self.remove_temp_sslserver_cert(instance, system_certs['sslserver'])
+            deployer.remove_temp_sslserver_cert(instance, system_certs['sslserver'])
 
             # Import perm SSL server cert unless it's already imported
             # earlier in external/standalone installation.
