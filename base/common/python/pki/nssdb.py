@@ -778,6 +778,8 @@ class NSSDatabase(object):
             request_file,
             token=None,
             noise_file=None,
+            key_id=None,
+            cka_id=None,
             key_type=None,
             key_size=None,
             curve=None,
@@ -785,7 +787,6 @@ class NSSDatabase(object):
             basic_constraints_ext=None,
             key_usage_ext=None,
             extended_key_usage_ext=None,
-            cka_id=None,
             subject_key_id=None,
             generic_exts=None,
             use_jss=False):
@@ -819,15 +820,21 @@ class NSSDatabase(object):
         """
 
         if use_jss:
+
             self.__create_request(
                 subject_dn,
                 request_file,
                 token=token,
+                key_id=key_id,
+                cka_id=cka_id,
                 key_type=key_type,
                 key_size=key_size,
                 curve=curve,
                 hash_alg=hash_alg)
             return
+
+        if cka_id is None and key_id is not None:
+            cka_id = key_id[2:]
 
         if cka_id is not None and not isinstance(cka_id, six.text_type):
             raise TypeError('cka_id must be a text string')
@@ -1149,6 +1156,8 @@ class NSSDatabase(object):
             subject_dn,
             request_file,
             token=None,
+            key_id=None,
+            cka_id=None,
             key_type=None,
             key_size=None,
             curve=None,
@@ -1176,6 +1185,12 @@ class NSSDatabase(object):
         cmd.extend(['nss-cert-request'])
         cmd.extend(['--subject', subject_dn])
         cmd.extend(['--csr', request_file])
+
+        if key_id is None and cka_id is not None:
+            key_id = '0x' + cka_id
+
+        if key_id:
+            cmd.extend(['--key-id', key_id])
 
         # normalize key type
         if key_type:
