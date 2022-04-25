@@ -832,7 +832,8 @@ class NSSDatabase(object):
                 curve=curve,
                 hash_alg=hash_alg,
                 basic_constraints_ext=basic_constraints_ext,
-                key_usage_ext=key_usage_ext)
+                key_usage_ext=key_usage_ext,
+                extended_key_usage_ext=extended_key_usage_ext)
             return
 
         if cka_id is None and key_id is not None:
@@ -1165,7 +1166,8 @@ class NSSDatabase(object):
             curve=None,
             hash_alg=None,
             basic_constraints_ext=None,
-            key_usage_ext=None):
+            key_usage_ext=None,
+            extended_key_usage_ext=None):
         '''
         Generate CSR using pki nss-cert-request command.
         In the future this will replace create_request().
@@ -1217,6 +1219,27 @@ class NSSDatabase(object):
                 values.append('cRLSign')
 
             exts['keyUsage'] = ', '.join(values)
+
+        if extended_key_usage_ext:
+
+            values = []
+
+            if extended_key_usage_ext.get('critical'):
+                values.append('critical')
+
+            if extended_key_usage_ext.get('serverAuth'):
+                values.append('serverAuth')
+
+            if extended_key_usage_ext.get('clientAuth'):
+                values.append('clientAuth')
+
+            if extended_key_usage_ext.get('emailProtection'):
+                values.append('emailProtection')
+
+            if extended_key_usage_ext.get('ocspResponder'):
+                values.append('OCSPSigning')
+
+            exts['extendedKeyUsage'] = ', '.join(values)
 
         tmpdir = tempfile.mkdtemp()
 
