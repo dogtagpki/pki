@@ -1071,7 +1071,8 @@ class PKIDeployer:
                 key_usage_ext=key_usage_ext,
                 extended_key_usage_ext=extended_key_usage_ext,
                 subject_key_id=subject_key_id,
-                generic_exts=generic_exts)
+                generic_exts=generic_exts,
+                use_jss=True)
 
             with open(csr_path) as f:
                 csr = f.read()
