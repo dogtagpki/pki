@@ -22,12 +22,7 @@ from __future__ import absolute_import
 import binascii
 import logging
 
-import pki.encoder
 import pki.nssdb
-import pki.server
-import pki.server.instance
-import pki.system
-import pki.util
 
 from .. import pkiconfig as config
 from .. import pkiscriptlet
@@ -36,71 +31,6 @@ logger = logging.getLogger(__name__)
 
 
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-
-    def generate_csr(self,
-                     deployer,
-                     nssdb,
-                     subsystem,
-                     tag,
-                     csr_path,
-                     basic_constraints_ext=None,
-                     key_usage_ext=None,
-                     extended_key_usage_ext=None,
-                     subject_key_id=None,
-                     generic_exts=None):
-
-        cert_id = deployer.get_cert_id(subsystem, tag)
-
-        logger.info('Generating %s CSR in %s', cert_id, csr_path)
-
-        subject_dn = deployer.mdict['pki_%s_subject_dn' % cert_id]
-
-        (key_type, key_size, curve, hash_alg) = deployer.get_key_params(cert_id)
-
-        """
-        For newer HSM in FIPS mode:
-        for KRA, storage cert and transport cert need to use the new -w
-        option of PKCS10Client
-        e.g. PKCS10Client -d /var/lib/pki/<ca instance>/alias -h hsm-module
-          -a rsa -l 2048 -n "CN= KRA storage cert" -w -v -o kra-storage.csr.b64
-
-        Here we use the pkispawn config param to determin if it's hsm to trigger:
-            pki_hsm_enable = True
-
-        """
-
-        logger.debug('generate_csr: pki_hsm_enable: %s', deployer.mdict['pki_hsm_enable'])
-        logger.debug('generate_csr: subsystem.type: %s', subsystem.type)
-
-        if (subsystem.type == 'KRA' and
-            config.str2bool(deployer.mdict['pki_hsm_enable']) and
-                (cert_id in ['storage', 'transport'])):
-            logger.debug('generate_csr: calling PKCS10Client for %s', cert_id)
-            b64_csr = nssdb.create_request_with_wrapping_key(
-                subject_dn=subject_dn,
-                request_file=csr_path,
-                key_size=key_size)
-        else:
-            logger.debug('generate_csr: calling certutil for %s', cert_id)
-            nssdb.create_request(
-                subject_dn=subject_dn,
-                request_file=csr_path,
-                key_type=key_type,
-                key_size=key_size,
-                curve=curve,
-                hash_alg=hash_alg,
-                basic_constraints_ext=basic_constraints_ext,
-                key_usage_ext=key_usage_ext,
-                extended_key_usage_ext=extended_key_usage_ext,
-                subject_key_id=subject_key_id,
-                generic_exts=generic_exts)
-
-            with open(csr_path) as f:
-                csr = f.read()
-
-            b64_csr = pki.nssdb.convert_csr(csr, 'pem', 'base64')
-
-        subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
 
     def generate_ca_signing_csr(self, deployer, subsystem):
 
@@ -149,8 +79,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = subsystem.instance.open_nssdb(token)
 
         try:
-            self.generate_csr(
-                deployer,
+            deployer.generate_csr(
                 nssdb,
                 subsystem,
                 tag,
@@ -193,8 +122,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = subsystem.instance.open_nssdb(token)
 
         try:
-            self.generate_csr(
-                deployer,
+            deployer.generate_csr(
                 nssdb,
                 subsystem,
                 tag,
@@ -235,8 +163,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = subsystem.instance.open_nssdb(token)
 
         try:
-            self.generate_csr(
-                deployer,
+            deployer.generate_csr(
                 nssdb,
                 subsystem,
                 tag,
@@ -270,8 +197,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = subsystem.instance.open_nssdb(token)
 
         try:
-            self.generate_csr(
-                deployer,
+            deployer.generate_csr(
                 nssdb,
                 subsystem,
                 tag,
@@ -293,8 +219,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             password=deployer.mdict['pki_client_database_password'])
 
         try:
-            self.generate_csr(
-                deployer,
+            deployer.generate_csr(
                 client_nssdb,
                 subsystem,
                 'admin',
@@ -332,8 +257,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = subsystem.instance.open_nssdb(token)
 
         try:
-            self.generate_csr(
-                deployer,
+            deployer.generate_csr(
                 nssdb,
                 subsystem,
                 tag,
@@ -373,8 +297,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = subsystem.instance.open_nssdb(token)
 
         try:
-            self.generate_csr(
-                deployer,
+            deployer.generate_csr(
                 nssdb,
                 subsystem,
                 tag,
@@ -402,8 +325,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = subsystem.instance.open_nssdb(token)
 
         try:
-            self.generate_csr(
-                deployer,
+            deployer.generate_csr(
                 nssdb,
                 subsystem,
                 tag,

@@ -1012,6 +1012,74 @@ class PKIDeployer:
 
         return result['keyId']
 
+    def generate_csr(self,
+                     nssdb,
+                     subsystem,
+                     tag,
+                     csr_path,
+                     basic_constraints_ext=None,
+                     key_usage_ext=None,
+                     extended_key_usage_ext=None,
+                     subject_key_id=None,
+                     generic_exts=None):
+
+        cert_id = self.get_cert_id(subsystem, tag)
+        logger.info('Generating %s CSR in %s', cert_id, csr_path)
+
+        subject_dn = self.mdict['pki_%s_subject_dn' % cert_id]
+
+        (key_type, key_size, curve, hash_alg) = self.get_key_params(cert_id)
+
+        """
+        For newer HSM in FIPS mode:
+        for KRA, storage cert and transport cert need to use the new -w
+        option of PKCS10Client
+        e.g. PKCS10Client -d /var/lib/pki/<ca instance>/alias -h hsm-module
+          -a rsa -l 2048 -n "CN= KRA storage cert" -w -v -o kra-storage.csr.b64
+
+        Here we use the pkispawn config param to determine if it's HSM to trigger:
+            pki_hsm_enable = True
+
+        """
+
+        logger.debug('generate_csr: pki_hsm_enable: %s', self.mdict['pki_hsm_enable'])
+        logger.debug('generate_csr: subsystem type: %s', subsystem.type)
+
+        if (subsystem.type == 'KRA' and
+                config.str2bool(self.mdict['pki_hsm_enable']) and
+                (cert_id in ['storage', 'transport'])):
+
+            logger.debug('generate_csr: calling PKCS10Client for %s', cert_id)
+
+            b64_csr = nssdb.create_request_with_wrapping_key(
+                subject_dn=subject_dn,
+                request_file=csr_path,
+                key_size=key_size)
+
+        else:
+
+            logger.debug('generate_csr: calling certutil for %s', cert_id)
+
+            nssdb.create_request(
+                subject_dn=subject_dn,
+                request_file=csr_path,
+                key_type=key_type,
+                key_size=key_size,
+                curve=curve,
+                hash_alg=hash_alg,
+                basic_constraints_ext=basic_constraints_ext,
+                key_usage_ext=key_usage_ext,
+                extended_key_usage_ext=extended_key_usage_ext,
+                subject_key_id=subject_key_id,
+                generic_exts=generic_exts)
+
+            with open(csr_path) as f:
+                csr = f.read()
+
+            b64_csr = pki.nssdb.convert_csr(csr, 'pem', 'base64')
+
+        subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
+
     def create_cert_request(self, tag, request):
 
         logger.info('Creating %s cert request', tag)
