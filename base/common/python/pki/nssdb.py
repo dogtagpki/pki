@@ -834,7 +834,8 @@ class NSSDatabase(object):
                 basic_constraints_ext=basic_constraints_ext,
                 key_usage_ext=key_usage_ext,
                 extended_key_usage_ext=extended_key_usage_ext,
-                subject_key_id=subject_key_id)
+                subject_key_id=subject_key_id,
+                generic_exts=generic_exts)
             return
 
         if cka_id is None and key_id is not None:
@@ -1169,7 +1170,8 @@ class NSSDatabase(object):
             basic_constraints_ext=None,
             key_usage_ext=None,
             extended_key_usage_ext=None,
-            subject_key_id=None):
+            subject_key_id=None,
+            generic_exts=None):
         '''
         Generate CSR using pki nss-cert-request command.
         In the future this will replace create_request().
@@ -1246,6 +1248,27 @@ class NSSDatabase(object):
         if subject_key_id:
             # always generate SKID from hash
             exts['subjectKeyIdentifier'] = 'hash'
+
+        if generic_exts:
+
+            oids = []
+
+            for generic_ext in generic_exts:
+
+                values = []
+
+                if generic_ext.get('critical'):
+                    values.append('critical')
+
+                data = generic_ext['data']
+                values.append('DER:' + data.hex(':'))
+
+                oid = generic_ext['oid']
+                exts[oid] = ', '.join(values)
+
+                oids.append(oid)
+
+            exts['genericExtensions'] = ', '.join(oids)
 
         tmpdir = tempfile.mkdtemp()
 
