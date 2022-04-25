@@ -152,7 +152,6 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
         String keyAlgorithm = hash + "with" + privateKey.getType();
-        logger.info("- key algorithm: " + keyAlgorithm);
 
         PKCS10 pkcs10 = nssdb.createPKCS10Request(
                 keyPair,

@@ -169,7 +169,7 @@ public class NSSDatabase {
 
     public void create(String password, boolean enableTrustPolicy) throws Exception {
 
-        logger.info("NSSDatabase: Creating NSS database in " + path);
+        logger.debug("NSSDatabase: Creating NSS database in " + path);
 
         Files.createDirectories(path);
 
@@ -217,7 +217,7 @@ public class NSSDatabase {
 
     public boolean moduleExists(String name) throws Exception {
 
-        logger.info("NSSDatabase: Checking module " + name);
+        logger.debug("NSSDatabase: Checking module " + name);
 
         List<String> command = new ArrayList<>();
         command.add("modutil");
@@ -256,7 +256,7 @@ public class NSSDatabase {
 
     public void addModule(String name, String library) throws Exception {
 
-        logger.info("NSSDatabase: Installing " + name + " module with " + library);
+        logger.debug("NSSDatabase: Installing " + name + " module with " + library);
 
         List<String> command = new ArrayList<>();
         command.add("modutil");
@@ -389,7 +389,7 @@ public class NSSDatabase {
 
                 if (password != null) {
                     passwordPath = Files.createTempFile("nss-password-", ".txt", FILE_PERMISSIONS);
-                    logger.info("NSSDatabase: Storing password into " + passwordPath);
+                    logger.debug("NSSDatabase: Storing password into " + passwordPath);
 
                     Files.write(passwordPath, password.getBytes());
 
@@ -441,13 +441,13 @@ public class NSSDatabase {
             PrintWriter stdin,
             BasicConstraintsExtension extension) throws Exception {
 
-        logger.info("NSSDatabase: Adding basic constraints extension:");
+        logger.debug("NSSDatabase: Adding basic constraints extension:");
 
         cmd.add("-2");
 
         // Is this a CA certificate [y/N]?
         boolean ca = (boolean) extension.get(BasicConstraintsExtension.IS_CA);
-        logger.info("NSSDatabase: - CA: " + ca);
+        logger.debug("NSSDatabase: - CA: " + ca);
         if (ca) {
             stdin.print("y");
         }
@@ -455,13 +455,13 @@ public class NSSDatabase {
 
         // Enter the path length constraint, enter to skip [<0 for unlimited path]: >
         int pathLength = (int) extension.get(BasicConstraintsExtension.PATH_LEN);
-        logger.info("NSSDatabase: - path length: " + pathLength);
+        logger.debug("NSSDatabase: - path length: " + pathLength);
         stdin.print(pathLength);
         stdin.println();
 
         // Is this a critical extension [y/N]?
         if (extension.isCritical()) {
-            logger.info("NSSDatabase: - critical");
+            logger.debug("NSSDatabase: - critical");
             stdin.print("y");
         }
         stdin.println();
@@ -480,7 +480,7 @@ public class NSSDatabase {
             PrintWriter stdin,
             AuthorityKeyIdentifierExtension extension) throws Exception {
 
-        logger.info("NSSDatabase: Adding AKID extension:");
+        logger.debug("NSSDatabase: Adding AKID extension:");
 
         cmd.add("-3");
 
@@ -489,7 +489,7 @@ public class NSSDatabase {
 
         KeyIdentifier keyID = (KeyIdentifier) extension.get(AuthorityKeyIdentifierExtension.KEY_ID);
         String akid = "0x" + Utils.HexEncode(keyID.getIdentifier());
-        logger.info("NSSDatabase: - AKID: " + akid);
+        logger.debug("NSSDatabase: - AKID: " + akid);
 
         // Enter value for the key identifier fields,enter to omit:
         stdin.println(akid);
@@ -520,13 +520,13 @@ public class NSSDatabase {
             PrintWriter stdin,
             SubjectKeyIdentifierExtension extension) throws Exception {
 
-        logger.info("NSSDatabase: Adding SKID extension:");
+        logger.debug("NSSDatabase: Adding SKID extension:");
 
         cmd.add("--extSKID");
 
         KeyIdentifier keyID = (KeyIdentifier) extension.get(SubjectKeyIdentifierExtension.KEY_ID);
         String skid = "0x" + Utils.HexEncode(keyID.getIdentifier());
-        logger.info("NSSDatabase: - SKID: " + skid);
+        logger.debug("NSSDatabase: - SKID: " + skid);
 
         // Enter value for the key identifier fields,enter to omit:
         stdin.println(skid);
@@ -551,7 +551,7 @@ public class NSSDatabase {
             PrintWriter stdin,
             AuthInfoAccessExtension extension) throws Exception {
 
-        logger.info("NSSDatabase: Adding AIA extension:");
+        logger.debug("NSSDatabase: Adding AIA extension:");
 
         cmd.add("--extAIA");
 
@@ -561,13 +561,13 @@ public class NSSDatabase {
 
             ObjectIdentifier method = ad.getMethod();
             if (AuthInfoAccessExtension.METHOD_CA_ISSUERS.equals(method)) {
-                logger.info("NSSDatabase: - CA issuers");
+                logger.debug("NSSDatabase: - CA issuers");
 
                 // Enter access method type for Authority Information Access extension:
                 stdin.println("1");
 
             } else if (AuthInfoAccessExtension.METHOD_OCSP.equals(method)) {
-                logger.info("NSSDatabase: - OCSP");
+                logger.debug("NSSDatabase: - OCSP");
 
                 // Enter access method type for Authority Information Access extension:
                 stdin.println("2");
@@ -592,7 +592,7 @@ public class NSSDatabase {
                 DerValue derValue = new DerValue(new ByteArrayInputStream(bytes));
                 derValue.resetTag(DerValue.tag_IA5String);
                 String uri = derValue.getIA5String();
-                logger.info("NSSDatabase:   - URI: " + uri);
+                logger.debug("NSSDatabase:   - URI: " + uri);
 
                 // Select one of the following general name type:
                 stdin.println("7");
@@ -632,56 +632,56 @@ public class NSSDatabase {
             List<String> cmd,
             KeyUsageExtension extension) throws Exception {
 
-        logger.info("NSSDatabase: Adding key usage extension:");
+        logger.debug("NSSDatabase: Adding key usage extension:");
 
         cmd.add("--keyUsage");
 
         List<String> options = new ArrayList<>();
 
         if (extension.isCritical()) {
-            logger.info("NSSDatabase: - critical");
+            logger.debug("NSSDatabase: - critical");
             options.add("critical");
         }
 
         Boolean digitalSignature = (Boolean) extension.get(KeyUsageExtension.DIGITAL_SIGNATURE);
         if (digitalSignature) {
-            logger.info("NSSDatabase: - digitalSignature");
+            logger.debug("NSSDatabase: - digitalSignature");
             options.add("digitalSignature");
         }
 
         Boolean nonRepudiation = (Boolean) extension.get(KeyUsageExtension.NON_REPUDIATION);
         if (nonRepudiation) {
-            logger.info("NSSDatabase: - nonRepudiation");
+            logger.debug("NSSDatabase: - nonRepudiation");
             options.add("nonRepudiation");
         }
 
         Boolean keyEncipherment = (Boolean) extension.get(KeyUsageExtension.KEY_ENCIPHERMENT);
         if (keyEncipherment) {
-            logger.info("NSSDatabase: - keyEncipherment");
+            logger.debug("NSSDatabase: - keyEncipherment");
             options.add("keyEncipherment");
         }
 
         Boolean dataEncipherment = (Boolean) extension.get(KeyUsageExtension.DATA_ENCIPHERMENT);
         if (dataEncipherment) {
-            logger.info("NSSDatabase: - dataEncipherment");
+            logger.debug("NSSDatabase: - dataEncipherment");
             options.add("dataEncipherment");
         }
 
         Boolean keyAgreement = (Boolean) extension.get(KeyUsageExtension.KEY_AGREEMENT);
         if (keyAgreement) {
-            logger.info("NSSDatabase: - keyAgreement");
+            logger.debug("NSSDatabase: - keyAgreement");
             options.add("keyAgreement");
         }
 
         Boolean certSigning = (Boolean) extension.get(KeyUsageExtension.KEY_CERTSIGN);
         if (certSigning) {
-            logger.info("NSSDatabase: - certSigning");
+            logger.debug("NSSDatabase: - certSigning");
             options.add("certSigning");
         }
 
         Boolean crlSigning = (Boolean) extension.get(KeyUsageExtension.CRL_SIGN);
         if (crlSigning) {
-            logger.info("NSSDatabase: - crlSigning");
+            logger.debug("NSSDatabase: - crlSigning");
             options.add("crlSigning");
         }
 
@@ -701,14 +701,14 @@ public class NSSDatabase {
             List<String> cmd,
             ExtendedKeyUsageExtension extension) throws Exception {
 
-        logger.info("NSSDatabase: Adding extended key usage extension:");
+        logger.debug("NSSDatabase: Adding extended key usage extension:");
 
         cmd.add("--extKeyUsage");
 
         List<String> options = new ArrayList<>();
 
         if (extension.isCritical()) {
-            logger.info("NSSDatabase: - critical");
+            logger.debug("NSSDatabase: - critical");
             options.add("critical");
         }
 
@@ -717,19 +717,19 @@ public class NSSDatabase {
             ObjectIdentifier oid = e.nextElement();
 
             if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.1").equals(oid)) {
-                logger.info("NSSDatabase: - serverAuth");
+                logger.debug("NSSDatabase: - serverAuth");
                 options.add("serverAuth");
 
             } else if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.2").equals(oid)) {
-                logger.info("NSSDatabase: - clientAuth");
+                logger.debug("NSSDatabase: - clientAuth");
                 options.add("clientAuth");
 
             } else if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.4").equals(oid)) {
-                logger.info("NSSDatabase: - emailProtection");
+                logger.debug("NSSDatabase: - emailProtection");
                 options.add("emailProtection");
 
             } else if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.9").equals(oid)) {
-                logger.info("NSSDatabase: - OCSPSigning");
+                logger.debug("NSSDatabase: - OCSPSigning");
                 options.add("ocspResponder");
 
             } else {
@@ -755,7 +755,7 @@ public class NSSDatabase {
             PrintWriter stdin,
             CertificatePoliciesExtension extension) throws Exception {
 
-        logger.info("NSSDatabase: Adding certificate policies extension:");
+        logger.debug("NSSDatabase: Adding certificate policies extension:");
 
         cmd.add("--extCP");
 
@@ -767,7 +767,7 @@ public class NSSDatabase {
 
             CertificatePolicyId policyID = info.getPolicyIdentifier();
             ObjectIdentifier policyOID = policyID.getIdentifier();
-            logger.info("NSSDatabase: - " + policyOID);
+            logger.debug("NSSDatabase: - " + policyOID);
 
             // Enter a CertPolicy Object Identifier (dotted decimal format)
             // or "any" for AnyPolicy: >
@@ -790,7 +790,7 @@ public class NSSDatabase {
 
                         CPSuri cpsURI = (CPSuri) qualifierInfo.getQualifier();
                         String uri = cpsURI.getURI();
-                        logger.info("NSSDatabase:   - CPS: " + uri);
+                        logger.debug("NSSDatabase:   - CPS: " + uri);
 
                         // Choose the type of qualifier for policy:
                         stdin.println("1");
@@ -839,19 +839,19 @@ public class NSSDatabase {
             OCSPNoCheckExtension extension,
             Path tmpDir) throws Exception {
 
-        logger.info("NSSDatabase: Adding OCSP No Check extension:");
+        logger.debug("NSSDatabase: Adding OCSP No Check extension:");
 
         cmd.add("--extGeneric");
 
         ObjectIdentifier oid = extension.getExtensionId();
-        logger.info("NSSDatabase: - OID: " + oid);
+        logger.debug("NSSDatabase: - OID: " + oid);
 
         boolean critical = extension.isCritical();
-        logger.info("NSSDatabase: - critical: " + critical);
+        logger.debug("NSSDatabase: - critical: " + critical);
         String flag = critical ? "critical" : "not-critical";
 
         byte[] value = extension.getExtensionValue();
-        logger.info("NSSDatabase: - value: " + (value == null ? null : Utils.base64encodeSingleLine(value)));
+        logger.debug("NSSDatabase: - value: " + (value == null ? null : Utils.base64encodeSingleLine(value)));
         Path file = tmpDir.resolve("ocsp-no-check.ext");
         Files.write(file, value);
 
@@ -907,32 +907,31 @@ public class NSSDatabase {
             CryptoToken token,
             byte[] keyID) throws Exception {
 
-        logger.info("NSSDatabase: Loading key pair");
-
         String hexKeyID = "0x" + Utils.HexEncode(keyID);
-        logger.info("NSSDatabase: - key ID: " + hexKeyID);
+        logger.debug("NSSDatabase: Loading key " + hexKeyID);
+
         PK11PrivKey privateKey = (PK11PrivKey) CryptoUtil.findPrivateKey(token, keyID);
 
         if (privateKey == null) {
             throw new Exception("Private key not found: " + hexKeyID);
         }
 
-        logger.info("NSSDatabase: - class: " + privateKey.getClass().getName());
-        logger.info("NSSDatabase: - algorithm: " + privateKey.getAlgorithm());
-        logger.info("NSSDatabase: - format: " + privateKey.getFormat());
+        logger.debug("NSSDatabase: - class: " + privateKey.getClass().getName());
+        logger.debug("NSSDatabase: - algorithm: " + privateKey.getAlgorithm());
+        logger.debug("NSSDatabase: - format: " + privateKey.getFormat());
 
         PK11PubKey publicKey = privateKey.getPublicKey();
 
         String keyType = privateKey.getType().toString();
-        logger.info("NSSDatabase: - key type: " + keyType);
+        logger.debug("NSSDatabase: - key type: " + keyType);
 
         if (privateKey instanceof PK11RSAPrivateKey) {
-            logger.info("NSSDatabase: - size: " + privateKey.getStrength());
+            logger.debug("NSSDatabase: - size: " + privateKey.getStrength());
 
         } else if (privateKey instanceof PK11ECPrivateKey) {
             PK11ECPrivateKey ecPrivateKey = (PK11ECPrivateKey) privateKey;
             ECParameterSpec spec = ecPrivateKey.getParams();
-            logger.info("NSSDatabase: - curve: " + spec.getCurve());
+            logger.debug("NSSDatabase: - curve: " + spec.getCurve());
         }
 
         return new KeyPair(publicKey, privateKey);
@@ -944,8 +943,8 @@ public class NSSDatabase {
             Usage[] usages,
             Usage[] usagesMask) throws Exception {
 
-        logger.info("NSSDatabase: Creating RSA key pair");
-        logger.info("NSSDatabase: - size: " + keySize);
+        logger.debug("NSSDatabase: Creating RSA key");
+        logger.debug("NSSDatabase: - size: " + keySize);
 
         return CryptoUtil.generateRSAKeyPair(token, keySize, usages, usagesMask);
     }
@@ -963,8 +962,8 @@ public class NSSDatabase {
             Usage[] usages,
             Usage[] usagesMask) throws Exception {
 
-        logger.info("NSSDatabase: Creating EC key pair");
-        logger.info("NSSDatabase: - curve: " + curveName);
+        logger.debug("NSSDatabase: Creating EC key");
+        logger.debug("NSSDatabase: - curve: " + curveName);
 
         return CryptoUtil.generateECCKeyPair(token, curveName, usages, usagesMask);
     }
@@ -982,9 +981,9 @@ public class NSSDatabase {
             String algorithm,
             Extensions extensions) throws Exception {
 
-        logger.info("NSSDatabase: Creating PKCS #10 request");
-        logger.info("NSSDatabase: - subjecct: " + subject);
-        logger.info("NSSDatabase: - algorithm: " + algorithm);
+        logger.debug("NSSDatabase: Creating PKCS #10 request");
+        logger.debug("NSSDatabase: - subjecct: " + subject);
+        logger.debug("NSSDatabase: - algorithm: " + algorithm);
 
         return CryptoUtil.createCertificationRequest(
                 subject,
@@ -1036,16 +1035,14 @@ public class NSSDatabase {
             String hash,
             Extensions extensions) throws Exception {
 
-        logger.info("NSSDatabase: Issuing certificate:");
+        X500Name subjectName = pkcs10.getSubjectName();
+        logger.debug("NSSDatabase: Issuing cert for " + subjectName);
 
         if (tokenName != null) {
-            logger.info("NSSDatabase: - token: " + tokenName);
+            logger.debug("NSSDatabase: - token: " + tokenName);
         }
 
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-
-        X500Name subjectName = pkcs10.getSubjectName();
-        logger.info("NSSDatabase: - subject: " + subjectName);
 
         X500Name issuerName;
         if (issuer == null) {
@@ -1055,10 +1052,10 @@ public class NSSDatabase {
         }
 
         CertificateIssuerName certIssuerName = new CertificateIssuerName(issuerName);
-        logger.info("NSSDatabase: - issuer: " + certIssuerName);
+        logger.debug("NSSDatabase: - issuer: " + certIssuerName);
 
         X509Key x509Key = pkcs10.getSubjectPublicKeyInfo();
-        logger.info("NSSDatabase: - public key algorithm: " + x509Key.getAlgorithm());
+        logger.debug("NSSDatabase: - public key algorithm: " + x509Key.getAlgorithm());
 
         BigInteger serialNo;
         if (serialNumber == null) {
@@ -1069,23 +1066,23 @@ public class NSSDatabase {
         } else {
             serialNo = new BigInteger(serialNumber);
         }
-        logger.info("NSSDatabase: - serial number: 0x" + Utils.HexEncode(serialNo.toByteArray()));
+        logger.debug("NSSDatabase: - serial number: 0x" + Utils.HexEncode(serialNo.toByteArray()));
 
         Calendar calendar = Calendar.getInstance();
         Date notBeforeDate = calendar.getTime();
-        logger.info("NSSDatabase: - not before: " + notBeforeDate);
+        logger.debug("NSSDatabase: - not before: " + notBeforeDate);
 
         calendar.add(Calendar.MONTH, monthsValid);
         Date notAfterDate = calendar.getTime();
-        logger.info("NSSDatabase: - not after: " + notAfterDate);
+        logger.debug("NSSDatabase: - not after: " + notAfterDate);
 
         if (hash == null) {
             hash = "SHA256";
         }
-        logger.info("NSSDatabase: - hash algorithm: " + hash);
+        logger.debug("NSSDatabase: - hash algorithm: " + hash);
 
         String keyAlgorithm = hash + "with" + x509Key.getAlgorithm();
-        logger.info("NSSDatabase: - key algorithm: " + keyAlgorithm);
+        logger.debug("NSSDatabase: - key algorithm: " + keyAlgorithm);
 
         // convert Extensions into CertificateExtensions
         CertificateExtensions certExts = new CertificateExtensions();
@@ -1113,14 +1110,14 @@ public class NSSDatabase {
 
         if (issuer == null) {
 
-            logger.info("NSSDatabase: Finding request private key");
+            logger.debug("NSSDatabase: Finding request private key");
             byte[] requestPublicKey = x509Key.getEncoded();
 
             CryptoStore store = token.getCryptoStore();
 
             for (PrivateKey privKey : store.getPrivateKeys()) {
                 PK11PrivKey pk11PrivKey = (PK11PrivKey) privKey;
-                logger.info("NSSDatabase: - private key: 0x" + Utils.HexEncode(privKey.getUniqueID()));
+                logger.debug("NSSDatabase: - private key: 0x" + Utils.HexEncode(privKey.getUniqueID()));
 
                 PK11PubKey pk11PubKey = pk11PrivKey.getPublicKey();
                 byte[] publicKey = pk11PubKey.getEncoded();
@@ -1136,15 +1133,15 @@ public class NSSDatabase {
             }
 
         } else {
-            logger.info("NSSDatabase: Finding issuer private key");
+            logger.debug("NSSDatabase: Finding issuer private key");
             CryptoManager cm = CryptoManager.getInstance();
             privateKey = cm.findPrivKeyByCert(issuer);
-            logger.info("NSSDatabase: - private key: " + Utils.HexEncode(privateKey.getUniqueID()));
+            logger.debug("NSSDatabase: - private key: " + Utils.HexEncode(privateKey.getUniqueID()));
         }
 
-        logger.info("NSSDatabase: Private key algorithm: " + privateKey.getAlgorithm());
+        logger.debug("NSSDatabase: Private key algorithm: " + privateKey.getAlgorithm());
         String signingAlgorithm = hash + "with" + privateKey.getAlgorithm();
-        logger.info("NSSDatabase: Signing algorithm: " + signingAlgorithm);
+        logger.debug("NSSDatabase: Signing algorithm: " + signingAlgorithm);
 
         return CryptoUtil.signCert(privateKey, info, signingAlgorithm);
     }
@@ -1184,7 +1181,7 @@ public class NSSDatabase {
 
                     String line;
                     while ((line = in.readLine()) != null) {
-                        logger.info("NSSDatabase: " + line);
+                        logger.debug("NSSDatabase: " + line);
                     }
 
                 } catch (Exception e) {
