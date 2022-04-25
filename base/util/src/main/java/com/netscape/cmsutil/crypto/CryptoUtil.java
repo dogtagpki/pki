@@ -629,7 +629,7 @@ public class CryptoUtil {
             Usage[] usages,
             Usage[] usagesMask) throws Exception {
 
-        logger.info("CryptoUtil: Generating KRA key pair");
+        logger.debug("CryptoUtil: Generating KRA key pair");
 
         KeyPairGenerator keygen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
@@ -637,22 +637,22 @@ public class CryptoUtil {
             keygen.setKeyPairUsages(usages, usagesMask);
         }
 
-        logger.info("CryptoUtil: - extractable: " + extractable);
+        logger.debug("CryptoUtil: - extractable: " + extractable);
         if (extractable) {
             keygen.extractablePairs(true);
         }
 
-        logger.info("CryptoUtil: - sensitive: " + sensitive);
+        logger.debug("CryptoUtil: - sensitive: " + sensitive);
         if (sensitive) {
             keygen.sensitivePairs(true);
         }
 
-        logger.info("CryptoUtil: - temporary: " + temporary);
+        logger.debug("CryptoUtil: - temporary: " + temporary);
         if (temporary) {
             keygen.temporaryPairs(true);
         }
 
-        logger.info("CryptoUtil: - key size: " + keySize);
+        logger.debug("CryptoUtil: - key size: " + keySize);
         keygen.initialize(keySize);
 
         return keygen.genKeyPair();
@@ -709,30 +709,30 @@ public class CryptoUtil {
             Usage[] usages,
             Usage[] usagesMask) throws Exception {
 
-        logger.info("CryptoUtil: Generating ECC key pair");
+        logger.debug("CryptoUtil: Generating ECC key pair");
 
         KeyPairGenerator keygen = token.getKeyPairGenerator(KeyPairAlgorithm.EC);
 
         keygen.setKeyPairUsages(usages, usagesMask);
 
-        logger.info("CryptoUtil: - temporary: " + temporary);
+        logger.debug("CryptoUtil: - temporary: " + temporary);
         keygen.temporaryPairs(temporary);
 
-        logger.info("CryptoUtil: - sensitive: " + sensitive);
+        logger.debug("CryptoUtil: - sensitive: " + sensitive);
         if (sensitive == 1) {
             keygen.sensitivePairs(true);
         } else if (sensitive == 0) {
             keygen.sensitivePairs(false);
         }
 
-        logger.info("CryptoUtil: - extractable: " + extractable);
+        logger.debug("CryptoUtil: - extractable: " + extractable);
         if (extractable == 1) {
             keygen.extractablePairs(true);
         } else if (extractable == 0) {
             keygen.extractablePairs(false);
         }
 
-        logger.info("CryptoUtil: - curve: " + curveName);
+        logger.debug("CryptoUtil: - curve: " + curveName);
         int curveCode = keygen.getCurveCodeByName(curveName);
 
         keygen.initialize(curveCode);
@@ -740,7 +740,7 @@ public class CryptoUtil {
         KeyPair pair = keygen.genKeyPair();
         PrivateKey privateKey = (PrivateKey) pair.getPrivate();
         String hexKeyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
-        logger.info("CryptoUtil: - key ID: " + hexKeyID);
+        logger.debug("CryptoUtil: - key ID: " + hexKeyID);
 
         return pair;
     }
@@ -1195,14 +1195,14 @@ public class CryptoUtil {
             SignatureAlgorithm signingAlgorithm)
             throws Exception {
 
-        logger.info("CryptoUtil: Signing certificate:");
-        logger.info("CryptoUtil: - signing algorithm: " + signingAlgorithm);
+        logger.debug("CryptoUtil: Signing certificate");
+        logger.debug("CryptoUtil: - signing algorithm: " + signingAlgorithm);
 
         String algName = mapSignatureAlgorithmToInternalName(signingAlgorithm);
-        logger.info("CryptoUtil: - algorithm name: " + algName);
+        logger.debug("CryptoUtil: - algorithm name: " + algName);
 
         AlgorithmId aid = AlgorithmId.get(algName);
-        logger.info("CryptoUtil: - algorithm ID: " + aid);
+        logger.debug("CryptoUtil: - algorithm ID: " + aid);
 
         certInfo.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(aid));
 
@@ -1275,14 +1275,14 @@ public class CryptoUtil {
             String alg,
             Extensions exts) throws Exception {
 
-        logger.info("CryptoUtil: Creating PKCS #10 request");
+        logger.debug("CryptoUtil: Creating PKCS #10 request");
         X509Key key = createX509Key(keyPair.getPublic());
 
-        logger.info("CryptoUtil: - algorithm: " + alg);
+        logger.debug("CryptoUtil: - algorithm: " + alg);
         java.security.Signature sig = java.security.Signature.getInstance(alg, "Mozilla-JSS");
         sig.initSign(keyPair.getPrivate());
 
-        logger.info("CryptoUtil: - subject: " + subjectName);
+        logger.debug("CryptoUtil: - subject: " + subjectName);
 
         X500Name name = null;
         if (!encodeSubj)
@@ -1296,12 +1296,12 @@ public class CryptoUtil {
         }
         X500Signer signer = new X500Signer(sig, name);
 
-        logger.info("CryptoUtil: - attributes:");
+        logger.debug("CryptoUtil: - attributes:");
         PKCS10Attributes attrs = new PKCS10Attributes();
         if (exts != null && !exts.isEmpty()) {
             PKCS10Attribute attr = new PKCS10Attribute(PKCS9Attribute.EXTENSION_REQUEST_OID, exts);
             String attrName = attr.getAttributeValue().getName();
-            logger.info("CryptoUtil:   - " + attrName);
+            logger.debug("CryptoUtil:   - " + attrName);
             attrs.setAttribute(attrName, attr);
         }
 
