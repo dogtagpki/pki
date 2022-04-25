@@ -831,7 +831,8 @@ class NSSDatabase(object):
                 key_size=key_size,
                 curve=curve,
                 hash_alg=hash_alg,
-                basic_constraints_ext=basic_constraints_ext)
+                basic_constraints_ext=basic_constraints_ext,
+                key_usage_ext=key_usage_ext)
             return
 
         if cka_id is None and key_id is not None:
@@ -1163,7 +1164,8 @@ class NSSDatabase(object):
             key_size=None,
             curve=None,
             hash_alg=None,
-            basic_constraints_ext=None):
+            basic_constraints_ext=None,
+            key_usage_ext=None):
         '''
         Generate CSR using pki nss-cert-request command.
         In the future this will replace create_request().
@@ -1185,7 +1187,37 @@ class NSSDatabase(object):
                 values.append('pathlen:' + basic_constraints_ext['path_length'])
 
             exts['basicConstraints'] = ', '.join(values)
-            
+
+        if key_usage_ext:
+
+            values = []
+
+            if key_usage_ext.get('critical'):
+                values.append('critical')
+
+            if key_usage_ext.get('digitalSignature'):
+                values.append('digitalSignature')
+
+            if key_usage_ext.get('nonRepudiation'):
+                values.append('nonRepudiation')
+
+            if key_usage_ext.get('keyEncipherment'):
+                values.append('keyEncipherment')
+
+            if key_usage_ext.get('dataEncipherment'):
+                values.append('dataEncipherment')
+
+            if key_usage_ext.get('keyAgreement'):
+                values.append('keyAgreement')
+
+            if key_usage_ext.get('certSigning'):
+                values.append('keyCertSign')
+
+            if key_usage_ext.get('crlSigning'):
+                values.append('cRLSign')
+
+            exts['keyUsage'] = ', '.join(values)
+
         tmpdir = tempfile.mkdtemp()
 
         try:
