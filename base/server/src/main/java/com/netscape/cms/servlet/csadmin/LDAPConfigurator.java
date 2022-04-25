@@ -445,7 +445,7 @@ public class LDAPConfigurator {
 
     public Collection<LDIFRecord> importLDIF(String filename, boolean ignoreErrors, Map<String, String> inputParams) throws Exception {
 
-        logger.info("Importing " + filename + " with params:");
+        logger.info("Importing " + filename);
 
         Map<String, String> params = new HashMap<>(this.params);
 
@@ -454,7 +454,7 @@ public class LDAPConfigurator {
         }
 
         for (String name : params.keySet()) {
-            logger.info("- " + name + ": " + params.get(name));
+            logger.debug("- " + name + ": " + params.get(name));
         }
 
         File file = new File(filename);
@@ -818,9 +818,9 @@ public class LDAPConfigurator {
         String bindDN = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
 
         logger.info("Adding " + replicaDN);
-        logger.info("- nsDS5ReplicaRoot: " + baseDN);
-        logger.info("- nsDS5ReplicaBindDN: " + bindDN);
-        logger.info("- nsDS5ReplicaId: " + id);
+        logger.debug("- nsDS5ReplicaRoot: " + baseDN);
+        logger.debug("- nsDS5ReplicaBindDN: " + bindDN);
+        logger.debug("- nsDS5ReplicaId: " + id);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", "top"));
@@ -888,12 +888,12 @@ public class LDAPConfigurator {
         String bindDN = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
 
         logger.info("Adding " + dn);
-        logger.info("- description: " + name);
-        logger.info("- nsDS5ReplicaRoot: " + baseDN);
-        logger.info("- nsDS5ReplicaHost: " + replicaHostname);
-        logger.info("- nsDS5ReplicaPort: " + replicaPort);
-        logger.info("- nsDS5ReplicaBindDN: " + bindDN);
-        logger.info("- nsDS5ReplicaTransportInfo: " + replicationSecurity);
+        logger.debug("- description: " + name);
+        logger.debug("- nsDS5ReplicaRoot: " + baseDN);
+        logger.debug("- nsDS5ReplicaHost: " + replicaHostname);
+        logger.debug("- nsDS5ReplicaPort: " + replicaPort);
+        logger.debug("- nsDS5ReplicaBindDN: " + bindDN);
+        logger.debug("- nsDS5ReplicaTransportInfo: " + replicationSecurity);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", "top"));
@@ -1068,7 +1068,7 @@ public class LDAPConfigurator {
         }
 
         String status = attrs.nextElement();
-        logger.info("- nsds5replicalastinitstatus: " + status);
+        logger.debug("- nsds5replicalastinitstatus: " + status);
 
         return status;
     }
