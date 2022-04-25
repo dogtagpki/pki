@@ -74,16 +74,16 @@ public class RequestRepository extends Repository {
 
     public void init() throws Exception {
 
-        logger.info("RequestRepository: Initializing request repository");
-        logger.info("RequestRepository: - filter: " + filter);
+        logger.debug("RequestRepository: Initializing request repository");
+        logger.debug("RequestRepository: - filter: " + filter);
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         mBaseDN = dbConfig.getRequestDN() + "," + dbSubsystem.getBaseDN();
-        logger.info("RequestRepository: - base DN: " + mBaseDN);
+        logger.debug("RequestRepository: - base DN: " + mBaseDN);
 
         String value = dbConfig.getString(PROP_REQUEST_ID_GENERATOR, null);
-        logger.info("RequestRepository: - request ID generator: " + value);
+        logger.debug("RequestRepository: - request ID generator: " + value);
 
         if (value != null) {
             setIDGenerator(value);
@@ -92,7 +92,7 @@ public class RequestRepository extends Repository {
         if (idGenerator == RANDOM) {
 
             idLength = dbConfig.getInteger(PROP_REQUEST_ID_LENGTH);
-            logger.info("RequestRepository: - request ID length: " + idLength);
+            logger.debug("RequestRepository: - request ID length: " + idLength);
 
             secureRandom = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
 
@@ -110,21 +110,21 @@ public class RequestRepository extends Repository {
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         rangeDN = dbConfig.getRequestRangeDN() + "," + dbSubsystem.getBaseDN();
-        logger.info("RequestRepository: - range DN: " + rangeDN);
+        logger.debug("RequestRepository: - range DN: " + rangeDN);
 
         minSerialName = DBSubsystem.PROP_MIN_REQUEST_NUMBER;
         String minSerial = dbConfig.getBeginRequestNumber();
         if (minSerial != null) {
             mMinSerialNo = new BigInteger(minSerial, mRadix);
         }
-        logger.info("RequestRepository: - min serial: " + mMinSerialNo);
+        logger.debug("RequestRepository: - min serial: " + mMinSerialNo);
 
         maxSerialName = DBSubsystem.PROP_MAX_REQUEST_NUMBER;
         String maxSerial = dbConfig.getEndRequestNumber();
         if (maxSerial != null) {
             mMaxSerialNo = new BigInteger(maxSerial, mRadix);
         }
-        logger.info("RequestRepository: - max serial: " + mMaxSerialNo);
+        logger.debug("RequestRepository: - max serial: " + mMaxSerialNo);
 
         nextMinSerialName = DBSubsystem.PROP_NEXT_MIN_REQUEST_NUMBER;
         String nextMinSerial = dbConfig.getNextBeginRequestNumber();
@@ -133,7 +133,7 @@ public class RequestRepository extends Repository {
         } else {
             mNextMinSerialNo = new BigInteger(nextMinSerial, mRadix);
         }
-        logger.info("RequestRepository: - next min serial: " + mNextMinSerialNo);
+        logger.debug("RequestRepository: - next min serial: " + mNextMinSerialNo);
 
         nextMaxSerialName = DBSubsystem.PROP_NEXT_MAX_REQUEST_NUMBER;
         String nextMaxSerial = dbConfig.getNextEndRequestNumber();
@@ -142,7 +142,7 @@ public class RequestRepository extends Repository {
         } else {
             mNextMaxSerialNo = new BigInteger(nextMaxSerial, mRadix);
         }
-        logger.info("RequestRepository: - next max serial: " + mNextMaxSerialNo);
+        logger.debug("RequestRepository: - next max serial: " + mNextMaxSerialNo);
 
         String lowWaterMark = dbConfig.getRequestLowWaterMark();
         if (lowWaterMark != null) {
@@ -472,9 +472,9 @@ public class RequestRepository extends Repository {
     @Override
     public BigInteger getLastSerialNumberInRange(BigInteger min, BigInteger max) throws EBaseException {
 
-        logger.info("RequestRepository: Getting last serial number in range");
-        logger.info("RequestRepository: - min: " + min);
-        logger.info("RequestRepository: - max: " + max);
+        logger.debug("RequestRepository: Getting last serial number in range");
+        logger.debug("RequestRepository: - min: " + min);
+        logger.debug("RequestRepository: - max: " + max);
 
         if (min == null || max == null || min.compareTo(max) >= 0) {
             logger.warn("RequestRepository: Bad upper and lower bound range");
@@ -482,9 +482,9 @@ public class RequestRepository extends Repository {
         }
 
         RequestId fromID = new RequestId(max);
-        logger.info("RequestRepository: - from ID: " + fromID);
+        logger.debug("RequestRepository: - from ID: " + fromID);
 
-        logger.info("RequestRepository: Searching for requests");
+        logger.debug("RequestRepository: Searching for requests");
         ListEnumeration recList = (ListEnumeration) getPagedRequestsByFilter(
                 fromID,
                 false,
@@ -493,18 +493,18 @@ public class RequestRepository extends Repository {
                 "requestId");
 
         int size = recList.getSize();
-        logger.info("RequestRepository: - size: " + size);
+        logger.debug("RequestRepository: - size: " + size);
 
         int ltSize = recList.getSizeBeforeJumpTo();
-        logger.info("RequestRepository: - size before jump: " + ltSize);
+        logger.debug("RequestRepository: - size before jump: " + ltSize);
 
         if (size <= 0) {
             BigInteger requestID = min.subtract(BigInteger.ONE);
-            logger.info("RequestRepository: There are no requests, returning " + requestID);
+            logger.debug("RequestRepository: There are no requests, returning " + requestID);
             return requestID;
         }
 
-        logger.info("RequestRepository: Requests:");
+        logger.debug("RequestRepository: Requests:");
         for (int i = 0; i < 5; i++) {
             Request request = recList.getElementAt(i);
 
@@ -513,17 +513,17 @@ public class RequestRepository extends Repository {
             }
 
             BigInteger requestID = request.getRequestId().toBigInteger();
-            logger.info("RequestRepository: - request ID: " + requestID);
+            logger.debug("RequestRepository: - request ID: " + requestID);
 
             // if request ID within range, return it
             if (requestID.compareTo(min) >= 0 && requestID.compareTo(max) <= 0) {
-                logger.info("RequestRepository: Found last request ID: " + requestID);
+                logger.debug("RequestRepository: Found last request ID: " + requestID);
                 return requestID;
             }
         }
 
         BigInteger requestID = min.subtract(BigInteger.ONE);
-        logger.info("RequestRepository: No request found, returning " + requestID);
+        logger.debug("RequestRepository: No request found, returning " + requestID);
 
         return requestID;
     }
