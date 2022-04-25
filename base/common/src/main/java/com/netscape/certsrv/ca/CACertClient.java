@@ -236,7 +236,7 @@ public class CACertClient extends Client {
         }
 
         String response = client.post("ca/ee/ca/profileSubmit", content, String.class);
-        logger.info("CACertClient: Response: " + response);
+        logger.debug("CACertClient: Response: " + response);
 
         if (response == null) {
             logger.error("No response");
@@ -247,7 +247,7 @@ public class CACertClient extends Client {
         XMLObject parser = new XMLObject(bis);
 
         String status = parser.getValue("Status");
-        logger.info("CACertClient: Status: " + status);
+        logger.debug("CACertClient: - status: " + status);
 
         if (status.equals("2")) {
             logger.error("Authentication failure");
@@ -261,13 +261,13 @@ public class CACertClient extends Client {
         }
 
         RequestId requestID = new RequestId(parser.getValue("Id"));
-        logger.info("CACertClient: Request ID: " + requestID.toHexString());
+        logger.debug("CACertClient: - request ID: " + requestID.toHexString());
 
         String serial = parser.getValue("serialno");
-        logger.info("CACertClient: Serial: " + serial);
+        logger.debug("CACertClient: - serial: " + serial);
 
         String b64 = parser.getValue("b64");
-        logger.info("CACertClient: Cert: " + b64);
+        logger.debug("CACertClient: - cert: " + b64);
 
         b64 = CryptoUtil.stripCertBrackets(b64.trim());
         byte[] bytes = CryptoUtil.base64Decode(b64);
