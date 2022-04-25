@@ -830,7 +830,8 @@ class NSSDatabase(object):
                 key_type=key_type,
                 key_size=key_size,
                 curve=curve,
-                hash_alg=hash_alg)
+                hash_alg=hash_alg,
+                basic_constraints_ext=basic_constraints_ext)
             return
 
         if cka_id is None and key_id is not None:
@@ -1161,62 +1162,93 @@ class NSSDatabase(object):
             key_type=None,
             key_size=None,
             curve=None,
-            hash_alg=None):
+            hash_alg=None,
+            basic_constraints_ext=None):
         '''
         Generate CSR using pki nss-cert-request command.
         In the future this will replace create_request().
         '''
 
-        cmd = [
-            'pki',
-            '-d', self.directory
-        ]
+        exts = {}
 
-        if self.password_conf:
-            cmd.extend(['-f', self.password_conf])
+        if basic_constraints_ext:
 
-        elif self.password_file:
-            cmd.extend(['-C', self.password_file])
+            values = []
 
-        token = self.get_effective_token(token)
-        if token:
-            cmd.extend(['--token', token])
+            if basic_constraints_ext.get('critical'):
+                values.append('critical')
 
-        cmd.extend(['nss-cert-request'])
-        cmd.extend(['--subject', subject_dn])
-        cmd.extend(['--csr', request_file])
+            if basic_constraints_ext.get('ca'):
+                values.append('CA:' + str(basic_constraints_ext['ca']).upper())
 
-        if key_id is None and cka_id is not None:
-            key_id = '0x' + cka_id
+            if basic_constraints_ext.get('path_length'):
+                values.append('pathlen:' + basic_constraints_ext['path_length'])
 
-        if key_id:
-            cmd.extend(['--key-id', key_id])
+            exts['basicConstraints'] = ', '.join(values)
+            
+        tmpdir = tempfile.mkdtemp()
 
-        # normalize key type
-        if key_type:
-            key_type = key_type.upper()
-            if key_type == 'ECC':
-                key_type = 'EC'
+        try:
+            if exts:
+                ext_conf = os.path.join(tmpdir, 'request.conf')
+                pki.util.store_properties(ext_conf, exts)
 
-        if key_type:
-            cmd.extend(['--key-type', key_type])
+            cmd = [
+                'pki',
+                '-d', self.directory
+            ]
 
-        if key_size:
-            cmd.extend(['--key-size', str(key_size)])
+            if self.password_conf:
+                cmd.extend(['-f', self.password_conf])
 
-        if curve:
-            cmd.extend(['--curve', curve])
+            elif self.password_file:
+                cmd.extend(['-C', self.password_file])
 
-        if hash_alg:
-            cmd.extend(['--hash', hash_alg])
+            token = self.get_effective_token(token)
+            if token:
+                cmd.extend(['--token', token])
 
-        if logger.isEnabledFor(logging.DEBUG):
-            cmd.append('--debug')
+            cmd.extend(['nss-cert-request'])
+            cmd.extend(['--subject', subject_dn])
+            cmd.extend(['--csr', request_file])
 
-        elif logger.isEnabledFor(logging.INFO):
-            cmd.append('--verbose')
+            if key_id is None and cka_id is not None:
+                key_id = '0x' + cka_id
 
-        self.run(cmd, check=True)
+            if key_id:
+                cmd.extend(['--key-id', key_id])
+
+            # normalize key type
+            if key_type:
+                key_type = key_type.upper()
+                if key_type == 'ECC':
+                    key_type = 'EC'
+
+            if key_type:
+                cmd.extend(['--key-type', key_type])
+
+            if key_size:
+                cmd.extend(['--key-size', str(key_size)])
+
+            if curve:
+                cmd.extend(['--curve', curve])
+
+            if hash_alg:
+                cmd.extend(['--hash', hash_alg])
+
+            if exts:
+                cmd.extend(['--ext', ext_conf])
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            self.run(cmd, check=True)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
     def create_cert(
             self,
