@@ -23,13 +23,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import org.apache.commons.codec.binary.Hex;
-import org.dogtagpki.nss.NSSDatabase;
-import org.dogtagpki.nss.NSSExtensionGenerator;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
@@ -112,117 +109,6 @@ public class SystemConfigService extends PKIService {
 
         } catch (Throwable e) { // unexpected error
             logger.error("Unable to import " + tag + " certificate request: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    @POST
-    @Path("createRequest")
-    public SystemCertData createRequest(CertificateSetupRequest request) throws Exception {
-
-        String tag = request.getTag();
-        logger.info("SystemConfigService: Creating " + tag + " cert request");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            SystemCertData certData = request.getSystemCert();
-
-            NSSDatabase nssdb = new NSSDatabase();
-
-            String tokenName = certData.getToken();
-            logger.info("SystemConfigService: - token: " + tokenName);
-            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-
-            String keyID = certData.getKeyID();
-            logger.info("SystemConfigService: - key ID: " + keyID);
-
-            if (keyID.startsWith("0x")) keyID = keyID.substring(2);
-            if (keyID.length() % 2 == 1) keyID = "0" + keyID;
-
-            KeyPair keyPair = nssdb.loadKeyPair(token, Hex.decodeHex(keyID));
-            PrivateKey privateKey = (PrivateKey) keyPair.getPrivate();
-
-            NSSExtensionGenerator generator = new NSSExtensionGenerator();
-
-            if (tag.equals("signing")) {
-                // create BasicConstraintsExtension
-                generator.setParameter(
-                        "basicConstraints",
-                        "CA:TRUE,pathlen:-1,critical");
-
-                // create KeyUsageExtension
-                generator.setParameter(
-                        "keyUsage",
-                        "digitalSignature,nonRepudiation,keyCertSign,cRLSign,critical");
-
-                // create NSCertTypeExtension (not supported)
-                // generator.setParameter(
-                //         "nsCertType",
-                //         "ssl_ca");
-            }
-
-            String extOID = certData.getReqExtOID();
-            String extData = certData.getReqExtData();
-            boolean extCritical = certData.getReqExtCritical();
-
-            if (extOID != null && extData != null) {
-                // create generic Extension
-
-                // split extension data
-                // e.g. "abcdef" => ["ab", "cd", "ef"]
-                String[] array = extData.split("(?<=\\G.{2})");
-
-                // rejoin extension data
-                // e.g. ["ab", "cd", "ef"] => "DER:ab:cd:ef"
-                String der = "DER:" + String.join(":", array);
-
-                String value = der;
-                if (extCritical) {
-                    value = value + ",critical";
-                }
-
-                generator.setParameter(extOID, value);
-            }
-
-            Extensions requestExtensions = generator.createExtensions();
-
-            String subjectDN = certData.getSubjectDN();
-            String keyAlgorithm = certData.getKeyAlgorithm();
-
-            String certRequestType = certData.getRequestType();
-            logger.info("SystemConfigService: - request type: " + certRequestType);
-
-            byte[] binCertRequest;
-
-            if (certRequestType.equals("pkcs10")) {
-
-                PKCS10 pkcs10 = nssdb.createPKCS10Request(
-                        keyPair,
-                        subjectDN,
-                        keyAlgorithm,
-                        requestExtensions);
-
-                binCertRequest = pkcs10.toByteArray();
-
-            } else {
-                throw new Exception("Certificate request type not supported: " + certRequestType);
-            }
-
-            certData.setRequest(CryptoUtil.base64Encode(binCertRequest));
-
-            return certData;
-
-        } catch (PKIException e) { // normal response
-            logger.error("Configuration failed: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Configuration failed: " + e.getMessage(), e);
             throw e;
         }
     }
