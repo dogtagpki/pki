@@ -38,10 +38,12 @@ import urllib.parse
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 
+import pki.nssdb
 import pki.account
 import pki.client
 import pki.server
 import pki.system
+import pki.util
 
 from . import pkiconfig as config
 from . import pkihelper as util
@@ -122,6 +124,8 @@ class PKIDeployer:
 
         self.force = False
         self.remove_logs = False
+
+        self.temp_sslserver_cert_created = False
 
     def set_property(self, key, value, section=None):
 
@@ -1154,6 +1158,92 @@ class PKIDeployer:
 
         finally:
             shutil.rmtree(tmpdir)
+
+    def create_temp_sslserver_cert(self, instance):
+
+        self.temp_sslserver_cert_created = False
+
+        if len(self.instance.tomcat_instance_subsystems()) > 1:
+            return
+
+        hostname = self.mdict['pki_hostname']
+
+        token = self.mdict['pki_self_signed_token']
+        (key_type, key_size, curve, hash_alg) = self.get_key_params('sslserver')
+
+        nickname = self.mdict['pki_sslserver_nickname']
+        subject_dn = self.mdict['pki_self_signed_subject']
+        serial = self.mdict.get('pki_self_signed_serial_number')
+        validity = self.mdict.get('pki_self_signed_validity_period')
+        trust_attributes = self.mdict.get('pki_self_signed_trustargs')
+
+        instance.set_sslserver_cert_nickname(nickname)
+
+        tmpdir = tempfile.mkdtemp()
+        nssdb = instance.open_nssdb()
+
+        try:
+            logger.info('Checking existing SSL server cert: %s', nickname)
+            pem_cert = nssdb.get_cert(nickname=nickname)
+
+            if pem_cert:
+                cert = x509.load_pem_x509_certificate(pem_cert, default_backend())
+                cn = cert.subject.get_attributes_for_oid(x509.oid.NameOID.COMMON_NAME)[0]
+                cert_hostname = cn.value
+
+                logger.info('Existing SSL server cert is for %s', cert_hostname)
+
+                # if cert hostname is correct, don't create temp cert
+                if cert_hostname == hostname:
+                    return
+
+                logger.info('Removing SSL server cert for %s', cert_hostname)
+
+                nssdb.remove_cert(nickname=nickname, remove_key=True)
+
+            logger.info('Creating temp SSL server cert for %s', hostname)
+
+            # TODO: replace with pki-server create-cert --temp sslserver
+
+            # NOTE:  ALWAYS create the temporary sslserver certificate
+            #        in the software DB regardless of whether the
+            #        instance will utilize 'softokn' or an HSM
+
+            csr_file = os.path.join(tmpdir, 'sslserver.csr')
+            cert_file = os.path.join(tmpdir, 'sslserver.crt')
+
+            nssdb.create_request(
+                subject_dn=subject_dn,
+                request_file=csr_file,
+                token=token,
+                key_type=key_type,
+                key_size=key_size,
+                curve=curve,
+                hash_alg=hash_alg,
+                use_jss=True
+            )
+
+            nssdb.create_cert(
+                request_file=csr_file,
+                cert_file=cert_file,
+                serial=serial,
+                validity=validity,
+                use_jss=True
+            )
+
+            nssdb.add_cert(
+                nickname=nickname,
+                cert_file=cert_file,
+                token=token,
+                trust_attributes=trust_attributes,
+                use_jss=True
+            )
+
+        finally:
+            nssdb.close()
+            shutil.rmtree(tmpdir)
+
+        self.temp_sslserver_cert_created = True
 
     def create_cert(self, tag, request):
 

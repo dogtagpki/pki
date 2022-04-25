@@ -19,9 +19,6 @@
 #
 
 from __future__ import absolute_import
-from cryptography import x509
-from cryptography.hazmat.backends import default_backend
-from cryptography.x509.oid import NameOID
 import time
 import logging
 import os
@@ -33,10 +30,8 @@ import urllib.parse
 from .. import pkiconfig as config
 from .. import pkiscriptlet
 
-import pki.encoder
 import pki.nssdb
 import pki.server
-import pki.server.instance
 import pki.util
 
 logger = logging.getLogger(__name__)
@@ -44,84 +39,6 @@ logger = logging.getLogger(__name__)
 
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-
-    def create_temp_sslserver_cert(self, deployer, instance):
-
-        if len(deployer.instance.tomcat_instance_subsystems()) > 1:
-            return False
-
-        nickname = deployer.mdict['pki_sslserver_nickname']
-        instance.set_sslserver_cert_nickname(nickname)
-
-        tmpdir = tempfile.mkdtemp()
-        nssdb = instance.open_nssdb()
-
-        try:
-            logger.info('Checking existing SSL server cert: %s', nickname)
-            pem_cert = nssdb.get_cert(nickname=nickname)
-
-            if pem_cert:
-                cert = x509.load_pem_x509_certificate(pem_cert, default_backend())
-                cn = cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0]
-                hostname = cn.value
-
-                logger.info('Existing SSL server cert is for %s', hostname)
-
-                # if hostname is correct, don't create temp cert
-                if hostname == deployer.mdict['pki_hostname']:
-                    return False
-
-                logger.info('Removing SSL server cert for %s', hostname)
-
-                nssdb.remove_cert(
-                    nickname=nickname,
-                    remove_key=True)
-
-            logger.info('Creating temp SSL server cert for %s', deployer.mdict['pki_hostname'])
-
-            # TODO: replace with pki-server create-cert --temp sslserver
-
-            # NOTE:  ALWAYS create the temporary sslserver certificate
-            #        in the software DB regardless of whether the
-            #        instance will utilize 'softokn' or an HSM
-
-            csr_file = os.path.join(tmpdir, 'sslserver.csr')
-            cert_file = os.path.join(tmpdir, 'sslserver.crt')
-
-            (key_type, key_size, curve, hash_alg) = deployer.get_key_params('sslserver')
-
-            nssdb.create_request(
-                subject_dn=deployer.mdict['pki_self_signed_subject'],
-                request_file=csr_file,
-                token=deployer.mdict['pki_self_signed_token'],
-                key_type=key_type,
-                key_size=key_size,
-                curve=curve,
-                hash_alg=hash_alg,
-                use_jss=True
-            )
-
-            nssdb.create_cert(
-                request_file=csr_file,
-                cert_file=cert_file,
-                serial=deployer.mdict.get('pki_self_signed_serial_number'),
-                validity=deployer.mdict.get('pki_self_signed_validity_period'),
-                use_jss=True
-            )
-
-            nssdb.add_cert(
-                nickname=nickname,
-                cert_file=cert_file,
-                token=deployer.mdict['pki_self_signed_token'],
-                trust_attributes=deployer.mdict.get('pki_self_signed_trustargs'),
-                use_jss=True
-            )
-
-            return True
-
-        finally:
-            nssdb.close()
-            shutil.rmtree(tmpdir)
 
     def remove_temp_sslserver_cert(self, instance, sslserver):
 
@@ -462,7 +379,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             nssdb.close()
 
-        create_temp_sslserver_cert = self.create_temp_sslserver_cert(deployer, instance)
+        deployer.create_temp_sslserver_cert(instance)
 
         server_config = instance.get_server_config()
         unsecurePort = server_config.get_unsecure_port()
@@ -875,7 +792,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # If temp SSL server cert was created and there's a new perm cert,
         # replace it with the perm cert.
-        if create_temp_sslserver_cert and system_certs['sslserver']['data']:
+        if deployer.temp_sslserver_cert_created and system_certs['sslserver']['data']:
 
             logger.info('Stopping PKI server')
             instance.stop(
