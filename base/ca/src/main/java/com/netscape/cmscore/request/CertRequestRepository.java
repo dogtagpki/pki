@@ -41,7 +41,7 @@ public class CertRequestRepository extends RequestRepository {
 
     public Request createRequest(RequestId requestID, String requestType) throws EBaseException {
 
-        logger.info("CertRequestRepository: Creating request " + requestID.toHexString());
+        logger.debug("CertRequestRepository: Creating request " + requestID.toHexString());
         Request request = super.createRequest(requestID, requestType);
 
         request.setExtData("profile", "true");
@@ -66,9 +66,9 @@ public class CertRequestRepository extends RequestRepository {
             byte[] binRequest,
             String[] dnsNames) throws Exception {
 
-        logger.info("CertRequestRepository: Updating request " + request.getRequestId().toHexString());
+        logger.debug("CertRequestRepository: Updating request " + request.getRequestId().toHexString());
 
-        logger.info("CertRequestRepository: - type: " + requestType);
+        logger.debug("CertRequestRepository: - type: " + requestType);
         request.setExtData("cert_request_type", requestType);
 
         String b64CertRequest = CryptoUtil.base64Encode(binRequest);
@@ -96,7 +96,7 @@ public class CertRequestRepository extends RequestRepository {
             throw new Exception("Unsupported certificate request type: " + requestType);
         }
 
-        logger.info("CertRequestRepository: - subject: " + subjectName);
+        logger.debug("CertRequestRepository: - subject: " + subjectName);
         request.setExtData("subject", subjectName.toString());
 
         request.setExtData("req_key", x509key.toString());
@@ -105,7 +105,7 @@ public class CertRequestRepository extends RequestRepository {
 
         if (dnsNames != null) {
 
-            logger.info("CertRequestRepository: - DNS names:");
+            logger.debug("CertRequestRepository: - DNS names:");
 
             // Dynamically inject the SubjectAlternativeName extension to a
             // local/self-signed master CA's request for its SSL Server Certificate.
@@ -119,7 +119,7 @@ public class CertRequestRepository extends RequestRepository {
 
             int i = 0;
             for (String dnsName : dnsNames) {
-                logger.info("CertRequestRepository:   - " + dnsName);
+                logger.debug("CertRequestRepository:   - " + dnsName);
                 request.setExtData("req_san_pattern_" + i, dnsName);
                 i++;
             }
@@ -133,9 +133,9 @@ public class CertRequestRepository extends RequestRepository {
             String profileSetIDMapping,
             boolean installAdjustValidity) throws Exception {
 
-        logger.info("CertRequestRepository: Updating request " + request.getRequestId().toHexString());
-        logger.info("CertRequestRepository: - profile: " + profileID);
-        logger.info("CertRequestRepository: - adjust validity: " + installAdjustValidity);
+        logger.debug("CertRequestRepository: Updating profile for request " + request.getRequestId().toHexString());
+        logger.debug("CertRequestRepository: - profile: " + profileID);
+        logger.debug("CertRequestRepository: - adjust validity: " + installAdjustValidity);
 
         String origProfileID = profileID;
         int idx = origProfileID.lastIndexOf('.');
@@ -162,8 +162,8 @@ public class CertRequestRepository extends RequestRepository {
             Request request,
             X509CertImpl cert) throws Exception {
 
-        logger.info("CertRequestRepository: Updating request " + request.getRequestId().toHexString());
-        logger.info("CertRequestRepository: - cert serial number: 0x" + cert.getSerialNumber().toString(16));
+        logger.debug("CertRequestRepository: Updating cert for request " + request.getRequestId().toHexString());
+        logger.debug("CertRequestRepository: - cert serial number: 0x" + cert.getSerialNumber().toString(16));
 
         request.setExtData(EnrollProfile.REQUEST_CERTINFO, cert.getInfo());
         request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
