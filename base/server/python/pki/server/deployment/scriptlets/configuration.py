@@ -21,9 +21,6 @@
 from __future__ import absolute_import
 import time
 import logging
-import os
-import shutil
-import tempfile
 import urllib.parse
 
 # PKI Deployment Imports
@@ -31,58 +28,12 @@ from .. import pkiconfig as config
 from .. import pkiscriptlet
 
 import pki.nssdb
-import pki.server
-import pki.util
 
 logger = logging.getLogger(__name__)
 
 
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-
-    def import_perm_sslserver_cert(self, deployer, instance, cert):
-
-        nickname = cert['nickname']
-        token = pki.nssdb.normalize_token(cert['token'])
-
-        if not token:
-            token = deployer.mdict['pki_token_name']
-
-        logger.info(
-            'Importing permanent SSL server cert into %s token: %s',
-            token, nickname)
-
-        tmpdir = tempfile.mkdtemp()
-        nssdb = instance.open_nssdb(token)
-
-        try:
-            pem_cert = pki.nssdb.convert_cert(cert['data'], 'base64', 'pem')
-
-            cert_file = os.path.join(tmpdir, 'sslserver.crt')
-            with open(cert_file, 'w') as f:
-                f.write(pem_cert)
-
-            nssdb.add_cert(
-                nickname=nickname,
-                cert_file=cert_file)
-
-        finally:
-            nssdb.close()
-            shutil.rmtree(tmpdir)
-
-        # Reset the NSS database ownership and permissions
-        # after importing the permanent SSL server cert
-        # since it might create new files.
-        pki.util.chown(
-            deployer.mdict['pki_server_database_path'],
-            deployer.mdict['pki_uid'],
-            deployer.mdict['pki_gid'])
-        pki.util.chmod(
-            deployer.mdict['pki_server_database_path'],
-            config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-        os.chmod(
-            deployer.mdict['pki_server_database_path'],
-            pki.server.DEFAULT_DIR_MODE)
 
     def spawn(self, deployer):
 
@@ -780,7 +731,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # earlier in external/standalone installation.
 
             if not (standalone or external and subsystem.name in ['kra', 'ocsp']):
-                self.import_perm_sslserver_cert(deployer, instance, system_certs['sslserver'])
+                deployer.import_perm_sslserver_cert(instance, system_certs['sslserver'])
 
             # Store perm SSL server cert nickname and token
             nickname = system_certs['sslserver']['nickname']
