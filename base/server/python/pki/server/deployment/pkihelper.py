@@ -2547,39 +2547,6 @@ class ConfigClient:
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
 
-    def set_subsystem_cert_info(self, data):
-
-        # create new subsystem cert only if this is a new instance
-        system_list = self.deployer.instance.tomcat_instance_subsystems()
-
-        if not self.clone:
-
-            if self.standalone and self.external_step_two:
-
-                # Stand-alone PKI (Step 2)
-                cert4 = self.create_system_cert("subsystem")
-                data.systemCert = cert4
-
-            elif len(system_list) >= 2:
-
-                for subsystem in system_list:
-
-                    dst = self.mdict['pki_instance_path'] + '/conf/' + \
-                        subsystem.lower() + '/CS.cfg'
-
-                    if subsystem != self.subsystem and os.path.exists(dst):
-                        cert4 = self.retrieve_existing_subsystem_cert(dst)
-                        data.systemCert = cert4
-                        break
-
-            else:
-
-                # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
-                # Subordinate CA, or External CA
-
-                cert4 = self.create_system_cert("subsystem")
-                data.systemCert = cert4
-
     def create_system_cert(self, tag):
         cert = pki.system.SystemCertData()
         cert.tag = self.mdict["pki_%s_tag" % tag]

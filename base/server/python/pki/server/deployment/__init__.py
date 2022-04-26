@@ -893,7 +893,7 @@ class PKIDeployer:
             request.systemCert = self.config_client.create_system_cert('sslserver')
 
         elif tag == 'subsystem':
-            self.config_client.set_subsystem_cert_info(request)
+            request.systemCert = self.config_client.create_system_cert('subsystem')
 
         elif tag == 'audit_signing':
             request.systemCert = self.config_client.create_system_cert('audit_signing')
