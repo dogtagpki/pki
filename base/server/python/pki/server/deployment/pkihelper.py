@@ -2612,21 +2612,6 @@ class ConfigClient:
                 cert4 = self.create_system_cert("subsystem")
                 data.systemCert = cert4
 
-    def set_audit_signing_cert_info(self, data):
-
-        if not self.clone:
-
-            if self.standalone and self.external_step_two:
-
-                # Stand-alone PKI (Step 2)
-                cert5 = self.create_system_cert("audit_signing")
-                data.systemCert = cert5
-
-            elif self.subsystem != "RA":
-
-                cert5 = self.create_system_cert("audit_signing")
-                data.systemCert = cert5
-
     def create_system_cert(self, tag):
         cert = pki.system.SystemCertData()
         cert.tag = self.mdict["pki_%s_tag" % tag]

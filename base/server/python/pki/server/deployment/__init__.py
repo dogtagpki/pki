@@ -896,7 +896,7 @@ class PKIDeployer:
             self.config_client.set_subsystem_cert_info(request)
 
         elif tag == 'audit_signing':
-            self.config_client.set_audit_signing_cert_info(request)
+            request.systemCert = self.config_client.create_system_cert('audit_signing')
 
         else:
             raise Exception('Invalid tag for %s: %s' % (subsystem.type, tag))
