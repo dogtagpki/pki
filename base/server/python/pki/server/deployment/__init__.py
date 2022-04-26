@@ -881,7 +881,7 @@ class PKIDeployer:
             request.systemCert = self.config_client.create_system_cert('ocsp_signing')
 
         elif subsystem.type == 'KRA' and tag == 'storage':
-            self.config_client.set_storage_cert_info(request)
+            request.systemCert = self.config_client.create_system_cert('storage')
 
         elif subsystem.type == 'KRA' and tag == 'transport':
             self.config_client.set_transport_cert_info(request)

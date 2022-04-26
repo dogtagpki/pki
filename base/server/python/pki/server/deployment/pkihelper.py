@@ -2645,24 +2645,6 @@ class ConfigClient:
                 cert6 = self.create_system_cert("transport")
                 data.systemCert = cert6
 
-    def set_storage_cert_info(self, data):
-
-        if not self.clone:
-
-            if (self.subsystem == "KRA" and
-                    self.standalone and
-                    self.external_step_two):
-
-                # Stand-alone PKI KRA Storage Certificate (Step 2)
-                cert7 = self.create_system_cert("storage")
-                data.systemCert = cert7
-
-            elif self.subsystem == "KRA":
-
-                # PKI KRA Storage Certificate
-                cert7 = self.create_system_cert("storage")
-                data.systemCert = cert7
-
     def create_system_cert(self, tag):
         cert = pki.system.SystemCertData()
         cert.tag = self.mdict["pki_%s_tag" % tag]
