@@ -1467,10 +1467,6 @@ class PKIDeployer:
         logger.debug('PKIDeployer.setup_system_certs()')
         system_certs = {}
 
-        for system_cert in subsystem.find_system_certs():
-            cert_id = system_cert['id']
-            system_certs[cert_id] = system_cert
-
         clone = self.configuration_file.clone
         tomcat_instance_subsystems = len(self.instance.tomcat_instance_subsystems())
 
@@ -1478,18 +1474,25 @@ class PKIDeployer:
             config.str2bool(self.mdict['pki_existing']) or \
             config.str2bool(self.mdict['pki_standalone'])
 
-        for tag in subsystem.config['preop.cert.list'].split(','):
+        tags = subsystem.config['%s.cert.list' % subsystem.name].split(',')
+
+        for tag in tags:
+
+            logger.info('Setting up %s cert', tag)
+
+            system_cert = subsystem.get_subsystem_cert(tag)
+            system_certs[tag] = system_cert
 
             if tag != 'sslserver' and clone:
-                logger.info('%s certificate is already set up', tag)
+                logger.info('%s cert is already set up', tag)
                 continue
 
             if tag == 'sslserver' and tomcat_instance_subsystems > 1:
-                logger.info('sslserver certificate is already set up')
+                logger.info('sslserver cert is already set up')
                 continue
 
             if tag == 'subsystem' and tomcat_instance_subsystems > 1:
-                logger.info('subsystem certificate is already set up')
+                logger.info('subsystem cert is already set up')
                 continue
 
             # For external/standalone KRA/OCSP/TKS/TPS case, all system certs will be provided.
@@ -1498,9 +1501,9 @@ class PKIDeployer:
             if subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS'] and external:
                 continue
 
-            request = self.create_cert_setup_request(subsystem, tag, system_certs[tag])
+            request = self.create_cert_setup_request(subsystem, tag, system_cert)
 
-            self.setup_system_cert(nssdb, subsystem, tag, system_certs[tag], request)
+            self.setup_system_cert(nssdb, subsystem, tag, system_cert, request)
 
             if subsystem.type == 'CA' and tag == 'signing':
 
