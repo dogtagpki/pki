@@ -1325,21 +1325,27 @@ class PKIDeployer:
 
         logger.debug('PKIDeployer.setup_system_cert()')
 
+        # Check whether the cert already exists in NSS database
+
         cert_info = nssdb.get_cert_info(
             nickname=request.systemCert.nickname,
             token=request.systemCert.token)
 
         if cert_info:
-            logger.info('%s cert already exists', tag)
+            logger.info('%s cert already exists in NSS database', tag)
             logger.info('- serial: %s', hex(cert_info['serial_number']))
             logger.info('- subject: %s', cert_info['subject'])
             logger.info('- issuer: %s', cert_info['issuer'])
             logger.info('- trust flags: %s', cert_info['trust_flags'])
-        else:
-            logger.info('%s cert does not exist', tag)
 
-        # For external/existing CA case, some/all system certs may be provided.
-        # The SSL server cert will always be generated for the current host.
+        else:
+            logger.info('%s cert does not exist in NSS database', tag)
+
+        # For external/existing CA case, the requests and certs might be provided
+        # (i.e. already exists in NSS database), but they still need to be imported
+        # into internal database.
+        #
+        # A new SSL server cert will always be created separately later.
 
         external = config.str2bool(self.mdict['pki_external']) or \
             config.str2bool(self.mdict['pki_existing'])
@@ -1374,7 +1380,8 @@ class PKIDeployer:
 
             return
 
-        request.systemCert.keyID = self.find_cert_key(subsystem, tag, request)
+        if cert_info:
+            request.systemCert.keyID = self.find_cert_key(subsystem, tag, request)
 
         if not request.systemCert.keyID:
             request.systemCert.keyID = self.create_cert_key(subsystem, tag, request)
