@@ -84,7 +84,6 @@ class PKIDeployer:
         self.security_domain = None
         self.systemd = None
         self.tps_connector = None
-        self.config_client = None
         self.nss_db_type = None
 
         self.with_maven_deps = False
@@ -179,7 +178,6 @@ class PKIDeployer:
         self.security_domain = util.SecurityDomain(self)
         self.systemd = util.Systemd(self)
         self.tps_connector = util.TPSConnector(self)
-        self.config_client = util.ConfigClient(self)
 
         self.ds_init()
 
