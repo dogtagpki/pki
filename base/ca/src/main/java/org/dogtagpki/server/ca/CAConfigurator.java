@@ -37,7 +37,6 @@ import com.netscape.cms.servlet.csadmin.BootstrapProfile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
-import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
@@ -60,23 +59,6 @@ public class CAConfigurator extends Configurator {
         CertificateRepository certificateRepository = engine.getCertificateRepository();
         BigInteger serialNumber = certificateRepository.getNextSerialNumber();
         return new CertId(serialNumber);
-    }
-
-    public void createCertRecord(X509CertImpl cert, RequestId requestID, String profileID) throws Exception {
-
-        logger.info("CAConfigurator: Creating cert record 0x" + cert.getSerialNumber().toString(16));
-        logger.info("CAConfigurator: - subject: " + cert.getSubjectName());
-        logger.info("CAConfigurator: - issuer: " + cert.getIssuerName());
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-
-        CertRecord certRecord = certificateRepository.createCertRecord(
-                requestID,
-                profileID,
-                cert);
-
-        certificateRepository.addCertificateRecord(certRecord);
     }
 
     @Override
