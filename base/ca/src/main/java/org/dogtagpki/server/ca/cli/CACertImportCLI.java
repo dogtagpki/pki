@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -63,11 +62,11 @@ public class CACertImportCLI extends CommandCLI {
         option.setArgName("format");
         options.addOption(option);
 
-        option = new Option(null, "profile", true, "Profile ID");
+        option = new Option(null, "request", true, "Request ID");
         option.setArgName("ID");
         options.addOption(option);
 
-        option = new Option(null, "request", true, "Request ID");
+        option = new Option(null, "profile", true, "Profile ID");
         option.setArgName("ID");
         options.addOption(option);
 
@@ -115,6 +114,18 @@ public class CACertImportCLI extends CommandCLI {
 
         X509CertImpl cert = new X509CertImpl(bytes);
 
+        if (!cmd.hasOption("request")) {
+            throw new Exception("Missing request ID");
+        }
+
+        RequestId requestID = new RequestId(cmd.getOptionValue("request"));
+
+        if (!cmd.hasOption("profile")) {
+            throw new Exception("Missing profile ID");
+        }
+
+        String profileID = cmd.getOptionValue("profile");
+
         String catalinaBase = System.getProperty("catalina.base");
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
@@ -130,12 +141,6 @@ public class CACertImportCLI extends CommandCLI {
         CAEngineConfig cs = new CAEngineConfig(storage);
         cs.load();
 
-        if (!cmd.hasOption("profile")) {
-            throw new Exception("Missing profile ID");
-        }
-
-        String profileID = cmd.getOptionValue("profile");
-
         String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
         String profilePath = instanceRoot + configurationRoot + profileID;
@@ -146,12 +151,6 @@ public class CACertImportCLI extends CommandCLI {
         profileConfig.load();
 
         String profileIDMapping = profileConfig.getString("profileIDMapping");
-
-        if (!cmd.hasOption("request")) {
-            throw new Exception("Missing request ID");
-        }
-
-        RequestId requestID = new RequestId(cmd.getOptionValue("request"));
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
         LDAPConfig ldapConfig = dbConfig.getLDAPConfig();
@@ -172,8 +171,8 @@ public class CACertImportCLI extends CommandCLI {
             logger.info("Creating cert record 0x" + cert.getSerialNumber().toString(16) + ":");
             logger.info("- subject: " + cert.getSubjectName());
             logger.info("- issuer: " + cert.getIssuerName());
-            logger.info("- profile ID: " + profileIDMapping);
             logger.info("- request ID: " + requestID.toHexString());
+            logger.info("- profile ID mapping: " + profileIDMapping);
 
             CertRecord certRecord = certificateRepository.createCertRecord(
                     requestID,
@@ -189,10 +188,9 @@ public class CACertImportCLI extends CommandCLI {
 
             Request request = requestRepository.readRequest(requestID);
 
-            request.setExtData(EnrollProfile.REQUEST_CERTINFO, cert.getInfo());
-            request.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
-            request.setRequestStatus(RequestStatus.COMPLETE);
+            requestRepository.updateRequest(request, cert);
 
+            request.setRequestStatus(RequestStatus.COMPLETE);
             requestRepository.updateRequest(request);
 
         } finally {

@@ -1756,8 +1756,8 @@ class CASubsystem(PKISubsystem):
             cert_data=None,
             cert_path=None,
             cert_format=None,
-            profile_id=None,
-            request_id=None):
+            request_id=None,
+            profile_id=None):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -1781,11 +1781,11 @@ class CASubsystem(PKISubsystem):
             if cert_format:
                 cmd.extend(['--format', cert_format])
 
-            if profile_id:
-                cmd.extend(['--profile', profile_id])
-
             if request_id:
                 cmd.extend(['--request', request_id])
+
+            if profile_id:
+                cmd.extend(['--profile', profile_id])
 
             # run as current user so it can read the input file
             self.run(cmd, as_current_user=True)
