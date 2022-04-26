@@ -872,13 +872,42 @@ class PKIDeployer:
             request.systemCert.requestID = result['requestID']
             logger.info('- request ID: %s', request.systemCert.requestID)
 
+    def create_system_cert_info(self, subsystem, tag, request):
+
+        if subsystem.type == 'CA' and tag == 'signing':
+            self.config_client.set_ca_signing_cert_info(request)
+
+        elif subsystem.type == 'CA' and tag == 'ocsp_signing':
+            self.config_client.set_ocsp_signing_cert_info(request)
+
+        elif subsystem.type == 'KRA' and tag == 'storage':
+            self.config_client.set_storage_cert_info(request)
+
+        elif subsystem.type == 'KRA' and tag == 'transport':
+            self.config_client.set_transport_cert_info(request)
+
+        elif subsystem.type == 'OCSP' and tag == 'signing':
+            self.config_client.set_ocsp_signing_cert_info(request)
+
+        elif tag == 'sslserver':
+            self.config_client.set_sslserver_cert_info(request)
+
+        elif tag == 'subsystem':
+            self.config_client.set_subsystem_cert_info(request)
+
+        elif tag == 'audit_signing':
+            self.config_client.set_audit_signing_cert_info(request)
+
+        else:
+            raise Exception('Invalid tag for %s: %s' % (subsystem.type, tag))
+
     def create_cert_setup_request(self, subsystem, tag, cert):
 
         request = pki.system.CertificateSetupRequest()
         request.tag = tag
         request.pin = self.mdict['pki_one_time_pin']
 
-        self.config_client.set_system_cert_info(request, tag)
+        self.create_system_cert_info(subsystem, tag, request)
 
         if not request.systemCert.token:
             request.systemCert.token = subsystem.config['preop.module.token']

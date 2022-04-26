@@ -2547,33 +2547,6 @@ class ConfigClient:
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
 
-    def set_system_cert_info(self, request, tag):
-
-        if self.subsystem == 'CA' and tag == 'signing':
-            self.set_ca_signing_cert_info(request)
-
-        elif self.subsystem == 'CA' and tag == 'ocsp_signing' or \
-                self.subsystem == 'OCSP' and tag == 'signing':
-            self.set_ocsp_signing_cert_info(request)
-
-        elif tag == 'sslserver':
-            self.set_sslserver_cert_info(request)
-
-        elif tag == 'subsystem':
-            self.set_subsystem_cert_info(request)
-
-        elif tag == 'audit_signing':
-            self.set_audit_signing_cert_info(request)
-
-        elif tag == 'transport':
-            self.set_transport_cert_info(request)
-
-        elif tag == 'storage':
-            self.set_storage_cert_info(request)
-
-        else:
-            raise Exception('Unknown certificate tag: %s' % tag)
-
     def set_ca_signing_cert_info(self, data):
 
         if not self.clone:
