@@ -890,7 +890,7 @@ class PKIDeployer:
             request.systemCert = self.config_client.create_system_cert('ocsp_signing')
 
         elif tag == 'sslserver':
-            self.config_client.set_sslserver_cert_info(request)
+            request.systemCert = self.config_client.create_system_cert('sslserver')
 
         elif tag == 'subsystem':
             self.config_client.set_subsystem_cert_info(request)
