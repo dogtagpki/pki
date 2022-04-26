@@ -875,7 +875,7 @@ class PKIDeployer:
     def create_system_cert_info(self, subsystem, tag, request):
 
         if subsystem.type == 'CA' and tag == 'signing':
-            self.config_client.set_ca_signing_cert_info(request)
+            request.systemCert = self.config_client.create_system_cert('ca_signing')
 
         elif subsystem.type == 'CA' and tag == 'ocsp_signing':
             self.config_client.set_ocsp_signing_cert_info(request)

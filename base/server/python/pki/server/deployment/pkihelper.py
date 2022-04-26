@@ -2547,28 +2547,6 @@ class ConfigClient:
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
 
-    def set_ca_signing_cert_info(self, data):
-
-        if not self.clone:
-
-            if self.subsystem == "CA" or self.standalone:
-                cert1 = None
-
-                if self.subsystem == "CA":
-
-                    # PKI CA, Subordinate CA, or External CA
-                    cert1 = self.create_system_cert("ca_signing")
-
-                if self.external and self.external_step_two:
-
-                    # external/existing CA step 2
-                    data.systemCert = cert1
-
-                elif self.subsystem == "CA":
-
-                    # PKI CA or Subordinate CA
-                    data.systemCert = cert1
-
     def set_ocsp_signing_cert_info(self, data):
 
         if not self.clone:
