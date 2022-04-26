@@ -2547,15 +2547,6 @@ class ConfigClient:
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
 
-    def create_system_cert(self, tag):
-        cert = pki.system.SystemCertData()
-        cert.tag = self.mdict["pki_%s_tag" % tag]
-        cert.keySize = self.mdict["pki_%s_key_size" % tag]
-        cert.nickname = self.mdict["pki_%s_nickname" % tag]
-        cert.subjectDN = self.mdict["pki_%s_subject_dn" % tag]
-        cert.token = self.mdict["pki_%s_token" % tag]
-        return cert
-
     def retrieve_existing_server_cert(self, cfg_file):
         cs_cfg = PKIConfigParser.read_simple_configuration_file(cfg_file)
         cstype = cs_cfg.get('cs.type').lower()

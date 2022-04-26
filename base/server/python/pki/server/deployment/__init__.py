@@ -872,34 +872,43 @@ class PKIDeployer:
             request.systemCert.requestID = result['requestID']
             logger.info('- request ID: %s', request.systemCert.requestID)
 
-    def create_system_cert_info(self, subsystem, tag, request):
+    def create_system_cert_info(self, subsystem, tag):
 
         if subsystem.type == 'CA' and tag == 'signing':
-            request.systemCert = self.config_client.create_system_cert('ca_signing')
+            cert_id = 'ca_signing'
 
         elif subsystem.type == 'CA' and tag == 'ocsp_signing':
-            request.systemCert = self.config_client.create_system_cert('ocsp_signing')
+            cert_id = 'ocsp_signing'
 
         elif subsystem.type == 'KRA' and tag == 'storage':
-            request.systemCert = self.config_client.create_system_cert('storage')
+            cert_id = 'storage'
 
         elif subsystem.type == 'KRA' and tag == 'transport':
-            request.systemCert = self.config_client.create_system_cert('transport')
+            cert_id = 'transport'
 
         elif subsystem.type == 'OCSP' and tag == 'signing':
-            request.systemCert = self.config_client.create_system_cert('ocsp_signing')
+            cert_id = 'ocsp_signing'
 
         elif tag == 'sslserver':
-            request.systemCert = self.config_client.create_system_cert('sslserver')
+            cert_id = 'sslserver'
 
         elif tag == 'subsystem':
-            request.systemCert = self.config_client.create_system_cert('subsystem')
+            cert_id = 'subsystem'
 
         elif tag == 'audit_signing':
-            request.systemCert = self.config_client.create_system_cert('audit_signing')
+            cert_id = 'audit_signing'
 
         else:
             raise Exception('Invalid tag for %s: %s' % (subsystem.type, tag))
+
+        system_cert = pki.system.SystemCertData()
+        system_cert.tag = self.mdict['pki_%s_tag' % cert_id]
+        system_cert.keySize = self.mdict['pki_%s_key_size' % cert_id]
+        system_cert.nickname = self.mdict['pki_%s_nickname' % cert_id]
+        system_cert.subjectDN = self.mdict['pki_%s_subject_dn' % cert_id]
+        system_cert.token = self.mdict['pki_%s_token' % cert_id]
+
+        return system_cert
 
     def create_cert_setup_request(self, subsystem, tag, cert):
 
@@ -907,7 +916,7 @@ class PKIDeployer:
         request.tag = tag
         request.pin = self.mdict['pki_one_time_pin']
 
-        self.create_system_cert_info(subsystem, tag, request)
+        request.systemCert = self.create_system_cert_info(subsystem, tag)
 
         if not request.systemCert.token:
             request.systemCert.token = subsystem.config['preop.module.token']
