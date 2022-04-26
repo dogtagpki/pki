@@ -2547,24 +2547,6 @@ class ConfigClient:
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
 
-    def set_ocsp_signing_cert_info(self, data):
-
-        if not self.clone:
-
-            if (self.subsystem == "OCSP" and
-                    self.standalone and
-                    self.external_step_two):
-
-                # Stand-alone PKI OCSP (Step 2)
-                cert2 = self.create_system_cert("ocsp_signing")
-                data.systemCert = cert2
-
-            elif self.subsystem == "CA" or self.subsystem == "OCSP":
-
-                # External CA, Subordinate CA, PKI CA, or PKI OCSP
-                cert2 = self.create_system_cert("ocsp_signing")
-                data.systemCert = cert2
-
     def set_sslserver_cert_info(self, data):
 
         # create new sslserver cert only if this is a new instance
