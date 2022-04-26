@@ -900,7 +900,6 @@ class PKIDeployer:
             raise Exception('Invalid tag for %s: %s' % (subsystem.type, tag))
 
         system_cert = pki.system.SystemCertData()
-        system_cert.tag = self.mdict['pki_%s_tag' % cert_id]
         system_cert.keySize = self.mdict['pki_%s_key_size' % cert_id]
         system_cert.nickname = self.mdict['pki_%s_nickname' % cert_id]
         system_cert.subjectDN = self.mdict['pki_%s_subject_dn' % cert_id]

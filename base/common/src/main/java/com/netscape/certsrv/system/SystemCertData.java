@@ -36,8 +36,6 @@ import com.netscape.certsrv.util.JSONSerializer;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class SystemCertData implements JSONSerializer {
 
-    protected String tag;
-
     protected String nickname;
     protected String token;
 
@@ -74,20 +72,6 @@ public class SystemCertData implements JSONSerializer {
     protected String cert;
 
     public SystemCertData() {
-    }
-
-    /**
-     * @return the tag
-     */
-    public String getTag() {
-        return tag;
-    }
-
-    /**
-     * @param tag the tag to set
-     */
-    public void setTag(String tag) {
-        this.tag = tag;
     }
 
     /**
@@ -316,8 +300,7 @@ public class SystemCertData implements JSONSerializer {
     @Override
     public String toString() {
         return "SystemCertData["
-            + "tag=" + tag
-            + ", nickname=" + nickname
+            + "nickname=" + nickname
             + ", token=" + token
             + ", profile=" + profile
             + ", type=" + type
@@ -367,7 +350,6 @@ public class SystemCertData implements JSONSerializer {
                 request,
                 requestID,
                 subjectDN,
-                tag,
                 token,
                 type,
                 adjustValidity,
@@ -403,7 +385,7 @@ public class SystemCertData implements JSONSerializer {
                 && Objects.equals(request, other.request)
                 && Objects.equals(requestID, other.requestID)
                 && Objects.equals(subjectDN, other.subjectDN)
-                && Objects.equals(tag, other.tag) && Objects.equals(token, other.token)
+                && Objects.equals(token, other.token)
                 && Objects.equals(type, other.type)
                 && Objects.equals(adjustValidity, other.adjustValidity)
                 && Objects.equals(signingAlgorithm, other.signingAlgorithm);

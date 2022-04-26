@@ -21,7 +21,6 @@ public class SystemCertDataTest {
         before.setProfile("sit");
         before.setRequest("amet");
         before.setSubjectDN("consectetur");
-        before.setTag("adipiscing");
         before.setToken("elit");
         before.setType("sed");
     }

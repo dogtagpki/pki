@@ -212,7 +212,6 @@ public class ConfigurationTest {
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert1 = new SystemCertData();
-        cert1.setTag("signing");
         cert1.setKeySize("2048");
         cert1.setNickname("signingCert testca");
         cert1.setSubjectDN("CN=CA Signing Certificate");
@@ -221,7 +220,6 @@ public class ConfigurationTest {
         systemCerts.add(cert1);
 
         SystemCertData cert2 = new SystemCertData();
-        cert2.setTag("ocsp_signing");
         cert2.setKeySize("2048");
         cert2.setNickname("ocspSigningCert testca");
         cert2.setSubjectDN("CN= CA OCSP Signing Certificate");
@@ -229,7 +227,6 @@ public class ConfigurationTest {
         systemCerts.add(cert2);
 
         SystemCertData cert3 = new SystemCertData();
-        cert3.setTag("sslserver");
         cert3.setKeySize("2048");
         cert3.setNickname("sslServerCert testca");
         cert3.setSubjectDN("CN=" + host);
@@ -237,7 +234,6 @@ public class ConfigurationTest {
         systemCerts.add(cert3);
 
         SystemCertData cert4 = new SystemCertData();
-        cert4.setTag("subsystem");
         cert4.setKeySize("2048");
         cert4.setNickname("subsystemCert testca");
         cert4.setSubjectDN("CN=CA Subsystem Certificate");
@@ -245,7 +241,6 @@ public class ConfigurationTest {
         systemCerts.add(cert4);
 
         SystemCertData cert5 = new SystemCertData();
-        cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testca");
         cert5.setSubjectDN("CN=CA Audit Signing Certificate");
@@ -260,7 +255,6 @@ public class ConfigurationTest {
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert1 = new SystemCertData();
-        cert1.setTag("signing");
         cert1.setKeySize("2048");
         cert1.setNickname("signingCert testsubca");
         cert1.setSubjectDN("CN=SubCA Signing Certificate");
@@ -269,7 +263,6 @@ public class ConfigurationTest {
         systemCerts.add(cert1);
 
         SystemCertData cert2 = new SystemCertData();
-        cert2.setTag("ocsp_signing");
         cert2.setKeySize("2048");
         cert2.setNickname("ocspSigningCert testsubca");
         cert2.setSubjectDN("CN= SubCA OCSP Signing Certificate");
@@ -277,7 +270,6 @@ public class ConfigurationTest {
         systemCerts.add(cert2);
 
         SystemCertData cert3 = new SystemCertData();
-        cert3.setTag("sslserver");
         cert3.setKeySize("2048");
         cert3.setNickname("sslServerCert testsubca");
         cert3.setSubjectDN("CN=" + host);
@@ -285,7 +277,6 @@ public class ConfigurationTest {
         systemCerts.add(cert3);
 
         SystemCertData cert4 = new SystemCertData();
-        cert4.setTag("subsystem");
         cert4.setKeySize("2048");
         cert4.setNickname("subsystemCert testsubca");
         cert4.setSubjectDN("CN=SubCA Subsystem Certificate");
@@ -293,7 +284,6 @@ public class ConfigurationTest {
         systemCerts.add(cert4);
 
         SystemCertData cert5 = new SystemCertData();
-        cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testsubca");
         cert5.setSubjectDN("CN=SubCA Audit Signing Certificate");
@@ -308,7 +298,6 @@ public class ConfigurationTest {
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert1 = new SystemCertData();
-        cert1.setTag("signing");
         cert1.setKeySize("2048");
         cert1.setNickname("signingCert testexternalca");
         cert1.setSubjectDN("CN=External CA Signing Certificate");
@@ -317,7 +306,6 @@ public class ConfigurationTest {
         systemCerts.add(cert1);
 
         SystemCertData cert2 = new SystemCertData();
-        cert2.setTag("ocsp_signing");
         cert2.setKeySize("2048");
         cert2.setNickname("ocspSigningCert testexternalca");
         cert2.setSubjectDN("CN= External CA OCSP Signing Certificate");
@@ -325,7 +313,6 @@ public class ConfigurationTest {
         systemCerts.add(cert2);
 
         SystemCertData cert3 = new SystemCertData();
-        cert3.setTag("sslserver");
         cert3.setKeySize("2048");
         cert3.setNickname("sslServerCert testexternalca");
         cert3.setSubjectDN("CN=" + host);
@@ -333,7 +320,6 @@ public class ConfigurationTest {
         systemCerts.add(cert3);
 
         SystemCertData cert4 = new SystemCertData();
-        cert4.setTag("subsystem");
         cert4.setKeySize("2048");
         cert4.setNickname("subsystemCert testexternalca");
         cert4.setSubjectDN("CN=External CA Subsystem Certificate");
@@ -341,7 +327,6 @@ public class ConfigurationTest {
         systemCerts.add(cert4);
 
         SystemCertData cert5 = new SystemCertData();
-        cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testexternalca");
         cert5.setSubjectDN("CN=SubCA Audit Signing Certificate");
@@ -356,7 +341,6 @@ public class ConfigurationTest {
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert1 = new SystemCertData();
-        cert1.setTag("signing");
         cert1.setKeySize("2048");
         cert1.setNickname("signingCert testexternalca");
         cert1.setSubjectDN("CN=External CA Signing Certificate");
@@ -373,7 +357,6 @@ public class ConfigurationTest {
         systemCerts.add(cert1);
 
         SystemCertData cert2 = new SystemCertData();
-        cert2.setTag("ocsp_signing");
         cert2.setKeySize("2048");
         cert2.setNickname("ocspSigningCert testexternalca");
         cert2.setSubjectDN("CN= External CA OCSP Signing Certificate");
@@ -381,7 +364,6 @@ public class ConfigurationTest {
         systemCerts.add(cert2);
 
         SystemCertData cert3 = new SystemCertData();
-        cert3.setTag("sslserver");
         cert3.setKeySize("2048");
         cert3.setNickname("sslServerCert testexternalca");
         cert3.setSubjectDN("CN=" + host);
@@ -389,7 +371,6 @@ public class ConfigurationTest {
         systemCerts.add(cert3);
 
         SystemCertData cert4 = new SystemCertData();
-        cert4.setTag("subsystem");
         cert4.setKeySize("2048");
         cert4.setNickname("subsystemCert testexternalca");
         cert4.setSubjectDN("CN=External CA Subsystem Certificate");
@@ -397,7 +378,6 @@ public class ConfigurationTest {
         systemCerts.add(cert4);
 
         SystemCertData cert5 = new SystemCertData();
-        cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testexternalca");
         cert5.setSubjectDN("CN=SubCA Audit Signing Certificate");
@@ -412,7 +392,6 @@ public class ConfigurationTest {
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert3 = new SystemCertData();
-        cert3.setTag("sslserver");
         cert3.setKeySize("2048");
         cert3.setNickname("sslServerCert testca");
         cert3.setSubjectDN("CN=" + host);
@@ -427,7 +406,6 @@ public class ConfigurationTest {
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert1 = new SystemCertData();
-        cert1.setTag("transport");
         cert1.setKeySize("2048");
         cert1.setNickname("transportCert testkra");
         cert1.setSubjectDN("CN=KRA Transport Certificate");
@@ -436,7 +414,6 @@ public class ConfigurationTest {
         systemCerts.add(cert1);
 
         SystemCertData cert2 = new SystemCertData();
-        cert2.setTag("storage");
         cert2.setKeySize("2048");
         cert2.setNickname("storageCert testkra");
         cert2.setSubjectDN("CN= KRA Storage Certificate");
@@ -444,7 +421,6 @@ public class ConfigurationTest {
         systemCerts.add(cert2);
 
         SystemCertData cert3 = new SystemCertData();
-        cert3.setTag("sslserver");
         cert3.setKeySize("2048");
         cert3.setNickname("sslServerCert testkra");
         cert3.setSubjectDN("CN=" + host);
@@ -452,7 +428,6 @@ public class ConfigurationTest {
         systemCerts.add(cert3);
 
         SystemCertData cert4 = new SystemCertData();
-        cert4.setTag("subsystem");
         cert4.setKeySize("2048");
         cert4.setNickname("subsystemCert testkra");
         cert4.setSubjectDN("CN=KRA Subsystem Certificate");
@@ -460,7 +435,6 @@ public class ConfigurationTest {
         systemCerts.add(cert4);
 
         SystemCertData cert5 = new SystemCertData();
-        cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testkra");
         cert5.setSubjectDN("CN=KRA Audit Signing Certificate");
@@ -475,7 +449,6 @@ public class ConfigurationTest {
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
         SystemCertData cert1 = new SystemCertData();
-        cert1.setTag("signing");
         cert1.setKeySize("2048");
         cert1.setNickname("ocspSigningCert testocsp");
         cert1.setSubjectDN("CN=OCSP Signing Certificate");
@@ -484,7 +457,6 @@ public class ConfigurationTest {
         systemCerts.add(cert1);
 
         SystemCertData cert3 = new SystemCertData();
-        cert3.setTag("sslserver");
         cert3.setKeySize("2048");
         cert3.setNickname("sslServerCert testocsp");
         cert3.setSubjectDN("CN=" + host);
@@ -492,7 +464,6 @@ public class ConfigurationTest {
         systemCerts.add(cert3);
 
         SystemCertData cert4 = new SystemCertData();
-        cert4.setTag("subsystem");
         cert4.setKeySize("2048");
         cert4.setNickname("subsystemCert testocsp");
         cert4.setSubjectDN("CN=OCSP Subsystem Certificate");
@@ -500,7 +471,6 @@ public class ConfigurationTest {
         systemCerts.add(cert4);
 
         SystemCertData cert5 = new SystemCertData();
-        cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testocsp");
         cert5.setSubjectDN("CN=OCSP Audit Signing Certificate");
@@ -516,7 +486,6 @@ public class ConfigurationTest {
         List<SystemCertData> systemCerts = new ArrayList<>();
 
         SystemCertData cert3 = new SystemCertData();
-        cert3.setTag("sslserver");
         cert3.setKeySize("2048");
         cert3.setNickname("sslServerCert testtks");
         cert3.setSubjectDN("CN=" + host);
@@ -524,7 +493,6 @@ public class ConfigurationTest {
         systemCerts.add(cert3);
 
         SystemCertData cert4 = new SystemCertData();
-        cert4.setTag("subsystem");
         cert4.setKeySize("2048");
         cert4.setNickname("subsystemCert testtks");
         cert4.setSubjectDN("CN=TKS Subsystem Certificate");
@@ -532,7 +500,6 @@ public class ConfigurationTest {
         systemCerts.add(cert4);
 
         SystemCertData cert5 = new SystemCertData();
-        cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testtks");
         cert5.setSubjectDN("CN=TKS Audit Signing Certificate");
