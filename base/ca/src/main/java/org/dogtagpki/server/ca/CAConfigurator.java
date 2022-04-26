@@ -33,7 +33,6 @@ import com.netscape.ca.CASigningUnit;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.csadmin.BootstrapProfile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -147,19 +146,10 @@ public class CAConfigurator extends Configurator {
                 extensions);
 
         profile.populate(request, info);
+        requestRepository.updateRequest(request);
 
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
         logger.info("CAConfigurator: Cert info:\n" + info);
-
-        createCertRecord(
-                cert,
-                request.getRequestId(),
-                profileConfig.getString("profileIDMapping"));
-
-        requestRepository.updateRequest(request, cert);
-
-        request.setRequestStatus(RequestStatus.COMPLETE);
-        requestRepository.updateRequest(request);
 
         return cert;
     }

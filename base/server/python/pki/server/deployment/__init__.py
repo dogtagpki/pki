@@ -1321,6 +1321,19 @@ class PKIDeployer:
 
         return response['cert']
 
+    def import_cert(self, subsystem, tag, request, cert_data):
+
+        logger.info('Importing %s cert', tag)
+        logger.debug('- cert: %s', cert_data)
+
+        pem_cert = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
+
+        subsystem.import_cert(
+            cert_data=pem_cert,
+            cert_format='PEM',
+            request_id=request.systemCert.requestID,
+            profile_id=request.systemCert.profile)
+
     def setup_system_cert(self, nssdb, subsystem, tag, system_cert, request):
 
         logger.debug('PKIDeployer.setup_system_cert()')
@@ -1366,17 +1379,7 @@ class PKIDeployer:
             # Also create the certificate request record for renewals.
 
             self.import_cert_request(subsystem, tag, request)
-
-            logger.info('Importing %s cert', tag)
-            logger.debug('- cert: %s', system_cert['data'])
-
-            cert_data = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem')
-
-            subsystem.import_cert(
-                cert_data=cert_data,
-                cert_format='PEM',
-                profile_id=request.systemCert.profile,
-                request_id=request.systemCert.requestID)
+            self.import_cert(subsystem, tag, request, system_cert['data'])
 
             return
 
@@ -1443,6 +1446,7 @@ class PKIDeployer:
             self.import_cert_request(subsystem, tag, request)
 
             system_cert['data'] = self.create_cert(tag, request)
+            self.import_cert(subsystem, tag, request, system_cert['data'])
 
         cert_pem = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem').encode()
         cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
@@ -1838,14 +1842,14 @@ class PKIDeployer:
 
         self.import_cert_request(subsystem, 'admin', request)
 
-        logger.info('Creating admin cert')
-        response = self.client.createCert(request)
+        cert_data = self.create_cert('admin', request)
+        self.import_cert(subsystem, 'admin', request, cert_data)
 
-        cert_pem = pki.nssdb.convert_cert(response['cert'], 'base64', 'pem').encode()
+        cert_pem = pki.nssdb.convert_cert(cert_data, 'base64', 'pem').encode()
         cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
         logger.info('- serial: %s', hex(cert_obj.serial_number))
 
-        return response['cert']
+        return cert_data
 
     def get_admin_cert(self, subsystem):
 
