@@ -170,23 +170,17 @@ class PKISubsystem(object):
 
         return cert
 
-    def get_cert_info(self, cert_id):
+    def get_cert_info(self, tag):
 
-        logger.info('Getting %s cert info from CS.cfg', cert_id)
-
-        nickname = self.config.get('%s.%s.nickname' % (self.name, cert_id))
-        token = self.config.get('%s.%s.tokenname' % (self.name, cert_id))
+        logger.info('Getting %s cert info from CS.cfg', tag)
 
         cert = {}
-        cert['id'] = cert_id
-        cert['nickname'] = nickname
-        cert['token'] = token
-        cert['data'] = self.config.get(
-            '%s.%s.cert' % (self.name, cert_id), None)
-        cert['request'] = self.config.get(
-            '%s.%s.certreq' % (self.name, cert_id), None)
-        cert['certusage'] = self.config.get(
-            '%s.cert.%s.certusage' % (self.name, cert_id), None)
+        cert['id'] = tag
+        cert['nickname'] = self.config.get('%s.%s.nickname' % (self.name, tag))
+        cert['token'] = self.config.get('%s.%s.tokenname' % (self.name, tag))
+        cert['data'] = self.config.get('%s.%s.cert' % (self.name, tag))
+        cert['request'] = self.config.get('%s.%s.certreq' % (self.name, tag))
+        cert['certusage'] = self.config.get('%s.cert.%s.certusage' % (self.name, tag))
 
         return cert
 
