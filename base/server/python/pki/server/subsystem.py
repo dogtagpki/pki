@@ -154,17 +154,18 @@ class PKISubsystem(object):
 
         return certs
 
-    def get_subsystem_cert(self, cert_id):
+    def get_subsystem_cert(self, tag):
 
-        logger.debug('get_subsystem_cert')
+        logger.debug('PKISubsystem.get_subsystem_cert(%s)', tag)
 
-        cert = self.get_cert_info(cert_id)
+        cert = self.get_cert_info(tag)
 
-        # If nickname is empty, then cert cannot be queried for in NSSDB
         if not cert['nickname']:
             return cert
 
-        cert_info = self.get_nssdb_cert_info(cert_id)
+        # get cert info from NSS database
+        cert_info = self.get_nssdb_cert_info(tag)
+
         if cert_info:
             cert.update(cert_info)
 
