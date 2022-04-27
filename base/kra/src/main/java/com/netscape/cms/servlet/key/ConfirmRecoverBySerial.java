@@ -56,7 +56,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
      *
      */
     private static final long serialVersionUID = 2221819191344494389L;
-    private final static String INFO = "recoverBySerial";
+    private static final String INFO = "recoverBySerial";
     private final static String TPL_FILE =
             "confirmRecoverBySerial.template";
 
