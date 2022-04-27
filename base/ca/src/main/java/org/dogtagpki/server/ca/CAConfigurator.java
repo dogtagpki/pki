@@ -48,12 +48,6 @@ public class CAConfigurator extends Configurator {
         super(engine);
     }
 
-    public RequestId createRequestID() throws Exception {
-        CAEngine engine = CAEngine.getInstance();
-        CertRequestRepository requestRepository = engine.getCertRequestRepository();
-        return requestRepository.createRequestID();
-    }
-
     public CertId createCertID() throws Exception {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();

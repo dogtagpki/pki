@@ -187,10 +187,6 @@ public class Configurator {
         return null;
     }
 
-    public RequestId createRequestID() throws Exception {
-        return null;
-    }
-
     public CertId createCertID() throws Exception {
         return null;
     }

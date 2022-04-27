@@ -53,7 +53,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @author alee
  *
  */
-@Path("installer")
 public class SystemConfigService extends PKIService {
 
     public final static Logger logger = LoggerFactory.getLogger(SystemConfigService.class);
@@ -84,34 +83,6 @@ public class SystemConfigService extends PKIService {
         instanceRoot = cs.getInstanceDir();
 
         configurator = engine.createConfigurator();
-    }
-
-    @POST
-    @Path("createRequestID")
-    public RequestId createRequestID(CertificateSetupRequest request) throws Exception {
-        String tag = request.getTag();
-        logger.info("SystemConfigService: Creating cert request ID");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            RequestId requestID = configurator.createRequestID();
-            logger.info("SystemConfigService: - request ID: " + requestID.toHexString());
-
-            return requestID;
-
-        } catch (PKIException e) { // normal response
-            logger.error("Unable to import " + tag + " certificate request: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Unable to import " + tag + " certificate request: " + e.getMessage(), e);
-            throw e;
-        }
     }
 
     @POST
@@ -256,7 +227,7 @@ public class SystemConfigService extends PKIService {
         }
     }
 
-    private void validatePin(String pin) throws Exception {
+    public void validatePin(String pin) throws Exception {
 
         if (pin == null) {
             throw new BadRequestException("Missing configuration PIN");

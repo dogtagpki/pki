@@ -17,13 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca.rest;
 
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+
 import org.dogtagpki.server.ca.CAConfigurator;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.rest.SystemConfigService;
+
+import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.system.CertificateSetupRequest;
+import com.netscape.cmscore.request.CertRequestRepository;
 
 /**
  * @author alee
  *
  */
+@Path("installer")
 public class CAInstallerService extends SystemConfigService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAInstallerService.class);
@@ -32,5 +42,32 @@ public class CAInstallerService extends SystemConfigService {
 
     public CAInstallerService() throws Exception {
         caConfigurator = (CAConfigurator) configurator;
+    }
+
+    @POST
+    @Path("createRequestID")
+    public RequestId createRequestID(CertificateSetupRequest request) throws Exception {
+
+        logger.info("CAInstallerService: Creating request ID");
+
+        try {
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            CAEngine engine = CAEngine.getInstance();
+            CertRequestRepository requestRepository = engine.getCertRequestRepository();
+
+            RequestId requestID = requestRepository.createRequestID();
+            logger.info("CAInstallerService: - request ID: " + requestID.toHexString());
+
+            return requestID;
+
+        } catch (Throwable e) {
+            logger.error("Unable to create request ID: " + e.getMessage(), e);
+            throw e;
+        }
     }
 }
