@@ -184,13 +184,13 @@ class PKISubsystem(object):
 
         return cert
 
-    def get_nssdb_cert_info(self, cert_id):
+    def get_nssdb_cert_info(self, tag):
 
-        logger.debug('PKISubsystem.get_nssdb_cert_info()')
-        logger.info('Getting %s cert info from NSS database', cert_id)
+        logger.debug('PKISubsystem.get_nssdb_cert_info(%s)', tag)
+        logger.info('Getting %s cert info from NSS database', tag)
 
-        nickname = self.config.get('%s.%s.nickname' % (self.name, cert_id))
-        token = self.config.get('%s.%s.tokenname' % (self.name, cert_id))
+        nickname = self.config.get('%s.%s.nickname' % (self.name, tag))
+        token = self.config.get('%s.%s.tokenname' % (self.name, tag))
 
         nssdb = self.instance.open_nssdb()
         try:
