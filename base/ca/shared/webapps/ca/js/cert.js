@@ -56,8 +56,8 @@ var CertificateCollection = Collection.extend({
             keyLength: entry.KeyLength,
             keyAlgorithmOID: entry.KeyAlgorithmOID,
             status: entry.Status,
-            notValidBefore: entry.NotValidBefore,
-            notValidAfter: entry.NotValidAfter
+            notValidBefore: new Date(entry.NotValidBefore),
+            notValidAfter: new Date(entry.NotValidAfter)
         });
     }
 });
