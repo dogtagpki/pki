@@ -198,7 +198,7 @@ public class UpdateDir extends CMSServlet {
                 mClonedCA = true;
             }
 
-            process(argSet, header, req, resp, crlIssuingPointId, updateValue, locale[0]);
+            process(header, crlIssuingPointId, updateValue, locale[0]);
         } catch (EBaseException e) {
             error = e;
         }
@@ -329,9 +329,7 @@ public class UpdateDir extends CMSServlet {
         } // if
     }
 
-    private void process(CMSTemplateParams argSet, IArgBlock header,
-            HttpServletRequest req,
-            HttpServletResponse resp,
+    private void process(IArgBlock header,
             String crlIssuingPointId,
             String[] updateValue,
             Locale locale)

@@ -222,10 +222,11 @@ public class RecoverBySerial extends CMSServlet {
              */
             if ((initAsyncRecovery != null) &&
                     initAsyncRecovery.equalsIgnoreCase("ON")) {
-                process(form, argSet, header,
+                process(header,
                         req.getParameter(IN_SERIALNO),
                         req.getParameter(IN_CERT),
-                        req, resp, locale[0], realm);
+                        req,
+                        realm);
 
                 int requiredNumber = mService.getNoOfRequiredAgents();
                 header.addIntegerValue("noOfRequiredAgents", requiredNumber);
@@ -236,7 +237,7 @@ public class RecoverBySerial extends CMSServlet {
                     ctx.put(SessionContext.RECOVERY_ID,
                             req.getParameter("recoveryID"));
                 }
-                byte pkcs12[] = process(form, argSet, header,
+                byte pkcs12[] = process(header,
                         req.getParameter(IN_SERIALNO),
                         req.getParameter("localAgents"),
                         req.getParameter(IN_PASSWORD),
@@ -244,7 +245,8 @@ public class RecoverBySerial extends CMSServlet {
                         req.getParameter(IN_CERT),
                         req.getParameter(IN_DELIVERY),
                         req.getParameter(IN_NICKNAME),
-                        req, resp, locale[0], realm);
+                        req,
+                        locale[0]);
 
                 if (pkcs12 != null) {
                     //resp.setStatus(HttpServletResponse.SC_OK);
@@ -283,10 +285,8 @@ public class RecoverBySerial extends CMSServlet {
     /**
      * Async Key Recovery - request initiation
      */
-    private void process(CMSTemplate form, CMSTemplateParams argSet,
-            IArgBlock header, String seq, String cert,
-            HttpServletRequest req, HttpServletResponse resp,
-            Locale locale, String realm) {
+    private void process(IArgBlock header, String seq, String cert,
+            HttpServletRequest req, String realm) {
 
         // seq is the key id
         if (seq == null) {
@@ -337,12 +337,10 @@ public class RecoverBySerial extends CMSServlet {
      * Recovers a key. The p12 will be protected by the password
      * provided by the administrator.
      */
-    private byte[] process(CMSTemplate form, CMSTemplateParams argSet,
-            IArgBlock header, String seq, String localAgents,
+    private byte[] process(IArgBlock header, String seq, String localAgents,
             String password, String passwordAgain,
             String cert, String delivery, String nickname,
-            HttpServletRequest req, HttpServletResponse resp,
-            Locale locale, String realm) {
+            HttpServletRequest req, Locale locale) {
         if (seq == null) {
             header.addStringValue(OUT_ERROR, "sequence number not found");
             return null;

@@ -142,7 +142,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
             // only good for NS browser, not IE specifically.
             resp.setHeader("pragma", "no-cache");
 
-            process(argSet, header, seqNum, req, resp, locale[0]);
+            process(header, seqNum, req, locale[0]);
         } catch (NumberFormatException e) {
             header.addStringValue(OUT_ERROR,
                     CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
@@ -163,10 +163,8 @@ public class ConfirmRecoverBySerial extends CMSServlet {
     /**
      * Requests for a list of agent passwords.
      */
-    private void process(CMSTemplateParams argSet,
-            IArgBlock header, BigInteger seq,
-            HttpServletRequest req, HttpServletResponse resp,
-            Locale locale) {
+    private void process(IArgBlock header, BigInteger seq,
+            HttpServletRequest req, Locale locale) {
         try {
             header.addBigIntegerValue(OUT_SERIALNO, seq, 10);
             header.addIntegerValue(OUT_M,

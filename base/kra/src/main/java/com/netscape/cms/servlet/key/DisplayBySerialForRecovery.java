@@ -160,9 +160,8 @@ public class DisplayBySerialForRecovery extends CMSServlet {
             if (req.getParameter(IN_SERIALNO) != null) {
                 seqNum = new BigInteger(req.getParameter(IN_SERIALNO));
             }
-            process(argSet, header,
-                    req.getParameter("publicKeyData"),
-                    seqNum, req, resp, locale[0], authToken);
+            process(header, req.getParameter("publicKeyData"),
+                    seqNum, req, locale[0], authToken);
 
         } catch (EAuthzException e) {
             logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
@@ -194,9 +193,8 @@ public class DisplayBySerialForRecovery extends CMSServlet {
      * Display information about a particular key.
      * @throws EAuthzException
      */
-    private synchronized void process(CMSTemplateParams argSet,
-            IArgBlock header, String publicKeyData, BigInteger seq,
-            HttpServletRequest req, HttpServletResponse resp,
+    private synchronized void process(IArgBlock header, String publicKeyData,
+            BigInteger seq, HttpServletRequest req,
             Locale locale, IAuthToken authToken) throws EAuthzException {
 
         KRAEngine engine = KRAEngine.getInstance();

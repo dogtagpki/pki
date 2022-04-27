@@ -154,7 +154,7 @@ public class GetInfo extends CMSServlet {
         }
 
         try {
-            process(argSet, header, req, resp, locale[0]);
+            process(header);
         } catch (EBaseException e) {
             error = e;
         }
@@ -181,11 +181,7 @@ public class GetInfo extends CMSServlet {
         }
     }
 
-    private void process(CMSTemplateParams argSet, IArgBlock header,
-            HttpServletRequest req,
-            HttpServletResponse resp,
-            Locale locale)
-            throws EBaseException {
+    private void process(IArgBlock header) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
