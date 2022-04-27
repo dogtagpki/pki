@@ -38,9 +38,6 @@ public class KRAApplication extends Application {
         // audit
         classes.add(AuditService.class);
 
-        // installer
-        classes.add(KRAInstallerService.class);
-
         // security domain
         KRAEngine engine = KRAEngine.getInstance();
         EngineConfig cs = engine.getConfig();

@@ -50,9 +50,6 @@ public class TPSApplication extends Application {
         // audit
         classes.add(AuditService.class);
 
-        // installer
-        classes.add(TPSInstallerService.class);
-
         // user and group management
         classes.add(GroupService.class);
         classes.add(UserService.class);

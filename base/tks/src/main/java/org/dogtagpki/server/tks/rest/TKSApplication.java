@@ -29,9 +29,6 @@ public class TKSApplication extends Application {
         // audit
         classes.add(AuditService.class);
 
-        // installer
-        classes.add(TKSInstallerService.class);
-
         // selftests
         classes.add(SelfTestService.class);
 

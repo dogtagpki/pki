@@ -37,9 +37,6 @@ public class OCSPApplication extends Application {
         // audit
         classes.add(AuditService.class);
 
-        // installer
-        classes.add(OCSPInstallerService.class);
-
         // security domain
         OCSPEngine engine = OCSPEngine.getInstance();
         EngineConfig cs = engine.getConfig();
