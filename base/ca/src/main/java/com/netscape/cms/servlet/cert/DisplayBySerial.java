@@ -188,8 +188,7 @@ public class DisplayBySerial extends CMSServlet {
 
         try {
             if (serialNumber.compareTo(MINUS_ONE) > 0) {
-                process(argSet, header, serialNumber,
-                        req, resp, locale[0]);
+                process(header, serialNumber, req, locale[0]);
             } else {
                 error = new ECMSGWException(
                             CMS.getLogMessage("CMSGW_INVALID_SERIAL_NUMBER"));
@@ -224,10 +223,8 @@ public class DisplayBySerial extends CMSServlet {
     /**
      * Display information about a particular certificate
      */
-    private void process(CMSTemplateParams argSet, IArgBlock header,
-            BigInteger seq, HttpServletRequest req,
-            HttpServletResponse resp,
-            Locale locale)
+    private void process(IArgBlock header, BigInteger seq,
+            HttpServletRequest req, Locale locale)
             throws EBaseException {
         String certType[] = new String[1];
 
@@ -235,7 +232,7 @@ public class DisplayBySerial extends CMSServlet {
             getCertRecord(seq, certType); // throw exception on error
 
             if (certType[0].equalsIgnoreCase("x509")) {
-                processX509(argSet, header, seq, req, resp, locale);
+                processX509(header, seq, req, locale);
                 return;
             }
         } catch (EBaseException e) {
@@ -246,10 +243,8 @@ public class DisplayBySerial extends CMSServlet {
         return;
     }
 
-    private void processX509(CMSTemplateParams argSet, IArgBlock header,
-            BigInteger seq, HttpServletRequest req,
-            HttpServletResponse resp,
-            Locale locale)
+    private void processX509(IArgBlock header, BigInteger seq,
+            HttpServletRequest req, Locale locale)
             throws EBaseException {
         boolean b64CertOnly = false; // for request that needs only b64 cert
         String isB64CertOnly = req.getParameter("b64CertOnly");

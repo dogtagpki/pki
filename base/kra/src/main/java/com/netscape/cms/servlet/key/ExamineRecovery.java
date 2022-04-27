@@ -147,9 +147,7 @@ public class ExamineRecovery extends CMSServlet {
         EBaseException error = null;
 
         try {
-            process(argSet, header,
-                    req.getParameter("recoveryID"),
-                    req, resp, locale[0]);
+            process(header, req.getParameter("recoveryID"), req);
         } catch (EBaseException e) {
             error = e;
         } catch (Exception e) {
@@ -194,11 +192,7 @@ public class ExamineRecovery extends CMSServlet {
      * Recovers a key. The p12 will be protected by the password
      * provided by the administrator.
      */
-    private void process(CMSTemplateParams argSet,
-            IArgBlock header, String recoveryID,
-            HttpServletRequest req, HttpServletResponse resp,
-            Locale locale)
-            throws EBaseException {
+    private void process(IArgBlock header, String recoveryID, HttpServletRequest req) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
         KRAEngineConfig cs = engine.getConfig();

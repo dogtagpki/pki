@@ -155,7 +155,7 @@ public class DisplayBySerial extends CMSServlet {
             if (req.getParameter(IN_SERIALNO) != null) {
                 seqNum = new BigInteger(req.getParameter(IN_SERIALNO));
             }
-            process(argSet, header, seqNum, req, resp, locale[0], authToken);
+            process(header, seqNum, req,locale[0], authToken);
 
         } catch (EAuthzException e) {
             logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
@@ -183,10 +183,8 @@ public class DisplayBySerial extends CMSServlet {
      * Display information about a particular key.
      * @throws EAuthzException
      */
-    private void process(CMSTemplateParams argSet,
-            IArgBlock header, BigInteger seq,
-            HttpServletRequest req, HttpServletResponse resp,
-            Locale locale, IAuthToken authToken) throws EAuthzException {
+    private void process(IArgBlock header, BigInteger seq,
+            HttpServletRequest req, Locale locale, IAuthToken authToken) throws EAuthzException {
         try {
             header.addStringValue(OUT_OP,
                     req.getParameter(OUT_OP));
