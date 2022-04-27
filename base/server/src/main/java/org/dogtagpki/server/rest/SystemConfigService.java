@@ -101,7 +101,7 @@ public class SystemConfigService extends PKIService {
 
             SystemCertData certData = request.getSystemCert();
 
-            CertId certID = configurator.createCertID();
+            CertId certID = certData.getCertID();
             RequestId requestID = certData.getRequestID();
 
             String certRequestType = certData.getRequestType();

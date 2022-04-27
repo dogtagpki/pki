@@ -1352,6 +1352,11 @@ class PKIDeployer:
 
     def create_cert(self, tag, request):
 
+        # get a new cert ID from the server
+        logger.info('Creating cert ID for %s cert', tag)
+        request.systemCert.certID = self.client.createCertID(request)
+        logger.info('- cert ID: %s', request.systemCert.certID)
+
         logger.info('Creating %s cert', tag)
         response = self.client.createCert(request)
 

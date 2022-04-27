@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca;
 
-import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.util.Date;
 
@@ -37,7 +36,6 @@ import com.netscape.cms.servlet.csadmin.BootstrapProfile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
-import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -46,13 +44,6 @@ public class CAConfigurator extends Configurator {
 
     public CAConfigurator(CMSEngine engine) {
         super(engine);
-    }
-
-    public CertId createCertID() throws Exception {
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-        BigInteger serialNumber = certificateRepository.getNextSerialNumber();
-        return new CertId(serialNumber);
     }
 
     @Override

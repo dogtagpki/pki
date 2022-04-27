@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca.rest;
 
+import java.math.BigInteger;
+
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
@@ -25,8 +27,10 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.rest.SystemConfigService;
 
 import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.CertificateSetupRequest;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
 
 /**
@@ -67,6 +71,35 @@ public class CAInstallerService extends SystemConfigService {
 
         } catch (Throwable e) {
             logger.error("Unable to create request ID: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @POST
+    @Path("createCertID")
+    public CertId createCertID(CertificateSetupRequest request) throws Exception {
+
+        logger.info("CAInstallerService: Creating cert ID");
+
+        try {
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            CAEngine engine = CAEngine.getInstance();
+            CertificateRepository certificateRepository = engine.getCertificateRepository();
+
+            BigInteger serialNumber = certificateRepository.getNextSerialNumber();
+            CertId certID = new CertId(serialNumber);
+
+            logger.info("CAInstallerService: - cert ID: " + certID.toHexString());
+
+            return certID;
+
+        } catch (Throwable e) {
+            logger.error("Unable to create cert ID: " + e.getMessage(), e);
             throw e;
         }
     }

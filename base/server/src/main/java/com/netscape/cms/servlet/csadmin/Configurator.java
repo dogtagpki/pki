@@ -187,10 +187,6 @@ public class Configurator {
         return null;
     }
 
-    public CertId createCertID() throws Exception {
-        return null;
-    }
-
     public X509CertImpl createCert(
             CertId certID,
             RequestId requestID,
