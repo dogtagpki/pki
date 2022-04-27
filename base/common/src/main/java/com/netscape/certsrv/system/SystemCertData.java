@@ -24,6 +24,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -38,12 +39,7 @@ public class SystemCertData implements JSONSerializer {
     protected String tag;
 
     protected String nickname;
-
     protected String token;
-
-    protected String profile;
-
-    protected String type;
 
     protected String keyID;
     protected String keyType;
@@ -55,24 +51,27 @@ public class SystemCertData implements JSONSerializer {
 
     protected String keyAlgorithm;
 
+    protected RequestId requestID;
     protected String requestType;
     protected String request;
-    protected RequestId requestID;
 
     protected String subjectDN;
 
-    protected String cert;
-
     protected String req_ext_oid;
-
     protected String req_ext_critical;
-
     protected String req_ext_data;
 
     protected String[] dnsNames;
     protected boolean adjustValidity;
 
     protected String signingAlgorithm;
+
+    protected String type;
+
+    protected String profile;
+
+    protected CertId certID;
+    protected String cert;
 
     public SystemCertData() {
     }
@@ -247,6 +246,14 @@ public class SystemCertData implements JSONSerializer {
         this.subjectDN = subjectDN;
     }
 
+    public CertId getCertID() {
+        return certID;
+    }
+
+    public void setCertID(CertId certID) {
+        this.certID = certID;
+    }
+
     /**
      * @return the cert
      */
@@ -325,6 +332,7 @@ public class SystemCertData implements JSONSerializer {
             + ", request=" + request
             + ", requestID=" + requestID
             + ", subjectDN=" + subjectDN
+            + ", certID=" + certID
             + ", cert=" + cert
             + ", req_ext_oid=" + req_ext_oid
             + ", req_ext_critical=" + req_ext_critical
@@ -341,6 +349,7 @@ public class SystemCertData implements JSONSerializer {
         int result = 1;
         result = prime * result + Arrays.hashCode(dnsNames);
         result = prime * result + Objects.hash(
+                certID,
                 cert,
                 keyID,
                 keyType,
@@ -375,7 +384,8 @@ public class SystemCertData implements JSONSerializer {
         if (getClass() != obj.getClass())
             return false;
         SystemCertData other = (SystemCertData) obj;
-        return Objects.equals(cert, other.cert)
+        return Objects.equals(certID, other.certID)
+                && Objects.equals(cert, other.cert)
                 && Arrays.equals(dnsNames, other.dnsNames)
                 && Objects.equals(keyID, other.keyID)
                 && Objects.equals(keyType, other.keyType)
