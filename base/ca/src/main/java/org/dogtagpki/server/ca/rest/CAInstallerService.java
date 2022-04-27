@@ -52,6 +52,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.csadmin.BootstrapProfile;
+import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -71,6 +72,20 @@ public class CAInstallerService extends SystemConfigService {
 
     public CAInstallerService() throws Exception {
         caConfigurator = (CAConfigurator) configurator;
+    }
+
+    public void validatePin(String pin) throws Exception {
+
+        if (pin == null) {
+            throw new BadRequestException("Missing configuration PIN");
+        }
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        String preopPin = preopConfig.getString("pin");
+
+        if (!preopPin.equals(pin)) {
+            throw new BadRequestException("Invalid configuration PIN");
+        }
     }
 
     @POST

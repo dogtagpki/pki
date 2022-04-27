@@ -20,13 +20,11 @@ package org.dogtagpki.server.rest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.apps.PreOpConfig;
 
 /**
  * @author alee
@@ -62,19 +60,5 @@ public class SystemConfigService extends PKIService {
         instanceRoot = cs.getInstanceDir();
 
         configurator = engine.createConfigurator();
-    }
-
-    public void validatePin(String pin) throws Exception {
-
-        if (pin == null) {
-            throw new BadRequestException("Missing configuration PIN");
-        }
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String preopPin = preopConfig.getString("pin");
-        if (!preopPin.equals(pin)) {
-            throw new BadRequestException("Invalid configuration PIN");
-        }
     }
 }
