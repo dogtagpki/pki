@@ -198,7 +198,7 @@ public class CACertRequestSubmitCLI extends CommandCLI {
 
             csr = loadFile(csrFilename);
 
-            logger.info("CSR:\n" + csr);
+            logger.debug("CSR:\n" + csr);
 
             for (ProfileInput input : request.getInputs()) {
                 ProfileAttribute csrAttr = input.getAttribute("cert_request");
