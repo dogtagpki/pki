@@ -180,7 +180,4 @@ public class Configurator {
         }
         return null;
     }
-
-    public void initSubsystem() throws Exception {
-    }
 }

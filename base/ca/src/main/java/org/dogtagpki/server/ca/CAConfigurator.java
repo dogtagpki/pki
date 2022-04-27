@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -25,16 +24,5 @@ public class CAConfigurator extends Configurator {
 
     public CAConfigurator(CMSEngine engine) {
         super(engine);
-    }
-
-    @Override
-    public void initSubsystem() throws Exception {
-
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig engineConfig = engine.getConfig();
-
-        CertificateAuthority ca = engine.getCA();
-        ca.setConfig(engineConfig.getCAConfig());
-        ca.initCertSigningUnit();
     }
 }

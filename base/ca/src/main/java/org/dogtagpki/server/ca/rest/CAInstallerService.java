@@ -45,6 +45,7 @@ import org.mozilla.jss.pkcs11.PK11PrivKey;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 
 import com.netscape.ca.CASigningUnit;
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
@@ -280,6 +281,32 @@ public class CAInstallerService extends SystemConfigService {
 
         } catch (Throwable e) {
             logger.error("Unable to create cert: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @POST
+    @Path("initSubsystem")
+    public void initSubsystem(CertificateSetupRequest request) throws Exception {
+
+        logger.info("CAInstallerService: Initializing subsystem");
+
+        try {
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            CAEngine engine = CAEngine.getInstance();
+            CAEngineConfig engineConfig = engine.getConfig();
+
+            CertificateAuthority ca = engine.getCA();
+            ca.setConfig(engineConfig.getCAConfig());
+            ca.initCertSigningUnit();
+
+        } catch (Throwable e) {
+            logger.error("Unable to initialize subsystem: " + e.getMessage(), e);
             throw e;
         }
     }

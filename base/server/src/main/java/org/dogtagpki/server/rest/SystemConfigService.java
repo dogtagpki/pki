@@ -17,15 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.rest;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.BadRequestException;
-import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
@@ -67,31 +62,6 @@ public class SystemConfigService extends PKIService {
         instanceRoot = cs.getInstanceDir();
 
         configurator = engine.createConfigurator();
-    }
-
-    @POST
-    @Path("initSubsystem")
-    public void initSubsystem(CertificateSetupRequest request) throws Exception {
-
-        logger.info("SystemConfigService: Initializing subsystem");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            configurator.initSubsystem();
-
-        } catch (PKIException e) { // normal response
-            logger.error("Configuration failed: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Configuration failed: " + e.getMessage(), e);
-            throw e;
-        }
     }
 
     public void validatePin(String pin) throws Exception {
