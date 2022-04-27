@@ -187,11 +187,6 @@ public class CAEngine extends CMSEngine {
     }
 
     @Override
-    public CAConfigurator createConfigurator() throws Exception {
-        return new CAConfigurator(this);
-    }
-
-    @Override
     public void initDatabase() throws Exception {
         CAEngineConfig config = getConfig();
         PKISocketConfig socketConfig = config.getSocketConfig();

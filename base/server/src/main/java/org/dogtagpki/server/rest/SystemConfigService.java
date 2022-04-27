@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -33,8 +32,6 @@ import com.netscape.cmscore.apps.EngineConfig;
 public class SystemConfigService extends PKIService {
 
     public final static Logger logger = LoggerFactory.getLogger(SystemConfigService.class);
-
-    public Configurator configurator;
 
     public EngineConfig cs;
     public String csType;
@@ -58,7 +55,5 @@ public class SystemConfigService extends PKIService {
         }
 
         instanceRoot = cs.getInstanceDir();
-
-        configurator = engine.createConfigurator();
     }
 }

@@ -62,7 +62,6 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.realm.PKIRealm;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cms.tomcat.ProxyRealm;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.VerifiedCert;
@@ -729,10 +728,6 @@ public class CMSEngine implements ServletContextListener {
         // when installing a clone of an existing clone.
         // https://github.com/dogtagpki/pki/issues/3330
         configurePorts();
-    }
-
-    public Configurator createConfigurator() throws Exception {
-        return new Configurator(this);
     }
 
     public ConfigStore loadConfigStore(String path) throws EBaseException {

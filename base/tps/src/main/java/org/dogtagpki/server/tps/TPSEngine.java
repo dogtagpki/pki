@@ -45,9 +45,4 @@ public class TPSEngine extends CMSEngine {
     public TPSEngineConfig getConfig() {
         return (TPSEngineConfig) mConfig;
     }
-
-    @Override
-    public TPSConfigurator createConfigurator() throws Exception {
-        return new TPSConfigurator(this);
-    }
 }

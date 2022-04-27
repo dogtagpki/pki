@@ -26,7 +26,6 @@ import javax.ws.rs.Path;
 
 import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.server.ca.CAConfig;
-import org.dogtagpki.server.ca.CAConfigurator;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.rest.SystemConfigService;
@@ -68,10 +67,7 @@ public class CAInstallerService extends SystemConfigService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAInstallerService.class);
 
-    public CAConfigurator caConfigurator;
-
     public CAInstallerService() throws Exception {
-        caConfigurator = (CAConfigurator) configurator;
     }
 
     public void validatePin(String pin) throws Exception {

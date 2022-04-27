@@ -50,11 +50,6 @@ public class KRAEngine extends CMSEngine {
         return (KRAEngineConfig) mConfig;
     }
 
-    @Override
-    public KRAConfigurator createConfigurator() throws Exception {
-        return new KRAConfigurator(this);
-    }
-
     public KeyRequestRepository getKeyRequestRepository() {
         return (KeyRequestRepository) requestRepository;
     }

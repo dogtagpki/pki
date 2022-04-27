@@ -50,11 +50,6 @@ public class OCSPEngine extends CMSEngine {
     }
 
     @Override
-    public OCSPConfigurator createConfigurator() throws Exception {
-        return new OCSPConfigurator(this);
-    }
-
-    @Override
     public void initSubsystem(ISubsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof OCSPAuthority) {

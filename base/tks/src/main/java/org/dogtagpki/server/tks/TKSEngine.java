@@ -50,11 +50,6 @@ public class TKSEngine extends CMSEngine {
     }
 
     @Override
-    public TKSConfigurator createConfigurator() throws Exception {
-        return new TKSConfigurator(this);
-    }
-
-    @Override
     public void initSubsystem(ISubsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof TKSAuthority) {
