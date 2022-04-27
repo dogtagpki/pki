@@ -18,16 +18,12 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.math.BigInteger;
-import java.security.PrivateKey;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +32,6 @@ import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -184,22 +178,6 @@ public class Configurator {
                 }
             }
         }
-        return null;
-    }
-
-    public X509CertImpl createCert(
-            CertId certID,
-            RequestId requestID,
-            String keyAlgorithm,
-            X509Key x509key,
-            String profileID,
-            PrivateKey signingPrivateKey,
-            String signingAlgorithm,
-            String certRequestType,
-            byte[] binCertRequest,
-            X500Name issuerName,
-            X500Name subjectName) throws Exception {
-
         return null;
     }
 
