@@ -36,6 +36,7 @@ import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
@@ -190,7 +191,12 @@ public class Configurator {
         return null;
     }
 
+    public CertId createCertID() throws Exception {
+        return null;
+    }
+
     public X509CertImpl createCert(
+            CertId certID,
             RequestId requestID,
             String keyAlgorithm,
             X509Key x509key,

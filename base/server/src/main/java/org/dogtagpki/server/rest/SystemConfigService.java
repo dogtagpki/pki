@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
@@ -129,6 +130,7 @@ public class SystemConfigService extends PKIService {
 
             SystemCertData certData = request.getSystemCert();
 
+            CertId certID = configurator.createCertID();
             RequestId requestID = certData.getRequestID();
 
             String certRequestType = certData.getRequestType();
@@ -202,6 +204,7 @@ public class SystemConfigService extends PKIService {
             logger.info("SystemConfigService: - signing algorithm: " + signingAlgorithm);
 
             X509CertImpl certImpl = configurator.createCert(
+                    certID,
                     requestID,
                     keyAlgorithm,
                     x509key,

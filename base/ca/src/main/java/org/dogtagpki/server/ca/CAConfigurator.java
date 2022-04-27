@@ -63,6 +63,7 @@ public class CAConfigurator extends Configurator {
 
     @Override
     public X509CertImpl createCert(
+            CertId certID,
             RequestId requestID,
             String keyAlgorithm,
             X509Key x509key,
@@ -80,7 +81,6 @@ public class CAConfigurator extends Configurator {
         CertRequestRepository requestRepository = engine.getCertRequestRepository();
         Request request = requestRepository.readRequest(requestID);
 
-        CertId certID = createCertID();
         logger.info("CAConfigurator: Creating cert " + certID.toHexString());
 
         logger.info("CAConfigurator: - subject: " + subjectName);
