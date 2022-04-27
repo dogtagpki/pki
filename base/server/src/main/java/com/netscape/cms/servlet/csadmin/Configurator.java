@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.math.BigInteger;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -47,12 +46,6 @@ import com.netscape.cmscore.apps.ServerXml;
 public class Configurator {
 
     public final static Logger logger = LoggerFactory.getLogger(Configurator.class);
-
-    public static String SUCCESS = "0";
-    public static String FAILURE = "1";
-    public static String AUTH_FAILURE = "2";
-    public static final BigInteger BIG_ZERO = new BigInteger("0");
-    public static final Long MINUS_ONE = Long.valueOf(-1);
 
     public static ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
 

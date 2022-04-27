@@ -6,6 +6,7 @@
 package org.dogtagpki.server.ocsp.cli;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
@@ -26,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -138,8 +138,8 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
         // database
         ICRLIssuingPointRecord record = store.createCRLIssuingPointRecord(
                 cert.getSubjectDN().getName(),
-                Configurator.BIG_ZERO,
-                Configurator.MINUS_ONE, null, null);
+                BigInteger.ZERO,
+                -1L, null, null);
 
         record.set(ICRLIssuingPointRecord.ATTR_CA_CERT, cert.getEncoded());
         store.addCRLIssuingPoint(cert.getSubjectDN().getName(), record);
