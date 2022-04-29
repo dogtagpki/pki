@@ -118,7 +118,7 @@ public class DualKeyGenInput extends EnrollInput {
             mEnrollProfile.fillPKCS10(getLocale(request), pkcs10, info, request);
         } else if (keygen_request_type.startsWith("keygen")) {
 
-            DerInputStream keygen = CertUtils.parseKeyGen(getLocale(request), keygen_request);
+            DerInputStream keygen = CertUtils.parseKeyGen(keygen_request);
 
             mEnrollProfile.fillKeyGen(getLocale(request), keygen, info, request);
         } else if (keygen_request_type.startsWith("crmf")) {
