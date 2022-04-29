@@ -94,7 +94,7 @@ public class CertUtils {
     public static final String END_CRL_HEADER =
             "-----END CERTIFICATE REVOCATION LIST-----";
 
-    public static DerInputStream parseKeyGen(Locale locale, String certreq) throws Exception {
+    public static DerInputStream parseKeyGen(String certreq) throws Exception {
         byte[] data = Utils.base64decode(certreq);
         return new DerInputStream(data);
     }

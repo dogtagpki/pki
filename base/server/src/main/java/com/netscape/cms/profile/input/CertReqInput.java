@@ -131,7 +131,7 @@ public class CertReqInput extends EnrollInput {
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_KEYGEN)) {
 
             logger.debug(method + "cert_request_type= REQ_TYPE_KEYGEN");
-            DerInputStream keygen = CertUtils.parseKeyGen(getLocale(request), cert_request);
+            DerInputStream keygen = CertUtils.parseKeyGen(cert_request);
 
             if (keygen == null) {
                 throw new EProfileException(CMS.getUserMessage(
