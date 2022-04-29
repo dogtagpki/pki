@@ -33,7 +33,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
@@ -443,19 +442,6 @@ public abstract class Profile {
 
     public void addInputName(String name) {
         mInputNames.addElement(name);
-    }
-
-    public IDescriptor getInputDescriptor(String name) {
-        return null;
-    }
-
-    public String getInput(String name, Locale locale, Request request)
-            throws EProfileException {
-        return null;
-    }
-
-    public void setInput(String name, Locale locale, Request request,
-            String value) throws EProfileException {
     }
 
     /**
