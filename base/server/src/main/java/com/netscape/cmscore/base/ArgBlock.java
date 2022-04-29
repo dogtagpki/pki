@@ -146,7 +146,7 @@ public class ArgBlock implements IArgBlock {
     @Override
     public String getValueAsString(String n) throws EBaseException {
         String t = (String) mArgs.get(n);
-        logger.trace("GET r={},k={},v={}", mType, n, t);
+        logger.trace("GET r={},k={},v={}", mType, n, CMS.isSensitive(n)?": (sensitive)":t);
 
         if (t != null) {
             return t;
@@ -165,7 +165,7 @@ public class ArgBlock implements IArgBlock {
     @Override
     public String getValueAsString(String n, String def) {
         String val = (String) mArgs.get(n);
-        logger.trace("GET r={},k={},v={},d={}", mType, n, val, def);
+        logger.trace("GET r={},k={},v={},d={}", mType, n, CMS.isSensitive(n)?": (sensitive)":val, def);
 
         if (val != null) {
             return val;
