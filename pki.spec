@@ -6,6 +6,12 @@ Name:             pki
 %global           product_id dogtag-pki
 %global           theme dogtag
 
+# Development phase:
+# - development (unsupported): alpha<n> where n >= 1
+# - stabilization (unsupported): beta<n> where n >= 1
+# - GA/update (supported): <none>
+%global           phase beta1
+
 %undefine         timestamp
 %undefine         commit_id
 
@@ -17,8 +23,7 @@ License:          GPLv2 and LGPLv2
 # For development (i.e. unsupported) releases, use x.y.z-0.n.<phase>.
 # For official (i.e. supported) releases, use x.y.z-r where r >=1.
 Version:          11.2.0
-Release:          0.2.beta1%{?timestamp:.}%{?timestamp}%{?commit_id:.}%{?commit_id}%{?dist}
-%global           _phase -beta1
+Release:          0.2%{?phase:.}%{?phase}%{?timestamp:.}%{?timestamp}%{?commit_id:.}%{?commit_id}%{?dist}
 
 # To create a tarball from a version tag:
 # $ git archive \
@@ -26,7 +31,7 @@ Release:          0.2.beta1%{?timestamp:.}%{?timestamp}%{?commit_id:.}%{?commit_
 #     --prefix pki-<version>/ \
 #     -o pki-<version>.tar.gz \
 #     <version tag>
-Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{version}%{?_phase}.tar.gz
+Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?phase:-}%{?phase}/pki-%{version}%{?phase:-}%{?phase}.tar.gz
 
 # To create a patch for all changes since a version tag:
 # $ git format-patch \
@@ -784,7 +789,7 @@ This package provides test suite for %{product_name}.
 %prep
 ################################################################################
 
-%autosetup -n pki-%{version}%{?_phase} -p 1
+%autosetup -n pki-%{version}%{?phase:-}%{?phase} -p 1
 
 ################################################################################
 %build
