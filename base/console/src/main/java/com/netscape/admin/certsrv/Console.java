@@ -1588,6 +1588,7 @@ public class Console implements CommClient {
         String default_nssdb_path = FilePreferenceManager.getHomePath();
         System.out.println(" -d <nssdb path>   path to nssdb (default: " +
                 default_nssdb_path + ")");
+	System.out.println(" -n <client_cert_nick> nickname of optional client auth cert");
         System.out.println(" -x <options>   Extra options (javalaf, nowinpos, nologo).");
         System.out.println(" -v,--verbose   Run in verbose mode.");
         System.out.println(" -h,--help      Show help message.");
@@ -1617,6 +1618,10 @@ public class Console implements CommClient {
         option = new Option("d", true, "path to nssdb.");
         option.setArgName("options");
         options.addOption(option);
+
+	option = new Option("n",true,"client cert nickname");
+	option.setArgName("options");
+	options.addOption(option);
 
         option = new Option("x", true, "Extra options (javalaf, nowinpos, nologo).");
         option.setArgName("options");
@@ -1780,6 +1785,7 @@ public class Console implements CommClient {
         CryptoManager manager = null;
         String default_nssdb_path = FilePreferenceManager.getHomePath();
 	String nssdb_path = cmd.getOptionValue("d", default_nssdb_path);
+	String client_cert_nick = cmd.getOptionValue("n", null);
 	logger.info("NSS database: " + nssdb_path);
         try {
             CryptoManager.initialize(nssdb_path);
@@ -1794,6 +1800,9 @@ public class Console implements CommClient {
 
         ClientConfig config = new ClientConfig();
         config.setServerURL(protocol, hostName, portNumber);
+        if(client_cert_nick != null) {
+            config.setCertNickname(client_cert_nick);
+        }
 
         PKIClient client = new PKIClient(config);
 
