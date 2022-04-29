@@ -6,6 +6,9 @@ Name:             pki
 %global           product_id dogtag-pki
 %global           theme dogtag
 
+%undefine         timestamp
+%undefine         commit_id
+
 Summary:          %{product_name} Package
 URL:              https://www.dogtagpki.org
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
@@ -14,7 +17,7 @@ License:          GPLv2 and LGPLv2
 # For development (i.e. unsupported) releases, use x.y.z-0.n.<phase>.
 # For official (i.e. supported) releases, use x.y.z-r where r >=1.
 Version:          11.2.0
-Release:          0.2.beta1%{?_timestamp}%{?_commit_id}%{?dist}
+Release:          0.2.beta1%{?timestamp:.}%{?timestamp}%{?commit_id:.}%{?commit_id}%{?dist}
 %global           _phase -beta1
 
 # To create a tarball from a version tag:

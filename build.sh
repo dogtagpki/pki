@@ -135,13 +135,13 @@ generate_rpm_spec() {
     sed -i "s/^\(Name: *\).*\$/\1${NAME}/g" "$SPEC_FILE"
 
     # hard-code timestamp
-    if [ "$_TIMESTAMP" != "" ] ; then
-        sed -i "s/%{?_timestamp}/${_TIMESTAMP}/g" "$SPEC_FILE"
+    if [ "$TIMESTAMP" != "" ] ; then
+        sed -i "s/%undefine *timestamp/%global timestamp $TIMESTAMP/g" "$SPEC_FILE"
     fi
 
     # hard-code commit ID
-    if [ "$_COMMIT_ID" != "" ] ; then
-        sed -i "s/%{?_commit_id}/${_COMMIT_ID}/g" "$SPEC_FILE"
+    if [ "$COMMIT_ID" != "" ] ; then
+        sed -i "s/%undefine *commit_id/%global commit_id $COMMIT_ID/g" "$SPEC_FILE"
     fi
 
     # hard-code phase
@@ -353,8 +353,8 @@ if [ "$DEBUG" = true ] ; then
 fi
 
 if [ "$WITH_TIMESTAMP" = true ] ; then
-    TIMESTAMP="$(date -u +"%Y%m%d%H%M%S%Z")"
-    _TIMESTAMP=".$TIMESTAMP"
+    TIMESTAMP=$(date -u +"%Y%m%d%H%M%S%Z")
+    RELEASE=$RELEASE.$TIMESTAMP
 fi
 
 if [ "$DEBUG" = true ] ; then
@@ -362,15 +362,15 @@ if [ "$DEBUG" = true ] ; then
 fi
 
 if [ "$WITH_COMMIT_ID" = true ]; then
-    COMMIT_ID="$(git -C "$SRC_DIR" rev-parse --short=8 HEAD)"
-    _COMMIT_ID=".$COMMIT_ID"
+    COMMIT_ID=$(git -C "$SRC_DIR" rev-parse --short=8 HEAD)
+    RELEASE=$RELEASE.$COMMIT_ID
 fi
 
 if [ "$DEBUG" = true ] ; then
     echo "COMMIT_ID: $COMMIT_ID"
 fi
 
-echo "Building $NAME-$VERSION-$RELEASE${_TIMESTAMP}${_COMMIT_ID}"
+echo "Building $NAME-$VERSION-$RELEASE"
 
 rm -rf BUILD
 rm -rf BUILDROOT
@@ -422,14 +422,6 @@ OPTIONS=()
 
 OPTIONS+=(--quiet)
 OPTIONS+=(--define "_topdir ${WORK_DIR}")
-
-if [ "$WITH_TIMESTAMP" = true ] ; then
-    OPTIONS+=(--define "_timestamp ${_TIMESTAMP}")
-fi
-
-if [ "$WITH_COMMIT_ID" = true ] ; then
-    OPTIONS+=(--define "_commit_id ${_COMMIT_ID}")
-fi
 
 if [ "$DIST" != "" ] ; then
     OPTIONS+=(--define "dist .$DIST")
