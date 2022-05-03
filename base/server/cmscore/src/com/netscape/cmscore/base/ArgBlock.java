@@ -145,7 +145,7 @@ public class ArgBlock implements IArgBlock {
      */
     public String getValueAsString(String n) throws EBaseException {
         String t = (String) mArgs.get(n);
-        CMS.traceHashKey(mType, n, t);
+        CMS.traceHashKey(mType, n, CMS.isSensitive(n)?": (sensitive)":t);
 
         if (t != null) {
             return t;
@@ -163,7 +163,7 @@ public class ArgBlock implements IArgBlock {
      */
     public String getValueAsString(String n, String def) {
         String val = (String) mArgs.get(n);
-        CMS.traceHashKey(mType, n, val, def);
+        CMS.traceHashKey(mType, n, CMS.isSensitive(n)?": (sensitive)":val, def);
 
         if (val != null) {
             return val;
