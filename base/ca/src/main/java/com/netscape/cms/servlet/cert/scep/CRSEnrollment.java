@@ -356,7 +356,7 @@ public class CRSEnrollment extends HttpServlet {
         OID_SERIALNUMBER = X500NameAttrMap.getDefault().getOid("SERIALNUMBER");
 
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
+            mSHADigest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
         }
 
@@ -1928,7 +1928,7 @@ public class CRSEnrollment extends HttpServlet {
         String salt = "lala123";
         byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
         String b64E = Utils.base64encode(pwdDigest, true);
-        return "{SHA}" + b64E;
+        return "{SHA-256}" + b64E;
     }
 
     /**
