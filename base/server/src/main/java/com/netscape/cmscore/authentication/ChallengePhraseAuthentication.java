@@ -113,7 +113,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
         mConfig = config;
 
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
+            mSHADigest = MessageDigest.getInstance("SHA-256");
 
         } catch (NoSuchAlgorithmException e) {
             throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.getMessage()), e);
@@ -379,6 +379,6 @@ public class ChallengePhraseAuthentication implements AuthManager {
         byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
         String b64E = Utils.base64encode(pwdDigest, true);
 
-        return "{SHA}" + b64E;
+        return "{SHA-256}" + b64E;
     }
 }
