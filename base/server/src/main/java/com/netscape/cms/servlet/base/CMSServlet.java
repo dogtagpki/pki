@@ -373,7 +373,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
+            mSHADigest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS", e.toString()), e);
             throw new ServletException(e);
@@ -1530,7 +1530,7 @@ public abstract class CMSServlet extends HttpServlet {
         byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
         String b64E = Utils.base64encode(pwdDigest, true);
 
-        return "{SHA}" + salt + ";" + b64E;
+        return "{SHA-256}" + salt + ";" + b64E;
     }
 
     /**
