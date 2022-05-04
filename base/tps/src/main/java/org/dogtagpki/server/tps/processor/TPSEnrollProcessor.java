@@ -45,7 +45,6 @@ import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.main.Util;
 import org.dogtagpki.tps.msg.BeginOpMsg;
-import org.dogtagpki.tps.msg.EndOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.crypto.InvalidKeyFormatException;
@@ -464,7 +463,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
         if (!isExternalReg) {
             logMsg = "generateCertsAfterRenewalRecoveryPolicy returns status:"
-                    + EndOpMsg.statusToInt(status) + " : " + statusString;
+                    + status.code + " : " + statusString;
             logger.debug(method + logMsg);
         }
         if (status == TPSStatus.STATUS_NO_ERROR) {
