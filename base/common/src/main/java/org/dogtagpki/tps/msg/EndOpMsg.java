@@ -22,55 +22,60 @@ package org.dogtagpki.tps.msg;
 public class EndOpMsg extends TPSMessage {
 
     public enum TPSStatus {
-        STATUS_NO_ERROR,
-        STATUS_ERROR_SNAC,
-        STATUS_ERROR_SEC_INIT_UPDATE,
-        STATUS_ERROR_CREATE_CARDMGR,
-        STATUS_ERROR_MAC_RESET_PIN_PDU,
-        STATUS_ERROR_MAC_CERT_PDU,
-        STATUS_ERROR_MAC_LIFECYCLE_PDU,
-        STATUS_ERROR_MAC_ENROLL_PDU,
-        STATUS_ERROR_CANNOT_PERFORM_OPERATION,
-        STATUS_ERROR_BAD_STATUS,
-        STATUS_ERROR_CA_RESPONSE,
-        STATUS_ERROR_READ_BUFFER_OVERFLOW,
-        STATUS_ERROR_TOKEN_RESET_PIN_FAILED,
-        STATUS_ERROR_CONNECTION,
-        STATUS_ERROR_LOGIN,
-        STATUS_ERROR_DB,
-        STATUS_ERROR_UNKNOWN_TOKEN,
-        STATUS_ERROR_SECURE_CHANNEL,
-        STATUS_ERROR_MISCONFIGURATION,
-        STATUS_ERROR_UPGRADE_APPLET,
-        STATUS_ERROR_KEY_CHANGE_OVER,
-        STATUS_ERROR_EXTERNAL_AUTH,
-        STATUS_ERROR_MAPPING_RESOLVER_FAILED, // was STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND
-        STATUS_ERROR_MAPPING_RESOLVER_PARAMS_NOT_FOUND, // was STATUS_ERROR_DEFAULT_TOKENTYPE_PARAMS_NOT_FOUND
-        STATUS_ERROR_PUBLISH,
-        STATUS_ERROR_LDAP_CONN,
-        STATUS_ERROR_DISABLED_TOKEN,
-        STATUS_ERROR_NOT_PIN_RESETABLE,
-        STATUS_ERROR_CONN_LOST,
-        STATUS_ERROR_CREATE_TUS_TOKEN_ENTRY,
-        STATUS_ERROR_NO_SUCH_TOKEN_STATE,
-        STATUS_ERROR_NO_SUCH_LOST_REASON,
-        STATUS_ERROR_UNUSABLE_TOKEN_KEYCOMPROMISE,
-        STATUS_ERROR_INACTIVE_TOKEN_NOT_FOUND,
-        STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN,
-        STATUS_ERROR_TOKEN_TERMINATED,
-        STATUS_RECOVERY_IS_PROCESSED,
-        STATUS_ERROR_RECOVERY_FAILED,
-        STATUS_ERROR_NO_OPERATION_ON_LOST_TOKEN,
-        STATUS_ERROR_KEY_ARCHIVE_OFF,
-        STATUS_ERROR_NO_TKS_CONNID,
-        STATUS_ERROR_UPDATE_TOKENDB_FAILED,
-        STATUS_ERROR_REVOKE_CERTIFICATES_FAILED,
-        STATUS_ERROR_NOT_TOKEN_OWNER,
-        STATUS_RENEWAL_IS_PROCESSED,
-        STATUS_ERROR_RENEWAL_FAILED,
-        STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION
-    };
+        STATUS_NO_ERROR(0),
+        STATUS_ERROR_SNAC(1),
+        STATUS_ERROR_SEC_INIT_UPDATE(2),
+        STATUS_ERROR_CREATE_CARDMGR(3),
+        STATUS_ERROR_MAC_RESET_PIN_PDU(4),
+        STATUS_ERROR_MAC_CERT_PDU(5),
+        STATUS_ERROR_MAC_LIFECYCLE_PDU(6),
+        STATUS_ERROR_MAC_ENROLL_PDU(7),
+        STATUS_ERROR_CANNOT_PERFORM_OPERATION(8),
+        STATUS_ERROR_BAD_STATUS(9),
+        STATUS_ERROR_CA_RESPONSE(10),
+        STATUS_ERROR_READ_BUFFER_OVERFLOW(11),
+        STATUS_ERROR_TOKEN_RESET_PIN_FAILED(12),
+        STATUS_ERROR_CONNECTION(13),
+        STATUS_ERROR_LOGIN(14),
+        STATUS_ERROR_DB(15),
+        STATUS_ERROR_UNKNOWN_TOKEN(16),
+        STATUS_ERROR_SECURE_CHANNEL(17),
+        STATUS_ERROR_MISCONFIGURATION(18),
+        STATUS_ERROR_UPGRADE_APPLET(19),
+        STATUS_ERROR_KEY_CHANGE_OVER(20),
+        STATUS_ERROR_EXTERNAL_AUTH(21),
+        STATUS_ERROR_MAPPING_RESOLVER_FAILED(22), // was STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND
+        STATUS_ERROR_MAPPING_RESOLVER_PARAMS_NOT_FOUND(23), // was STATUS_ERROR_DEFAULT_TOKENTYPE_PARAMS_NOT_FOUND
+        STATUS_ERROR_PUBLISH(24),
+        STATUS_ERROR_LDAP_CONN(25),
+        STATUS_ERROR_DISABLED_TOKEN(26),
+        STATUS_ERROR_NOT_PIN_RESETABLE(27),
+        STATUS_ERROR_CONN_LOST(28),
+        STATUS_ERROR_CREATE_TUS_TOKEN_ENTRY(29),
+        STATUS_ERROR_NO_SUCH_TOKEN_STATE(30),
+        STATUS_ERROR_NO_SUCH_LOST_REASON(31),
+        STATUS_ERROR_UNUSABLE_TOKEN_KEYCOMPROMISE(32),
+        STATUS_ERROR_INACTIVE_TOKEN_NOT_FOUND(33),
+        STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN(34),
+        STATUS_ERROR_TOKEN_TERMINATED(35),
+        STATUS_RECOVERY_IS_PROCESSED(36),
+        STATUS_ERROR_RECOVERY_FAILED(37),
+        STATUS_ERROR_RENEWAL_FAILED(37),
+        STATUS_ERROR_NO_OPERATION_ON_LOST_TOKEN(38),
+        STATUS_ERROR_KEY_ARCHIVE_OFF(39),
+        STATUS_ERROR_NO_TKS_CONNID(40),
+        STATUS_ERROR_UPDATE_TOKENDB_FAILED(41),
+        STATUS_ERROR_REVOKE_CERTIFICATES_FAILED(42),
+        STATUS_ERROR_NOT_TOKEN_OWNER(43),
+        STATUS_RENEWAL_IS_PROCESSED(44),
+        STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION(45);
 
+        private TPSStatus(int code) {
+            this.code = code;
+        }
+
+        public final int code;
+    }
 
     public static final int  RESULT_GOOD = 0;
     public static final int  RESULT_ERROR = 1;
@@ -80,159 +85,7 @@ public class EndOpMsg extends TPSMessage {
         put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_END_OP));
         put(OPERATION_TYPE_NAME, opTypeToInt(theOp));
         put(RESULT_NAME, result);
-        put(MESSAGE_NAME, statusToInt(message));
-    }
-
-    public static int statusToInt(TPSStatus status) {
-
-        int result = 0;
-
-        switch (status) {
-        case STATUS_NO_ERROR:
-            result = 0;
-            break;
-        case STATUS_ERROR_SNAC:
-            result = 1;
-            break;
-        case STATUS_ERROR_SEC_INIT_UPDATE:
-            result = 2;
-            break;
-        case STATUS_ERROR_CREATE_CARDMGR:
-            result = 3;
-            break;
-        case STATUS_ERROR_MAC_RESET_PIN_PDU:
-            result = 4;
-            break;
-        case STATUS_ERROR_MAC_CERT_PDU:
-            result = 5;
-            break;
-        case STATUS_ERROR_MAC_LIFECYCLE_PDU:
-            result = 6;
-            break;
-        case STATUS_ERROR_MAC_ENROLL_PDU:
-            result = 7;
-            break;
-        case STATUS_ERROR_CANNOT_PERFORM_OPERATION:
-            result = 8;
-            break;
-        case STATUS_ERROR_BAD_STATUS:
-            result = 9;
-            break;
-        case STATUS_ERROR_CA_RESPONSE:
-            result = 10;
-            break;
-        case STATUS_ERROR_READ_BUFFER_OVERFLOW:
-            result = 11;
-            break;
-        case STATUS_ERROR_TOKEN_RESET_PIN_FAILED:
-            result = 12;
-            break;
-        case STATUS_ERROR_CONNECTION:
-            result = 13;
-            break;
-        case STATUS_ERROR_LOGIN:
-            result = 14;
-            break;
-        case STATUS_ERROR_DB:
-            result = 15;
-            break;
-        case STATUS_ERROR_UNKNOWN_TOKEN:
-            result = 16;
-            break;
-        case STATUS_ERROR_SECURE_CHANNEL:
-            result = 17;
-            break;
-        case STATUS_ERROR_MISCONFIGURATION:
-            result = 18;
-            break;
-        case STATUS_ERROR_UPGRADE_APPLET:
-            result = 19;
-            break;
-        case STATUS_ERROR_KEY_CHANGE_OVER:
-            result = 20;
-            break;
-        case STATUS_ERROR_EXTERNAL_AUTH:
-            result = 21;
-            break;
-        case STATUS_ERROR_MAPPING_RESOLVER_FAILED:
-            result = 22;
-            break;
-        case STATUS_ERROR_MAPPING_RESOLVER_PARAMS_NOT_FOUND:
-            result = 23;
-            break;
-        case STATUS_ERROR_PUBLISH:
-            result = 24;
-            break;
-        case STATUS_ERROR_LDAP_CONN:
-            result = 25;
-            break;
-        case STATUS_ERROR_DISABLED_TOKEN:
-            result = 26;
-            break;
-        case STATUS_ERROR_NOT_PIN_RESETABLE:
-            result = 27;
-            break;
-        case STATUS_ERROR_CONN_LOST:
-            result = 28;
-            break;
-        case STATUS_ERROR_CREATE_TUS_TOKEN_ENTRY:
-            result = 29;
-            break;
-        case STATUS_ERROR_NO_SUCH_TOKEN_STATE:
-            result = 30;
-            break;
-        case STATUS_ERROR_NO_SUCH_LOST_REASON:
-            result = 31;
-            break;
-        case STATUS_ERROR_UNUSABLE_TOKEN_KEYCOMPROMISE:
-            result = 32;
-            break;
-        case STATUS_ERROR_INACTIVE_TOKEN_NOT_FOUND:
-            result = 33;
-            break;
-        case STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN:
-            result = 34;
-            break;
-        case STATUS_ERROR_TOKEN_TERMINATED:
-            result = 35;
-            break;
-        case STATUS_RECOVERY_IS_PROCESSED:
-            result = 36;
-            break;
-        case STATUS_ERROR_RECOVERY_FAILED:
-        case STATUS_ERROR_RENEWAL_FAILED:
-            result = 37;
-            break;
-        case STATUS_ERROR_NO_OPERATION_ON_LOST_TOKEN:
-            result = 38;
-            break;
-        case STATUS_ERROR_KEY_ARCHIVE_OFF:
-            result = 39;
-            break;
-        case STATUS_ERROR_NO_TKS_CONNID:
-            result = 40;
-            break;
-        case STATUS_ERROR_UPDATE_TOKENDB_FAILED:
-            result = 41;
-            break;
-        case STATUS_ERROR_REVOKE_CERTIFICATES_FAILED:
-            result = 42;
-            break;
-        case STATUS_ERROR_NOT_TOKEN_OWNER:
-            result = 43;
-            break;
-        case STATUS_RENEWAL_IS_PROCESSED:
-            result = 44;
-            break;
-        case STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION:
-            result = 45;
-            break;
-        default:
-            break;
-        }
-
-        return result;
-
+        put(MESSAGE_NAME, message.code);
     }
 
     public static void main(String[] args) {
