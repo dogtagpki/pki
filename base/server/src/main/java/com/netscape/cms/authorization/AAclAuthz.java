@@ -68,9 +68,9 @@ import com.netscape.cmscore.base.ConfigStore;
  */
 public abstract class AAclAuthz implements IAuthzManager {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AAclAuthz.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AAclAuthz.class);
 
-    public enum EvaluationOrder { DenyAllow , AllowDeny };
+    public enum EvaluationOrder { DENY_ALLOW , ALLOW_DENY }
 
     protected static final String PROP_CLASS = "class";
     protected static final String PROP_IMPL = "impl";
@@ -101,7 +101,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     /**
      * Constructor
      */
-    public AAclAuthz() {
+    protected AAclAuthz() {
     }
 
     /**
@@ -247,12 +247,6 @@ public abstract class AAclAuthz implements IAuthzManager {
     }
 
     /**
-     * graceful shutdown
-     */
-    @Override
-    public abstract void shutdown();
-
-    /**
      * Registers new handler for the given attribute type
      * in the expressions.
      */
@@ -361,7 +355,7 @@ public abstract class AAclAuthz implements IAuthzManager {
 
         Enumeration<ACLEntry> e = acl.entries();
 
-        if ((e == null) || (e.hasMoreElements() == false)) {
+        if (e == null || !e.hasMoreElements()) {
             // no acis for node, pass down to next node
             String infoMsg = " AAclAuthz.checkACLs(): no acis for " +
                     name + " acl entry...pass down to next node";
@@ -374,13 +368,13 @@ public abstract class AAclAuthz implements IAuthzManager {
         /**
          * must pass all ACLEntry
          */
-        for (; e.hasMoreElements();) {
+        while (e.hasMoreElements()) {
             ACLEntry entry = e.nextElement();
 
             // if permission not pertinent, move on to next ACLEntry
-            if (entry.containPermission(perm) == true) {
+            if (entry.containPermission(perm)) {
                 if (evaluateExpressions(entry.getAttributeExpressions())) {
-                    if (entry.checkPermission(perm) == false) {
+                    if (!entry.checkPermission(perm)) {
                         logger.error("AAclAuthz: checkACLs(): permission denied");
                         throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
                     }
@@ -448,7 +442,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         String op = "";
         boolean right = false;
 
-        while (v.size() > 0) {
+        while (!v.isEmpty()) {
             if (op.equals(""))
                 left = ((Boolean) v.remove(0)).booleanValue();
             op = (String) v.remove(0);
@@ -516,10 +510,10 @@ public abstract class AAclAuthz implements IAuthzManager {
         EvaluationOrder order = getOrder();
 
         boolean permitted = false;
-        if (order == EvaluationOrder.DenyAllow) {
+        if (order == EvaluationOrder.DENY_ALLOW) {
             checkDenyEntries(authToken, nodes, perm);
             permitted = checkAllowEntries(authToken, nodes, perm);
-        } else if (order == EvaluationOrder.AllowDeny) {
+        } else if (order == EvaluationOrder.ALLOW_DENY) {
             permitted = checkAllowEntries(authToken, nodes, perm);
             checkDenyEntries(authToken, nodes, perm);
         }
@@ -636,7 +630,7 @@ public abstract class AAclAuthz implements IAuthzManager {
             }
         }
 
-        if (v.size() == 0) {
+        if (v.isEmpty()) {
             return false;
         }
 
@@ -650,7 +644,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         String op = "";
         boolean right = false;
 
-        while (v.size() > 0) {
+        while (!v.isEmpty()) {
             if (op.equals(""))
                 left = ((Boolean) v.remove(0)).booleanValue();
             op = (String) v.remove(0);
@@ -734,13 +728,9 @@ public abstract class AAclAuthz implements IAuthzManager {
 
     private boolean evaluateExp(boolean left, String op, boolean right) {
         if (op.equals("||")) {
-            if (left == false && right == false)
-                return false;
-            return true;
+            return left || right;
         } else if (op.equals("&&")) {
-            if (left == true && right == true)
-                return true;
-            return false;
+            return left && right;
         }
         return false;
     }
@@ -865,7 +855,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         if (evaluateACLs(authToken, expression)) {
             return (new AuthzToken(this));
         }
-        String params[] = { expression };
+        String[] params = { expression };
         throw new EAuthzAccessDenied(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZ_ACCESS_DENIED", params));
     }
 
@@ -877,9 +867,9 @@ public abstract class AAclAuthz implements IAuthzManager {
 
         try {
             String order = authzConfig.getString("evaluateOrder", "");
-            return order.startsWith("allow") ? EvaluationOrder.AllowDeny : EvaluationOrder.DenyAllow;
+            return order.startsWith("allow") ? EvaluationOrder.ALLOW_DENY : EvaluationOrder.DENY_ALLOW;
         } catch (Exception e) {
-            return EvaluationOrder.DenyAllow;
+            return EvaluationOrder.DENY_ALLOW;
         }
     }
 
