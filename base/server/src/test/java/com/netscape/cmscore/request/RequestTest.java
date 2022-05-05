@@ -1,5 +1,7 @@
 package com.netscape.cmscore.request;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import java.math.BigInteger;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateEncodingException;
@@ -8,7 +10,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthToken;
-import org.junit.Assert;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -311,7 +312,7 @@ public class RequestTest extends CMSBaseTestCase {
         request.setExtData("key", data);
 
         byte[] out = request.getExtDataInByteArray("key");
-        Assert.assertArrayEquals(data, out);
+        assertArrayEquals(data, out);
 
         assertFalse(request.setExtData("key", (byte[]) null));
     }
@@ -341,7 +342,7 @@ public class RequestTest extends CMSBaseTestCase {
         X509CertImpl[] retval = request.getExtDataInCertArray("key");
         assertNotNull(retval);
 
-        Assert.assertArrayEquals(vals, retval);
+        assertArrayEquals(vals, retval);
 
         assertFalse(request.setExtData("key", (X509CertImpl[]) null));
     }

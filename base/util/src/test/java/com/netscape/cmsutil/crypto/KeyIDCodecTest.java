@@ -17,6 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.crypto;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -157,7 +161,7 @@ public class KeyIDCodecTest {
             String hex = (String)TEST_DATA[i][1];
 
             String result = CryptoUtil.encodeKeyID(bytes);
-            Assert.assertEquals(hex, result);
+            assertEquals(hex, result);
         }
 
         System.out.println("Testing Key ID encoder with invalid data:");
@@ -167,7 +171,7 @@ public class KeyIDCodecTest {
             CryptoUtil.encodeKeyID(null);
             Assert.fail("should throw NullPointerException");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof NullPointerException);
+            assertTrue(e instanceof NullPointerException);
         }
 
         try {
@@ -175,7 +179,7 @@ public class KeyIDCodecTest {
             CryptoUtil.encodeKeyID(new byte[] {});
             Assert.fail("should throw IllegalArgumentException");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof IllegalArgumentException);
+            assertTrue(e instanceof IllegalArgumentException);
         }
 
         try {
@@ -183,7 +187,7 @@ public class KeyIDCodecTest {
             CryptoUtil.encodeKeyID(new byte[] { (byte)0x24, (byte)0xac });
             Assert.fail("should throw IllegalArgumentException");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof IllegalArgumentException);
+            assertTrue(e instanceof IllegalArgumentException);
         }
     }
 
@@ -199,7 +203,7 @@ public class KeyIDCodecTest {
             String hex = (String)TEST_DATA[i][1];
 
             byte[] result = CryptoUtil.decodeKeyID(hex);
-            Assert.assertArrayEquals(bytes, result);
+            assertArrayEquals(bytes, result);
         }
 
         System.out.println("Testing Key ID decoder with invalid data:");
@@ -209,7 +213,7 @@ public class KeyIDCodecTest {
             CryptoUtil.decodeKeyID(null);
             Assert.fail("should throw NullPointerException");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof NullPointerException);
+            assertTrue(e instanceof NullPointerException);
         }
 
         try {
@@ -217,7 +221,7 @@ public class KeyIDCodecTest {
             CryptoUtil.decodeKeyID("");
             Assert.fail("should throw IllegalArgumentException");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof IllegalArgumentException);
+            assertTrue(e instanceof IllegalArgumentException);
         }
 
         try {
@@ -225,7 +229,7 @@ public class KeyIDCodecTest {
             CryptoUtil.decodeKeyID("ffffffffffffffffffffffffffffffffffffffffff");
             Assert.fail("should throw IllegalArgumentException");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof IllegalArgumentException);
+            assertTrue(e instanceof IllegalArgumentException);
         }
 
         try {
@@ -233,7 +237,7 @@ public class KeyIDCodecTest {
             CryptoUtil.decodeKeyID("garbage");
             Assert.fail("should throw NumberFormatException");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof NumberFormatException);
+            assertTrue(e instanceof NumberFormatException);
         }
     }
 }

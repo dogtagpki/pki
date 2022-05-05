@@ -689,9 +689,6 @@ public class CRSPKIMessage {
      */
 
     public byte[] getEncoded() {
-        //Assert.assert(messageType != null);
-        //Assert.assert(pkiStatus != null);
-
         return new byte[1]; // blagh
     }
 
@@ -898,7 +895,6 @@ public class CRSPKIMessage {
             return "GetCRL";
         }
         // messageType should match one of the above
-        //Assert.assert(false);
         return null;
     }
 }

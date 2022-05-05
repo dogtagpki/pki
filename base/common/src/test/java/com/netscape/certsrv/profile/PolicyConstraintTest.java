@@ -1,9 +1,10 @@
 package com.netscape.certsrv.profile;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -49,7 +50,7 @@ public class PolicyConstraintTest {
         System.out.println("XML (after): " + afterXML.toXML());
 
         // Assert
-        Assert.assertEquals(before, afterXML);
+        assertEquals(before, afterXML);
     }
 
     @Test
@@ -62,7 +63,7 @@ public class PolicyConstraintTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }

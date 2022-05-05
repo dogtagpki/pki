@@ -1,6 +1,7 @@
 package com.netscape.certsrv.user;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class UserCollectionTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }

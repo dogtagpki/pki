@@ -1,8 +1,9 @@
 package com.netscape.certsrv.cert;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Date;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,7 +42,7 @@ public class CertDataInfoTest {
         System.out.println("XML (after): " + afterXML.toXML());
 
         // Assert
-        Assert.assertEquals(before, afterXML);
+        assertEquals(before, afterXML);
     }
 
     @Test
@@ -54,7 +55,7 @@ public class CertDataInfoTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }

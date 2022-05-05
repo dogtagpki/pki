@@ -1,6 +1,7 @@
 package com.netscape.certsrv.property;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
@@ -23,6 +24,6 @@ public class DescriptorTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 }

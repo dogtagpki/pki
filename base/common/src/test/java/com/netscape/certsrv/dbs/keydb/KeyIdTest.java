@@ -1,6 +1,8 @@
 package com.netscape.certsrv.dbs.keydb;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
@@ -68,23 +70,23 @@ public class KeyIdTest {
             KeyId keyID = new KeyId(hex);
 
             // convert KeyId into hex string
-            Assert.assertEquals(hex, keyID.toHexString());
+            assertEquals(hex, keyID.toHexString());
 
             // convert KeyId into JSON
             String json = (String) TEST_DATA[i][1];
-            Assert.assertEquals(json, keyID.toJSON());
+            assertEquals(json, keyID.toJSON());
 
             // convert JSON into KeyId
             KeyId afterJSON = JSONSerializer.fromJSON(json, KeyId.class);
-            Assert.assertEquals(keyID, afterJSON);
+            assertEquals(keyID, afterJSON);
 
             // convert KeyId into bytes
             byte[] bytes = (byte[]) TEST_DATA[i][2];
-            Assert.assertArrayEquals(bytes, keyID.toByteArray());
+            assertArrayEquals(bytes, keyID.toByteArray());
 
             // convert bytes into KeyId
             KeyId afterBytes = new KeyId(bytes);
-            Assert.assertEquals(keyID, afterBytes);
+            assertEquals(keyID, afterBytes);
         }
     }
 }

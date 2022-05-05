@@ -1,6 +1,7 @@
 package com.netscape.certsrv.request;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
@@ -19,7 +20,7 @@ public class RequestIdTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }

@@ -1,8 +1,9 @@
 package com.netscape.certsrv.authority;
 
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigInteger;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,7 +36,7 @@ public class AuthorityDataTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }

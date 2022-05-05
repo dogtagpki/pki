@@ -1,8 +1,9 @@
 package com.netscape.certsrv.tps.token;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Date;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +40,7 @@ public class TokenDataTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }

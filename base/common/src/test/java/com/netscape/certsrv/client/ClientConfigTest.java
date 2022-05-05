@@ -1,8 +1,9 @@
 package com.netscape.certsrv.client;
 
+import static org.junit.Assert.assertEquals;
+
 import java.net.MalformedURLException;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,7 +35,7 @@ public class ClientConfigTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }
