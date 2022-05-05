@@ -33,23 +33,23 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
     */
     private static final long serialVersionUID = 422656406529200393L;
 
-    public enum Type { Allow , Deny };
+    public enum Type { ALLOW , DENY };
 
     protected Hashtable<String, String> mPerms = new Hashtable<>();
     protected String expressions = null;
-    protected Type type = Type.Deny;
+    protected Type type = Type.DENY;
     protected String aclEntryString = null;
 
     /**
      * Class Constructor
      */
-    public ACLEntry() {
+    private ACLEntry() {
     }
 
     /**
      * Get the Type of the ACL entry.
      *
-     * @return Allow or Deny
+     * @return ALLOW or DENY
      */
     public Type getType() {
         return type;
@@ -91,7 +91,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
      *            protected resource in its ACL
      */
     public void addPermission(IACL acl, String permission) {
-        if (acl.checkRight(permission) == true) {
+        if (acl.checkRight(permission)) {
             mPerms.put(permission, permission);
         } else {
             // not a valid right...log it later
@@ -155,11 +155,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
         //           don't grant permission
         if (mPerms.get(permission) == null)
             return false;
-        if (type == Type.Deny) {
-            return false;
-        } else {
-            return true;
-        }
+        return type != Type.DENY;
     }
 
     /**
@@ -190,9 +186,9 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
         ACLEntry entry = new ACLEntry();
 
         if (prefix.equals("allow")) {
-            entry.type = Type.Allow;
+            entry.type = Type.ALLOW;
         } else if (prefix.equals("deny")) {
-            entry.type = Type.Deny;
+            entry.type = Type.DENY;
         } else {
             return null;
         }
@@ -210,7 +206,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
 
         StringTokenizer st = new StringTokenizer(prefix, ",");
 
-        for (; st.hasMoreTokens();) {
+        while (st.hasMoreTokens()) {
             entry.addPermission(acl, st.nextToken());
         }
         entry.setAttributeExpressions(suffix);
@@ -226,14 +222,14 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
     public String toString() {
         StringBuffer entry = new StringBuffer();
 
-        if (type == Type.Deny) {
+        if (type == Type.DENY) {
             entry.append("deny (");
         } else {
             entry.append("allow (");
         }
         Enumeration<String> e = permissions();
 
-        for (; e.hasMoreElements();) {
+        while (e.hasMoreElements()) {
             String p = e.nextElement();
 
             entry.append(p);

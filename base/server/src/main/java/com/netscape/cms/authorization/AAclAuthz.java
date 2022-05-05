@@ -384,7 +384,7 @@ public abstract class AAclAuthz implements IAuthzManager {
                         logger.error("AAclAuthz: checkACLs(): permission denied");
                         throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
                     }
-                } else if (entry.getType() == ACLEntry.Type.Allow) {
+                } else if (entry.getType() == ACLEntry.Type.ALLOW) {
                     // didn't meet the access expression for "allow", failed
                     logger.error("AAclAuthz: checkACLs(): permission denied");
                     throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
@@ -541,7 +541,7 @@ public abstract class AAclAuthz implements IAuthzManager {
             IAuthToken authToken,
             Iterable<String> nodes,
             String perm) {
-        for (ACLEntry entry : getEntries(ACLEntry.Type.Allow, nodes, perm)) {
+        for (ACLEntry entry : getEntries(ACLEntry.Type.ALLOW, nodes, perm)) {
             logger.debug("checkAllowEntries(): expressions: " + entry.getAttributeExpressions());
             if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
                 return true;
@@ -556,7 +556,7 @@ public abstract class AAclAuthz implements IAuthzManager {
             Iterable<String> nodes,
             String perm)
             throws EACLsException {
-        for (ACLEntry entry : getEntries(ACLEntry.Type.Deny, nodes, perm)) {
+        for (ACLEntry entry : getEntries(ACLEntry.Type.DENY, nodes, perm)) {
             logger.debug("checkDenyEntries(): expressions: " + entry.getAttributeExpressions());
             if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
                 logger.error("AAclAuthz: checkPermission(): permission denied");
