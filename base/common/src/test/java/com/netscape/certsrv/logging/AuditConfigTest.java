@@ -1,9 +1,10 @@
 package com.netscape.certsrv.logging;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,7 +39,7 @@ public class AuditConfigTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }

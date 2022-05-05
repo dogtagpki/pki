@@ -1,9 +1,10 @@
 package com.netscape.certsrv.tps.profile;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,7 +34,7 @@ public class ProfileMappingDataTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }

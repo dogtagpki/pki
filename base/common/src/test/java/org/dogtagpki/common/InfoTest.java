@@ -1,6 +1,7 @@
 package org.dogtagpki.common;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class InfoTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }

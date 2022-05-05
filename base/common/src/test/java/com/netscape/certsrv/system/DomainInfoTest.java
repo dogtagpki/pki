@@ -1,6 +1,7 @@
 package com.netscape.certsrv.system;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -33,7 +34,7 @@ public class DomainInfoTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }

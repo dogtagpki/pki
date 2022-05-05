@@ -5,10 +5,11 @@
 //
 package com.netscape.certsrv.user;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.mozilla.jss.netscape.security.util.Cert;
 
@@ -54,6 +55,6 @@ public class UserCertDataTest {
         UserCertData after = UserCertData.fromJSON(json);
         System.out.println("After: " + after.toJSON());
 
-        Assert.assertEquals(userCertData, after);
+        assertEquals(userCertData, after);
     }
 }

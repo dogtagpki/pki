@@ -1,8 +1,9 @@
 package com.netscape.certsrv.base;
 
+import static org.junit.Assert.assertEquals;
+
 import javax.ws.rs.core.Response;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,7 +33,7 @@ public class DataTest {
         System.out.println("XML (after): " + afterXML.toXML());
 
         // Assert
-        Assert.assertEquals(before, afterXML);
+        assertEquals(before, afterXML);
     }
 
     @Test
@@ -45,7 +46,7 @@ public class DataTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }

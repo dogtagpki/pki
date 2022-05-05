@@ -1,5 +1,7 @@
 package com.netscape.cmscore.authentication;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateException;
@@ -7,7 +9,6 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import org.dogtagpki.server.authentication.AuthToken;
-import org.junit.Assert;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -54,7 +55,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         authToken.set("key", data);
 
         byte[] retval = authToken.getInByteArray("key");
-        Assert.assertArrayEquals(data, retval);
+        assertArrayEquals(data, retval);
 
         assertFalse(authToken.set("key2", (byte[]) null));
     }
@@ -83,7 +84,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
                 authToken.get("key"));
 
         BigInteger[] retval = authToken.getInBigIntegerArray("key");
-        Assert.assertArrayEquals(data, retval);
+        assertArrayEquals(data, retval);
 
         authToken.set("key2", "123456");
         retval = authToken.getInBigIntegerArray("key2");
@@ -132,7 +133,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         if (retval == null) {
             throw new IOException("Unable to get key as String Array");
         }
-        Assert.assertArrayEquals(value, retval);
+        assertArrayEquals(value, retval);
 
         // illegal value parsing
         authToken.set("key2", new byte[] { 1, 2, 3, 4 });
@@ -194,7 +195,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertNotNull(retval);
 
         X509Certificate[] retCerts = retval.getCertificates();
-        Assert.assertArrayEquals(certArray, retCerts);
+        assertArrayEquals(certArray, retCerts);
 
         assertFalse(authToken.set("key2", (Certificates) null));
     }
@@ -210,7 +211,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
 
         byte[][] retval = authToken.getInByteArrayArray("key");
         assertNotNull(retval);
-        Assert.assertArrayEquals(value, retval);
+        assertArrayEquals(value, retval);
 
         assertFalse(authToken.set("key2", (byte[][]) null));
     }

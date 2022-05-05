@@ -1,6 +1,7 @@
 package com.netscape.certsrv.profile;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,7 +38,7 @@ public class ProfileOutputTest {
         System.out.println("XML (after): " + afterXML.toXML());
 
         // Assert
-        Assert.assertEquals(before, afterXML);
+        assertEquals(before, afterXML);
     }
 
     @Test
@@ -50,7 +51,7 @@ public class ProfileOutputTest {
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
-        Assert.assertEquals(before, afterJSON);
+        assertEquals(before, afterJSON);
     }
 
 }
