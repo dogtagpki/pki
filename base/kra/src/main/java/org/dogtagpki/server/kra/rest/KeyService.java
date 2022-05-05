@@ -695,7 +695,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         ));
     }
 
-    public void auditKeyInfoSuccess(KeyId keyid, String clientKeyId) {
+    public void auditKeyInfoSuccess(KeyId keyId, String clientKeyId) {
         auditKeyInfo(keyId, clientKeyId, ILogger.SUCCESS, null);
     }
 
