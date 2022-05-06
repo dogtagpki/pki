@@ -1633,6 +1633,9 @@ public class CRSEnrollment extends HttpServlet {
             reqs[0].setExtData("profileRemoteAddr", httpReq.getRemoteAddr());
             reqs[0].setExtData("profileApprovedBy", profile.getApprovedBy());
 
+	    String setId = profile.getPolicySetId(reqs[0]);
+	    reqs[0].setExtData("profileSetId" /*CAProcessor.ARG_PROFILE_SET_ID*/, setId);
+
             CMS.debug("CRSEnrollment: Populating inputs");
             profile.populateInput(ctx, reqs[0]);
             CMS.debug("CRSEnrollment: Populating requests");
