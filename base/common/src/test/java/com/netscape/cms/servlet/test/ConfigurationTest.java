@@ -71,23 +71,16 @@ public class ConfigurationTest {
 
     public static void main(String args[]) throws Exception {
         String host = null;
-        String port = null;
-        String cstype = null;
         String token_pwd = null;
         String db_dir = "./";
-        String protocol = "https";
-        String pin = null;
         String extCertFile = null;
         int testnum=1;
 
         // parse command line arguments
         Options options = new Options();
-        options.addOption("t", true, "Subsystem type");
         options.addOption("h", true, "Hostname of the CS subsystem");
-        options.addOption("p", true, "Port of the CS subsystem");
         options.addOption("w", true, "Token password");
         options.addOption("d", true, "Directory for tokendb");
-        options.addOption("s", true, "preop pin");
         options.addOption("e", true, "File for externally signed signing cert");
         options.addOption("x", true, "Test number");
 
@@ -95,24 +88,10 @@ public class ConfigurationTest {
             CommandLineParser parser = new DefaultParser();
             CommandLine cmd = parser.parse(options, args);
 
-            if (cmd.hasOption("t")) {
-                cstype = cmd.getOptionValue("t");
-            } else {
-                System.err.println("Error: no subsystem type provided.");
-                usage(options);
-            }
-
             if (cmd.hasOption("h")) {
                 host = cmd.getOptionValue("h");
             } else {
                 System.err.println("Error: no hostname provided.");
-                usage(options);
-            }
-
-            if (cmd.hasOption("p")) {
-                port = cmd.getOptionValue("p");
-            } else {
-                System.err.println("Error: no port provided");
                 usage(options);
             }
 
@@ -125,10 +104,6 @@ public class ConfigurationTest {
 
             if (cmd.hasOption("d")) {
                 db_dir = cmd.getOptionValue("d");
-            }
-
-            if (cmd.hasOption("s")) {
-                pin = cmd.getOptionValue("s");
             }
 
             if (cmd.hasOption("e")) {
@@ -175,39 +150,22 @@ public class ConfigurationTest {
         }
 
         switch (testnum) {
-        case 1:
-            constructCAData(host, port, pin, db_dir, token_pwd, token);
-            break;
-        case 2:
-            constructCloneCAData(host, port, pin, db_dir, token_pwd, token);
-            break;
-        case 3:
-            constructKRAData(host, port, pin, db_dir, token_pwd, token);
-            break;
-        case 4:
-            constructOCSPData(host, port, pin, db_dir, token_pwd, token);
-            break;
-        case 5:
-            constructTKSData(host, port, pin, db_dir, token_pwd, token);
-            break;
-        case 6:
-            constructSubCAData(host, port, pin, db_dir, token_pwd, token);
-            break;
-        case 7:
-            constructExternalCADataPart1(host, port, pin, db_dir, token_pwd, token);
-            break;
-        case 8:
-            constructExternalCADataPart2(host, port, pin, db_dir, token_pwd, token, extCertFile);
-            break;
-        default:
-            System.out.println("Invalid test");
-            System.exit(1);
+            case 1 -> constructCAData(host);
+            case 2 -> constructCloneCAData(host);
+            case 3 -> constructKRAData(host);
+            case 4 -> constructOCSPData(host);
+            case 5 -> constructTKSData(host);
+            case 6 -> constructSubCAData(host);
+            case 7 -> constructExternalCADataPart1(host);
+            case 8 -> constructExternalCADataPart2(host, extCertFile);
+            default -> {
+                System.out.println("Invalid test");
+                System.exit(1);
+            }
         }
     }
 
-    private static void constructCAData(String host, String port, String pin, String db_dir,
-            String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
-            InvalidBERException {
+    private static void constructCAData(String host) {
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
@@ -248,9 +206,7 @@ public class ConfigurationTest {
         systemCerts.add(cert5);
     }
 
-    private static void constructSubCAData(String host, String port, String pin, String db_dir,
-            String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
-            InvalidBERException {
+    private static void constructSubCAData(String host) {
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
@@ -291,9 +247,7 @@ public class ConfigurationTest {
         systemCerts.add(cert5);
     }
 
-    private static void constructExternalCADataPart1(String host, String port, String pin, String db_dir,
-            String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
-            InvalidBERException {
+    private static void constructExternalCADataPart1(String host) {
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
@@ -334,9 +288,7 @@ public class ConfigurationTest {
         systemCerts.add(cert5);
     }
 
-    private static void constructExternalCADataPart2(String host, String port, String pin, String db_dir,
-            String token_pwd, CryptoToken token, String extCertFile)
-            throws NoSuchAlgorithmException, TokenException, IOException, InvalidBERException {
+    private static void constructExternalCADataPart2(String host, String extCertFile) throws IOException {
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
@@ -385,9 +337,7 @@ public class ConfigurationTest {
         systemCerts.add(cert5);
     }
 
-    private static void constructCloneCAData(String host, String port, String pin, String db_dir,
-            String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
-            InvalidBERException {
+    private static void constructCloneCAData(String host) {
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
@@ -399,9 +349,7 @@ public class ConfigurationTest {
         systemCerts.add(cert3);
     }
 
-    private static void constructKRAData(String host, String port, String pin, String db_dir,
-            String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
-            InvalidBERException {
+    private static void constructKRAData(String host) {
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
@@ -442,9 +390,7 @@ public class ConfigurationTest {
         systemCerts.add(cert5);
     }
 
-    private static void constructOCSPData(String host, String port, String pin, String db_dir,
-            String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
-            InvalidBERException {
+    private static void constructOCSPData(String host) {
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
@@ -478,9 +424,7 @@ public class ConfigurationTest {
         systemCerts.add(cert5);
     }
 
-    private static void constructTKSData(String host, String port, String pin, String db_dir,
-            String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
-            InvalidBERException {
+    private static void constructTKSData(String host) {
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<>();
