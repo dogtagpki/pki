@@ -25,40 +25,37 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
-
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.CMS;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
+
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-// cert server imports.
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cmscore.request.Request;;
-import com.netscape.cmscore.usrgrp.UGSubsystem;
-import com.netscape.cmscore.usrgrp.User;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 // cert server x509 imports
 // java sdk imports.
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+// cert server imports.
+import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * uid/pwd directory based authentication manager
@@ -167,10 +164,10 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
 
         // Optional attribute, which presence and value have to be checked if included in configuration
         mMemberAttrName = mLdapConfig.getString("memberAttrName", null);
-        mMemberAttrName = (mMemberAttrName != null)? mMemberAttrName.trim(): mMemberAttrName; 
+        mMemberAttrName = (mMemberAttrName != null)? mMemberAttrName.trim(): mMemberAttrName;
         if (mMemberAttrName != null && mMemberAttrName.length() > 0) {
             mMemberAttrValue = mLdapConfig.getString("memberAttrValue", null);
-            mMemberAttrValue = (mMemberAttrValue != null)? mMemberAttrValue.trim(): mMemberAttrValue; 
+            mMemberAttrValue = (mMemberAttrValue != null)? mMemberAttrValue.trim(): mMemberAttrValue;
             logger.debug("UserPwdDirAuthentication init  mMemberAttrName=" + mMemberAttrName + "  mMemberAttrValue=" + mMemberAttrValue);
         }
         // Optional attribute, which indicates local user entry presence that have to be checked if included in configuration
@@ -183,7 +180,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
             logger.debug("UserPwdDirAuthentication init  mInternalGroup=" + mInternalGroup);
         }
         if (mInternalUserRequired) {
-            mUGS = (UGSubsystem) engine.getUGSubsystem();
+            mUGS = engine.getUGSubsystem();
         }
 
         ArrayList<String> attrList = new ArrayList<>();
@@ -193,7 +190,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
         if (mMemberAttrName != null && mMemberAttrName.length() > 0 && !mMemberAttrName.equalsIgnoreCase(CRED_UID)) {
             attrList.add(mMemberAttrName);
         }
-        mAttrs = (String[])attrList.toArray(new String[attrList.size()]);
+        mAttrs = attrList.toArray(new String[attrList.size()]);
     }
 
     /**
