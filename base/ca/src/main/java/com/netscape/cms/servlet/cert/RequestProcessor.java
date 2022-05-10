@@ -41,7 +41,6 @@ import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
-import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.PolicyDefault;
@@ -419,7 +418,7 @@ public class RequestProcessor extends CertProcessor {
 
     private void updateValues(CertReviewResponse data, Request req,
             Profile profile, Locale locale)
-            throws ERejectException, EDeferException, EPropertyException {
+            throws ERejectException, EPropertyException {
 
         // put request policy defaults in a local hash
         HashMap<String, String> policyData = new HashMap<>();
@@ -436,22 +435,16 @@ public class RequestProcessor extends CertProcessor {
         String profileSetId = req.getExtDataInString("profileSetId");
 
         Enumeration<ProfilePolicy> policies = profile.getProfilePolicies(profileSetId);
-        int count = 0;
 
         while (policies.hasMoreElements()) {
             ProfilePolicy policy = policies.nextElement();
-
-            setValue(locale, count, policy, req, policyData);
-            count++;
+            setValue(locale, policy, req, policyData);
         }
 
         policies = profile.getProfilePolicies(profileSetId);
-        count = 0;
         while (policies.hasMoreElements()) {
             ProfilePolicy policy = policies.nextElement();
-
-            validate(count, policy, req);
-            count++;
+            validate(policy, req);
         }
 
     }
@@ -464,14 +457,12 @@ public class RequestProcessor extends CertProcessor {
         }
     }
 
-    private void validate(int count, ProfilePolicy policy, Request req)
-            throws ERejectException, EDeferException {
+    private void validate(ProfilePolicy policy, Request req) throws ERejectException {
         PolicyConstraint con = policy.getConstraint();
-
         con.validate(req);
     }
 
-    private void setValue(Locale locale, int count, ProfilePolicy policy, Request req,
+    private void setValue(Locale locale, ProfilePolicy policy, Request req,
             HashMap<String, String> data) throws EPropertyException {
         // handle default policy
         com.netscape.cms.profile.def.PolicyDefault def = policy.getDefault();
