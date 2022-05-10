@@ -8,19 +8,19 @@ Name:             pki
 
 # Upstream version number:
 %global           major_version 11
-%global           minor_version 2
+%global           minor_version 3
 %global           update_version 0
 
 # Downstream release number:
 # - development/stabilization (unsupported): 0.<n> where n >= 1
 # - GA/update (supported): <n> where n >= 1
-%global           release_number 0.4
+%global           release_number 0.1
 
 # Development phase:
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (unsupported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%global           phase beta3
+%global           phase alpha1
 
 %undefine         timestamp
 %undefine         commit_id
@@ -194,9 +194,9 @@ BuildRequires:    python3-six
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 5.2.0
-BuildRequires:    tomcatjss >= 8.2.0
-BuildRequires:    ldapjdk >= 5.2.0
+BuildRequires:    jss >= 5.2
+BuildRequires:    tomcatjss >= 8.2
+BuildRequires:    ldapjdk >= 5.2
 
 BuildRequires:    systemd-units
 
@@ -380,8 +380,8 @@ Requires:         apache-commons-net
 Requires:         slf4j
 Requires:         slf4j-jdk14
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 5.2.0
-Requires:         ldapjdk >= 5.2.0
+Requires:         jss >= 5.2
+Requires:         ldapjdk >= 5.2
 Requires:         %{product_id}-base = %{version}-%{release}
 Requires:         resteasy-client >= 3.0.17-1
 Requires:         resteasy-core >= 3.0.17-1
@@ -457,7 +457,7 @@ Requires:         systemd
 Requires(post):   systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
-Requires:         tomcatjss >= 8.2.0
+Requires:         tomcatjss >= 8.2
 
 # pki-healthcheck depends on the following library
 %if 0%{?rhel}
