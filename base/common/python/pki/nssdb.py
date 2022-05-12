@@ -1261,6 +1261,32 @@ class NSSDatabase(object):
 
         exts['authorityKeyIdentifier'] = ', '.join(values)
 
+    def __create_aia_ext(self, exts, aia_ext):
+        '''
+        Create authority info access extension config for pki nss-cert-request/issue.
+        '''
+
+        values = []
+
+        if aia_ext.get('critical'):
+            values.append('critical')
+
+        ca_issuers = aia_ext.get('ca_issuers')
+        if ca_issuers:
+            uris = ca_issuers.get('uri')
+            if uris:
+                for uri in uris:
+                    values.append('caIssuers;' + uri)
+
+        ocsp = aia_ext.get('ocsp')
+        if ocsp:
+            uris = ocsp.get('uri')
+            if uris:
+                for uri in uris:
+                    values.append('OCSP;' + uri)
+
+        exts['authorityInfoAccess'] = ', '.join(values)
+
     def __create_request(
             self,
             subject_dn,
@@ -1409,6 +1435,7 @@ class NSSDatabase(object):
                 basic_constraints_ext=basic_constraints_ext,
                 aki_ext=aki_ext,
                 ski_ext=ski_ext,
+                aia_ext=aia_ext,
                 ext_key_usage_ext=ext_key_usage_ext,
                 validity=validity)
             return
@@ -1587,6 +1614,7 @@ class NSSDatabase(object):
             basic_constraints_ext=None,
             aki_ext=None,
             ski_ext=None,
+            aia_ext=None,
             ext_key_usage_ext=None,
             validity=None):
         '''
@@ -1610,6 +1638,9 @@ class NSSDatabase(object):
 
         if aki_ext:
             self.__create_aki_ext(exts, aki_ext)
+
+        if aia_ext:
+            self.__create_aia_ext(exts, aia_ext)
 
         tmpdir = tempfile.mkdtemp()
 
