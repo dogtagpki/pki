@@ -1231,6 +1231,21 @@ class NSSDatabase(object):
 
         exts['extendedKeyUsage'] = ', '.join(values)
 
+    def __create_ski_ext(self, exts, ski_ext):
+        '''
+        Create subject key ID extension config for pki nss-cert-request/issue.
+        '''
+
+        values = []
+
+        if ski_ext.get('critical'):
+            values.append('critical')
+
+        # generate subject key ID from hash (i.e. ignore the provided ID)
+        values.append('hash')
+
+        exts['subjectKeyIdentifier'] = ', '.join(values)
+
     def __create_request(
             self,
             subject_dn,
@@ -1264,8 +1279,10 @@ class NSSDatabase(object):
             self.__create_extended_key_usage_ext(exts, extended_key_usage_ext)
 
         if subject_key_id:
-            # always generate SKID from hash
-            exts['subjectKeyIdentifier'] = 'hash'
+            ski_ext = {
+                'sk_id': subject_key_id
+            }
+            self.__create_ski_ext(exts, ski_ext)
 
         if generic_exts:
 
@@ -1375,6 +1392,7 @@ class NSSDatabase(object):
                 issuer=issuer,
                 key_usage_ext=key_usage_ext,
                 basic_constraints_ext=basic_constraints_ext,
+                ski_ext=ski_ext,
                 ext_key_usage_ext=ext_key_usage_ext,
                 validity=validity)
             return
@@ -1551,6 +1569,7 @@ class NSSDatabase(object):
             issuer=None,
             key_usage_ext=None,
             basic_constraints_ext=None,
+            ski_ext=None,
             ext_key_usage_ext=None,
             validity=None):
         '''
@@ -1568,6 +1587,9 @@ class NSSDatabase(object):
 
         if ext_key_usage_ext:
             self.__create_extended_key_usage_ext(exts, ext_key_usage_ext)
+
+        if ski_ext:
+            self.__create_ski_ext(exts, ski_ext)
 
         tmpdir = tempfile.mkdtemp()
 
