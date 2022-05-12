@@ -1534,37 +1534,52 @@ class NSSDatabase(object):
         In the future this will replace create_cert().
         '''
 
-        cmd = [
-            'pki',
-            '-d', self.directory
-        ]
+        exts = {}
 
-        if self.password_conf:
-            cmd.extend(['-f', self.password_conf])
+        tmpdir = tempfile.mkdtemp()
 
-        elif self.password_file:
-            cmd.extend(['-C', self.password_file])
+        try:
+            if exts:
+                ext_conf = os.path.join(tmpdir, 'ext.conf')
+                pki.util.store_properties(ext_conf, exts)
 
-        cmd.extend(['nss-cert-issue'])
-        cmd.extend(['--csr', request_file])
-        cmd.extend(['--cert', cert_file])
+            cmd = [
+                'pki',
+                '-d', self.directory
+            ]
 
-        if serial:
-            cmd.extend(['--serial', serial])
+            if self.password_conf:
+                cmd.extend(['-f', self.password_conf])
 
-        if issuer:
-            cmd.extend(['--issuer', issuer])
+            elif self.password_file:
+                cmd.extend(['-C', self.password_file])
 
-        if validity:
-            cmd.extend(['--months-valid', str(validity)])
+            cmd.extend(['nss-cert-issue'])
+            cmd.extend(['--csr', request_file])
+            cmd.extend(['--cert', cert_file])
 
-        if logger.isEnabledFor(logging.DEBUG):
-            cmd.append('--debug')
+            if exts:
+                cmd.extend(['--ext', ext_conf])
 
-        elif logger.isEnabledFor(logging.INFO):
-            cmd.append('--verbose')
+            if serial:
+                cmd.extend(['--serial', serial])
 
-        self.run(cmd, check=True)
+            if issuer:
+                cmd.extend(['--issuer', issuer])
+
+            if validity:
+                cmd.extend(['--months-valid', str(validity)])
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            self.run(cmd, check=True)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
     def create_self_signed_ca_cert(self, request_file, cert_file,
                                    serial='1', validity=240):
