@@ -1207,6 +1207,30 @@ class NSSDatabase(object):
 
         exts['keyUsage'] = ', '.join(values)
 
+    def __create_extended_key_usage_ext(self, exts, extended_key_usage_ext):
+        '''
+        Create extended key usage extension config for pki nss-cert-request/issue.
+        '''
+
+        values = []
+
+        if extended_key_usage_ext.get('critical'):
+            values.append('critical')
+
+        if extended_key_usage_ext.get('serverAuth'):
+            values.append('serverAuth')
+
+        if extended_key_usage_ext.get('clientAuth'):
+            values.append('clientAuth')
+
+        if extended_key_usage_ext.get('emailProtection'):
+            values.append('emailProtection')
+
+        if extended_key_usage_ext.get('ocspResponder'):
+            values.append('OCSPSigning')
+
+        exts['extendedKeyUsage'] = ', '.join(values)
+
     def __create_request(
             self,
             subject_dn,
@@ -1237,25 +1261,7 @@ class NSSDatabase(object):
             self.__create_key_usage_ext(exts, key_usage_ext)
 
         if extended_key_usage_ext:
-
-            values = []
-
-            if extended_key_usage_ext.get('critical'):
-                values.append('critical')
-
-            if extended_key_usage_ext.get('serverAuth'):
-                values.append('serverAuth')
-
-            if extended_key_usage_ext.get('clientAuth'):
-                values.append('clientAuth')
-
-            if extended_key_usage_ext.get('emailProtection'):
-                values.append('emailProtection')
-
-            if extended_key_usage_ext.get('ocspResponder'):
-                values.append('OCSPSigning')
-
-            exts['extendedKeyUsage'] = ', '.join(values)
+            self.__create_extended_key_usage_ext(exts, extended_key_usage_ext)
 
         if subject_key_id:
             # always generate SKID from hash
@@ -1369,6 +1375,7 @@ class NSSDatabase(object):
                 issuer=issuer,
                 key_usage_ext=key_usage_ext,
                 basic_constraints_ext=basic_constraints_ext,
+                ext_key_usage_ext=ext_key_usage_ext,
                 validity=validity)
             return
 
@@ -1544,6 +1551,7 @@ class NSSDatabase(object):
             issuer=None,
             key_usage_ext=None,
             basic_constraints_ext=None,
+            ext_key_usage_ext=None,
             validity=None):
         '''
         Issue certificate using pki nss-cert-issue command.
@@ -1557,6 +1565,9 @@ class NSSDatabase(object):
 
         if key_usage_ext:
             self.__create_key_usage_ext(exts, key_usage_ext)
+
+        if ext_key_usage_ext:
+            self.__create_extended_key_usage_ext(exts, ext_key_usage_ext)
 
         tmpdir = tempfile.mkdtemp()
 
