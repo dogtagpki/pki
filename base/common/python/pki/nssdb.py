@@ -1354,6 +1354,7 @@ class NSSDatabase(object):
                 request_file,
                 cert_file,
                 serial=serial,
+                issuer=issuer,
                 validity=validity)
             return
 
@@ -1526,6 +1527,7 @@ class NSSDatabase(object):
             request_file,
             cert_file,
             serial=None,
+            issuer=None,
             validity=None):
         '''
         Issue certificate using pki nss-cert-issue command.
@@ -1549,6 +1551,9 @@ class NSSDatabase(object):
 
         if serial:
             cmd.extend(['--serial', serial])
+
+        if issuer:
+            cmd.extend(['--issuer', issuer])
 
         if validity:
             cmd.extend(['--months-valid', str(validity)])
