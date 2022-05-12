@@ -1246,6 +1246,21 @@ class NSSDatabase(object):
 
         exts['subjectKeyIdentifier'] = ', '.join(values)
 
+    def __create_aki_ext(self, exts, aki_ext):
+        '''
+        Create authority key ID extension config for pki nss-cert-request/issue.
+        '''
+
+        values = []
+
+        if aki_ext.get('critical'):
+            values.append('critical')
+
+        # generate authority key ID from hash
+        values.append('keyid')
+
+        exts['authorityKeyIdentifier'] = ', '.join(values)
+
     def __create_request(
             self,
             subject_dn,
@@ -1392,6 +1407,7 @@ class NSSDatabase(object):
                 issuer=issuer,
                 key_usage_ext=key_usage_ext,
                 basic_constraints_ext=basic_constraints_ext,
+                aki_ext=aki_ext,
                 ski_ext=ski_ext,
                 ext_key_usage_ext=ext_key_usage_ext,
                 validity=validity)
@@ -1569,6 +1585,7 @@ class NSSDatabase(object):
             issuer=None,
             key_usage_ext=None,
             basic_constraints_ext=None,
+            aki_ext=None,
             ski_ext=None,
             ext_key_usage_ext=None,
             validity=None):
@@ -1590,6 +1607,9 @@ class NSSDatabase(object):
 
         if ski_ext:
             self.__create_ski_ext(exts, ski_ext)
+
+        if aki_ext:
+            self.__create_aki_ext(exts, aki_ext)
 
         tmpdir = tempfile.mkdtemp()
 
