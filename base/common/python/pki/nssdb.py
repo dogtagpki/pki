@@ -1174,6 +1174,39 @@ class NSSDatabase(object):
 
         exts['basicConstraints'] = ', '.join(values)
 
+    def __create_key_usage_ext(self, exts, key_usage_ext):
+        '''
+        Create key usage extension config for pki nss-cert-request/issue.
+        '''
+
+        values = []
+
+        if key_usage_ext.get('critical'):
+            values.append('critical')
+
+        if key_usage_ext.get('digitalSignature'):
+            values.append('digitalSignature')
+
+        if key_usage_ext.get('nonRepudiation'):
+            values.append('nonRepudiation')
+
+        if key_usage_ext.get('keyEncipherment'):
+            values.append('keyEncipherment')
+
+        if key_usage_ext.get('dataEncipherment'):
+            values.append('dataEncipherment')
+
+        if key_usage_ext.get('keyAgreement'):
+            values.append('keyAgreement')
+
+        if key_usage_ext.get('certSigning'):
+            values.append('keyCertSign')
+
+        if key_usage_ext.get('crlSigning'):
+            values.append('cRLSign')
+
+        exts['keyUsage'] = ', '.join(values)
+
     def __create_request(
             self,
             subject_dn,
@@ -1201,34 +1234,7 @@ class NSSDatabase(object):
             self.__create_basic_constraints_ext(exts, basic_constraints_ext)
 
         if key_usage_ext:
-
-            values = []
-
-            if key_usage_ext.get('critical'):
-                values.append('critical')
-
-            if key_usage_ext.get('digitalSignature'):
-                values.append('digitalSignature')
-
-            if key_usage_ext.get('nonRepudiation'):
-                values.append('nonRepudiation')
-
-            if key_usage_ext.get('keyEncipherment'):
-                values.append('keyEncipherment')
-
-            if key_usage_ext.get('dataEncipherment'):
-                values.append('dataEncipherment')
-
-            if key_usage_ext.get('keyAgreement'):
-                values.append('keyAgreement')
-
-            if key_usage_ext.get('certSigning'):
-                values.append('keyCertSign')
-
-            if key_usage_ext.get('crlSigning'):
-                values.append('cRLSign')
-
-            exts['keyUsage'] = ', '.join(values)
+            self.__create_key_usage_ext(exts, key_usage_ext)
 
         if extended_key_usage_ext:
 
@@ -1361,6 +1367,7 @@ class NSSDatabase(object):
                 cert_file,
                 serial=serial,
                 issuer=issuer,
+                key_usage_ext=key_usage_ext,
                 basic_constraints_ext=basic_constraints_ext,
                 validity=validity)
             return
@@ -1535,6 +1542,7 @@ class NSSDatabase(object):
             cert_file,
             serial=None,
             issuer=None,
+            key_usage_ext=None,
             basic_constraints_ext=None,
             validity=None):
         '''
@@ -1546,6 +1554,9 @@ class NSSDatabase(object):
 
         if basic_constraints_ext:
             self.__create_basic_constraints_ext(exts, basic_constraints_ext)
+
+        if key_usage_ext:
+            self.__create_key_usage_ext(exts, key_usage_ext)
 
         tmpdir = tempfile.mkdtemp()
 
