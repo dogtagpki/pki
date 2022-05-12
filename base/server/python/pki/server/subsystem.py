@@ -890,7 +890,9 @@ class PKISubsystem(object):
             serial=serial,
             key_usage_ext=key_usage_ext,
             aki_ext=aki_ext,
-            ext_key_usage_ext=ext_key_usage_ext)
+            ext_key_usage_ext=ext_key_usage_ext,
+            use_jss=True)
+
         if rc:
             raise pki.server.PKIServerException(
                 'Failed to generate CA-signed temp SSL certificate. RC: %d' % rc)
