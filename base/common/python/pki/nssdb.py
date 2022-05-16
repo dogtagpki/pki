@@ -1156,6 +1156,24 @@ class NSSDatabase(object):
         # The hex string is the hex-encoded CKA_ID
         return re.findall(br'^<\s*\d+>\s+\w+\s+(\w+)', out, re.MULTILINE)
 
+    def __create_basic_constraints_ext(self, exts, basic_constraints_ext):
+        '''
+        Create basic constraints extension config for pki nss-cert-request/issue.
+        '''
+
+        values = []
+
+        if basic_constraints_ext.get('critical'):
+            values.append('critical')
+
+        if basic_constraints_ext.get('ca'):
+            values.append('CA:' + str(basic_constraints_ext['ca']).upper())
+
+        if basic_constraints_ext.get('path_length'):
+            values.append('pathlen:' + basic_constraints_ext['path_length'])
+
+        exts['basicConstraints'] = ', '.join(values)
+
     def __create_request(
             self,
             subject_dn,
@@ -1180,19 +1198,7 @@ class NSSDatabase(object):
         exts = {}
 
         if basic_constraints_ext:
-
-            values = []
-
-            if basic_constraints_ext.get('critical'):
-                values.append('critical')
-
-            if basic_constraints_ext.get('ca'):
-                values.append('CA:' + str(basic_constraints_ext['ca']).upper())
-
-            if basic_constraints_ext.get('path_length'):
-                values.append('pathlen:' + basic_constraints_ext['path_length'])
-
-            exts['basicConstraints'] = ', '.join(values)
+            self.__create_basic_constraints_ext(exts, basic_constraints_ext)
 
         if key_usage_ext:
 
@@ -1355,6 +1361,7 @@ class NSSDatabase(object):
                 cert_file,
                 serial=serial,
                 issuer=issuer,
+                basic_constraints_ext=basic_constraints_ext,
                 validity=validity)
             return
 
@@ -1528,6 +1535,7 @@ class NSSDatabase(object):
             cert_file,
             serial=None,
             issuer=None,
+            basic_constraints_ext=None,
             validity=None):
         '''
         Issue certificate using pki nss-cert-issue command.
@@ -1535,6 +1543,9 @@ class NSSDatabase(object):
         '''
 
         exts = {}
+
+        if basic_constraints_ext:
+            self.__create_basic_constraints_ext(exts, basic_constraints_ext)
 
         tmpdir = tempfile.mkdtemp()
 
