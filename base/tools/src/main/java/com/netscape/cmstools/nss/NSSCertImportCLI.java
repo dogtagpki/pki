@@ -64,6 +64,11 @@ public class NSSCertImportCLI extends CommandCLI {
         if (trustFlags == null)
             trustFlags = ",,";
 
+        // initialize CLI in pki CLI
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
+        // load input certificate
         byte[] bytes;
         if (filename == null) {
             // read from standard input
@@ -84,10 +89,8 @@ public class NSSCertImportCLI extends CommandCLI {
             throw new Exception("Unsupported format: " + format);
         }
 
+        // must be done after JSS initialization for RSA/PSS
         X509CertImpl cert = new X509CertImpl(bytes);
-
-        MainCLI mainCLI = (MainCLI) getRoot();
-        mainCLI.init();
 
         ClientConfig clientConfig = mainCLI.getConfig();
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
