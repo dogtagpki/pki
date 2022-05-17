@@ -92,6 +92,24 @@ public class CACertImportCLI extends CommandCLI {
         String certPath = cmd.getOptionValue("cert");
         String certFormat = cmd.getOptionValue("format");
 
+        if (!cmd.hasOption("request")) {
+            throw new Exception("Missing request ID");
+        }
+
+        RequestId requestID = new RequestId(cmd.getOptionValue("request"));
+
+        if (!cmd.hasOption("profile")) {
+            throw new Exception("Missing profile ID");
+        }
+
+        String profileID = cmd.getOptionValue("profile");
+
+        // initialize JSS in pki-server CLI
+        TomcatJSS tomcatjss = TomcatJSS.getInstance();
+        tomcatjss.loadConfig();
+        tomcatjss.init();
+
+        // load input certificate
         byte[] bytes;
         if (certPath == null) {
             // read from standard input
@@ -112,25 +130,10 @@ public class CACertImportCLI extends CommandCLI {
             throw new Exception("Unsupported format: " + certFormat);
         }
 
+        // must be done after JSS initialization for RSA/PSS
         X509CertImpl cert = new X509CertImpl(bytes);
 
-        if (!cmd.hasOption("request")) {
-            throw new Exception("Missing request ID");
-        }
-
-        RequestId requestID = new RequestId(cmd.getOptionValue("request"));
-
-        if (!cmd.hasOption("profile")) {
-            throw new Exception("Missing profile ID");
-        }
-
-        String profileID = cmd.getOptionValue("profile");
-
         String catalinaBase = System.getProperty("catalina.base");
-
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
 
         String subsystem = parent.getParent().getName();
         String confDir = catalinaBase + File.separator + subsystem + File.separator + "conf";
