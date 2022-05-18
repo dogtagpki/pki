@@ -34,10 +34,12 @@ import com.netscape.kra.KeyRecoveryAuthority;
  */
 public class KRACMSAdminServlet extends CMSAdminServlet {
 
+    @Override
     public boolean isSubsystemInstalled(String subsystem) {
         return subsystem.equals("kra");
     }
 
+    @Override
     void readSubsystem(NameValuePairs params) {
 
         KRAEngine engine = KRAEngine.getInstance();
@@ -46,6 +48,7 @@ public class KRACMSAdminServlet extends CMSAdminServlet {
         params.put(kra.getId(), Constants.PR_KRA_INSTANCE);
     }
 
+    @Override
     public void readEncryption(NameValuePairs params) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
@@ -55,6 +58,7 @@ public class KRACMSAdminServlet extends CMSAdminServlet {
         params.put(Constants.PR_CERT_TRANS, getCertNickname(kraNickname));
     }
 
+    @Override
     String getKRANickname() throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
@@ -63,6 +67,7 @@ public class KRACMSAdminServlet extends CMSAdminServlet {
         return kra.getNickname();
     }
 
+    @Override
     void setKRANickname(String nickname) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
@@ -71,6 +76,7 @@ public class KRACMSAdminServlet extends CMSAdminServlet {
         kra.setNickname(nickname);
     }
 
+    @Override
     String getKRANewnickname() throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
@@ -79,6 +85,7 @@ public class KRACMSAdminServlet extends CMSAdminServlet {
         return kra.getNewNickName();
     }
 
+    @Override
     void setKRANewnickname(String tokenName, String nickname) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
@@ -95,6 +102,7 @@ public class KRACMSAdminServlet extends CMSAdminServlet {
         }
     }
 
+    @Override
     public void modifyKRACert(String nickname) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();

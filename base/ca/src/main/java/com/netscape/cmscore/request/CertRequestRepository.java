@@ -39,6 +39,7 @@ public class CertRequestRepository extends RequestRepository {
         super(dbSubsystem, "(requeststate=*)");
     }
 
+    @Override
     public Request createRequest(RequestId requestID, String requestType) throws EBaseException {
 
         logger.debug("CertRequestRepository: Creating request " + requestID.toHexString());

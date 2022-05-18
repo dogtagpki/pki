@@ -72,6 +72,7 @@ public class RequestRepository extends Repository {
         this.filter = filter;
     }
 
+    @Override
     public void init() throws Exception {
 
         logger.debug("RequestRepository: Initializing request repository");

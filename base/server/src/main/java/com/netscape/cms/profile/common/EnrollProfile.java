@@ -639,6 +639,7 @@ public abstract class EnrollProfile extends Profile {
             throws EDeferException, EProfileException {
         submit(token, request, false);
     }
+    @Override
     public void submit(IAuthToken token, Request request, boolean explicitApprovalRequired)
             throws EDeferException, EProfileException {
         // Request Submission Logic:

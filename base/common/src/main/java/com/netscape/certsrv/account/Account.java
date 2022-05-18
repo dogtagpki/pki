@@ -137,6 +137,7 @@ public class Account extends RESTMessage {
         return true;
     }
 
+    @Override
     public Element toDOM(Document document) {
 
         Element accountElement = document.createElement("Account");
@@ -203,6 +204,7 @@ public class Account extends RESTMessage {
         return account;
     }
 
+    @Override
     public String toXML() throws Exception {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

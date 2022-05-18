@@ -119,6 +119,7 @@ public class Info extends RESTMessage {
         return true;
     }
 
+    @Override
     public Element toDOM(Document document) {
 
         Element infoElement = document.createElement("Info");
@@ -173,6 +174,7 @@ public class Info extends RESTMessage {
         return info;
     }
 
+    @Override
     public String toXML() throws Exception {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

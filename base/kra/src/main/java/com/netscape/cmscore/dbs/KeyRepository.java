@@ -62,6 +62,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
         super(dbSubsystem, 16);
     }
 
+    @Override
     public void init() throws Exception {
 
         logger.info("KeyRepository: Initializing key repository");

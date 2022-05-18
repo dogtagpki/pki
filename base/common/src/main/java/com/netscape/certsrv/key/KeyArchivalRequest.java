@@ -241,6 +241,7 @@ public class KeyArchivalRequest extends RESTMessage {
         }
     }
 
+    @Override
     public Element toDOM(Document document) {
         Element element = document.createElement("KeyArchivalRequest");
         toDOM(document, element);
