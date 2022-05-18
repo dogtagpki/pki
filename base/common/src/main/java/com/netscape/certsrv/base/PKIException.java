@@ -108,6 +108,7 @@ public class PKIException extends RuntimeException {
         public int code;
         public String message;
 
+        @Override
         public Element toDOM(Document document) {
 
             Element element = document.createElement("PKIException");
@@ -148,6 +149,7 @@ public class PKIException extends RuntimeException {
             return data;
         }
 
+        @Override
         public String toXML() throws Exception {
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

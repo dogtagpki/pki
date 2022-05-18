@@ -88,6 +88,7 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
         return list;
     }
 
+    @Override
     public Element toDOM(Document document) {
         Element element = document.createElement("SymKeyGenerationRequest");
         toDOM(document, element);

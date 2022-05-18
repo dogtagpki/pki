@@ -102,6 +102,7 @@ public class CertificateRepository extends Repository {
         super(dbSubsystem, 16);
     }
 
+    @Override
     public void init() throws Exception {
 
         logger.debug("CertificateRepository: Initializing certificate repository");
@@ -377,6 +378,7 @@ public class CertificateRepository extends Repository {
         return nextSerialNumber;
     }
 
+    @Override
     public BigInteger getRangeLength() {
         if (dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
             return mMaxSerialNo.subtract(mMinSerialNo).add(BigInteger.ONE);
@@ -385,6 +387,7 @@ public class CertificateRepository extends Repository {
         }
     }
 
+    @Override
     public BigInteger getRandomLimit(BigInteger rangeLength) {
         if (dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
             return rangeLength.subtract(mLowWaterMarkNo.shiftRight(1));
@@ -393,6 +396,7 @@ public class CertificateRepository extends Repository {
         }
     }
 
+    @Override
     public BigInteger getNumbersInRange() {
         if (dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
             return mMaxSerialNo.subtract(mMinSerialNo).subtract(mCounter);

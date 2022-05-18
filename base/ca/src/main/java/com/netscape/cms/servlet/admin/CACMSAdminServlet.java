@@ -85,6 +85,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
         params.put(Constants.PR_CERT_CA, getCertNickname(caNickName));
     }
 
+    @Override
     void readSubsystem(NameValuePairs params) {
 
         CAEngine engine = CAEngine.getInstance();
@@ -93,6 +94,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
         params.put(ca.getId(), Constants.PR_CA_INSTANCE);
     }
 
+    @Override
     String getCANickname() {
 
         CAEngine engine = CAEngine.getInstance();
@@ -102,6 +104,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
         return signingUnit.getNickname();
     }
 
+    @Override
     String getCANewnickname() throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
@@ -111,6 +114,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
         return signingUnit.getNewNickName();
     }
 
+    @Override
     void setCANewnickname(String tokenName, String nickname) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
@@ -128,6 +132,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
         }
     }
 
+    @Override
     String getOCSPNickname() {
 
         CAEngine engine = CAEngine.getInstance();
@@ -146,6 +151,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
         return signingUnit.getNewNickName();
     }
 
+    @Override
     void setOCSPNewnickname(String tokenName, String nickname) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
@@ -219,6 +225,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
         modifyCAGatewayCert(nickname);
     }
 
+    @Override
     public void modifyCAGatewayCert(String nickname) {
 
         CAEngine engine = CAEngine.getInstance();

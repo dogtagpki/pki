@@ -54,6 +54,7 @@ public class CRLRepository extends Repository {
         super(dbSubsystem, 10);
     }
 
+    @Override
     public void init() throws Exception {
 
         // CRLRepository does not use serial number stuff

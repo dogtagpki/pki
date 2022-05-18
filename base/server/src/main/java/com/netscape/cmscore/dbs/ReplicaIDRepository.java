@@ -41,6 +41,7 @@ public class ReplicaIDRepository extends Repository {
         super(dbSubsystem, 10);
     }
 
+    @Override
     public void init() throws Exception {
 
         logger.info("ReplicaIDRepository: Initializing replica ID repository");
