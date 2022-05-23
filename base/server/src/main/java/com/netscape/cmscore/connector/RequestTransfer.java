@@ -57,11 +57,7 @@ public class RequestTransfer {
 
     public static boolean isProfileRequest(Request request) {
         String profileId = request.getExtDataInString(Request.PROFILE_ID);
-
-        if (profileId == null || profileId.equals(""))
-            return false;
-        else
-            return true;
+        return profileId != null && !profileId.equals("");
     }
 
     public static String[] getTransferAttributes(Request r) {
@@ -93,10 +89,9 @@ public class RequestTransfer {
             }
             logger.debug("RequestTransfer: attribute size=" + v.size());
             return v.toArray(new String[v.size()]);
-        } else {
-            // logger.debug("RequestTransfer: not profile request; returning default transferAttributes");
-            return transferAttributes;
         }
+        // logger.debug("RequestTransfer: not profile request; returning default transferAttributes");
+        return transferAttributes;
     }
 
     public static void transfer(Request src, Request dest) {
