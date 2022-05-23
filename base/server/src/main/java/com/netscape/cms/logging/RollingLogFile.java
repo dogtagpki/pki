@@ -650,9 +650,6 @@ class fileFilter implements FilenameFilter {
 
     @Override
     public boolean accept(File dir, String name) {
-        if (name.startsWith(patternToMatch))
-            return true;
-        else
-            return false;
+        return name.startsWith(patternToMatch);
     }
 }
