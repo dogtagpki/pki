@@ -29,6 +29,7 @@ import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -83,7 +84,7 @@ public class AuthenticatorAddCLI extends CommandCLI {
                 out.println(line);
             }
 
-            authenticatorData = AuthenticatorData.fromJSON(sw.toString());
+            authenticatorData = JSONSerializer.fromJSON(sw.toString(), AuthenticatorData.class);
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
