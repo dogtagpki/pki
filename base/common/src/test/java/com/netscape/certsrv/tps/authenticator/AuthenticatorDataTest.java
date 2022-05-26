@@ -8,6 +8,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class AuthenticatorDataTest {
 
     private static AuthenticatorData before = new AuthenticatorData();
@@ -30,7 +32,7 @@ public class AuthenticatorDataTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        AuthenticatorData afterJSON = AuthenticatorData.fromJSON(json);
+        AuthenticatorData afterJSON = JSONSerializer.fromJSON(json, AuthenticatorData.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert
