@@ -190,7 +190,7 @@ public class RequestProcessor extends CertProcessor {
                     } else if (op.equals("validate")) {
                         updateValues(data, req, profile, locale);
                     } else if (op.equals("unassign")) {
-                        req.setRequestOwner("");
+                        req.setRequestOwner(null);
                     }
                 } else {
                     logger.error("RequestProcessor: Permission not granted to approve/reject/cancel/update/validate/unassign request.");
