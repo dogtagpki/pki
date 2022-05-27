@@ -145,7 +145,7 @@ public class UGSubsystem {
         try {
             ldapconn = getConn();
 
-            logger.info("UGSubsystem: retrieving user " + userDN);
+            logger.info("UGSubsystem: Retrieving user " + userDN);
 
             LDAPSearchResults res = ldapconn.search(
                     userDN,
@@ -165,7 +165,7 @@ public class UGSubsystem {
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                logger.info("UGSubsystem: user not found: " + userID);
+                logger.info("UGSubsystem: User not found: " + userID);
                 return null;
 
             } else {
@@ -620,7 +620,7 @@ public class UGSubsystem {
         }
 
         String dn = "uid=" + LDAPUtil.escapeRDNValue(userID) + "," + getUserBaseDN();
-        logger.info("Adding " + dn);
+        logger.info("UGSubsystem: Adding user " + dn);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         List<String> ocList = new ArrayList<>();
@@ -1613,7 +1613,7 @@ public class UGSubsystem {
 
         try {
             String dn = "cn=" + LDAPUtil.escapeRDNValue(grp.getGroupID()) + "," + getGroupBaseDN();
-            logger.info("UGSubsystem: adding " + dn);
+            logger.info("UGSubsystem: Adding group " + dn);
 
             LDAPAttributeSet attrs = new LDAPAttributeSet();
 
