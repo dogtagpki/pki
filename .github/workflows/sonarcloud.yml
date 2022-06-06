@@ -1,0 +1,45 @@
+name: Sonarcloud
+on: [push,pull_request]
+
+jobs:
+  call-build-workflow:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
+
+  sonarcloud:
+    name: Sonar Cloud code analysis
+    needs: call-build-workflow
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    strategy:
+      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-ca-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-ca-runner.tar
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+       
+      - name: Copy build in current folder
+        run: docker cp pki:/usr/share/java/pki ./build
+      
+      - name: Remove maven related file
+        run: rm -f pom.xml
+
+      - name: Start Sonar analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
