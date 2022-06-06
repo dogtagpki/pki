@@ -20,6 +20,7 @@ import org.dogtagpki.server.rest.SecurityDomainService;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
+import org.dogtagpki.est.ESTFrontend;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -70,6 +71,9 @@ public class CAApplication extends Application {
 
         // info service
         classes.add(CAInfoService.class);
+
+        // EST service
+        classes.add(ESTFrontend.class);
 
         // security domain
         CAEngine engine = CAEngine.getInstance();
