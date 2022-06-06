@@ -38,7 +38,7 @@ caIssuerDN="cn=CA Signing Certificate,ou=pki-tomcat,o=host.com Security Domain"
 port=389
 hostname="localhost.localdomain"
 
-ldapmodify -a -D "$userdn" -W -p  $port -h $hostname -x << EOF
+ldapmodify-H ldap://$hostname:$port -x -D "$userdn" -W -a << EOF
 dn: cn=allRevokedCertsByIssuer-$instanceId, cn=$database, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
 objectClass: vlvSearch

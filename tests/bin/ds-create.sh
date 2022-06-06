@@ -13,7 +13,7 @@ sed -i \
 
 dscreate from-file ds.inf
 
-ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 << EOF
+ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 << EOF
 dn: dc=example,dc=com
 objectClass: domain
 dc: example

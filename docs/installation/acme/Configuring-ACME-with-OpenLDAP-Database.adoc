@@ -21,7 +21,7 @@ This example uses `dc=acme,dc=pki,dc=example,dc=com` as the base DN.
 Import the file with the following command:
 
 ----
-$ ldapadd -h $HOSTNAME -x -D "cn=Manager,dc=example,dc=com" -w Secret.123 \
+$ ldapadd -H ldap://$HOSTNAME -x -D "cn=Manager,dc=example,dc=com" -w Secret.123 \
     -f /usr/share/pki/acme/database/openldap/create.ldif
 ----
 

@@ -5,7 +5,7 @@
 To add a user, execute the following command:
 
 ----
-$ ldapadd -h $HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
+$ ldapadd -H ldap://$HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
 dn: uid=admin,ou=people,dc=acme,dc=pki,dc=example,dc=com
 objectClass: person
 objectClass: organizationalPerson
@@ -21,7 +21,7 @@ EOF
 To enable authentication using a password, execute the following command:
 
 ----
-$ ldapmodify -h $HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
+$ ldapmodify -H ldap://$HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
 dn: uid=admin,ou=people,dc=acme,dc=pki,dc=example,dc=com
 changetype: modify
 replace: userPassword
@@ -46,7 +46,7 @@ $ certutil -L -d ~/.dogtag/nssdb -n admin -r | base64 -w 0
 Then add the certificate with the following command:
 
 ----
-$ ldapmodify -h $HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
+$ ldapmodify -H ldap://$HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
 dn: uid=admin,ou=people,dc=acme,dc=pki,dc=example,dc=com
 changetype: modify
 add: description
@@ -63,7 +63,7 @@ EOF
 To add a group, execute the following command:
 
 ----
-$ ldapadd -h $HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
+$ ldapadd -H ldap://$HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
 dn: cn=Administrators,ou=groups,dc=acme,dc=pki,dc=example,dc=com
 objectClass: groupOfUniqueNames
 cn: Administrators
@@ -76,7 +76,7 @@ EOF
 To add a group member, execute the following command:
 
 ----
-$ ldapmodify -h $HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
+$ ldapmodify -H ldap://$HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
 dn: cn=Administrators,ou=groups,dc=acme,dc=pki,dc=example,dc=com
 changetype: modify
 add: uniqueMember
