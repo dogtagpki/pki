@@ -4,6 +4,8 @@ on: [push,pull_request]
 jobs:
   call-build-workflow:
     uses: ./.github/workflows/build.yml
+    with:
+      key_container: sonar
     secrets: inherit
 
 
@@ -22,11 +24,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-runner.tar
+          key: pki-sonar-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-sonar-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-ca-runner.tar
+        run: docker load --input pki-sonar-runner.tar
 
       - name: Set up PKI container
         run: |
