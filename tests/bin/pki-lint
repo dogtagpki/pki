@@ -58,9 +58,15 @@ while getopts v-: arg ; do
     esac
 done
 
-PYTHONPATH=`python3 -Ic "import sysconfig; print(sysconfig.get_path('purelib'))"`
+PATHS=`python3 -Ic "import sys; print(' '.join(sys.path))"`
+SOURCES=""
 
-SOURCES="`find $PYTHONPATH/pki -name "*.py"`"
+for path in $PATHS; do
+    if [ -d $path/pki ]; then
+        SOURCES="$SOURCES `find $path/pki -name "*.py"`"
+    fi
+done
+
 SOURCES="$SOURCES `find /usr/share/pki/upgrade -name "*.py"`"
 SOURCES="$SOURCES `find /usr/share/pki/server/upgrade -name "*.py"`"
 
