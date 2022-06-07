@@ -31,7 +31,9 @@ jobs:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Install git
-        run: dnf install -y git
+        run: |
+          dnf install -y git
+          git config --global --add safe.directory ${PWD}
 
       - name: Clone repository
         uses: actions/checkout@v2
