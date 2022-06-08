@@ -556,7 +556,7 @@ class CertCreateCLI(pki.cli.CLI):
 
         # Read the password file for password value
         if agent_password_file:
-            with open(agent_password_file) as f:
+            with open(agent_password_file, encoding='utf-8') as f:
                 agent_password = f.read().strip()
 
         if not temp_cert:
@@ -876,7 +876,7 @@ class CertExportCLI(pki.cli.CLI):
                     sys.exit(1)
 
                 cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
-                with open(cert_file, 'w') as f:
+                with open(cert_file, 'w', encoding='utf-8') as f:
                     f.write(cert_data)
 
             if csr_file:
@@ -889,7 +889,7 @@ class CertExportCLI(pki.cli.CLI):
                     sys.exit(1)
 
                 csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
-                with open(csr_file, 'w') as f:
+                with open(csr_file, 'w', encoding='utf-8') as f:
                     f.write(csr_data)
 
             if pkcs12_file:
