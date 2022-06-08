@@ -37,7 +37,7 @@ class AddPhoneHomeURLsToTPSsServerXML(
 
         # Simply read in the document by lines
 
-        with open(server_xml) as f:
+        with open(server_xml, encoding='utf-8') as f:
             content = f.readlines()
             f.close()
 
@@ -106,7 +106,7 @@ class AddPhoneHomeURLsToTPSsServerXML(
 
         # Rewrite the file if needed
         if rewrite_server_xml:
-            with open(server_xml, 'w') as fout:
+            with open(server_xml, 'w', encoding='utf-8') as fout:
                 for line_out in final_content:
                     fout.write(line_out)
             fout.close()

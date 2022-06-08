@@ -22,7 +22,7 @@ class RemoveStaticInfoInServerXML(pki.server.upgrade.PKIServerUpgradeScriptlet):
         logger.info('Updating %s', instance.server_xml)
         self.backup(instance.server_xml)
 
-        with open(instance.server_xml) as f:
+        with open(instance.server_xml, encoding='utf-8') as f:
             lines = f.readlines()
 
         lines = [line.rstrip() for line in lines]
@@ -45,6 +45,6 @@ class RemoveStaticInfoInServerXML(pki.server.upgrade.PKIServerUpgradeScriptlet):
             elif not remove:
                 new_lines.append(line)
 
-        with open(instance.server_xml, 'w') as f:
+        with open(instance.server_xml, 'w', encoding='utf-8') as f:
             for line in new_lines:
                 f.write("%s\n" % line)

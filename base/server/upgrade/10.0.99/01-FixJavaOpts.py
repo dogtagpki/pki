@@ -31,8 +31,8 @@ class FixJavaOpts(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def upgrade_instance(self, instance):
         fname = "/etc/sysconfig/" + instance.name
-        with open(fname, "r") as infile:
+        with open(fname, "r", encoding='utf-8') as infile:
             lines = infile.readlines()
-        with open(fname, "w") as outfile:
+        with open(fname, "w", encoding='utf-8') as outfile:
             for line in lines:
                 outfile.write(re.sub(r'\$JAVA_OPTS *', '', line))

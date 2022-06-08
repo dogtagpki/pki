@@ -46,7 +46,7 @@ class UpdateJavaHome(pki.server.upgrade.PKIServerUpgradeScriptlet):
     def update_java_home(self, path, java_home):
         result = []
 
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             for line in f:
 
                 if not line.startswith('JAVA_HOME='):
@@ -59,6 +59,6 @@ class UpdateJavaHome(pki.server.upgrade.PKIServerUpgradeScriptlet):
         return result
 
     def store_config(self, path, output):
-        with open(path, 'w') as f:
+        with open(path, 'w', encoding='utf-8') as f:
             for line in output:
                 print(line, end='', file=f)
