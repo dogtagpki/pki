@@ -974,7 +974,7 @@ class Profile(object):
         """
         if path_to_file is None:
             raise ValueError("File path must be specified.")
-        with open(path_to_file) as input_file:
+        with open(path_to_file, encoding='utf-8') as input_file:
             data = input_file.read()
             if data is not None:
                 return Profile.from_json(json.loads(data))
@@ -1331,7 +1331,7 @@ def main():
     profile_data.add_policy_set(policy_set)
 
     # Write the profile data object to a file for testing a file input
-    with open(file_path + '/original.json', 'w') as output_file:
+    with open(file_path + '/original.json', 'w', encoding='utf-8') as output_file:
         output_file.write(json.dumps(profile_data,
                                      cls=encoder.CustomTypeEncoder,
                                      sort_keys=True, indent=4))
@@ -1383,7 +1383,7 @@ def main():
     fetch.name += " (Modified)"
     modified_profile = profile_client.modify_profile(fetch)
 
-    with open(file_path + 'modified.json', 'w') as output_file:
+    with open(file_path + 'modified.json', 'w', encoding='utf-8') as output_file:
         output_file.write(json.dumps(fetch, cls=encoder.CustomTypeEncoder,
                                      sort_keys=True, indent=4))
 
