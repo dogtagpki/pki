@@ -77,7 +77,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.file.create(deployer.mdict['pki_user_deployment_cfg_replica'])
 
-        with open(deployer.mdict['pki_user_deployment_cfg_replica'], 'w') as f:
+        with open(deployer.mdict['pki_user_deployment_cfg_replica'], 'w', encoding='utf-8') as f:
             deployer.user_config.write(f)
 
         # establish top-level infrastructure, instance, and subsystem
