@@ -129,7 +129,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
             print(line, end='')
 
         if not got_use_nuxwdog:
-            with open(sysconfig_file, 'a') as f:
+            with open(sysconfig_file, 'a', encoding='utf-8') as f:
                 f.write("USE_NUXWDOG=\"true\"\n")
 
         os.chown(sysconfig_file, instance.uid, instance.gid)
