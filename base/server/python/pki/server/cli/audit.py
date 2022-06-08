@@ -903,7 +903,7 @@ class AuditFileVerifyCLI(pki.cli.CLI):
         try:
             file_list = os.path.join(tmpdir, 'audit.txt')
 
-            with open(file_list, 'w') as f:
+            with open(file_list, 'w', encoding='utf-8') as f:
                 for filename in log_files:
                     f.write(os.path.join(log_dir, filename) + '\n')
 
