@@ -120,7 +120,7 @@ class NSSCreateCLI(pki.cli.CLI):
             pass
 
         elif password_file is not None:
-            with open(password_file) as f:
+            with open(password_file, encoding='utf-8') as f:
                 password = f.read().splitlines()[0]
 
         else:
