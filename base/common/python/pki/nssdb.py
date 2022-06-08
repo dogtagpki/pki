@@ -1687,59 +1687,6 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def create_self_signed_ca_cert(self, request_file, cert_file,
-                                   serial='1', validity=240):
-
-        # --keyUsage
-        key_usage_ext = {
-            'digitalSignature': True,
-            'nonRepudiation': True,
-            'certSigning': True,
-            'crlSigning': True,
-            'critical': True
-        }
-
-        # -2
-        basic_constraints_ext = {
-            'path_length': None
-        }
-
-        # FIXME: do not hard-code AKI extension
-        # -3
-        aki_ext = {
-            'auth_key_id': '0x2d7e8337755afd0e8d52a370169336b84ad6849f'
-        }
-
-        # FIXME: do not hard-code SKI extension
-        # --extSKID
-        ski_ext = {
-            'sk_id': '0x2d7e8337755afd0e8d52a370169336b84ad6849f'
-        }
-
-        # FIXME: do not hard-code AIA extension
-        # --extAIA
-        aia_ext = {
-            'ocsp': {
-                'uri': ['http://pki.example.com:8080/ca/ocsp']
-            }
-
-        }
-
-        rc = self.create_cert(
-            request_file=request_file,
-            cert_file=cert_file,
-            serial=serial,
-            validity=validity,
-            key_usage_ext=key_usage_ext,
-            basic_constraints_ext=basic_constraints_ext,
-            aki_ext=aki_ext,
-            ski_ext=ski_ext,
-            aia_ext=aia_ext)
-
-        if rc:
-            raise Exception(
-                'Failed to generate self-signed CA certificate. RC: %d' % rc)
-
     def show_certs(self):
 
         cmd = [
