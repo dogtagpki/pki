@@ -48,10 +48,10 @@ class FixJavaHome(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         self.backup(filename)
 
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
 
             # find 'System-wide configuration ...' comment
             start = self.find_blank_line(lines, 0) + 1

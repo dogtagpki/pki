@@ -32,7 +32,7 @@ class RemoveNSSDefault(pki.server.upgrade.PKIServerUpgradeScriptlet):
         systemd_conf = os.path.join('/etc/sysconfig', instance.name)
         self.backup(systemd_conf)
 
-        with open(systemd_conf, 'r') as f:
+        with open(systemd_conf, 'r', encoding='utf-8') as f:
             lines = list(f)
 
         outlines = []
@@ -50,5 +50,5 @@ class RemoveNSSDefault(pki.server.upgrade.PKIServerUpgradeScriptlet):
                 # add the rest
                 outlines.append(line)
 
-        with open(systemd_conf, 'w') as f:
+        with open(systemd_conf, 'w', encoding='utf-8') as f:
             f.writelines(outlines)

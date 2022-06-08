@@ -36,10 +36,10 @@ class FixRegistryFile(pki.server.upgrade.PKIServerUpgradeScriptlet):
             pki.server.PKIServer.REGISTRY_DIR, 'tomcat', instance.name, instance.name)
         self.backup(registry_file)
 
-        with open(registry_file, "r") as registry:
+        with open(registry_file, "r", encoding='utf-8') as registry:
             lines = registry.readlines()
 
-        with open(registry_file, "w") as registry:
+        with open(registry_file, "w", encoding='utf-8') as registry:
             for line in lines:
                 registry.write(
                     re.sub(r'PKI_INSTANCE_ID', 'PKI_INSTANCE_NAME', line))
