@@ -220,7 +220,7 @@ def copyfile(source, dest, slots=None, params=None, uid=None, gid=None, mode=Non
         if params is None:
             params = {}
 
-        with open(dest, 'w') as f:
+        with open(dest, 'w', encoding='utf-8') as f:
             for line in fileinput.FileInput(source):
                 for slot in slots:
                     if slot != '__name__' and slots[slot] in line:
@@ -347,7 +347,9 @@ def customize_file(input_file, output_file, params):
     Customize a file with specified parameters.
     """
 
-    with open(input_file) as infile, open(output_file, 'w') as outfile:
+    with open(input_file, encoding='utf-8') as infile, \
+            open(output_file, 'w', encoding='utf-8') as outfile:
+
         for line in infile:
             for src, target in params.items():
                 line = line.replace(src, target)
@@ -356,7 +358,7 @@ def customize_file(input_file, output_file, params):
 
 def load_properties(filename, properties):
 
-    with open(filename) as f:
+    with open(filename, encoding='utf-8') as f:
 
         lines = f.read().splitlines()
         name = None
@@ -402,19 +404,19 @@ def store_properties(filename, properties):
 
     sorted_props = sorted(properties.items(), key=operator.itemgetter(0))
 
-    with io.open(filename, 'w') as f:
+    with io.open(filename, 'w', encoding='utf-8') as f:
 
         for name, value in sorted_props:
 
             if value is None:
                 # write None as empty value
-                f.write(u'{0}=\n'.format(name))
+                f.write('{0}=\n'.format(name))
 
             elif isinstance(value, six.string_types):
-                f.write(u'{0}={1}\n'.format(name, value))
+                f.write('{0}={1}\n'.format(name, value))
 
             elif isinstance(value, six.integer_types):
-                f.write(u'{0}={1:d}\n'.format(name, value))
+                f.write('{0}={1:d}\n'.format(name, value))
 
             else:
                 raise TypeError((name, value, type(value)))
@@ -521,7 +523,7 @@ def read_environment_files(env_file_list=None):
 
     for env_val in env_vals:
         (key, _, value) = env_val.partition("=")
-        if not key.strip() or key == u'_':
+        if not key.strip() or key == '_':
             continue
         os.environ[key] = value
 
