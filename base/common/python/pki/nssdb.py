@@ -141,7 +141,7 @@ def get_file_type(filename):
     CSR, certificate, PKCS #7 certificate chain.
     '''
 
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding='utf-8') as f:
         data = f.read()
 
     if data.startswith(CSR_HEADER) or data.startswith(LEGACY_CSR_HEADER):
@@ -281,7 +281,7 @@ class NSSDatabase(object):
         if not filename:
             filename = 'password.txt'
         password_file = os.path.join(tmpdir, filename)
-        with open(password_file, 'w') as f:
+        with open(password_file, 'w', encoding='utf-8') as f:
             f.write(password)
         return password_file
 
@@ -585,7 +585,7 @@ class NSSDatabase(object):
             if cert_data and not cert_file:
                 cert_data = convert_cert(cert_data, cert_format, 'pem')
                 cert_file = os.path.join(tmpdir, 'cert.crt')
-                with open(cert_file, 'w') as f:
+                with open(cert_file, 'w', encoding='utf-8') as f:
                     f.write(cert_data)
 
             token = self.get_effective_token(token)
@@ -1006,11 +1006,11 @@ class NSSDatabase(object):
             self.run(cmd, check=True)
 
             # read base-64 request
-            with open(b64_request_file, 'r') as f:
+            with open(b64_request_file, 'r', encoding='utf-8') as f:
                 b64_request = f.read()
 
             # add header and footer
-            with open(request_file, 'w') as f:
+            with open(request_file, 'w', encoding='utf-8') as f:
                 f.write('-----BEGIN NEW CERTIFICATE REQUEST-----\n')
                 f.write(b64_request)
                 f.write('-----END NEW CERTIFICATE REQUEST-----\n')
@@ -2104,7 +2104,7 @@ class NSSDatabase(object):
                     token=token,
                     trust_attributes=trust_attributes)
 
-                with open(cert_chain_file, 'r') as f:
+                with open(cert_chain_file, 'r', encoding='utf-8') as f:
                     pkcs7_data = f.read()
 
                 base64_data = convert_pkcs7(pkcs7_data, 'pem', 'base64')
@@ -2113,7 +2113,7 @@ class NSSDatabase(object):
 
             else:  # import PKCS #7 data without header/footer
                 logger.debug('Importing a PKCS #7 data without header/footer')
-                with open(cert_chain_file, 'r') as f:
+                with open(cert_chain_file, 'r', encoding='utf-8') as f:
                     base64_data = f.read()
 
                 # TODO: fix ipaserver/install/cainstance.py in IPA
@@ -2125,7 +2125,7 @@ class NSSDatabase(object):
                 pkcs7_data = convert_pkcs7(base64_data, 'base64', 'pem')
 
                 tmp_cert_chain_file = os.path.join(tmpdir, 'cert_chain.p7b')
-                with open(tmp_cert_chain_file, 'w') as f:
+                with open(tmp_cert_chain_file, 'w', encoding='utf-8') as f:
                     f.write(pkcs7_data)
 
                 self.import_pkcs7(
