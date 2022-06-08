@@ -24,10 +24,10 @@ import java.util.Collection;
 import java.util.Stack;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmsutil.json.JSONObject;
 
 
 public class ExternalProcessKeyRetriever implements KeyRetriever {
@@ -85,7 +85,7 @@ public class ExternalProcessKeyRetriever implements KeyRetriever {
      * and "wrapped_key".
      */
     private Result parseResult(InputStream in) throws IOException {
-        JsonNode root = (new ObjectMapper()).readTree(in);
+        JsonNode root = new JSONObject(in).getRootNode();
         String cert = root.path("certificate").textValue();
         byte[] pao = root.path("wrapped_key").binaryValue();
         if (cert == null)

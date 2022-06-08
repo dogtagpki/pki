@@ -16,17 +16,20 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class JSONObject {
+public class JSONObject extends ObjectMapper {
 
-    private ObjectMapper mapper = null;
+    private static final long serialVersionUID = 2L;
+    private static ObjectMapper mapper = new ObjectMapper()
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .deactivateDefaultTyping()
+            .setAnnotationIntrospector(new JacksonAnnotationIntrospector());
     private ObjectNode rootNode = null;
-    private JsonNode jsonNode = null;
+    private transient JsonNode jsonNode = null;
 
     public JSONObject() {
-        mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
         rootNode = mapper.createObjectNode();
     }
 
@@ -37,10 +40,6 @@ public class JSONObject {
 
     public ObjectMapper getMapper() {
         return mapper;
-    }
-
-    protected void setMapper(ObjectMapper mapper) {
-        this.mapper = mapper;
     }
 
     public ObjectNode getRootNode() {
@@ -71,7 +70,7 @@ public class JSONObject {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mapper, rootNode, jsonNode);
+        return Objects.hash(rootNode, jsonNode);
     }
 
     @Override
@@ -83,8 +82,7 @@ public class JSONObject {
         if (getClass() != obj.getClass())
             return false;
         JSONObject other = (JSONObject) obj;
-        return Objects.equals(mapper, other.mapper) &&
-                Objects.equals(rootNode, other.rootNode) &&
+        return Objects.equals(rootNode, other.rootNode) &&
                 Objects.equals(jsonNode, other.jsonNode);
     }
 
