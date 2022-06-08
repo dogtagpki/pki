@@ -166,7 +166,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             pem_cert = pki.nssdb.convert_cert(cert['data'], 'base64', 'pem')
 
             cert_file = os.path.join(tmpdir, 'sslserver.crt')
-            with open(cert_file, 'w') as f:
+            with open(cert_file, 'w', encoding='utf-8') as f:
                 f.write(pem_cert)
 
             nssdb.add_cert(

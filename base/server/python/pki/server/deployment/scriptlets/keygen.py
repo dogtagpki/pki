@@ -134,7 +134,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subject_key_id=subject_key_id,
                 generic_exts=generic_exts)
 
-            with open(csr_path) as f:
+            with open(csr_path, encoding='utf-8') as f:
                 csr = f.read()
 
             b64_csr = pki.nssdb.convert_csr(csr, 'pem', 'base64')
