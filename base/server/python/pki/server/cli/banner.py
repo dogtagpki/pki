@@ -163,7 +163,7 @@ class BannerValidateCLI(pki.cli.CLI):
         try:
             if banner_file:
                 # load banner from file
-                with io.open(banner_file) as f:
+                with io.open(banner_file, encoding='utf-8') as f:
                     banner = f.read().strip()
             else:
 
