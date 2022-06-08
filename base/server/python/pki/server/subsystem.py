@@ -294,7 +294,7 @@ class PKISubsystem(object):
 
         try:
             nssdb_password_file = os.path.join(tmpdir, 'password.txt')
-            with open(nssdb_password_file, 'w') as f:
+            with open(nssdb_password_file, 'w', encoding='utf-8') as f:
                 f.write(nssdb_password)
 
             # export the certificate, key, and chain
@@ -764,7 +764,7 @@ class PKISubsystem(object):
                     'No such self test available for %s' % self.name)
             target_tests[test] = critical
         else:
-            for testID in target_tests:
+            for testID in target_tests.keys():
                 target_tests[testID] = critical
         self.set_startup_tests(target_tests)
 
@@ -793,7 +793,7 @@ class PKISubsystem(object):
         logger.debug('Retrieved CSR: %s', cert_request)
 
         csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
-        with open(csr_file, 'w') as f:
+        with open(csr_file, 'w', encoding='utf-8') as f:
             f.write(csr_data)
         logger.info('CSR for %s has been written to %s', cert_tag, csr_file)
 
@@ -811,7 +811,7 @@ class PKISubsystem(object):
         logger.debug('Retrieved CA cert details: %s', ca_cert_data)
 
         ca_cert = pki.nssdb.convert_cert(ca_cert_data, 'base64', 'pem')
-        with open(ca_cert_file, 'w') as f:
+        with open(ca_cert_file, 'w', encoding='utf-8') as f:
             f.write(ca_cert)
         logger.info('CA cert written to %s', ca_cert_file)
 
@@ -1140,7 +1140,7 @@ class PKISubsystem(object):
         try:
             if not install_token:
                 install_token = os.path.join(tmpdir, 'install-token')
-                with open(install_token, 'w') as f:
+                with open(install_token, 'w', encoding='utf-8') as f:
                     f.write(session_id)
 
             cmd = [
@@ -1226,7 +1226,7 @@ class PKISubsystem(object):
         try:
             if not install_token:
                 install_token = os.path.join(tmpdir, 'install-token')
-                with open(install_token, 'w') as f:
+                with open(install_token, 'w', encoding='utf-8') as f:
                     f.write(session_id)
 
             cmd = [
@@ -1362,7 +1362,7 @@ class PKISubsystem(object):
         try:
             if not install_token:
                 install_token = os.path.join(tmpdir, 'install-token')
-                with open(install_token, 'w') as f:
+                with open(install_token, 'w', encoding='utf-8') as f:
                     f.write(session_id)
 
             cmd = [
@@ -1511,7 +1511,7 @@ class PKISubsystem(object):
         try:
             if password and not password_file:
                 password_file = os.path.join(tmpdir, 'password.txt')
-                with open(password_file, 'w') as f:
+                with open(password_file, 'w', encoding='utf-8') as f:
                     f.write(password)
 
             cmd = [self.name + '-user-add']
@@ -1761,7 +1761,7 @@ class CASubsystem(PKISubsystem):
         try:
             if cert_data and not cert_path:
                 cert_path = os.path.join(tmpdir, 'cert.crt')
-                with open(cert_path, 'w') as f:
+                with open(cert_path, 'w', encoding='utf-8') as f:
                     f.write(cert_data)
 
             cmd = ['ca-cert-import']
@@ -1847,7 +1847,7 @@ class CASubsystem(PKISubsystem):
         try:
             if request_data and not request_path:
                 request_path = os.path.join(tmpdir, 'cert.csr')
-                with open(request_path, 'w') as f:
+                with open(request_path, 'w', encoding='utf-8') as f:
                     f.write(request_data)
 
             cmd = ['ca-cert-request-import']
