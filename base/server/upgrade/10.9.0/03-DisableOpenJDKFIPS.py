@@ -27,10 +27,10 @@ class DisableOpenJDKFIPS(pki.server.upgrade.PKIServerUpgradeScriptlet):
         if not os.path.exists(filename):
             logging.debug("Unknown file: %s", filename)
 
-        with open(filename, 'r') as in_fp:
+        with open(filename, 'r', encoding='utf-8') as in_fp:
             lines = in_fp.readlines()
 
-        with open(filename, 'w') as out_fp:
+        with open(filename, 'w', encoding='utf-8') as out_fp:
             for line in lines:
                 if 'JAVA_OPTS="' in line and 'com.redhat.fips' not in line:
                     out_fp.write(self.msg)

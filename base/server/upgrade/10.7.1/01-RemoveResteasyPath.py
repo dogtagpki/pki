@@ -35,10 +35,10 @@ class RemoveResteasyPath(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def fix_tomcat_config(self, filename):
 
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             for line in lines:
                 match = re.match(r'(JAVA_OPTS=".*)-DRESTEASY_LIB=\S*\s*(.*")$', line)
                 if match:
