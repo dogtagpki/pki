@@ -342,7 +342,7 @@ class PKIDeployer:
 
         logger.info('Importing %s CSR from %s', tag, csr_path)
 
-        with open(csr_path) as f:
+        with open(csr_path, encoding='utf-8') as f:
             csr_data = f.read()
 
         b64_csr = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
@@ -446,7 +446,7 @@ class PKIDeployer:
 
         pem_cert = pki.nssdb.convert_cert(admin_cert, 'base64', 'pem')
 
-        with open(cert_file, "w") as f:
+        with open(cert_file, "w", encoding='utf-8') as f:
             f.write(pem_cert)
 
         os.chmod(cert_file, pki.server.DEFAULT_FILE_MODE)
@@ -1114,7 +1114,7 @@ class PKIDeployer:
                 generic_exts=generic_exts,
                 use_jss=True)
 
-            with open(csr_path) as f:
+            with open(csr_path, encoding='utf-8') as f:
                 csr = f.read()
 
             b64_csr = pki.nssdb.convert_csr(csr, 'pem', 'base64')
@@ -1186,7 +1186,7 @@ class PKIDeployer:
                 generic_exts=generic_exts,
                 use_jss=True)
 
-            with open(csr_file) as f:
+            with open(csr_file, encoding='utf-8') as f:
                 pem_csr = f.read()
 
             return pki.nssdb.convert_csr(pem_csr, 'pem', 'base64')
@@ -1321,7 +1321,7 @@ class PKIDeployer:
             pem_cert = pki.nssdb.convert_cert(cert['data'], 'base64', 'pem')
 
             cert_file = os.path.join(tmpdir, 'sslserver.crt')
-            with open(cert_file, 'w') as f:
+            with open(cert_file, 'w', encoding='utf-8') as f:
                 f.write(pem_cert)
 
             nssdb.add_cert(
@@ -1596,14 +1596,14 @@ class PKIDeployer:
 
             logger.info('Loading admin cert from %s', self.mdict['pki_admin_cert_path'])
 
-            with open(self.mdict['pki_admin_cert_path'], 'r') as f:
+            with open(self.mdict['pki_admin_cert_path'], 'r', encoding='utf-8') as f:
                 pem_cert = f.read()
 
             b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
             logger.info('Storing admin cert into %s', self.mdict['pki_admin_cert_file'])
 
-            with open(self.mdict['pki_admin_cert_file'], 'w') as f:
+            with open(self.mdict['pki_admin_cert_file'], 'w', encoding='utf-8') as f:
                 f.write(b64cert)
 
         else:
@@ -1633,7 +1633,7 @@ class PKIDeployer:
             # nssdb
             logger.info('Loading admin cert from %s', self.mdict['pki_admin_cert_file'])
 
-            with open(self.mdict['pki_admin_cert_file'], 'r') as f:
+            with open(self.mdict['pki_admin_cert_file'], 'r', encoding='utf-8') as f:
                 pem_cert = f.read()
 
             b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
@@ -1655,11 +1655,11 @@ class PKIDeployer:
         try:
             pem_csr = pki.nssdb.convert_csr(csr, 'base64', 'pem')
             csr_file = os.path.join(tmpdir, 'request.csr')
-            with open(csr_file, 'w') as f:
+            with open(csr_file, 'w', encoding='utf-8') as f:
                 f.write(pem_csr)
 
             install_token = os.path.join(tmpdir, 'install-token')
-            with open(install_token, 'w') as f:
+            with open(install_token, 'w', encoding='utf-8') as f:
                 f.write(self.install_token.token)
 
             cmd = [
@@ -1715,7 +1715,7 @@ class PKIDeployer:
         # file, so it does not matter what is in this file.  Certutil
         # still requires it though, otherwise it waits for keyboard
         # input.
-        with open(noise_file, 'w') as f:
+        with open(noise_file, 'w', encoding='utf-8') as f:
             f.write('not_so_random_data')
 
         self.certutil.generate_certificate_request(
@@ -1738,7 +1738,7 @@ class PKIDeployer:
 
         subprocess.check_call(command)
 
-        with open(output_ascii_file, 'r') as f:
+        with open(output_ascii_file, 'r', encoding='utf-8') as f:
             b64csr = f.read().replace('\r', '').replace('\n', '')
 
         standalone = config.str2bool(self.mdict['pki_standalone'])
@@ -1758,7 +1758,7 @@ class PKIDeployer:
 
             self.directory.create(os.path.dirname(csr_file))
 
-            with open(csr_file, 'w') as f:
+            with open(csr_file, 'w', encoding='utf-8') as f:
                 f.write(pem_csr)
 
             # Save the client database for stand-alone PKI (Step 1)
@@ -2063,7 +2063,7 @@ class PKIDeployer:
         tmpdir = tempfile.mkdtemp()
         try:
             password_file = os.path.join(tmpdir, 'password.txt')
-            with open(password_file, 'w') as f:
+            with open(password_file, 'w', encoding='utf-8') as f:
                 f.write(self.mdict['pki_backup_password'])
 
             cmd = [
@@ -2157,7 +2157,7 @@ class PKIDeployer:
         try:
             if not install_token:
                 install_token = os.path.join(tmpdir, 'install-token')
-                with open(install_token, 'w') as f:
+                with open(install_token, 'w', encoding='utf-8') as f:
                     f.write(session)
 
             cmd = [
@@ -2175,7 +2175,7 @@ class PKIDeployer:
 
             if cert:
                 cert_file = os.path.join(tmpdir, 'cert.pem')
-                with open(cert_file, 'w') as f:
+                with open(cert_file, 'w', encoding='utf-8') as f:
                     f.write(cert)
                 cmd.extend(['--cert-file', cert_file])
 
@@ -2251,15 +2251,15 @@ class PKIDeployer:
         tmpdir = tempfile.mkdtemp()
         try:
             subsystem_cert_file = os.path.join(tmpdir, 'subsystem.crt')
-            with open(subsystem_cert_file, 'w') as f:
+            with open(subsystem_cert_file, 'w', encoding='utf-8') as f:
                 f.write(subsystem_cert)
 
             transport_cert_file = os.path.join(tmpdir, 'transport.crt')
-            with open(transport_cert_file, 'w') as f:
+            with open(transport_cert_file, 'w', encoding='utf-8') as f:
                 f.write(transport_cert)
 
             install_token = os.path.join(tmpdir, 'install-token')
-            with open(install_token, 'w') as f:
+            with open(install_token, 'w', encoding='utf-8') as f:
                 f.write(self.install_token.token)
 
             cmd = [
@@ -2302,11 +2302,11 @@ class PKIDeployer:
         tmpdir = tempfile.mkdtemp()
         try:
             subsystem_cert_file = os.path.join(tmpdir, 'subsystem.crt')
-            with open(subsystem_cert_file, 'w') as f:
+            with open(subsystem_cert_file, 'w', encoding='utf-8') as f:
                 f.write(subsystem_cert)
 
             install_token = os.path.join(tmpdir, 'install-token')
-            with open(install_token, 'w') as f:
+            with open(install_token, 'w', encoding='utf-8') as f:
                 f.write(self.install_token.token)
 
             cmd = [
@@ -2373,7 +2373,7 @@ class PKIDeployer:
         try:
             if not install_token:
                 install_token = os.path.join(tmpdir, 'install-token')
-                with open(install_token, 'w') as f:
+                with open(install_token, 'w', encoding='utf-8') as f:
                     f.write(session)
 
             cmd = [
