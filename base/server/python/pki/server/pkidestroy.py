@@ -160,7 +160,7 @@ def main(argv):
 
     #    '-W' password file
     if args.pki_secdomain_pass_file:
-        with open(str(args.pki_secdomain_pass_file).strip('[\']'), 'r') as \
+        with open(str(args.pki_secdomain_pass_file).strip('[\']'), 'r', encoding='utf-8') as \
                 pwd_file:
             config.pki_secdomain_pass = pwd_file.readline().strip('\n')
 
