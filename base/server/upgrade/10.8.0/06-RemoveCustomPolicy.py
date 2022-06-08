@@ -41,7 +41,7 @@ class RemoveCustomPolicy(pki.server.upgrade.PKIServerUpgradeScriptlet):
             logger.info('%s does not exist', custom_policy)
             return
 
-        with open(custom_policy) as f:
+        with open(custom_policy, encoding='utf-8') as f:
             lines = f.read().splitlines()
 
         empty = True

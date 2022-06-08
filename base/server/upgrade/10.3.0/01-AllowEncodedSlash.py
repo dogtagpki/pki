@@ -31,7 +31,7 @@ class AllowEncodedSlash(pki.server.upgrade.PKIServerUpgradeScriptlet):
     def upgrade_instance(self, instance):
         path = os.path.join(instance.base_dir, 'conf', 'catalina.properties')
         if os.path.isfile(path):
-            with open(path, 'a+') as f:
+            with open(path, 'a+', encoding='utf-8') as f:
                 data = f.read()
                 if 'ALLOW_ENCODED_SLASH=' not in data:
                     f.write('\norg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true\n')
