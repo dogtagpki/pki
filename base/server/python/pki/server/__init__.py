@@ -287,19 +287,19 @@ class PKIServer(object):
 
         filename = '/usr/share/pki/server/conf/catalina.policy'
         logger.info('Appending %s', filename)
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             content = f.read()
 
         filename = '/usr/share/tomcat/conf/catalina.policy'
         logger.info('Appending %s', filename)
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             content += f.read()
 
         content += '\n\n'
 
         filename = '/usr/share/pki/server/conf/pki.policy'
         logger.info('Appending %s', filename)
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             content += f.read()
 
         for root, _, filenames in os.walk(self.common_lib_dir):
@@ -316,12 +316,12 @@ grant codeBase "file:%s" {
         if os.path.exists(filename):
             logger.info('Appending %s', filename)
             content += '\n'
-            with open(filename, 'r') as f:
+            with open(filename, 'r', encoding='utf-8') as f:
                 content += f.read()
 
         filename = '%s/catalina.policy' % self.conf_dir
         logger.info('Storing %s', filename)
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             f.write(content)
 
     def init(self):
@@ -654,7 +654,7 @@ grant codeBase "file:%s" {
 
         self.copy(Tomcat.TOMCAT_CONF, self.tomcat_conf, force=force)
 
-        with open(self.tomcat_conf, 'a') as f:
+        with open(self.tomcat_conf, 'a', encoding='utf-8') as f:
             f.write('\nPKI_VERSION=%s\n' % pki.specification_version())
 
         web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
@@ -685,7 +685,7 @@ grant codeBase "file:%s" {
         service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
         self.copy(service_conf, self.service_conf, force=force)
 
-        with open(self.service_conf, 'a') as f:
+        with open(self.service_conf, 'a', encoding='utf-8') as f:
             print('CATALINA_BASE="%s"' % self.base_dir, file=f)
 
     def create_conf_dir(self, force=False):
@@ -1466,7 +1466,7 @@ grant codeBase "file:%s" {
         logger.debug(cert_data.pretty_repr)
 
         new_cert_data = cert_client.get_cert(cert_serial_number=cert_serial_number)
-        with open(output, 'w') as f:
+        with open(output, 'w', encoding='utf-8') as f:
             f.write(new_cert_data.encoded)
 
     @staticmethod
@@ -1478,7 +1478,7 @@ grant codeBase "file:%s" {
 
         logger.info('Loading %s', filename)
 
-        with open(filename) as f:
+        with open(filename, encoding='utf-8') as f:
             lines = f.read().splitlines()
 
         events = {}
@@ -1788,7 +1788,7 @@ class PKIDatabaseConnection(object):
 
         if self.client_cert_nickname:
             password_file = os.path.join(self.temp_dir, 'password.txt')
-            with open(password_file, 'w') as f:
+            with open(password_file, 'w', encoding='utf-8') as f:
                 f.write(self.nssdb_password)
 
             ldap.set_option(ldap.OPT_X_TLS_CERTFILE, self.client_cert_nickname)
