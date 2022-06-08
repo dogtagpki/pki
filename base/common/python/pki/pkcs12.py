@@ -42,7 +42,7 @@ class PKCS12(object):
 
         if password:
             self.password_file = os.path.join(self.tmpdir, 'password.txt')
-            with open(self.password_file, 'w') as f:
+            with open(self.password_file, 'w', encoding='utf-8') as f:
                 f.write(password)
 
         elif password_file:
