@@ -85,7 +85,7 @@ class File:
 
     def write(self):
         try:
-            with open(self.filename, "w") as fd:
+            with open(self.filename, "w", encoding='utf-8') as fd:
                 c = csv.writer(fd)
                 for record in self.database:
                     c.writerow(tuple(record))
@@ -95,7 +95,7 @@ class File:
 
     def read(self):
         try:
-            with open(self.filename, "r") as fd:
+            with open(self.filename, "r", encoding='utf-8') as fd:
                 cr = csv.reader(fd)
                 for row in cr:
                     print(tuple(row))
