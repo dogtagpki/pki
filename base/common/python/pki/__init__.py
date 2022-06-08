@@ -156,7 +156,7 @@ def implementation_version():
 
 
 def get_info(name):
-    with open(PACKAGE_VERSION, 'r') as input_file:
+    with open(PACKAGE_VERSION, 'r', encoding='utf-8') as input_file:
         for line in input_file:
             line = line.strip('\n')
 
@@ -242,7 +242,7 @@ class FIPS:
         # Check to see if FIPS is enabled on this system
         command = ['sysctl', 'crypto.fips_enabled', '-bn']
 
-        with open(os.devnull, 'w') as fnull:
+        with open(os.devnull, 'w', encoding='utf-8') as fnull:
             output = subprocess.check_output(command, stderr=fnull).decode('utf-8')
 
         if output != '0':
@@ -483,7 +483,7 @@ class PropertyFile(object):
             return
 
         # read all lines and preserve the original order
-        with open(self.filename, 'r') as f_in:
+        with open(self.filename, 'r', encoding='utf-8') as f_in:
             for line in f_in:
                 line = line.strip('\n')
                 self.lines.append(line)
@@ -496,7 +496,7 @@ class PropertyFile(object):
         :return: None
         """
         # write all lines in the original order
-        with open(self.filename, 'w') as f_out:
+        with open(self.filename, 'w', encoding='utf-8') as f_out:
             for line in self.lines:
                 f_out.write(line + '\n')
 
