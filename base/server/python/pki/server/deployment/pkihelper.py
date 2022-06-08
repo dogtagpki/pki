@@ -85,9 +85,9 @@ class Identity:
 
             logger.info('Reusing existing %s group with GID %s', pki_group, pki_gid)
 
-        except KeyError as exc:
+        except KeyError as e:
             # No, group 'pki_group' does not exist!
-            logger.debug(log.PKIHELPER_GROUP_ADD_KEYERROR_1, exc)
+            logger.debug(log.PKIHELPER_GROUP_ADD_KEYERROR_1, e)
             try:
                 # Is the default well-known GID already defined?
                 group = getgrgid(config.PKI_DEPLOYMENT_DEFAULT_GID)[0]
@@ -112,7 +112,7 @@ class Identity:
                     command = ["/usr/sbin/groupadd", pki_group]
             try:
                 logger.debug('Command: %s', ' '.join(command))
-                with open(os.devnull, "w") as fnull:
+                with open(os.devnull, "w", encoding='utf-8') as fnull:
                     subprocess.check_call(command, stdout=fnull, stderr=fnull,
                                           close_fds=True)
             except subprocess.CalledProcessError as exc:
@@ -133,9 +133,9 @@ class Identity:
 
             logger.info('Reusing existing %s user with UID %s', pki_user, pki_uid)
 
-        except KeyError as exc:
+        except KeyError as e:
             # No, user 'pki_user' does not exist!
-            logger.debug(log.PKIHELPER_USER_ADD_KEYERROR_1, exc)
+            logger.debug(log.PKIHELPER_USER_ADD_KEYERROR_1, e)
             try:
                 # Is the default well-known UID already defined?
                 user = getpwuid(config.PKI_DEPLOYMENT_DEFAULT_UID)[0]
@@ -174,7 +174,7 @@ class Identity:
                                pki_user]
             try:
                 logger.debug('Command: %s', ' '.join(command))
-                with open(os.devnull, "w") as fnull:
+                with open(os.devnull, "w", encoding='utf-8') as fnull:
                     subprocess.check_call(command, stdout=fnull, stderr=fnull,
                                           close_fds=True)
             except subprocess.CalledProcessError as exc:
@@ -265,7 +265,7 @@ class Identity:
             command = ["usermod", "-a", "-G", pki_group, pki_user]
             try:
                 # Execute this "usermod" command.
-                with open(os.devnull, "w") as fnull:
+                with open(os.devnull, "w", encoding='utf-8') as fnull:
                     subprocess.check_call(command, stdout=fnull, stderr=fnull,
                                           close_fds=True)
             except subprocess.CalledProcessError as exc:
@@ -1136,7 +1136,7 @@ class File:
             if not os.path.exists(name):
 
                 logger.debug('Command: touch %s', name)
-                open(name, "w").close()
+                open(name, "w", encoding='utf-8').close()
 
                 logger.debug('Command: chmod %o %s', perms, name)
                 os.chmod(name, perms)
@@ -1547,7 +1547,7 @@ class Password:
                     return
 
             if pin_sans_token:
-                with open(path, 'w') as fd:
+                with open(path, 'w', encoding='utf-8') as fd:
                     fd.write(str(pin))
                 return
 
@@ -1555,7 +1555,7 @@ class Password:
             if not pki.nssdb.normalize_token(token):
                 token = pki.nssdb.INTERNAL_TOKEN_NAME
 
-            with open(path, 'w') as fd:
+            with open(path, 'w', encoding='utf-8') as fd:
                 fd.write(token + '=' + str(pin))
 
         except OSError as exc:
@@ -1573,11 +1573,11 @@ class Password:
             if os.path.exists(path):
                 if overwrite_flag:
                     # overwrite the existing 'pkcs12_password.conf' file
-                    with open(path, "w") as fd:
+                    with open(path, "w", encoding='utf-8') as fd:
                         fd.write(self.mdict['pki_client_pkcs12_password'])
             else:
                 # create a new 'pkcs12_password.conf' file
-                with open(path, "w") as fd:
+                with open(path, "w", encoding='utf-8') as fd:
                     fd.write(self.mdict['pki_client_pkcs12_password'])
         except OSError as exc:
             logger.error(log.PKI_OSERROR_1, exc)
@@ -1771,7 +1771,7 @@ class Certutil:
             # Execute this "certutil" command
             if silent:
                 # By default, execute this command silently
-                with open(os.devnull, "w") as fnull:
+                with open(os.devnull, "w", encoding='utf-8') as fnull:
                     subprocess.check_call(command, stdout=fnull, stderr=fnull)
             else:
                 subprocess.check_call(command)
@@ -1916,7 +1916,7 @@ class Certutil:
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
 
             logger.debug('Command: %s', ' '.join(command))
-            with open(os.devnull, "w") as fnull:
+            with open(os.devnull, "w", encoding='utf-8') as fnull:
                 subprocess.check_call(command, stdout=fnull, stderr=fnull)
 
         except subprocess.CalledProcessError as exc:
@@ -1972,7 +1972,7 @@ class PK12util:
             command.extend(["-C", "NONE"])
 
             logger.debug('Command: %s', ' '.join(command))
-            with open(os.devnull, "w") as fnull:
+            with open(os.devnull, "w", encoding='utf-8') as fnull:
                 subprocess.check_call(command, stdout=fnull, stderr=fnull)
 
         except subprocess.CalledProcessError as exc:
@@ -2489,7 +2489,7 @@ class Systemd(object):
             override_file = os.path.join(self.override_dir, fname)
             if not os.path.exists(override_file):
                 self.create_override_file(override_file)
-            with open(override_file, 'w') as fp:
+            with open(override_file, 'w', encoding='utf-8') as fp:
                 parser.write(fp)
 
     def daemon_reload(self, critical_failure=True):
