@@ -353,7 +353,7 @@ class PKIInstance(pki.server.PKIServer):
 
             logger.info('Loading instance registry: %s', self.registry_file)
 
-            with open(self.registry_file, 'r') as registry:
+            with open(self.registry_file, 'r', encoding='utf-8') as registry:
                 lines = registry.readlines()
 
             for line in lines:
@@ -415,7 +415,7 @@ class PKIInstance(pki.server.PKIServer):
         # load external certs data
         if os.path.exists(conf_file) and os.stat(conf_file).st_size > 0:
             tmp_certs = {}
-            lines = open(conf_file).read().splitlines()
+            lines = open(conf_file, encoding='utf-8').read().splitlines()
             for line in lines:
                 m = re.search('(\\d+)\\.(\\w+)=(.*)', line)
                 if not m:
@@ -449,7 +449,7 @@ class PKIInstance(pki.server.PKIServer):
         self.save_external_cert_data()
 
     def save_external_cert_data(self):
-        with open(self.external_certs_conf, 'w') as f:
+        with open(self.external_certs_conf, 'w', encoding='utf-8') as f:
             indx = 0
             for cert in self.external_certs:
                 f.write('%s.nickname=%s\n' % (str(indx), cert.nickname))
@@ -468,7 +468,7 @@ class PKIInstance(pki.server.PKIServer):
 
             try:
                 nssdb_password_file = os.path.join(tmpdir, 'password.txt')
-                with open(nssdb_password_file, 'w') as f:
+                with open(nssdb_password_file, 'w', encoding='utf-8') as f:
                     f.write(nssdb_password)
 
                 # add the certificate, key, and chain
@@ -516,7 +516,7 @@ class PKIInstance(pki.server.PKIServer):
         if not os.path.exists(server_cert_nick_conf):
             return None
 
-        with open(server_cert_nick_conf) as f:
+        with open(server_cert_nick_conf, encoding='utf-8') as f:
             return f.readline().strip()
 
     def set_sslserver_cert_nickname(self, nickname, token=None):
@@ -532,7 +532,7 @@ class PKIInstance(pki.server.PKIServer):
         # TODO: Remove serverCertNick.conf
 
         server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
-        with open(server_cert_nick_conf, 'w') as f:
+        with open(server_cert_nick_conf, 'w', encoding='utf-8') as f:
             f.write(fullname + '\n')
 
         os.chown(server_cert_nick_conf, self.uid, self.gid)
@@ -542,7 +542,7 @@ class PKIInstance(pki.server.PKIServer):
         return os.path.exists(self.banner_file)
 
     def get_banner(self):
-        with io.open(self.banner_file) as f:
+        with io.open(self.banner_file, encoding='utf-8') as f:
             return f.read().strip()
 
     def validate_banner(self):
@@ -1014,7 +1014,7 @@ class PKIServerFactory(object):
 
         if os.path.isfile(sysconfig_file):
 
-            with open(sysconfig_file) as f:
+            with open(sysconfig_file, encoding='utf-8') as f:
                 nuxwdog_status = re.search('^USE_NUXWDOG=\"(.*)\"', f.read(), re.MULTILINE)
 
                 # Check if the regex was matched and then check if nuxwdog is enabled.
