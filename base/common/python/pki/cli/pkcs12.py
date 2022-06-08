@@ -183,7 +183,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
                 main_cli.execute_java(cmd, stdout=f)
 
             # parse results
-            with open(output_file, 'r') as f:
+            with open(output_file, 'r', encoding='utf-8') as f:
                 cert_info = {}
 
                 for line in f:
@@ -334,5 +334,5 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
             cmd.extend(nicknames)
 
-            with open(os.devnull, 'w') as f:
+            with open(os.devnull, 'w', encoding='utf-8') as f:
                 main_cli.execute_java(cmd, stdout=f)
