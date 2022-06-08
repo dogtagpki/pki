@@ -906,7 +906,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                 sys.exit(1)
 
             cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
-            with open(cert_file, 'w') as f:
+            with open(cert_file, 'w', encoding='utf-8') as f:
                 f.write(cert_data)
 
         if csr_file:
@@ -916,7 +916,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                 sys.exit(1)
 
             csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
-            with open(csr_file, 'w') as f:
+            with open(csr_file, 'w', encoding='utf-8') as f:
                 f.write(csr_data)
 
         if pkcs12_file:
