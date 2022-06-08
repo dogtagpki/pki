@@ -295,7 +295,7 @@ class PKIConfigParser:
         self.deployer.user_config = configparser.SafeConfigParser()
         self.deployer.user_config.optionxform = str
 
-        with open(config.default_deployment_cfg) as f:
+        with open(config.default_deployment_cfg, encoding='utf-8') as f:
             self.deployer.main_config.readfp(f)
 
         self.deployer.flatten_master_dict()
@@ -305,7 +305,7 @@ class PKIConfigParser:
     @staticmethod
     def read_simple_configuration_file(filename):
         values = {}
-        with open(filename) as f:
+        with open(filename, encoding='utf-8') as f:
             for line in f:
                 # First, remove comments:
                 if PKIConfigParser.COMMENT_CHAR in line:
