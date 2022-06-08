@@ -302,7 +302,7 @@ class PKIUpgrader(object):
             # load scriptlet class
             variables = {}
             absname = os.path.join(version_dir, filename)
-            with open(absname, 'r') as f:
+            with open(absname, 'r', encoding='utf-8') as f:
                 bytecode = compile(f.read(), absname, 'exec')
             exec(bytecode, variables)  # pylint: disable=W0122
 
@@ -383,7 +383,7 @@ class PKIUpgrader(object):
         filename = backup_dir + '/newfiles'
 
         self.touch(filename)
-        with open(filename, 'a') as f:
+        with open(filename, 'a', encoding='utf-8') as f:
             f.write(path + '\n')
 
     def backup(self, scriptlet, path):
@@ -518,7 +518,7 @@ class PKIUpgrader(object):
             # get paths that did not exist before upgrade
             paths = []
 
-            with open(newfiles, 'r') as f:
+            with open(newfiles, 'r', encoding='utf-8') as f:
                 for path in f:
                     path = path.strip('\n')
                     paths.append(path)
