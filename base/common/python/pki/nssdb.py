@@ -1668,7 +1668,7 @@ class NSSDatabase(object):
                 cmd.extend(['--ext', ext_conf])
 
             if serial:
-                cmd.extend(['--serial', serial])
+                cmd.extend(['--serial', str(serial)])
 
             if issuer:
                 cmd.extend(['--issuer', issuer])
