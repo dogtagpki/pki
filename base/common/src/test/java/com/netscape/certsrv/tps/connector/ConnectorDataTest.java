@@ -8,6 +8,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class ConnectorDataTest {
 
     private static ConnectorData before = new ConnectorData();
@@ -29,7 +31,7 @@ public class ConnectorDataTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        ConnectorData afterJSON = ConnectorData.fromJSON(json);
+        ConnectorData afterJSON = JSONSerializer.fromJSON(json, ConnectorData.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

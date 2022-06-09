@@ -8,6 +8,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class ProfileMappingDataTest {
 
     private static ProfileMappingData before = new ProfileMappingData();
@@ -30,7 +32,7 @@ public class ProfileMappingDataTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        ProfileMappingData afterJSON = ProfileMappingData.fromJSON(json);
+        ProfileMappingData afterJSON = JSONSerializer.fromJSON(json, ProfileMappingData.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

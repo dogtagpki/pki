@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netscape.certsrv.util.JSONSerializer;
+
 public class UserDataTest {
 
     private static UserData before = new UserData();
@@ -25,7 +27,7 @@ public class UserDataTest {
         String json = before.toJSON();
         System.out.println("JSON (before): " + json);
 
-        UserData afterJSON = UserData.fromJSON(json);
+        UserData afterJSON = JSONSerializer.fromJSON(json, UserData.class);
         System.out.println("JSON (after): " + afterJSON.toJSON());
 
         // Assert

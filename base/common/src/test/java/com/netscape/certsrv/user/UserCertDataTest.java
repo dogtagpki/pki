@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.util.JSONSerializer;
 
 public class UserCertDataTest {
 
@@ -52,7 +53,7 @@ public class UserCertDataTest {
         String json = userCertData.toJSON();
         System.out.println("Before: " + json);
 
-        UserCertData after = UserCertData.fromJSON(json);
+        UserCertData after = JSONSerializer.fromJSON(json, UserCertData.class);
         System.out.println("After: " + after.toJSON());
 
         assertEquals(userCertData, after);
