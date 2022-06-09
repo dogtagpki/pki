@@ -1,3 +1,3 @@
 Name: pki-cmsbundle
 Specification-Version: ${APPLICATION_VERSION}
-Implementation-Version: ${VERSION}
+Implementation-Version: ${IMPL_VERSION}

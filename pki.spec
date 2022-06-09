@@ -802,7 +802,8 @@ app_server=tomcat-9.0
 %cmake \
     --no-warn-unused-cli \
     -DPRODUCT_NAME="%{product_name}" \
-    -DVERSION=%{version}-%{release} \
+    -DVERSION=%{version} \
+    -DRELEASE=%{release} \
     -DVAR_INSTALL_DIR:PATH=/var \
     -DP11_KIT_TRUST=/etc/alternatives/libnssckbi.so.%{_arch} \
     -DJAVA_HOME=%{java_home} \
