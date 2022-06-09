@@ -259,7 +259,7 @@ Summary:          %{product_name} Package
 %endif
 
 Obsoletes:        pki-symkey < %{version}
-Obsoletes:        %{product_id}-pki-symkey < %{version}
+Obsoletes:        %{product_id}-symkey < %{version}
 Obsoletes:        pki-console < %{version}
 Obsoletes:        pki-console-theme < %{version}
 Obsoletes:        idm-console-framework < 2.0
