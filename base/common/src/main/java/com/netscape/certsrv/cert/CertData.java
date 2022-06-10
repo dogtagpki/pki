@@ -23,6 +23,7 @@ import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -450,6 +451,8 @@ public class CertData implements JSONSerializer {
         document.appendChild(infoElement);
 
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
         Transformer transformer = transformerFactory.newTransformer();
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
@@ -465,6 +468,7 @@ public class CertData implements JSONSerializer {
     public static CertData fromXML(String xml) throws Exception {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse(new InputSource(new StringReader(xml)));
 
