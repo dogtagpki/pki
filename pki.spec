@@ -843,6 +843,10 @@ cd %{_vpath_builddir}
     --no-print-directory \
     all
 
+%if %{with tests}
+ctest --output-on-failure
+%endif
+
 ################################################################################
 %install
 ################################################################################
@@ -856,10 +860,6 @@ cd %{_vpath_builddir}
     INSTALL="install -p" \
     --no-print-directory \
     install
-
-%if %{with tests}
-ctest --output-on-failure
-%endif
 
 %if %{with server}
 
