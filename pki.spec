@@ -71,42 +71,24 @@ ExcludeArch: i686
 # Execute unit tests unless --without test is specified.
 %bcond_without test
 
+# Build the package unless --without <package> is specified.
+
+%bcond_without base
+%bcond_without server
+%bcond_without acme
+%bcond_without ca
+%bcond_without kra
+%bcond_without ocsp
+%bcond_without tks
+%bcond_without tps
+%bcond_without javadoc
+%bcond_without theme
+%bcond_without meta
+%bcond_without tests
+%bcond_without debug
+
 # Don't build console unless --with console is specified.
 %bcond_with console
-
-# By default all packages will be built except the ones specified with
-# --without <package> option (exclusion method).
-
-# If --with pkgs option is specified, only packages specified with
-# --with <package> will be built (inclusion method).
-
-%bcond_with pkgs
-
-# Define package_option macro to wrap bcond_with or bcond_without macro
-# depending on package selection method.
-
-%if %{with pkgs}
-%define package_option() %bcond_with %1
-%else
-%define package_option() %bcond_without %1
-%endif
-
-# Define --with <package> or --without <package> options depending on
-# package selection method.
-
-%package_option base
-%package_option server
-%package_option acme
-%package_option ca
-%package_option kra
-%package_option ocsp
-%package_option tks
-%package_option tps
-%package_option javadoc
-%package_option theme
-%package_option meta
-%package_option tests
-%package_option debug
 
 %if ! %{with debug}
 %define debug_package %{nil}
