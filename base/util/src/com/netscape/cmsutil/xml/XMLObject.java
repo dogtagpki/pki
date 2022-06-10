@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.Vector;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -56,6 +57,7 @@ public class XMLObject {
     public XMLObject(InputStream s)
             throws SAXException, IOException, ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         DocumentBuilder docBuilder = factory.newDocumentBuilder();
         mDoc = docBuilder.parse(s);
     }
@@ -63,6 +65,7 @@ public class XMLObject {
     public XMLObject(File f)
             throws SAXException, IOException, ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         DocumentBuilder docBuilder = factory.newDocumentBuilder();
         mDoc = docBuilder.parse(f);
     }
@@ -159,6 +162,8 @@ public class XMLObject {
     public byte[] toByteArray() throws TransformerConfigurationException, TransformerException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         TransformerFactory tranFactory = TransformerFactory.newInstance();
+        tranFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        tranFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
         Transformer aTransformer = tranFactory.newTransformer();
         Source src = new DOMSource(mDoc);
         Result dest = new StreamResult(bos);
@@ -169,6 +174,8 @@ public class XMLObject {
     public void output(OutputStream os)
             throws TransformerConfigurationException, TransformerException {
         TransformerFactory tranFactory = TransformerFactory.newInstance();
+        tranFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        tranFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
         Transformer aTransformer = tranFactory.newTransformer();
         Source src = new DOMSource(mDoc);
         Result dest = new StreamResult(os);
@@ -177,6 +184,8 @@ public class XMLObject {
 
     public String toXMLString() throws TransformerConfigurationException, TransformerException {
         TransformerFactory tranFactory = TransformerFactory.newInstance();
+        tranFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        tranFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
         Transformer transformer = tranFactory.newTransformer();
         Source src = new DOMSource(mDoc);
         StreamResult dest = new StreamResult(new StringWriter());

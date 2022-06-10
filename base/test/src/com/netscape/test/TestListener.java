@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -22,7 +23,6 @@ import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -64,9 +64,12 @@ public class TestListener extends RunListener {
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         docBuilderFactory = DocumentBuilderFactory.newInstance();
+        docBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         docBuilder = docBuilderFactory.newDocumentBuilder();
 
         transFactory = TransformerFactory.newInstance();
+        transFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        transFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
         trans = transFactory.newTransformer();
         trans.setOutputProperty(OutputKeys.INDENT, "yes");
 
