@@ -51,12 +51,6 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?phase:-}%{?phase}
 ExcludeArch: i686
 
 ################################################################################
-# NSS
-################################################################################
-
-%global nss_default_db_type sql
-
-################################################################################
 # Python
 ################################################################################
 
@@ -815,7 +809,6 @@ app_server=tomcat-9.0
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
     -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
     -DAPP_SERVER=$app_server \
-    -DNSS_DEFAULT_DB_TYPE=%{nss_default_db_type} \
     -DPYTHON_EXECUTABLE=%{python_executable} \
     -DWITH_SERVER:BOOL=%{?with_server:ON}%{!?with_server:OFF} \
     -DWITH_CA:BOOL=%{?with_ca:ON}%{!?with_ca:OFF} \
