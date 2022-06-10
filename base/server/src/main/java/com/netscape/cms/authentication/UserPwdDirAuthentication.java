@@ -238,7 +238,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
             logger.debug("Authenticated: userdn=" + userdn);
 
             LDAPEntry entry = null;
-            Map<String, String[]> entryAttributes = new HashMap<String, String[]>();
+            Map<String, String[]> entryAttributes = new HashMap<>();
             if (mAttrs != null && mAttrs.length > 0) {
                 LDAPSearchResults results = conn.search(userdn, LDAPConnection.SCOPE_BASE, null, mAttrs, false);
                 if (results != null && results.hasMoreElements()) {
