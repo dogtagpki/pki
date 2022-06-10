@@ -23,6 +23,9 @@ DIST=
 WITHOUT_TEST=
 WITH_CONSOLE=
 
+PKG_LIST="base, server, acme, ca, kra, ocsp, tks, tps, javadoc, theme, meta, tests, debug"
+ALL_PKGS=( $(echo $PKG_LIST | sed 's/ *, */ /g') )
+
 WITH_PKGS=
 WITHOUT_PKGS=
 
@@ -49,7 +52,7 @@ usage() {
     echo "    --help                 Show help message."
     echo
     echo "Packages:"
-    echo "    base, server, acme, ca, kra, ocsp, tks, tps, javadoc, theme, meta, tests, debug"
+    echo "    $PKG_LIST"
     echo
     echo "Target:"
     echo "    src    Generate RPM sources."
@@ -166,49 +169,11 @@ generate_rpm_spec() {
     fi
 
     # hard-code packages to build
-    if [ "$WITH_PKGS" != "" ] ; then
-
-        # use inclusion method by replacing
-        #   %bcond_with pkgs
-        # with
-        #   # bcond_with pkgs
-        #   %global with_pkgs 1
-        sed -i "s/^%\(bcond_with *pkgs\)\$/# \1\n%global with_pkgs 1/g" "$SPEC_FILE"
-
-        # include specified packages by replacing
-        #   %package_option <package>
-        # with
-        #   # package_option <package>
-        #   %global with_<package> 1
-        for package in `echo $WITH_PKGS | sed 's/,/\n/g'`
-        do
-            sed -i "s/^%\(package_option *$package\)\$/# \1\n%global with_$package 1/g" "$SPEC_FILE"
-        done
-
-        # exclude other packages by removing
-        #   %package_option <package>
-        sed -i "s/^%\(package_option .*\)\$/# \1/g" "$SPEC_FILE"
-
-    elif [ "$WITHOUT_PKGS" != "" ] ; then
-
-        # use exclusion method by removing
-        #   %bcond_with pkgs
-        sed -i "s/^%\(bcond_with *pkgs\)\$/# \1/g" "$SPEC_FILE"
-
-        # exclude specified packages by removing
-        #   %package_option <package>
-        for package in `echo $WITHOUT_PKGS | sed 's/,/\n/g'`
-        do
-            sed -i "s/^%\(package_option *$package\)\$/# \1/g" "$SPEC_FILE"
-        done
-
-        # include all other packages by replacing
-        #   %package_option <package>
-        # with
-        #   # package_option <package>
-        #   %global with_<package> 1
-        sed -i "s/^%\(package_option *\)\(.*\)\$/# \1\2\n%global with_\2 1/g" "$SPEC_FILE"
-    fi
+    for package in ${PKGS_TO_SKIP[@]}
+    do
+        # convert bcond_without into bcond_with to skip the package by default
+        sed -i "s/^%bcond_without *\($package\)\$/%bcond_with \1/g" "$SPEC_FILE"
+    done
 
     # rpmlint "$SPEC_FILE"
 }
@@ -304,6 +269,23 @@ fi
 
 if [ "$WORK_DIR" = "" ] ; then
     WORK_DIR="$HOME/build/$NAME"
+fi
+
+if [ "$WITH_PKGS" != "" ] ; then
+
+    PKGS_TO_BUILD=( $(echo $WITH_PKGS | sed 's/ *, */ /g') )
+    PKGS_TO_SKIP=()
+
+    for package in ${ALL_PKGS[@]}
+    do
+        # if package is not in PKGS_TO_BUILD, skip
+        if [[ ! " ${PKGS_TO_BUILD[*]} " =~ " $package " ]]; then
+            PKGS_TO_SKIP+=($package)
+        fi
+    done
+
+else
+    PKGS_TO_SKIP=( $(echo $WITHOUT_PKGS | sed 's/ *, */ /g') )
 fi
 
 if [ "$DEBUG" = true ] ; then
@@ -436,30 +418,6 @@ fi
 
 if [ "$WITH_CONSOLE" = true ] ; then
     OPTIONS+=(--with console)
-fi
-
-if [ "$WITH_PKGS" != "" ] ; then
-
-    # Build specified packages only.
-    OPTIONS+=(--with pkgs)
-
-    # Parse comma-separated list of packages.
-    for package in `echo $WITH_PKGS | sed 's/,/\n/g'`
-    do
-        # Build specified package.
-        OPTIONS+=(--with $package)
-    done
-
-else
-    # Build everything except specified packages.
-    # Do not add --with pkgs into OPTIONS.
-
-    # Parse comma-separated list of packages.
-    for package in `echo $WITHOUT_PKGS | sed 's/,/\n/g'`
-    do
-        # Don't build specified package.
-        OPTIONS+=(--without $package)
-    done
 fi
 
 if [ "$DEBUG" = true ] ; then
