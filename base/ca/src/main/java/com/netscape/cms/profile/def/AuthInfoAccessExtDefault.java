@@ -196,6 +196,9 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
+
+        logger.info("AuthInfoAccessExtDefault: Setting " + name);
+
         try {
             AuthInfoAccessExtension ext = null;
 
@@ -207,8 +210,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
             AuthInfoAccessExtension a = new AuthInfoAccessExtension(false);
             ObjectIdentifier oid = a.getExtensionId();
 
-            ext = (AuthInfoAccessExtension)
-                        getExtension(oid.toString(), info);
+            ext = (AuthInfoAccessExtension) getExtension(oid.toString(), info);
 
             if (ext == null) {
                 populate(null, info);
@@ -216,22 +218,24 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
 
             if (name.equals(VAL_CRITICAL)) {
 
-                ext = (AuthInfoAccessExtension)
-                        getExtension(oid.toString(), info);
-                boolean val = Boolean.valueOf(value).booleanValue();
+                ext = (AuthInfoAccessExtension) getExtension(oid.toString(), info);
 
                 if (ext == null) {
                     return;
                 }
+
+                boolean val = Boolean.valueOf(value).booleanValue();
+                logger.info("AuthInfoAccessExtDefault: - critical: " + val);
                 ext.setCritical(val);
+
             } else if (name.equals(VAL_GENERAL_NAMES)) {
 
-                ext = (AuthInfoAccessExtension)
-                        getExtension(oid.toString(), info);
+                ext = (AuthInfoAccessExtension) getExtension(oid.toString(), info);
 
                 if (ext == null) {
                     return;
                 }
+
                 boolean critical = ext.isCritical();
 
                 Vector<NameValuePairs> v = parseRecords(value);
@@ -250,12 +254,19 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
 
                         if (name1.equals(AD_METHOD)) {
                             method = nvps.get(name1);
+                            logger.info("AuthInfoAccessExtDefault: - " + name1 + ": " + method);
+
                         } else if (name1.equals(AD_LOCATION_TYPE)) {
                             locationType = nvps.get(name1);
+                            logger.info("AuthInfoAccessExtDefault: - " + name1 + ": " + locationType);
+
                         } else if (name1.equals(AD_LOCATION)) {
                             location = nvps.get(name1);
+                            logger.info("AuthInfoAccessExtDefault: - " + name1 + ": " + location);
+
                         } else if (name1.equals(AD_ENABLE)) {
                             enable = nvps.get(name1);
+                            logger.info("AuthInfoAccessExtDefault: - " + name1 + ": " + enable);
                         }
                     }
 
@@ -265,8 +276,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                         if (locationType != null || location != null) {
                             GeneralNameInterface interface1 = parseGeneralName(locationType + ":" + location);
                             if (interface1 == null)
-                                throw new EPropertyException(CMS.getUserMessage(
-                                        locale, "CMS_INVALID_PROPERTY", locationType));
+                                throw new EPropertyException(CMS.getUserMessage(locale, "CMS_INVALID_PROPERTY", locationType));
                             gn = new GeneralName(interface1);
                         }
 
@@ -275,26 +285,25 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                                 ext.addAccessDescription(new ObjectIdentifier(method), gn);
                             } catch (NumberFormatException ee) {
                                 logger.error("AuthInfoAccessExtDefault: " + ee.getMessage(), ee);
-                                throw new EPropertyException(CMS.getUserMessage(
-                                        locale, "CMS_PROFILE_DEF_AIA_OID", method));
+                                throw new EPropertyException(CMS.getUserMessage(locale, "CMS_PROFILE_DEF_AIA_OID", method), ee);
                             }
                         }
                     }
                 }
+
             } else {
-                throw new EPropertyException(CMS.getUserMessage(
-                            locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(locale, "CMS_INVALID_PROPERTY", name));
             }
 
             replaceExtension(ext.getExtensionId().toString(), ext, info);
+
         } catch (IOException e) {
-            logger.error("AuthInfoAccessExtDefault: " + e.getMessage(), e);
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
+            logger.error("AuthInfoAccessExtDefault: Unable to set value: " + e.getMessage(), e);
+            throw new EPropertyException(CMS.getUserMessage(locale, "CMS_INVALID_PROPERTY", name), e);
+
         } catch (EProfileException e) {
-            logger.error("AuthInfoAccessExtDefault: " + e.getMessage(), e);
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
+            logger.error("AuthInfoAccessExtDefault: Unable to set value: " + e.getMessage(), e);
+            throw new EPropertyException(CMS.getUserMessage(locale, "CMS_INVALID_PROPERTY", name), e);
         }
     }
 
@@ -302,54 +311,54 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
+
+        logger.info("AuthInfoAccessExtDefault: Getting " + name);
+
         AuthInfoAccessExtension ext = null;
 
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale, "CMS_INVALID_PROPERTY", name));
         }
 
         AuthInfoAccessExtension a = new AuthInfoAccessExtension(false);
         ObjectIdentifier oid = a.getExtensionId();
 
-        ext = (AuthInfoAccessExtension)
-                    getExtension(oid.toString(), info);
+        ext = (AuthInfoAccessExtension) getExtension(oid.toString(), info);
 
         if (ext == null) {
             try {
                 populate(null, info);
 
             } catch (EProfileException e) {
-                logger.error("AuthInfoAccessExtDefault: getValue " + e.getMessage(), e);
-                throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
+                logger.error("AuthInfoAccessExtDefault: Unable to get value: " + e.getMessage(), e);
+                throw new EPropertyException(CMS.getUserMessage(locale, "CMS_INVALID_PROPERTY", name));
             }
 
         }
+
         if (name.equals(VAL_CRITICAL)) {
 
-            ext = (AuthInfoAccessExtension)
-                    getExtension(oid.toString(), info);
+            ext = (AuthInfoAccessExtension) getExtension(oid.toString(), info);
 
             if (ext == null) {
                 return null;
             }
-            if (ext.isCritical()) {
-                return "true";
-            } else {
-                return "false";
-            }
+
+            String value = Boolean.toString(ext.isCritical());
+            logger.info("AuthInfoAccessExtDefault: - value: " + value);
+            return value;
+
         } else if (name.equals(VAL_GENERAL_NAMES)) {
 
-            ext = (AuthInfoAccessExtension)
-                    getExtension(oid.toString(), info);
+            ext = (AuthInfoAccessExtension) getExtension(oid.toString(), info);
 
-            if (ext == null)
+            if (ext == null) {
                 return "";
+            }
 
             int num = getNumAds();
+            logger.debug("AuthInfoAccessExtDefault: - access descriptions: " + num);
 
-            logger.debug("AuthInfoAccess num=" + num);
             Vector<NameValuePairs> recs = new Vector<>();
 
             for (int i = 0; i < num; i++) {
@@ -376,10 +385,12 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                 recs.addElement(np);
             }
 
-            return buildRecords(recs);
+            String value = buildRecords(recs);
+            logger.info("AuthInfoAccessExtDefault: - value: " + value);
+            return value;
+
         } else {
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
