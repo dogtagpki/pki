@@ -117,6 +117,73 @@ jobs:
           docker exec ipa bash -c "echo Secret.123 | kinit admin"
           docker exec ipa ipa ping
 
+          docker exec ipa pki-server cert-export ca_signing --cert-file ca_signing.crt
+
+      - name: Check DS certs
+        run: |
+          docker exec ipa ls -la /etc/dirsrv/slapd-EXAMPLE-COM
+          docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-find
+          docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-show "EXAMPLE.COM IPA CA"
+          docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-show "Server-Cert"
+          docker exec ipa pki \
+              -d /etc/dirsrv/slapd-EXAMPLE-COM \
+              -C /etc/dirsrv/slapd-EXAMPLE-COM/pwdfile.txt \
+              nss-key-find
+
+      - name: Check PKI certs
+        run: |
+          docker exec ipa ls -la /etc/pki/pki-tomcat/alias
+          docker exec ipa pki-server cert-find
+
+      - name: Check CA admin cert
+        run: |
+          docker exec ipa ls -la /root/.dogtag/pki-tomcat
+          docker exec ipa openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+
+      - name: "Check CA admin PKCS #12 file"
+        run: |
+          docker exec ipa pki client-cert-import --ca-cert ca_signing.crt ca_signing
+          docker exec ipa pki client-cert-import \
+              --pkcs12 /root/ca-agent.p12 \
+              --pkcs12-password Secret.123
+          docker exec ipa pki nss-cert-find
+          docker exec ipa pki nss-cert-show ipa-ca-agent
+
+      - name: Check CA admin user
+        run: |
+          docker exec ipa pki -n ipa-ca-agent ca-user-find
+          docker exec ipa pki -n ipa-ca-agent ca-user-show admin
+          docker exec ipa pki -n ipa-ca-agent ca-user-membership-find admin
+
+      - name: Check RA agent cert
+        run: |
+          docker exec ipa ls -la /var/lib/ipa
+          docker exec ipa openssl x509 -text -noout -in /var/lib/ipa/ra-agent.pem
+
+          # import RA agent cert and key into a PKCS #12 file
+          # then import it into the client's NSS database
+          docker exec ipa openssl pkcs12 -export \
+              -in /var/lib/ipa/ra-agent.pem \
+              -inkey /var/lib/ipa/ra-agent.key \
+              -out ra-agent.p12 \
+              -passout pass:Secret.123 \
+              -name ipa-ra-agent
+          docker exec ipa pki client-cert-import \
+              --pkcs12 ra-agent.p12 \
+              --pkcs12-password Secret.123
+          docker exec ipa pki nss-cert-find
+          docker exec ipa pki nss-cert-show ipa-ra-agent
+
+      - name: Check RA agent user
+        run: |
+          docker exec ipa pki -n ipa-ca-agent ca-user-show ipara
+          docker exec ipa pki -n ipa-ca-agent ca-user-membership-find ipara
+
+      - name: Check HTTPD certs
+        run: |
+          docker exec ipa ls -la /var/lib/ipa/certs
+          docker exec ipa openssl x509 -text -noout -in /var/lib/ipa/certs/httpd.crt
+
       - name: Install KRA
         run: |
           docker exec ipa ipa-kra-install -p Secret.123
