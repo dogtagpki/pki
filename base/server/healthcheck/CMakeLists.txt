@@ -10,7 +10,6 @@ set(PYTHON "python3")
 set(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py")
 set(SETUP_PY    "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
 set(SRC_DIR     "pki")
-set(INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/install")
 
 configure_file(${SETUP_PY_IN} ${SETUP_PY})
 
@@ -24,9 +23,6 @@ add_custom_target(${target} ALL
     DEPENDS ${SETUP_PY}
     COMMENT "Building Python sources for ${target}")
 
-# Create install directory to store the exec and egg files
-file(MAKE_DIRECTORY ${INSTALL_DIR})
-
 # Execute `python setup.py build && python setup.py install`
 add_custom_command(
     TARGET ${target}
@@ -34,13 +30,15 @@ add_custom_command(
         -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/${SRC_DIR} ${CMAKE_CURRENT_BINARY_DIR}/${SRC_DIR}
     COMMAND ${PYTHON} ${SETUP_PY} build
-    COMMAND ${PYTHON} ${SETUP_PY} install --root ${INSTALL_DIR}
+    COMMAND ${PYTHON} ${SETUP_PY} install --root ${CMAKE_CURRENT_BINARY_DIR}
+        --install-scripts bin
+        --install-lib lib
 )
 
 # Install the files to appropriate locations
 install(
     FILES
-        ${INSTALL_DIR}${BIN_INSTALL_DIR}/pki-healthcheck
+        ${CMAKE_CURRENT_BINARY_DIR}/bin/pki-healthcheck
     DESTINATION
         ${SBIN_INSTALL_DIR}
     PERMISSIONS
@@ -51,7 +49,7 @@ install(
 
 install(
     DIRECTORY
-        ${INSTALL_DIR}${PYTHON3_SITE_PACKAGES}/
+        ${CMAKE_CURRENT_BINARY_DIR}/lib/
     DESTINATION
         ${PYTHON3_SITE_PACKAGES}
 )
