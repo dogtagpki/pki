@@ -88,7 +88,7 @@ install(
 )
 
 install(
-    FILES
+    DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}/webapp/admin/
     DESTINATION
         ${DATA_INSTALL_DIR}/ca/webapps/ca/admin
