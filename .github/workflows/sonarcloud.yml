@@ -51,7 +51,6 @@ jobs:
   get-pr-ref:
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
     name: Sonar cloud PR fork analyses deferring
-    needs: call-build-workflow
     runs-on: ubuntu-latest
     steps:
       - name: Save PR number

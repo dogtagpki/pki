@@ -126,8 +126,8 @@ jobs:
       - name: Store runner image
         uses: actions/cache@v3
         with:
-          key: pki-sonar-runner-${{ matrix.os }}-${{ context.payload.workflow_run.id }}
-          path: pki-soanr-runner.tar
+          key: pki-sonar-runner-${{ matrix.os }}-${{ github.event.workflow_run.id }}
+          path: pki-sonar-runner.tar
         
   sonarcloud:
     name: Sonar Cloud code analysis
@@ -142,7 +142,7 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-sonar-runner-${{ matrix.os }}-${{ context.payload.workflow_run.id }}
+          key: pki-sonar-runner-${{ matrix.os }}-${{ github.event.workflow_run.id }}
           path: pki-sonar-runner.tar
 
       - name: Load runner image
@@ -154,13 +154,6 @@ jobs:
           repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_branch }}
           fetch-depth: 0
-
-#      - name: Get the PR
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        run: |
-#          echo "Checking out from PR #${{ needs.retrieve-pr.outputs.pr-number }}"
-#          hub pr checkout ${{ needs.retrieve-pr.outputs.pr-number }}
 
       - name: Set up PKI container
         run: |
