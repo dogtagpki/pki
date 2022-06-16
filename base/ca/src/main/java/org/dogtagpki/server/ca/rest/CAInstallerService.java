@@ -25,6 +25,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import org.apache.commons.codec.binary.Hex;
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
@@ -158,11 +159,17 @@ public class CAInstallerService extends SystemConfigService {
             RequestId requestID = certData.getRequestID();
             logger.info("CAInstallerService: - request ID: " + requestID.toHexString());
 
-            String certRequestType = certData.getRequestType();
+            CAEngine engine = CAEngine.getInstance();
+            CertRequestRepository requestRepository = engine.getCertRequestRepository();
+            Request requestRecord = requestRepository.readRequest(requestID);
+
+            String certRequestType = requestRecord.getExtDataInString("cert_request_type");
             logger.info("CAInstallerService: - request type: " + certRequestType);
 
-            String certRequest = certData.getRequest();
-            byte[] binCertRequest = CryptoUtil.base64Decode(certRequest);
+            String certRequest = requestRecord.getExtDataInString("cert_request");
+            logger.info("CAInstallerService: - request: " + certRequest);
+
+            byte[] binCertRequest = CertUtil.parseCSR(certRequest);
 
             X500Name subjectName;
             X509Key x509key;
@@ -195,8 +202,6 @@ public class CAInstallerService extends SystemConfigService {
 
             String keyAlgorithm = certData.getKeyAlgorithm();
             logger.info("CAInstallerService: - key algorithm: " + keyAlgorithm);
-
-            CAEngine engine = CAEngine.getInstance();
 
             X500Name issuerName;
             PrivateKey signingPrivateKey;
@@ -273,9 +278,6 @@ public class CAInstallerService extends SystemConfigService {
                     extensions);
 
             logger.info("CAInstallerService: Cert info:\n" + certInfo);
-
-            CertRequestRepository requestRepository = engine.getCertRequestRepository();
-            Request requestRecord = requestRepository.readRequest(requestID);
 
             profile.populate(requestRecord, certInfo);
             requestRepository.updateRequest(requestRecord);
