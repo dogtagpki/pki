@@ -30,7 +30,7 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.connector.Connector;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;
@@ -45,7 +45,7 @@ public class ConnectionManager
 {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConnectionManager.class);
 
-    private Hashtable<String, IConnector> connectors;
+    private Hashtable<String, Connector> connectors;
     List<String> caList;
 
     public ConnectionManager() throws EBaseException {
@@ -109,7 +109,7 @@ public class ConnectionManager
             String connectorID = connector_enu.nextElement();
             logger.debug("ConnectionManager: initConnectors(): initializing connector " + connectorID);
             ConfigStore connectorConfig = connectorSubstore.getSubStore(connectorID, ConfigStore.class);
-            IConnector conn = null;
+            Connector conn = null;
             boolean enable = connectorConfig.getBoolean("enable", false);
             if (!enable) {
                 logger.debug("ConnectionManager: initConnectors(): connector disabled.");
@@ -130,10 +130,10 @@ public class ConnectionManager
      * Creates and returns a connector
      *
      * @param conf config store of the connector
-     * @return IConnector the connector if created successfully; null if not
+     * @return Connector the connector if created successfully; null if not
      */
-    private IConnector createConnector(ConfigStore conf) throws EBaseException {
-        IConnector connector = null;
+    private Connector createConnector(ConfigStore conf) throws EBaseException {
+        Connector connector = null;
 
         logger.debug("ConnectionManager: createConnector(): begins.");
         if (conf == null || conf.size() <= 0) {
@@ -229,9 +229,9 @@ public class ConnectionManager
      *   }
      *
      * @param connID connection id per defined in the configuration
-     * @return IConnector the connector matching the connection id
+     * @return Connector the connector matching the connection id
      */
-    public IConnector getConnector(String connID) {
+    public Connector getConnector(String connID) {
         logger.debug("ConnectionManager: getConnector(): returning connID="+ connID);
         return connectors.get(connID);
     }

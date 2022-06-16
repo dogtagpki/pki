@@ -38,7 +38,7 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
-import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.connector.Connector;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeyRetrievalEvent;
@@ -160,7 +160,7 @@ public class CAEnrollProfile extends EnrollProfile {
             request.deleteExtData("serverSideKeygenP12PasswdEnc");
 
             try {
-                IConnector kraConnector = caService.getKRAConnector();
+                Connector kraConnector = caService.getKRAConnector();
 
                 if (kraConnector == null) {
                     String message = "KRA connector not configured";
@@ -223,7 +223,7 @@ public class CAEnrollProfile extends EnrollProfile {
             if (options != null) {
                 logger.info("CAEnrollProfile: Processing PKIArchiveOptions");
                 try {
-                    IConnector kraConnector = caService.getKRAConnector();
+                    Connector kraConnector = caService.getKRAConnector();
 
                     if (kraConnector == null) {
 
@@ -370,7 +370,7 @@ public class CAEnrollProfile extends EnrollProfile {
             // CertUtils.printRequestContent(request);
 
             try {
-                IConnector kraConnector = caService.getKRAConnector();
+                Connector kraConnector = caService.getKRAConnector();
 
                 if (kraConnector == null) {
                     String message = "KRA connector not configured";

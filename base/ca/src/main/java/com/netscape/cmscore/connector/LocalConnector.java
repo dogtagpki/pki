@@ -26,7 +26,7 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.connector.Connector;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -36,7 +36,7 @@ import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmsutil.http.HttpResponse;
 
-public class LocalConnector implements IConnector {
+public class LocalConnector extends Connector {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LocalConnector.class);
 

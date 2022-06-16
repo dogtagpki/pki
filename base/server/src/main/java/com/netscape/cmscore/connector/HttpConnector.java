@@ -23,7 +23,7 @@ import org.dogtagpki.server.PKIClientSocketListener;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.connector.Connector;
 import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
@@ -36,7 +36,7 @@ import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
 
-public class HttpConnector implements IConnector {
+public class HttpConnector extends Connector {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HttpConnector.class);
 

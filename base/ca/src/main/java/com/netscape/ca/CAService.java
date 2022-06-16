@@ -70,7 +70,7 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.connector.Connector;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
@@ -112,11 +112,11 @@ public class CAService implements IService {
     public static final String SERIALNO_ARRAY = "serialNoArray";
 
     // CCA->CLA connector
-    protected static IConnector mCLAConnector = null;
+    protected static Connector mCLAConnector = null;
 
     private CertificateAuthority mCA = null;
     private Hashtable<String, IServant> mServants = new Hashtable<>();
-    private IConnector mKRAConnector = null;
+    private Connector mKRAConnector = null;
     private ConfigStore mConfig;
     private boolean mArchivalRequired = true;
 
@@ -224,20 +224,20 @@ public class CAService implements IService {
      *
      * @return KRA-CA connector
      */
-    public IConnector getKRAConnector() {
+    public Connector getKRAConnector() {
         return mKRAConnector;
     }
 
-    public void setKRAConnector(IConnector c) {
+    public void setKRAConnector(Connector c) {
         mKRAConnector = c;
     }
 
-    public IConnector getConnector(ConfigStore config) throws EBaseException {
+    public Connector getConnector(ConfigStore config) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
-        IConnector connector = null;
+        Connector connector = null;
 
         if (config == null || config.size() <= 0) {
             return null;
@@ -248,7 +248,7 @@ public class CAService implements IService {
 
         if (extConnector != null) {
             try {
-                connector = (IConnector) Class.forName(extConnector).getDeclaredConstructor().newInstance();
+                connector = (Connector) Class.forName(extConnector).getDeclaredConstructor().newInstance();
                 // connector.start() will be called later on
                 return connector;
             } catch (Exception e) {

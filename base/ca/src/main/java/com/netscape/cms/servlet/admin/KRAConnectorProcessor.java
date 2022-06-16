@@ -29,7 +29,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.connector.Connector;
 import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.processors.CAProcessor;
@@ -150,7 +150,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CertificateAuthority ca = engine.getCA();
 
         CAService caService = (CAService) ca.getCAService();
-        IConnector kraConnector = caService.getKRAConnector();
+        Connector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
             kraConnector.stop();
         }
@@ -162,7 +162,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CertificateAuthority ca = engine.getCA();
 
         CAService caService = (CAService) ca.getCAService();
-        IConnector kraConnector = caService.getKRAConnector();
+        Connector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
             kraConnector.start();
         }
@@ -178,7 +178,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAService caService = (CAService) ca.getCAService();
 
         EngineConfig cs = engine.getConfig();
-        IConnector kraConnector = caService.getConnector(cs.getSubStore(PREFIX, ConfigStore.class));
+        Connector kraConnector = caService.getConnector(cs.getSubStore(PREFIX, ConfigStore.class));
         caService.setKRAConnector(kraConnector);
 
         startConnector();

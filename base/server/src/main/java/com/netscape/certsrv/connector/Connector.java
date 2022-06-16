@@ -43,7 +43,7 @@ import com.netscape.cmsutil.http.HttpResponse;
  *
  * @version $Revision$, $Date$
  */
-public interface IConnector {
+public class Connector {
 
     /**
      * Sends the request to a remote authority.
@@ -52,8 +52,9 @@ public interface IConnector {
      * @return true for success, otherwise false.
      * @exception EBaseException Failure to send request to remote authority.
      */
-    public boolean send(Request req)
-            throws EBaseException;
+    public boolean send(Request req) throws EBaseException {
+        return false;
+    }
 
     /**
      * Sends the request to a remote authority.
@@ -63,16 +64,19 @@ public interface IConnector {
      * @return HttpResponse to be parsed by client
      * @exception EBaseException Failure to send request to remote authority.
      */
-    public HttpResponse send(String op, String msg)
-            throws EBaseException;
+    public HttpResponse send(String op, String msg) throws EBaseException {
+        return null;
+    }
 
     /**
      * Starts this connector.
      */
-    public void start();
+    public void start() {
+    }
 
     /**
      * Stop the connector.
      */
-    public void stop();
+    public void stop() {
+    }
 }
