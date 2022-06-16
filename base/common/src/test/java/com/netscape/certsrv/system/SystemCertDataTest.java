@@ -15,13 +15,7 @@ public class SystemCertDataTest {
     @Before
     public void setUpBefore() {
         before.setCert("foo");
-        before.setDNSNames(dnsNames);
-        before.setKeyCurveName("bar");
-        before.setKeySize("1024");
-        before.setNickname("dolor");
         before.setProfile("sit");
-        before.setRequest("amet");
-        before.setSubjectDN("consectetur");
         before.setToken("elit");
         before.setType("sed");
     }
