@@ -10,6 +10,10 @@ SCRIPT_NAME=`basename "$SCRIPT_PATH"`
 SRC_DIR=`dirname "$SCRIPT_PATH"`
 
 NAME=pki
+PRODUCT_NAME=
+PRODUCT_ID=
+THEME=
+
 WORK_DIR=
 
 PREFIX_DIR="/usr"
@@ -32,7 +36,7 @@ UNIT_DIR="/usr/lib/systemd/system"
 INSTALL_DIR=
 
 SOURCE_TAG=
-SPEC_TEMPLATE="$SRC_DIR/$NAME.spec"
+SPEC_TEMPLATE="$SRC_DIR/pki.spec"
 SPEC_FILE=
 
 WITH_TIMESTAMP=
@@ -56,6 +60,9 @@ usage() {
     echo
     echo "Options:"
     echo "    --name=<name>          Package name (default: $NAME)."
+    echo "    --product-name=<name>  Use the specified product name."
+    echo "    --product-id=<ID>      Use the specified product ID."
+    echo "    --theme=<name>         Use the specified theme."
     echo "    --work-dir=<path>      Working directory (default: ~/build/$NAME)."
     echo "    --prefix-dir=<path>    Prefix directory (default: $PREFIX_DIR)"
     echo "    --include-dir=<path>   Include directory (default: $INCLUDE_DIR)"
@@ -174,6 +181,15 @@ generate_rpm_spec() {
     # hard-code package name
     sed -i "s/^\(Name: *\).*\$/\1${NAME}/g" "$SPEC_FILE"
 
+    # hard-code product name
+    sed -i "s/^\(%global *product_name *\).*\$/\1$PRODUCT_NAME/g" "$SPEC_FILE"
+
+    # hard-code product ID
+    sed -i "s/^\(%global *product_id *\).*\$/\1$PRODUCT_ID/g" "$SPEC_FILE"
+
+    # hard-code theme
+    sed -i "s/^\(%global *theme *\).*\$/\1$THEME/g" "$SPEC_FILE"
+
     # hard-code timestamp
     if [ "$TIMESTAMP" != "" ] ; then
         sed -i "s/%undefine *timestamp/%global timestamp $TIMESTAMP/g" "$SPEC_FILE"
@@ -220,6 +236,15 @@ while getopts v-: arg ; do
         case $OPTARG in
         name=?*)
             NAME="$LONG_OPTARG"
+            ;;
+        product-name=?*)
+            PRODUCT_NAME="$LONG_OPTARG"
+            ;;
+        product-id=?*)
+            PRODUCT_ID="$LONG_OPTARG"
+            ;;
+        theme=?*)
+            THEME="$LONG_OPTARG"
             ;;
         work-dir=?*)
             WORK_DIR=$(readlink -f "$LONG_OPTARG")
@@ -303,7 +328,7 @@ while getopts v-: arg ; do
         '')
             break # "--" terminates argument processing
             ;;
-        name* | work-dir* | \
+        name* | product-name* | product-id* | theme* | work-dir* | \
         prefix-dir* | include-dir* | lib-dir* | sysconf-dir* | share-dir* | \
         cmake* | java-home* | jni-dir* | unit-dir* | install-dir* | \
         source-tag* | spec* | with-pkgs* | without-pkgs* | dist*)
@@ -400,24 +425,48 @@ cd "$WORK_DIR"
 
 spec=$(<"$SPEC_TEMPLATE")
 
-regex=$'%global *product_name *([^\n]+)'
-if [[ $spec =~ $regex ]] ; then
-    PRODUCT_NAME="${BASH_REMATCH[1]}"
-else
-    echo "ERROR: Missing product_name macro in $SPEC_TEMPLATE"
-    exit 1
+if [ "$PRODUCT_NAME" = "" ] ; then
+    # if product name not specified, get from spec template
+
+    regex=$'%global *product_name *([^\n]+)'
+    if [[ $spec =~ $regex ]] ; then
+        PRODUCT_NAME="${BASH_REMATCH[1]}"
+    else
+        echo "ERROR: Missing product_name macro in $SPEC_TEMPLATE"
+        exit 1
+    fi
 fi
 
 if [ "$DEBUG" = true ] ; then
     echo "PRODUCT_NAME: $PRODUCT_NAME"
 fi
 
-regex=$'%global *theme *([^\n]+)'
-if [[ $spec =~ $regex ]] ; then
-    THEME="${BASH_REMATCH[1]}"
-else
-    echo "ERROR: Missing theme macro in $SPEC_TEMPLATE"
-    exit 1
+if [ "$PRODUCT_ID" = "" ] ; then
+    # if product ID not specified, get from spec template
+
+    regex=$'%global *product_id *([^\n]+)'
+    if [[ $spec =~ $regex ]] ; then
+        PRODUCT_ID="${BASH_REMATCH[1]}"
+    else
+        echo "ERROR: Missing product_id macro in $SPEC_TEMPLATE"
+        exit 1
+    fi
+fi
+
+if [ "$DEBUG" = true ] ; then
+    echo "PRODUCT_ID: $PRODUCT_ID"
+fi
+
+if [ "$THEME" = "" ] ; then
+    # if theme not specified, get from spec template
+
+    regex=$'%global *theme *([^\n]+)'
+    if [[ $spec =~ $regex ]] ; then
+        THEME="${BASH_REMATCH[1]}"
+    else
+        echo "ERROR: Missing theme macro in $SPEC_TEMPLATE"
+        exit 1
+    fi
 fi
 
 if [ "$DEBUG" = true ] ; then
