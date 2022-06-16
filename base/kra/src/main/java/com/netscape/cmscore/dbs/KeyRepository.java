@@ -31,7 +31,6 @@ import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
 import com.netscape.cmscore.apps.DatabaseConfig;
 
 /**
@@ -231,8 +230,7 @@ public class KeyRepository extends Repository {
      */
     public void removeAllObjects() throws EBaseException {
         String filter = "(" + KeyRecord.ATTR_OWNER_NAME + "=*" + ")";
-        IKeyRecordList list = findKeyRecordsInList(filter,
-                    null, "serialno", 10);
+        KeyRecordList list = findKeyRecordsInList(filter, null, "serialno", 10);
         int size = list.getSize();
         Enumeration<IKeyRecord> e = list.getKeyRecords(0, size - 1);
         while (e.hasMoreElements()) {
@@ -485,7 +483,7 @@ public class KeyRepository extends Repository {
      * @return list of key records
      * @exception EBaseException failed to search key records
      */
-    public IKeyRecordList findKeyRecordsInList(String filter,
+    public KeyRecordList findKeyRecordsInList(String filter,
             String attrs[], int pageSize) throws EBaseException {
         return findKeyRecordsInList(filter, attrs, IKeyRecord.ATTR_ID,
                 pageSize);
@@ -501,11 +499,11 @@ public class KeyRepository extends Repository {
      * @return list of key records
      * @exception EBaseException failed to search key records
      */
-    public IKeyRecordList findKeyRecordsInList(String filter,
+    public KeyRecordList findKeyRecordsInList(String filter,
             String attrs[], String sortKey, int pageSize)
             throws EBaseException {
 
-        IKeyRecordList list = null;
+        KeyRecordList list = null;
 
         try (DBSSession s = dbSubsystem.createSession()) {
             if (s != null) {
@@ -518,11 +516,11 @@ public class KeyRepository extends Repository {
         return list;
     }
 
-    public IKeyRecordList findKeyRecordsInList(String filter,
+    public KeyRecordList findKeyRecordsInList(String filter,
             String attrs[], String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
 
-        IKeyRecordList list = null;
+        KeyRecordList list = null;
 
         int len = jumpTo.length();
 
@@ -561,8 +559,8 @@ public class KeyRepository extends Repository {
         String[] attrs = null;
 
         KeyRecordList recList =
-                (KeyRecordList) findKeyRecordsInList(ldapfilter, attrs, serial_upper_bound.toString(10), "serialno",
-                        5 * -1);
+                findKeyRecordsInList(ldapfilter, attrs, serial_upper_bound.toString(10), "serialno",
+                5 * -1);
 
         int size = -1;
         if (recList != null) {

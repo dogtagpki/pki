@@ -23,16 +23,13 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
 
 /**
  * A class represents a list of key records.
- * <P>
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
-public class KeyRecordList implements IKeyRecordList {
+public class KeyRecordList {
 
     private IDBVirtualList<IKeyRecord> mVlist = null;
 
@@ -45,8 +42,9 @@ public class KeyRecordList implements IKeyRecordList {
 
     /**
      * Retrieves the size of key list.
+     *
+     * @return size of key list
      */
-    @Override
     public int getSize() {
         return mVlist.getSize();
     }
@@ -72,9 +70,13 @@ public class KeyRecordList implements IKeyRecordList {
     }
 
     /**
-     * Retrieves requests.
+     * Retrieves key records.
+     *
+     * @param startidx start index
+     * @param endidx end index
+     * @return key records
+     * @exception EBaseException failed to retrieve key records
      */
-    @Override
     public Enumeration<IKeyRecord> getKeyRecords(int startidx, int endidx)
             throws EBaseException {
         Vector<IKeyRecord> entries = new Vector<>();
