@@ -754,8 +754,11 @@ public abstract class EnrollDefault extends PolicyDefault {
                 logger.error("Missing colon");
                 throw new EPropertyException("Missing colon");
             }
-            String[] parts = token.split(":");
-            nvps.put(parts[0], parts[1]);
+            if (pos == (token.length() - 1)) {
+                nvps.put(token.substring(0, pos), "");
+            } else {
+                nvps.put(token.substring(0, pos), token.substring(pos + 1));
+            }
         }
 
         return v;
