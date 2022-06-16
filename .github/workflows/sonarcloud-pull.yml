@@ -1,0 +1,129 @@
+name: Sonarcloud-Pull
+on:
+  workflow_run:
+    workflows: ["Sonarcloud"]
+    types:
+      - completed
+
+jobs:
+  retrieve-pr:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      pr-number: ${{ steps.pr-artifact-script.outputs.result }}
+    steps:
+      - name: 'Download PR artifact'
+        uses: actions/github-script@v3.1.0
+        id: download-pr
+        with:
+          result-encoding: string
+          script: |
+            var artifacts = await github.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+            });
+            var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "pr"
+            })[0];
+            if (matchArtifact == null){
+              core.setFailed("No PR artifact");
+              return "False";
+            }
+            var download = await github.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: 'zip',
+            });
+            var fs = require('fs');
+            fs.writeFileSync('${{github.workspace}}/pr.zip', Buffer.from(download.data));
+            return "True";
+            
+      - name: Unzip the pr
+        if: steps.download-pr.outputs.result == 'True'
+        run: unzip pr.zip
+
+      - name: Retrieve the pr number
+        if: success()
+        id: pr-artifact-script
+        uses: actions/github-script@v3.1.0
+        with:
+          result-encoding: string
+          script: |
+            var fs = require('fs');
+            var pr_number = Number(fs.readFileSync('./NR'));
+            return pr_number; 
+
+        
+  sonarcloud:
+    name: Sonar Cloud code analysis
+    needs: retrieve-pr
+    if: needs.retrieve-pr.outputs.pr-number != ''
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Retrieve runner image
+        uses: actions/github-script@v3.1.0
+        with:
+          script: |
+            var artifacts = await github.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+            });
+            var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "pki-build"
+            })[0];
+            var download = await github.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: 'zip',
+            });
+            var fs = require('fs');
+            fs.writeFileSync('${{github.workspace}}/pki-build.zip', Buffer.from(download.data));
+
+      - name: Unzip the build container
+        run: unzip pki-build.zip
+
+      - name: Load runner image
+        run: docker load --input pki-sonar-runner.tar
+
+      - name: Checkout pulled branch
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+
+#      - name: Get the PR
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: |
+#          echo "Checking out from PR #${{ needs.retrieve-pr.outputs.pr-number }}"
+#          hub pr checkout ${{ needs.retrieve-pr.outputs.pr-number }}
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+  
+      - name: Copy build in current folder
+        run: docker cp pki:/usr/share/java/pki ./build
+      
+      - name: Remove maven related file
+        run: rm -f pom.xml
+
+      - name: Start Sonar analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
+            -Dsonar.pullrequest.key=${{ needs.retrieve-pr.outputs.pr-number }}
+            -Dsonar.pullrequest.branch=${{ github.event.workflow_run.head_branch }}
+            -Dsonar.pullrequest.base=${{ github.event.workflow_run.pull_requests[0].base.ref }}
+            

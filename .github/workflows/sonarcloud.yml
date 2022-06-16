@@ -1,5 +1,5 @@
 name: Sonarcloud
-on: [push,pull_request]
+on: [push, pull_request]
 
 jobs:
   call-build-workflow:
@@ -10,6 +10,7 @@ jobs:
 
 
   sonarcloud:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     name: Sonar Cloud code analysis
     needs: call-build-workflow
     runs-on: ubuntu-latest
@@ -45,3 +46,36 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  get-pr-ref:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+    name: Sonar cloud PR fork analyses deferring
+    needs: call-build-workflow
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    strategy:
+      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
+    steps:
+      - name: Save PR number
+        run: |
+          mkdir -p ./pr
+          echo ${{ github.event.number }} > ./pr/NR
+
+      - name: Upload pr as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: pr
+          path: pr/
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-sonar-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-sonar-runner.tar
+
+      - name: Upload build as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: pki-build
+          path: pki-sonar-runner.tar  
