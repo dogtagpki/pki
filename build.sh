@@ -12,6 +12,25 @@ SRC_DIR=`dirname "$SCRIPT_PATH"`
 NAME=pki
 WORK_DIR=
 
+PREFIX_DIR="/usr"
+INCLUDE_DIR="/usr/include"
+
+if [ "$HOSTTYPE" = "x86_64" ]; then
+   LIB_DIR="/usr/lib64"
+else
+   LIB_DIR="/usr/lib"
+fi
+
+SYSCONF_DIR="/etc"
+SHARE_DIR="/usr/share"
+
+CMAKE="cmake"
+
+JNI_DIR="/usr/lib/java"
+UNIT_DIR="/usr/lib/systemd/system"
+
+INSTALL_DIR=
+
 SOURCE_TAG=
 SPEC_TEMPLATE="$SRC_DIR/$NAME.spec"
 SPEC_FILE=
@@ -38,6 +57,16 @@ usage() {
     echo "Options:"
     echo "    --name=<name>          Package name (default: $NAME)."
     echo "    --work-dir=<path>      Working directory (default: ~/build/$NAME)."
+    echo "    --prefix-dir=<path>    Prefix directory (default: $PREFIX_DIR)"
+    echo "    --include-dir=<path>   Include directory (default: $INCLUDE_DIR)"
+    echo "    --lib-dir=<path>       Library directory (default: $LIB_DIR)"
+    echo "    --sysconf-dir=<path>   System configuration directory (default: $SYSCONF_DIR)"
+    echo "    --share-dir=<path>     Share directory (default: $SHARE_DIR)"
+    echo "    --cmake=<path>         Path to CMake executable"
+    echo "    --java-home=<path>     Java home directory"
+    echo "    --jni-dir=<path>       JNI directory (default: $JNI_DIR)"
+    echo "    --unit-dir=<path>      Systemd unit directory (default: $UNIT_DIR)"
+    echo "    --install-dir=<path>   Installation directory"
     echo "    --source-tag=<tag>     Generate RPM sources from a source tag."
     echo "    --spec=<file>          Use the specified RPM spec (default: $SPEC_TEMPLATE)."
     echo "    --with-timestamp       Append timestamp to release number."
@@ -55,10 +84,12 @@ usage() {
     echo "    $PKG_LIST"
     echo
     echo "Target:"
-    echo "    src    Generate RPM sources."
-    echo "    spec   Generate RPM spec."
-    echo "    srpm   Build SRPM package."
-    echo "    rpm    Build RPM packages (default)."
+    echo "    dist     Build PKI binaries (default)."
+    echo "    install  Install PKI binaries."
+    echo "    src      Generate RPM sources."
+    echo "    spec     Generate RPM spec."
+    echo "    srpm     Build SRPM package."
+    echo "    rpm      Build RPM packages (default)."
 }
 
 generate_rpm_sources() {
@@ -193,6 +224,36 @@ while getopts v-: arg ; do
         work-dir=?*)
             WORK_DIR=$(readlink -f "$LONG_OPTARG")
             ;;
+        prefix-dir=?*)
+            PREFIX_DIR=$(readlink -f "$LONG_OPTARG")
+            ;;
+        include-dir=?*)
+            INCLUDE_DIR=$(readlink -f "$LONG_OPTARG")
+            ;;
+        lib-dir=?*)
+            LIB_DIR=$(readlink -f "$LONG_OPTARG")
+            ;;
+        sysconf-dir=?*)
+            SYSCONF_DIR=$(readlink -f "$LONG_OPTARG")
+            ;;
+        share-dir=?*)
+            SHARE_DIR=$(readlink -f "$LONG_OPTARG")
+            ;;
+        cmake=?*)
+            CMAKE=$(readlink -f "$LONG_OPTARG")
+            ;;
+        java-home=?*)
+            JAVA_HOME=$(readlink -f "$LONG_OPTARG")
+            ;;
+        jni-dir=?*)
+            JNI_DIR=$(readlink -f "$LONG_OPTARG")
+            ;;
+        unit-dir=?*)
+            UNIT_DIR=$(readlink -f "$LONG_OPTARG")
+            ;;
+        install-dir=?*)
+            INSTALL_DIR=$(readlink -f "$LONG_OPTARG")
+            ;;
         source-tag=?*)
             SOURCE_TAG="$LONG_OPTARG"
             ;;
@@ -242,7 +303,10 @@ while getopts v-: arg ; do
         '')
             break # "--" terminates argument processing
             ;;
-        name* | work-dir* | source-tag* | spec* | with-pkgs* | without-pkgs* | dist*)
+        name* | work-dir* | \
+        prefix-dir* | include-dir* | lib-dir* | sysconf-dir* | share-dir* | \
+        cmake* | java-home* | jni-dir* | unit-dir* | install-dir* | \
+        source-tag* | spec* | with-pkgs* | without-pkgs* | dist*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
             ;;
@@ -262,7 +326,7 @@ done
 shift $((OPTIND-1))
 
 if [ "$#" -lt 1 ] ; then
-    BUILD_TARGET=rpm
+    BUILD_TARGET=dist
 else
     BUILD_TARGET=$1
 fi
@@ -286,15 +350,36 @@ if [ "$WITH_PKGS" != "" ] ; then
 
 else
     PKGS_TO_SKIP=( $(echo $WITHOUT_PKGS | sed 's/ *, */ /g') )
+    PKGS_TO_BUILD=()
+
+    for package in ${ALL_PKGS[@]}
+    do
+        # if package is not in PKGS_TO_SKIP, build
+        if [[ ! " ${PKGS_TO_SKIP[*]} " =~ " $package " ]]; then
+            PKGS_TO_BUILD+=($package)
+        fi
+    done
 fi
 
 if [ "$DEBUG" = true ] ; then
     echo "NAME: $NAME"
     echo "WORK_DIR: $WORK_DIR"
+    echo "PREFIX_DIR: $PREFIX_DIR"
+    echo "INCLUDE_DIR: $INCLUDE_DIR"
+    echo "LIB_DIR: $LIB_DIR"
+    echo "SYSCONF_DIR: $SYSCONF_DIR"
+    echo "SHARE_DIR: $SHARE_DIR"
+    echo "CMAKE: $CMAKE"
+    echo "JAVA_HOME: $JAVA_HOME"
+    echo "JNI_DIR: $JNI_DIR"
+    echo "UNIT_DIR: $UNIT_DIR"
+    echo "INSTALL_DIR: $INSTALL_DIR"
     echo "BUILD_TARGET: $BUILD_TARGET"
 fi
 
-if [ "$BUILD_TARGET" != "src" ] &&
+if [ "$BUILD_TARGET" != "dist" ] &&
+        [ "$BUILD_TARGET" != "install" ] &&
+        [ "$BUILD_TARGET" != "src" ] &&
         [ "$BUILD_TARGET" != "spec" ] &&
         [ "$BUILD_TARGET" != "srpm" ] &&
         [ "$BUILD_TARGET" != "rpm" ] ; then
@@ -314,6 +399,30 @@ mkdir -p "$WORK_DIR"
 cd "$WORK_DIR"
 
 spec=$(<"$SPEC_TEMPLATE")
+
+regex=$'%global *product_name *([^\n]+)'
+if [[ $spec =~ $regex ]] ; then
+    PRODUCT_NAME="${BASH_REMATCH[1]}"
+else
+    echo "ERROR: Missing product_name macro in $SPEC_TEMPLATE"
+    exit 1
+fi
+
+if [ "$DEBUG" = true ] ; then
+    echo "PRODUCT_NAME: $PRODUCT_NAME"
+fi
+
+regex=$'%global *theme *([^\n]+)'
+if [[ $spec =~ $regex ]] ; then
+    THEME="${BASH_REMATCH[1]}"
+else
+    echo "ERROR: Missing theme macro in $SPEC_TEMPLATE"
+    exit 1
+fi
+
+if [ "$DEBUG" = true ] ; then
+    echo "THEME: $THEME"
+fi
 
 regex=$'%global *major_version *([^\n]+)'
 if [[ $spec =~ $regex ]] ; then
@@ -389,6 +498,215 @@ fi
 if [ "$DEBUG" = true ] ; then
     echo "RELEASE: $RELEASE"
 fi
+
+regex=$'%global *p11_kit_trust *([^\n]+)'
+if [[ $spec =~ $regex ]] ; then
+    P11_KIT_TRUST="${BASH_REMATCH[1]}"
+else
+    echo "ERROR: Missing p11_kit_trust macro in $SPEC_TEMPLATE"
+    exit 1
+fi
+
+if [ "$DEBUG" = true ] ; then
+    echo "P11_KIT_TRUST: $P11_KIT_TRUST"
+fi
+
+regex=$'%global *app_server *([^\n]+)'
+if [[ $spec =~ $regex ]] ; then
+    APP_SERVER="${BASH_REMATCH[1]}"
+else
+    echo "ERROR: Missing app_server macro in $SPEC_TEMPLATE"
+    exit 1
+fi
+
+if [ "$DEBUG" = true ] ; then
+    echo "APP_SERVER: $APP_SERVER"
+fi
+
+regex=$'%global *python_executable *([^\n]+)'
+if [[ $spec =~ $regex ]] ; then
+    PYTHON="${BASH_REMATCH[1]}"
+else
+    echo "ERROR: Missing python_executable macro in $SPEC_TEMPLATE"
+    exit 1
+fi
+
+if [ "$DEBUG" = true ] ; then
+    echo "PYTHON: $PYTHON"
+fi
+
+################################################################################
+# Build PKI
+################################################################################
+
+if [ "$BUILD_TARGET" = "dist" ] ; then
+
+    if [ "$VERBOSE" = true ] ; then
+        echo "Building $NAME"
+    fi
+
+    OPTIONS=()
+
+    OPTIONS+=(-S $SRC_DIR)
+    OPTIONS+=(-B $WORK_DIR)
+
+    # Set environment variables for CMake
+    # (see /usr/lib/rpm/macros.d/macros.cmake)
+
+    OPTIONS+=(-DCMAKE_C_FLAGS_RELEASE:STRING=-DNDEBUG)
+    OPTIONS+=(-DCMAKE_CXX_FLAGS_RELEASE:STRING=-DNDEBUG)
+    OPTIONS+=(-DCMAKE_Fortran_FLAGS_RELEASE:STRING=-DNDEBUG)
+    OPTIONS+=(-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON)
+    OPTIONS+=(-DCMAKE_INSTALL_DO_STRIP:BOOL=OFF)
+    OPTIONS+=(-DCMAKE_INSTALL_PREFIX:PATH=$PREFIX_DIR)
+
+    OPTIONS+=(-DINCLUDE_INSTALL_DIR:PATH=$INCLUDE_DIR)
+    OPTIONS+=(-DLIB_INSTALL_DIR:PATH=$LIB_DIR)
+    OPTIONS+=(-DSYSCONF_INSTALL_DIR:PATH=$SYSCONF_DIR)
+    OPTIONS+=(-DSHARE_INSTALL_PREFIX:PATH=$SHARE_DIR)
+
+    OPTIONS+=(-DLIB_SUFFIX=64)
+    OPTIONS+=(-DBUILD_SHARED_LIBS:BOOL=ON)
+
+    OPTIONS+=(--no-warn-unused-cli)
+    OPTIONS+=(-DPRODUCT_NAME="$PRODUCT_NAME")
+    OPTIONS+=(-DTHEME=$THEME)
+    OPTIONS+=(-DVERSION=$VERSION)
+    OPTIONS+=(-DRELEASE=$RELEASE)
+
+    OPTIONS+=(-DVAR_INSTALL_DIR:PATH=/var)
+    OPTIONS+=(-DP11_KIT_TRUST=$P11_KIT_TRUST)
+
+    if [ "$JAVA_HOME" != "" ] ; then
+        OPTIONS+=(-DJAVA_HOME=$JAVA_HOME)
+    fi
+
+    OPTIONS+=(-DJAVA_LIB_INSTALL_DIR=$JNI_DIR)
+    OPTIONS+=(-DAPP_SERVER=$APP_SERVER)
+    OPTIONS+=(-DPYTHON_EXECUTABLE=$PYTHON)
+    OPTIONS+=(-DSYSTEMD_LIB_INSTALL_DIR=$UNIT_DIR)
+
+    for package in ${PKGS_TO_SKIP[@]}
+    do
+        package=${package^^}
+        OPTIONS+=(-DWITH_$package:BOOL=OFF)
+    done
+
+    if [ "$WITH_CONSOLE" = true ] ; then
+        OPTIONS+=(-DWITH_CONSOLE:BOOL=ON)
+    fi
+
+    if [ "$WITHOUT_TEST" = true ] ; then
+        OPTIONS+=(-DRUN_TESTS:BOOL=OFF)
+    fi
+
+    $CMAKE "${OPTIONS[@]}"
+
+    OPTIONS=()
+
+    if [ "$VERBOSE" = true ] ; then
+        OPTIONS+=(VERBOSE=1)
+    fi
+
+    OPTIONS+=(CMAKE_NO_VERBOSE=1)
+    OPTIONS+=(--no-print-directory)
+
+    make "${OPTIONS[@]}" all
+
+    if [ "$WITH_TESTS" = true ] ; then
+        ctest --output-on-failure
+    fi
+
+    echo
+    echo "Build artifacts:"
+
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " base " ]]; then
+        echo "- base:"
+        echo "    $WORK_DIR/dist/pki-cmsutil.jar"
+        echo "    $WORK_DIR/dist/pki-certsrv.jar"
+        echo "    $WORK_DIR/dist/pki-tools.jar"
+    fi
+
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " server " ]]; then
+        echo "- server:"
+        echo "    $WORK_DIR/dist/pki-tomcat.jar"
+        echo "    $WORK_DIR/dist/pki-cms.jar"
+        echo "    $WORK_DIR/dist/pki-cmsbundle.jar"
+    fi
+
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " acme " ]]; then
+        echo "- ACME:"
+        echo "    $WORK_DIR/dist/pki-acme.jar"
+    fi
+
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " ca " ]]; then
+        echo "- CA:"
+        echo "    $WORK_DIR/dist/pki-ca.jar"
+    fi
+
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " kra " ]]; then
+        echo "- KRA:"
+        echo "    $WORK_DIR/dist/pki-kra.jar"
+    fi
+
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " ocsp " ]]; then
+        echo "- OCSP:"
+        echo "    $WORK_DIR/dist/pki-ocsp.jar"
+    fi
+
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " tks " ]]; then
+        echo "- TKS:"
+        echo "    $WORK_DIR/dist/pki-tks.jar"
+    fi
+
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " tps " ]]; then
+        echo "- TPS:"
+        echo "    $WORK_DIR/dist/pki-tps.jar"
+        echo "    $WORK_DIR/base/tools/src/main/native/tpsclient/src/libtps.so"
+    fi
+
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " javadoc " ]]; then
+        echo "- Javadoc:"
+        echo "    $WORK_DIR/base/javadoc/javadoc/pki"
+    fi
+
+    echo
+    echo "To install the build: $0 install"
+    echo "To create RPM packages: $0 rpm"
+    echo
+
+    exit
+fi
+
+################################################################################
+# Install PKI
+################################################################################
+
+if [ "$BUILD_TARGET" = "install" ] ; then
+
+    if [ "$VERBOSE" = true ] ; then
+        echo "Installing $NAME"
+    fi
+
+    OPTIONS=()
+
+    if [ "$VERBOSE" = true ] ; then
+        OPTIONS+=(VERBOSE=1)
+    fi
+
+    OPTIONS+=(CMAKE_NO_VERBOSE=1)
+    OPTIONS+=(DESTDIR=$INSTALL_DIR)
+    OPTIONS+=(INSTALL="install -p")
+    OPTIONS+=(--no-print-directory)
+
+    make "${OPTIONS[@]}" install
+
+    exit
+fi
+
+################################################################################
+# Prepare RPM build
+################################################################################
 
 echo "Building $NAME-$VERSION-$RELEASE"
 
