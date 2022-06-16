@@ -37,6 +37,8 @@ import com.netscape.cmscore.request.Request;
  */
 public abstract class ProfileInput implements IConfigTemplate {
 
+    public abstract void init(Profile profile, ConfigStore config) throws EProfileException;
+
     /**
      * Returns configuration store.
      *

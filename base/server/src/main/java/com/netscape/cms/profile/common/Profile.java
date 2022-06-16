@@ -39,7 +39,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
-import com.netscape.cms.profile.input.EnrollInput;
 import com.netscape.cms.profile.updater.IProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -315,9 +314,9 @@ public abstract class Profile {
                     inputClassId);
             String inputClass = inputInfo.getClassName();
 
-            EnrollInput input = null;
+            ProfileInput input = null;
             try {
-                input = (EnrollInput) Class.forName(inputClass).getDeclaredConstructor().newInstance();
+                input = (ProfileInput) Class.forName(inputClass).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 // throw Exception
                 logger.error("Profile: input plugin Class.forName " + inputClass + " " + e.getMessage(), e);
@@ -833,9 +832,9 @@ public abstract class Profile {
         String inputClass = inputInfo.getClassName();
         logger.debug("Profile: loading input class " + inputClass);
 
-        EnrollInput input = null;
+        ProfileInput input = null;
         try {
-            input = (EnrollInput) Class.forName(inputClass).getDeclaredConstructor().newInstance();
+            input = (ProfileInput) Class.forName(inputClass).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             // throw Exception
             logger.warn(e.getMessage(), e);
