@@ -24,7 +24,6 @@ import org.dogtagpki.server.PKIClientSocketListener;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.Connector;
-import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.request.RequestId;
@@ -46,7 +45,7 @@ public class HttpConnector extends Connector {
 
     // XXX todo make this a pool.
     // XXX use CMMF in the future.
-    protected IHttpConnection mConn = null;
+    protected HttpConnection mConn;
     private IResender mResender = null;
     @SuppressWarnings("unused")
     private int mTimeout;
@@ -122,7 +121,7 @@ public class HttpConnector extends Connector {
         throws EBaseException {
         logger.debug("HttpConnector: send(): begins");
         HttpResponse resp = null;
-        IHttpConnection curConn = null;
+        HttpConnection curConn = null;
         String uri;
 
         if (op != null) {
@@ -153,7 +152,7 @@ public class HttpConnector extends Connector {
     @Override
     public boolean send(Request r)
             throws EBaseException {
-        IHttpConnection curConn = null;
+        HttpConnection curConn = null;
 
         try {
             HttpPKIMessage tomsg = new HttpPKIMessage();

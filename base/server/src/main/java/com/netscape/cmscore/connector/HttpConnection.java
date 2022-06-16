@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IRequestEncoder;
@@ -41,7 +40,14 @@ import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.net.ISocketFactory;
 
-public class HttpConnection implements IHttpConnection {
+/**
+ * This represents a HTTP connection to a remote authority.
+ * Http connection is used by the connector to send
+ * PKI messages to a remote authority. The remote authority
+ * will reply with a PKI message as well. An example would
+ * be the communication between a CA and a KRA.
+ */
+public class HttpConnection {
 
     private static Logger logger = LoggerFactory.getLogger(HttpConnection.class);
     private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
@@ -169,22 +175,29 @@ public class HttpConnection implements IHttpConnection {
         throw exception;
     }
 
-    @Override
+    /**
+     * Sets the HttpRequest URI before send
+     *
+     * @param uri the uri for the HttpRequest
+     */
     public void setRequestURI(String uri)
             throws EBaseException {
         mHttpreq.setURI(uri);
     }
 
-    @Override
+    /**
+     * Gets the HttpRequest URI
+     */
     public String getRequestURI() {
         return mHttpreq.getURI();
     }
+
     /**
-     * sends a request to remote RA/CA, returning the result.
+     * Sends the PKI message to the remote authority.
      *
-     * @throws EBaseException if request could not be encoded
+     * @param tomsg Message to forward to authority.
+     * @exception EBaseException Failed to send message.
      */
-    @Override
     public IPKIMessage send(IPKIMessage tomsg) throws EBaseException {
 
         String url = "https://" + mDest.getHost() + ":" + mDest.getPort() + mHttpreq.getURI();
@@ -233,11 +246,12 @@ public class HttpConnection implements IHttpConnection {
     }
 
     /**
-     * sends a request to a remote authority, returning the result.
+     * Sends the message to the remote authority.
      *
-     * @throws EBaseException for any failure
+     * @param content Message to forward to authority.
+     * @return HttpResponse response to be parsed by the client
+     * @exception EBaseException Failed to send message.
      */
-    @Override
     public HttpResponse send(String content) throws EBaseException {
 
         String url = "https://" + mDest.getHost() + ":" + mDest.getPort() + mHttpreq.getURI();

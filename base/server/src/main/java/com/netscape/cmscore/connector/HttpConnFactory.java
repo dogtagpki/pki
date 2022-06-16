@@ -21,7 +21,6 @@ import org.dogtagpki.server.PKIClientSocketListener;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
@@ -39,7 +38,7 @@ public class HttpConnFactory {
 
     private int mNumConns = 0; // number of available conns in array
     private int mTotal = 0; // total num conns
-    private IHttpConnection mConns[];
+    private HttpConnection mConns[];
     @SuppressWarnings("unused")
     private IAuthority mSource;
     private IRemoteAuthority mDest = null;
@@ -103,7 +102,7 @@ public class HttpConnFactory {
 
         logger.debug("before creating httpconn array");
 
-        mConns = new IHttpConnection[mMaxConns];
+        mConns = new HttpConnection[mMaxConns];
 
         // Create connection handle and make initial connection
 
@@ -119,9 +118,9 @@ public class HttpConnFactory {
         logger.debug("leaving HttpConnFactory init.");
     }
 
-    private IHttpConnection createConnection() throws EBaseException {
+    private HttpConnection createConnection() throws EBaseException {
 
-        IHttpConnection retConn = null;
+        HttpConnection retConn = null;
 
         logger.debug("In HttpConnFactory.createConnection.");
 
@@ -180,7 +179,7 @@ public class HttpConnFactory {
      * always gets called. For example,
      *
      * <pre>
-     * IHttpConnection c = null;
+     * HttpConnection c = null;
      * try {
      *     c = factory.getConn();
      *     myclass.do_something_with_c(c);
@@ -191,7 +190,7 @@ public class HttpConnFactory {
      * }
      * </pre>
      */
-    public IHttpConnection getConn()
+    public HttpConnection getConn()
             throws EBaseException {
         return getConn(true);
     }
@@ -218,7 +217,7 @@ public class HttpConnFactory {
      * }
      * </pre>
      */
-    public synchronized IHttpConnection getConn(boolean waitForConn)
+    public synchronized HttpConnection getConn(boolean waitForConn)
             throws EBaseException {
         boolean waited = false;
 
@@ -240,7 +239,7 @@ public class HttpConnFactory {
             }
         }
         mNumConns--;
-        IHttpConnection conn = mConns[mNumConns];
+        HttpConnection conn = mConns[mNumConns];
 
         mConns[mNumConns] = null;
 
@@ -260,7 +259,7 @@ public class HttpConnFactory {
      * always gets called. For example,
      *
      * <pre>
-     * IHttpConnection c = null;
+     * HttpConnection c = null;
      * try {
      *     c = factory.getConn();
      *     myclass.do_something_with_c(c);
@@ -271,13 +270,13 @@ public class HttpConnFactory {
      * }
      * </pre>
      */
-    public synchronized void returnConn(IHttpConnection conn) {
+    public synchronized void returnConn(HttpConnection conn) {
 
         logger.debug("In HttpConnFactory.returnConn");
         if (conn == null) {
             return;
         }
-        IHttpConnection boundconn = conn;
+        HttpConnection boundconn = conn;
 
         for (int i = 0; i < mNumConns; i++) {
             if (mConns[i] == conn) {
