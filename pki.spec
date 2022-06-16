@@ -823,6 +823,7 @@ pkgs=base\
     --java-home=%{java_home} \
     --jni-dir=%{_jnidir} \
     --unit-dir=%{_unitdir} \
+    --python=%{python_executable} \
     --with-pkgs=$pkgs \
     %{!?with_test:--without-test} \
     dist
