@@ -3,6 +3,7 @@ on: [push, pull_request]
 
 jobs:
   call-build-workflow:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/build.yml
     with:
       key_container: sonar
@@ -52,10 +53,6 @@ jobs:
     name: Sonar cloud PR fork analyses deferring
     needs: call-build-workflow
     runs-on: ubuntu-latest
-    env:
-      SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
     steps:
       - name: Save PR number
         run: |
@@ -67,15 +64,3 @@ jobs:
         with:
           name: pr
           path: pr/
-
-      - name: Retrieve runner image
-        uses: actions/cache@v3
-        with:
-          key: pki-sonar-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-sonar-runner.tar
-
-      - name: Upload build as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: pki-build
-          path: pki-sonar-runner.tar  
