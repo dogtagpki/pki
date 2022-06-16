@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -43,6 +42,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmsutil.json.JSONObject;
 
 public abstract class UpdateNumberRange extends CMSServlet {
@@ -113,7 +113,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
             auditParams += "+type;;" + type;
 
             logger.info("UpdateNumberRange: Getting " + type + " repository");
-            IRepository repo = getRepository(type);
+            Repository repo = getRepository(type);
 
             // checkRanges for replicaID - we do this each time a replica is created.
             // This needs to be done beforehand to ensure that we always have enough
@@ -302,7 +302,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
         }
     }
 
-    public abstract IRepository getRepository(String type) throws EBaseException;
+    public abstract Repository getRepository(String type) throws EBaseException;
 
     @Override
     protected void setDefaultTemplates(ServletConfig sc) {

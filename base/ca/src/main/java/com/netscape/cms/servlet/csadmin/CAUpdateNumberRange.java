@@ -21,12 +21,12 @@ import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.repository.IRepository;
+import com.netscape.cmscore.dbs.Repository;
 
 public class CAUpdateNumberRange extends UpdateNumberRange {
 
     @Override
-    public IRepository getRepository(String type) throws EBaseException {
+    public Repository getRepository(String type) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();

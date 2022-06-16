@@ -20,13 +20,13 @@ package com.netscape.cms.servlet.csadmin;
 import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.repository.IRepository;
+import com.netscape.cmscore.dbs.Repository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 public class KRAUpdateNumberRange extends UpdateNumberRange {
 
     @Override
-    public IRepository getRepository(String type) throws EBaseException {
+    public Repository getRepository(String type) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
         KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);

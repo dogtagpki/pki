@@ -23,7 +23,6 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
@@ -40,18 +39,14 @@ import netscape.ldap.LDAPv3;
 /**
  * A class represents a generic repository. It maintains unique
  * serial number within repository.
- * <P>
+ *
  * To build domain specific repository, subclass should be created.
- * <P>
  *
  * @author galperin
  * @author thomask
- * @version $Revision: 1.4
- *
- *          $, $Date$
  */
 
-public abstract class Repository implements IRepository {
+public abstract class Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Repository.class);
 
@@ -135,7 +130,6 @@ public abstract class Repository implements IRepository {
      * @param serial maximum number
      * @exception EBaseException failed to set maximum serial number
      */
-    @Override
     public synchronized void setMaxSerial(BigInteger serial) throws EBaseException {
         logger.debug("Repository: Setting max serial to " + serial);
         mMaxSerialNo = serial;
@@ -156,7 +150,6 @@ public abstract class Repository implements IRepository {
      * @param serial maximum number in next range
      * @exception EBaseException failed to set maximum serial number in next range
      */
-    @Override
     public synchronized void setNextMaxSerial(BigInteger serial) throws EBaseException {
         logger.debug("Repository: Setting next max serial to " + serial);
         mNextMaxSerialNo = serial;
@@ -246,8 +239,10 @@ public abstract class Repository implements IRepository {
      *
      * Returns null if the next number exceeds the current range and
      * there is not a next range.
+     *
+     * @return serial number
+     * @exception EBaseException failed to retrieve next serial number
      */
-    @Override
     public synchronized BigInteger peekNextSerialNumber() throws EBaseException {
 
         logger.debug("Repository:In getTheSerialNumber ");
@@ -289,11 +284,10 @@ public abstract class Repository implements IRepository {
     /**
      * Retrieves the next serial number, and also increase the
      * serial number by one.
-     * <P>
      *
      * @return serial number
+     * @exception EBaseException failed to retrieve next serial number
      */
-    @Override
     public synchronized BigInteger getNextSerialNumber() throws
             EBaseException {
 
@@ -634,7 +628,6 @@ public abstract class Repository implements IRepository {
      *
      * @exception EBaseException failed to check next range for conflicts
      */
-    @Override
     public void checkRanges() throws EBaseException {
 
         if (idGenerator == RANDOM) {
@@ -711,7 +704,6 @@ public abstract class Repository implements IRepository {
      * @param value true/false
      * @exception EBaseException failed to set
      */
-    @Override
     public void setEnableSerialMgmt(boolean value) throws EBaseException {
         dbSubsystem.setEnableSerialMgmt(value);
     }
