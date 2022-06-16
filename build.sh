@@ -33,6 +33,9 @@ CMAKE="cmake"
 JNI_DIR="/usr/lib/java"
 UNIT_DIR="/usr/lib/systemd/system"
 
+PYTHON="/usr/bin/python3"
+PYTHON_DIR=
+
 INSTALL_DIR=
 
 SOURCE_TAG=
@@ -73,6 +76,8 @@ usage() {
     echo "    --java-home=<path>     Java home directory"
     echo "    --jni-dir=<path>       JNI directory (default: $JNI_DIR)"
     echo "    --unit-dir=<path>      Systemd unit directory (default: $UNIT_DIR)"
+    echo "    --python=<path>        Path to Python executable (default: $PYTHON)"
+    echo "    --python-dir=<path>    Path to Python modules"
     echo "    --install-dir=<path>   Installation directory"
     echo "    --source-tag=<tag>     Generate RPM sources from a source tag."
     echo "    --spec=<file>          Use the specified RPM spec (default: $SPEC_TEMPLATE)."
@@ -276,6 +281,12 @@ while getopts v-: arg ; do
         unit-dir=?*)
             UNIT_DIR=$(readlink -f "$LONG_OPTARG")
             ;;
+        python=?*)
+            PYTHON=$(readlink -f "$LONG_OPTARG")
+            ;;
+        python-dir=?*)
+            PYTHON_DIR=$(readlink -f "$LONG_OPTARG")
+            ;;
         install-dir=?*)
             INSTALL_DIR=$(readlink -f "$LONG_OPTARG")
             ;;
@@ -330,7 +341,7 @@ while getopts v-: arg ; do
             ;;
         name* | product-name* | product-id* | theme* | work-dir* | \
         prefix-dir* | include-dir* | lib-dir* | sysconf-dir* | share-dir* | \
-        cmake* | java-home* | jni-dir* | unit-dir* | install-dir* | \
+        cmake* | java-home* | jni-dir* | unit-dir* | python* | python-dir* | install-dir* | \
         source-tag* | spec* | with-pkgs* | without-pkgs* | dist*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
@@ -572,12 +583,16 @@ if [ "$DEBUG" = true ] ; then
     echo "APP_SERVER: $APP_SERVER"
 fi
 
-regex=$'%global *python_executable *([^\n]+)'
-if [[ $spec =~ $regex ]] ; then
-    PYTHON="${BASH_REMATCH[1]}"
-else
-    echo "ERROR: Missing python_executable macro in $SPEC_TEMPLATE"
-    exit 1
+if [ "$PYTHON" = "" ] ; then
+    # if release not specified, get from spec template
+
+    regex=$'%global *python_executable *([^\n]+)'
+    if [[ $spec =~ $regex ]] ; then
+        PYTHON="${BASH_REMATCH[1]}"
+    else
+        echo "ERROR: Missing python_executable macro in $SPEC_TEMPLATE"
+        exit 1
+    fi
 fi
 
 if [ "$DEBUG" = true ] ; then
@@ -636,7 +651,13 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     OPTIONS+=(-DJAVA_LIB_INSTALL_DIR=$JNI_DIR)
     OPTIONS+=(-DAPP_SERVER=$APP_SERVER)
+
     OPTIONS+=(-DPYTHON_EXECUTABLE=$PYTHON)
+
+    if [ "$PYTHON_DIR" != "" ] ; then
+        OPTIONS+=(-DPYTHON3_SITE_PACKAGES=$PYTHON_DIR)
+    fi
+
     OPTIONS+=(-DSYSTEMD_LIB_INSTALL_DIR=$UNIT_DIR)
 
     for package in ${PKGS_TO_SKIP[@]}

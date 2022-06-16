@@ -31,6 +31,7 @@ if (PYTHON_VERSION_STRING VERSION_LESS "3.5.0")
 endif()
 message(STATUS "Building pki.server for ${PYTHON_VERSION_STRING}")
 
-# Find site-packages for Python 3
-find_site_packages("python3" PYTHON3_SITE_PACKAGES)
-message(STATUS "Building Python 3 pki client package")
+if (NOT DEFINED PYTHON3_SITE_PACKAGES)
+    # Find default site-packages for Python 3
+    find_site_packages("python3" PYTHON3_SITE_PACKAGES)
+endif(NOT DEFINED PYTHON3_SITE_PACKAGES)
