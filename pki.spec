@@ -811,6 +811,9 @@ pkgs=base\
 ./build.sh \
     %{?_verbose:-v} \
     --debug \
+    --product-name="%{product_name}" \
+    --product-id=%{product_id} \
+    --theme=%{theme} \
     --work-dir=%{_vpath_builddir} \
     --prefix-dir=%{_prefix} \
     --include-dir=%{_includedir} \
