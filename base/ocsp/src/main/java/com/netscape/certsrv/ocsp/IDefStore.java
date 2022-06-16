@@ -24,7 +24,7 @@ import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
+import com.netscape.cmscore.dbs.RepositoryRecord;
 
 /**
  * This class defines an Online Certificate Status Protocol (OCSP) store which
@@ -57,7 +57,7 @@ public interface IDefStore extends IOCSPStore {
      *
      * @return IRepositoryRecord an instance of the repository record object
      */
-    public IRepositoryRecord createRepositoryRecord();
+    public RepositoryRecord createRepositoryRecord();
 
     /**
      * This method adds a request to the default OCSP store repository.
@@ -70,7 +70,7 @@ public interface IDefStore extends IOCSPStore {
      *                add this request to the repository
      */
     public void addRepository(String name, String thisUpdate,
-            IRepositoryRecord rec)
+            RepositoryRecord rec)
             throws EBaseException;
 
     /**

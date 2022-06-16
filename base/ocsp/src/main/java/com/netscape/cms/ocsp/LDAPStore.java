@@ -40,11 +40,11 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
 import com.netscape.cmsutil.ocsp.GoodInfo;
@@ -275,13 +275,13 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     }
 
     @Override
-    public IRepositoryRecord createRepositoryRecord() {
+    public RepositoryRecord createRepositoryRecord() {
         return null;
     }
 
     @Override
     public void addRepository(String name, String thisUpdate,
-            IRepositoryRecord rec)
+            RepositoryRecord rec)
             throws EBaseException {
         throw new EBaseException("NOT SUPPORTED");
     }

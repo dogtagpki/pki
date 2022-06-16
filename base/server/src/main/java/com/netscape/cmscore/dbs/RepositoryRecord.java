@@ -22,31 +22,32 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
+import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents a repository record.
- * <P>
+ * It maintains unique serial number within repository.
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
-public class RepositoryRecord implements IRepositoryRecord {
+public class RepositoryRecord implements IDBObj {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1648450747848783853L;
+
+    public final static String ATTR_SERIALNO = "serialNo";
+    public final static String ATTR_PUB_STATUS = "publishingStatus";
+    public final static String ATTR_DESCRIPTION = "description";
+
     private BigInteger mSerialNo = null;
     private String mPublishingStatus = null;
     private String mDescription = null;
 
     protected static Vector<String> mNames = new Vector<>();
     static {
-        mNames.addElement(IRepositoryRecord.ATTR_SERIALNO);
-        mNames.addElement(IRepositoryRecord.ATTR_PUB_STATUS);
-        mNames.addElement(IRepositoryRecord.ATTR_DESCRIPTION);
+        mNames.addElement(RepositoryRecord.ATTR_SERIALNO);
+        mNames.addElement(RepositoryRecord.ATTR_PUB_STATUS);
+        mNames.addElement(RepositoryRecord.ATTR_DESCRIPTION);
     }
 
     /**
@@ -61,11 +62,11 @@ public class RepositoryRecord implements IRepositoryRecord {
      */
     @Override
     public void set(String name, Object obj) throws EBaseException {
-        if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_SERIALNO)) {
+        if (name.equalsIgnoreCase(RepositoryRecord.ATTR_SERIALNO)) {
             mSerialNo = (BigInteger) obj;
-        } else if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_PUB_STATUS)) {
+        } else if (name.equalsIgnoreCase(RepositoryRecord.ATTR_PUB_STATUS)) {
             mPublishingStatus = (String) obj;
-        } else if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_DESCRIPTION)) {
+        } else if (name.equalsIgnoreCase(RepositoryRecord.ATTR_DESCRIPTION)) {
             mDescription = (String) obj;
         } else {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
@@ -77,11 +78,11 @@ public class RepositoryRecord implements IRepositoryRecord {
      */
     @Override
     public Object get(String name) throws EBaseException {
-        if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_SERIALNO)) {
+        if (name.equalsIgnoreCase(RepositoryRecord.ATTR_SERIALNO)) {
             return mSerialNo;
-        } else if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_PUB_STATUS)) {
+        } else if (name.equalsIgnoreCase(RepositoryRecord.ATTR_PUB_STATUS)) {
             return mPublishingStatus;
-        } else if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_DESCRIPTION)) {
+        } else if (name.equalsIgnoreCase(RepositoryRecord.ATTR_DESCRIPTION)) {
             return mDescription;
         } else {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
@@ -111,18 +112,17 @@ public class RepositoryRecord implements IRepositoryRecord {
 
     /**
      * Retrieves serial number.
+     *
+     * @return serial number
      */
-    @Override
     public BigInteger getSerialNumber() {
         return mSerialNo;
     }
 
-    @Override
     public String getPublishingStatus() {
         return mPublishingStatus;
     }
 
-    @Override
     public String getDescription() {
         return mDescription;
     }

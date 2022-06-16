@@ -43,7 +43,6 @@ import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -175,7 +174,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     @Override
-    public IRepositoryRecord createRepositoryRecord() {
+    public RepositoryRecord createRepositoryRecord() {
         return new RepositoryRecord();
     }
 
@@ -250,11 +249,11 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 return; // nothing to do
             String thisUpdate = Long.toString(
                     cp.getThisUpdate().getTime());
-            String filter = (oldCRLs)? "(!" + IRepositoryRecord.ATTR_SERIALNO + "=" + thisUpdate + ")": "ou=*";
-            Enumeration<IRepositoryRecord> e = searchRepository( caName, filter);
+            String filter = (oldCRLs)? "(!" + RepositoryRecord.ATTR_SERIALNO + "=" + thisUpdate + ")": "ou=*";
+            Enumeration<RepositoryRecord> e = searchRepository( caName, filter);
 
             while (e != null && e.hasMoreElements()) {
-                IRepositoryRecord r = e.nextElement();
+                RepositoryRecord r = e.nextElement();
                 Enumeration<CertRecord> recs =
                         searchCertRecord(caName,
                                 r.getSerialNumber().toString(),
@@ -603,16 +602,16 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
-    public Enumeration<IRepositoryRecord> searchRepository(String name, String filter)
+    public Enumeration<RepositoryRecord> searchRepository(String name, String filter)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
-        Vector<IRepositoryRecord> v = new Vector<>();
+        Vector<RepositoryRecord> v = new Vector<>();
 
         try {
             IDBSearchResults sr = s.search("cn=" + transformDN(name) + "," + getBaseDN(),
                         filter);
             while (sr.hasMoreElements()) {
-                v.add((IRepositoryRecord) sr.nextElement());
+                v.add((RepositoryRecord) sr.nextElement());
             }
         } finally {
             if (s != null)
@@ -626,7 +625,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      */
     @Override
     public void addRepository(String name, String thisUpdate,
-            IRepositoryRecord rec)
+            RepositoryRecord rec)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
 

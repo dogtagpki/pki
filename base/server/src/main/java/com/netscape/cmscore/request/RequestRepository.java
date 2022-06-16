@@ -30,7 +30,6 @@ import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
@@ -570,7 +569,7 @@ public class RequestRepository extends Repository {
         ModificationSet mods = new ModificationSet();
 
         if (status != null && status.length() > 0) {
-            mods.add(IRepositoryRecord.ATTR_PUB_STATUS,
+            mods.add(RepositoryRecord.ATTR_PUB_STATUS,
                     Modification.MOD_REPLACE, status);
 
             try {

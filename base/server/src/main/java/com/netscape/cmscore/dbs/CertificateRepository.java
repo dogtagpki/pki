@@ -40,7 +40,6 @@ import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.RenewableCertificateCollection;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -424,7 +423,7 @@ public class CertificateRepository extends Repository {
             logger.warn("CertificateRepository: updateCounter: " + e.getMessage(), e);
         }
 
-        String crMode = dbSubsystem.getEntryAttribute(mBaseDN, IRepositoryRecord.ATTR_DESCRIPTION, "", null);
+        String crMode = dbSubsystem.getEntryAttribute(mBaseDN, RepositoryRecord.ATTR_DESCRIPTION, "", null);
         logger.debug("CertificateRepository: - mode: " + crMode);
 
         boolean modeChange = (mEnableRandomSerialNumbers && crMode != null && crMode.equals(PROP_SEQUENTIAL_MODE)) ||
@@ -556,7 +555,7 @@ public class CertificateRepository extends Repository {
 
         mEnableRandomSerialNumbers = mDBConfig.getBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, false);
         mForceModeChange = mDBConfig.getBoolean(PROP_FORCE_MODE_CHANGE, false);
-        String crMode = dbSubsystem.getEntryAttribute(mBaseDN, IRepositoryRecord.ATTR_DESCRIPTION, "", null);
+        String crMode = dbSubsystem.getEntryAttribute(mBaseDN, RepositoryRecord.ATTR_DESCRIPTION, "", null);
         mMinRandomBitLength = mDBConfig.getInteger(PROP_MINIMUM_RANDOM_BITS, 4);
         mMaxCollisionRecoverySteps = mDBConfig.getInteger(PROP_COLLISION_RECOVERY_STEPS, 10);
         mMaxCollisionRecoveryRegenerations = mDBConfig.getInteger(PROP_COLLISION_RECOVERY_REGENERATIONS, 3);
@@ -859,7 +858,7 @@ public class CertificateRepository extends Repository {
         try {
             s = dbSubsystem.createSession();
             ModificationSet mods = new ModificationSet();
-            mods.add(IRepositoryRecord.ATTR_DESCRIPTION, Modification.MOD_REPLACE, mode);
+            mods.add(RepositoryRecord.ATTR_DESCRIPTION, Modification.MOD_REPLACE, mode);
             s.modify(mBaseDN, mods);
         } catch (Exception e) {
             logger.warn("CertificateRepository: setCertificateRepositoryMode: " + e.getMessage(), e);

@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.cmscore.apps.CMS;
@@ -342,20 +341,19 @@ public class DBSubsystem {
 
                 repRecordOC[0] = RepositorySchema.LDAP_OC_TOP;
                 repRecordOC[1] = RepositorySchema.LDAP_OC_REPOSITORY;
-                reg.registerObjectClass(
-                        RepositoryRecord.class.getName(), repRecordOC);
+                reg.registerObjectClass(RepositoryRecord.class.getName(), repRecordOC);
             }
 
-            if (!reg.isAttributeRegistered(IRepositoryRecord.ATTR_SERIALNO)) {
-                reg.registerAttribute(IRepositoryRecord.ATTR_SERIALNO,
+            if (!reg.isAttributeRegistered(RepositoryRecord.ATTR_SERIALNO)) {
+                reg.registerAttribute(RepositoryRecord.ATTR_SERIALNO,
                         new BigIntegerMapper(RepositorySchema.LDAP_ATTR_SERIALNO));
             }
-            if (!reg.isAttributeRegistered(IRepositoryRecord.ATTR_PUB_STATUS)) {
-                reg.registerAttribute(IRepositoryRecord.ATTR_PUB_STATUS,
+            if (!reg.isAttributeRegistered(RepositoryRecord.ATTR_PUB_STATUS)) {
+                reg.registerAttribute(RepositoryRecord.ATTR_PUB_STATUS,
                         new StringMapper(RepositorySchema.LDAP_ATTR_PUB_STATUS));
             }
-            if (!reg.isAttributeRegistered(IRepositoryRecord.ATTR_DESCRIPTION)) {
-                reg.registerAttribute(IRepositoryRecord.ATTR_DESCRIPTION,
+            if (!reg.isAttributeRegistered(RepositoryRecord.ATTR_DESCRIPTION)) {
+                reg.registerAttribute(RepositoryRecord.ATTR_DESCRIPTION,
                         new StringMapper(RepositorySchema.LDAP_ATTR_DESCRIPTION));
             }
 

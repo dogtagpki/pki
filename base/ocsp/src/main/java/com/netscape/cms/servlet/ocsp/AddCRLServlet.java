@@ -44,7 +44,6 @@ import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
@@ -56,6 +55,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.ocsp.OCSPAuthority;
 
@@ -467,9 +467,9 @@ public class AddCRLServlet extends CMSServlet {
             // there may have a system crash during the transaction
             // *****************************************************
 
-            IRepositoryRecord repRec = defStore.createRepositoryRecord();
+            RepositoryRecord repRec = defStore.createRepositoryRecord();
 
-            repRec.set(IRepositoryRecord.ATTR_SERIALNO,
+            repRec.set(RepositoryRecord.ATTR_SERIALNO,
                     new BigInteger(Long.toString(crl.getThisUpdate().getTime())));
             try {
                 defStore.addRepository(
