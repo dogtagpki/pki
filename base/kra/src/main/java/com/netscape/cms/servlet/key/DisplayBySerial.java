@@ -34,7 +34,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -42,6 +41,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
@@ -190,7 +190,7 @@ public class DisplayBySerial extends CMSServlet {
                     req.getParameter(OUT_OP));
             header.addStringValue(OUT_SERVICE_URL,
                     req.getRequestURI());
-            IKeyRecord rec = mKeyDB.readKeyRecord(seq);
+            KeyRecord rec = mKeyDB.readKeyRecord(seq);
             mAuthz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(),
                     mAuthzResourceName, "read");
             KeyRecordParser.fillRecordIntoArg(rec, header);

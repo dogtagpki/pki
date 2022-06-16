@@ -46,7 +46,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
@@ -65,6 +64,7 @@ import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
+import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.cmscore.request.Request;
@@ -258,7 +258,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         KeyId keyId = data.getKeyId();
-        IKeyRecord rec = null;
+        KeyRecord rec = null;
         try {
             rec = repo.readKeyRecord(keyId.toBigInteger());
         } catch (EDBRecordNotFoundException e) {
@@ -371,7 +371,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         KeyId keyId = data.getKeyId();
-        IKeyRecord rec = null;
+        KeyRecord rec = null;
         try {
             rec = repo.readKeyRecord(keyId.toBigInteger());
         } catch (EDBRecordNotFoundException e) {
@@ -653,13 +653,13 @@ public class KeyRequestDAO extends CMSRequestDAO {
         logger.info("KeyRequestDAO: - client key ID: " + clientKeyId);
         logger.info("KeyRequestDAO: - status: " + keyStatus);
 
-        String filter = "(" + IKeyRecord.ATTR_CLIENT_ID + "=" + clientKeyId + ")";
+        String filter = "(" + KeyRecord.ATTR_CLIENT_ID + "=" + clientKeyId + ")";
         if (keyStatus != null) {
-            filter = "(&" + filter + "(" + IKeyRecord.ATTR_STATUS + "=" + keyStatus + "))";
+            filter = "(&" + filter + "(" + KeyRecord.ATTR_STATUS + "=" + keyStatus + "))";
         }
         logger.info("KeyRequestDAO: - filter: " + filter);
 
-        Enumeration<IKeyRecord> existingKeys = repo.searchKeys(filter, 1, 10);
+        Enumeration<KeyRecord> existingKeys = repo.searchKeys(filter, 1, 10);
 
         if (existingKeys != null && existingKeys.hasMoreElements()) {
             logger.info("KeyRequestDAO: Key exists");

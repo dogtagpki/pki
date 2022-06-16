@@ -42,7 +42,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -52,6 +51,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
@@ -190,7 +190,7 @@ public class RecoverBySerial extends CMSServlet {
 
             // First confirm that the requester has access to the authz realm (if present)
             KeyId keyId = new KeyId(req.getParameter(IN_SERIALNO));
-            IKeyRecord rec = null;
+            KeyRecord rec = null;
             try {
                 rec = repo.readKeyRecord(keyId.toBigInteger());
             } catch (EDBRecordNotFoundException e) {

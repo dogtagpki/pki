@@ -36,7 +36,6 @@ import org.mozilla.jss.pkix.primitive.PBEParameter;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.EKRAException;
@@ -287,7 +286,7 @@ public class SecurityDataProcessor {
                 privateSecurityData, owner,
                 null, owner);
 
-        rec.set(IKeyRecord.ATTR_CLIENT_ID, clientKeyId);
+        rec.set(KeyRecord.ATTR_CLIENT_ID, clientKeyId);
 
         //Now we need a serial number for our new key.
 
@@ -415,9 +414,9 @@ public class SecurityDataProcessor {
             return false;
         }
 
-        KeyRecord keyRecord = (KeyRecord) keyRepository.readKeyRecord(keyId.toBigInteger());
+        KeyRecord keyRecord = keyRepository.readKeyRecord(keyId.toBigInteger());
 
-        String dataType = (String) keyRecord.get(IKeyRecord.ATTR_DATA_TYPE);
+        String dataType = (String) keyRecord.get(KeyRecord.ATTR_DATA_TYPE);
         if (dataType == null) dataType = KeyRequestResource.ASYMMETRIC_KEY_TYPE;
 
         SymmetricKey unwrappedSess = null;

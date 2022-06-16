@@ -26,7 +26,6 @@ import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyRequestResource;
@@ -310,7 +309,7 @@ public class AsymKeyGenService implements IService {
         }
 
         // Storing the public key and private key.
-        record.set(IKeyRecord.ATTR_CLIENT_ID, clientKeyId);
+        record.set(KeyRecord.ATTR_CLIENT_ID, clientKeyId);
         record.setSerialNumber(serialNo);
         record.set(KeyRecord.ATTR_ID, serialNo);
         record.set(KeyRecord.ATTR_DATA_TYPE, KeyRequestResource.ASYMMETRIC_KEY_TYPE);

@@ -53,7 +53,6 @@ import org.mozilla.jss.pkix.primitive.AVA;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -504,7 +503,7 @@ public class EnrollmentService implements IService {
                 metaInfo.set(KeyRecordParser.OUT_KEY_EC_CURVE,
                     oidDescription);
 
-                rec.set(IKeyRecord.ATTR_META_INFO, metaInfo);
+                rec.set(KeyRecord.ATTR_META_INFO, metaInfo);
                 // key size does not apply to EC;
                 rec.setKeySize(-1);
             }

@@ -46,7 +46,6 @@ import org.mozilla.jss.util.Base64OutputStream;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -490,7 +489,7 @@ public class NetkeyKeygenService implements IService {
                         metaInfo.set(KeyRecordParser.OUT_KEY_EC_CURVE,
                             oidDescription);
 
-                        rec.set(IKeyRecord.ATTR_META_INFO, metaInfo);
+                        rec.set(KeyRecord.ATTR_META_INFO, metaInfo);
                         // key size does not apply to EC;
                         rec.setKeySize(-1);
                     }

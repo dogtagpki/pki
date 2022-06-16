@@ -31,7 +31,7 @@ import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
+import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.keydb.KeyState;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 
@@ -40,14 +40,35 @@ import com.netscape.cms.servlet.key.KeyRecordParser;
  * life cycle as well as other information about an
  * archived key. Namely, whether a key is inactive because
  * of compromise.
- * <P>
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
-public class KeyRecord implements IKeyRecord {
+public class KeyRecord implements IDBObj {
 
     private static final long serialVersionUID = -3765000841161998984L;
+
+    public static final String ATTR_ID = "keySerialNumber";
+    public static final String ATTR_STATE = "keyState";
+    public static final String ATTR_ALGORITHM = "algorithm";
+    public static final String ATTR_KEY_SIZE = "keySize";
+    public static final String ATTR_OWNER_NAME = "keyOwnerName";
+    public static final String ATTR_PRIVATE_KEY_DATA = "privateKey";
+    public static final String ATTR_PUBLIC_KEY_DATA = "publicKey";
+    public static final String ATTR_DATE_OF_RECOVERY = "dateOfRecovery";
+    public static final String ATTR_CREATE_TIME = "keyCreateTime";
+    public static final String ATTR_MODIFY_TIME = "keyModifyTime";
+    public static final String ATTR_META_INFO = "keyMetaInfo";
+    public static final String ATTR_ARCHIVED_BY = "keyArchivedBy";
+    public static final String ATTR_CLIENT_ID = "clientId";
+    public static final String ATTR_DATA_TYPE = "dataType";
+    public static final String ATTR_STATUS = "status";
+    public static final String ATTR_REALM = "realm";
+
+    // key state
+    public static final String STATUS_ANY = "ANY";
+    public static final String STATUS_VALID = "VALID";
+    public static final String STATUS_INVALID = "INVALID";
+
     private BigInteger mSerialNo = null;
     private KeyState mState = null;
     private MetaInfo mMetaInfo = null;
@@ -227,11 +248,10 @@ public class KeyRecord implements IKeyRecord {
     /**
      * Retrieves serial number of the key record. Each key record
      * is uniquely identified by serial number.
-     * <P>
      *
      * @return serial number of this key record
+     * @exception EBaseException failed to retrieve key serial number
      */
-    @Override
     public BigInteger getSerialNumber() throws EBaseException {
         return mSerialNo;
     }
@@ -246,11 +266,10 @@ public class KeyRecord implements IKeyRecord {
     /**
      * Retrieves the key state. This gives key life cycle
      * information.
-     * <P>
      *
      * @return key state
+     * @exception EBaseException failed to retrieve state of the key
      */
-    @Override
     public KeyState getState() throws EBaseException {
         return mState;
     }
@@ -265,8 +284,9 @@ public class KeyRecord implements IKeyRecord {
 
     /**
      * Retrieves the uid of person who archived this record.
+     *
+     * @return archiver uid
      */
-    @Override
     public String getArchivedBy() {
         return mArchivedBy;
     }
@@ -290,22 +310,19 @@ public class KeyRecord implements IKeyRecord {
 
     /**
      * Retrieves the key size.
-     * <P>
      *
      * @return key size
+     * @exception EBaseException failed to retrieve key size
      */
-    @Override
     public Integer getKeySize() throws EBaseException {
         return mSize;
     }
 
     /**
-     * Retrieves the metaInfo.
-     * <P>
+     * Retrieves the meta info.
      *
-     * @return metaInfo
+     * @return meta info
      */
-    @Override
     public MetaInfo getMetaInfo() {
         return mMetaInfo;
     }
@@ -320,9 +337,10 @@ public class KeyRecord implements IKeyRecord {
 
     /**
      * Retrieves owner name.
-     * <P>
+     *
+     * @return key owner name
+     * @exception EBaseException failed to retrieve key owner name
      */
-    @Override
     public String getOwnerName() throws EBaseException {
         return mOwnerName;
     }
@@ -337,9 +355,10 @@ public class KeyRecord implements IKeyRecord {
 
     /**
      * Retrieves the public key.
-     * <P>
+     *
+     * @return public key data
+     * @exception EBaseException failed to retrieve public key data
      */
-    @Override
     public byte[] getPublicKeyData() throws EBaseException {
         return mPublicKey;
     }
@@ -354,9 +373,10 @@ public class KeyRecord implements IKeyRecord {
 
     /**
      * Retrieves the date(s) of revocation.
-     * <P>
+     *
+     * @return revocation history
+     * @exception EBaseException failed to retrieve revocation history
      */
-    @Override
     public Date[] getDateOfRevocation() throws EBaseException {
         return mDatesOfRecovery;
     }
@@ -371,16 +391,18 @@ public class KeyRecord implements IKeyRecord {
 
     /**
      * Retrieves algorithm of the key pair.
+     *
+     * @return key algorithm
      */
-    @Override
     public String getAlgorithm() {
         return mAlgorithm;
     }
 
     /**
      * Retrieves the creation time of this record.
+     *
+     * @return creation time
      */
-    @Override
     public Date getCreateTime() {
         return mCreateTime;
     }
@@ -388,24 +410,29 @@ public class KeyRecord implements IKeyRecord {
     /**
      * Retrieves the last modification time of
      * this record.
+     *
+     * @return modification time
      */
-    @Override
     public Date getModifyTime() {
         return mModifyTime;
     }
 
     /**
      * Retrieves the client ID of this record.
+     *
+     * @return client id
+     * @exception EBaseException failed to retrieve client id
      */
-    @Override
     public String getClientId() throws EBaseException {
         return mClientId ;
     }
 
     /**
      * Retrieves the key status of this record.
+     *
+     * @return key status
+     * @exception EBaseException failed to retrieve key status
      */
-    @Override
     public String getKeyStatus() throws EBaseException {
         return mStatus;
 
@@ -413,18 +440,24 @@ public class KeyRecord implements IKeyRecord {
 
     /**
      * Retrieves the key data type of this record.
+     *
+     * @return data type
+     * @exception EBaseException failed to retrieve data type
      */
-    @Override
     public String getDataType() throws EBaseException {
         return mDataType;
     }
 
-    @Override
+    /**
+     * Retrieves authorization realm.
+     *
+     * @return authorization realm
+     * @exception EBaseException failed to retrieve authorization realm
+     */
     public String getRealm() throws EBaseException {
         return realm;
     }
 
-    @Override
     public void setWrappingParams(WrappingParams params, boolean doEncrypt) throws Exception {
         if (mMetaInfo == null) {
             mMetaInfo = new MetaInfo();
@@ -477,7 +510,6 @@ public class KeyRecord implements IKeyRecord {
         mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTED, Boolean.toString(doEncrypt));
     }
 
-    @Override
     public WrappingParams getWrappingParams(WrappingParams oldParams) throws Exception {
         if ((mMetaInfo == null) || (mMetaInfo.get(KeyRecordParser.OUT_SK_TYPE) == null)) {
             // This is likely a legacy record. Return the old DES3 parameters.
@@ -524,7 +556,6 @@ public class KeyRecord implements IKeyRecord {
         return params;
     }
 
-    @Override
     public Boolean isEncrypted() throws EBaseException {
         if (mMetaInfo == null) {
             return null;

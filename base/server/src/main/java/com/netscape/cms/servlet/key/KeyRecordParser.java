@@ -22,8 +22,8 @@ import java.util.Date;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
+import com.netscape.cmscore.dbs.KeyRecord;
 
 /**
  * Output a 'pretty print' of a Key Archival record
@@ -64,7 +64,7 @@ public class KeyRecordParser {
     /**
      * Fills key record into argument block.
      */
-    public static void fillRecordIntoArg(IKeyRecord rec, IArgBlock rarg)
+    public static void fillRecordIntoArg(KeyRecord rec, IArgBlock rarg)
             throws EBaseException {
         if (rec == null)
             return;

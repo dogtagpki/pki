@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
@@ -92,8 +91,7 @@ public class KeyRecordMapper extends DBAttrMapper {
             if (attr == null)
                 return;
             String serialno = attr.getStringValues().nextElement();
-            IKeyRecord rec = mDB.readKeyRecord(new
-                    BigInteger(serialno));
+            KeyRecord rec = mDB.readKeyRecord(new BigInteger(serialno));
 
             parent.set(name, rec);
         } catch (Exception e) {

@@ -22,7 +22,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBVirtualList;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 
 /**
  * A class represents a list of key records.
@@ -31,12 +30,12 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecord;
  */
 public class KeyRecordList {
 
-    private IDBVirtualList<IKeyRecord> mVlist = null;
+    private IDBVirtualList<KeyRecord> mVlist = null;
 
     /**
      * Constructs a key list.
      */
-    public KeyRecordList(IDBVirtualList<IKeyRecord> vlist) {
+    public KeyRecordList(IDBVirtualList<KeyRecord> vlist) {
         mVlist = vlist;
     }
 
@@ -60,8 +59,8 @@ public class KeyRecordList {
         return mVlist.getSizeAfterJumpTo();
     }
 
-    public IKeyRecord getKeyRecord(int i) {
-        IKeyRecord record = mVlist.getElementAt(i);
+    public KeyRecord getKeyRecord(int i) {
+        KeyRecord record = mVlist.getElementAt(i);
 
         if (record == null)
             return null;
@@ -77,12 +76,12 @@ public class KeyRecordList {
      * @return key records
      * @exception EBaseException failed to retrieve key records
      */
-    public Enumeration<IKeyRecord> getKeyRecords(int startidx, int endidx)
+    public Enumeration<KeyRecord> getKeyRecords(int startidx, int endidx)
             throws EBaseException {
-        Vector<IKeyRecord> entries = new Vector<>();
+        Vector<KeyRecord> entries = new Vector<>();
 
         for (int i = startidx; i <= endidx; i++) {
-            IKeyRecord element = mVlist.getElementAt(i);
+            KeyRecord element = mVlist.getElementAt(i);
 
             if (element != null) {
                 entries.addElement(element);

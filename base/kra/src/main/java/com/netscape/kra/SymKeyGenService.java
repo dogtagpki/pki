@@ -30,7 +30,6 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
@@ -199,7 +198,7 @@ public class SymKeyGenService implements IService {
                 privateSecurityData, owner,
                 algorithm, owner);
 
-        rec.set(IKeyRecord.ATTR_CLIENT_ID, clientKeyId);
+        rec.set(KeyRecord.ATTR_CLIENT_ID, clientKeyId);
 
         //Now we need a serial number for our new key.
         if (rec.getSerialNumber() != null) {

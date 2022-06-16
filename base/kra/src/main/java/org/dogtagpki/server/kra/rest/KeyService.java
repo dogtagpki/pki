@@ -48,7 +48,6 @@ import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyInfo;
@@ -68,6 +67,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
+import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
@@ -325,7 +325,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         }
 
         // get wrapped key
-        IKeyRecord rec = repo.readKeyRecord(keyId.toBigInteger());
+        KeyRecord rec = repo.readKeyRecord(keyId.toBigInteger());
         if (rec == null) {
             logger.warn(method + "key record null");
             return null;
@@ -513,7 +513,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
         KeyInfoCollection infos = new KeyInfoCollection();
         try {
-            Enumeration<IKeyRecord> e = repo.searchKeys(filter, maxResults, maxTime);
+            Enumeration<KeyRecord> e = repo.searchKeys(filter, maxResults, maxTime);
             if (e == null) {
                 return infos;
             }
@@ -523,7 +523,7 @@ public class KeyService extends SubsystemService implements KeyResource {
             // store non-null results in a list
             List<KeyInfo> results = new ArrayList<>();
             while (e.hasMoreElements()) {
-                IKeyRecord rec = e.nextElement();
+                KeyRecord rec = e.nextElement();
                 if (rec == null) continue;
 
                 KeyInfo info = createKeyDataInfo(rec, false);
@@ -600,7 +600,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         throw new ResourceNotFoundException("Key not found");
     }
 
-    public KeyInfo createKeyDataInfo(IKeyRecord rec, boolean getPublicKey) throws EBaseException {
+    public KeyInfo createKeyDataInfo(KeyRecord rec, boolean getPublicKey) throws EBaseException {
         String method = "KeyService.createKeyDataInfo: ";
         logger.debug(method + "begins.");
 
@@ -813,7 +813,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         auditInfo = "KeyService.getKeyInfo";
         logger.debug(method + "begins.");
 
-        IKeyRecord rec = null;
+        KeyRecord rec = null;
         try {
             rec = repo.readKeyRecord(keyId.toBigInteger());
             authz.checkRealm(rec.getRealm(), getAuthToken(), rec.getOwnerName(), "certServer.kra.key", "read");
@@ -846,7 +846,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
         logger.info("Modifying key " + keyId + " status to " + status);
 
-        IKeyRecord rec = null;
+        KeyRecord rec = null;
         KeyInfo info = null;
         try {
 
@@ -854,7 +854,7 @@ public class KeyService extends SubsystemService implements KeyResource {
             info = createKeyDataInfo(rec, true); // for getting the old status for auditing purpose
 
             ModificationSet mods = new ModificationSet();
-            mods.add(IKeyRecord.ATTR_STATUS, Modification.MOD_REPLACE, status);
+            mods.add(KeyRecord.ATTR_STATUS, Modification.MOD_REPLACE, status);
 
             repo.modifyKeyRecord(keyId.toBigInteger(), mods);
 

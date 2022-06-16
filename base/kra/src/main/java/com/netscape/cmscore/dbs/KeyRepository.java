@@ -30,7 +30,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.cmscore.apps.DatabaseConfig;
 
 /**
@@ -232,9 +231,9 @@ public class KeyRepository extends Repository {
         String filter = "(" + KeyRecord.ATTR_OWNER_NAME + "=*" + ")";
         KeyRecordList list = findKeyRecordsInList(filter, null, "serialno", 10);
         int size = list.getSize();
-        Enumeration<IKeyRecord> e = list.getKeyRecords(0, size - 1);
+        Enumeration<KeyRecord> e = list.getKeyRecords(0, size - 1);
         while (e.hasMoreElements()) {
-            IKeyRecord rec = e.nextElement();
+            KeyRecord rec = e.nextElement();
             deleteKeyRecord(rec.getSerialNumber());
         }
     }
@@ -245,11 +244,11 @@ public class KeyRepository extends Repository {
      * @param record key record
      * @exception EBaseException failed to archive key
      */
-    public void addKeyRecord(IKeyRecord record) throws EBaseException {
+    public void addKeyRecord(KeyRecord record) throws EBaseException {
 
         try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn" + "=" +
-                    ((KeyRecord) record).getSerialNumber().toString() + "," + getDN();
+                    record.getSerialNumber().toString() + "," + getDN();
 
             if (s != null)
                 s.add(name, record);
@@ -263,7 +262,7 @@ public class KeyRepository extends Repository {
      * @return key record
      * @exception EBaseException failed to recover key
      */
-    public IKeyRecord readKeyRecord(BigInteger serialNo)
+    public KeyRecord readKeyRecord(BigInteger serialNo)
             throws EBaseException {
         if (serialNo == null) {
             throw new EBaseException("Invalid Serial Number.");
@@ -291,7 +290,7 @@ public class KeyRepository extends Repository {
      * @return key record
      * @exception EBaseException failed to recover key
      */
-    public IKeyRecord readKeyRecord(X500Name ownerName)
+    public KeyRecord readKeyRecord(X500Name ownerName)
             throws EBaseException {
 
         KeyRecord keyRec = null;
@@ -316,7 +315,7 @@ public class KeyRepository extends Repository {
      * @return key record
      * @exception EBaseException failed to read key
      */
-    public IKeyRecord readKeyRecord(PublicKey publicKey)
+    public KeyRecord readKeyRecord(PublicKey publicKey)
             throws EBaseException {
         // XXX - setup binary search attributes
         byte data[] = publicKey.getEncoded();
@@ -345,7 +344,7 @@ public class KeyRepository extends Repository {
      * @return key record
      * @exception EBaseException failed to recover key
      */
-    public IKeyRecord readKeyRecord(String cert)
+    public KeyRecord readKeyRecord(String cert)
             throws EBaseException {
 
         KeyRecord rec = null;
@@ -422,15 +421,15 @@ public class KeyRepository extends Repository {
      * @return a list of private key records
      * @exception EBaseException failed to search keys
      */
-    public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize)
+    public Enumeration<KeyRecord> searchKeys(String filter, int maxSize)
             throws EBaseException {
 
-        Vector<IKeyRecord> v = new Vector<>();
+        Vector<KeyRecord> v = new Vector<>();
 
         try (DBSSession s = dbSubsystem.createSession()) {
             IDBSearchResults sr = s.search(getDN(), filter, maxSize);
             while (sr.hasMoreElements()) {
-                v.add((IKeyRecord) sr.nextElement());
+                v.add((KeyRecord) sr.nextElement());
             }
         }
         return v.elements();
@@ -445,15 +444,15 @@ public class KeyRepository extends Repository {
      * @return a list of private key records
      * @exception EBaseException failed to search keys
      */
-    public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize, int timeLimit)
+    public Enumeration<KeyRecord> searchKeys(String filter, int maxSize, int timeLimit)
             throws EBaseException {
 
-        Vector<IKeyRecord> v = new Vector<>();
+        Vector<KeyRecord> v = new Vector<>();
 
         try (DBSSession s = dbSubsystem.createSession()) {
             IDBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit);
             while (sr.hasMoreElements()) {
-                v.add((IKeyRecord) sr.nextElement());
+                v.add((KeyRecord) sr.nextElement());
             }
         }
         return v.elements();
@@ -485,8 +484,7 @@ public class KeyRepository extends Repository {
      */
     public KeyRecordList findKeyRecordsInList(String filter,
             String attrs[], int pageSize) throws EBaseException {
-        return findKeyRecordsInList(filter, attrs, IKeyRecord.ATTR_ID,
-                pageSize);
+        return findKeyRecordsInList(filter, attrs, KeyRecord.ATTR_ID, pageSize);
     }
 
     /**
@@ -508,7 +506,7 @@ public class KeyRepository extends Repository {
         try (DBSSession s = dbSubsystem.createSession()) {
             if (s != null) {
                 list = new KeyRecordList(
-                        s.<IKeyRecord>createVirtualList(getDN(), "(&(objectclass=" +
+                        s.<KeyRecord>createVirtualList(getDN(), "(&(objectclass=" +
                                 KeyRecord.class.getName() + ")" + filter + ")",
                                 attrs, sortKey, pageSize));
             }
@@ -535,7 +533,7 @@ public class KeyRepository extends Repository {
         try (DBSSession s = dbSubsystem.createSession()) {
             if (s != null) {
                 list = new KeyRecordList(
-                        s.<IKeyRecord>createVirtualList(getDN(), "(&(objectclass=" +
+                        s.<KeyRecord>createVirtualList(getDN(), "(&(objectclass=" +
                                 KeyRecord.class.getName() + ")" + filter + ")",
                                 attrs, jumpToVal, sortKey, pageSize));
             }
@@ -587,7 +585,7 @@ public class KeyRepository extends Repository {
         KeyRecord curRec = null;
 
         for (i = 0; i < 5; i++) {
-            curRec = (KeyRecord) recList.getKeyRecord(i);
+            curRec = recList.getKeyRecord(i);
 
             if (curRec != null) {
 
