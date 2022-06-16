@@ -18,7 +18,6 @@
 
 package com.netscape.certsrv.system;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -36,56 +35,17 @@ import com.netscape.certsrv.util.JSONSerializer;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class SystemCertData implements JSONSerializer {
 
-    protected String nickname;
     protected String token;
-
     protected String keyID;
-    protected String keyType;
-    protected String keySize;
-    protected boolean keyWrap;
-
-    protected String keyCurveName;
-    protected boolean sslECDH;
-
     protected String keyAlgorithm;
-
     protected RequestId requestID;
-    protected String requestType;
-    protected String request;
-
-    protected String subjectDN;
-
-    protected String req_ext_oid;
-    protected String req_ext_critical;
-    protected String req_ext_data;
-
-    protected String[] dnsNames;
-    protected boolean adjustValidity;
-
     protected String signingAlgorithm;
-
     protected String type;
-
     protected String profile;
-
     protected CertId certID;
     protected String cert;
 
     public SystemCertData() {
-    }
-
-    /**
-     * @return the nickname
-     */
-    public String getNickname() {
-        return nickname;
-    }
-
-    /**
-     * @param nickname the nickname to set
-     */
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
     }
 
     /**
@@ -126,58 +86,6 @@ public class SystemCertData implements JSONSerializer {
         this.keyID = keyID;
     }
 
-    public String getKeyType() {
-        return keyType;
-    }
-
-    public void setKeyType(String keyType) {
-        this.keyType = keyType;
-    }
-
-    /**
-     * @return the keySize
-     */
-    public String getKeySize() {
-        return keySize;
-    }
-
-    /**
-     * @param keySize the keySize to set
-     */
-    public void setKeySize(String keySize) {
-        this.keySize = keySize;
-    }
-
-    public boolean getKeyWrap() {
-        return keyWrap;
-    }
-
-    public void setKeyWrap(boolean keyWrap) {
-        this.keyWrap = keyWrap;
-    }
-
-    /**
-     * @return the keyCurveName
-     */
-    public String getKeyCurveName() {
-        return keyCurveName;
-    }
-
-    /**
-     * @param keyCurveName the keyCurveName to set
-     */
-    public void setKeyCurveName(String keyCurveName) {
-        this.keyCurveName = keyCurveName;
-    }
-
-    public boolean getSslECDH() {
-        return sslECDH;
-    }
-
-    public void setSslECDH(boolean sslECDH) {
-        this.sslECDH = sslECDH;
-    }
-
     public String getKeyAlgorithm() {
         return keyAlgorithm;
     }
@@ -186,48 +94,12 @@ public class SystemCertData implements JSONSerializer {
         this.keyAlgorithm = keyAlgorithm;
     }
 
-    public String getRequestType() {
-        return requestType;
-    }
-
-    public void setRequestType(String requestType) {
-        this.requestType = requestType;
-    }
-
-    /**
-     * @return the request
-     */
-    public String getRequest() {
-        return request;
-    }
-
-    /**
-     * @param request the request to set
-     */
-    public void setRequest(String request) {
-        this.request = request;
-    }
-
     public RequestId getRequestID() {
         return requestID;
     }
 
     public void setRequestID(RequestId requestID) {
         this.requestID = requestID;
-    }
-
-    /**
-     * @return the subjectDN
-     */
-    public String getSubjectDN() {
-        return subjectDN;
-    }
-
-    /**
-     * @param subjectDN the subjectDN to set
-     */
-    public void setSubjectDN(String subjectDN) {
-        this.subjectDN = subjectDN;
     }
 
     public CertId getCertID() {
@@ -252,43 +124,6 @@ public class SystemCertData implements JSONSerializer {
         this.cert = cert;
     }
 
-    /**
-     * @return the req_ext_oid
-     */
-    public String getReqExtOID() {
-        return req_ext_oid;
-    }
-
-    /**
-     * @return the req_ext_data
-     */
-    public String getReqExtData() {
-        return req_ext_data;
-    }
-
-    /**
-     * @return the req_ext_critical
-     */
-    public boolean getReqExtCritical() {
-        return "true".equals(req_ext_critical);
-    }
-
-    public String[] getDNSNames() {
-        return dnsNames;
-    }
-
-    public void setDNSNames(String[] dnsNames) {
-        this.dnsNames = dnsNames;
-    }
-
-    public boolean getAdjustValidity() {
-        return adjustValidity;
-    }
-
-    public void setAdjustValidity(boolean adjustValidity) {
-        this.adjustValidity = adjustValidity;
-    }
-
     public String getSigningAlgorithm() {
         return signingAlgorithm;
     }
@@ -300,28 +135,14 @@ public class SystemCertData implements JSONSerializer {
     @Override
     public String toString() {
         return "SystemCertData["
-            + "nickname=" + nickname
-            + ", token=" + token
+            + "token=" + token
             + ", profile=" + profile
             + ", type=" + type
             + ", keyID=" + keyID
-            + ", keyType=" + keyType
-            + ", keySize=" + keySize
-            + ", keyWrap=" + keyWrap
-            + ", keyCurveName=" + keyCurveName
-            + ", sslECDH=" + sslECDH
             + ", keyAlgorithm=" + keyAlgorithm
-            + ", requestType=" + requestType
-            + ", request=" + request
             + ", requestID=" + requestID
-            + ", subjectDN=" + subjectDN
             + ", certID=" + certID
             + ", cert=" + cert
-            + ", req_ext_oid=" + req_ext_oid
-            + ", req_ext_critical=" + req_ext_critical
-            + ", req_ext_data=" + req_ext_data
-            + ", dnsNames=" + (dnsNames == null ? null : Arrays.asList(dnsNames))
-            + ", adjustValidity=" + adjustValidity
             + ", signingAlgorithm=" + signingAlgorithm
             + "]";
     }
@@ -330,29 +151,15 @@ public class SystemCertData implements JSONSerializer {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.hashCode(dnsNames);
         result = prime * result + Objects.hash(
                 certID,
                 cert,
                 keyID,
-                keyType,
-                keySize,
-                keyWrap,
-                keyCurveName,
-                sslECDH,
                 keyAlgorithm,
-                nickname,
                 profile,
-                req_ext_critical,
-                req_ext_data,
-                req_ext_oid,
-                requestType,
-                request,
                 requestID,
-                subjectDN,
                 token,
                 type,
-                adjustValidity,
                 signingAlgorithm);
         return result;
     }
@@ -368,26 +175,12 @@ public class SystemCertData implements JSONSerializer {
         SystemCertData other = (SystemCertData) obj;
         return Objects.equals(certID, other.certID)
                 && Objects.equals(cert, other.cert)
-                && Arrays.equals(dnsNames, other.dnsNames)
                 && Objects.equals(keyID, other.keyID)
-                && Objects.equals(keyType, other.keyType)
-                && Objects.equals(keySize, other.keySize)
-                && Objects.equals(keyWrap, other.keyWrap)
-                && Objects.equals(keyCurveName, other.keyCurveName)
-                && Objects.equals(sslECDH, other.sslECDH)
                 && Objects.equals(keyAlgorithm, other.keyAlgorithm)
-                && Objects.equals(nickname, other.nickname)
                 && Objects.equals(profile, other.profile)
-                && Objects.equals(req_ext_critical, other.req_ext_critical)
-                && Objects.equals(req_ext_data, other.req_ext_data)
-                && Objects.equals(req_ext_oid, other.req_ext_oid)
-                && Objects.equals(requestType, other.requestType)
-                && Objects.equals(request, other.request)
                 && Objects.equals(requestID, other.requestID)
-                && Objects.equals(subjectDN, other.subjectDN)
                 && Objects.equals(token, other.token)
                 && Objects.equals(type, other.type)
-                && Objects.equals(adjustValidity, other.adjustValidity)
                 && Objects.equals(signingAlgorithm, other.signingAlgorithm);
     }
 
