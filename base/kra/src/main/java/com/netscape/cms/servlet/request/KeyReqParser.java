@@ -22,12 +22,12 @@ import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.request.Request;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * Output a 'pretty print' of a Key Archival request
@@ -59,7 +59,7 @@ public class KeyReqParser extends ReqParser {
 
         if (type.equals(Request.ENROLLMENT_REQUEST)) {
             BigInteger recSerialNo = req.getExtDataInBigInteger("keyRecord");
-            IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
+            KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
             if (kra != null) {
                 KeyRecordParser.fillRecordIntoArg(
                         kra.getKeyRepository().readKeyRecord(recSerialNo),

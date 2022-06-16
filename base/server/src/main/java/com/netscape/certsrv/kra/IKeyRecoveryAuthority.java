@@ -30,7 +30,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.Credential;
@@ -75,13 +74,6 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      * @return KRA name
      */
     public X500Name getX500Name();
-
-    /**
-     * Retrieves the key repository. The key repository
-     * stores archived keys.
-     * <P>
-     */
-    public IKeyRepository getKeyRepository();
 
     /**
      * Retrieves the Replica ID repository.

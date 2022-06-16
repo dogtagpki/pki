@@ -32,18 +32,15 @@ import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.cmscore.apps.DatabaseConfig;
 
 /**
  * A class represents a Key repository. This is the container of
  * archived keys.
- * <P>
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
-public class KeyRepository extends Repository implements IKeyRepository {
+public class KeyRepository extends Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRepository.class);
 
@@ -246,12 +243,10 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     /**
      * Archives a key to the repository.
-     * <P>
      *
      * @param record key record
      * @exception EBaseException failed to archive key
      */
-    @Override
     public void addKeyRecord(IKeyRecord record) throws EBaseException {
 
         try (DBSSession s = dbSubsystem.createSession()) {
@@ -265,13 +260,11 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     /**
      * Recovers an archived key by serial number.
-     * <P>
      *
      * @param serialNo serial number
      * @return key record
      * @exception EBaseException failed to recover key
      */
-    @Override
     public IKeyRecord readKeyRecord(BigInteger serialNo)
             throws EBaseException {
         if (serialNo == null) {
@@ -295,13 +288,11 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     /**
      * Recovers an archived key by owner name.
-     * <P>
      *
      * @param ownerName owner name
      * @return key record
      * @exception EBaseException failed to recover key
      */
-    @Override
     public IKeyRecord readKeyRecord(X500Name ownerName)
             throws EBaseException {
 
@@ -321,8 +312,12 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     /**
      * Recovers archived key using public key.
+     *
+     * @param publicKey public key that is corresponding
+     *            to the private key
+     * @return key record
+     * @exception EBaseException failed to read key
      */
-    @Override
     public IKeyRecord readKeyRecord(PublicKey publicKey)
             throws EBaseException {
         // XXX - setup binary search attributes
@@ -347,8 +342,11 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     /**
      * Recovers archived key using b64 encoded cert
+     *
+     * @param cert b64 encoded cert
+     * @return key record
+     * @exception EBaseException failed to recover key
      */
-    @Override
     public IKeyRecord readKeyRecord(String cert)
             throws EBaseException {
 
@@ -369,8 +367,11 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     /**
      * Modifies key record.
+     *
+     * @param serialNo key identifier
+     * @param mods modification of key records
+     * @exception EBaseException failed to modify key record
      */
-    @Override
     public void modifyKeyRecord(BigInteger serialNo, ModificationSet mods)
             throws EBaseException {
 
@@ -385,7 +386,12 @@ public class KeyRepository extends Repository implements IKeyRepository {
         }
     }
 
-    @Override
+    /**
+     * Deletes a key record.
+     *
+     * @param serialNo key identifier
+     * @exception EBaseException failed to delete key record
+     */
     public void deleteKeyRecord(BigInteger serialNo)
             throws EBaseException {
 
@@ -410,7 +416,14 @@ public class KeyRepository extends Repository implements IKeyRepository {
         return result.toString();
     }
 
-    @Override
+    /**
+     * Searches for private keys.
+     *
+     * @param filter LDAP filter for the search
+     * @param maxSize maximum number of entries to be returned
+     * @return a list of private key records
+     * @exception EBaseException failed to search keys
+     */
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize)
             throws EBaseException {
 
@@ -425,7 +438,15 @@ public class KeyRepository extends Repository implements IKeyRepository {
         return v.elements();
     }
 
-    @Override
+    /**
+     * Searches for private keys.
+     *
+     * @param filter LDAP filter for the search
+     * @param maxSize maximum number of entries to be returned
+     * @param timeLimit timeout value
+     * @return a list of private key records
+     * @exception EBaseException failed to search keys
+     */
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize, int timeLimit)
             throws EBaseException {
 
@@ -441,16 +462,45 @@ public class KeyRepository extends Repository implements IKeyRepository {
     }
 
     /**
-     * Retrieves key record list.
+     * Searches for a list of key records.
+     * Here is a list of supported filter attributes:
+     *
+     * <pre>
+     *   keySerialNumber
+     *   keyState
+     *   algorithm
+     *   keySize
+     *   keyOwnerName
+     *   privateKey
+     *   publicKey
+     *   dateOfRecovery
+     *   keyCreateTime
+     *   keyModifyTime
+     *   keyMetaInfo
+     * </pre>
+     *
+     * @param filter search filter
+     * @param attrs list of attributes to be returned
+     * @param pageSize virtual list page size
+     * @return list of key records
+     * @exception EBaseException failed to search key records
      */
-    @Override
     public IKeyRecordList findKeyRecordsInList(String filter,
             String attrs[], int pageSize) throws EBaseException {
         return findKeyRecordsInList(filter, attrs, IKeyRecord.ATTR_ID,
                 pageSize);
     }
 
-    @Override
+    /**
+     * Searches for a list of key records.
+     *
+     * @param filter search filter
+     * @param attrs list of attributes to be returned
+     * @param sortKey name of attribute that the list should be sorted by
+     * @param pageSize virtual list page size
+     * @return list of key records
+     * @exception EBaseException failed to search key records
+     */
     public IKeyRecordList findKeyRecordsInList(String filter,
             String attrs[], String sortKey, int pageSize)
             throws EBaseException {

@@ -1435,9 +1435,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Retrieves the key repository. The key repository
      * stores archived keys.
-     * <P>
      */
-    @Override
     public KeyRepository getKeyRepository() {
         return mKeyDB;
     }
