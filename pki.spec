@@ -51,6 +51,12 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?phase:-}%{?phase}
 ExcludeArch: i686
 
 ################################################################################
+# PKCS #11 Kit Trust
+################################################################################
+
+%global p11_kit_trust /usr/lib64/pkcs11/p11-kit-trust.so
+
+################################################################################
 # Python
 ################################################################################
 
@@ -60,9 +66,15 @@ ExcludeArch: i686
 # Java
 ################################################################################
 
-%define java_devel java-17-openjdk-devel
-%define java_headless java-17-openjdk-headless
-%define java_home %{_jvmdir}/jre-17-openjdk
+%global java_devel java-17-openjdk-devel
+%global java_headless java-17-openjdk-headless
+%global java_home %{_jvmdir}/jre-17-openjdk
+
+################################################################################
+# Application Server
+################################################################################
+
+%global app_server tomcat-9.0
 
 ################################################################################
 # PKI
@@ -778,63 +790,49 @@ This package provides test suite for %{product_name}.
 %build
 ################################################################################
 
-# assume tomcat app_server
-app_server=tomcat-9.0
+# Set build flags for CMake
+# (see /usr/lib/rpm/macros.d/macros.cmake)
+%set_build_flags
 
-%cmake \
-    --no-warn-unused-cli \
-    -DPRODUCT_NAME="%{product_name}" \
-    -DVERSION=%{version} \
-    -DRELEASE=%{release} \
-    -DVAR_INSTALL_DIR:PATH=/var \
-    -DP11_KIT_TRUST=/etc/alternatives/libnssckbi.so.%{_arch} \
-    -DJAVA_HOME=%{java_home} \
-    -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
-    -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
-    -DAPP_SERVER=$app_server \
-    -DPYTHON_EXECUTABLE=%{python_executable} \
-    -DWITH_SERVER:BOOL=%{?with_server:ON}%{!?with_server:OFF} \
-    -DWITH_CA:BOOL=%{?with_ca:ON}%{!?with_ca:OFF} \
-    -DWITH_KRA:BOOL=%{?with_kra:ON}%{!?with_kra:OFF} \
-    -DWITH_OCSP:BOOL=%{?with_ocsp:ON}%{!?with_ocsp:OFF} \
-    -DWITH_TKS:BOOL=%{?with_tks:ON}%{!?with_tks:OFF} \
-    -DWITH_TPS:BOOL=%{?with_tps:ON}%{!?with_tps:OFF} \
-    -DWITH_ACME:BOOL=%{?with_acme:ON}%{!?with_acme:OFF} \
-    -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
-    -DWITH_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
-    -DWITH_TESTS:BOOL=%{?with_tests:ON}%{!?with_tests:OFF} \
-    -DWITH_META:BOOL=%{?with_meta:ON}%{!?with_meta:OFF} \
-    -DTHEME=%{?with_theme:%{theme}} \
-    -DRUN_TESTS:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
-    -B %{_vpath_builddir}
+pkgs=base\
+%{?with_server:,server}\
+%{?with_acme:,acme}\
+%{?with_ca:,ca}\
+%{?with_kra:,kra}\
+%{?with_ocsp:,ocsp}\
+%{?with_tks:,tks}\
+%{?with_tps:,tps}\
+%{?with_javadoc:,javadoc}\
+%{?with_theme:,theme}\
+%{?with_meta:,meta}\
+%{?with_tests:,tests}\
+%{?with_debug:,debug}
 
-cd %{_vpath_builddir}
-
-# Do not use _smp_mflags to preserve build order
-%{__make} \
-    VERBOSE=%{?_verbose} \
-    CMAKE_NO_VERBOSE=1 \
-    DESTDIR=%{buildroot} \
-    INSTALL="install -p" \
-    --no-print-directory \
-    all
-
-%if %{with tests}
-ctest --output-on-failure
-%endif
+./build.sh \
+    %{?_verbose:-v} \
+    --debug \
+    --work-dir=%{_vpath_builddir} \
+    --prefix-dir=%{_prefix} \
+    --include-dir=%{_includedir} \
+    --lib-dir=%{_libdir} \
+    --sysconf-dir=%{_sysconfdir} \
+    --share-dir=%{_datadir} \
+    --cmake=%{__cmake} \
+    --java-home=%{java_home} \
+    --jni-dir=%{_jnidir} \
+    --unit-dir=%{_unitdir} \
+    --with-pkgs=$pkgs \
+    %{!?with_test:--without-test} \
+    dist
 
 ################################################################################
 %install
 ################################################################################
 
-cd %{_vpath_builddir}
-
-%{__make} \
-    VERBOSE=%{?_verbose} \
-    CMAKE_NO_VERBOSE=1 \
-    DESTDIR=%{buildroot} \
-    INSTALL="install -p" \
-    --no-print-directory \
+./build.sh \
+    %{?_verbose:-v} \
+    --work-dir=%{_vpath_builddir} \
+    --install-dir=%{buildroot} \
     install
 
 %if %{with server}
