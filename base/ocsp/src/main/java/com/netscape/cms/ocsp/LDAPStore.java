@@ -43,6 +43,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmsutil.ocsp.CertID;
@@ -526,10 +527,8 @@ class CRLUpdater extends Thread {
     }
 }
 
-class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
-    /**
-     *
-     */
+class TempCRLIssuingPointRecord extends CRLIssuingPointRecord {
+
     private static final long serialVersionUID = 5299660983298765746L;
     private X509CertImpl mCACert = null;
     private X509CRLImpl mCRL = null;
