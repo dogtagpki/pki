@@ -44,7 +44,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -55,6 +54,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -234,7 +234,7 @@ public class UpdateDir extends CMSServlet {
 
         sc.put(ICRLIssuingPoint.SC_ISSUING_POINT_ID, crlIssuingPointId);
         sc.put(ICRLIssuingPoint.SC_IS_DELTA_CRL, "false");
-        ICRLIssuingPointRecord crlRecord = null;
+        CRLIssuingPointRecord crlRecord = null;
 
         try {
             if (mCRLRepository != null) {

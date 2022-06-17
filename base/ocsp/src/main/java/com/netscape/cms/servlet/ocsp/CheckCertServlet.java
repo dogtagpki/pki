@@ -34,7 +34,6 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -43,6 +42,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.ocsp.OCSPAuthority;
 
 /**
@@ -162,7 +162,7 @@ public class CheckCertServlet extends CMSServlet {
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DECODING_CERT_ERROR"));
         }
 
-        ICRLIssuingPointRecord pt = defStore.readCRLIssuingPoint(
+        CRLIssuingPointRecord pt = defStore.readCRLIssuingPoint(
                 cert.getIssuerDN().getName());
 
         header.addStringValue(ATTR_ISSUERDN, cert.getIssuerDN().getName());

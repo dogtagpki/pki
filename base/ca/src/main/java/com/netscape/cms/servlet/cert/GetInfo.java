@@ -39,7 +39,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -48,6 +47,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CRLRepository;
 
 /**
@@ -208,7 +208,7 @@ public class GetInfo extends CMSServlet {
                 Vector<String> ipNames = crlRepository.getIssuingPointsNames();
                 for (int i = 0; i < ipNames.size(); i++) {
                     String ipName = ipNames.elementAt(i);
-                    ICRLIssuingPointRecord crlRecord = null;
+                    CRLIssuingPointRecord crlRecord = null;
                     try {
                         crlRecord = crlRepository.readCRLIssuingPointRecord(ipName);
                     } catch (Exception e) {

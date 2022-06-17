@@ -19,7 +19,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.cmscore.apps.CMS;
@@ -27,6 +26,7 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -93,11 +93,11 @@ public class OCSPCRLIssuingPointFindCLI extends CommandCLI {
         IDefStore store = (IDefStore) Class.forName(className).getDeclaredConstructor().newInstance();
         store.init(storeConfig, dbSubsystem);
 
-        Enumeration<ICRLIssuingPointRecord> records = store.searchAllCRLIssuingPointRecord(size);
+        Enumeration<CRLIssuingPointRecord> records = store.searchAllCRLIssuingPointRecord(size);
         boolean first = true;
 
         while (records.hasMoreElements()) {
-            ICRLIssuingPointRecord record = records.nextElement();
+            CRLIssuingPointRecord record = records.nextElement();
 
             if (first) {
                 first = false;

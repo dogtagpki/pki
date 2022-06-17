@@ -33,7 +33,6 @@ import org.dogtagpki.server.authorization.AuthzToken;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -42,6 +41,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.ocsp.OCSPAuthority;
 
 /**
@@ -124,14 +124,14 @@ public class ListCAServlet extends CMSServlet {
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         IDefStore defStore = mOCSPAuthority.getDefaultStore();
-        Enumeration<ICRLIssuingPointRecord> recs = defStore.searchAllCRLIssuingPointRecord(100);
+        Enumeration<CRLIssuingPointRecord> recs = defStore.searchAllCRLIssuingPointRecord(100);
 
         // show the current CRL number if present
         header.addStringValue("stateCount",
                 Integer.toString(defStore.getStateCount()));
 
         while (recs.hasMoreElements()) {
-            ICRLIssuingPointRecord rec = recs.nextElement();
+            CRLIssuingPointRecord rec = recs.nextElement();
             ArgBlock rarg = new ArgBlock();
             String thisId = rec.getId();
 

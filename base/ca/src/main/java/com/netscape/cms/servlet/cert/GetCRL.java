@@ -40,7 +40,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -50,6 +49,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.CrlPrettyPrint;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CRLRepository;
 
 /**
@@ -166,7 +166,7 @@ public class GetCRL extends CMSServlet {
         CAEngine engine = CAEngine.getInstance();
         CRLRepository crlRepository = engine.getCRLRepository();
 
-        ICRLIssuingPointRecord crlRecord = null;
+        CRLIssuingPointRecord crlRecord = null;
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
         ICRLIssuingPoint crlIP = null;
         if (ca != null)

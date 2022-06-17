@@ -26,22 +26,37 @@ import java.util.Vector;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents a CRL issuing point record.
- * <P>
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
-public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
+public class CRLIssuingPointRecord implements IDBObj {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 400565044343905267L;
+
+    public static final String ATTR_ID = "id";
+    public static final String ATTR_CRL_NUMBER = "crlNumber";
+    public static final String ATTR_DELTA_NUMBER = "deltaNumber";
+    public static final String ATTR_CRL_SIZE = "crlSize";
+    public static final String ATTR_DELTA_SIZE = "deltaSize";
+    public static final String ATTR_THIS_UPDATE = "thisUpdate";
+    public static final String ATTR_NEXT_UPDATE = "nextUpdate";
+    public static final String ATTR_FIRST_UNSAVED = "firstUnsaved";
+    public static final String ATTR_CRL = "certificaterevocationlist";
+    public static final String ATTR_CRL_CACHE = "crlCache";
+    public static final String ATTR_CA_CERT = "cACertificate";
+    public static final String ATTR_REVOKED_CERTS = "revokedCerts";
+    public static final String ATTR_UNREVOKED_CERTS = "unrevokedCerts";
+    public static final String ATTR_EXPIRED_CERTS = "expiredCerts";
+    public static final String ATTR_DELTA_CRL = "deltaRevocationList";
+
+    public static final String CLEAN_CACHE = "-1";
+    public static final String NEW_CACHE = "-2";
+
     protected String mId = null; // internal unique id
     protected BigInteger mCRLNumber = null; // CRL number
     protected Long mCRLSize = null;
@@ -216,90 +231,108 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
 
     /**
      * Retrieve unique CRL identifier.
+     *
+     * @return unique CRL identifier
      */
-    @Override
     public String getId() {
         return mId;
     }
 
     /**
-     * Retrieves CRL number.
+     * Retrieves current CRL number out of CRL issuing point record.
+     *
+     * @return current CRL number
      */
-    @Override
     public BigInteger getCRLNumber() {
         return mCRLNumber;
     }
 
     /**
-     * Retrieves CRL size.
+     * Retrieves CRL size measured by the number of entries.
+     *
+     * @return CRL size
      */
-    @Override
     public Long getCRLSize() {
         return mCRLSize;
     }
 
     /**
      * Retrieves this update time.
+     *
+     * @return time of this update
      */
-    @Override
     public Date getThisUpdate() {
         return mThisUpdate;
     }
 
     /**
      * Retrieves next update time.
+     *
+     * @return time of next update
      */
-    @Override
     public Date getNextUpdate() {
         return mNextUpdate;
     }
 
     /**
-     * Retrieves delta CRL number.
+     * Retrieves current delta CRL number out of CRL issuing point record.
+     *
+     * @return current delta CRL number
      */
-    @Override
     public BigInteger getDeltaCRLNumber() {
         return mDeltaCRLNumber;
     }
 
     /**
-     * Retrieves CRL size.
+     * Retrieves delta CRL size measured by the number of entries.
+     *
+     * @return delta CRL size
      */
-    @Override
     public Long getDeltaCRLSize() {
         return mDeltaCRLSize;
     }
 
     /**
-     * Retrieve unique CRL identifier.
+     * Retrieve Retrieve reference to the first unsaved data.
+     *
+     * @return reference to the first unsaved data
      */
-    @Override
     public String getFirstUnsaved() {
         return mFirstUnsaved;
     }
 
     /**
-     * Retrieves CRL encodings.
+     * Retrieves encoded CRL.
+     *
+     * @return encoded CRL
      */
-    @Override
     public byte[] getCRL() {
         return mCRL;
     }
 
     /**
-     * Retrieves CRL encodings.
+     * Retrieves encoded delta CRL.
+     *
+     * @return encoded delta CRL
      */
-    @Override
     public byte[] getDeltaCRL() {
         return mDeltaCRL;
     }
 
-    @Override
+    /**
+     * Retrieves encoded CA certificate.
+     *
+     * @return encoded CA certificate
+     */
     public byte[] getCACert() {
         return mCACert;
     }
 
-    @Override
+    /**
+     * Retrieves cache information about CRL.
+     *
+     * @return list of recently revoked certificates
+     */
     public Hashtable<BigInteger, RevokedCertificate> getCRLCacheNoClone() {
         if (mCRLCache == null)
             return null;
@@ -307,7 +340,6 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
             return mCRLCache;
     }
 
-    @Override
     @SuppressWarnings("unchecked")
     public Hashtable<BigInteger, RevokedCertificate> getCRLCache() {
         if (mCRLCache == null)
@@ -317,9 +349,10 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     }
 
     /**
-     * Retrieves cache info of revoked certificates.
+     * Retrieves cache information about revoked certificates.
+     *
+     * @return list of recently revoked certificates
      */
-    @Override
     @SuppressWarnings("unchecked")
     public Hashtable<BigInteger, RevokedCertificate> getRevokedCerts() {
         if (mRevokedCerts == null)
@@ -329,9 +362,10 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     }
 
     /**
-     * Retrieves cache info of unrevoked certificates.
+     * Retrieves cache information about certificates released from hold.
+     *
+     * @return list of certificates recently released from hold
      */
-    @Override
     @SuppressWarnings("unchecked")
     public Hashtable<BigInteger, RevokedCertificate> getUnrevokedCerts() {
         if (mUnrevokedCerts == null)
@@ -341,9 +375,10 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord {
     }
 
     /**
-     * Retrieves cache info of expired certificates.
+     * Retrieves cache information about expired certificates.
+     *
+     * @return list of recently expired certificates
      */
-    @Override
     @SuppressWarnings("unchecked")
     public Hashtable<BigInteger, RevokedCertificate> getExpiredCerts() {
         if (mExpiredCerts == null)

@@ -73,7 +73,6 @@ import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.connector.Connector;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.profile.EProfileException;
@@ -90,6 +89,7 @@ import com.netscape.cmscore.connector.LocalConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
@@ -1972,7 +1972,7 @@ class serviceGetCRL implements IServant {
             CAEngine engine = CAEngine.getInstance();
             CRLRepository crlRepository = engine.getCRLRepository();
 
-            ICRLIssuingPointRecord crlRec = crlRepository.readCRLIssuingPointRecord(CertificateAuthority.PROP_MASTER_CRL);
+            CRLIssuingPointRecord crlRec = crlRepository.readCRLIssuingPointRecord(CertificateAuthority.PROP_MASTER_CRL);
             X509CRLImpl crl = new X509CRLImpl(crlRec.getCRL());
 
             request.setExtData(Request.CRL, crl.getEncoded());

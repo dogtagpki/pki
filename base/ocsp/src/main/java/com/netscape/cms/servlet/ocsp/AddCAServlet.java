@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.OCSPAddCARequestEvent;
 import com.netscape.certsrv.logging.event.OCSPAddCARequestProcessedEvent;
@@ -45,6 +44,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.ocsp.OCSPAuthority;
 
 /**
@@ -231,13 +231,13 @@ public class AddCAServlet extends CMSServlet {
 
             // (2) store certificate (and certificate chain) into
             // database
-            ICRLIssuingPointRecord rec = defStore.createCRLIssuingPointRecord(
+            CRLIssuingPointRecord rec = defStore.createCRLIssuingPointRecord(
                     leafCert.getSubjectDN().getName(),
                     BIG_ZERO,
                     MINUS_ONE, null, null);
 
             try {
-                rec.set(ICRLIssuingPointRecord.ATTR_CA_CERT, leafCert.getEncoded());
+                rec.set(CRLIssuingPointRecord.ATTR_CA_CERT, leafCert.getEncoded());
             } catch (Exception e) {
 
                 audit(OCSPAddCARequestProcessedEvent.createFailureEvent(

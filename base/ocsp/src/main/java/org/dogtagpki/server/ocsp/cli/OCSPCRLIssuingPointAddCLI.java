@@ -24,7 +24,6 @@ import org.mozilla.jss.netscape.security.util.Cert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.cmscore.apps.CMS;
@@ -32,6 +31,7 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -136,12 +136,12 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
         // (1) need to normalize (sort) the chain
         // (2) store certificate (and certificate chain) into
         // database
-        ICRLIssuingPointRecord record = store.createCRLIssuingPointRecord(
+        CRLIssuingPointRecord record = store.createCRLIssuingPointRecord(
                 cert.getSubjectDN().getName(),
                 BigInteger.ZERO,
                 -1L, null, null);
 
-        record.set(ICRLIssuingPointRecord.ATTR_CA_CERT, cert.getEncoded());
+        record.set(CRLIssuingPointRecord.ATTR_CA_CERT, cert.getEncoded());
         store.addCRLIssuingPoint(cert.getSubjectDN().getName(), record);
     }
 }

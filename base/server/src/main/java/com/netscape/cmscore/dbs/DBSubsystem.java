@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.cmscore.apps.CMS;
@@ -303,35 +302,35 @@ public class DBSubsystem {
             crlRecordOC[1] = CRLDBSchema.LDAP_OC_CRL_RECORD;
             reg.registerObjectClass(CRLIssuingPointRecord.class.getName(),
                     crlRecordOC);
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_ID, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_ID, new
                     StringMapper(CRLDBSchema.LDAP_ATTR_CRL_ID));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_NUMBER, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_CRL_NUMBER, new
                     BigIntegerMapper(CRLDBSchema.LDAP_ATTR_CRL_NUMBER));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_DELTA_NUMBER, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_DELTA_NUMBER, new
                     BigIntegerMapper(CRLDBSchema.LDAP_ATTR_DELTA_NUMBER));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_SIZE, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_CRL_SIZE, new
                     LongMapper(CRLDBSchema.LDAP_ATTR_CRL_SIZE));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_DELTA_SIZE, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_DELTA_SIZE, new
                     LongMapper(CRLDBSchema.LDAP_ATTR_DELTA_SIZE));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_THIS_UPDATE, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_THIS_UPDATE, new
                     DateMapper(CRLDBSchema.LDAP_ATTR_THIS_UPDATE));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_NEXT_UPDATE, new
                     DateMapper(CRLDBSchema.LDAP_ATTR_NEXT_UPDATE));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_FIRST_UNSAVED, new
                     StringMapper(CRLDBSchema.LDAP_ATTR_FIRST_UNSAVED));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_CRL, new
                     ByteArrayMapper(CRLDBSchema.LDAP_ATTR_CRL));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_DELTA_CRL, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_DELTA_CRL, new
                     ByteArrayMapper(CRLDBSchema.LDAP_ATTR_DELTA_CRL));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CA_CERT, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_CA_CERT, new
                     ByteArrayMapper(CRLDBSchema.LDAP_ATTR_CA_CERT));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_CACHE, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_CRL_CACHE, new
                     ObjectStreamMapper(CRLDBSchema.LDAP_ATTR_CRL_CACHE));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_REVOKED_CERTS, new
                     ObjectStreamMapper(CRLDBSchema.LDAP_ATTR_REVOKED_CERTS));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_UNREVOKED_CERTS, new
                     ObjectStreamMapper(CRLDBSchema.LDAP_ATTR_UNREVOKED_CERTS));
-            reg.registerAttribute(ICRLIssuingPointRecord.ATTR_EXPIRED_CERTS, new
+            reg.registerAttribute(CRLIssuingPointRecord.ATTR_EXPIRED_CERTS, new
                     ObjectStreamMapper(CRLDBSchema.LDAP_ATTR_EXPIRED_CERTS));
 
             boolean registered = reg.isObjectClassRegistered(RepositoryRecord.class.getName());

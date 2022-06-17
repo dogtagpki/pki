@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 
 /**
@@ -96,10 +96,10 @@ public interface IDefStore extends IOCSPStore {
      * <P>
      *
      * @param name the name of the CRL to be read
-     * @return ICRLIssuingPointRecord the CRL issuing point
+     * @return CRLIssuingPointRecord the CRL issuing point
      * @exception EBaseException occurs when the specified CRL cannot be located
      */
-    public ICRLIssuingPointRecord readCRLIssuingPoint(String name)
+    public CRLIssuingPointRecord readCRLIssuingPoint(String name)
             throws EBaseException;
 
     /**
@@ -110,7 +110,7 @@ public interface IDefStore extends IOCSPStore {
      * @return Enumeration a list of the CRL issuing points
      * @exception EBaseException occurs when no CRL issuing point exists
      */
-    public Enumeration<ICRLIssuingPointRecord> searchAllCRLIssuingPointRecord(
+    public Enumeration<CRLIssuingPointRecord> searchAllCRLIssuingPointRecord(
             int maxSize)
             throws EBaseException;
 
@@ -124,7 +124,7 @@ public interface IDefStore extends IOCSPStore {
      * @return Enumeration a list of the CRL issuing points
      * @exception EBaseException occurs when no CRL issuing point exists
      */
-    public Enumeration<ICRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
+    public Enumeration<CRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
             int maxSize)
             throws EBaseException;
 
@@ -137,9 +137,9 @@ public interface IDefStore extends IOCSPStore {
      * @param crlSize the size of this CRL issuing point record
      * @param thisUpdate the time for this CRL issuing point record
      * @param nextUpdate the time for the next CRL issuing point record
-     * @return ICRLIssuingPointRecord this CRL issuing point record
+     * @return CRLIssuingPointRecord this CRL issuing point record
      */
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(
+    public CRLIssuingPointRecord createCRLIssuingPointRecord(
             String name, BigInteger crlNumber,
             Long crlSize, Date thisUpdate, Date nextUpdate);
 
@@ -152,7 +152,7 @@ public interface IDefStore extends IOCSPStore {
      * @exception EBaseException occurs when the specified CRL issuing point
      *                record cannot be added
      */
-    public void addCRLIssuingPoint(String name, ICRLIssuingPointRecord rec)
+    public void addCRLIssuingPoint(String name, CRLIssuingPointRecord rec)
             throws EBaseException;
 
     /**

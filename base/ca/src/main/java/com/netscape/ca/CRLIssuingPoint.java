@@ -57,7 +57,6 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IElementProcessor;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.DeltaCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.DeltaCRLPublishingEvent;
@@ -863,7 +862,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * @throws EBaseException
      */
     private void initCRL() throws EBaseException {
-        ICRLIssuingPointRecord crlRecord = null;
+        CRLIssuingPointRecord crlRecord = null;
 
         mLastCacheUpdate = System.currentTimeMillis() + mCacheUpdateInterval;
 
@@ -927,7 +926,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             logger.debug("initCRL  CRLNumber=" + mCRLNumber.toString() + "  CRLSize=" + mCRLSize +
                             "  FirstUnsaved=" + mFirstUnsaved);
             if (mFirstUnsaved == null ||
-                    (mFirstUnsaved != null && mFirstUnsaved.equals(ICRLIssuingPointRecord.NEW_CACHE))) {
+                    (mFirstUnsaved != null && mFirstUnsaved.equals(CRLIssuingPointRecord.NEW_CACHE))) {
                 clearCRLCache();
                 updateCRLCacheRepository();
             } else {
@@ -972,7 +971,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                                 }
                                 mCRLCerts = x509crl.getListOfRevokedCertificates();
                             }
-                            if (mFirstUnsaved != null && !mFirstUnsaved.equals(ICRLIssuingPointRecord.CLEAN_CACHE)) {
+                            if (mFirstUnsaved != null && !mFirstUnsaved.equals(CRLIssuingPointRecord.CLEAN_CACHE)) {
                                 recoverCRLCache();
                             } else {
                                 mCRLCacheIsCleared = false;
@@ -2257,7 +2256,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
             try {
                 mCRLRepository.updateRevokedCerts(mId, mRevokedCerts, mUnrevokedCerts);
-                mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
+                mFirstUnsaved = CRLIssuingPointRecord.CLEAN_CACHE;
                 mCRLCacheIsCleared = false;
             } catch (EBaseException e) {
                 logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()), e);
@@ -2371,7 +2370,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                                    String requestId) {
         synchronized (cacheMonitor) {
             if (requestId != null && mFirstUnsaved != null &&
-                    mFirstUnsaved.equals(ICRLIssuingPointRecord.CLEAN_CACHE)) {
+                    mFirstUnsaved.equals(CRLIssuingPointRecord.CLEAN_CACHE)) {
                 mFirstUnsaved = requestId;
                 try {
                     mCRLRepository.updateFirstUnsaved(mId, mFirstUnsaved);
@@ -2441,7 +2440,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (mCacheUpdateInterval == 0) {
                 try {
                     mCRLRepository.updateRevokedCerts(mId, mRevokedCerts, mUnrevokedCerts);
-                    mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
+                    mFirstUnsaved = CRLIssuingPointRecord.CLEAN_CACHE;
                 } catch (EBaseException e) {
                     logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_REVOKED_CERT", mId, e.toString()), e);
                 }
@@ -2465,7 +2464,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (mCacheUpdateInterval == 0) {
                 try {
                     mCRLRepository.updateRevokedCerts(mId, mRevokedCerts, mUnrevokedCerts);
-                    mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
+                    mFirstUnsaved = CRLIssuingPointRecord.CLEAN_CACHE;
                 } catch (EBaseException e) {
                     logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_UNREVOKED_CERT", mId, e.toString()), e);
                 }
@@ -2512,7 +2511,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             try {
                 mCRLRepository.updateCRLCache(mId, Long.valueOf(mCRLSize),
                         mRevokedCerts, mUnrevokedCerts, mExpiredCerts);
-                mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
+                mFirstUnsaved = CRLIssuingPointRecord.CLEAN_CACHE;
             } catch (EBaseException e) {
                 logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()), e);
             }
@@ -3088,7 +3087,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         mId, newCRL, thisUpdate, nextUpdateDate,
                         mNextCRLNumber, Long.valueOf(mCRLCerts.size()),
                         mRevokedCerts, mUnrevokedCerts, mExpiredCerts);
-                mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
+                mFirstUnsaved = CRLIssuingPointRecord.CLEAN_CACHE;
             }
 
             mSplits[8] += System.currentTimeMillis();
@@ -3209,7 +3208,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             sc.put(SC_IS_DELTA_CRL, "false");
         }
 
-        ICRLIssuingPointRecord crlRecord = null;
+        CRLIssuingPointRecord crlRecord = null;
 
         logger.debug("Publish CRL");
         try {

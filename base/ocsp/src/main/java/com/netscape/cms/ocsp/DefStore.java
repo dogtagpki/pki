@@ -42,7 +42,6 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -220,11 +219,11 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      * new one is totally committed.
      */
     public void deleteOldCRLs() throws EBaseException {
-        Enumeration<ICRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
+        Enumeration<CRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
                 "objectclass=" + CRLIssuingPointRecord.class.getName(),
                 100);
         while (recs.hasMoreElements()) {
-            ICRLIssuingPointRecord rec = recs.nextElement();
+            CRLIssuingPointRecord rec = recs.nextElement();
             deleteOldCRLsInCA(rec.getId());
         }
     }
@@ -241,7 +240,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         DBSSession s = dbSubsystem.createSession();
 
         try {
-            ICRLIssuingPointRecord cp = readCRLIssuingPoint(caName);
+            CRLIssuingPointRecord cp = readCRLIssuingPoint(caName);
 
             if (cp == null)
                 return; // nothing to do
@@ -323,17 +322,17 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         // cache result to speed up the performance
         X509CertImpl theCert = null;
         X509CRLImpl theCRL = null;
-        ICRLIssuingPointRecord theRec = null;
+        CRLIssuingPointRecord theRec = null;
         byte keyhsh[] = cid.getIssuerKeyHash().toByteArray();
         CRLIPContainer matched = mCacheCRLIssuingPoints.get(new String(keyhsh));
 
         if (matched == null) {
-            Enumeration<ICRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
+            Enumeration<CRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
                     "objectclass=" + CRLIssuingPointRecord.class.getName(),
                     100);
 
             while (recs.hasMoreElements()) {
-                ICRLIssuingPointRecord rec = recs.nextElement();
+                CRLIssuingPointRecord rec = recs.nextElement();
                 byte certdata[] = rec.getCACert();
                 X509CertImpl cert = null;
 
@@ -488,7 +487,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     @Override
-    public Enumeration<ICRLIssuingPointRecord> searchAllCRLIssuingPointRecord(int maxSize)
+    public Enumeration<CRLIssuingPointRecord> searchAllCRLIssuingPointRecord(int maxSize)
             throws EBaseException {
         return searchCRLIssuingPointRecord(
                 "objectclass=" + CRLIssuingPointRecord.class.getName(),
@@ -496,16 +495,16 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     @Override
-    public Enumeration<ICRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
+    public Enumeration<CRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
             int maxSize)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
-        Vector<ICRLIssuingPointRecord> v = new Vector<>();
+        Vector<CRLIssuingPointRecord> v = new Vector<>();
 
         try {
             IDBSearchResults sr = s.search(getBaseDN(), filter, maxSize);
             while (sr.hasMoreElements()) {
-                v.add((ICRLIssuingPointRecord) sr.nextElement());
+                v.add((CRLIssuingPointRecord) sr.nextElement());
             }
         } finally {
             if (s != null)
@@ -536,17 +535,17 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      * Returns an issuing point.
      */
     @Override
-    public ICRLIssuingPointRecord readCRLIssuingPoint(String name)
+    public CRLIssuingPointRecord readCRLIssuingPoint(String name)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
-        ICRLIssuingPointRecord rec = null;
+        CRLIssuingPointRecord rec = null;
 
         try {
             String dn = "cn=" +
                     transformDN(name) + "," + getBaseDN();
 
             if (s != null) {
-                rec = (ICRLIssuingPointRecord) s.read(dn);
+                rec = (CRLIssuingPointRecord) s.read(dn);
             }
         } finally {
             if (s != null)
@@ -556,7 +555,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     @Override
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(
+    public CRLIssuingPointRecord createCRLIssuingPointRecord(
             String name, BigInteger crlNumber,
             Long crlSize, Date thisUpdate, Date nextUpdate) {
         return new CRLIssuingPointRecord(
@@ -587,7 +586,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      * Creates a new issuing point in OCSP.
      */
     @Override
-    public void addCRLIssuingPoint(String name, ICRLIssuingPointRecord rec)
+    public void addCRLIssuingPoint(String name, CRLIssuingPointRecord rec)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
 
@@ -761,35 +760,35 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             ModificationSet mods = new ModificationSet();
 
             if (crl.getThisUpdate() != null)
-                mods.add(ICRLIssuingPointRecord.ATTR_THIS_UPDATE,
+                mods.add(CRLIssuingPointRecord.ATTR_THIS_UPDATE,
                         Modification.MOD_REPLACE, crl.getThisUpdate());
             if (crl.getNextUpdate() != null)
-                mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE,
+                mods.add(CRLIssuingPointRecord.ATTR_NEXT_UPDATE,
                         Modification.MOD_REPLACE, crl.getNextUpdate());
             if (mUseCache) {
                 if (((X509CRLImpl) crl).getListOfRevokedCertificates() != null) {
-                    mods.add(ICRLIssuingPointRecord.ATTR_CRL_CACHE,
+                    mods.add(CRLIssuingPointRecord.ATTR_CRL_CACHE,
                             Modification.MOD_REPLACE,
                             ((X509CRLImpl) crl).getListOfRevokedCertificates());
                 }
             }
             if (((X509CRLImpl) crl).getNumberOfRevokedCertificates() < 0) {
-                mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE,
+                mods.add(CRLIssuingPointRecord.ATTR_CRL_SIZE,
                         Modification.MOD_REPLACE, Long.valueOf(0));
             } else {
-                mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE,
+                mods.add(CRLIssuingPointRecord.ATTR_CRL_SIZE,
                         Modification.MOD_REPLACE, Long.valueOf(((X509CRLImpl) crl).getNumberOfRevokedCertificates()));
             }
             BigInteger crlNumber = ((X509CRLImpl) crl).getCRLNumber();
             if (crlNumber == null) {
-                mods.add(ICRLIssuingPointRecord.ATTR_CRL_NUMBER,
+                mods.add(CRLIssuingPointRecord.ATTR_CRL_NUMBER,
                         Modification.MOD_REPLACE, new BigInteger("-1"));
             } else {
-                mods.add(ICRLIssuingPointRecord.ATTR_CRL_NUMBER,
+                mods.add(CRLIssuingPointRecord.ATTR_CRL_NUMBER,
                         Modification.MOD_REPLACE, crlNumber);
             }
             try {
-                mods.add(ICRLIssuingPointRecord.ATTR_CRL,
+                mods.add(CRLIssuingPointRecord.ATTR_CRL,
                         Modification.MOD_REPLACE, crl.getEncoded());
             } catch (Exception e) {
                 // ignore
@@ -837,17 +836,17 @@ class DeleteOldCRLsThread extends Thread {
 }
 
 class CRLIPContainer {
-    private ICRLIssuingPointRecord mRec = null;
+    private CRLIssuingPointRecord mRec = null;
     private X509CertImpl mCert = null;
     private X509CRLImpl mCRL = null;
 
-    public CRLIPContainer(ICRLIssuingPointRecord rec, X509CertImpl cert, X509CRLImpl crl) {
+    public CRLIPContainer(CRLIssuingPointRecord rec, X509CertImpl cert, X509CRLImpl crl) {
         mRec = rec;
         mCert = cert;
         mCRL = crl;
     }
 
-    public ICRLIssuingPointRecord getCRLIssuingPointRecord() {
+    public CRLIssuingPointRecord getCRLIssuingPointRecord() {
         return mRec;
     }
 

@@ -39,7 +39,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -298,15 +297,15 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     }
 
     @Override
-    public ICRLIssuingPointRecord readCRLIssuingPoint(String name)
+    public CRLIssuingPointRecord readCRLIssuingPoint(String name)
             throws EBaseException {
         throw new EBaseException("NOT SUPPORTED");
     }
 
     @Override
-    public Enumeration<ICRLIssuingPointRecord> searchAllCRLIssuingPointRecord(int maxSize)
+    public Enumeration<CRLIssuingPointRecord> searchAllCRLIssuingPointRecord(int maxSize)
             throws EBaseException {
-        Vector<ICRLIssuingPointRecord> recs = new Vector<>();
+        Vector<CRLIssuingPointRecord> recs = new Vector<>();
         Enumeration<X509CertImpl> keys = mCRLs.keys();
 
         while (keys.hasMoreElements()) {
@@ -319,21 +318,21 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     }
 
     @Override
-    public Enumeration<ICRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
+    public Enumeration<CRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
             int maxSize)
             throws EBaseException {
         return null;
     }
 
     @Override
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(
+    public CRLIssuingPointRecord createCRLIssuingPointRecord(
             String name, BigInteger crlNumber,
             Long crlSize, Date thisUpdate, Date nextUpdate) {
         return null;
     }
 
     @Override
-    public void addCRLIssuingPoint(String name, ICRLIssuingPointRecord rec)
+    public void addCRLIssuingPoint(String name, CRLIssuingPointRecord rec)
             throws EBaseException {
         throw new EBaseException("NOT SUPPORTED");
     }

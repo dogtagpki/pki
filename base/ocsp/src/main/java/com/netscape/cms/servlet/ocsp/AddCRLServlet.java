@@ -43,7 +43,6 @@ import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
@@ -55,6 +54,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.ocsp.OCSPAuthority;
@@ -313,7 +313,7 @@ public class AddCRLServlet extends CMSServlet {
             }
             logger.info("AddCRLServlet: CRL Issuer DN " + crl.getIssuerDN().getName());
 
-            ICRLIssuingPointRecord pt = null;
+            CRLIssuingPointRecord pt = null;
 
             try {
                 pt = defStore.readCRLIssuingPoint(

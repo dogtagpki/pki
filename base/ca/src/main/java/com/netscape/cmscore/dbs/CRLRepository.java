@@ -28,7 +28,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.cmscore.apps.DatabaseConfig;
 
 /**
@@ -116,17 +115,17 @@ public class CRLRepository extends Repository {
         String crlRecordOC[] = new String[1];
         crlRecordOC[0] = Schema.LDAP_OC_CRL_RECORD;
         reg.registerObjectClass(CRLIssuingPointRecord.class.getName(), crlRecordOC);
-        reg.registerAttribute(ICRLIssuingPointRecord.ATTR_ID,
+        reg.registerAttribute(CRLIssuingPointRecord.ATTR_ID,
                 new StringMapper(Schema.LDAP_ATTR_CRL_ID));
-        reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_NUMBER,
+        reg.registerAttribute(CRLIssuingPointRecord.ATTR_CRL_NUMBER,
                 new BigIntegerMapper(Schema.LDAP_ATTR_CRL_NUMBER));
-        reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_SIZE,
+        reg.registerAttribute(CRLIssuingPointRecord.ATTR_CRL_SIZE,
                 new LongMapper(Schema.LDAP_ATTR_CRL_SIZE));
-        reg.registerAttribute(ICRLIssuingPointRecord.ATTR_THIS_UPDATE,
+        reg.registerAttribute(CRLIssuingPointRecord.ATTR_THIS_UPDATE,
                 new DateMapper(Schema.LDAP_ATTR_THIS_UPDATE));
-        reg.registerAttribute(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE,
+        reg.registerAttribute(CRLIssuingPointRecord.ATTR_NEXT_UPDATE,
                 new DateMapper(Schema.LDAP_ATTR_NEXT_UPDATE));
-        reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL,
+        reg.registerAttribute(CRLIssuingPointRecord.ATTR_CRL,
                 new ByteArrayMapper(Schema.LDAP_ATTR_CRL));
         */
     }
@@ -143,7 +142,7 @@ public class CRLRepository extends Repository {
      * @param rec issuing point record
      * @exception EBaseException failed to add new issuing point record
      */
-    public void addCRLIssuingPointRecord(ICRLIssuingPointRecord rec)
+    public void addCRLIssuingPointRecord(CRLIssuingPointRecord rec)
             throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
 
@@ -166,13 +165,13 @@ public class CRLRepository extends Repository {
     public Vector<String> getIssuingPointsNames() throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
         try {
-            String[] attrs = { ICRLIssuingPointRecord.ATTR_ID, "objectclass" };
+            String[] attrs = { CRLIssuingPointRecord.ATTR_ID, "objectclass" };
             String filter = "objectclass=" + CRLIssuingPointRecord.class.getName();
             IDBSearchResults res = s.search(mBaseDN, filter, attrs);
             Vector<String> v = new Vector<>();
             while (res.hasMoreElements()) {
-                ICRLIssuingPointRecord nextelement =
-                        (ICRLIssuingPointRecord) res.nextElement();
+                CRLIssuingPointRecord nextelement =
+                        (CRLIssuingPointRecord) res.nextElement();
                 logger.debug("CRLRepository getIssuingPointsNames(): name = "
                         + nextelement.getId());
                 v.addElement(nextelement.getId());
@@ -191,7 +190,7 @@ public class CRLRepository extends Repository {
      * @return issuing point record
      * @exception EBaseException failed to read issuing point record
      */
-    public ICRLIssuingPointRecord readCRLIssuingPointRecord(String id)
+    public CRLIssuingPointRecord readCRLIssuingPointRecord(String id)
             throws EBaseException {
 
         DBSSession s = null;
@@ -271,18 +270,18 @@ public class CRLRepository extends Repository {
         ModificationSet mods = new ModificationSet();
 
         if (newCRL != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_CRL,
+            mods.add(CRLIssuingPointRecord.ATTR_CRL,
                     Modification.MOD_REPLACE, newCRL);
         }
         if (nextUpdate != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE,
+            mods.add(CRLIssuingPointRecord.ATTR_NEXT_UPDATE,
                     Modification.MOD_REPLACE, nextUpdate);
         }
-        mods.add(ICRLIssuingPointRecord.ATTR_THIS_UPDATE,
+        mods.add(CRLIssuingPointRecord.ATTR_THIS_UPDATE,
                 Modification.MOD_REPLACE, thisUpdate);
-        mods.add(ICRLIssuingPointRecord.ATTR_CRL_NUMBER,
+        mods.add(CRLIssuingPointRecord.ATTR_CRL_NUMBER,
                 Modification.MOD_REPLACE, crlNumber);
-        mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE,
+        mods.add(CRLIssuingPointRecord.ATTR_CRL_SIZE,
                 Modification.MOD_REPLACE, crlSize);
         modifyCRLIssuingPointRecord(id, mods);
     }
@@ -318,31 +317,31 @@ public class CRLRepository extends Repository {
         ModificationSet mods = new ModificationSet();
 
         if (newCRL != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_CRL, Modification.MOD_REPLACE, newCRL);
+            mods.add(CRLIssuingPointRecord.ATTR_CRL, Modification.MOD_REPLACE, newCRL);
         }
 
         if (nextUpdate != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE, Modification.MOD_REPLACE, nextUpdate);
+            mods.add(CRLIssuingPointRecord.ATTR_NEXT_UPDATE, Modification.MOD_REPLACE, nextUpdate);
         }
 
-        mods.add(ICRLIssuingPointRecord.ATTR_THIS_UPDATE, Modification.MOD_REPLACE, thisUpdate);
-        mods.add(ICRLIssuingPointRecord.ATTR_CRL_NUMBER, Modification.MOD_REPLACE, crlNumber);
-        mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE, Modification.MOD_REPLACE, crlSize);
+        mods.add(CRLIssuingPointRecord.ATTR_THIS_UPDATE, Modification.MOD_REPLACE, thisUpdate);
+        mods.add(CRLIssuingPointRecord.ATTR_CRL_NUMBER, Modification.MOD_REPLACE, crlNumber);
+        mods.add(CRLIssuingPointRecord.ATTR_CRL_SIZE, Modification.MOD_REPLACE, crlSize);
 
         if (revokedCerts != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS, Modification.MOD_REPLACE, revokedCerts);
+            mods.add(CRLIssuingPointRecord.ATTR_REVOKED_CERTS, Modification.MOD_REPLACE, revokedCerts);
         }
 
         if (unrevokedCerts != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS, Modification.MOD_REPLACE, unrevokedCerts);
+            mods.add(CRLIssuingPointRecord.ATTR_UNREVOKED_CERTS, Modification.MOD_REPLACE, unrevokedCerts);
         }
 
         if (expiredCerts != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_EXPIRED_CERTS, Modification.MOD_REPLACE, expiredCerts);
+            mods.add(CRLIssuingPointRecord.ATTR_EXPIRED_CERTS, Modification.MOD_REPLACE, expiredCerts);
         }
 
         if (revokedCerts != null || unrevokedCerts != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED, Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
+            mods.add(CRLIssuingPointRecord.ATTR_FIRST_UNSAVED, Modification.MOD_REPLACE, CRLIssuingPointRecord.CLEAN_CACHE);
         }
 
         modifyCRLIssuingPointRecord(id, mods);
@@ -365,9 +364,9 @@ public class CRLRepository extends Repository {
         logger.info("CRLReposiotry: Updating revoked certificates");
 
         ModificationSet mods = new ModificationSet();
-        mods.add(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS, Modification.MOD_REPLACE, revokedCerts);
-        mods.add(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS, Modification.MOD_REPLACE, unrevokedCerts);
-        mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED, Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
+        mods.add(CRLIssuingPointRecord.ATTR_REVOKED_CERTS, Modification.MOD_REPLACE, revokedCerts);
+        mods.add(CRLIssuingPointRecord.ATTR_UNREVOKED_CERTS, Modification.MOD_REPLACE, unrevokedCerts);
+        mods.add(CRLIssuingPointRecord.ATTR_FIRST_UNSAVED, Modification.MOD_REPLACE, CRLIssuingPointRecord.CLEAN_CACHE);
 
         modifyCRLIssuingPointRecord(id, mods);
     }
@@ -383,7 +382,7 @@ public class CRLRepository extends Repository {
             throws EBaseException {
         ModificationSet mods = new ModificationSet();
 
-        mods.add(ICRLIssuingPointRecord.ATTR_EXPIRED_CERTS,
+        mods.add(CRLIssuingPointRecord.ATTR_EXPIRED_CERTS,
                 Modification.MOD_REPLACE, expiredCerts);
         modifyCRLIssuingPointRecord(id, mods);
     }
@@ -406,17 +405,17 @@ public class CRLRepository extends Repository {
         ModificationSet mods = new ModificationSet();
 
         if (crlSize != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE,
+            mods.add(CRLIssuingPointRecord.ATTR_CRL_SIZE,
                     Modification.MOD_REPLACE, crlSize);
         }
-        mods.add(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS,
+        mods.add(CRLIssuingPointRecord.ATTR_REVOKED_CERTS,
                 Modification.MOD_REPLACE, revokedCerts);
-        mods.add(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS,
+        mods.add(CRLIssuingPointRecord.ATTR_UNREVOKED_CERTS,
                 Modification.MOD_REPLACE, unrevokedCerts);
-        mods.add(ICRLIssuingPointRecord.ATTR_EXPIRED_CERTS,
+        mods.add(CRLIssuingPointRecord.ATTR_EXPIRED_CERTS,
                 Modification.MOD_REPLACE, expiredCerts);
-        mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED,
-                Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
+        mods.add(CRLIssuingPointRecord.ATTR_FIRST_UNSAVED,
+                Modification.MOD_REPLACE, CRLIssuingPointRecord.CLEAN_CACHE);
         modifyCRLIssuingPointRecord(id, mods);
     }
 
@@ -437,19 +436,19 @@ public class CRLRepository extends Repository {
         ModificationSet mods = new ModificationSet();
 
         if (deltaCRLNumber != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_DELTA_NUMBER,
+            mods.add(CRLIssuingPointRecord.ATTR_DELTA_NUMBER,
                     Modification.MOD_REPLACE, deltaCRLNumber);
         }
         if (deltaCRLSize != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_DELTA_SIZE,
+            mods.add(CRLIssuingPointRecord.ATTR_DELTA_SIZE,
                     Modification.MOD_REPLACE, deltaCRLSize);
         }
         if (nextUpdate != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE,
+            mods.add(CRLIssuingPointRecord.ATTR_NEXT_UPDATE,
                     Modification.MOD_REPLACE, nextUpdate);
         }
         if (deltaCRL != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_DELTA_CRL,
+            mods.add(CRLIssuingPointRecord.ATTR_DELTA_CRL,
                     Modification.MOD_REPLACE, deltaCRL);
         }
         modifyCRLIssuingPointRecord(id, mods);
@@ -468,7 +467,7 @@ public class CRLRepository extends Repository {
         ModificationSet mods = new ModificationSet();
 
         if (firstUnsaved != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED,
+            mods.add(CRLIssuingPointRecord.ATTR_FIRST_UNSAVED,
                     Modification.MOD_REPLACE, firstUnsaved);
         }
         modifyCRLIssuingPointRecord(id, mods);
