@@ -34,7 +34,7 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.request.Request;
@@ -106,8 +106,7 @@ public class PKCS7Output extends EnrollOutput {
         CAEngine engine = CAEngine.getInstance();
 
         if (name.equals(VAL_PRETTY_CERT)) {
-            X509CertImpl cert = request.getExtDataInCert(
-                    EnrollProfile.REQUEST_ISSUED_CERT);
+            X509CertImpl cert = request.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
             if (cert == null)
                 return null;
             CertPrettyPrint prettyCert = new CertPrettyPrint(cert);
@@ -116,8 +115,7 @@ public class PKCS7Output extends EnrollOutput {
         } else if (name.equals(VAL_PKCS7)) {
 
             try {
-                X509CertImpl cert = request.getExtDataInCert(
-                        EnrollProfile.REQUEST_ISSUED_CERT);
+                X509CertImpl cert = request.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
                 if (cert == null)
                     return null;
 

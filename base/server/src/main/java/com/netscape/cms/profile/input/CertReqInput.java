@@ -102,7 +102,7 @@ public class CertReqInput extends EnrollInput {
         String cert_request_type = ctx.get(VAL_CERT_REQUEST_TYPE);
         String cert_request = ctx.get(VAL_CERT_REQUEST);
         X509CertInfo info =
-                request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(Profile.REQUEST_CERTINFO);
 
         if (cert_request_type == null) {
             logger.error(method + "invalid cert request type");
@@ -187,7 +187,7 @@ public class CertReqInput extends EnrollInput {
                             "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
                             cert_request_type));
         }
-        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
+        request.setExtData(Profile.REQUEST_CERTINFO, info);
     }
 
     /**

@@ -39,7 +39,7 @@ import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
@@ -219,8 +219,7 @@ public class CertificateIssuedListener implements IRequestListener {
                 issuedCert = r.getExtDataInCertArray(Request.ISSUED_CERTS);
             } else {
                 issuedCert = new X509CertImpl[1];
-                issuedCert[0] =
-                        r.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+                issuedCert[0] = r.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
             }
 
             if (issuedCert != null) {

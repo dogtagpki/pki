@@ -121,7 +121,7 @@ public class nsHKeyCertReqInput extends EnrollInput {
 
         String pk = ctx.get(VAL_PUBLIC_KEY);
         X509CertInfo info =
-                request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(Profile.REQUEST_CERTINFO);
 
         if (tcuid == null) {
             logger.error("nsHKeyCertReqInput: populate - tokencuid not found");
@@ -139,7 +139,7 @@ public class nsHKeyCertReqInput extends EnrollInput {
         }
 
         mEnrollProfile.fillNSHKEY(getLocale(request), tcuid, pk, info, request);
-        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
+        request.setExtData(Profile.REQUEST_CERTINFO, info);
     }
 
     /**

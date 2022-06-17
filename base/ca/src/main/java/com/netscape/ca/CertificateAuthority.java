@@ -120,7 +120,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
@@ -1941,7 +1940,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
             throw new BadRequestDataException(msg);
         }
 
-        return request.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+        return request.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
     }
 
     /**
@@ -1990,7 +1989,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         RequestStatus requestStatus = request.getRequestStatus();
         if (requestStatus != RequestStatus.COMPLETE)
             throw new EBaseException("renewAuthority: certificate renewal did not complete; status: " + requestStatus);
-        X509CertImpl cert = request.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+        X509CertImpl cert = request.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
         authoritySerial = cert.getSerialNumber();
 
         engine.updateAuthoritySerialNumber(authorityID, authoritySerial);

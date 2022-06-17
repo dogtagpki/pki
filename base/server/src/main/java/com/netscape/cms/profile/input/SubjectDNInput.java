@@ -29,7 +29,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -96,7 +95,7 @@ public class SubjectDNInput extends EnrollInput {
     public void populate(Map<String, String> ctx, Request request) throws Exception {
 
         X509CertInfo info =
-                request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(Profile.REQUEST_CERTINFO);
         String subjectName = "";
 
         subjectName = ctx.get(VAL_SUBJECT);
@@ -115,7 +114,7 @@ public class SubjectDNInput extends EnrollInput {
                             "CMS_PROFILE_INVALID_SUBJECT_NAME", subjectName));
         }
         parseSubjectName(name, info, request);
-        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
+        request.setExtData(Profile.REQUEST_CERTINFO, info);
     }
 
     @Override

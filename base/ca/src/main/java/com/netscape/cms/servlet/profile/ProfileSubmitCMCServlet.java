@@ -72,7 +72,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.ProfileAuthenticator;
-import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.servlet.common.AuthCredentials;
@@ -880,7 +879,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     profile.submit(authToken, reqs[k]);
                     reqs[k].setRequestStatus(RequestStatus.COMPLETE);
 
-                    X509CertImpl x509cert = reqs[k].getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+                    X509CertImpl x509cert = reqs[k].getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
 
                     if (x509cert != null) {
 
@@ -988,7 +987,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     reqs[0].setRequestStatus(RequestStatus.COMPLETE);
                     //profile.getRequestQueue().markAsServiced(provedReq);
 
-                    X509CertImpl x509cert = reqs[0].getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+                    X509CertImpl x509cert = reqs[0].getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
 
                     if (x509cert != null) {
 
@@ -1063,7 +1062,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             if (cert_request_type.equals("pkcs10") || cert_request_type.equals("crmf")) {
 
                 if (outputFormat != null && outputFormat.equals("pkcs7")) {
-                    X509CertImpl cert = reqs[0].getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+                    X509CertImpl cert = reqs[0].getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
                     X509Certificate[] certChain = engine.getCertChain(cert);
 
                     PKCS7 p7 = new PKCS7(new AlgorithmId[0],

@@ -27,7 +27,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -120,7 +120,7 @@ public class UserExtensionDefault extends EnrollExtDefault {
         CertificateExtensions inExts = null;
         String oid = getConfig(CONFIG_OID);
 
-        inExts = request.getExtDataInCertExts(EnrollProfile.REQUEST_EXTENSIONS);
+        inExts = request.getExtDataInCertExts(Profile.REQUEST_EXTENSIONS);
         if (inExts == null)
             return;
         Extension ext = getExtension(getConfig(CONFIG_OID), inExts);

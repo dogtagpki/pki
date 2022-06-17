@@ -198,45 +198,6 @@ public abstract class EnrollProfile extends Profile {
     public static final String CTX_RENEWAL = "renewal";
 
     /**
-     * Name of request attribute that stores the End-User Supplied
-     * Validity.
-     * <p>
-     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateValidity
-     */
-    public static final String REQUEST_VALIDITY = "req_validity";
-
-    /**
-     * Name of request attribute that stores the End-User Supplied
-     * Signing Algorithm.
-     * <p>
-     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId
-     */
-    public static final String REQUEST_SIGNING_ALGORITHM = "req_signing_alg";
-
-    /**
-     * Name of request attribute that stores the End-User Supplied
-     * Extensions.
-     * <p>
-     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateExtensions
-     */
-    public static final String REQUEST_EXTENSIONS = "req_extensions";
-
-    /**
-     * Name of request attribute that stores the certificate template
-     * that will be signed and then become a certificate.
-     * <p>
-     * The value is of type org.mozilla.jss.netscape.security.x509.X509CertInfo
-     */
-    public static final String REQUEST_CERTINFO = "req_x509info";
-
-    /**
-     * Name of request attribute that stores the issued certificate.
-     * <p>
-     * The value is of type org.mozilla.jss.netscape.security.x509.X509CertImpl
-     */
-    public static final String REQUEST_ISSUED_CERT = "req_issued_cert";
-
-    /**
      * Name of request attribute that stores the issued P12 from server-side keygen.
      * <p>
      */
@@ -431,7 +392,7 @@ public abstract class EnrollProfile extends Profile {
             logger.error("Unable to create X509CertInfo: " + e.getMessage(), e);
             throw new EProfileException(e);
         }
-        request.setExtData(REQUEST_CERTINFO, info);
+        request.setExtData(Profile.REQUEST_CERTINFO, info);
     }
 
     public Request createEnrollmentRequest() throws EProfileException {
@@ -447,7 +408,7 @@ public abstract class EnrollProfile extends Profile {
             setDefaultCertInfo(req);
 
             // put the certificate info into request
-            req.setExtData(REQUEST_EXTENSIONS, new CertificateExtensions());
+            req.setExtData(Profile.REQUEST_EXTENSIONS, new CertificateExtensions());
 
         } catch (EBaseException e) {
             throw new EProfileException("Unable to create enrollment request: " + e.getMessage(), e);
@@ -484,7 +445,7 @@ public abstract class EnrollProfile extends Profile {
 
     @Override
     public String getRequestorDN(Request request) {
-        X509CertInfo info = request.getExtDataInCertInfo(REQUEST_CERTINFO);
+        X509CertInfo info = request.getExtDataInCertInfo(Profile.REQUEST_CERTINFO);
 
         try {
             CertificateSubjectName sn = (CertificateSubjectName)
@@ -2315,7 +2276,7 @@ public abstract class EnrollProfile extends Profile {
                 ByteArrayOutputStream certValidityOut =
                         new ByteArrayOutputStream();
                 certValidity.encode(certValidityOut);
-                req.setExtData(REQUEST_VALIDITY, certValidityOut.toByteArray());
+                req.setExtData(Profile.REQUEST_VALIDITY, certValidityOut.toByteArray());
             } else {
                 logger.debug("EnrollProfile:  validity not supplied");
             }
@@ -2357,7 +2318,7 @@ public abstract class EnrollProfile extends Profile {
             CertificateExtensions extensions = null;
 
             // try {
-            extensions = req.getExtDataInCertExts(REQUEST_EXTENSIONS);
+            extensions = req.getExtDataInCertExts(Profile.REQUEST_EXTENSIONS);
             //  } catch (CertificateException e) {
             //     extensions = null;
             // } catch (IOException e) {
@@ -2413,7 +2374,7 @@ public abstract class EnrollProfile extends Profile {
                     extensions.parseExtension(ext);
                 }
                 //                info.set(X509CertInfo.EXTENSIONS, extensions);
-                req.setExtData(REQUEST_EXTENSIONS, extensions);
+                req.setExtData(Profile.REQUEST_EXTENSIONS, extensions);
 
             }
         } catch (IOException e) {
@@ -2513,7 +2474,7 @@ public abstract class EnrollProfile extends Profile {
                     CertificateExtensions certExts = new CertificateExtensions(extIn);
 
                     // info.set(X509CertInfo.EXTENSIONS, certExts);
-                    req.setExtData(REQUEST_EXTENSIONS, certExts);
+                    req.setExtData(Profile.REQUEST_EXTENSIONS, certExts);
                 }
             }
 
@@ -2686,7 +2647,7 @@ public abstract class EnrollProfile extends Profile {
         logger.debug("EnrollProfile.validate: start");
 
         // try {
-        X509CertInfo info = request.getExtDataInCertInfo(REQUEST_CERTINFO);
+        X509CertInfo info = request.getExtDataInCertInfo(Profile.REQUEST_CERTINFO);
 
         try {
             CertificateSubjectName sn = (CertificateSubjectName)

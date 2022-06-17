@@ -96,6 +96,45 @@ public abstract class Profile {
     public static final String PROP_NO_CONSTRAINT = "noConstraintImpl";
     public static final String PROP_GENERIC_EXT_DEFAULT = "genericExtDefaultImpl";
 
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * Validity.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateValidity
+     */
+    public static final String REQUEST_VALIDITY = "req_validity";
+
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * Signing Algorithm.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId
+     */
+    public static final String REQUEST_SIGNING_ALGORITHM = "req_signing_alg";
+
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * Extensions.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateExtensions
+     */
+    public static final String REQUEST_EXTENSIONS = "req_extensions";
+
+    /**
+     * Name of request attribute that stores the certificate template
+     * that will be signed and then become a certificate.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.X509CertInfo
+     */
+    public static final String REQUEST_CERTINFO = "req_x509info";
+
+    /**
+     * Name of request attribute that stores the issued certificate.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.X509CertImpl
+     */
+    public static final String REQUEST_ISSUED_CERT = "req_issued_cert";
+
     protected ConfigStore mConfig;
     protected PluginRegistry registry;
 

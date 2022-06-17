@@ -28,7 +28,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -135,7 +135,7 @@ public class UserValidityDefault extends EnrollDefault {
         // the key from request into x509 certinfo
         try {
             byte[] certValidityData = request.getExtDataInByteArray(
-                    EnrollProfile.REQUEST_VALIDITY);
+                    Profile.REQUEST_VALIDITY);
             if (certValidityData != null) {
                 certValidity = new CertificateValidity();
                 certValidity.decode(

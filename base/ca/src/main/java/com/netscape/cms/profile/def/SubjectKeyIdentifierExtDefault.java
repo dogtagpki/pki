@@ -32,7 +32,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -230,7 +230,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
 
         CertificateExtensions extensions = null;
 
-        extensions = request.getExtDataInCertExts(EnrollProfile.REQUEST_EXTENSIONS);
+        extensions = request.getExtDataInCertExts(Profile.REQUEST_EXTENSIONS);
 
         SubjectKeyIdentifierExtension ext = createExtension(info, extensions);
 

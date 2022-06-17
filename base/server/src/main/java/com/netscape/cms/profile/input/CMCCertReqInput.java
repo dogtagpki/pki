@@ -96,7 +96,7 @@ public class CMCCertReqInput extends EnrollInput {
 
         String cert_request = ctx.get(VAL_CERT_REQUEST);
         X509CertInfo info =
-                request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(Profile.REQUEST_CERTINFO);
 
         if (cert_request == null) {
             logger.error(method + "invalid certificate request");
@@ -124,7 +124,7 @@ public class CMCCertReqInput extends EnrollInput {
         }
 
         mEnrollProfile.fillTaggedRequest(getLocale(request), msgs[seqNum.intValue()], info, request);
-        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
+        request.setExtData(Profile.REQUEST_CERTINFO, info);
     }
 
     /**
