@@ -39,7 +39,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.kra.EKRAException;
-import com.netscape.certsrv.kra.IProofOfArchival;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -50,7 +49,7 @@ import com.netscape.cmscore.apps.CMS;
  * authority. It is possible to have a CMS policy to reject
  * the certificate issuance request if proof of escrow is not
  * presented.
- * <P>
+ *
  * Here is the ASN1 definition of a proof of escrow:
  *
  * <PRE>
@@ -65,12 +64,10 @@ import com.netscape.cmscore.apps.CMS;
  *   }
  * }
  * </PRE>
- * <P>
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
-public class ProofOfArchival implements IDBObj, IProofOfArchival {
+public class ProofOfArchival implements IDBObj {
 
     private static final long serialVersionUID = -2533562170977678799L;
 
@@ -219,55 +216,45 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival {
 
     /**
      * Retrieves version of this proof.
-     * <P>
      *
      * @return version
      */
-    @Override
     public BigInteger getVersion() {
         return mVersion;
     }
 
     /**
      * Retrieves the serial number.
-     * <P>
      *
      * @return serial number
      */
-    @Override
     public BigInteger getSerialNumber() {
         return mSerialNo;
     }
 
     /**
      * Retrieves the subject name.
-     * <P>
      *
      * @return subject name
      */
-    @Override
     public String getSubjectName() {
         return mSubject;
     }
 
     /**
      * Retrieves the issuer name.
-     * <P>
      *
      * @return issuer name
      */
-    @Override
     public String getIssuerName() {
         return mIssuer;
     }
 
     /**
-     * Returns the beginning of the escrowed perioid.
-     * <P>
+     * Returns the beginning of the escrowed period.
      *
      * @return date of archival
      */
-    @Override
     public Date getDateOfArchival() {
         return mDateOfArchival;
     }
