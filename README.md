@@ -2,39 +2,39 @@
 
 The Dogtag Certificate System is an enterprise-class open source Certificate Authority (CA). It is a full-featured system, and has been hardened by real-world deployments. It supports all aspects of certificate lifecycle management, including key archival, OCSP and smartcard management, and much more.
 
-There are 6 different subsystems included in the Dogtag PKI suite:
+The Dogtag PKI suite provides the following subsystems:
 
-1. [Certificate Authority (CA) subsystem](https://www.dogtagpki.org/wiki/Certificate_Authority)
-2. [Key Recovery Authority (KRA) subsystem](https://www.dogtagpki.org/wiki/Key_Recovery_Authority)
-3. [Online Certificate Status Protocol (OCSP) subsystem](https://www.dogtagpki.org/wiki/OCSP_Manager)
-4. [Token Key Service (TKS) subsystem](https://www.dogtagpki.org/wiki/Token_Key_Service)
-5. [Token Processing System (TPS) subsystem](https://www.dogtagpki.org/wiki/Token_Processing_System)
-6. [ACME Responder](https://www.dogtagpki.org/wiki/PKI_ACME_Responder)
+- [Certificate Authority (CA)](https://github.com/dogtagpki/pki/wiki/Certificate-Authority)
+- [Key Recovery Authority (KRA)](https://github.com/dogtagpki/pki/wiki/Key-Recovery-Authority)
+- [Online Certificate Status Protocol (OCSP) Responder](https://github.com/dogtagpki/pki/wiki/OCSP-Responder)
+- [Token Key Service (TKS)](https://github.com/dogtagpki/pki/wiki/Token-Key-Service)
+- [Token Processing System (TPS)](https://github.com/dogtagpki/pki/wiki/Token-Processing-System)
+- [Automatic Certificate Management Environment (ACME) Responder](https://github.com/dogtagpki/pki/wiki/ACME-Responder)
 
 ## Documentation
 
-The best place to start learning about the product is the [Dogtag PKI Wiki](https://www.dogtagpki.org)
+The best place to start learning about the product is the [Dogtag PKI Wiki](https://github.com/dogtagpki/pki/wiki).
 
 ## Installing
 
 ### Fedora
 
-To install the **whole Dogtag PKI suite**:
+To install the whole Dogtag PKI suite:
 
 ````bash
-sudo dnf install dogtag-pki
+$ sudo dnf install dogtag-pki
 ````
 
-To install **individual subsystems**:
+To install specific subsystems only:
 
 ````bash
-sudo dnf install pki-ca pki-kra pki-ocsp pki-tks pki-tps
+$ sudo dnf install dogtag-pki-ca dogtag-pki-kra
 ````
 
-To install **web UI theme packages**:
+To install the theme package:
 
 ````bash
-sudo dnf install dogtag-pki-theme
+$ sudo dnf install dogtag-pki-theme
 ````
 
 ## Deploying
@@ -48,7 +48,7 @@ After successful installation of the packages, follow the below steps to deploy 
 - [Deploy TPS](docs/installation/tps/Installing_TPS.md)
 - [Deploy ACME](docs/installation/acme/Installing_PKI_ACME_Responder.md)
 
-For other types of deployments (Sub-CA, Clones, HSMs, etc) please see under [docs/installation](docs/installation)
+For other types of deployments (Sub-CA, Clones, HSMs, etc) please see the [Installation Guide](https://github.com/dogtagpki/pki/wiki/Installation-Guide).
 
 ## Building
 
@@ -57,12 +57,12 @@ For other types of deployments (Sub-CA, Clones, HSMs, etc) please see under [doc
 #### Prerequisites
 
 ````bash
-sudo dnf install dnf-plugins-core rpm-build git
+$ sudo dnf install dnf-plugins-core rpm-build git
 
 # NOTE: Use the intendended branch name instead of "master" to pull right dependency version
-sudo dnf copr enable @pki/master
+$ sudo dnf copr -y enable @pki/master
 
-sudo dnf builddep pki.spec
+$ sudo dnf builddep -y --spec pki.spec
 ````
 
 #### Build Procedure
@@ -70,12 +70,12 @@ sudo dnf builddep pki.spec
 After successfully installing the prerequisites, the project can be built with a one-line command:
 
 ````bash
-./build.sh
+$ ./build.sh rpm
 ````
 
 The built RPMS will be placed in `~/build/pki/` directory.
 
-See also [Building PKI](docs/development/Building_PKI.md)
+See also [Building PKI](docs/development/Building_PKI.md).
 
 ## Testing
 

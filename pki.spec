@@ -796,12 +796,12 @@ This package provides test suite for %{product_name}.
 
 pkgs=base\
 %{?with_server:,server}\
-%{?with_acme:,acme}\
 %{?with_ca:,ca}\
 %{?with_kra:,kra}\
 %{?with_ocsp:,ocsp}\
 %{?with_tks:,tks}\
 %{?with_tps:,tps}\
+%{?with_acme:,acme}\
 %{?with_javadoc:,javadoc}\
 %{?with_theme:,theme}\
 %{?with_meta:,meta}\

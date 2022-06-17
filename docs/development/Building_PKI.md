@@ -5,172 +5,198 @@ Building PKI
 
 To clone the source repository:
 
-<pre>
+````bash
 $ git clone git@github.com:dogtagpki/pki.git
 $ cd pki
-</pre>
+````
 
-By default it will checkout the master branch.
+By default it will checkout the `master` branch.
 
 To list available branches:
 
-<pre>
+````bash
 $ git branch -r
-</pre>
+````
 
 To switch to a different branch:
 
-<pre>
-$ git checkout &lt;branch&gt;
-</pre>
+````bash
+$ git checkout <branch>
+````
 
-The branch names follow the following format:
+The branch names follow the following formats:
 
-<pre>
-DOGTAG_&lt;major&gt;_&lt;minor&gt;_BRANCH
-</pre>
+- `master`
+- `v<major>`
+- `v<major>.<minor>`
+- `DOGTAG_<major>_<minor>_BRANCH`
 
 ## Installing the Dependencies
 
-During development PKI may require dependencies that are only available in [PKI COPR](https://www.dogtagpki.org/wiki/PKI_COPR) repository.
+During development PKI may require dependencies that are only available in [COPR repositories](https://github.com/dogtagpki/pki/wiki/COPR-Repositories).
 
-To enable PKI COPR repository:
+The COPR repository names follow the following formats:
 
-<pre>
-$ dnf copr -y enable @pki/&lt;major&gt;.&lt;minor&gt;
-</pre>
+- `@pki/master`
+- `@pki/<major>`
+- `@pki/<major>.<minor>`
+
+Enable the COPR repository that corresponds to the current branch:
+
+````bash
+$ sudo dnf copr -y enable <repository>
+````
 
 To install PKI dependencies:
 
-<pre>
-$ dnf builddep -y --spec pki.spec
-</pre>
+````bash
+$ sudo dnf builddep -y --spec pki.spec
+````
 
-## Building PKI Packages
+## Building PKI
 
-To build PKI packages:
+To build PKI:
 
-<pre>
-$ ./build.sh [OPTIONS] &lt;target&gt;
-</pre>
-
-Available packages:
-* base
-* server
-* ca
-* kra
-* ocsp
-* tks
-* tps
-* javadoc
-* console
-* theme
-* meta
-* debug
+````bash
+$ ./build.sh [OPTIONS] <target>
+````
 
 Available targets:
-* src: build RPM sources (tarball and patch)
-* spec: build RPM spec and everything above
-* srpm: build SRPM package and everything above
-* rpm: build RPM packages and everything above (default)
 
-The default working directory is $HOME/build/pki. During the build process the following subfolders will be created:
-* BUILD: contains unpacked source code
-* BUILDROOT: contains installed binaries
-* RPMS: contains the binary packages
-* SOURCES: contains the tarball and patch files
-* SPECS: contains the spec file
-* SRPMS: contains the source package
+- `dist`: build PKI binaries (default)
+- `install`: install PKI binaries
+- `src`: build RPM sources (tarball and patch)
+- `spec`: build RPM sources and RPM spec
+- `srpm`: build RPM sources, RPM spec, and SRPM package
+- `rpm`: build RPM sources, RPM spec, SRPM package, and RPM packages
 
-To start the build process:
 
-<pre>
-$ ./build.sh
-</pre>
+To build the binaries:
 
-It will build all packages with the current files in the source directory.
+````bash
+$ ./build.sh dist
+````
 
-The package version number and release number will be determined by the Version and Release attributes in the [pki.spec](../../pki.spec).
+It will build the binaries with the current files in the source directory.
+
+The package version number and release number will be determined by the macros defined in the [pki.spec](../../pki.spec).
+
+To install the binaries:
+
+````bash
+$ ./build.sh install
+````
 
 ### Changing Working Directory
 
+The default working directory is `~/build/pki`.
 To change the working directory:
 
-<pre>
-$ ./build.sh --work-dir=&lt;working directory&gt;
-</pre>
+````bash
+$ ./build.sh --work-dir=<path>
+````
+
+## Building RPM Packages
+
+To build RPM packages:
+
+````bash
+$ ./build.sh rpm
+````
+
+The following subfolders will be created in the working directory:
+
+- `BUILD`: contains unpacked source code
+- `BUILDROOT`: contains installed binaries
+- `RPMS`: contains the binary packages
+- `SOURCES`: contains the tarball and patch files
+- `SPECS`: contains the spec file
+- `SRPMS`: contains the source package
 
 ### Adding Timestamp and Commit ID
 
 To add the current timestamp and the latest commit ID of the current branch into the release number:
 
-<pre>
-$ ./build.sh --with-timestamp --with-commit-id
-</pre>
+````bash
+$ ./build.sh --with-timestamp --with-commit-id rpm
+````
 
 ### Changing Distribution Name
 
 The default distribution name can be obtained with the following command:
 
-<pre>
+````bash
 $ rpm --eval '%{dist}' | cut -c 2-
-</pre>
+````
 
 To change the distribution name:
 
-<pre>
-$ ./build.sh --dist=&lt;distribution name&gt;
-</pre>
+````bash
+$ ./build.sh --dist=<name> rpm
+````
 
-**Note:** The distribution name should not be prefixed with a dot (e.g. fc28).
+**Note:** The distribution name should not be prefixed with a dot (e.g. `fc36`).
 
 ### Building with Checked-in Source Code
 
-To build with the source code already checked into the current branch:
+To build with the source code already committed into the current branch:
 
-<pre>
-$ ./build.sh --source-tag=HEAD
-</pre>
+````bash
+$ ./build.sh --source-tag=HEAD rpm
+````
 
-This will produce the following source:
-* pki-&lt;version&gt;.tar.gz: tarball containing the source code up to the HEAD of the branch
+This will produce the following file:
+
+- `pki-<version>.tar.gz`: tarball containing the source code up to the `HEAD` of the branch
 
 ### Building with Patched Tarball
 
 To build with a tarball and a patch file:
 
-<pre>
-$ ./build.sh --source-tag=&lt;tag&gt;
-</pre>
+````bash
+$ ./build.sh --source-tag=<tag> rpm
+````
 
-This will produce the following sources:
-* pki-&lt;version&gt;.tar.gz: a tarball containing the source code tagged with &lt;tag&gt;
-* pki-&lt;version&gt;-&lt;release&gt;.patch: a combined patch containing all changes after &lt;tag&gt; up to HEAD
+This will produce the following files:
+
+- `pki-<version>.tar.gz`: a tarball containing the source code tagged with `<tag>`
+- `pki-<version>-<release>.patch`: a combined patch containing all changes after  `<tag>` up to `HEAD`
 
 ### Building Select Packages
 
-To build specified packages only:
 
-<pre>
-$ ./build.sh --with-pkgs=base,server,ca,kra
-</pre>
+To build the specified packages only:
+
+````bash
+$ ./build.sh --with-pkgs=base,server,ca,kra,ocsp,tks,tps,acme rpm
+````
 
 To build everything except the specified packages:
 
-<pre>
-$ ./build.sh --without-pkgs=base,server,ca,kra
-</pre>
+````bash
+$ ./build.sh --without-pkgs=javadoc,theme,meta,tests,debug rpm
+````
 
-It is equivalent to:
+Available packages:
 
-<pre>
-$ ./build.sh --with-pkgs=ocsp,tks,tps,javadoc,console,theme,meta,debug
-</pre>
+- `base`
+- `server`
+- `ca`
+- `kra`
+- `ocsp`
+- `tks`
+- `tps`
+- `acme`
+- `javadoc`
+- `theme`
+- `meta`
+- `tests`
+- `debug`
 
-## Installing PKI Packages
+### Installing RPM Packages
 
-To install the newly built packages:
+To install the RPM packages:
 
-<pre>
-$ dnf install $HOME/build/pki/RPMS/*
-</pre>
+````bash
+$ sudo dnf install ~/build/pki/RPMS/*
+````
