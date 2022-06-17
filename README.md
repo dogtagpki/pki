@@ -79,18 +79,19 @@ See also [Building PKI](docs/development/Building_PKI.md)
 
 ## Testing
 
-| Test      | Status                                                                               |
-| --------- | ------------------------------------------------------------------------------------ |
-| CA        | ![CA Tests](https://github.com/dogtagpki/pki/workflows/CA%20Tests/badge.svg)         |
-| KRA       | ![KRA Tests](https://github.com/dogtagpki/pki/workflows/KRA%20Tests/badge.svg)       |
-| OCSP      | ![OCSP Tests](https://github.com/dogtagpki/pki/workflows/OCSP%20Tests/badge.svg)     |
-| TKS       | ![TKS Tests](https://github.com/dogtagpki/pki/workflows/TKS%20Tests/badge.svg)       |
-| TPS       | ![TPS Tests](https://github.com/dogtagpki/pki/workflows/TPS%20Tests/badge.svg)       |
-| ACME      | ![ACME Tests](https://github.com/dogtagpki/pki/workflows/ACME%20Tests/badge.svg)     |
-| Python    | ![Python Tests](https://github.com/dogtagpki/pki/workflows/Python%20Tests/badge.svg) |
-| Tools     | ![Python Tests](https://github.com/dogtagpki/pki/workflows/Tools%20Tests/badge.svg)  |
-| QE        | ![QE Tests](https://github.com/dogtagpki/pki/workflows/QE%20Tests/badge.svg)         |
-| IPA       | ![IPA Tests](https://github.com/dogtagpki/pki/workflows/IPA%20Tests/badge.svg)       |
+| Test       | Status                                                                               |
+| ---------- | ------------------------------------------------------------------------------------ |
+| SonarCloud | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dogtagpki_pki&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dogtagpki_pki)                                           |
+| CA         | ![CA Tests](https://github.com/dogtagpki/pki/workflows/CA%20Tests/badge.svg)         |
+| KRA        | ![KRA Tests](https://github.com/dogtagpki/pki/workflows/KRA%20Tests/badge.svg)       |
+| OCSP       | ![OCSP Tests](https://github.com/dogtagpki/pki/workflows/OCSP%20Tests/badge.svg)     |
+| TKS        | ![TKS Tests](https://github.com/dogtagpki/pki/workflows/TKS%20Tests/badge.svg)       |
+| TPS        | ![TPS Tests](https://github.com/dogtagpki/pki/workflows/TPS%20Tests/badge.svg)       |
+| ACME       | ![ACME Tests](https://github.com/dogtagpki/pki/workflows/ACME%20Tests/badge.svg)     |
+| Python     | ![Python Tests](https://github.com/dogtagpki/pki/workflows/Python%20Tests/badge.svg) |
+| Tools      | ![Python Tests](https://github.com/dogtagpki/pki/workflows/Tools%20Tests/badge.svg)  |
+| QE         | ![QE Tests](https://github.com/dogtagpki/pki/workflows/QE%20Tests/badge.svg)         |
+| IPA        | ![IPA Tests](https://github.com/dogtagpki/pki/workflows/IPA%20Tests/badge.svg)       |
 
 ## Contributing
 
