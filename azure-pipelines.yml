@@ -1,0 +1,28 @@
+# Provide docker in container for installing dependencies as root.
+# https://github.com/Microsoft/azure-pipelines-agent/issues/2043#issuecomment-687983301
+resources:
+  containers:
+  - container: fedora_latest
+    image: fedora:latest
+    options: '--name runner -v /usr/bin/docker:/usr/bin/docker:ro'
+
+jobs:
+- job: BuildTest
+  pool:
+    vmImage: ubuntu-latest
+  strategy:
+    matrix:
+      fedora_latest:
+        image: fedora_latest
+  container: $[variables['image']]
+  steps:
+  - script: |
+      docker exec -u 0 -w $BUILD_SOURCESDIRECTORY runner dnf install -y dnf-plugins-core rpm-build
+      docker exec -u 0 -w $BUILD_SOURCESDIRECTORY runner dnf copr enable -y @pki/master
+      docker exec -u 0 -w $BUILD_SOURCESDIRECTORY runner dnf builddep -y --spec pki.spec
+    displayName: Install PKI dependencies
+
+  - script: |
+      docker exec -u 0 -w $BUILD_SOURCESDIRECTORY runner ./build.sh dist
+      docker exec -u 0 -w $BUILD_SOURCESDIRECTORY runner ./build.sh install
+    displayName: Build and install PKI
