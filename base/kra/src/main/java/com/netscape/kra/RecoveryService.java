@@ -265,7 +265,7 @@ public class RecoveryService implements IService {
         if (statsSub != null) {
             statsSub.startTiming("get_key");
         }
-        KeyRecord keyRecord = (KeyRecord) mStorage.readKeyRecord(serialno);
+        KeyRecord keyRecord = mStorage.readKeyRecord(serialno);
         if (statsSub != null) {
             statsSub.endTiming("get_key");
         }
