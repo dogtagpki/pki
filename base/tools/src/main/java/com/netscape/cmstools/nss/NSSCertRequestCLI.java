@@ -20,6 +20,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs11.PK11PrivKey;
 
 import com.netscape.certsrv.client.ClientConfig;
@@ -105,13 +106,6 @@ public class NSSCertRequestCLI extends CommandCLI {
         ClientConfig clientConfig = mainCLI.getConfig();
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
 
-        Extensions extensions = null;
-        if (extConf != null) {
-            NSSExtensionGenerator generator = new NSSExtensionGenerator();
-            generator.init(extConf);
-            extensions = generator.createExtensions();
-        }
-
         String tokenName = clientConfig.getTokenName();
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
@@ -148,6 +142,15 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         } else {
             throw new Exception("Unsupported key type: " + keyType);
+        }
+
+        Extensions extensions = null;
+        if (extConf != null) {
+            NSSExtensionGenerator generator = new NSSExtensionGenerator();
+            generator.init(extConf);
+
+            X509Key subjectKey = CryptoUtil.createX509Key(keyPair.getPublic());
+            extensions = generator.createExtensions(subjectKey);
         }
 
         PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();

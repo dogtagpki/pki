@@ -188,9 +188,9 @@ public class NSSExtensionGenerator {
         return new AuthorityKeyIdentifierExtension(keyID, null, null);
     }
 
-    public SubjectKeyIdentifierExtension createSKIDExtension(PKCS10 pkcs10) throws Exception {
+    public SubjectKeyIdentifierExtension createSKIDExtension(X509Key subjectKey) throws Exception {
 
-        if (pkcs10 == null) return null;
+        if (subjectKey == null) return null;
 
         String subjectKeyIdentifier = getParameter("subjectKeyIdentifier");
         if (subjectKeyIdentifier == null) return null;
@@ -201,8 +201,6 @@ public class NSSExtensionGenerator {
 
         if (subjectKeyIdentifier.equals("hash")) {
             logger.info("- hash");
-
-            X509Key subjectKey = pkcs10.getSubjectPublicKeyInfo();
             bytes = CryptoUtil.generateKeyIdentifier(subjectKey.getKey());
 
         } else {
@@ -545,11 +543,36 @@ public class NSSExtensionGenerator {
         return new Extension(new ObjectIdentifier(oid), critical, extValue);
     }
 
+    /**
+     * Create extensions.
+     */
     public Extensions createExtensions() throws Exception {
-        return createExtensions(null, null);
+        return createExtensions(null, null, null);
     }
 
+    /**
+     * Create extensions with the specified subject key.
+     */
+    public Extensions createExtensions(X509Key subjectKey) throws Exception {
+        return createExtensions(subjectKey, null, null);
+    }
+
+    /**
+     * Create extensions with the specified issuer and request.
+     */
     public Extensions createExtensions(
+            org.mozilla.jss.crypto.X509Certificate issuer,
+            PKCS10 pkcs10) throws Exception {
+
+        X509Key subjectKey = pkcs10.getSubjectPublicKeyInfo();
+        return createExtensions(subjectKey, issuer, pkcs10);
+    }
+
+    /**
+     * Create extensions with the specified subject key, issuer, and request.
+     */
+    public Extensions createExtensions(
+            X509Key subjectKey,
             org.mozilla.jss.crypto.X509Certificate issuer,
             PKCS10 pkcs10) throws Exception {
 
@@ -565,7 +588,7 @@ public class NSSExtensionGenerator {
             extensions.parseExtension(akidExtension);
         }
 
-        SubjectKeyIdentifierExtension skidExtension = createSKIDExtension(pkcs10);
+        SubjectKeyIdentifierExtension skidExtension = createSKIDExtension(subjectKey);
         if (skidExtension != null) {
             extensions.parseExtension(skidExtension);
         }

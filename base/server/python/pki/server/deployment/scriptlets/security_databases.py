@@ -337,10 +337,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.config['preop.cert.signing.ext.critical'] = \
                     deployer.configuration_file.req_ext_critical.lower()
 
-            if deployer.configuration_file.req_ski:
-                subsystem.config['preop.cert.signing.subject_key_id'] = \
-                    deployer.configuration_file.req_ski
-
         if subsystem.type == 'KRA':
 
             storage_nickname = subsystem.config['kra.storage.nickname']
