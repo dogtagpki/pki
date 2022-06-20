@@ -87,8 +87,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 basic_constraints_ext=basic_constraints_ext,
                 key_usage_ext=key_usage_ext,
                 generic_exts=generic_exts,
-                subject_key_id=subsystem.config.get(
-                    'preop.cert.signing.subject_key_id'),
+                subject_key_id=deployer.configuration_file.req_ski,
             )
 
         finally:
