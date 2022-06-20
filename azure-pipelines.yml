@@ -23,6 +23,31 @@ jobs:
     displayName: Install PKI dependencies
 
   - script: |
-      docker exec -u 0 -w $BUILD_SOURCESDIRECTORY runner ./build.sh dist
+      docker exec -u 0 -w $BUILD_SOURCESDIRECTORY runner ./build.sh \
+          --python-dir=/usr/lib/python3.10/site-packages dist
       docker exec -u 0 -w $BUILD_SOURCESDIRECTORY runner ./build.sh install
     displayName: Build and install PKI
+
+  - script: |
+      # generate CSR
+      pki nss-cert-request \
+          --key-type RSA \
+          --subject "CN=Certificate Authority" \
+          --ext /usr/share/pki/server/certs/ca_signing.conf \
+          --csr ca_signing.csr
+
+      # issue self-signed cert
+      pki nss-cert-issue \
+          --csr ca_signing.csr \
+          --ext /usr/share/pki/server/certs/ca_signing.conf \
+          --cert ca_signing.crt
+
+      # import cert
+      pki nss-cert-import \
+          --cert ca_signing.crt \
+          --trust CT,C,C \
+          ca_signing
+
+      # display cert
+      pki nss-cert-show ca_signing
+    displayName: Test PKI CLI
