@@ -358,10 +358,10 @@ public class TokenKeyRecoveryService implements IService {
             try {
                 if (keyid != null) {
                     logger.debug("TokenKeyRecoveryService: recover by keyid");
-                    keyRecord = (KeyRecord) mStorage.readKeyRecord(keyid);
+                    keyRecord = mStorage.readKeyRecord(keyid);
                 } else {
                     logger.debug("TokenKeyRecoveryService: recover by cert");
-                    keyRecord = (KeyRecord) mStorage.readKeyRecord(cert);
+                    keyRecord = mStorage.readKeyRecord(cert);
                 }
 
                 if (keyRecord != null)
