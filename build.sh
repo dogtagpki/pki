@@ -617,6 +617,10 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
     OPTIONS+=(-DLIB_SUFFIX=64)
     OPTIONS+=(-DBUILD_SHARED_LIBS:BOOL=ON)
 
+    if [ "$VERBOSE" = true ] ; then
+        OPTIONS+=(-DCMAKE_INSTALL_MESSAGE:STRING=ALWAYS)
+    fi
+
     OPTIONS+=(--no-warn-unused-cli)
     OPTIONS+=(-DPRODUCT_NAME="$PRODUCT_NAME")
     OPTIONS+=(-DTHEME=$THEME)

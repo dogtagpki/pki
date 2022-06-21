@@ -9,8 +9,9 @@ set(APPLICATION_NAME ${PROJECT_NAME})
 # Skip recompiling when already compiled
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
-# Suppress install messages
-set(CMAKE_INSTALL_MESSAGE NEVER)
+if (NOT DEFINED CMAKE_INSTALL_MESSAGE)
+    set(CMAKE_INSTALL_MESSAGE LAZY)
+endif (NOT DEFINED CMAKE_INSTALL_MESSAGE)
 
 # Un-comment the following line to add 'javac' options (e. g. - "-g" debugging)
 set(CMAKE_JAVA_COMPILE_FLAGS "-Xlint:deprecation")
