@@ -1241,8 +1241,15 @@ class NSSDatabase(object):
         if ski_ext.get('critical'):
             values.append('critical')
 
-        # generate subject key ID from hash (i.e. ignore the provided ID)
-        values.append('hash')
+        sk_id = ski_ext.get('sk_id')
+
+        if sk_id == 'DEFAULT':
+            # generate subject key ID from hash
+            values.append('hash')
+        else:
+            # convert <hex><hex>...<hex> into <hex>:<hex>:...:<hex>
+            value = binascii.unhexlify(sk_id).hex(':')
+            values.append(value)
 
         exts['subjectKeyIdentifier'] = ', '.join(values)
 
