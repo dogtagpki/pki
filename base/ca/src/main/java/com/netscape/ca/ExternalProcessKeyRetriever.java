@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Stack;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -51,7 +53,8 @@ public class ExternalProcessKeyRetriever implements KeyRetriever {
 
     @Override
     public Result retrieveKey(String nickname, Collection<String> hostPorts) {
-        logger.debug("Running ExternalProcessKeyRetriever");
+
+        logger.info("ExternalProcessKeyRetriever: Retrieving " + nickname + " key");
 
         Stack<String> command = new Stack<>();
         command.push(this.executable);
@@ -60,38 +63,78 @@ public class ExternalProcessKeyRetriever implements KeyRetriever {
         for (String hostPort : hostPorts) {
             String host = hostPort.split(":")[0];
             command.push(host);
-            logger.debug("About to execute command: " + command);
+            logger.debug("ExternalProcessKeyRetriever: Command: " + command);
+
             ProcessBuilder pb = new ProcessBuilder(command)
                 .redirectError(ProcessBuilder.Redirect.INHERIT);
+
             try {
                 Process p = pb.start();
                 int exitValue = p.waitFor();
-                if (exitValue != 0)
+
+                if (exitValue != 0) {
+                    logger.warn("Unable to retrieve " + nickname + " key from " + host + ": RC=" + exitValue);
                     continue;
+                }
+
                 return parseResult(p.getInputStream());
+
             } catch (Throwable e) {
-                logger.warn("Caught exception while executing command: " + e.getMessage(), e);
+                logger.warn("Unable to retrieve " + nickname + " key from " + host + ": " + e.getMessage(), e);
+
             } finally {
                 command.pop();
             }
         }
-        logger.error("Failed to retrieve key from any host.");
+
+        logger.error("Unable to retrieve " + nickname + " key");
         return null;
     }
 
-    /* Read a PEM-encoded certificate and a base64-encoded
+    /**
+     * Read a PEM-encoded certificate and a base64-encoded
      * PKIArchiveOptions containing the wrapped private key.
      * Data is expected to be a JSON object with keys "certificate"
      * and "wrapped_key".
      */
     private Result parseResult(InputStream in) throws IOException {
-        JsonNode root = new JSONObject(in).getRootNode();
-        String cert = root.path("certificate").textValue();
-        byte[] pao = root.path("wrapped_key").binaryValue();
-        if (cert == null)
-            throw new RuntimeException("missing \"certificate\" field");
-        if (pao == null)
-            throw new RuntimeException("missing \"wrapped_key\" field");
+
+        String result = new String(in.readAllBytes());
+        logger.debug("ExternalProcessKeyRetriever: Result:\n" + result);
+
+        JsonNode root = new JSONObject(result).getRootNode();
+
+        JsonNode certNode = root.path("certificate");
+
+        if (certNode.isMissingNode()) {
+            throw new RuntimeException("Missing \"certificate\" node");
+        }
+
+        if (!certNode.isTextual()) {
+            throw new RuntimeException("Invalid \"certificate\" node: " + certNode);
+        }
+
+        String cert = certNode.textValue(); // won't return null
+
+        if (StringUtils.isEmpty(cert)) {
+            throw new RuntimeException("Missing \"certificate\" value");
+        }
+
+        JsonNode wrappedKeyNode = root.path("wrapped_key");
+
+        if (wrappedKeyNode.isMissingNode()) {
+            throw new RuntimeException("Missing \"wrapped_key\" node");
+        }
+        if (!wrappedKeyNode.isBinary()) {
+            throw new RuntimeException("Invalid \"wrapped_key\" node: " + wrappedKeyNode);
+        }
+
+        byte[] pao = wrappedKeyNode.binaryValue(); // won't return null
+
+        if (pao.length == 0) {
+            throw new RuntimeException("Missing \"wrapped_key\" value");
+        }
+
         return new Result(cert.getBytes(), pao);
     }
 }
