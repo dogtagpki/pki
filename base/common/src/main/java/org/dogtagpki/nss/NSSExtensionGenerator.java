@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class NSSExtensionGenerator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NSSExtensionGenerator.class);
+
+    public static final HexFormat HEX_FORMAT = HexFormat.ofDelimiter(":");
 
     private Map<String, String> parameters = new LinkedHashMap<>();
 
@@ -197,20 +200,33 @@ public class NSSExtensionGenerator {
 
         logger.info("Creating SKID extension:");
 
-        byte[] bytes;
+        boolean critical = false;
+        byte[] bytes = null;
 
-        if (subjectKeyIdentifier.equals("hash")) {
-            logger.info("- hash");
-            bytes = CryptoUtil.generateKeyIdentifier(subjectKey.getKey());
+        List<String> values = Arrays.asList(subjectKeyIdentifier.split(","));
+        for (String value : values) {
+            value = value.trim();
+            logger.info("- " + value);
 
-        } else {
-            throw new Exception("Unsupported subjectKeyIdentifier: " + subjectKeyIdentifier);
+            if (value.equals("critical")) {
+                critical = true;
+
+            } else if (value.equals("hash")) {
+                bytes = CryptoUtil.generateKeyIdentifier(subjectKey.getKey());
+
+            } else {
+                try {
+                    bytes = HEX_FORMAT.parseHex(value);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Unsupported subject key identifier: " + value + ": " + e.getMessage(), e);
+                }
+            }
         }
 
         String skid = "0x" + Utils.HexEncode(bytes);
         logger.info("- SKID: " + skid);
 
-        return new SubjectKeyIdentifierExtension(bytes);
+        return new SubjectKeyIdentifierExtension(critical, bytes);
     }
 
     public AuthInfoAccessExtension createAIAExtension() throws Exception {
