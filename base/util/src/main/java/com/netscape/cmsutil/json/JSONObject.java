@@ -38,6 +38,11 @@ public class JSONObject extends ObjectMapper {
         jsonNode = mapper.readTree(s);
     }
 
+    public JSONObject(String s) throws IOException {
+        this();
+        jsonNode = mapper.readTree(s);
+    }
+
     public ObjectMapper getMapper() {
         return mapper;
     }
