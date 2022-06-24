@@ -35,6 +35,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -84,8 +85,8 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
     }
 
     @Override
-    public void init(ConfigStore config) throws EProfileException {
-        super.init(config);
+    public void init(EngineConfig engineConfig, ConfigStore config) throws EProfileException {
+        super.init(engineConfig, config);
         refreshConfigAndValueNames();
     }
 

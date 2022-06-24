@@ -40,7 +40,6 @@ public class NoDefault extends PolicyDefault {
 
     protected Vector<String> mValues = new Vector<>();
     protected Vector<String> mNames = new Vector<>();
-    protected ConfigStore mConfig;
 
     @Override
     public Enumeration<String> getConfigNames() {
@@ -64,11 +63,6 @@ public class NoDefault extends PolicyDefault {
     @Override
     public String getConfig(String name) {
         return null;
-    }
-
-    @Override
-    public void init(ConfigStore config) throws EProfileException {
-        mConfig = config;
     }
 
     @Override

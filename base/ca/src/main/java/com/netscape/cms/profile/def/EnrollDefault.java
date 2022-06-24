@@ -80,7 +80,6 @@ public abstract class EnrollDefault extends PolicyDefault {
     public static final String GN_ANY_NAME = "OtherName";
     public static final String GN_OID_NAME = "OIDName";
 
-    protected ConfigStore mConfig;
     protected Vector<String> mConfigNames = new Vector<>();
     protected Vector<String> mValueNames = new Vector<>();
 
@@ -140,11 +139,6 @@ public abstract class EnrollDefault extends PolicyDefault {
             logger.warn("Unable to get profile default " + name + " parameter: " + e.getMessage(), e);
             return null;
         }
-    }
-
-    @Override
-    public void init(ConfigStore config) throws EProfileException {
-        mConfig = config;
     }
 
     /**

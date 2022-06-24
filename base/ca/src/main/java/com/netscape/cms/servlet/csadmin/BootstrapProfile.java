@@ -69,7 +69,7 @@ public class BootstrapProfile {
     private void init(ConfigStore config, EnrollDefault def)
             throws Exception {
         try {
-            def.init(config);
+            def.init(engineConfig, config);
         } catch (Exception e) {
             logger.warn("BootstrapProfile: Unable to initialize PolicyDefault: " + e.getMessage(), e);
         }

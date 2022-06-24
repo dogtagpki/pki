@@ -1086,7 +1086,7 @@ public abstract class Profile {
             logger.warn("Profile: failed to create " + defaultClass);
         } else {
             ConfigStore defStore = policyStore.getSubStore(defaultRoot, ConfigStore.class);
-            def.init(defStore);
+            def.init(engineConfig, defStore);
             logger.debug(method + " default class initialized.");
         }
 
