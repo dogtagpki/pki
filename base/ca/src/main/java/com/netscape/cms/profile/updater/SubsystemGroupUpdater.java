@@ -53,7 +53,7 @@ import com.netscape.cmscore.usrgrp.User;
  *
  * See also UpdateConnector.
  */
-public class SubsystemGroupUpdater implements IProfileUpdater {
+public class SubsystemGroupUpdater extends ProfileUpdater {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubsystemGroupUpdater.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();

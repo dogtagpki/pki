@@ -47,7 +47,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.updater.IProfileUpdater;
+import com.netscape.cms.profile.updater.ProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.request.Request;
@@ -459,7 +459,7 @@ public class CAEnrollProfile extends EnrollProfile {
         Enumeration<String> updaterIds = getProfileUpdaterIds();
         while (updaterIds.hasMoreElements()) {
             String updaterId = updaterIds.nextElement();
-            IProfileUpdater updater = getProfileUpdater(updaterId);
+            ProfileUpdater updater = getProfileUpdater(updaterId);
             updater.update(request, RequestStatus.COMPLETE);
         }
 

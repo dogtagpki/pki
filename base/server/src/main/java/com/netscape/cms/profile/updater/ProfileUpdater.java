@@ -32,7 +32,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public interface IProfileUpdater extends IConfigTemplate {
+public abstract class ProfileUpdater implements IConfigTemplate {
 
     /**
      * Initializes this default policy.
@@ -41,14 +41,14 @@ public interface IProfileUpdater extends IConfigTemplate {
      * @param config configuration store
      * @exception EProfileException failed to initialize
      */
-    public void init(Profile profile, ConfigStore config) throws EProfileException;
+    public abstract void init(Profile profile, ConfigStore config) throws EProfileException;
 
     /**
      * Retrieves configuration store.
      *
      * @return configuration store
      */
-    public ConfigStore getConfigStore();
+    public abstract ConfigStore getConfigStore();
 
     /**
      * Notifies of state change.
@@ -57,7 +57,7 @@ public interface IProfileUpdater extends IConfigTemplate {
      * @param status The status to check for.
      * @exception EProfileException failed to populate
      */
-    public void update(Request req, RequestStatus status)
+    public abstract void update(Request req, RequestStatus status)
             throws EProfileException;
 
     /**
@@ -66,7 +66,7 @@ public interface IProfileUpdater extends IConfigTemplate {
      * @param locale user locale
      * @return output policy name
      */
-    public String getName(Locale locale);
+    public abstract String getName(Locale locale);
 
     /**
      * Retrieves the localizable description of this policy.
@@ -74,5 +74,5 @@ public interface IProfileUpdater extends IConfigTemplate {
      * @param locale user locale
      * @return output policy description
      */
-    public String getText(Locale locale);
+    public abstract String getText(Locale locale);
 }

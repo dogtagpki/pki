@@ -39,7 +39,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
-import com.netscape.cms.profile.updater.IProfileUpdater;
+import com.netscape.cms.profile.updater.ProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
@@ -142,7 +142,7 @@ public abstract class Profile {
     protected Vector<String> mInputIds = new Vector<>();
     protected Hashtable<String, ProfileOutput> mOutputs = new Hashtable<>();
     protected Vector<String> mOutputIds = new Vector<>();
-    protected Hashtable<String, IProfileUpdater> mUpdaters = new Hashtable<>();
+    protected Hashtable<String, ProfileUpdater> mUpdaters = new Hashtable<>();
     protected Vector<String> mUpdaterIds = new Vector<>();
     protected String mAuthInstanceId = null;
     protected String mId = null;
@@ -373,10 +373,10 @@ public abstract class Profile {
                      updaterClassId);
             String updaterClass = updaterInfo.getClassName();
 
-            IProfileUpdater updater = null;
+            ProfileUpdater updater = null;
 
             try {
-                updater = (IProfileUpdater) Class.forName(updaterClass).getDeclaredConstructor().newInstance();
+                updater = (ProfileUpdater) Class.forName(updaterClass).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 // throw Exception
                 logger.error("Profile: updater plugin Class.forName " +
@@ -436,7 +436,7 @@ public abstract class Profile {
         return mUpdaterIds.elements(); // ordered list
     }
 
-    public IProfileUpdater getProfileUpdater(String name) {
+    public ProfileUpdater getProfileUpdater(String name) {
         return mUpdaters.get(name);
     }
 
