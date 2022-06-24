@@ -21,10 +21,9 @@ import java.math.BigInteger;
 import java.security.cert.Certificate;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
@@ -88,13 +87,13 @@ public class LdapUnrevocationListener implements IRequestListener {
                 // We need the enrollment request to sort out predicate
                 BigInteger serial = xcert.getSerialNumber();
                 CertRecord certRecord = null;
-                IAuthority auth = processor.getAuthority();
+                CertificateAuthority auth = processor.getAuthority();
 
-                if (auth == null || !(auth instanceof ICertificateAuthority)) {
+                if (auth == null) {
                     logger.warn("LdapUnrevocationListener: Trying to get a cert from non cert authority");
 
                 } else {
-                    CertificateRepository certdb = ((ICertificateAuthority) auth).getCertificateRepository();
+                    CertificateRepository certdb = auth.getCertificateRepository();
 
                     if (certdb == null) {
                         logger.warn("LdapUnrevocationListener: Missing cert database for " + auth);
