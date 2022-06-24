@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.dogtagpki.server.PKIClientSocketListener;
 
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
@@ -51,7 +50,6 @@ public class Resender implements IResender {
 
     public static final int MINUTE = 60;
 
-    protected IAuthority mAuthority = null;
     protected RequestRepository requestRepository;
     RequestQueue mQueue;
     protected IRemoteAuthority mDest = null;
@@ -71,8 +69,10 @@ public class Resender implements IResender {
     // was down (versus being serviced in request queue)
     protected int mInterval = 1 * MINUTE;
 
-    public Resender(IAuthority authority, String nickName, String clientCiphers, IRemoteAuthority dest) {
-        mAuthority = authority;
+    public Resender(
+            String nickName,
+            String clientCiphers,
+            IRemoteAuthority dest) {
         CMSEngine engine = CMS.getCMSEngine();
         requestRepository = engine.getRequestRepository();
         mQueue = engine.getRequestQueue();
@@ -82,9 +82,10 @@ public class Resender implements IResender {
     }
 
     public Resender(
-            IAuthority authority, String nickName, String clientCiphers,
-            IRemoteAuthority dest, int interval) {
-        mAuthority = authority;
+            String nickName,
+            String clientCiphers,
+            IRemoteAuthority dest,
+            int interval) {
         CMSEngine engine = CMS.getCMSEngine();
         requestRepository = engine.getRequestRepository();
         mQueue = engine.getRequestQueue();
