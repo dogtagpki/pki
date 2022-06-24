@@ -22,7 +22,7 @@ Pull requests are the best way to propose changes to the codebase (we use [Githu
 1. Fork the repo and create your branch from master.
 2. If you've changed or added APIs, update the documentation. (In [docs/](docs/) , [docs/man/](docs/manuals/) or [Dogtag wiki](https://www.dogtagpki.org))
 3. Ensure the whole CI suite passes. This includes building, linting and testing a simple PKI deployment across **current stable Fedora releases**. Since [FreeIPA](https://github.com/freeipa/freeipa) depends on Dogtag PKI, we also include certificate related smoke tests in our CI suite.
-4. Issue that Pull Request! Ensure to follow [PR guidelines](#Pull-Request-Description) to write the description.
+4. Issue that Pull Request! Ensure to follow [PR guidelines](#pull-request-description) to write the description.
 5. Once a submission is approved and merged, we will of course make every effort to assure that proper credit for the contribution is reflected in the commit log.
 
 See also [PKI specific github cheatsheet](https://www.dogtagpki.org/wiki/GitHub_Pull_Request)
@@ -55,7 +55,7 @@ We have 3 different documentation categories:
 2. [Man pages](docs/manuals/), which include the manuals for configuration files and CLI commands
 3. [Wiki pages](https://www.dogtagpki.org/wiki/PKI_Main_Page), which include the design, technical and non-product specific information
 
-Wiki pages are the best place to start learning about the product. If you have any issues or find any bugs in our documentation please feel free to open a PR or [contact us](#Contact).
+Wiki pages are the best place to start learning about the product. If you have any issues or find any bugs in our documentation please feel free to open a PR or [contact us](#contact-us).
 
 ## Style Guidelines
 
