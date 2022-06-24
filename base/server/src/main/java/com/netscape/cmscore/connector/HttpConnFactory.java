@@ -19,7 +19,6 @@ package com.netscape.cmscore.connector;
 
 import org.dogtagpki.server.PKIClientSocketListener;
 
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -39,8 +38,6 @@ public class HttpConnFactory {
     private int mNumConns = 0; // number of available conns in array
     private int mTotal = 0; // total num conns
     private HttpConnection mConns[];
-    @SuppressWarnings("unused")
-    private IAuthority mSource;
     private IRemoteAuthority mDest = null;
     private String mNickname = "";
     private String mClientCiphers = null;
@@ -59,7 +56,12 @@ public class HttpConnFactory {
      * @param minConns minimum number of connections to have available
      * @param maxConns max number of connections to have available. This is
      */
-    public HttpConnFactory(int minConns, int maxConns, IAuthority source, IRemoteAuthority dest, String nickname, String clientCiphers,
+    public HttpConnFactory(
+            int minConns,
+            int maxConns,
+            IRemoteAuthority dest,
+            String nickname,
+            String clientCiphers,
             int timeout) throws EBaseException {
 
         logger.debug("In HttpConnFactory constructor mTimeout " + timeout);
@@ -67,7 +69,6 @@ public class HttpConnFactory {
             logger.debug("In HttpConnFactory constructor mClientCiphers: " + mClientCiphers);
         else
             logger.debug("In HttpConnFactory constructor mClientCiphers not specified, will take default ");
-        mSource = source;
         mDest = dest;
         mNickname = nickname;
         mClientCiphers = clientCiphers;
