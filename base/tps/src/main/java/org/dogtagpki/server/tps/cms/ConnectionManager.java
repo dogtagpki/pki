@@ -197,10 +197,10 @@ public class ConnectionManager
         logger.debug("ConnectionManager: createConnector(): establishing HttpConnector");
         if (timeout == 0) {
             connector =
-                    new HttpConnector(null, nickname, clientCiphers, remauthority, resendInterval, conf);
+                    new HttpConnector(nickname, clientCiphers, remauthority, resendInterval, conf);
         } else {
             connector =
-                    new HttpConnector(null, nickname, clientCiphers, remauthority, resendInterval, conf, timeout);
+                    new HttpConnector(nickname, clientCiphers, remauthority, resendInterval, conf, timeout);
         }
 
         logger.debug("ConnectionManager: createConnector(): ends.");

@@ -305,11 +305,11 @@ public class CAService implements IService {
 
             String clientCiphers = config.getString("clientCiphers", null);
             if (timeout == 0)
-                connector = new HttpConnector(mCA, nickname, clientCiphers, remauthority, resendInterval,
+                connector = new HttpConnector(nickname, clientCiphers, remauthority, resendInterval,
                         config);
             else
                 connector =
-                        new HttpConnector(mCA, nickname, clientCiphers, remauthority, resendInterval,
+                        new HttpConnector(nickname, clientCiphers, remauthority, resendInterval,
                                 config, timeout);
             // Change end
 

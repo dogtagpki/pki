@@ -21,7 +21,6 @@ import java.util.Vector;
 
 import org.dogtagpki.server.PKIClientSocketListener;
 
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.Connector;
 import com.netscape.certsrv.connector.IRemoteAuthority;
@@ -39,7 +38,6 @@ public class HttpConnector extends Connector {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HttpConnector.class);
 
-    protected IAuthority mSource = null;
     protected IRemoteAuthority mDest = null;
     protected ISocketFactory mFactory = null;
 
@@ -52,11 +50,14 @@ public class HttpConnector extends Connector {
 
     private HttpConnFactory mConnFactory = null;
 
-    public HttpConnector(IAuthority source, String nickName, String clientCiphers,
-            IRemoteAuthority dest, int resendInterval, ConfigStore config) throws EBaseException {
+    public HttpConnector(
+            String nickName,
+            String clientCiphers,
+            IRemoteAuthority dest,
+            int resendInterval,
+            ConfigStore config) throws EBaseException {
 
         mTimeout = 0;
-        mSource = source;
         mDest = dest;
         PKIClientSocketListener sockListener = new PKIClientSocketListener();
         mFactory = new JssSSLSocketFactory(nickName, clientCiphers);
@@ -84,9 +85,13 @@ public class HttpConnector extends Connector {
     }
 
     // Inserted by beomsuk
-    public HttpConnector(IAuthority source, String nickName, String clientCiphers,
-            IRemoteAuthority dest, int resendInterval, ConfigStore config, int timeout) throws EBaseException {
-        mSource = source;
+    public HttpConnector(
+            String nickName,
+            String clientCiphers,
+            IRemoteAuthority dest,
+            int resendInterval,
+            ConfigStore config,
+            int timeout) throws EBaseException {
         mDest = dest;
         mTimeout = timeout;
         PKIClientSocketListener sockListener = new PKIClientSocketListener();
