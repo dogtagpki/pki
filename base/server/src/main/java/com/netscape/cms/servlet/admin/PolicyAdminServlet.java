@@ -22,23 +22,19 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.policy.IPolicyRule;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.apps.CMS;
@@ -59,15 +55,14 @@ public class PolicyAdminServlet extends AdminServlet {
 
     private static final long serialVersionUID = 8850646362111106656L;
 
-    public final static String PROP_AUTHORITY = "authority";
+    public static final String PROP_AUTHORITY = "authority";
 
-    private final static String INFO = "PolicyAdminServlet";
-    private final static String PW_PASSWORD_CACHE_ADD =
-            "PASSWORD_CACHE_ADD";
+    public static final String INFO = "PolicyAdminServlet";
+    public static final String PW_PASSWORD_CACHE_ADD = "PASSWORD_CACHE_ADD";
 
-    public final static String PROP_PREDICATE = "predicate";
-    private IPolicyProcessor mProcessor = null;
-    private IAuthority mAuthority = null;
+    public static final String PROP_PREDICATE = "predicate";
+
+    protected IPolicyProcessor mProcessor;
 
     // These will be moved to PolicyResources
     public static String INVALID_POLICY_SCOPE = "Invalid policy administration scope";
@@ -88,108 +83,6 @@ public class PolicyAdminServlet extends AdminServlet {
      */
     public PolicyAdminServlet() {
         super();
-    }
-
-    /**
-     * Initializes this servlet.
-     */
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-        String authority = config.getInitParameter(PROP_AUTHORITY);
-        String policyStatus = null;
-
-        logger.debug("PolicyAdminServlet: In Policy Admin Servlet init!");
-
-        // CMS 6.1 began utilizing the "Certificate Profiles" framework
-        // instead of the legacy "Certificate Policies" framework.
-        //
-        // Beginning with CS 8.1, to meet the Common Criteria evaluation
-        // performed on this version of the product, it was determined
-        // that this legacy "Certificate Policies" framework would be
-        // deprecated and disabled by default (see Bugzilla Bug #472597).
-        //
-        // NOTE:  The "Certificate Policies" framework ONLY applied to
-        //        to CA, KRA, and legacy RA (pre-CMS 7.0) subsystems.
-        //
-        //        Further, the "PolicyAdminServlet.java" servlet is ONLY used
-        //        by the CA Console for the following:
-        //
-        //            SERVLET-NAME           URL-PATTERN
-        //            ====================================================
-        //            capolicy               ca/capolicy
-        //
-        //        Finally, the "PolicyAdminServlet.java" servlet is ONLY used
-        //        by the KRA Console for the following:
-        //
-        //            SERVLET-NAME           URL-PATTERN
-        //            ====================================================
-        //            krapolicy              kra/krapolicy
-        //
-        CMSEngine engine = CMS.getCMSEngine();
-        if (authority != null)
-            mAuthority = (IAuthority) engine.getSubsystem(authority);
-        if (mAuthority != null)
-            if (mAuthority instanceof ICertificateAuthority) {
-                mProcessor = ((ICertificateAuthority) mAuthority).getPolicyProcessor();
-                try {
-                    policyStatus = ICertificateAuthority.ID
-                                 + "." + "Policy"
-                                 + "." + IPolicyProcessor.PROP_ENABLE;
-                    if (mConfig.getBoolean(policyStatus, true) == true) {
-                        // NOTE:  If "ca.Policy.enable=<boolean>" is missing,
-                        //        then the referenced instance existed prior
-                        //        to this name=value pair existing in its
-                        //        'CS.cfg' file, and thus we err on the
-                        //        side that the user may still need to
-                        //        use the policy framework.
-                        logger.debug("PolicyAdminServlet::init "
-                                 + "Certificate Policy Framework (deprecated) "
-                                 + "is ENABLED");
-                    } else {
-                        // CS 8.1 Default:  ca.Policy.enable=false
-                        logger.debug("PolicyAdminServlet::init "
-                                 + "Certificate Policy Framework (deprecated) "
-                                 + "is DISABLED");
-                        return;
-                    }
-                } catch (EBaseException e) {
-                    throw new ServletException(authority
-                                              + " does not have a "
-                                              + "master policy switch called '"
-                                              + policyStatus + "'");
-                }
-            } else if (mAuthority instanceof IKeyRecoveryAuthority) {
-                mProcessor = ((IKeyRecoveryAuthority) mAuthority).getPolicyProcessor();
-                try {
-                    policyStatus = IKeyRecoveryAuthority.ID
-                                + "." + "Policy"
-                                + "." + IPolicyProcessor.PROP_ENABLE;
-                    if (mConfig.getBoolean(policyStatus, true) == true) {
-                        // NOTE:  If "kra.Policy.enable=<boolean>" is missing,
-                        //        then the referenced instance existed prior
-                        //        to this name=value pair existing in its
-                        //        'CS.cfg' file, and thus we err on the
-                        //        side that the user may still need to
-                        //        use the policy framework.
-                        logger.debug("PolicyAdminServlet::init "
-                                 + "Certificate Policy Framework (deprecated) "
-                                 + "is ENABLED");
-                    } else {
-                        // CS 8.1 Default:  kra.Policy.enable=false
-                        logger.debug("PolicyAdminServlet::init "
-                                 + "Certificate Policy Framework (deprecated) "
-                                 + "is DISABLED");
-                        return;
-                    }
-                } catch (EBaseException e) {
-                    throw new ServletException(authority
-                                              + " does not have a "
-                                              + "master policy switch called '"
-                                              + policyStatus + "'");
-                }
-            } else
-                throw new ServletException(authority + "  does not have policy processor!");
     }
 
     /**
