@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.Enumeration;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -34,7 +33,6 @@ import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 
 import com.netscape.ca.CAService;
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -68,7 +66,7 @@ public class CAEnrollProfile extends EnrollProfile {
     }
 
     @Override
-    public IAuthority getAuthority() {
+    public CertificateAuthority getAuthority() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getCA();
     }
@@ -105,7 +103,7 @@ public class CAEnrollProfile extends EnrollProfile {
         logger.info("CAEnrollProfile: Processing enrollment request " + requestId);
 
         CAEngine engine = CAEngine.getInstance();
-        ICertificateAuthority ca = (ICertificateAuthority) getAuthority();
+        CertificateAuthority ca = getAuthority();
 
         CAService caService = (CAService) ca.getCAService();
         if (caService == null) {

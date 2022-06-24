@@ -108,9 +108,9 @@ import org.mozilla.jss.pkix.primitive.Attribute;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ISharedToken;
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -217,7 +217,7 @@ public abstract class EnrollProfile extends Profile {
         super();
     }
 
-    public abstract IAuthority getAuthority();
+    public abstract CertificateAuthority getAuthority();
 
     /**
      * Creates request.
@@ -360,8 +360,7 @@ public abstract class EnrollProfile extends Profile {
                     new CertificateVersion(CertificateVersion.V3));
             info.set(X509CertInfo.SERIAL_NUMBER,
                     new CertificateSerialNumber(new BigInteger("0")));
-            ICertificateAuthority authority =
-                    (ICertificateAuthority) getAuthority();
+            CertificateAuthority authority = getAuthority();
             if (authority.getIssuerObj() == null) {
                 logger.debug("EnrollProfile: setDefaultCertInfo: authority.getIssuerObj() is null, creating new CertificateIssuerName");
                 info.set(X509CertInfo.ISSUER,
@@ -491,7 +490,7 @@ public abstract class EnrollProfile extends Profile {
         byte[] challenge = new byte[64];
         random.nextBytes(challenge);
 
-        ICertificateAuthority authority = (ICertificateAuthority) getAuthority();
+        CertificateAuthority authority = getAuthority();
         PublicKey issuanceProtPubKey = authority.getIssuanceProtPubKey();
         if (issuanceProtPubKey == null) {
             msg = method + "issuanceProtPubKey null";
@@ -1302,7 +1301,7 @@ public abstract class EnrollProfile extends Profile {
 
         EngineConfig cs = engine.getConfig();
 
-        ICertificateAuthority authority = (ICertificateAuthority) getAuthority();
+        CertificateAuthority authority = getAuthority();
         PrivateKey issuanceProtPrivKey = authority.getIssuanceProtPrivKey();
         if (issuanceProtPrivKey == null) {
             msg = method + "issuanceProtPrivKey null";
