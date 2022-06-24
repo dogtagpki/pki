@@ -40,8 +40,6 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.updater.ProfileUpdater;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.Request;
@@ -265,17 +263,20 @@ public abstract class Profile {
 
     /**
      * Initializes this profile.
-     * @param config configuration store for this profile
+     * @param registry plugin registry
+     * @param profileConfig profile configuration
      *
      * @exception EBaseException failed to initialize
      */
-    public void init(ConfigStore config) throws EBaseException {
+    public void init(
+            PluginRegistry registry,
+            ConfigStore profileConfig
+            ) throws EBaseException {
 
         logger.debug("Profile: start init");
-        mConfig = config;
 
-        CMSEngine engine = CMS.getCMSEngine();
-        registry = engine.getPluginRegistry();
+        this.registry = registry;
+        mConfig = profileConfig;
 
         // Configure File Formats:
         // visible
@@ -295,14 +296,14 @@ public abstract class Profile {
 
         // handle profile authentication plugins
         try {
-            mAuthInstanceId = config.getString("auth." + PROP_INSTANCE_ID, null);
-            mAuthzAcl = config.getString("authz.acl", "");
+            mAuthInstanceId = profileConfig.getString("auth." + PROP_INSTANCE_ID, null);
+            mAuthzAcl = profileConfig.getString("authz.acl", "");
         } catch (EBaseException e) {
             logger.warn("Profile: authentication class not found " + e.getMessage(), e);
         }
 
         // handle profile input plugins
-        ConfigStore inputStore = config.getSubStore("input", ConfigStore.class);
+        ConfigStore inputStore = profileConfig.getSubStore("input", ConfigStore.class);
         String input_list = inputStore.getString(PROP_INPUT_LIST, "");
         StringTokenizer input_st = new StringTokenizer(input_list, ",");
 
@@ -330,7 +331,7 @@ public abstract class Profile {
         }
 
         // handle profile output plugins
-        ConfigStore outputStore = config.getSubStore("output", ConfigStore.class);
+        ConfigStore outputStore = profileConfig.getSubStore("output", ConfigStore.class);
         String output_list = outputStore.getString(PROP_OUTPUT_LIST, "");
         StringTokenizer output_st = new StringTokenizer(output_list, ",");
 
@@ -360,7 +361,7 @@ public abstract class Profile {
         }
 
         // handle profile output plugins
-        ConfigStore updaterStore = config.getSubStore("updater", ConfigStore.class);
+        ConfigStore updaterStore = profileConfig.getSubStore("updater", ConfigStore.class);
         String updater_list = updaterStore.getString(PROP_UPDATER_LIST, "");
         StringTokenizer updater_st = new StringTokenizer(updater_list, ",");
 
@@ -390,7 +391,7 @@ public abstract class Profile {
         }
 
         // handle profile policy plugins
-        ConfigStore policySetStore = config.getSubStore("policyset", ConfigStore.class);
+        ConfigStore policySetStore = profileConfig.getSubStore("policyset", ConfigStore.class);
         String setlist = policySetStore.getString("list", "");
         StringTokenizer st = new StringTokenizer(setlist, ",");
 

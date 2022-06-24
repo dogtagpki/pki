@@ -117,11 +117,12 @@ public class ProfileSubsystem
         logger.debug("ProfileSubsystem: Creating " + id + " profile");
 
         CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        CAEngineConfig engineConfig = engine.getConfig();
+        PluginRegistry registry = engine.getPluginRegistry();
 
         try {
             if (configPath == null) {
-                configPath = cs.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
+                configPath = engineConfig.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
             }
 
         } catch (EBaseException e) {
@@ -132,12 +133,12 @@ public class ProfileSubsystem
 
         try {
             logger.debug("ProfileSubsystem: Loading " + configPath);
-            ConfigStore subStoreConfig = engine.loadConfigStore(configPath);
+            ConfigStore profileConfig = engine.loadConfigStore(configPath);
 
             logger.debug("ProfileSubsystem: Initializing " + className);
             Profile profile = (Profile) Class.forName(className).getDeclaredConstructor().newInstance();
             profile.setId(id);
-            profile.init(subStoreConfig);
+            profile.init(registry, profileConfig);
 
             mProfiles.put(id, profile);
             mProfileClassIds.put(id, classid);

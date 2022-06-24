@@ -120,12 +120,12 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
             throws EProfileException {
 
         CAEngine engine = CAEngine.getInstance();
-        ConfigStore cs = mProfiles.get(id).getConfigStore();
+        PluginRegistry registry = engine.getPluginRegistry();
+        ConfigStore profileConfig = mProfiles.get(id).getConfigStore();
 
         // first create a *new* profile object from the configStore
         // and initialise it with the updated configStore
         //
-        PluginRegistry registry = engine.getPluginRegistry();
         String classId = mProfileClassIds.get(id);
         IPluginInfo info = registry.getPluginInfo("profile", classId);
         String className = info.getClassName();
@@ -137,7 +137,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         }
         newProfile.setId(id);
         try {
-            newProfile.init(cs);
+            newProfile.init(registry, profileConfig);
         } catch (EBaseException e) {
             throw new EProfileException(
                     "Failed to initialise profile '" + id + "': " + e);
@@ -152,7 +152,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
 
         // finally commit the configStore
         //
-        commitConfigStore(id, cs);
+        commitConfigStore(id, profileConfig);
     }
 
     protected void commitConfigStore(String id, ConfigStore cs) throws EProfileException {

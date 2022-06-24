@@ -600,9 +600,9 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             tempProfile.setId(profileId);
 
             try {
-                ConfigStore tempConfig = new ConfigStore();
-                tempConfig.load(new ByteArrayInputStream(data));
-                tempProfile.init(tempConfig);
+                ConfigStore profileConfig = new ConfigStore();
+                profileConfig.load(new ByteArrayInputStream(data));
+                tempProfile.init(registry, profileConfig);
 
             } catch (Exception e) {
                 String message = "Unable to create profile: " + e.getMessage();
@@ -735,9 +735,9 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
             tempProfile.setId(profileId);
             try {
-                ConfigStore tempConfig = new ConfigStore();
-                tempConfig.load(new ByteArrayInputStream(data));
-                tempProfile.init(tempConfig);
+                ConfigStore profileConfig = new ConfigStore();
+                profileConfig.load(new ByteArrayInputStream(data));
+                tempProfile.init(registry, profileConfig);
             } catch (Exception e) {
                 throw new BadRequestException("Invalid profile data", e);
             }

@@ -230,6 +230,9 @@ public class LDAPProfileSubsystem
             String id, String classid, String className, InputStream data)
             throws EProfileException {
 
+        CAEngine engine = CAEngine.getInstance();
+        PluginRegistry registry = engine.getPluginRegistry();
+
         LDAPConnection conn = null;
 
         try {
@@ -243,15 +246,15 @@ public class LDAPProfileSubsystem
             };
 
             ConfigStorage storage = new LDAPConfigStorage(conn, createProfileDN(id), createAttrs, "certProfileConfig");
-            ConfigStore subStoreConfig = new ConfigStore(storage);
+            ConfigStore profileConfig = new ConfigStore(storage);
 
             if (data != null)
-                subStoreConfig.load(data);
+                profileConfig.load(data);
 
             logger.debug("LDAPProfileSubsystem: initing " + className);
             Profile profile = (Profile) Class.forName(className).getDeclaredConstructor().newInstance();
             profile.setId(id);
-            profile.init(subStoreConfig);
+            profile.init(registry, profileConfig);
             mProfiles.put(id, profile);
             mProfileClassIds.put(id, classid);
             return profile;
