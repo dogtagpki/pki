@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.IAuthority;
@@ -625,9 +626,10 @@ public class PublisherAdminServlet extends AdminServlet {
         logger.debug("PublisherAdmineServlet: in testSetLDAPDest");
 
         CAEngine engine = CAEngine.getInstance();
-        CAConfig config = engine.getConfig().getCAConfig();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig config = engineConfig.getCAConfig();
 
-        PKISocketConfig socketConfig = config.getSocketConfig();
+        PKISocketConfig socketConfig = engineConfig.getSocketConfig();
 
         //Save New Settings to the config file
         PublishingConfig publishcfg = config.getPublishingConfig();

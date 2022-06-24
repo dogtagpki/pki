@@ -5,11 +5,11 @@
 //
 package org.dogtagpki.server.tks;
 
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class TKSConfig extends EngineConfig {
+public class TKSConfig extends ConfigStore {
 
     public TKSConfig(ConfigStorage storage) {
         super(storage);
