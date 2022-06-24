@@ -1402,18 +1402,6 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     /**
-     * handy routine for getting agent's relative path
-     */
-    protected String getRelPath(IAuthority authority) {
-        if (authority instanceof ICertificateAuthority)
-            return "ca/";
-        else if (authority instanceof IKeyRecoveryAuthority)
-            return "kra/";
-        else
-            return "/";
-    }
-
-    /**
      * A system certificate such as the CA signing certificate
      * should not be allowed to delete.
      * The main purpose is to avoid revoking the self signed
