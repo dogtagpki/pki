@@ -13,9 +13,6 @@ if (NOT DEFINED CMAKE_INSTALL_MESSAGE)
     set(CMAKE_INSTALL_MESSAGE LAZY)
 endif (NOT DEFINED CMAKE_INSTALL_MESSAGE)
 
-# Un-comment the following line to add 'javac' options (e. g. - "-g" debugging)
-set(CMAKE_JAVA_COMPILE_FLAGS "-Xlint:deprecation")
-
 if (NOT DEFINED PRODUCT_NAME)
     set(PRODUCT_NAME "Dogtag PKI")
 endif(NOT DEFINED PRODUCT_NAME)

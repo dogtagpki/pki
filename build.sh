@@ -633,6 +633,7 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
     OPTIONS+=(-DBUILD_SHARED_LIBS:BOOL=ON)
 
     if [ "$VERBOSE" = true ] ; then
+        OPTIONS+=(-DCMAKE_JAVA_COMPILE_FLAGS:STRING="-Xlint:deprecation")
         OPTIONS+=(-DCMAKE_INSTALL_MESSAGE:STRING=ALWAYS)
     fi
 
