@@ -21,6 +21,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -112,7 +113,7 @@ public class SubsystemGroupUpdater extends ProfileUpdater {
     public void update(Request req, RequestStatus status)
             throws EProfileException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         String auditSubjectID = auditSubjectID();
 
         logger.info("SubsystemGroupUpdater: Updating Subsystem Group");

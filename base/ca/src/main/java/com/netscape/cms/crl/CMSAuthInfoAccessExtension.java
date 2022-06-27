@@ -19,6 +19,8 @@ package com.netscape.cms.crl;
 
 import java.io.IOException;
 
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICMSCRLExtension;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -32,8 +34,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
@@ -139,8 +139,8 @@ public class CMSAuthInfoAccessExtension
                     }
                 } else {
                     accessLocationType = PROP_URINAME;
-                    CMSEngine engine = CMS.getCMSEngine();
-                    EngineConfig cs = engine.getConfig();
+                    CAEngine engine = CAEngine.getInstance();
+                    CAEngineConfig cs = engine.getConfig();
                     String hostname = cs.getHostname();
                     String port = engine.getEENonSSLPort();
                     if (hostname != null && port != null) {
@@ -224,8 +224,8 @@ public class CMSAuthInfoAccessExtension
             if (accessLocation != null && accessLocation.length() > 0) {
                 nvp.put(PROP_ACCESS_LOCATION + i, accessLocation);
             } else {
-                CMSEngine engine = CMS.getCMSEngine();
-                EngineConfig cs = engine.getConfig();
+                CAEngine engine = CAEngine.getInstance();
+                CAEngineConfig cs = engine.getConfig();
                 String hostname = cs.getHostname();
                 String port = engine.getEENonSSLPort();
                 if (hostname != null && port != null) {

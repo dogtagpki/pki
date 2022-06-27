@@ -21,12 +21,11 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class is an administration servlet for CA policy management.
@@ -64,7 +63,7 @@ public class CAPolicyAdminServlet extends PolicyAdminServlet {
 
         logger.debug("CAPolicyAdminServlet: In Policy Admin Servlet init");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         String authority = config.getInitParameter(PROP_AUTHORITY);
         CertificateAuthority ca = null;

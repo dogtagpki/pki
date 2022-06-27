@@ -39,6 +39,8 @@ import javax.crypto.Mac;
 
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authentication.AuthManager;
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -126,7 +128,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
@@ -396,7 +397,7 @@ public abstract class EnrollProfile extends Profile {
 
     public Request createEnrollmentRequest() throws EProfileException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         Request req = null;
 
         try {
@@ -473,8 +474,8 @@ public abstract class EnrollProfile extends Profile {
             throw new EBaseException(method + msg);
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
@@ -615,7 +616,7 @@ public abstract class EnrollProfile extends Profile {
         // }
         String method = "EnrollProfile: submit: ";
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         RequestRepository requestRepository = engine.getRequestRepository();
         String msg = "";
         logger.debug(method + "begins");
@@ -772,7 +773,7 @@ public abstract class EnrollProfile extends Profile {
             throw new Exception(msg);
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         // for CMCUserSignedAuth, the signing user is the subject of
         // the new cert
@@ -818,8 +819,8 @@ public abstract class EnrollProfile extends Profile {
         //logger.debug(method + " Start parseCMC(): " + certreq);
         logger.debug(method + "starts");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         String auditMessage = "";
         String auditSubjectID = auditSubjectID();
@@ -1260,7 +1261,7 @@ public abstract class EnrollProfile extends Profile {
 
         OCTET_STRING witness_os = decPop.getWitness();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         RequestRepository requestRepository = engine.getRequestRepository();
         Request req = null;
         try {
@@ -1510,7 +1511,7 @@ public abstract class EnrollProfile extends Profile {
         String configName = "SharedToken";
         char[] sharedSecret = null;
         byte[] sharedSecretBytes = null;
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         try {
 
@@ -1798,7 +1799,7 @@ public abstract class EnrollProfile extends Profile {
             return false;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         String ident_string = ident.toString();
         String auditAttemptedCred = null;
 
@@ -1959,7 +1960,7 @@ public abstract class EnrollProfile extends Profile {
             return false;
 
         String configName = "cmc.sharedSecret.class";
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         ISharedToken tokenClass = engine.getSharedTokenClass(configName);
         if (tokenClass == null) {
             logger.warn(method + " Failed to retrieve shared secret authentication plugin class");
@@ -1999,8 +2000,8 @@ public abstract class EnrollProfile extends Profile {
             Request req)
             throws EProfileException, ECMCPopFailedException, ECMCBadRequestException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -2219,8 +2220,8 @@ public abstract class EnrollProfile extends Profile {
         String method = "EnrollProfile: fillCertReqMsg: ";
         logger.debug(method + "Start parseCertReqMsg ");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         try {
             CertRequest certReq = certReqMsg.getCertReq();
@@ -2795,8 +2796,8 @@ public abstract class EnrollProfile extends Profile {
             popFailed(locale, auditSubjectID, auditMessage);
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         try {
             CryptoToken verifyToken = null;

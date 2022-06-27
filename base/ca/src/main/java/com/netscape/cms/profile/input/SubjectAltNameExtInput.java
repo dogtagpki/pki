@@ -22,14 +22,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -73,8 +74,8 @@ public class SubjectAltNameExtInput extends EnrollInput {
     public void init(Profile profile, ConfigStore config) throws EProfileException {
         super.init(profile, config);
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         try {
             mSANentryNum = cs.getInteger("ca.SAN.entryNum", DEF_REQ_ENTRIES);

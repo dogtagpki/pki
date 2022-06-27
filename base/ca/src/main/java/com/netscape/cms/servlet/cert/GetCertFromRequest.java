@@ -26,6 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
@@ -47,7 +48,6 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 
@@ -87,7 +87,7 @@ public class GetCertFromRequest extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mTemplates.remove(CMSRequest.SUCCESS);
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         mQueue = engine.getRequestQueue();
         try {
             String tmp = sc.getInitParameter(
@@ -273,7 +273,7 @@ class CertFrRequestFiller extends ImportCertsTemplateFiller {
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e)
             throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         CMSTemplateParams tparams =
                 super.getTemplateParams(cmsReq, authority, locale, e);
         String reqId = cmsReq.getHttpParams().getValueAsString(

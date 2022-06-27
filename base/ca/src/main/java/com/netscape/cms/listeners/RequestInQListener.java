@@ -20,6 +20,9 @@ package com.netscape.cms.listeners;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
+
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -33,8 +36,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.profile.input.SubjectNameInput;
 import com.netscape.cms.profile.input.SubmitterInfoInput;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailTemplate;
@@ -94,8 +95,8 @@ public class RequestInQListener implements IRequestListener {
     public void init(ISubsystem sub, ConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
         mSubsystem = (CertificateAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -146,7 +147,7 @@ public class RequestInQListener implements IRequestListener {
 
         // regardless of type of request...notify for everything
         // no need for email resolver here...
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
