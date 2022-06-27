@@ -1,10 +1,13 @@
 package com.netscape.cmstools.profile;
 
 import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.profile.ProfileClient;
@@ -46,6 +49,10 @@ public class ProfileAddCLI extends CommandCLI {
         String filename = cmdArgs[0];
         if (filename == null || filename.trim().length() == 0) {
             throw new Exception("Missing input file name.");
+        }
+
+        if (!Files.exists(Path.of(filename))) {
+            throw new CLIException("File not found: " + filename);
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
