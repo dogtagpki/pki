@@ -393,7 +393,7 @@ public class RequestProcessor extends CertProcessor {
             }
 
             // retrieve the certificate
-            X509CertImpl theCert = req.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
+            X509CertImpl theCert = req.getExtDataInCert(Request.REQUEST_ISSUED_CERT);
 
             signedAuditLogger.log(CertRequestProcessedEvent.createSuccessEvent(
                     auditSubjectID,

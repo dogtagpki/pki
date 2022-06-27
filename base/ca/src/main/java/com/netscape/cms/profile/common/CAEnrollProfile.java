@@ -294,7 +294,7 @@ public class CAEnrollProfile extends EnrollProfile {
         }
 
         // process certificate issuance
-        X509CertInfo info = request.getExtDataInCertInfo(Profile.REQUEST_CERTINFO);
+        X509CertInfo info = request.getExtDataInCertInfo(Request.REQUEST_CERTINFO);
 
         if (isSSKeygen) {
             try {
@@ -351,7 +351,7 @@ public class CAEnrollProfile extends EnrollProfile {
             throw new EProfileException(e);
         }
 
-        request.setExtData(REQUEST_ISSUED_CERT, theCert);
+        request.setExtData(Request.REQUEST_ISSUED_CERT, theCert);
 
         // cert issued, now retrieve p12
         if (isSSKeygen) {

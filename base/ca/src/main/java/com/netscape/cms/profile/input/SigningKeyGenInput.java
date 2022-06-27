@@ -98,7 +98,7 @@ public class SigningKeyGenInput extends EnrollInput {
         String keygen_request = ctx.get(VAL_KEYGEN_REQUEST);
 
         X509CertInfo info =
-                request.getExtDataInCertInfo(Profile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(Request.REQUEST_CERTINFO);
 
         if (keygen_request_type == null) {
             logger.error("SigningKeyGenInput: populate - invalid cert request type");
@@ -171,7 +171,7 @@ public class SigningKeyGenInput extends EnrollInput {
                         "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
                         keygen_request_type));
         }
-        request.setExtData(Profile.REQUEST_CERTINFO, info);
+        request.setExtData(Request.REQUEST_CERTINFO, info);
     }
 
     /**

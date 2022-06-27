@@ -1940,7 +1940,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
             throw new BadRequestDataException(msg);
         }
 
-        return request.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
+        return request.getExtDataInCert(com.netscape.cmscore.request.Request.REQUEST_ISSUED_CERT);
     }
 
     /**
@@ -1989,7 +1989,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         RequestStatus requestStatus = request.getRequestStatus();
         if (requestStatus != RequestStatus.COMPLETE)
             throw new EBaseException("renewAuthority: certificate renewal did not complete; status: " + requestStatus);
-        X509CertImpl cert = request.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
+        X509CertImpl cert = request.getExtDataInCert(com.netscape.cmscore.request.Request.REQUEST_ISSUED_CERT);
         authoritySerial = cert.getSerialNumber();
 
         engine.updateAuthoritySerialNumber(authorityID, authoritySerial);

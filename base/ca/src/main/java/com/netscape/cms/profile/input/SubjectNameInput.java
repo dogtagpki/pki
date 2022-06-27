@@ -201,7 +201,7 @@ public class SubjectNameInput extends EnrollInput {
     public void populate(Map<String, String> ctx, Request request) throws Exception {
 
         X509CertInfo info =
-                request.getExtDataInCertInfo(Profile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(Request.REQUEST_CERTINFO);
         String subjectName = "";
 
         String uid = ctx.get(VAL_UID);
@@ -284,7 +284,7 @@ public class SubjectNameInput extends EnrollInput {
                             "CMS_PROFILE_INVALID_SUBJECT_NAME", subjectName));
         }
         parseSubjectName(name, info, request);
-        request.setExtData(Profile.REQUEST_CERTINFO, info);
+        request.setExtData(Request.REQUEST_CERTINFO, info);
     }
 
     @Override

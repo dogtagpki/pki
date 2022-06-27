@@ -95,7 +95,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
@@ -462,7 +461,7 @@ public class CMCOutputTemplate {
             if (success_bpids != null && success_bpids.size() > 0) {
                 for (int i = 0; i < reqs.length; i++) {
                     if (error_codes[i] == 0) {
-                        X509CertImpl impl = reqs[i].getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
+                        X509CertImpl impl = reqs[i].getExtDataInCert(Request.REQUEST_ISSUED_CERT);
                         byte[] bin = impl.getEncoded();
                         Certificate.Template certTemplate = new Certificate.Template();
                         Certificate cert = (Certificate) certTemplate.decode(
@@ -690,7 +689,7 @@ public class CMCOutputTemplate {
         try {
             if (reqs != null) {
                 for (int i = 0; i < reqs.length; i++) {
-                    X509CertImpl impl = reqs[i].getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
+                    X509CertImpl impl = reqs[i].getExtDataInCert(Request.REQUEST_ISSUED_CERT);
                     byte[] bin = impl.getEncoded();
                     Certificate.Template certTemplate = new Certificate.Template();
                     Certificate cert =

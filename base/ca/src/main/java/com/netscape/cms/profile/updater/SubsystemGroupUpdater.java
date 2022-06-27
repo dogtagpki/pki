@@ -35,7 +35,6 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
@@ -121,7 +120,7 @@ public class SubsystemGroupUpdater extends ProfileUpdater {
             return;
         }
 
-        X509CertImpl cert = req.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
+        X509CertImpl cert = req.getExtDataInCert(Request.REQUEST_ISSUED_CERT);
         if (cert == null)
             return;
 

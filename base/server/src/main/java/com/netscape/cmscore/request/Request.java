@@ -237,7 +237,7 @@ public class Request {
     /**
      * Name of request attribute that stores the End-User Supplied
      * Subject Name.
-     * <p>
+     *
      * The value is of type org.mozilla.jss.netscape.security.x509.CertificateSubjectName
      */
     public static final String REQUEST_SUBJECT_NAME = "req_subject_name";
@@ -245,14 +245,14 @@ public class Request {
     /**
      * Name of request attribute that stores the End-User Supplied
      * Key.
-     * <p>
+     *
      * The value is of type org.mozilla.jss.netscape.security.x509.CertificateX509Key
      */
     public static final String REQUEST_KEY = "req_key";
 
     /**
      * Name of request attribute that stores the transport certificate.
-     * <p>
+     *
      * The value is of type String including base64 encoded certificate.
      */
     public static final String REQUEST_TRANSPORT_CERT = "req_transport_cert";
@@ -261,7 +261,7 @@ public class Request {
      * Name of request attribute that stores the End-User Supplied
      * PKI Archive Option extension. This extension is extracted
      * from a CRMF request that has the user-provided private key.
-     * <p>
+     *
      * The value is of type byte []
      */
     public static final String REQUEST_ARCHIVE_OPTIONS = "req_archive_options";
@@ -285,6 +285,45 @@ public class Request {
      * Symmetric Key algorithm OID passed into DRM archival service
      */
     public static final String REQUEST_ALGORITHM_OID = "req_algorithm_oid";
+
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * Validity.
+     *
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateValidity
+     */
+    public static final String REQUEST_VALIDITY = "req_validity";
+
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * Signing Algorithm.
+     *
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId
+     */
+    public static final String REQUEST_SIGNING_ALGORITHM = "req_signing_alg";
+
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * Extensions.
+     *
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateExtensions
+     */
+    public static final String REQUEST_EXTENSIONS = "req_extensions";
+
+    /**
+     * Name of request attribute that stores the certificate template
+     * that will be signed and then become a certificate.
+     *
+     * The value is of type org.mozilla.jss.netscape.security.x509.X509CertInfo
+     */
+    public static final String REQUEST_CERTINFO = "req_x509info";
+
+    /**
+     * Name of request attribute that stores the issued certificate.
+     *
+     * The value is of type org.mozilla.jss.netscape.security.x509.X509CertImpl
+     */
+    public static final String REQUEST_ISSUED_CERT = "req_issued_cert";
 
     /**
      * Name of request attribute that stores the User

@@ -253,7 +253,7 @@ public class CertProcessor extends CAProcessor {
 
                 req.setRequestStatus(RequestStatus.COMPLETE);
 
-                X509CertImpl x509cert = req.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
+                X509CertImpl x509cert = req.getExtDataInCert(Request.REQUEST_ISSUED_CERT);
 
                 if (x509cert != null) {
 

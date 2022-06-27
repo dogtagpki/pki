@@ -27,7 +27,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -102,7 +101,7 @@ public class CertRequestRepository extends RequestRepository {
 
         request.setExtData("req_key", x509key.toString());
 
-        request.setExtData(Profile.REQUEST_EXTENSIONS, requestExtensions);
+        request.setExtData(Request.REQUEST_EXTENSIONS, requestExtensions);
 
         if (dnsNames != null) {
 
@@ -166,7 +165,7 @@ public class CertRequestRepository extends RequestRepository {
         logger.debug("CertRequestRepository: Updating cert for request " + request.getRequestId().toHexString());
         logger.debug("CertRequestRepository: - cert serial number: 0x" + cert.getSerialNumber().toString(16));
 
-        request.setExtData(Profile.REQUEST_CERTINFO, cert.getInfo());
-        request.setExtData(Profile.REQUEST_ISSUED_CERT, cert);
+        request.setExtData(Request.REQUEST_CERTINFO, cert.getInfo());
+        request.setExtData(Request.REQUEST_ISSUED_CERT, cert);
     }
 }

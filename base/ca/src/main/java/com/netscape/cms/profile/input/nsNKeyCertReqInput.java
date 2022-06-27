@@ -90,7 +90,7 @@ public class nsNKeyCertReqInput extends EnrollInput {
         String sn = ctx.get(VAL_SN);
         String pk = ctx.get(VAL_PUBLIC_KEY);
         X509CertInfo info =
-                request.getExtDataInCertInfo(Profile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(Request.REQUEST_CERTINFO);
 
         if (sn == null) {
             logger.error("nsNKeyCertReqInput: populate - id not found");
@@ -108,7 +108,7 @@ public class nsNKeyCertReqInput extends EnrollInput {
         }
 
         mEnrollProfile.fillNSNKEY(getLocale(request), sn, pk, info, request);
-        request.setExtData(Profile.REQUEST_CERTINFO, info);
+        request.setExtData(Request.REQUEST_CERTINFO, info);
     }
 
     /**

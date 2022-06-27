@@ -26,7 +26,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -89,7 +88,7 @@ public class nsNKeyOutput extends EnrollOutput {
         if (name.equals(VAL_DER)) {
 
             try {
-                X509CertImpl cert = request.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
+                X509CertImpl cert = request.getExtDataInCert(Request.REQUEST_ISSUED_CERT);
                 if (cert == null)
                     return null;
                 return Utils.base64encode(cert.getEncoded(), true);

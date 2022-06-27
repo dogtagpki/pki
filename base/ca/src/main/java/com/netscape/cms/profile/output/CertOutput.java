@@ -26,7 +26,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.request.Request;
@@ -94,14 +93,14 @@ public class CertOutput extends EnrollOutput {
     public String getValue(String name, Locale locale, Request request)
             throws EProfileException {
         if (name.equals(VAL_PRETTY_CERT)) {
-            X509CertImpl cert = request.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
+            X509CertImpl cert = request.getExtDataInCert(Request.REQUEST_ISSUED_CERT);
             if (cert == null)
                 return null;
             CertPrettyPrint prettyCert = new CertPrettyPrint(cert);
 
             return prettyCert.toString(locale);
         } else if (name.equals(VAL_B64_CERT)) {
-            X509CertImpl cert = request.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
+            X509CertImpl cert = request.getExtDataInCert(Request.REQUEST_ISSUED_CERT);
             if (cert == null)
                 return null;
             try {

@@ -1881,7 +1881,7 @@ public class CRSEnrollment extends HttpServlet {
         String profileId = pkiReq.getExtDataInString(Request.PROFILE_ID);
         if (profileId != null) {
             logger.debug("CRSEnrollment: Found profile request");
-            X509CertImpl cert = pkiReq.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
+            X509CertImpl cert = pkiReq.getExtDataInCert(Request.REQUEST_ISSUED_CERT);
             if (cert == null) {
                 logger.debug("CRSEnrollment: No certificate has been found");
             } else {

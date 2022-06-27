@@ -31,7 +31,6 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -167,11 +166,11 @@ public abstract class EnrollConstraint extends PolicyConstraint {
         name = name.substring(name.lastIndexOf('.') + 1);
         logger.debug(name + ": validate start");
         X509CertInfo info =
-                request.getExtDataInCertInfo(Profile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(Request.REQUEST_CERTINFO);
 
         validate(request, info);
 
-        request.setExtData(Profile.REQUEST_CERTINFO, info);
+        request.setExtData(Request.REQUEST_CERTINFO, info);
         logger.debug(name + ": validate end");
     }
 

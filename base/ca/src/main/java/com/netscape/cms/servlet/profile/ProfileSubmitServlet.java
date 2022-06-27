@@ -400,7 +400,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 Node subnode = xmlObj.createContainer(n, "Request");
                 xmlObj.addItemToContainer(subnode, "Id", reqs[i].getRequestId().toString());
                 X509CertInfo certInfo =
-                        reqs[i].getExtDataInCertInfo(Profile.REQUEST_CERTINFO);
+                        reqs[i].getExtDataInCertInfo(Request.REQUEST_CERTINFO);
                 if (certInfo != null) {
                     String subject = "";
                     subject = certInfo.get(X509CertInfo.SUBJECT).toString();

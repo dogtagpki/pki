@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -77,7 +76,7 @@ public class LdapEnrollmentListener implements IRequestListener {
             certs = r.getExtDataInCertArray(Request.ISSUED_CERTS);
         } else {
             certs = new Certificate[1];
-            certs[0] = r.getExtDataInCert(Profile.REQUEST_ISSUED_CERT);
+            certs[0] = r.getExtDataInCert(Request.REQUEST_ISSUED_CERT);
         }
 
         if (certs == null || certs.length == 0 || certs[0] == null) {
