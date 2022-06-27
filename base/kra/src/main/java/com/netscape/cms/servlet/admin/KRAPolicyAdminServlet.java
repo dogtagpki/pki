@@ -21,11 +21,10 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -64,7 +63,7 @@ public class KRAPolicyAdminServlet extends PolicyAdminServlet {
 
         logger.debug("KRAPolicyAdminServlet: In Policy Admin Servlet init");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
 
         String authority = config.getInitParameter(PROP_AUTHORITY);
         KeyRecoveryAuthority kra = null;

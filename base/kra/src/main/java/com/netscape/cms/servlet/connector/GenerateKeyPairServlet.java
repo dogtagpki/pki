@@ -29,15 +29,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.connector.IRemoteRequest;
 import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.request.KeyRequestRepository;
@@ -80,8 +78,8 @@ public class GenerateKeyPairServlet extends CMSServlet {
         super.init(config);
         mConfig = config;
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig sconfig = engine.getConfig();
+        KRAEngine engine = KRAEngine.getInstance();
+        KRAEngineConfig sconfig = engine.getConfig();
 
         String authority = config.getInitParameter(PROP_AUTHORITY);
 
