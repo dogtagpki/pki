@@ -39,7 +39,6 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.ProfileAuthenticator;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -277,7 +276,7 @@ public class TokenAuthentication implements ProfileAuthenticator {
     // Profile-related methods
 
     @Override
-    public void init(Profile profile, ConfigStore config) throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
     }
 
     /**

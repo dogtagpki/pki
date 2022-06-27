@@ -101,7 +101,6 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.ProfileAuthenticator;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
@@ -1234,7 +1233,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
     // Profile-related methods
 
     @Override
-    public void init(Profile profile, ConfigStore config) throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
     }
 
     /**

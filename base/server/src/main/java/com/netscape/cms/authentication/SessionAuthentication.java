@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.ProfileAuthenticator;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -137,7 +136,7 @@ public class SessionAuthentication
     // Profile-related methods
 
     @Override
-    public void init(Profile profile, ConfigStore config) {
+    public void init(ConfigStore config) {
     }
 
     /**

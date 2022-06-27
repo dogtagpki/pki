@@ -42,7 +42,6 @@ import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cms.profile.ProfileAuthenticator;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -295,7 +294,7 @@ public class AgentCertAuthentication implements ProfileAuthenticator {
     // Profile-related methods
 
     @Override
-    public void init(Profile profile, ConfigStore config) throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
     }
 
     /**

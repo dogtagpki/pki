@@ -40,7 +40,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.ProfileAuthenticator;
-import com.netscape.cms.profile.common.Profile;
 // cert server x509 imports
 // java sdk imports.
 import com.netscape.cmscore.apps.CMS;
@@ -404,7 +403,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
     // Profile-related methods
 
     @Override
-    public void init(Profile profile, ConfigStore config)
+    public void init(ConfigStore config)
             throws EProfileException {
     }
 
