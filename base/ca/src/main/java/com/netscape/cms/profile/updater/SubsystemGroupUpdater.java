@@ -58,8 +58,6 @@ public class SubsystemGroupUpdater extends ProfileUpdater {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubsystemGroupUpdater.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    @SuppressWarnings("unused")
-    private Profile mProfile;
     private ConfigStore mConfig;
 
     private Vector<String> mConfigNames = new Vector<>();
@@ -68,9 +66,8 @@ public class SubsystemGroupUpdater extends ProfileUpdater {
     }
 
     @Override
-    public void init(Profile profile, ConfigStore config) throws EProfileException {
+    public void init(ConfigStore config) throws EProfileException {
         mConfig = config;
-        mProfile = profile;
     }
 
     @Override

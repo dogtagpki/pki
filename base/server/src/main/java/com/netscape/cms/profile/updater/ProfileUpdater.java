@@ -22,7 +22,6 @@ import java.util.Locale;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -37,11 +36,10 @@ public abstract class ProfileUpdater implements IConfigTemplate {
     /**
      * Initializes this default policy.
      *
-     * @param profile owner of this policy
      * @param config configuration store
      * @exception EProfileException failed to initialize
      */
-    public abstract void init(Profile profile, ConfigStore config) throws EProfileException;
+    public abstract void init(ConfigStore config) throws EProfileException;
 
     /**
      * Retrieves configuration store.

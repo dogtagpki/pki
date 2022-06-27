@@ -390,7 +390,7 @@ public abstract class Profile {
                 throw new EBaseException(e.toString());
             }
             ConfigStore updaterConfig = updaterStore.getSubStore(updater_id, ConfigStore.class);
-            updater.init(this, updaterConfig);
+            updater.init(updaterConfig);
             mUpdaters.put(updater_id, updater);
             mUpdaterIds.addElement(updater_id);
         }
