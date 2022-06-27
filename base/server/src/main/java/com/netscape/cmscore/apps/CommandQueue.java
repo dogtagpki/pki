@@ -63,8 +63,7 @@ public class CommandQueue implements Runnable {
      */
     public boolean registerProcess(CMSRequest currentRequest, Servlet currentServlet) {
         if (mShuttingDown == false) {
-            if ((currentServlet instanceof com.netscape.cms.servlet.base.CMSStartServlet) == false)
-                mCommandQueue.put(currentRequest, currentServlet);
+            mCommandQueue.put(currentRequest, currentServlet);
             return true;
         } else {
             return false;
