@@ -6,15 +6,6 @@
 <web-app>
 
     <display-name>Token Key Service</display-name>
-
-   <servlet>
-      <servlet-name>  tksstart  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.CMSStartServlet  </servlet-class>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> tksstart    </param-value> </init-param>
-   </servlet>
                                                                                 
    <servlet>
       <servlet-name>  tksug  </servlet-name>
@@ -271,11 +262,6 @@
    <servlet-mapping>
       <servlet-name>Resteasy</servlet-name>
       <url-pattern>/rest/*</url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  tksstart  </servlet-name>
-      <url-pattern>   /start  </url-pattern>
    </servlet-mapping>
                                                                                 
    <servlet-mapping>

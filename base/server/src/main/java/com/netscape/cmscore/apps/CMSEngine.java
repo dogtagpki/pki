@@ -1674,6 +1674,8 @@ public class CMSEngine implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent event) {
 
+        logger.info("CMSEngine: Servlet context initialized");
+
         String path = event.getServletContext().getContextPath();
         if ("".equals(path)) {
             id = "ROOT";
@@ -1693,6 +1695,9 @@ public class CMSEngine implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent event) {
+
+        logger.info("CMSEngine: Servlet context destroyed");
+
         shutdown();
     }
 }

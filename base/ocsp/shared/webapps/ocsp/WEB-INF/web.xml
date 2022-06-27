@@ -63,15 +63,6 @@
    </servlet>
                                                                                 
    <servlet>
-      <servlet-name>  ocspstart  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.CMSStartServlet  </servlet-class>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspstart   </param-value> </init-param>
-   </servlet>
-                                                                                
-   <servlet>
       <servlet-name>  ocspocsp  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.admin.OCSPAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -528,11 +519,6 @@
    <servlet-mapping>
       <servlet-name>  ocspauths  </servlet-name>
       <url-pattern>   /auths  </url-pattern>
-   </servlet-mapping>
-                    
-   <servlet-mapping>
-      <servlet-name>  ocspstart  </servlet-name>
-      <url-pattern>   /start  </url-pattern>
    </servlet-mapping>
                                                                                 
    <servlet-mapping>

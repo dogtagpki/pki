@@ -8,19 +8,6 @@
     <display-name>Token Processing Service</display-name>
 
     <servlet>
-        <servlet-name>tpsstart</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.base.CMSStartServlet</servlet-class>
-        <init-param>
-            <param-name>AuthzMgr</param-name>
-            <param-value>BasicAclAuthz</param-value>
-        </init-param>
-        <init-param>
-            <param-name>ID</param-name>
-            <param-value>tpsstart</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
         <servlet-name>tpsug</servlet-name>
         <servlet-class>com.netscape.cms.servlet.admin.UsrGrpAdminServlet</servlet-class>
         <init-param>
@@ -127,11 +114,6 @@
     <servlet-mapping>
         <servlet-name>Resteasy</servlet-name>
         <url-pattern>/rest/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>tpsstart</servlet-name>
-        <url-pattern>/start</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
