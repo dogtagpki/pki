@@ -160,6 +160,8 @@ public class CAInstallerService extends SystemConfigService {
             logger.info("CAInstallerService: - request ID: " + requestID.toHexString());
 
             CAEngine engine = CAEngine.getInstance();
+            CAEngineConfig engineConfig = engine.getConfig();
+
             CertRequestRepository requestRepository = engine.getCertRequestRepository();
             Request requestRecord = requestRepository.readRequest(requestID);
 
@@ -234,7 +236,6 @@ public class CAInstallerService extends SystemConfigService {
 
             } else { // certType == local
 
-                CAEngineConfig engineConfig = engine.getConfig();
                 CAConfig caConfig = engineConfig.getCAConfig();
                 ConfigStore caSigningCfg = caConfig.getSubStore("signing", ConfigStore.class);
 
@@ -264,7 +265,7 @@ public class CAInstallerService extends SystemConfigService {
 
             logger.info("CAInstallerService: Loading " + profilePath);
             ConfigStore profileConfig = engine.loadConfigStore(profilePath);
-            BootstrapProfile profile = new BootstrapProfile(profileConfig);
+            BootstrapProfile profile = new BootstrapProfile(engineConfig, profileConfig);
 
             Date date = new Date();
             X509CertInfo certInfo = CryptoUtil.createX509CertInfo(

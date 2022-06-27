@@ -24,12 +24,15 @@ import java.util.Vector;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.cms.profile.def.EnrollDefault;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 public class BootstrapProfile {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BootstrapProfile.class);
+
+    EngineConfig engineConfig;
 
     private Vector<EnrollDefault> mDefaults = new Vector<>();
     private String mName = null;
@@ -38,12 +41,16 @@ public class BootstrapProfile {
     private String mProfileIDMapping = null;
     private String mProfileSetIDMapping = null;
 
-    public BootstrapProfile(ConfigStore config) throws Exception {
+    public BootstrapProfile(EngineConfig engineConfig, ConfigStore config) throws Exception {
+
+        this.engineConfig = engineConfig;
+
         mID = config.getString("id");
         mName = config.getString("name");
         mDescription = config.getString("description");
         mProfileIDMapping = config.getString("profileIDMapping");
         mProfileSetIDMapping = config.getString("profileSetIDMapping");
+
         StringTokenizer st = new StringTokenizer(config.getString("list"), ",");
         while (st.hasMoreTokens()) {
             String id = st.nextToken();

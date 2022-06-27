@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
@@ -120,6 +121,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
             throws EProfileException {
 
         CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig engineConfig = engine.getConfig();
         PluginRegistry registry = engine.getPluginRegistry();
         ConfigStore profileConfig = mProfiles.get(id).getConfigStore();
 
@@ -137,7 +139,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         }
         newProfile.setId(id);
         try {
-            newProfile.init(registry, profileConfig);
+            newProfile.init(engineConfig, registry, profileConfig);
         } catch (EBaseException e) {
             throw new EProfileException(
                     "Failed to initialise profile '" + id + "': " + e);

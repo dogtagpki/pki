@@ -40,6 +40,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.updater.ProfileUpdater;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.Request;
@@ -132,6 +133,7 @@ public abstract class Profile {
      */
     public static final String REQUEST_ISSUED_CERT = "req_issued_cert";
 
+    protected EngineConfig engineConfig;
     protected ConfigStore mConfig;
     protected PluginRegistry registry;
 
@@ -263,18 +265,21 @@ public abstract class Profile {
 
     /**
      * Initializes this profile.
+     * @param engineConfig engine configuration
      * @param registry plugin registry
      * @param profileConfig profile configuration
      *
      * @exception EBaseException failed to initialize
      */
     public void init(
+            EngineConfig engineConfig,
             PluginRegistry registry,
             ConfigStore profileConfig
             ) throws EBaseException {
 
         logger.debug("Profile: start init");
 
+        this.engineConfig = engineConfig;
         this.registry = registry;
         mConfig = profileConfig;
 

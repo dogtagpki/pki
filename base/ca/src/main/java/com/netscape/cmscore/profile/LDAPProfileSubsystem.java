@@ -231,6 +231,7 @@ public class LDAPProfileSubsystem
             throws EProfileException {
 
         CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig engineConfig = engine.getConfig();
         PluginRegistry registry = engine.getPluginRegistry();
 
         LDAPConnection conn = null;
@@ -254,7 +255,7 @@ public class LDAPProfileSubsystem
             logger.debug("LDAPProfileSubsystem: initing " + className);
             Profile profile = (Profile) Class.forName(className).getDeclaredConstructor().newInstance();
             profile.setId(id);
-            profile.init(registry, profileConfig);
+            profile.init(engineConfig, registry, profileConfig);
             mProfiles.put(id, profile);
             mProfileClassIds.put(id, classid);
             return profile;

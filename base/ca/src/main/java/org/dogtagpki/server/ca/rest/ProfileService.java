@@ -39,6 +39,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
@@ -86,11 +87,13 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileService.class);
 
+    private CAEngineConfig engineConfig;
     private PluginRegistry registry;
     private ProfileSubsystem ps;
 
     public ProfileService() {
         CAEngine engine = CAEngine.getInstance();
+        engineConfig = engine.getConfig();
         registry = engine.getPluginRegistry();
         ps = engine.getProfileSubsystem();
     }
@@ -602,7 +605,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             try {
                 ConfigStore profileConfig = new ConfigStore();
                 profileConfig.load(new ByteArrayInputStream(data));
-                tempProfile.init(registry, profileConfig);
+                tempProfile.init(engineConfig, registry, profileConfig);
 
             } catch (Exception e) {
                 String message = "Unable to create profile: " + e.getMessage();
@@ -737,7 +740,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             try {
                 ConfigStore profileConfig = new ConfigStore();
                 profileConfig.load(new ByteArrayInputStream(data));
-                tempProfile.init(registry, profileConfig);
+                tempProfile.init(engineConfig, registry, profileConfig);
             } catch (Exception e) {
                 throw new BadRequestException("Invalid profile data", e);
             }
