@@ -124,21 +124,20 @@ public abstract class EnrollDefault extends PolicyDefault {
     public String getConfig(String name, String defval) {
 
         if (mConfig == null) {
-            logger.error("Missing profile configuration");
+            logger.warn("Missing profile default configuration");
             return null;
         }
 
         ConfigStore params = mConfig.getSubStore("params", ConfigStore.class);
         if (params == null) {
-            logger.error("Missing constraint parameters");
+            logger.warn("Missing profile default parameters");
             return null;
         }
 
         try {
             return params.getString(name, defval);
-
         } catch (EBaseException e) {
-            logger.warn("EnrollDefault: " + e.getMessage(), e);
+            logger.warn("Unable to get profile default " + name + " parameter: " + e.getMessage(), e);
             return null;
         }
     }

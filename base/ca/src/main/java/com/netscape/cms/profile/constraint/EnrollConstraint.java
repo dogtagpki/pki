@@ -107,7 +107,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
     public String getConfig(String name, String defval) {
 
         if (mConfig == null) {
-            logger.warn("Error: Missing profile configuration");
+            logger.warn("Missing profile constraint configuration");
             return null;
         }
 
@@ -119,9 +119,8 @@ public abstract class EnrollConstraint extends PolicyConstraint {
 
         try {
             return params.getString(name, defval);
-
         } catch (EBaseException e) {
-            logger.warn("EnrollConstraint: " + e.getMessage(), e);
+            logger.warn("Unable to get profile constraint " + name + " parameter: " + e.getMessage(), e);
             return null;
         }
     }
