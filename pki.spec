@@ -92,6 +92,7 @@ ExcludeArch: i686
 %bcond_without server
 %bcond_without acme
 %bcond_without ca
+%bcond_without est
 %bcond_without kra
 %bcond_without ocsp
 %bcond_without tks
@@ -262,6 +263,7 @@ Requires:         %{product_id}-theme = %{version}-%{release}
 # of ALL PKI core packages
 Requires:         %{product_id}-acme = %{version}-%{release}
 Requires:         %{product_id}-ca = %{version}-%{release}
+Requires:         %{product_id}-est = %{version}-%{release}
 Requires:         %{product_id}-kra = %{version}-%{release}
 Requires:         %{product_id}-ocsp = %{version}-%{release}
 Requires:         %{product_id}-tks = %{version}-%{release}
@@ -521,6 +523,26 @@ Authority, where it is the root CA, or it can act as a subordinate CA,
 where it obtains its own signing certificate from a public CA.
 
 # with ca
+%endif
+
+%if %{with est}
+################################################################################
+%package -n       %{product_id}-est
+################################################################################
+
+Summary:          %{product_name} EST Package
+BuildArch:        noarch
+
+Obsoletes:        pki-est < %{version}-%{release}
+Provides:         pki-est = %{version}-%{release}
+
+Requires:         %{product_id}-server = %{version}-%{release}
+
+%description -n   %{product_id}-est
+%{product_name} EST subsystem provides an Enrollment over
+Secure Transport (RFC 7030) service.
+
+# with est
 %endif
 
 %if %{with kra}
@@ -799,6 +821,7 @@ This package provides test suite for %{product_name}.
 pkgs=base\
 %{?with_server:,server}\
 %{?with_ca:,ca}\
+%{?with_est:,est}\
 %{?with_kra:,kra}\
 %{?with_ocsp:,ocsp}\
 %{?with_tks:,tks}\
@@ -1117,6 +1140,17 @@ fi
 %{_datadir}/pki/ca/
 
 # with ca
+%endif
+
+%if %{with est}
+################################################################################
+%files -n %{product_id}-est
+################################################################################
+
+%{_javadir}/pki/pki-est.jar
+%{_datadir}/pki/est/
+
+# with est
 %endif
 
 %if %{with kra}

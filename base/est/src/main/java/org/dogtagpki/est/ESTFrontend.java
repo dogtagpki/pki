@@ -29,7 +29,7 @@ import com.netscape.certsrv.base.PKIException;
  *
  * @author Fraser Tweedale
  */
-@Path("est")
+@Path("")
 public class ESTFrontend {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ESTFrontend.class);

@@ -49,7 +49,7 @@ DIST=
 WITHOUT_TEST=
 WITH_CONSOLE=
 
-PKG_LIST="base, server, ca, kra, ocsp, tks, tps, acme, javadoc, theme, meta, tests, debug"
+PKG_LIST="base, server, ca, kra, ocsp, tks, tps, acme, est, javadoc, theme, meta, tests, debug"
 ALL_PKGS=( $(echo "$PKG_LIST" | sed 's/ *, */ /g') )
 
 WITH_PKGS=
@@ -724,6 +724,11 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " acme " ]]; then
         echo "- ACME:"
         echo "    $WORK_DIR/dist/pki-acme.jar"
+    fi
+
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " est " ]]; then
+        echo "- EST:"
+        echo "    $WORK_DIR/dist/pki-est.jar"
     fi
 
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " ca " ]]; then
