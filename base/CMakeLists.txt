@@ -420,6 +420,10 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
         add_subdirectory(acme)
     endif(WITH_ACME)
 
+    if(WITH_EST)
+        add_subdirectory(est)
+    endif(WITH_EST)
+
     if(WITH_JAVADOC)
         add_subdirectory(javadoc)
     endif(WITH_JAVADOC)

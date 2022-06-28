@@ -1,0 +1,3 @@
+Name: pki-est
+Specification-Version: ${APPLICATION_VERSION}
+Implementation-Version: ${IMPL_VERSION}
