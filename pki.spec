@@ -796,7 +796,7 @@ This package provides test suite for %{product_name}.
 
 pkgs=base\
 #%{?with_server:,server}\
-%if (%{with server}) || (!%{with server} && (%{with ca} || %{with kra} || %{with ocsp} || %{with tks} || %{with tps} || %{with acme}))
+%if (%{with server}) || (%{with ca} || %{with kra} || %{with ocsp} || %{with tks} || %{with tps} || %{with acme})
 ,server\
 %endif
 %{?with_ca:,ca}\
