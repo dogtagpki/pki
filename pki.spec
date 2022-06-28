@@ -110,6 +110,7 @@ ExcludeArch: i686
 %package_option server
 %package_option acme
 %package_option ca
+%package_option est
 %package_option kra
 %package_option ocsp
 %package_option tks
@@ -282,6 +283,7 @@ Requires:         %{product_id}-console-theme = %{version}-%{release}
 # of ALL PKI core packages
 Requires:         %{product_id}-acme = %{version}-%{release}
 Requires:         %{product_id}-ca = %{version}-%{release}
+Requires:         %{product_id}-est = %{version}-%{release}
 Requires:         %{product_id}-kra = %{version}-%{release}
 Requires:         %{product_id}-ocsp = %{version}-%{release}
 Requires:         %{product_id}-tks = %{version}-%{release}
@@ -590,6 +592,26 @@ where it obtains its own signing certificate from a public CA.
 # with ca
 %endif
 
+%if %{with est}
+################################################################################
+%package -n       %{product_id}-est
+################################################################################
+
+Summary:          %{product_name} EST Package
+BuildArch:        noarch
+
+Obsoletes:        pki-est < %{version}-%{release}
+Provides:         pki-est = %{version}-%{release}
+
+Requires:         %{product_id}-server = %{version}-%{release}
+
+%description -n   %{product_id}-est
+%{product_name} EST subsystem provides an Enrollment over
+Secure Transport (RFC 7030) service.
+
+# with est
+%endif
+
 %if %{with kra}
 ################################################################################
 %package -n       %{product_id}-kra
@@ -893,7 +915,7 @@ cd build
     -DNSS_DEFAULT_DB_TYPE=%{nss_default_db_type} \
     -DBUILD_PKI_CORE:BOOL=ON \
     -DPYTHON_EXECUTABLE=%{python_executable} \
-%if ! %{with server} && ! %{with acme} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
+%if ! %{with server} && ! %{with acme} && ! %{with ca} && ! %{with est} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
     -DWITH_SERVER:BOOL=OFF \
 %endif
     -DWITH_CA:BOOL=%{?with_ca:ON}%{!?with_ca:OFF} \
@@ -902,6 +924,7 @@ cd build
     -DWITH_TKS:BOOL=%{?with_tks:ON}%{!?with_tks:OFF} \
     -DWITH_TPS:BOOL=%{?with_tps:ON}%{!?with_tps:OFF} \
     -DWITH_ACME:BOOL=%{?with_acme:ON}%{!?with_acme:OFF} \
+    -DWITH_EST:BOOL=%{?with_est:ON}%{!?with_est:OFF} \
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
     -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
@@ -1274,6 +1297,17 @@ fi
 %{_datadir}/pki/ca/
 
 # with ca
+%endif
+
+%if %{with est}
+################################################################################
+%files -n %{product_id}-est
+################################################################################
+
+%{_javadir}/pki/pki-est.jar
+%{_datadir}/pki/est/
+
+# with est
 %endif
 
 %if %{with kra}
