@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
@@ -43,8 +44,17 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDomainService.class);
 
+    public boolean isEnabled() {
+        return true;
+    }
+
     @Override
     public Response getInstallToken(String hostname, String subsystem) {
+
+        if (!isEnabled()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
         logger.debug("SecurityDomainService.getInstallToken(" + hostname + ", " + subsystem + ")");
         try {
             // Get uid from realm authentication.
@@ -66,6 +76,11 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
 
     @Override
     public Response getDomainInfo() {
+
+        if (!isEnabled()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
         try {
             SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
             DomainInfo domainInfo = processor.getDomainInfo();
@@ -83,6 +98,11 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
 
     @Override
     public Response getHosts() {
+
+        if (!isEnabled()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
         logger.info("SecurityDomainService: Getting all security domain hosts");
         try {
             Collection<SecurityDomainHost> hosts = new ArrayList<>();
@@ -116,6 +136,11 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
 
     @Override
     public Response getHost(String hostID) {
+
+        if (!isEnabled()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
         logger.info("SecurityDomainService: Getting security domain host \"" + hostID + "\"");
         try {
             SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
@@ -149,6 +174,11 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
 
     @Override
     public Response addHost(SecurityDomainHost host) {
+
+        if (!isEnabled()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
         String hostID = host.getId();
         logger.info("SecurityDomainService: Adding security domain host \"" + hostID + "\"");
 
@@ -232,6 +262,11 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
 
     @Override
     public Response removeHost(String hostID) {
+
+        if (!isEnabled()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
         logger.info("SecurityDomainService: Removing security domain host \"" + hostID + "\"");
         try {
             // Host ID: <type> <hostname> <port>

@@ -5,7 +5,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.dogtagpki.server.rest.ACLInterceptor;
 import org.dogtagpki.server.rest.AccountService;
 import org.dogtagpki.server.rest.AuditService;
@@ -13,13 +12,9 @@ import org.dogtagpki.server.rest.AuthMethodInterceptor;
 import org.dogtagpki.server.rest.GroupService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.PKIExceptionMapper;
-import org.dogtagpki.server.rest.SecurityDomainService;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
-
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.EngineConfig;
 
 public class OCSPApplication extends Application {
 
@@ -37,17 +32,7 @@ public class OCSPApplication extends Application {
         classes.add(AuditService.class);
 
         // security domain
-        OCSPEngine engine = OCSPEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
-        try {
-            boolean standalone = cs.getBoolean("ocsp.standalone", false);
-            if (standalone) {
-                classes.add(SecurityDomainService.class);
-            }
-        } catch (EBaseException e) {
-            logger.error("OCSPApplication: " + e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
+        classes.add(OCSPSecurityDomainService.class);
 
         // selftests
         classes.add(SelfTestService.class);
