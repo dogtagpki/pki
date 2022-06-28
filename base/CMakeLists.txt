@@ -347,7 +347,7 @@ find_file(NMCLF_EN_JAR
 add_subdirectory(common)
 add_subdirectory(tools)
 
-if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WITH_ACME)
+if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WITH_ACME OR WITH_EST)
 
     add_subdirectory(${APP_SERVER})
     add_subdirectory(server)
@@ -395,7 +395,11 @@ if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WI
         add_subdirectory(acme)
     endif(WITH_ACME)
 
-endif(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WITH_ACME)
+    if(WITH_EST)
+        add_subdirectory(est)
+    endif(WITH_EST)
+
+endif(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WITH_ACME OR WITH_EST)
 
 if(WITH_JAVADOC)
     add_subdirectory(javadoc)
