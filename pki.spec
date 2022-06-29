@@ -795,9 +795,7 @@ This package provides test suite for %{product_name}.
 %set_build_flags
 
 pkgs=base\
-%if (%{with server}) || (%{with ca} || %{with kra} || %{with ocsp} || %{with tks} || %{with tps} || %{with acme})
-,server\
-%endif
+%{?with_server:,server}\
 %{?with_ca:,ca}\
 %{?with_kra:,kra}\
 %{?with_ocsp:,ocsp}\
