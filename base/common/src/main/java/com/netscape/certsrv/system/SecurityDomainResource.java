@@ -17,8 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
@@ -27,6 +30,7 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 
 /**
  * @author alee
+ * @author Endi S. Dewata
  */
 @Path("securityDomain")
 public interface SecurityDomainResource {
@@ -42,4 +46,22 @@ public interface SecurityDomainResource {
     @GET
     @Path("domainInfo")
     public Response getDomainInfo();
+
+    @GET
+    @Path("hosts")
+    public Response getHosts();
+
+    @GET
+    @Path("hosts/{hostID}")
+    public Response getHost(@PathParam("hostID") String hostID);
+
+    @PUT
+    @Path("hosts")
+    @ACLMapping("securityDomain.modify")
+    public Response addHost(SecurityDomainHost host);
+
+    @DELETE
+    @Path("hosts/{hostID}")
+    @ACLMapping("securityDomain.modify")
+    public Response removeHost(@PathParam("hostID") String hostID);
 }
