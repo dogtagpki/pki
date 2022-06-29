@@ -32,7 +32,6 @@ import com.netscape.certsrv.client.PKIClient;
 public class SecurityDomainClient extends Client {
 
     private SecurityDomainResource securityDomainClient;
-    private SecurityDomainHostResource securityDomainHostClient;
 
     public SecurityDomainClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "securitydomain");
@@ -41,7 +40,6 @@ public class SecurityDomainClient extends Client {
 
     public void init() throws Exception {
         securityDomainClient = createProxy(SecurityDomainResource.class);
-        securityDomainHostClient = createProxy(SecurityDomainHostResource.class);
     }
 
     public InstallToken getInstallToken(String hostname, String subsystem) throws Exception {
@@ -55,23 +53,23 @@ public class SecurityDomainClient extends Client {
     }
 
     public Collection<SecurityDomainHost> getHosts() throws Exception {
-        Response response = securityDomainHostClient.getHosts();
+        Response response = securityDomainClient.getHosts();
         GenericType<Collection<SecurityDomainHost>> type = new GenericType<>() {};
         return client.getEntity(response, type);
     }
 
     public SecurityDomainHost getHost(String hostID) throws Exception {
-        Response response = securityDomainHostClient.getHost(hostID);
+        Response response = securityDomainClient.getHost(hostID);
         return client.getEntity(response, SecurityDomainHost.class);
     }
 
     public void addHost(SecurityDomainHost host) throws Exception {
-        Response response = securityDomainHostClient.addHost(host);
+        Response response = securityDomainClient.addHost(host);
         client.getEntity(response, Void.class);
     }
 
     public void removeHost(String hostID) throws Exception {
-        Response response = securityDomainHostClient.removeHost(hostID);
+        Response response = securityDomainClient.removeHost(hostID);
         client.getEntity(response, Void.class);
     }
 }

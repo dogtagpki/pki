@@ -15,7 +15,6 @@ import org.dogtagpki.server.rest.FeatureService;
 import org.dogtagpki.server.rest.GroupService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.PKIExceptionMapper;
-import org.dogtagpki.server.rest.SecurityDomainHostService;
 import org.dogtagpki.server.rest.SecurityDomainService;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
@@ -97,7 +96,6 @@ public class CAApplication extends Application {
             // if it's a new security domain, register the service
             if ("new".equals(select)) {
                 classes.add(SecurityDomainService.class);
-                classes.add(SecurityDomainHostService.class);
             }
         }
 
