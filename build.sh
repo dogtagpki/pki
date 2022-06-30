@@ -667,6 +667,12 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
         OPTIONS+=(-DWITH_$package:BOOL=OFF)
     done
 
+    for package in ${PKGS_TO_BUILD[@]}
+    do
+        package=${package^^}
+        OPTIONS+=(-DWITH_$package:BOOL=ON)
+    done
+
     if [ "$WITH_CONSOLE" = true ] ; then
         OPTIONS+=(-DWITH_CONSOLE:BOOL=ON)
     fi
