@@ -37,6 +37,10 @@ public class LdapRule implements IExtendedPluginInfo {
     public final static String PROP_ENABLE = "enable";
     public final static String PROP_IMPLNAME = "implName";
 
+    public final static String PROP_MAPPER = "mapper";
+    public final static String PROP_PUBLISHER = "publisher";
+    public final static String PROP_TYPE = "type";
+
     public final static String NOMAPPER = "<NONE>";
 
     private ConfigStore mConfig;
@@ -96,7 +100,7 @@ public class LdapRule implements IExtendedPluginInfo {
 
         // Read the predicate expression if any associated
         // with the rule
-        String exp = config.getString(PublisherProcessor.PROP_PREDICATE, null);
+        String exp = config.getString(PROP_PREDICATE, null);
         logger.info("LdapRule: predicate: " + exp);
 
         if (exp != null) {
@@ -129,7 +133,7 @@ public class LdapRule implements IExtendedPluginInfo {
 
         // Read the predicate expression if any associated
         // with the rule
-        String exp = config.getString(PublisherProcessor.PROP_PREDICATE, null);
+        String exp = config.getString(PROP_PREDICATE, null);
         logger.info("LdapRule: predicate: " + exp);
 
         if (exp != null) {
@@ -209,20 +213,11 @@ public class LdapRule implements IExtendedPluginInfo {
         Vector<String> v = new Vector<>();
 
         try {
-            v.addElement(PublisherProcessor.PROP_TYPE + "=" +
-                    mConfig.getString(PublisherProcessor.PROP_TYPE, ""));
-            v.addElement(PublisherProcessor.PROP_PREDICATE + "=" +
-                    mConfig.getString(PublisherProcessor.PROP_PREDICATE,
-                            ""));
-            v.addElement(PublisherProcessor.PROP_ENABLE + "=" +
-                    mConfig.getString(PublisherProcessor.PROP_ENABLE,
-                            ""));
-            v.addElement(PublisherProcessor.PROP_MAPPER + "=" +
-                    mConfig.getString(PublisherProcessor.PROP_MAPPER,
-                            ""));
-            v.addElement(PublisherProcessor.PROP_PUBLISHER + "=" +
-                    mConfig.getString(PublisherProcessor.PROP_PUBLISHER,
-                            ""));
+            v.addElement(PROP_TYPE + "=" + mConfig.getString(PROP_TYPE, ""));
+            v.addElement(PROP_PREDICATE + "=" + mConfig.getString(PROP_PREDICATE, ""));
+            v.addElement(PROP_ENABLE + "=" + mConfig.getString(PROP_ENABLE, ""));
+            v.addElement(PROP_MAPPER + "=" + mConfig.getString(PROP_MAPPER, ""));
+            v.addElement(PROP_PUBLISHER + "=" + mConfig.getString(PROP_PUBLISHER, ""));
         } catch (EBaseException e) {
         }
         return v;
@@ -250,7 +245,7 @@ public class LdapRule implements IExtendedPluginInfo {
 
     public String getMapper() {
         try {
-            String map = mConfig.getString(PublisherProcessor.PROP_MAPPER, "");
+            String map = mConfig.getString(PROP_MAPPER, "");
 
             if (map != null)
                 map = map.trim();
@@ -267,7 +262,7 @@ public class LdapRule implements IExtendedPluginInfo {
 
     public String getPublisher() {
         try {
-            return mConfig.getString(PublisherProcessor.PROP_PUBLISHER, "");
+            return mConfig.getString(PROP_PUBLISHER, "");
         } catch (EBaseException e) {
         }
         return null;
@@ -275,7 +270,7 @@ public class LdapRule implements IExtendedPluginInfo {
 
     public String getType() {
         try {
-            return mConfig.getString(PublisherProcessor.PROP_TYPE, "");
+            return mConfig.getString(PROP_TYPE, "");
         } catch (EBaseException e) {
         }
         return null;
@@ -286,7 +281,7 @@ public class LdapRule implements IExtendedPluginInfo {
      */
     public boolean enabled() {
         try {
-            boolean enable = mConfig.getBoolean(PublisherProcessor.PROP_ENABLE, false);
+            boolean enable = mConfig.getBoolean(PROP_ENABLE, false);
 
             //System.out.println(enable);
             return enable;
@@ -301,11 +296,11 @@ public class LdapRule implements IExtendedPluginInfo {
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<>();
 
-        v.addElement(PublisherProcessor.PROP_TYPE + "=");
-        v.addElement(PublisherProcessor.PROP_PREDICATE + "=");
-        v.addElement(PublisherProcessor.PROP_ENABLE + "=true");
-        v.addElement(PublisherProcessor.PROP_MAPPER + "=");
-        v.addElement(PublisherProcessor.PROP_PUBLISHER + "=");
+        v.addElement(PROP_TYPE + "=");
+        v.addElement(PROP_PREDICATE + "=");
+        v.addElement(PROP_ENABLE + "=true");
+        v.addElement(PROP_MAPPER + "=");
+        v.addElement(PROP_PUBLISHER + "=");
         return v;
     }
 }

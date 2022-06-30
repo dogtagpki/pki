@@ -55,12 +55,8 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
     public final static String PROP_PLUGIN = "pluginName";
     public final static String PROP_INSTANCE = "instance";
 
-    public final static String PROP_PREDICATE = "predicate";
     public final static String PROP_ENABLE = "enable";
     public final static String PROP_LDAP = "ldap";
-    public final static String PROP_MAPPER = "mapper";
-    public final static String PROP_PUBLISHER = "publisher";
-    public final static String PROP_TYPE = "type";
 
     public Hashtable<String, PublisherPlugin> mPublisherPlugins = new Hashtable<>();
     public Hashtable<String, PublisherProxy> mPublisherInsts = new Hashtable<>();
