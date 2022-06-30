@@ -36,7 +36,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -293,14 +292,6 @@ public interface ICertificateAuthority extends ISubsystem {
      * @return true if this is a clone CA
      */
     public boolean isClone();
-
-    /**
-     * Registers a request listener.
-     *
-     * @param name under request listener is going to be registered
-     * @param listener request listener to be registered
-     */
-    public void registerRequestListener(String name, IRequestListener listener);
 
     /**
      * Retrieves the issuer name of this certificate authority.

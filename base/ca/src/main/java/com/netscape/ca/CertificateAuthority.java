@@ -508,15 +508,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     /**
-     * registers listener with a name.
-     */
-    @Override
-    public void registerRequestListener(String name, IRequestListener listener) {
-        CAEngine engine = CAEngine.getInstance();
-        engine.registerRequestListener(name, listener);
-    }
-
-    /**
      * removes listener with a name.
      */
     public void removeRequestListener(String name) {

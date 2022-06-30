@@ -278,6 +278,12 @@ public class CMSEngine implements ServletContextListener {
         requestNotifier.registerListener(listener);
     }
 
+    /**
+     * Registers a request listener.
+     *
+     * @param name under request listener is going to be registered
+     * @param listener request listener to be registered
+     */
     public void registerRequestListener(String name, IRequestListener listener) {
         requestNotifier.registerListener(name, listener);
     }
