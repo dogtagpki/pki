@@ -34,7 +34,7 @@ public class ESTEngine implements ServletContextListener {
         logger.info("Starting EST engine");
 
         // initialize backend
-        String className = "org.dogtagpki.est.ESTIntegratedBackend"; // TODO read from config
+        String className = "org.dogtagpki.est.DogtagRABackend"; // TODO read from config
         Class<ESTBackend> backendClass = (Class<ESTBackend>) Class.forName(className);
         backend = backendClass.getDeclaredConstructor().newInstance();
         backend.start();
