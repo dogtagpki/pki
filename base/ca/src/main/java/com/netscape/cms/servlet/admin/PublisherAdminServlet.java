@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.admin;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.servlet.ServletConfig;
@@ -1757,7 +1758,9 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // initialize the rule
         try {
-            ruleInst.init(mProcessor, substore);
+            Hashtable<String, MapperProxy> mappers = mProcessor.getMapperInsts();
+            Hashtable<String, PublisherProxy> publishers = mProcessor.getPublisherInsts();
+            ruleInst.init(mappers, publishers, substore);
             ruleInst.setInstanceName(id);
         } catch (EBaseException e) {
             // don't commit in this case and cleanup the new substore.
@@ -2126,7 +2129,9 @@ public class PublisherAdminServlet extends AdminServlet {
         // initialize the rule
 
         try {
-            newRuleInst.init(mProcessor, substore);
+            Hashtable<String, MapperProxy> mappers = mProcessor.getMapperInsts();
+            Hashtable<String, PublisherProxy> publishers = mProcessor.getPublisherInsts();
+            newRuleInst.init(mappers, publishers, substore);
         } catch (EBaseException e) {
             // don't commit in this case and cleanup the new substore.
             restore(instancesConfig, id, saveParams);

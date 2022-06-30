@@ -17,11 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldap;
 
-import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.publish.MapperProxy;
+import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
@@ -40,8 +42,6 @@ public class LdapRule implements IExtendedPluginInfo {
     private ConfigStore mConfig;
     protected ILdapExpression mFilterExp = null;
     private String mInstanceName = null;
-
-    private PublisherProcessor mProcessor;
 
     private static String[] epi_params = null; // extendedpluginInfo
 
@@ -67,25 +67,20 @@ public class LdapRule implements IExtendedPluginInfo {
      *
      * @exception EBaseException Initialization failed.
      */
-    public void init(PublisherProcessor processor, ConfigStore config) throws EBaseException {
+    public void init(
+            Hashtable<String, MapperProxy> mappers,
+            Hashtable<String, PublisherProxy> publishers,
+            ConfigStore config) throws EBaseException {
         mConfig = config;
 
-        mProcessor = processor;
-        Enumeration<String> mappers = mProcessor.getMapperInsts().keys();
-        Enumeration<String> publishers = mProcessor.getPublisherInsts().keys();
         StringBuffer map = new StringBuffer();
         map.append(NOMAPPER);
-
-        for (; mappers.hasMoreElements();) {
-            String name = mappers.nextElement();
-
+        for (String name : mappers.keySet()) {
             map.append("," + name);
         }
+
         StringBuffer publish = new StringBuffer();
-
-        for (; publishers.hasMoreElements();) {
-            String name = publishers.nextElement();
-
+        for (String name : publishers.keySet()) {
             publish.append("," + name);
         }
 

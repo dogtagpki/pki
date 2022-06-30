@@ -288,7 +288,7 @@ public abstract class PublisherProcessor implements IXcertPublisherProcessor {
 
                 ruleInst = (LdapRule) Class.forName(className).getDeclaredConstructor().newInstance();
                 mConfig = c.getSubStore(insName, ConfigStore.class);
-                ruleInst.init(this, mConfig);
+                ruleInst.init(mMapperInsts, mPublisherInsts, mConfig);
                 ruleInst.setInstanceName(insName);
 
                 mRuleInsts.put(insName, ruleInst);
