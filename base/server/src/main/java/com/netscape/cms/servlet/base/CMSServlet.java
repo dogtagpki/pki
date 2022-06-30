@@ -98,7 +98,6 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
-import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
@@ -1002,31 +1001,6 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     /**
-     * handy routine for getting a cert record given a serial number.
-     */
-    protected CertRecord getCertRecord(BigInteger serialNo) {
-        if (!(mAuthority instanceof ICertificateAuthority)) {
-            logger.error(CMS.getLogMessage("CMSGW_NON_CERT_AUTH"));
-            return null;
-        }
-        CertificateRepository certdb = ((ICertificateAuthority) mAuthority).getCertificateRepository();
-
-        if (certdb == null) {
-            logger.error(CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
-            return null;
-        }
-        CertRecord certRecord = null;
-
-        try {
-            certRecord = certdb.readCertificateRecord(serialNo);
-        } catch (EBaseException e) {
-            logger.error(CMS.getLogMessage("CMSGW_NO_CERT_REC", serialNo.toString(16), e.toString()), e);
-            return null;
-        }
-        return certRecord;
-    }
-
-    /**
      * handy routine for validating if a cert is from this CA.
      * mAuthority must be a CA.
      */
@@ -1442,23 +1416,6 @@ public abstract class CMSServlet extends HttpServlet {
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_SETTING_CRLREASON"), e);
         }
         return new RevokedCertImpl(serialNo, new Date(), crlentryexts);
-    }
-
-    /**
-     * check if a certificate (serial number) is revoked on a CA.
-     *
-     * @return true if cert is marked revoked in the CA's database.
-     * @return false if cert is not marked revoked.
-     */
-    protected boolean certIsRevoked(BigInteger serialNum)
-            throws EBaseException {
-        CertRecord certRecord = getCertRecord(serialNum);
-
-        if (certRecord == null) {
-            logger.error(CMS.getLogMessage("CMSGW_BAD_CERT_SER_NUM", String.valueOf(serialNum)));
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_INVALID_CERT"));
-        }
-        return certRecord.getStatus().equals(CertRecord.STATUS_REVOKED);
     }
 
     public static String generateSalt() {
