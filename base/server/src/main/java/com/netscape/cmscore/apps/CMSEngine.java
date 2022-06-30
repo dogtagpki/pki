@@ -257,6 +257,11 @@ public class CMSEngine implements ServletContextListener {
         this.requestNotifier = requestNotifier;
     }
 
+    /**
+     * Retrieves all request listeners.
+     *
+     * @return name enumeration of all request listeners
+     */
     public Enumeration<String> getRequestListenerNames() {
         return requestNotifier.getListenerNames();
     }
@@ -297,6 +302,9 @@ public class CMSEngine implements ServletContextListener {
         requestNotifier.removeListener(listener);
     }
 
+    /**
+     * removes listener with a name.
+     */
     public void removeRequestListener(String name) {
         requestNotifier.removeListener(name);
     }
@@ -309,6 +317,9 @@ public class CMSEngine implements ServletContextListener {
         this.pendingNotifier = pendingNotifier;
     }
 
+    /**
+     * get listener from listener list
+     */
     public IRequestListener getPendingListener(String name) {
         return pendingNotifier.getListener(name);
     }
@@ -320,6 +331,9 @@ public class CMSEngine implements ServletContextListener {
         pendingNotifier.registerListener(listener);
     }
 
+    /**
+     * register listener for pending requests with a name.
+     */
     public void registerPendingListener(String name, IRequestListener listener) {
         pendingNotifier.registerListener(name, listener);
     }

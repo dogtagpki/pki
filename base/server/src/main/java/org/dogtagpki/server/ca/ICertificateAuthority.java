@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca;
 
-import java.util.Enumeration;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -212,13 +211,6 @@ public interface ICertificateAuthority extends ISubsystem {
      * @return CA's Replica ID repository
      */
     public ReplicaIDRepository getReplicaRepository();
-
-    /**
-     * Retrieves all request listeners.
-     *
-     * @return name enumeration of all request listeners
-     */
-    public Enumeration<String> getRequestListenerNames();
 
     /**
      * Retrieves the CA certificate chain.

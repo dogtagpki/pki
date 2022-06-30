@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
@@ -113,7 +112,6 @@ import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
 import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
 import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
-import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
@@ -505,36 +503,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         } catch (Exception e) {
             throw new EBaseException(e);
         }
-    }
-
-    /**
-     * removes listener with a name.
-     */
-    public void removeRequestListener(String name) {
-        CAEngine engine = CAEngine.getInstance();
-        engine.removeRequestListener(name);
-    }
-
-    /**
-     * register listener for pending requests with a name.
-     */
-    public void registerPendingListener(String name, IRequestListener listener) {
-        CAEngine engine = CAEngine.getInstance();
-        engine.registerPendingListener(name, listener);
-    }
-
-    /**
-     * get listener from listener list
-     */
-    public IRequestListener getPendingListener(String name) {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getPendingListener(name);
-    }
-
-    @Override
-    public Enumeration<String> getRequestListenerNames() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getRequestListenerNames();
     }
 
     /**
