@@ -115,7 +115,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                 int savePublishingStatus = queueConfig.getInteger("saveStatus", 0);
                 logger.info("CAPublisherProcessor: - save status: " + savePublishingStatus);
 
-                IRequestNotifier requestNotifier = ca.getRequestNotifier();
+                IRequestNotifier requestNotifier = engine.getRequestNotifier();
                 requestNotifier.setPublishingQueue(
                         isPublishingQueueEnabled,
                         publishingQueuePriorityLevel,

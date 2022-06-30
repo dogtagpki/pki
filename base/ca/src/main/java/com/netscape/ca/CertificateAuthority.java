@@ -114,7 +114,6 @@ import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
 import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
@@ -549,15 +548,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     public IRequestListener getRequestListener(String name) {
         CAEngine engine = CAEngine.getInstance();
         return engine.getRequestListener(name);
-    }
-
-    /**
-     * get notifiers registered by CA
-     */
-    @Override
-    public IRequestNotifier getRequestNotifier() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getRequestNotifier();
     }
 
     /**

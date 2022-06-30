@@ -246,6 +246,9 @@ public class CMSEngine implements ServletContextListener {
         return jobsScheduler;
     }
 
+    /**
+     * get request notifier
+     */
     public RequestNotifier getRequestNotifier() {
         return requestNotifier;
     }
