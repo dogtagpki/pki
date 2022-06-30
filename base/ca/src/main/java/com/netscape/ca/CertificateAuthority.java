@@ -544,15 +544,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     /**
      * get listener from listener list
      */
-    @Override
-    public IRequestListener getRequestListener(String name) {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getRequestListener(name);
-    }
-
-    /**
-     * get listener from listener list
-     */
     public IRequestListener getPendingListener(String name) {
         CAEngine engine = CAEngine.getInstance();
         return engine.getPendingListener(name);

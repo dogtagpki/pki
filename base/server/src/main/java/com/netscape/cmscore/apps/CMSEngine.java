@@ -261,6 +261,12 @@ public class CMSEngine implements ServletContextListener {
         return requestNotifier.getListenerNames();
     }
 
+    /**
+     * Retrieves the request listener by name.
+     *
+     * @param name request listener name
+     * @return the request listener
+     */
     public IRequestListener getRequestListener(String name) {
         return requestNotifier.getListener(name);
     }

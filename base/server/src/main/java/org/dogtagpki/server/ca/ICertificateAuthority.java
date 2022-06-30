@@ -295,14 +295,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public boolean isClone();
 
     /**
-     * Retrieves the request listener by name.
-     *
-     * @param name request listener name
-     * @return the request listener
-     */
-    public IRequestListener getRequestListener(String name);
-
-    /**
      * Removes a request listener.
      *
      * @param listener request listener to be removed

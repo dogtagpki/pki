@@ -550,7 +550,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         String lname = RevocationRequestListener.class.getName();
         String crlListName = lname + "_" + mId;
 
-        if (mCA.getRequestListener(crlListName) == null) {
+        if (engine.getRequestListener(crlListName) == null) {
             mCA.registerRequestListener(
                     crlListName, new RevocationRequestListener(this));
         }
