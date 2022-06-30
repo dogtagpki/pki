@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CAService;
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -310,8 +309,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         }
         BigInteger serialNum = cert.getSerialNumber();
         // need to revoke certificate also
-        CertificateAuthority ca = engine.getCA();
-        CAService service = (CAService) ca.getCAService();
+        CAService service = engine.getCAService();
         RevokedCertImpl crlEntry = formCRLEntry(
                 serialNum, RevocationReason.KEY_COMPROMISE);
 

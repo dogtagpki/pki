@@ -38,7 +38,6 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
-import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -367,14 +366,6 @@ public interface ICertificateAuthority extends ISubsystem {
      */
     public X509CertImpl sign(X509CertInfo certInfo, String algname)
             throws EBaseException;
-
-    /**
-     * Retrieves the CA service object that is responsible for
-     * processing requests.
-     *
-     * @return CA service object
-     */
-    public IService getCAService();
 
     /**
      * Returns the in-memory count of the processed OCSP requests.

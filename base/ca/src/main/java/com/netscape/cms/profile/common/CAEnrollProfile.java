@@ -103,9 +103,7 @@ public class CAEnrollProfile extends EnrollProfile {
         logger.info("CAEnrollProfile: Processing enrollment request " + requestId);
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = getAuthority();
-
-        CAService caService = (CAService) ca.getCAService();
+        CAService caService = engine.getCAService();
         if (caService == null) {
             throw new EProfileException("No CA Service");
         }

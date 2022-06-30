@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.ca.CAService;
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -52,9 +51,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         super("kraconnector", locale);
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
-
-        CAService caService = (CAService)ca.getCAService();
+        CAService caService = engine.getCAService();
         connectorExists = caService.getKRAConnector() != null;
     }
 
@@ -147,9 +144,7 @@ public class KRAConnectorProcessor extends CAProcessor {
     public void stopConnector() {
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
-
-        CAService caService = (CAService) ca.getCAService();
+        CAService caService = engine.getCAService();
         Connector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
             kraConnector.stop();
@@ -159,9 +154,7 @@ public class KRAConnectorProcessor extends CAProcessor {
     public void startConnector() {
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
-
-        CAService caService = (CAService) ca.getCAService();
+        CAService caService = engine.getCAService();
         Connector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
             kraConnector.start();
@@ -173,9 +166,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         stopConnector();
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
-
-        CAService caService = (CAService) ca.getCAService();
+        CAService caService = engine.getCAService();
 
         EngineConfig cs = engine.getConfig();
         Connector kraConnector = caService.getConnector(cs.getSubStore(PREFIX, ConfigStore.class));
@@ -188,9 +179,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         stopConnector();
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
-
-        CAService caService = (CAService)ca.getCAService();
+        CAService caService = engine.getCAService();
         caService.setKRAConnector(null);
     }
 

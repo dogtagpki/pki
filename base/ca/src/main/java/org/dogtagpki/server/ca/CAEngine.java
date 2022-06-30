@@ -214,6 +214,12 @@ public class CAEngine extends CMSEngine {
         return caPolicy;
     }
 
+    /**
+     * Retrieves the CA service object that is responsible for
+     * processing requests.
+     *
+     * @return CA service object
+     */
     public CAService getCAService() {
         return caService;
     }
