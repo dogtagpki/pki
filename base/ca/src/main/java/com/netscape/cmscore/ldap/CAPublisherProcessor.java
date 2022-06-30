@@ -132,8 +132,9 @@ public class CAPublisherProcessor extends PublisherProcessor {
         logger.debug("Shuting down CA publishing");
 
         if (requestListener != null) {
+            CAEngine engine = CAEngine.getInstance();
             // requestListener.shutdown();
-            ca.removeRequestListener(requestListener);
+            engine.removeRequestListener(requestListener);
         }
 
         super.shutdown();

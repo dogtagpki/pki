@@ -282,6 +282,11 @@ public class CMSEngine implements ServletContextListener {
         requestNotifier.registerListener(name, listener);
     }
 
+    /**
+     * Removes a request listener.
+     *
+     * @param listener request listener to be removed
+     */
     public void removeRequestListener(IRequestListener listener) {
         requestNotifier.removeListener(listener);
     }

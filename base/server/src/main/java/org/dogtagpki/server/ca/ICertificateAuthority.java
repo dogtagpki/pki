@@ -295,13 +295,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public boolean isClone();
 
     /**
-     * Removes a request listener.
-     *
-     * @param listener request listener to be removed
-     */
-    public void removeRequestListener(IRequestListener listener);
-
-    /**
      * Registers a request listener.
      *
      * @param name under request listener is going to be registered
