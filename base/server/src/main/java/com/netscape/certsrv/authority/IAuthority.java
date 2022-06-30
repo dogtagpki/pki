@@ -33,11 +33,6 @@ public interface IAuthority extends ISubsystem {
     public void registerRequestListener(IRequestListener listener);
 
     /**
-     * Registers pending request class.
-     */
-    public void registerPendingListener(IRequestListener listener);
-
-    /**
      * nickname of signing (id) cert
      */
     public String getNickname();

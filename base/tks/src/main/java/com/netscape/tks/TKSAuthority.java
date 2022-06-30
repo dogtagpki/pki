@@ -45,13 +45,6 @@ public class TKSAuthority implements IAuthority {
     }
 
     /**
-     * Registers pending request class.
-     */
-    @Override
-    public void registerPendingListener(IRequestListener listener) {
-    }
-
-    /**
      * log interface
      */
     public void log(int level, String msg) {

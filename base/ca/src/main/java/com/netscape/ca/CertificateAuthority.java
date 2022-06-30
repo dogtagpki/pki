@@ -545,15 +545,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     /**
-     * register listener for pending requests
-     */
-    @Override
-    public void registerPendingListener(IRequestListener listener) {
-        CAEngine engine = CAEngine.getInstance();
-        engine.registerPendingListener(listener);
-    }
-
-    /**
      * register listener for pending requests with a name.
      */
     public void registerPendingListener(String name, IRequestListener listener) {

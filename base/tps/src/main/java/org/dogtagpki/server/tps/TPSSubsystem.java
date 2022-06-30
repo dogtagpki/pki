@@ -322,10 +322,6 @@ public class TPSSubsystem implements IAuthority {
     }
 
     @Override
-    public void registerPendingListener(IRequestListener listener) {
-    }
-
-    @Override
     public String getNickname() {
         return nickname;
     }

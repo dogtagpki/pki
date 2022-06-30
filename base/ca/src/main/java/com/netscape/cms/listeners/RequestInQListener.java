@@ -130,7 +130,7 @@ public class RequestInQListener implements IRequestListener {
             logger.debug("RequestInQuListener: agentport = " + mAgentPort);
 
         // register for this event listener
-        mSubsystem.registerPendingListener(this);
+        engine.registerPendingListener(this);
     }
 
     /**

@@ -590,13 +590,6 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     }
 
     /**
-     * Registers pending request class.
-     */
-    @Override
-    public void registerPendingListener(IRequestListener listener) {
-    }
-
-    /**
      * nickname of signing (id) cert
      */
     @Override

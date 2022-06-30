@@ -290,6 +290,9 @@ public class CMSEngine implements ServletContextListener {
         return pendingNotifier.getListener(name);
     }
 
+    /**
+     * register listener for pending requests
+     */
     public void registerPendingListener(IRequestListener listener) {
         pendingNotifier.registerListener(listener);
     }
