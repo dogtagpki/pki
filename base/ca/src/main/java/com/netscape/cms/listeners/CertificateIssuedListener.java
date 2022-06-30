@@ -168,7 +168,7 @@ public class CertificateIssuedListener implements IRequestListener {
         mHttpPort = engine.getEESSLPort();
 
         // register for this event listener
-        mSubsystem.registerRequestListener(this);
+        engine.registerRequestListener(this);
     }
 
     @Override

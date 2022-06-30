@@ -18,7 +18,6 @@
 package com.netscape.certsrv.authority;
 
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.request.IRequestListener;
 
 /**
  * Authority interface.
@@ -26,11 +25,6 @@ import com.netscape.certsrv.request.IRequestListener;
  * @version $Revision$ $Date$
  */
 public interface IAuthority extends ISubsystem {
-
-    /**
-     * Registers request completed class.
-     */
-    public void registerRequestListener(IRequestListener listener);
 
     /**
      * nickname of signing (id) cert

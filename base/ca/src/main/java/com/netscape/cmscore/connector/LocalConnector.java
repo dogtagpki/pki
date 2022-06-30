@@ -48,10 +48,13 @@ public class LocalConnector extends Connector {
         mSource = source;
         // logger.debug("Local connector setup for source " + mSource.getId());
         mDest = dest;
-        logger.debug("Local connector setup for dest " +
-                mDest.getId());
+
+        logger.debug("Local connector setup for dest " + mDest.getId());
+
         // register for events.
-        mDest.registerRequestListener(new LocalConnListener());
+        CAEngine engine = CAEngine.getInstance();
+        engine.registerRequestListener(new LocalConnListener());
+
         logger.debug("Connector inited");
     }
 

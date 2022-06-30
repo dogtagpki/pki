@@ -262,6 +262,9 @@ public class CMSEngine implements ServletContextListener {
         return requestNotifier.getListener(name);
     }
 
+    /**
+     * Registers a request listener.
+     */
     public void registerRequestListener(IRequestListener listener) {
         requestNotifier.registerListener(listener);
     }

@@ -23,7 +23,6 @@ import org.dogtagpki.server.tks.TKSEngineConfig;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.base.ConfigStore;
 
 public class TKSAuthority implements IAuthority {
@@ -36,13 +35,6 @@ public class TKSAuthority implements IAuthority {
     private TKSConfig mConfig;
     protected String mId = null;
     public static final String PROP_NICKNAME = "nickName";
-
-    /**
-     * Registers request completed class.
-     */
-    @Override
-    public void registerRequestListener(IRequestListener listener) {
-    }
 
     /**
      * log interface

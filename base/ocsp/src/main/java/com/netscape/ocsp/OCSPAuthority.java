@@ -56,7 +56,6 @@ import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.ocsp.IOCSPStore;
-import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
@@ -580,13 +579,6 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     @Override
     public SigningUnit getSigningUnit() {
         return mSigningUnit;
-    }
-
-    /**
-     * Registers request completed class.
-     */
-    @Override
-    public void registerRequestListener(IRequestListener listener) {
     }
 
     /**

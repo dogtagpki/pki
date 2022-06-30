@@ -47,7 +47,6 @@ import org.mozilla.jss.crypto.TokenException;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -315,10 +314,6 @@ public class TPSSubsystem implements IAuthority {
     @Override
     public TPSConfig getConfigStore() {
         return config;
-    }
-
-    @Override
-    public void registerRequestListener(IRequestListener listener) {
     }
 
     @Override

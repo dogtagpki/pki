@@ -1462,17 +1462,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Registers a request listener.
-     *
-     * @param l request listener
-     */
-    @Override
-    public void registerRequestListener(IRequestListener l) {
-        KRAEngine engine = KRAEngine.getInstance();
-        engine.registerRequestListener(l);
-    }
-
-    /**
      * init notification related listeners -
      * right now only RequestInQueue listener is available for KRA
      */

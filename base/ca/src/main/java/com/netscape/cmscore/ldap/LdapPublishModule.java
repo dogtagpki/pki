@@ -139,7 +139,7 @@ public class LdapPublishModule implements IRequestListener {
         // initMappers(config);
         initHandlers();
 
-        mAuthority.registerRequestListener(this);
+        engine.registerRequestListener(this);
     }
 
     public void init(CertificateAuthority authority, ConfigStore config) throws EBaseException {
@@ -160,7 +160,7 @@ public class LdapPublishModule implements IRequestListener {
         initMappers(config);
         initHandlers();
 
-        mAuthority.registerRequestListener(this);
+        engine.registerRequestListener(this);
     }
 
     /**

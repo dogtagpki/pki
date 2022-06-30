@@ -23,6 +23,7 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
@@ -85,10 +86,12 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
         super.startup();
 
+        CAEngine engine = CAEngine.getInstance();
+
         if (mConfig.getBoolean(PROP_ENABLE, false)) {
 
             if (requestListener != null) {
-                ca.registerRequestListener(requestListener);
+                engine.registerRequestListener(requestListener);
             }
 
             ConfigStore queueConfig = mConfig.getSubStore(PROP_QUEUE_PUBLISH_SUBSTORE, ConfigStore.class);
