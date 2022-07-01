@@ -187,6 +187,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         localhost_dir = os.path.join(catalina_dir, 'localhost')
         instance.makedirs(localhost_dir, force=True)
 
+        # Rewrite rules are subsystem-specific, but the config is server-wide.
+        # So we deploy them as part of the server config, regardless of which
+        # subsystem(s) will eventually be deployed.
+        #
+        logger.info('Deploying HTTP rewrite rules (rewrite.config)')
+        os.symlink(
+            os.path.join(shared_conf_path, 'Catalina', 'localhost', 'rewrite.config'),
+            os.path.join(localhost_dir, 'rewrite.config')
+        )
+
         logger.info('Deploying ROOT web application')
         # Copy /usr/share/pki/server/conf/ROOT.xml
         # to /etc/pki/<instance>/Catalina/localhost/ROOT.xml
