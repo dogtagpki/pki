@@ -186,6 +186,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Creating %s', localhost_dir)
         instance.makedirs(localhost_dir, force=True)
 
+        # Rewrite rules are subsystem-specific, but the config is server-wide.
+        # So we deploy them as part of the server config, regardless of which
+        # subsystem(s) will eventually be deployed.
+        #
+        logger.info('Deploying HTTP rewrite rules (rewrite.config)')
+        os.symlink(
+            os.path.join(shared_conf_path, 'Catalina', 'localhost', 'rewrite.config'),
+            os.path.join(localhost_dir, 'rewrite.config')
+        )
+
         logger.info('Deploying ROOT web application')
         instance.deploy_webapp(
             "ROOT",
