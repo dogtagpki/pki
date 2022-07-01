@@ -34,6 +34,7 @@ import pki.server.cli.ca
 import pki.server.cli.cert
 import pki.server.cli.config
 import pki.server.cli.db
+import pki.server.cli.est
 import pki.server.cli.http
 import pki.server.cli.instance
 import pki.server.cli.jss
@@ -89,6 +90,7 @@ class PKIServerCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.tks.TKSCLI())
         self.add_module(pki.server.cli.tps.TPSCLI())
         self.add_module(pki.server.cli.acme.ACMECLI())
+        self.add_module(pki.server.cli.est.ESTCLI())
 
         self.add_module(pki.server.cli.banner.BannerCLI())
         self.add_module(pki.server.cli.db.DBCLI())
