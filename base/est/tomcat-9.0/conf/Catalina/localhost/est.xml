@@ -15,7 +15,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
         secureRandomProvider="Mozilla-JSS"
         secureRandomAlgorithm="pkcs11prng"/>
 
-    <Realm className="com.netscape.cms.tomcat.ProxyRealm" />
+    <!-- <Realm className="com.netscape.cms.tomcat.ProxyRealm" /> -->
 
     <Resources allowLinking="true" />
 
