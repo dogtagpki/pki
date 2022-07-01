@@ -1259,6 +1259,7 @@ fi
 %{_mandir}/man8/pkispawn.8.gz
 %{_mandir}/man8/pki-server.8.gz
 %{_mandir}/man8/pki-server-acme.8.gz
+%{_mandir}/man8/pki-server-est.8.gz
 %{_mandir}/man8/pki-server-instance.8.gz
 %{_mandir}/man8/pki-server-subsystem.8.gz
 %{_mandir}/man8/pki-server-nuxwdog.8.gz
