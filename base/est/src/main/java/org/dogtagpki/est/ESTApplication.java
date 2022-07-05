@@ -27,6 +27,8 @@ public class ESTApplication extends Application {
 
         // exception mapper
         classes.add(PKIExceptionMapper.class);
+
+        singletons.add(new HandleBadAcceptHeaderRequestFilter());
     }
 
     @Override
