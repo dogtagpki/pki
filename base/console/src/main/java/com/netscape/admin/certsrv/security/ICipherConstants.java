@@ -26,7 +26,7 @@ package com.netscape.admin.certsrv.security;
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  *
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 public interface ICipherConstants {
     // export ssl2 cipher
     /**SSL2 Export - RC4 with 40 bit encryption and MD5 message authentication*/

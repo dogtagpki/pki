@@ -42,7 +42,7 @@ import com.netscape.management.client.util.Debug;
  * @version $Revision$, $Date$
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 public class CMSSMTPPanel extends CMSBaseTab {
     private static String PANEL_NAME = "SMTPSETTING";
     private JTextField mServerText;

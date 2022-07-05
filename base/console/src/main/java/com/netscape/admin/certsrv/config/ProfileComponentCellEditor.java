@@ -30,7 +30,7 @@ import javax.swing.table.TableCellEditor;
 /**
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 public class ProfileComponentCellEditor implements TableCellEditor {
     protected EventListenerList listenerList = new EventListenerList();
     protected ChangeEvent changeEvent = null;

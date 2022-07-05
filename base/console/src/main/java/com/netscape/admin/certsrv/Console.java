@@ -106,7 +106,7 @@ import netscape.ldap.util.DN;
 /**
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 public class Console implements CommClient {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Console.class);

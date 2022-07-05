@@ -33,7 +33,7 @@ import com.netscape.management.client.console.ConsoleInfo;
  * @date	 	04/07/97
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 public class KeyCertAction implements IMenuAction {
 
     protected ConsoleInfo mConsoleInfo;

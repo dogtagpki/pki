@@ -55,7 +55,7 @@ import netscape.ldap.LDAPSearchResults;
  * @date	 	02/04/97
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 public class CMSTaskModel extends TaskModel implements IMenuInfo {
 
     /*==========================================================

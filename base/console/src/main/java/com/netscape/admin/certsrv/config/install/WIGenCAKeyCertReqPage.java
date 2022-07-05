@@ -32,7 +32,7 @@ import com.netscape.certsrv.common.Constants;
  * @see com.netscape.admin.certsrv.config.install
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 class WIGenCAKeyCertReqPage extends WIGenKeyCertReqPage {
     private static final String PANELNAME = "INSTALLGENCACERTREQWIZARD";
     private static final String CAHELPINDEX = "install-cacert-request-wizard-help";

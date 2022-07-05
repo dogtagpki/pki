@@ -37,7 +37,7 @@ import com.netscape.management.client.util.Debug;
 
 /* A Rule Rule? Hmmm */
 
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 public class RuleInstanceTab extends CMSPluginInstanceTab {
 
     /*==========================================================

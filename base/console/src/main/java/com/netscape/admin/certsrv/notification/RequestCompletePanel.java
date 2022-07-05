@@ -47,7 +47,7 @@ import com.netscape.certsrv.common.ScopeDef;
  * @version $Revision$, $Date$
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 public class RequestCompletePanel extends CMSBaseTab {
     private static final String RA_HELPINDEX =
       "notification-ra-certissued-help";

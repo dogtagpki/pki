@@ -55,7 +55,7 @@ import com.netscape.management.nmclf.SuiConstants;
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  *
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 class CertRequestSelectTokenPane extends JPanel implements SuiConstants,
 IKeyCertPage {
 

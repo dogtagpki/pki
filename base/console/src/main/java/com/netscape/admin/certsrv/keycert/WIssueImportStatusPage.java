@@ -38,7 +38,7 @@ import com.netscape.admin.certsrv.wizard.WizardInfo;
  * @see com.netscape.admin.certsrv.keycert
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 class WIssueImportStatusPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "ISSUEIMPORTSTATUSWIZARD";
     private static final String HELPINDEX =

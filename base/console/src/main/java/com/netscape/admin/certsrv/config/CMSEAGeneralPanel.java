@@ -42,7 +42,7 @@ import com.netscape.management.client.util.Debug;
  * @version $Revision: 1211 $, $Date: 2010-08-18 13:15:37 -0400 (Wed, 18 Aug 2010) $
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 public class CMSEAGeneralPanel extends CMSBaseTab {
 
     private static String PANEL_NAME = "EAGENERAL";

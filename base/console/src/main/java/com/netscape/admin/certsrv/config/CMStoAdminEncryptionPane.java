@@ -39,7 +39,7 @@ import com.netscape.management.client.util.Debug;
 
 public class CMStoAdminEncryptionPane extends EncryptionPane implements IPluginConfigPanel{
 */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 public class CMStoAdminEncryptionPane extends EncryptionPane
 {
     protected boolean mEncryptionPaneDirty = false;

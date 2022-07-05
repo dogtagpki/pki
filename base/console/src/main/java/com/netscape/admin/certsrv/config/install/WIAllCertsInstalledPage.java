@@ -42,7 +42,7 @@ import com.netscape.certsrv.common.TaskId;
  * @see com.netscape.admin.certsrv.config.install
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 class WIAllCertsInstalledPage extends WizardBasePanel implements IWizardPanel {
     private JTextArea mLabel;
     private static final String PANELNAME = "ALLCERTSINSTALLEDWIZARD";

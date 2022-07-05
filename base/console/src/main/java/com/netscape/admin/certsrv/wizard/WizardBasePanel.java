@@ -33,7 +33,7 @@ import java.io.*;
  * @see com.netscape.admin.certsrv.config
  * @deprecated The PKI console will be removed once there are CLI equivalents of desired console features.
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener,
   ConfigServlet {
 

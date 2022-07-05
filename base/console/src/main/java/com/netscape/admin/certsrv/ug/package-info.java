@@ -4,5 +4,5 @@
  * No further maintenance of this package will be performed.
  * Do not introduce new dependencies on this package; begin to remove existing dependencies.
  */
-@Deprecated(since="10.14.0", forRemoval=true)
+@Deprecated
 package com.netscape.admin.certsrv.ug;
