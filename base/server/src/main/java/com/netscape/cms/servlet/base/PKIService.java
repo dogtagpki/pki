@@ -100,24 +100,60 @@ public class PKIService {
         return new String(Files.readAllBytes(bannerFile), "UTF-8").trim();
     }
 
+    /**
+     * Return a match for a candidate media type (which may be a wildcard)
+     * against the default list of valid media types.
+     *
+     * @return the matching MediaType or null if no match
+     */
     public static MediaType resolveFormat(MediaType format) {
+        return resolveFormat(format, MESSAGE_FORMATS);
+    }
 
-        if (format == null) return null;
+    /**
+     * Return a match for a candidate media type (which may be a wildcard)
+     * against a list of valid media types.
+     *
+     * @return the matching MediaType or null if no match
+     */
+    public static MediaType resolveFormat(MediaType candidate, List<MediaType> validTypes) {
+        if (candidate == null) return null;
 
-        for (MediaType supportedFormat : MESSAGE_FORMATS) {
-            if (format.isCompatible(supportedFormat)) return supportedFormat;
+        for (MediaType validType : validTypes) {
+            if (candidate.isCompatible(validType)) return validType;
         }
 
         return null;
     }
 
+    /**
+     * Find a match from a list of candidate media types (which may be wildcards)
+     * against the default list of valid media types.
+     *
+     * Candidates are checked in list order.  Quality values ("q" parameter)
+     * are ignored.
+     *
+     * @return the matching MediaType or null if no match
+     */
     public static MediaType resolveFormat(List<MediaType> formats) {
+        return resolveFormat(formats, MESSAGE_FORMATS);
+    }
 
-        if (formats == null) return null;
+    /**
+     * Find a match from a list of candidate media types (which may be wildcards)
+     * against a list of valid media types.
+     *
+     * Candidates are checked in list order.  Quality values ("q" parameter)
+     * are ignored.
+     *
+     * @return the matching MediaType or null if no match
+     */
+    public static MediaType resolveFormat(List<MediaType> candidates, List<MediaType> validTypes) {
+        if (candidates == null) return null;
 
-        for (MediaType acceptableFormat : formats) {
-            MediaType supportedFormat = resolveFormat(acceptableFormat);
-            if (supportedFormat != null) return supportedFormat;
+        for (MediaType candidate : candidates) {
+            MediaType match = resolveFormat(candidate, validTypes);
+            if (match != null) return match;
         }
 
         return null;
