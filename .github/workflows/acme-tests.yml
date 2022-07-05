@@ -35,21 +35,11 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: /var/cache/dnf
-          key: fedora:${{ matrix.os }}-acme-${{ hashFiles('pki.spec') }}
-
       - name: Install dependencies
         run: |
-          # keep packages after installation
-          echo "keepcache=True" >> /etc/dnf/dnf.conf
           dnf install -y dnf-plugins-core rpm-build moby-engine
           dnf copr enable -y ${{ needs.init.outputs.repo }}
           dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
-          # don't cache COPR packages
-          rm -f `find /var/cache/dnf -name '*.rpm' | grep '/var/cache/dnf/copr:'`
 
       - name: Build PKI packages
         run: ./build.sh --with-pkgs=base,server,ca,acme --with-timestamp --work-dir=build rpm
