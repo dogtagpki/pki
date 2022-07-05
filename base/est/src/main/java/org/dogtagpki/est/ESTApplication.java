@@ -11,6 +11,8 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import org.dogtagpki.server.rest.PKIExceptionMapper;
+
 @ApplicationPath("")
 public class ESTApplication extends Application {
 
@@ -22,6 +24,9 @@ public class ESTApplication extends Application {
     public ESTApplication() {
         logger.info("Initializing ESTApplication");
         classes.add(ESTFrontend.class);
+
+        // exception mapper
+        classes.add(PKIExceptionMapper.class);
     }
 
     @Override
