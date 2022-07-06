@@ -678,9 +678,10 @@ public class MainCLI extends CLI {
             System.err.println(t.getMessage());
 
         } else if (t instanceof ProcessingException) {
-            // display the cause of the exception
-            t = t.getCause();
-            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+            // display the cause of the exception (if available)
+            Throwable e = t.getCause();
+            if (e == null) e = t;
+            System.err.println(e.getClass().getSimpleName() + ": " + e.getMessage());
 
         } else if (t instanceof PKIException) {
             System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
