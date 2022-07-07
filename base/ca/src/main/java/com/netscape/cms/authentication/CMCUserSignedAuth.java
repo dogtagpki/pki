@@ -86,9 +86,9 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
 import com.netscape.ca.CertificateAuthority;
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -256,7 +256,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
      * @see org.dogtagpki.server.authentication.AuthToken
      */
     @Override
-    public IAuthToken authenticate(IAuthCredentials authCred) throws EMissingCredential, EInvalidCredentials,
+    public IAuthToken authenticate(AuthCredentials authCred) throws EMissingCredential, EInvalidCredentials,
             EBaseException {
         String method = "CMCUserSignedAuth: authenticate: ";
         String msg = "";

@@ -21,15 +21,13 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.IAttrSet;
 
 /**
  * Authentication Credentials as input to the authMgr. It contains all the
  * information required for authentication in the authMgr.
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public class AuthCredentials implements IAuthCredentials {
+public class AuthCredentials implements IAttrSet {
 
     private static final long serialVersionUID = 5862936214648594328L;
     private Hashtable<String, Object> authCreds = null;
@@ -99,20 +97,19 @@ public class AuthCredentials implements IAuthCredentials {
     }
 
     /**
-     * Set the given argblock
-     * i * @param blk the given argblock.
+     * Set argblock.
+     *
+     * @param blk argblock
      */
-    @Override
     public void setArgBlock(IArgBlock blk) {
         argblk = blk;
     }
 
     /**
-     * Returns the argblock.
+     * Returns argblock.
      *
-     * @return the argblock.
+     * @return argblock.
      */
-    @Override
     public IArgBlock getArgBlock() {
         return argblk;
     }

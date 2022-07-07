@@ -28,9 +28,9 @@ import java.util.Vector;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -202,7 +202,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
      */
     @Override
     protected String authenticate(LDAPConnection conn,
-            IAuthCredentials authCreds,
+            AuthCredentials authCreds,
             AuthToken token)
             throws EBaseException {
         String userdn = null;
@@ -338,15 +338,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
             token.set(mAttr, attr);
 
             return userdn;
-        } catch (ELdapException e) {
-            logger.error("Authenticating: closing bad connection: " + e.getMessage(), e);
-            try {
-                conn.disconnect();
-            } catch (Exception f) {
-                logger.warn("Authenticating: conn.disconnect() exception: " + f.getMessage(), f);
-            }
-            logger.error("UserPwdDirAuthentication: " + CMS.getLogMessage("CANNOT_CONNECT_LDAP", e.toString()));
-            throw e;
+
         } catch (LDAPException e) {
             logger.error("Authenticating: closing bad connection: " + e.getMessage(), e);
             try {

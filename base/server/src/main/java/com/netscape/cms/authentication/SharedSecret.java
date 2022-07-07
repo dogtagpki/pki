@@ -35,8 +35,8 @@ import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.pkix.cmc.PKIData;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
-import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -466,7 +466,7 @@ public class SharedSecret extends DirBasedAuthentication
      */
     @Override
     protected String authenticate(LDAPConnection conn,
-            IAuthCredentials authCreds,
+            AuthCredentials authCreds,
             AuthToken token)
             throws EBaseException {
         String method = "SharedSecret:authenticate: ";

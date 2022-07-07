@@ -17,9 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.authentication;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 
@@ -71,7 +71,7 @@ public interface AuthManager {
      * @exception EInvalidCredentials If credentials cannot be authenticated.
      * @exception EBaseException If an internal error occurred.
      */
-    public IAuthToken authenticate(IAuthCredentials authCred)
+    public IAuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException;
 
     /**

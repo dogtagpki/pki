@@ -27,10 +27,10 @@ import java.util.Vector;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -201,7 +201,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
      */
     @Override
     protected String authenticate(LDAPConnection conn,
-            IAuthCredentials authCreds,
+            AuthCredentials authCreds,
             AuthToken token)
             throws EBaseException {
         String userdn = null;

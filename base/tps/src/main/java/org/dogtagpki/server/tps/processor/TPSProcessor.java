@@ -93,7 +93,7 @@ import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.symkey.SessionKey;
 
-import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -1262,7 +1262,7 @@ public class TPSProcessor {
 
     public void processAuthentication(String op, TPSAuthenticator userAuth, String cuid, TokenRecord tokenRecord)
             throws EBaseException, TPSException, IOException {
-        IAuthCredentials userCred;
+        AuthCredentials userCred;
         String method = "TPSProcessor:processAuthentication:";
         String opPrefix;
         if (op.equals(TPSEngine.FORMAT_OP))
@@ -1295,7 +1295,7 @@ public class TPSProcessor {
     public IAuthToken authenticateUser(
             String op,
             TPSAuthenticator userAuth,
-            IAuthCredentials userCred)
+            AuthCredentials userCred)
             throws EBaseException, TPSException {
 
         String logMsg = null;
@@ -1344,7 +1344,7 @@ public class TPSProcessor {
      * @param extensions message extensions
      * @return IAuthCredentials containing user credential needed for authentication
      */
-    IAuthCredentials requestUserId(String op, String cuid, TPSAuthenticator auth, Map<String, String> extensions)
+    AuthCredentials requestUserId(String op, String cuid, TPSAuthenticator auth, Map<String, String> extensions)
             throws IOException, TPSException, EBaseException {
         logger.debug("TPSProcessor.requestUserId");
         if (op.isEmpty() ||
@@ -1353,7 +1353,7 @@ public class TPSProcessor {
             throw new EBaseException("TPSProcessor.requestUserId: missing parameter(s): op, cuid, or auth");
         }
 
-        IAuthCredentials login;
+        AuthCredentials login;
         if (extensions != null &&
                 extensions.get("extendedLoginRequest") != null) {
             // default locale will be "en"
@@ -1404,14 +1404,14 @@ public class TPSProcessor {
      * @param auth the authentication for mapping consultation
      * @return IAuthCredentials auth credential for auth manager
      */
-    public IAuthCredentials mapCredFromMsgResponse(TPSMessage response, TPSAuthenticator auth, boolean extendedLogin)
+    public AuthCredentials mapCredFromMsgResponse(TPSMessage response, TPSAuthenticator auth, boolean extendedLogin)
             throws EBaseException {
         logger.debug("TPSProcessor.mapCredFromMsgResponse");
         if (response == null || auth == null) {
             logger.error("TPSProcessor.mapCredFromMsgResponse: missing parameter(s): response or auth");
             throw new EBaseException("TPSProcessor.mapCredFromMsgResponse: missing parameter(s): response or auth");
         }
-        IAuthCredentials login =
+        AuthCredentials login =
                 new com.netscape.certsrv.authentication.AuthCredentials();
 
         AuthManager authManager = auth.getAuthManager();
@@ -1428,7 +1428,7 @@ public class TPSProcessor {
     /**
      * Requests login ID and password from user.
      */
-    public IAuthCredentials requestExtendedLogin(int invalidPW, int blocked,
+    public AuthCredentials requestExtendedLogin(int invalidPW, int blocked,
             Set<String> parameters,
             String title,
             String description,
@@ -1461,7 +1461,7 @@ public class TPSProcessor {
             throw e;
         }
 
-        IAuthCredentials login = mapCredFromMsgResponse(loginResp, auth, true /*extendedLogin*/);
+        AuthCredentials login = mapCredFromMsgResponse(loginResp, auth, true /*extendedLogin*/);
 
         return login;
     }
@@ -1469,7 +1469,7 @@ public class TPSProcessor {
     /**
      * Requests login ID and password from user.
      */
-    public IAuthCredentials requestLogin(int invalidPW, int blocked,
+    public AuthCredentials requestLogin(int invalidPW, int blocked,
             TPSAuthenticator auth)
             throws IOException, TPSException, EBaseException {
 
@@ -1497,7 +1497,7 @@ public class TPSProcessor {
             throw e;
         }
 
-        IAuthCredentials login = mapCredFromMsgResponse(loginResp, auth, false /*not extendedLogin*/);
+        AuthCredentials login = mapCredFromMsgResponse(loginResp, auth, false /*not extendedLogin*/);
         return login;
     }
 
@@ -2135,7 +2135,7 @@ public class TPSProcessor {
 
         String tokenType = "tokenType";
 
-        IAuthCredentials userCred =
+        AuthCredentials userCred =
                 new com.netscape.certsrv.authentication.AuthCredentials();
         if (isExternalReg) {
             logger.debug("In TPSProcessor.format isExternalReg: ON");
@@ -3780,7 +3780,7 @@ public class TPSProcessor {
     }
 
     protected void checkAndAuthenticateUser(AppletInfo appletInfo, String tokenType) throws TPSException {
-        IAuthCredentials userCred;
+        AuthCredentials userCred;
         TokenRecord tokenRecord = getTokenRecord();
         String method = "checkAndAuthenticateUser";
 

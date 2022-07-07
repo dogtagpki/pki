@@ -35,11 +35,11 @@ import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EFormSubjectDN;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -420,7 +420,7 @@ public abstract class DirBasedAuthentication
      * @see org.dogtagpki.server.authentication.AuthToken
      */
     @Override
-    public IAuthToken authenticate(IAuthCredentials authCred)
+    public IAuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
         String userdn = null;
@@ -580,7 +580,7 @@ public abstract class DirBasedAuthentication
      * @exception EBaseException If an internal error occurs.
      */
     protected abstract String authenticate(
-            LDAPConnection conn, IAuthCredentials authCreds, AuthToken token)
+            LDAPConnection conn, AuthCredentials authCreds, AuthToken token)
             throws EBaseException;
 
     /**

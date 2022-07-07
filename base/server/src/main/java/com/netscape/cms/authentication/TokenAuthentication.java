@@ -29,9 +29,9 @@ import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -126,7 +126,7 @@ public class TokenAuthentication implements ProfileAuthenticator {
      * @see com.netscape.certsrv.usrgrp.Certificates
      */
     @Override
-    public IAuthToken authenticate(IAuthCredentials authCred)
+    public IAuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
         logger.debug("TokenAuthentication: start");

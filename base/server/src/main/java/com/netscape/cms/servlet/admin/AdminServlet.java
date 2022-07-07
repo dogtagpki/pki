@@ -42,7 +42,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
-import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -331,7 +330,7 @@ public class AdminServlet extends HttpServlet {
             try {
                 if (authType.equals("sslclientauth")) {
                     AuthManager authMgr = auth.get(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
-                    IAuthCredentials authCreds =
+                    AuthCredentials authCreds =
                             getAuthCreds(authMgr, cert);
 
                     token = authMgr.authenticate(authCreds);

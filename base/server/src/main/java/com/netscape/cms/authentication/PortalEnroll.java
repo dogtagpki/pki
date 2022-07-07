@@ -24,11 +24,11 @@ import java.util.Vector;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EAuthInternalError;
 import com.netscape.certsrv.authentication.EAuthUserError;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IArgBlock;
@@ -179,7 +179,7 @@ public class PortalEnroll extends DirBasedAuthentication {
      */
     @Override
     protected String authenticate(LDAPConnection conn,
-            IAuthCredentials authCreds,
+            AuthCredentials authCreds,
             AuthToken token)
             throws EBaseException {
         String uid = null;
@@ -231,9 +231,7 @@ public class PortalEnroll extends DirBasedAuthentication {
             logger.info("PortalEnroll: portal authentication is done");
 
             return dn;
-        } catch (ELdapException e) {
-            logger.error("PortalEnroll: " + CMS.getLogMessage("LDAP_ERROR", e.toString()), e);
-            throw e;
+
         } catch (LDAPException e) {
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:

@@ -34,9 +34,9 @@ import java.util.StringTokenizer;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -492,7 +492,7 @@ public class FlatFileAuth
      *
      */
 
-    private IAuthToken doAuthentication(Hashtable<String, String> user, IAuthCredentials authCred)
+    private IAuthToken doAuthentication(Hashtable<String, String> user, AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
         AuthToken authToken = new AuthToken(this);
 
@@ -529,7 +529,7 @@ public class FlatFileAuth
      *
      */
     @Override
-    public IAuthToken authenticate(IAuthCredentials authCred)
+    public IAuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
         IAuthToken authToken = null;
         String keyForUser = "";

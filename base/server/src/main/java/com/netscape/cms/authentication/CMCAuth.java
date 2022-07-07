@@ -79,9 +79,9 @@ import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -253,7 +253,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
      * @see org.dogtagpki.server.authentication.AuthToken
      */
     @Override
-    public IAuthToken authenticate(IAuthCredentials authCred) throws EMissingCredential, EInvalidCredentials,
+    public IAuthToken authenticate(AuthCredentials authCred) throws EMissingCredential, EInvalidCredentials,
             EBaseException {
         String method = "CMCAuth: authenticate: ";
         String msg = "";
@@ -965,7 +965,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
                         if (agentAuth == null) {
                             throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_MANAGER_NOT_FOUND", AuthSubsystem.CERTUSERDB_AUTHMGR_ID));
                         }
-                        IAuthCredentials agentCred = new com.netscape.certsrv.authentication.AuthCredentials();
+                        AuthCredentials agentCred = new AuthCredentials();
 
                         agentCred.set(AuthManager.CRED_SSL_CLIENT_CERT, x509Certs);
 

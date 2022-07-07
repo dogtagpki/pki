@@ -24,8 +24,8 @@ import java.util.Locale;
 
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -88,7 +88,7 @@ public class SessionAuthentication
      * @throws EMissingCredential if no auth token or no session
      */
     @Override
-    public IAuthToken authenticate(IAuthCredentials authCred)
+    public IAuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential {
         SessionContext context = SessionContext.getExistingContext();
 
