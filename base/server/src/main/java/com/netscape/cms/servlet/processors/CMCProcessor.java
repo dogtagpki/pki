@@ -27,6 +27,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
@@ -60,7 +61,6 @@ import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -100,13 +100,13 @@ public class CMCProcessor extends PKIProcessor {
     @Override
     public void fillCertInfo(
             String protocolString, X509CertInfo certInfo,
-            IAuthToken authToken, IArgBlock httpParams)
+            AuthToken authToken, IArgBlock httpParams)
             throws EBaseException {
     }
 
     @Override
     public X509CertInfo[] fillCertInfoArray(
-            String protocolString, IAuthToken authToken, IArgBlock httpParams, Request req)
+            String protocolString, AuthToken authToken, IArgBlock httpParams, Request req)
             throws EBaseException {
 
         logger.debug("CMCProcessor: In CMCProcessor.fillCertInfoArray!");

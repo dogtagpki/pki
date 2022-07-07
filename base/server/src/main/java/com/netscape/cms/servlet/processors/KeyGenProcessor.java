@@ -25,7 +25,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.KeyGenInfo;
@@ -62,7 +61,7 @@ public class KeyGenProcessor extends PKIProcessor {
     @Override
     public void fillCertInfo(
             String protocolString, X509CertInfo certInfo,
-            IAuthToken authToken, IArgBlock httpParams)
+            AuthToken authToken, IArgBlock httpParams)
             throws EBaseException {
 
         logger.debug("KeyGenProcessor: fillCertInfo");

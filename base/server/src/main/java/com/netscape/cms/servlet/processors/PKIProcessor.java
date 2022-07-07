@@ -30,7 +30,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
@@ -89,12 +88,12 @@ public class PKIProcessor {
 
     protected void fillCertInfo(
             String protocolString, X509CertInfo certInfo,
-            IAuthToken authToken, IArgBlock httpParams)
+            AuthToken authToken, IArgBlock httpParams)
             throws EBaseException {
     }
 
     protected X509CertInfo[] fillCertInfoArray(
-            String protocolString, IAuthToken authToken, IArgBlock httpParams, Request req)
+            String protocolString, AuthToken authToken, IArgBlock httpParams, Request req)
             throws EBaseException {
         return null;
     }
@@ -106,7 +105,7 @@ public class PKIProcessor {
      * requests not authenticated will need to be approved by an agent.
      */
     public static void fillCertInfoFromAuthToken(
-            X509CertInfo certInfo, IAuthToken authToken)
+            X509CertInfo certInfo, AuthToken authToken)
             throws EBaseException {
         // override subject, validity and extensions from auth token
         // CA determines algorithm, version and issuer.

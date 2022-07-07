@@ -415,7 +415,7 @@ public class EnrollServlet extends CMSServlet {
         return true;
     }
 
-    private X509CertInfo[] handleCertAuthDual(X509CertInfo certInfo, IAuthToken authToken,
+    private X509CertInfo[] handleCertAuthDual(X509CertInfo certInfo, AuthToken authToken,
             X509Certificate sslClientCert,
             ICertificateAuthority mCa, String certBasedOldSubjectDN,
             BigInteger certBasedOldSerialNum)
@@ -704,7 +704,7 @@ public class EnrollServlet extends CMSServlet {
         long startTime = 0;
         IArgBlock httpParams = null;
         HttpServletRequest httpReq = null;
-        IAuthToken authToken = null;
+        AuthToken authToken = null;
         AuthzToken authzToken = null;
         Request req = null;
         X509CertInfo certInfo = null;
@@ -720,7 +720,7 @@ public class EnrollServlet extends CMSServlet {
             httpParams = cmsReq.getHttpParams();
             httpReq = cmsReq.getHttpReq();
             if (mAuthMgr != null) {
-                authToken = authenticate(cmsReq);
+                authToken = (AuthToken) authenticate(cmsReq);
             }
 
             try {

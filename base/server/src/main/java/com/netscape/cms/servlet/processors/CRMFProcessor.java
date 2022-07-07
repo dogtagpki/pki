@@ -46,7 +46,6 @@ import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -174,7 +173,7 @@ public class CRMFProcessor extends PKIProcessor {
         }
     }
 
-    public X509CertInfo processIndividualRequest(CertReqMsg certReqMsg, IAuthToken authToken, IArgBlock httpParams)
+    public X509CertInfo processIndividualRequest(CertReqMsg certReqMsg, AuthToken authToken, IArgBlock httpParams)
             throws EBaseException {
         logger.debug("CRMFProcessor::processIndividualRequest!");
 
@@ -320,7 +319,7 @@ public class CRMFProcessor extends PKIProcessor {
 
     @Override
     public X509CertInfo[] fillCertInfoArray(
-            String protocolString, IAuthToken authToken, IArgBlock httpParams, Request req)
+            String protocolString, AuthToken authToken, IArgBlock httpParams, Request req)
             throws EBaseException {
 
         logger.debug("CRMFProcessor.fillCertInfoArray!");
