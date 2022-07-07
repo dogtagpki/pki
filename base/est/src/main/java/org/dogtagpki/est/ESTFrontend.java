@@ -54,7 +54,13 @@ public class ESTFrontend {
     }
 
     private Response cacerts(Optional<String> label) {
-        CertificateChain chain = getBackend().cacerts(label);
+        CertificateChain chain;
+        try {
+            chain = getBackend().cacerts(label);
+        } catch (Throwable e) {
+            logger.error("ESTFrontend.cacerts: caught exception", e);
+            throw new RuntimeException("Internal error executing /cacerts method", e);
+        }
 
         if (chain == null) {
             throw new ResourceNotFoundException(
