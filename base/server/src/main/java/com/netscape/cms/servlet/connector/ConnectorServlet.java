@@ -56,7 +56,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.connector.IPKIMessage;
-import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -91,7 +90,7 @@ public class ConnectorServlet extends CMSServlet {
     public final static String PROP_AUTHORITY = "authority";
     protected ServletConfig mConfig = null;
     protected IAuthority mAuthority = null;
-    protected IRequestEncoder mReqEncoder = null;
+    protected HttpRequestEncoder mReqEncoder;
     protected AuthSubsystem mAuthSubsystem;
 
     private final static String SIGNED_AUDIT_PROTECTION_METHOD_SSL = "ssl";

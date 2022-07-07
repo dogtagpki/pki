@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.IPKIMessage;
-import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -53,7 +52,7 @@ public class HttpConnection {
 
     protected RemoteAuthority mDest;
     protected HttpRequest mHttpreq = new HttpRequest();
-    protected IRequestEncoder mReqEncoder = null;
+    protected HttpRequestEncoder mReqEncoder;
     protected HttpClient mHttpClient = null;
 
     int timeout = 0;

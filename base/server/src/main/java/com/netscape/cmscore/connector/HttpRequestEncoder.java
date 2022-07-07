@@ -26,16 +26,22 @@ import java.io.OptionalDataException;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.certsrv.connector.IRequestEncoder;
-
 /**
- * encodes a request by serializing it.
+ * This represents a rquest encoder that serializes and
+ * deserializes a request to a Remote Authority so that it can be sent through
+ * the connector.
  */
-public class HttpRequestEncoder implements IRequestEncoder {
+public class HttpRequestEncoder {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HttpRequestEncoder.class);
 
-    @Override
+    /**
+     * Encodes a request object.
+     *
+     * @param r Object to serve as the source of the message.
+     * @return String containing encoded message.
+     * @exception IOException Failure of the encoding operation due to IO error.
+     */
     public String encode(Object r)
             throws IOException {
         String s = null;
@@ -49,7 +55,12 @@ public class HttpRequestEncoder implements IRequestEncoder {
         return s;
     }
 
-    @Override
+    /**
+     * Decodes a String into an object.
+     *
+     * @return Object which is the result of the decoded message.
+     * @exception IOException Failure of the decoding operation due to IO error.
+     */
     public Object decode(String s)
             throws IOException {
         Object result = null;

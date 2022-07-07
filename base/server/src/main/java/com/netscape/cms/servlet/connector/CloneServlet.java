@@ -44,7 +44,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.connector.IPKIMessage;
-import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -76,7 +75,7 @@ public class CloneServlet extends CMSServlet {
     public final static String PROP_AUTHORITY = "authority";
     protected ServletConfig mConfig = null;
     protected IAuthority mAuthority = null;
-    protected IRequestEncoder mReqEncoder = null;
+    protected HttpRequestEncoder mReqEncoder;
     protected AuthSubsystem mAuthSubsystem;
 
     public CloneServlet() {
