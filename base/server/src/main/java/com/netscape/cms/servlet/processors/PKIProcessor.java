@@ -49,7 +49,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class PKIProcessor implements IPKIProcessor {
+public class PKIProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIProcessor.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
@@ -83,7 +83,6 @@ public class PKIProcessor implements IPKIProcessor {
 
     }
 
-    @Override
     public void process(CMSRequest cmsReq)
             throws EBaseException {
     }
