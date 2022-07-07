@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.IPKIMessage;
-import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
@@ -52,7 +51,7 @@ public class HttpConnection {
     private static Logger logger = LoggerFactory.getLogger(HttpConnection.class);
     private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    protected IRemoteAuthority mDest = null;
+    protected RemoteAuthority mDest;
     protected HttpRequest mHttpreq = new HttpRequest();
     protected IRequestEncoder mReqEncoder = null;
     protected HttpClient mHttpClient = null;
@@ -61,7 +60,7 @@ public class HttpConnection {
     List<InetSocketAddress> targets;
     String localIP = "localhost";
 
-    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory,
+    public HttpConnection(RemoteAuthority dest, ISocketFactory factory,
             int timeout // seconds
             ) {
 
@@ -104,7 +103,7 @@ public class HttpConnection {
         }
     }
 
-    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory) {
+    public HttpConnection(RemoteAuthority dest, ISocketFactory factory) {
         this(dest, factory, 0);
     }
 

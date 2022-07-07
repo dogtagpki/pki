@@ -23,7 +23,6 @@ import org.dogtagpki.server.PKIClientSocketListener;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.Connector;
-import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -38,7 +37,7 @@ public class HttpConnector extends Connector {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HttpConnector.class);
 
-    protected IRemoteAuthority mDest = null;
+    protected RemoteAuthority mDest;
     protected ISocketFactory mFactory = null;
 
     // XXX todo make this a pool.
@@ -53,7 +52,7 @@ public class HttpConnector extends Connector {
     public HttpConnector(
             String nickName,
             String clientCiphers,
-            IRemoteAuthority dest,
+            RemoteAuthority dest,
             int resendInterval,
             ConfigStore config) throws EBaseException {
 
@@ -88,7 +87,7 @@ public class HttpConnector extends Connector {
     public HttpConnector(
             String nickName,
             String clientCiphers,
-            IRemoteAuthority dest,
+            RemoteAuthority dest,
             int resendInterval,
             ConfigStore config,
             int timeout) throws EBaseException {

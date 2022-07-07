@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import org.dogtagpki.server.PKIClientSocketListener;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.RequestId;
@@ -52,7 +51,7 @@ public class Resender implements IResender {
 
     protected RequestRepository requestRepository;
     RequestQueue mQueue;
-    protected IRemoteAuthority mDest = null;
+    protected RemoteAuthority mDest;
     ScheduledExecutorService executorService;
 
     /* Vector of Request Id *Strings* */
@@ -72,7 +71,7 @@ public class Resender implements IResender {
     public Resender(
             String nickName,
             String clientCiphers,
-            IRemoteAuthority dest) {
+            RemoteAuthority dest) {
         CMSEngine engine = CMS.getCMSEngine();
         requestRepository = engine.getRequestRepository();
         mQueue = engine.getRequestQueue();
@@ -84,7 +83,7 @@ public class Resender implements IResender {
     public Resender(
             String nickName,
             String clientCiphers,
-            IRemoteAuthority dest,
+            RemoteAuthority dest,
             int interval) {
         CMSEngine engine = CMS.getCMSEngine();
         requestRepository = engine.getRequestRepository();

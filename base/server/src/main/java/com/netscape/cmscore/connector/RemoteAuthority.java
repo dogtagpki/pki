@@ -20,10 +20,15 @@ package com.netscape.cmscore.connector;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.cmscore.base.ConfigStore;
 
-public class RemoteAuthority implements IRemoteAuthority {
+/**
+ * This represents a remote authority that can be
+ * a certificate manager, or key recovery manager or
+ * some other manager.
+ */
+public class RemoteAuthority {
+
     String mHost = null;
     int mPort = -1;
     String mURI = null;
@@ -73,37 +78,64 @@ public class RemoteAuthority implements IRemoteAuthority {
         mTimeout = c.getInteger("timeout");
     }
 
-    @Override
+    /**
+     * Retrieves the host name of the remote Authority.
+     *
+     * @return String with the name of host of remote Authority.
+     */
     public String getHost() {
         return mHost;
     }
 
-    @Override
+    /**
+     * Retrieves the port number of the remote Authority.
+     *
+     * @return Int with port number of remote Authority.
+     */
     public int getPort() {
         return mPort;
     }
 
-    @Override
+    /**
+     * Retrieves the URI of the remote Authority.
+     *
+     * @return String with URI of remote Authority.
+     */
     public String getURI() {
         return mURI;
     }
 
-    @Override
+    /**
+     * Retrieves a URI by operation (multi-URI support)
+     *
+     * @param name operation to determine the receiving servlet
+     */
     public String getURI(String name) {
         return mURIs.get(name);
     }
 
-    @Override
+    /**
+     * Retrieves the list of URIs supported by the remote Authority
+     * (multi-URI support)
+     */
     public Hashtable<String, String> getURIs() {
         return mURIs;
     }
 
-    @Override
+    /**
+     * Retrieves the timeout value for the connection to the remote Authority.
+     *
+     * @return In with remote Authority timeout value.
+     */
     public int getTimeout() {
         return mTimeout;
     }
 
-    @Override
+    /**
+     * Retrieves the Content-Type value of the connection to the Remote Authority.
+     *
+     * @return String with Content-Type, if it was set
+     */
     public String getContentType() {
         return mContentType;
     }

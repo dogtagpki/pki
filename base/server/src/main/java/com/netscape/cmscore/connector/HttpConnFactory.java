@@ -20,7 +20,6 @@ package com.netscape.cmscore.connector;
 import org.dogtagpki.server.PKIClientSocketListener;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
@@ -38,7 +37,7 @@ public class HttpConnFactory {
     private int mNumConns = 0; // number of available conns in array
     private int mTotal = 0; // total num conns
     private HttpConnection mConns[];
-    private IRemoteAuthority mDest = null;
+    private RemoteAuthority mDest;
     private String mNickname = "";
     private String mClientCiphers = null;
     private int mTimeout = 0;
@@ -59,7 +58,7 @@ public class HttpConnFactory {
     public HttpConnFactory(
             int minConns,
             int maxConns,
-            IRemoteAuthority dest,
+            RemoteAuthority dest,
             String nickname,
             String clientCiphers,
             int timeout) throws EBaseException {
