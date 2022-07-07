@@ -13,7 +13,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
  *
  * @author Fraser Tweedale
  */
-public class DogtagRABackend implements ESTBackend {
+public class DogtagRABackend extends ESTBackend {
 
     @Override
     public CertificateChain cacerts(Optional<String> label) {
