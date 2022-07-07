@@ -712,7 +712,6 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
         echo "- server:"
         echo "    $WORK_DIR/dist/pki-tomcat.jar"
         echo "    $WORK_DIR/dist/pki-cms.jar"
-        echo "    $WORK_DIR/dist/pki-cmsbundle.jar"
     fi
 
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " acme " ]]; then

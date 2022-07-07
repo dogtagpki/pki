@@ -1,6 +1,5 @@
 project(server)
 
-add_subdirectory(cmsbundle)
 add_subdirectory(healthcheck)
 
 # build server classes
@@ -43,6 +42,12 @@ jar(pki-cms-jar
         ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    INPUT_DIR
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources
+    FILES
+        audit-events.properties
+        LogMessages.properties
+        UserMessages.properties
 )
 
 set(PKI_CMS_JAR ${CMAKE_BINARY_DIR}/dist/pki-cms.jar CACHE INTERNAL "pki-cms jar file")
@@ -51,11 +56,11 @@ if(RUN_TESTS)
     # build pki-server-test
     javac(pki-server-test-classes
         DEPENDS
-            pki-util-test-classes pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-cmsbundle-jar
+            pki-util-test-classes pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
         SOURCES
             src/test/java/*.java
         CLASSPATH
-            ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSBUNDLE_JAR}
+            ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${JSS_JAR} ${JSS_SYMKEY_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
@@ -82,7 +87,7 @@ if(RUN_TESTS)
             pki-server-test-classes
         CLASSPATH
             ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
-            ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSBUNDLE_JAR}
+            ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${JSS_JAR} ${JSS_SYMKEY_JAR}
@@ -157,7 +162,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_JDK14_JAR} webapp/lib/slf4j-jdk14.jar
     COMMAND ln -sf /usr/share/java/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-certsrv.jar
     COMMAND ln -sf /usr/share/java/pki/pki-cms.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cms.jar
-    COMMAND ln -sf /usr/share/java/pki/pki-cmsbundle.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmsbundle.jar
 )
 
 add_custom_target(pki-server-man ALL

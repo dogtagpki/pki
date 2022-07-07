@@ -1,0 +1,5 @@
+= Packaging Changes =
+
+== Remove pki-cmsbundle.jar ==
+
+The `pki-cmsbundle.jar` has been merged into `pki-cms.jar`.
