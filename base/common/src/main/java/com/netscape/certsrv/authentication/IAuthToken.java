@@ -19,7 +19,6 @@ package com.netscape.certsrv.authentication;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -27,7 +26,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.usrgrp.Certificates;
 
 /**
  * AuthToken interface.
@@ -172,14 +170,4 @@ public interface IAuthToken {
      * @throws IOException
      */
     public CertificateExtensions getInCertExts(String name) throws IOException;
-
-    /**
-     * Retrieves the Certificates value for name.
-     *
-     * @param name The attribute name.
-     * @return The value.
-     * @throws IOException
-     * @throws CertificateException
-     */
-    public Certificates getInCertificates(String name) throws IOException, CertificateException;
 }

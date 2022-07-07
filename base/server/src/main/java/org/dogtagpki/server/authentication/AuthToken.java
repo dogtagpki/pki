@@ -349,7 +349,14 @@ public class AuthToken implements IAuthToken {
         return set(name, out.toByteArray());
     }
 
-    @Override
+    /**
+     * Retrieves the Certificates value for name.
+     *
+     * @param name The attribute name.
+     * @return The value.
+     * @throws IOException
+     * @throws CertificateException
+     */
     public Certificates getInCertificates(String name) throws IOException, CertificateException {
         X509CertImpl[] certArray;
 
