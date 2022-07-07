@@ -658,15 +658,15 @@ class PKISubsystem(object):
         tmpdir = tempfile.mkdtemp()
 
         try:
-            # export audit-events.properties from cmsbundle.jar
-            cmsbundle_jar = \
-                '/usr/share/pki/%s/webapps/%s/WEB-INF/lib/pki-cmsbundle.jar' \
+            # export audit-events.properties from pki-cms.jar
+            cms_jar = \
+                '/usr/share/pki/%s/webapps/%s/WEB-INF/lib/pki-cms.jar' \
                 % (self.name, self.name)
 
             cmd = [
                 'jar',
                 'xf',
-                cmsbundle_jar,
+                cms_jar,
                 'audit-events.properties'
             ]
 
