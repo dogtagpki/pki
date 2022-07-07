@@ -87,7 +87,7 @@ public class AuthToken implements IAuthToken {
     /**
      * Sets an attribute value within this AttrSet.
      *
-     * @param name the name of the attribute
+     * @param attrName the name of the attribute
      * @param value the attribute object.
      * @return false on an error
      */
@@ -401,7 +401,13 @@ public class AuthToken implements IAuthToken {
         }
     }
 
-    @Override
+    /**
+     * Retrieves the byte[][] value for name.
+     *
+     * @param name The attribute name.
+     * @return The value.
+     * @throws IOException
+     */
     public byte[][] getInByteArrayArray(String name) throws IOException {
         byte[][] retval;
 

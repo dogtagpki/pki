@@ -182,13 +182,4 @@ public interface IAuthToken {
      * @throws CertificateException
      */
     public Certificates getInCertificates(String name) throws IOException, CertificateException;
-
-    /**
-     * Retrieves the byte[][] value for name.
-     *
-     * @param name The attribute name.
-     * @return The value.
-     * @throws IOException
-     */
-    public byte[][] getInByteArrayArray(String name) throws IOException;
 }
