@@ -11,26 +11,35 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
  *
  * @author Fraser Tweedale
  */
-public interface ESTBackend {
+public abstract class ESTBackend {
 
-    default void start() { }
+    void start() { }
 
-    default void stop() { }
+    void stop() { }
+
+    ESTBackendConfig config;
+
+    public void setConfig(ESTBackendConfig config) {
+        this.config = config;
+    }
 
     /**
      * Return CA certificates chain for the (optionally) labeled CA.
      * Described in RFC 7030 section 4.1.
      */
-    public CertificateChain cacerts(Optional<String> label);
+    public abstract CertificateChain cacerts(Optional<String> label)
+        throws Throwable;
 
     /**
      * Simple Enrollment (labeled CA).  RFC 7030 section 4.2.1 and 4.2.3.
      */
-    public ESTEnrollResult simpleenroll(Optional<String> label, PKCS10 csr);
+    public abstract ESTEnrollResult simpleenroll(Optional<String> label, PKCS10 csr)
+        throws Throwable;
 
     /**
      * Simple Re-enrollment (labeled CA).  RFC 7030 section 4.2.2 and 4.2.3.
      */
-    public ESTEnrollResult simplereenroll(Optional<String> label, PKCS10 csr);
+    public abstract ESTEnrollResult simplereenroll(Optional<String> label, PKCS10 csr)
+        throws Throwable;
 
 }

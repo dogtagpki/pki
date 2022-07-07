@@ -1,5 +1,9 @@
 package org.dogtagpki.est;
 
+import java.io.File;
+import java.io.FileReader;
+import java.util.Properties;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -30,19 +34,22 @@ public class ESTEngine implements ServletContextListener {
         return backend;
     }
 
-    public void start() throws Exception {
+    public void start(String contextPath) throws Throwable {
         logger.info("Starting EST engine");
 
-        // initialize backend
-        String className = "org.dogtagpki.est.DogtagRABackend"; // TODO read from config
-        Class<ESTBackend> backendClass = (Class<ESTBackend>) Class.forName(className);
-        backend = backendClass.getDeclaredConstructor().newInstance();
-        backend.start();
+        String contextPathDirName = "".equals(contextPath) ? "ROOT" : contextPath.substring(1);
+        String catalinaBase = System.getProperty("catalina.base");
+        String serverConfDir = catalinaBase + File.separator + "conf";
+        String estConfDir = serverConfDir + File.separator + contextPathDirName;
+
+        logger.info("EST configuration directory: " + estConfDir);
+
+        initBackend(estConfDir + File.separator + "backend.conf");
 
         logger.info("EST engine started");
     }
 
-    public void stop() throws Exception {
+    public void stop() throws Throwable {
         logger.info("Stopping EST engine");
 
         if (backend != null) {
@@ -54,18 +61,9 @@ public class ESTEngine implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent event) {
-        String path = event.getServletContext().getContextPath();
-        /* TODO
-        if ("".equals(path)) {
-            name = "ROOT";
-        } else {
-            name = path.substring(1);
-        }
-        */
-
         try {
-            start();
-        } catch (Exception e) {
+            start(event.getServletContext().getContextPath());
+        } catch (Throwable e) {
             logger.error("Unable to start EST engine: " + e.getMessage(), e);
             throw new RuntimeException("Unable to start EST engine: " + e.getMessage(), e);
         }
@@ -75,10 +73,33 @@ public class ESTEngine implements ServletContextListener {
     public void contextDestroyed(ServletContextEvent event) {
         try {
             stop();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.error("Unable to stop EST engine: " + e.getMessage(), e);
             throw new RuntimeException("Unable to stop EST engine: " + e.getMessage(), e);
         }
+    }
+
+    private void initBackend(String filename) throws Throwable {
+        File file = new File(filename);
+        if (!file.exists()) {
+            throw new RuntimeException("Missing backend configuration file " + filename);
+        }
+
+        logger.info("Loading EST backend config from " + filename);
+        Properties props = new Properties();
+        try (FileReader reader = new FileReader(file)) {
+            props.load(reader);
+        }
+        ESTBackendConfig config = ESTBackendConfig.fromProperties(props);
+
+        logger.info("Initializing EST backend");
+
+        String className = config.getClassName();
+        Class<ESTBackend> backendClass = (Class<ESTBackend>) Class.forName(className);
+
+        backend = backendClass.getDeclaredConstructor().newInstance();
+        backend.setConfig(config);
+        backend.start();
     }
 
 }
