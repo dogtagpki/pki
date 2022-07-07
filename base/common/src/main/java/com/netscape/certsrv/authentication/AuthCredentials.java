@@ -49,9 +49,17 @@ public class AuthCredentials implements IAuthCredentials {
      * @param cred credential object
      */
     @Override
-    public void set(String name, Object cred) {
-        if (name != null && cred != null)
-            authCreds.put(name, cred);
+    public void set(String name, Object cred) throws EAuthException {
+
+        if (name == null) {
+            throw new EAuthException("Missing credential name");
+        }
+
+        if (cred == null) {
+            throw new EAuthException("Missing credential: " + name);
+        }
+
+        authCreds.put(name, cred);
     }
 
     /**

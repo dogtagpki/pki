@@ -41,6 +41,7 @@ import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;

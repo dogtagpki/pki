@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;

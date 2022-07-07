@@ -51,6 +51,7 @@ import org.mozilla.jss.pkix.cmc.LraPopWitness;
 import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -74,7 +75,6 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileInput;
-import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;

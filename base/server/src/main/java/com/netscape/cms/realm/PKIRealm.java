@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -21,7 +22,6 @@ import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.AuthSubsystem;
