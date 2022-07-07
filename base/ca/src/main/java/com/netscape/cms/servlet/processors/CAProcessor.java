@@ -34,6 +34,7 @@ import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -355,7 +356,7 @@ public class CAProcessor extends Processor {
             SessionContext context,
             AuthCredentials credentials) throws EBaseException
     {
-        IAuthToken authToken = authenticate(authenticator, request, credentials);
+        AuthToken authToken = (AuthToken) authenticate(authenticator, request, credentials);
         // For renewal, fill in necessary params
         if (authToken != null) {
             String ouid = origReq.getExtDataInString("auth_token.uid");

@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.catalina.realm.RealmBase;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.authentication.AuthManager;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
@@ -65,7 +66,7 @@ public class PKIRealm extends RealmBase {
             creds.set(IPasswdUserDBAuthentication.CRED_UID, username);
             creds.set(IPasswdUserDBAuthentication.CRED_PWD, password);
 
-            IAuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
+            AuthToken authToken = (AuthToken) authMgr.authenticate(creds); // throws exception if authentication fails
             authToken.set(SessionContext.AUTH_MANAGER_ID, AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
             auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
 
@@ -132,7 +133,7 @@ public class PKIRealm extends RealmBase {
             AuthCredentials creds = new AuthCredentials();
             creds.set(CertUserDBAuthentication.CRED_CERT, certImpls);
 
-            IAuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
+            AuthToken authToken = (AuthToken) authMgr.authenticate(creds); // throws exception if authentication fails
             authToken.set(SessionContext.AUTH_MANAGER_ID,AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
             String username = authToken.getInString(CertUserDBAuthentication.TOKEN_USERID);

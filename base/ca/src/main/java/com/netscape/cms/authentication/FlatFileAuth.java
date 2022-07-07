@@ -531,7 +531,7 @@ public class FlatFileAuth
     @Override
     public IAuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
-        IAuthToken authToken = null;
+        AuthToken authToken = null;
         String keyForUser = "";
 
         /* First check if hashtable has been modified since we last read it in */
@@ -555,7 +555,7 @@ public class FlatFileAuth
 
         try {
             if (user != null) {
-                authToken = doAuthentication(user, authCred);
+                authToken = (AuthToken) doAuthentication(user, authCred);
             } else {
                 logger.warn("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_USER_NOT_FOUND"));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));

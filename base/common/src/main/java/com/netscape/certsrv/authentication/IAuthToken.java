@@ -84,15 +84,6 @@ public interface IAuthToken {
     public static final String TOKEN_AUTHTIME = "authTime";
 
     /**
-     * Sets an attribute value within this AttrSet.
-     *
-     * @param name the name of the attribute
-     * @param value the attribute object.
-     * @return false on an error
-     */
-    public boolean set(String name, String value);
-
-    /**
      * Gets an attribute value.
      *
      * @param name the name of the attribute to return.
@@ -134,30 +125,12 @@ public interface IAuthToken {
     public byte[] getInByteArray(String name);
 
     /**
-     * Stores the byte array with the associated key.
-     *
-     * @param name The attribute name.
-     * @param value The value to store
-     * @return false on an error
-     */
-    public boolean set(String name, byte[] value);
-
-    /**
      * Retrieves the Integer value for name.
      *
      * @param name The attribute name.
      * @return The Integer or null on error.
      */
     public Integer getInInteger(String name);
-
-    /**
-     * Stores the Integer with the associated key.
-     *
-     * @param name The attribute name.
-     * @param value The value to store
-     * @return false on an error
-     */
-    public boolean set(String name, Integer value);
 
     /**
      * Retrieves the BigInteger array value for name.
@@ -168,30 +141,12 @@ public interface IAuthToken {
     public BigInteger[] getInBigIntegerArray(String name);
 
     /**
-     * Stores the BigInteger array with the associated key.
-     *
-     * @param name The attribute name.
-     * @param value The value to store
-     * @return false on an error
-     */
-    public boolean set(String name, BigInteger[] value);
-
-    /**
      * Retrieves the Date value for name.
      *
      * @param name The attribute name.
      * @return The value or null on error.
      */
     public Date getInDate(String name);
-
-    /**
-     * Stores the Date with the associated key.
-     *
-     * @param name The attribute name.
-     * @param value The value to store
-     * @return false on an error
-     */
-    public boolean set(String name, Date value);
 
     /**
      * Retrieves the String array value for name.
@@ -202,30 +157,12 @@ public interface IAuthToken {
     public String[] getInStringArray(String name);
 
     /**
-     * Stores the String array with the associated key.
-     *
-     * @param name The attribute name.
-     * @param value The value to store
-     * @return False on error.
-     */
-    public boolean set(String name, String[] value);
-
-    /**
      * Retrieves the X509CertImpl value for name.
      *
      * @param name The attribute name.
      * @return The value or null on error.
      */
     public X509CertImpl getInCert(String name);
-
-    /**
-     * Stores the X509CertImpl with the associated key.
-     *
-     * @param name The attribute name.
-     * @param value The value to store
-     * @return false on error
-     */
-    public boolean set(String name, X509CertImpl value);
 
     /**
      * Retrieves the CertificateExtensions value for name.
@@ -235,15 +172,6 @@ public interface IAuthToken {
      * @throws IOException
      */
     public CertificateExtensions getInCertExts(String name) throws IOException;
-
-    /**
-     * Stores the CertificateExtensions with the associated key.
-     *
-     * @param name The attribute name.
-     * @param value The value to store
-     * @return false on error
-     */
-    public boolean set(String name, CertificateExtensions value);
 
     /**
      * Retrieves the Certificates value for name.
@@ -256,15 +184,6 @@ public interface IAuthToken {
     public Certificates getInCertificates(String name) throws IOException, CertificateException;
 
     /**
-     * Stores the Certificates with the associated key.
-     *
-     * @param name The attribute name.
-     * @param value The value to store
-     * @return false on error
-     */
-    public boolean set(String name, Certificates value);
-
-    /**
      * Retrieves the byte[][] value for name.
      *
      * @param name The attribute name.
@@ -272,13 +191,4 @@ public interface IAuthToken {
      * @throws IOException
      */
     public byte[][] getInByteArrayArray(String name) throws IOException;
-
-    /**
-     * Stores the byte[][] with the associated key.
-     *
-     * @param name The attribute name.
-     * @param value The value to store
-     * @return false on error
-     */
-    public boolean set(String name, byte[][] value);
 }

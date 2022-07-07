@@ -969,7 +969,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
 
                         agentCred.set(AuthManager.CRED_SSL_CLIENT_CERT, x509Certs);
 
-                        IAuthToken tempToken = agentAuth.authenticate(agentCred);
+                        AuthToken tempToken = (AuthToken) agentAuth.authenticate(agentCred);
                         org.mozilla.jss.netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
                         String ID = tempPrincipal.getName();
                         logger.debug(method + " Principal name = " + ID);

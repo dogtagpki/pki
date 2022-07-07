@@ -1162,7 +1162,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
                             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + e.toString());
                         }
 
-                        IAuthToken tempToken = new AuthToken(null);
+                        AuthToken tempToken = new AuthToken(null);
                         org.mozilla.jss.netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
                         String ID = tempPrincipal.getName(); //tempToken.get("userid");
                         logger.debug(method + " Principal name = " + ID);
