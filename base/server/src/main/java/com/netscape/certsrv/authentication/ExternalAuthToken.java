@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.Enumeration;
 
 import org.apache.catalina.realm.GenericPrincipal;
-
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -37,7 +37,7 @@ import com.netscape.certsrv.usrgrp.Certificates;
  * Authentication token that wraps an externally authenticated
  * principal to return.
  */
-public class ExternalAuthToken implements IAuthToken {
+public class ExternalAuthToken extends AuthToken {
 
     protected GenericPrincipal principal;
 

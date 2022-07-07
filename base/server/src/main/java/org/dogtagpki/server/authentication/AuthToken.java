@@ -31,12 +31,12 @@ import java.util.Hashtable;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.usrgrp.Certificates;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * Authentication token returned by Authentication Managers.
@@ -51,6 +51,9 @@ import org.mozilla.jss.netscape.security.util.Utils;
  */
 public class AuthToken implements IAuthToken {
     protected Hashtable<String, Object> mAttrs = null;
+
+    public AuthToken() {
+    }
 
     /**
      * Constructs an instance of a authentication token.
