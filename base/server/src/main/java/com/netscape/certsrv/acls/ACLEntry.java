@@ -23,11 +23,8 @@ import java.util.StringTokenizer;
 
 /**
  * A class represents an ACI entry of an access control list.
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public class ACLEntry implements IACLEntry, java.io.Serializable {
+public class ACLEntry implements java.io.Serializable {
     /**
     *
     */
@@ -73,11 +70,10 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
      *
      * @return ACL Entry string in the following format:
      *
-     *         <PRE>
+     * <PRE>
      *   allow|deny (right[,right...]) attribute_expression
      * </PRE>
      */
-    @Override
     public String getACLEntryString() {
         return aclEntryString;
     }
