@@ -18,6 +18,7 @@
 package com.netscape.certsrv.authentication;
 import java.math.BigInteger;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.pkix.cmc.PKIData;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -28,7 +29,7 @@ import com.netscape.certsrv.base.EBaseException;
 public interface ISharedToken {
 
     // support for id_cmc_identification
-    public char[] getSharedToken(String identification, IAuthToken authToken)
+    public char[] getSharedToken(String identification, AuthToken authToken)
             throws EBaseException;
 
     public char[] getSharedToken(PKIData cmcData)

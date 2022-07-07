@@ -264,7 +264,7 @@ public class SharedSecret extends DirBasedAuthentication
      *       after each use
      */
     @Override
-    public char[] getSharedToken(String identification, IAuthToken authToken)
+    public char[] getSharedToken(String identification, AuthToken authToken)
             throws EBaseException {
         String method = "SharedSecret.getSharedToken(String identification, IAuthToken authToken): ";
         String msg = "";

@@ -39,6 +39,7 @@ import javax.crypto.Mac;
 
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authentication.AuthManager;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICertificateAuthority;
@@ -1524,8 +1525,7 @@ public abstract class EnrollProfile extends Profile {
                     sharedSecretFound = false;
                 }
 
-                IAuthToken authToken = (IAuthToken)
-                    context.get(SessionContext.AUTH_TOKEN);
+                AuthToken authToken = (AuthToken) context.get(SessionContext.AUTH_TOKEN);
 
                 ISharedToken tokenClass = (ISharedToken) sharedTokenAuth;
 
@@ -1833,8 +1833,7 @@ public abstract class EnrollProfile extends Profile {
                 return false;
             }
 
-            IAuthToken authToken = (IAuthToken)
-                sessionContext.get(SessionContext.AUTH_TOKEN);
+            AuthToken authToken = (AuthToken) sessionContext.get(SessionContext.AUTH_TOKEN);
 
             ISharedToken tokenClass = (ISharedToken) sharedTokenAuth;
 
