@@ -58,7 +58,7 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
     public static final long DEFAULT_TIMEOUT = 600000;
 
     private MessageDigest mSHADigest = null;
-    private Hashtable<String, IAuthToken> mData = null;
+    private Hashtable<String, AuthToken> mData = null;
     private AuthManagerConfig mConfig;
     private String mName = null;
     private String mImplName = null;
@@ -101,11 +101,11 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
 
     }
 
-    public IAuthToken getAuthToken(String key) {
+    public AuthToken getAuthToken(String key) {
         return mData.remove(key);
     }
 
-    public void addAuthToken(String pageID, IAuthToken token) {
+    public void addAuthToken(String pageID, AuthToken token) {
         mData.put(pageID, token);
     }
 

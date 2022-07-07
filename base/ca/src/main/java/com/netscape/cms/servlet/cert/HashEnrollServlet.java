@@ -393,7 +393,7 @@ public class HashEnrollServlet extends CMSServlet {
         HashAuthentication mgr = (HashAuthentication) authMgr1;
         String pageID = httpParams.getValueAsString("pageID", null);
 
-        IAuthToken authToken = mgr.getAuthToken(pageID);
+        AuthToken authToken = mgr.getAuthToken(pageID);
 
         String authMgr = AuditFormat.NOAUTH;
 
