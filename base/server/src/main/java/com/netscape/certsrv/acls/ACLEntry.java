@@ -21,6 +21,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
+import com.netscape.cms.authorization.ACL;
+
 /**
  * A class represents an ACI entry of an access control list.
  */
@@ -86,7 +88,7 @@ public class ACLEntry implements java.io.Serializable {
      * @param permission one of the "rights" defined for each
      *            protected resource in its ACL
      */
-    public void addPermission(IACL acl, String permission) {
+    public void addPermission(ACL acl, String permission) {
         if (acl.checkRight(permission)) {
             mPerms.put(permission, permission);
         } else {
@@ -167,7 +169,7 @@ public class ACLEntry implements java.io.Serializable {
      * @param aclEntryString aclEntryString in the specified format
      * @return an instance of the <code>ACLEntry</code> class
      */
-    public static ACLEntry parseACLEntry(IACL acl, String aclEntryString) {
+    public static ACLEntry parseACLEntry(ACL acl, String aclEntryString) {
         if (aclEntryString == null) {
             return null;
         }

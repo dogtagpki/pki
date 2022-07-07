@@ -26,7 +26,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.EACLsException;
-import com.netscape.certsrv.acls.IACL;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -34,18 +33,12 @@ import com.netscape.cmscore.apps.CMS;
  * is associated with an protected resources. The policy
  * enforcer can verify the ACLs with the current
  * context to see if the corresponding resource is accessible.
- * <P>
+ *
  * An <code>ACL</code> may contain one or more <code>ACLEntry</code>. However, in case of multiple <code>ACLEntry</code>
  * , a subject must pass ALL of the <code>ACLEntry</code> evaluation for permission to be granted
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public class ACL implements IACL, java.io.Serializable {
+public class ACL implements java.io.Serializable {
 
-    /**
-    *
-    */
     private static final long serialVersionUID = -1867465948611161868L;
 
     protected Vector<ACLEntry> entries = new Vector<>(); // ACL entries
@@ -106,7 +99,6 @@ public class ACL implements IACL, java.io.Serializable {
      *
      * @return name of the resource
      */
-    @Override
     public String getName() {
         return name;
     }
@@ -126,7 +118,6 @@ public class ACL implements IACL, java.io.Serializable {
      *
      * @return Description of the protected resource
      */
-    @Override
     public String getDescription() {
         return description;
     }
@@ -136,7 +127,6 @@ public class ACL implements IACL, java.io.Serializable {
      *
      * @return enumeration for the <code>ACLEntry</code> vector
      */
-    @Override
     public Enumeration<ACLEntry> entries() {
         return entries.elements();
     }
@@ -169,7 +159,6 @@ public class ACL implements IACL, java.io.Serializable {
      * @param permission permission to be checked
      * @return true if it's one of the "rights"; false otherwise
      */
-    @Override
     public boolean checkRight(String permission) {
         return rights.contains(permission);
     }
@@ -179,7 +168,6 @@ public class ACL implements IACL, java.io.Serializable {
      *
      * @return enumeration of rights defined for this ACL
      */
-    @Override
     public Enumeration<String> rights() {
         return Collections.enumeration(rights);
     }

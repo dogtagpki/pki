@@ -21,12 +21,12 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.acls.EACLsException;
-import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
+import com.netscape.cms.authorization.ACL;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
@@ -135,7 +135,7 @@ public interface IAuthzManager {
      *
      * @return enumeration of ACL entries.
      */
-    public Enumeration<IACL> getACLs();
+    public Enumeration<ACL> getACLs();
 
     /**
      * Get individual ACL entry for the given name of entry.
@@ -143,7 +143,7 @@ public interface IAuthzManager {
      * @param target The name of the ACL entry
      * @return The ACL entry.
      */
-    public IACL getACL(String target);
+    public ACL getACL(String target);
 
     /**
      * Update ACLs in the database

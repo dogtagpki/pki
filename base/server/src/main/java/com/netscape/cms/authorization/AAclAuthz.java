@@ -30,7 +30,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.EACLsException;
-import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzInternalError;
@@ -86,7 +85,7 @@ public abstract class AAclAuthz implements IAuthzManager {
 
     private AuthzManagerConfig mConfig;
 
-    private Hashtable<String, IACL> mACLs = new Hashtable<>();
+    private Hashtable<String, ACL> mACLs = new Hashtable<>();
     private Hashtable<String, IAccessEvaluator> mEvaluators = new Hashtable<>();
 
     /* Vector of extendedPluginInfo strings */
@@ -192,7 +191,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         ACL acl = ACL.parseACL(resACLs);
 
         if (acl != null) {
-            ACL curACL = (ACL) mACLs.get(acl.getName());
+            ACL curACL = mACLs.get(acl.getName());
             if (curACL == null) {
                 mACLs.put(acl.getName(), acl);
             } else {
@@ -209,7 +208,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     }
 
     @Override
-    public IACL getACL(String target) {
+    public ACL getACL(String target) {
         return mACLs.get(target);
     }
 
@@ -218,7 +217,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     }
 
     @Override
-    public Enumeration<IACL> getACLs() {
+    public Enumeration<ACL> getACLs() {
         return mACLs.elements();
     }
 
@@ -341,7 +340,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      */
     private boolean checkACLs(String name, String perm)
             throws EACLsException {
-        ACL acl = (ACL) mACLs.get(name);
+        ACL acl = mACLs.get(name);
 
         // no such resource, pass it down
         if (acl == null) {
@@ -567,7 +566,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         Vector<ACLEntry> v = new Vector<>();
 
         for (String name : nodes) {
-            ACL acl = (ACL) mACLs.get(name);
+            ACL acl = mACLs.get(name);
             if (acl == null)
                 continue;
             Enumeration<ACLEntry> e = acl.entries();
@@ -768,7 +767,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      *
      * @return an enumeration of resources contained in the ACL table
      */
-    public Enumeration<IACL> aclResElements() {
+    public Enumeration<ACL> aclResElements() {
         return mACLs.elements();
     }
 

@@ -27,7 +27,6 @@ import org.dogtagpki.server.authorization.IAuthzManager;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.acls.EACLsException;
-import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzInternalError;
@@ -151,13 +150,13 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
     }
 
     @Override
-    public Enumeration<IACL> getACLs() {
+    public Enumeration<ACL> getACLs() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public IACL getACL(String target) {
+    public ACL getACL(String target) {
         // TODO Auto-generated method stub
         return null;
     }

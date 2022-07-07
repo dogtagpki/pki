@@ -22,7 +22,6 @@ import java.util.Enumeration;
 import org.dogtagpki.server.authorization.AuthzManagerConfig;
 
 import com.netscape.certsrv.acls.EACLsException;
-import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -233,11 +232,11 @@ public class DirAclAuthz extends AAclAuthz
             LDAPAttribute attrs = new LDAPAttribute("resourceACLS");
             LDAPModificationSet mod = new LDAPModificationSet();
 
-            Enumeration<IACL> en = aclResElements();
+            Enumeration<ACL> en = aclResElements();
 
             if (en.hasMoreElements() == true) {
                 while (en.hasMoreElements()) {
-                    ACL a = (ACL) en.nextElement();
+                    ACL a = en.nextElement();
                     for (String s : a.getResourceACLs()) {
                         attrs.addValue(s);
                     }

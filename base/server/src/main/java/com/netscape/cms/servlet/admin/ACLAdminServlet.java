@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authorization.IAuthzManager;
 
 import com.netscape.certsrv.acls.ACLEntry;
-import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
@@ -225,10 +224,10 @@ public class ACLAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        Enumeration<IACL> res = mAuthzMgr.getACLs();
+        Enumeration<ACL> res = mAuthzMgr.getACLs();
 
         while (res.hasMoreElements()) {
-            ACL acl = (ACL) res.nextElement();
+            ACL acl = res.nextElement();
             String desc = acl.getDescription();
 
             if (desc == null)
@@ -259,7 +258,7 @@ public class ACLAdminServlet extends AdminServlet {
             return;
         }
 
-        IACL acl = mAuthzMgr.getACL(resourceId);
+        ACL acl = mAuthzMgr.getACL(resourceId);
 
         if (acl != null) {
             Enumeration<String> rightsEnum = acl.rights();
