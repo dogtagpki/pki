@@ -349,14 +349,14 @@ public class CAProcessor extends Processor {
      *   authenticate for renewal - more to add necessary params/values
      *   to the session context
      */
-    public IAuthToken authenticate(
+    public AuthToken authenticate(
             ProfileAuthenticator authenticator,
             HttpServletRequest request,
             Request origReq,
             SessionContext context,
             AuthCredentials credentials) throws EBaseException
     {
-        AuthToken authToken = (AuthToken) authenticate(authenticator, request, credentials);
+        AuthToken authToken = authenticate(authenticator, request, credentials);
         // For renewal, fill in necessary params
         if (authToken != null) {
             String ouid = origReq.getExtDataInString("auth_token.uid");
@@ -412,7 +412,7 @@ public class CAProcessor extends Processor {
         return authToken;
     }
 
-    public IAuthToken authenticate(
+    public AuthToken authenticate(
             ProfileAuthenticator authenticator,
             HttpServletRequest request,
             AuthCredentials credentials) throws EBaseException {
@@ -449,7 +449,7 @@ public class CAProcessor extends Processor {
         return authToken;
     }
 
-    public IAuthToken authenticate(
+    public AuthToken authenticate(
             HttpServletRequest request,
             Request origReq,
             ProfileAuthenticator authenticator,
@@ -480,7 +480,7 @@ public class CAProcessor extends Processor {
         String authSubjectID = auditSubjectID();
         String authMgrID = authenticator.getName();
 
-        IAuthToken authToken = null;
+        AuthToken authToken = null;
 
         try {
             if (isRenewal) {
@@ -533,7 +533,7 @@ public class CAProcessor extends Processor {
         return authToken;
     }
 
-    public IAuthToken authenticate(HttpServletRequest httpReq)
+    public AuthToken authenticate(HttpServletRequest httpReq)
             throws EBaseException {
         return authenticate(httpReq, authMgr);
     }
@@ -567,7 +567,7 @@ public class CAProcessor extends Processor {
         }
     }
 
-    public IAuthToken authenticate(HttpServletRequest httpReq, String authMgrName)
+    public AuthToken authenticate(HttpServletRequest httpReq, String authMgrName)
             throws EBaseException {
 
         String auditSubjectID = ILogger.UNIDENTIFIED;
@@ -641,7 +641,7 @@ public class CAProcessor extends Processor {
                 // reset the "auditAuthMgrID"
                 auditAuthMgrID = authMgrName;
             }
-            IAuthToken authToken = CMSGateway.checkAuthManager(httpReq,
+            AuthToken authToken = (AuthToken) CMSGateway.checkAuthManager(httpReq,
                     httpArgs,
                     clientCert,
                     authMgrName);

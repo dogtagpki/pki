@@ -38,7 +38,6 @@ import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
@@ -268,7 +267,7 @@ public class RenewalProcessor extends CertProcessor {
                 context.put("origSubjectDN", origSubjectDN);
 
             // before creating the request, authenticate the request
-            IAuthToken authToken = null;
+            AuthToken authToken = null;
 
             if (authenticator != null) {
                 /* The profile specifies an authenticator.  Use it to

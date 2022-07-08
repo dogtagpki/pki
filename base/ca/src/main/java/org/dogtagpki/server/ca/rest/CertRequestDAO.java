@@ -249,7 +249,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         String authMgr = processor.getAuthenticationManager();
         if (authToken == null && authMgr != null) {
             logger.debug("CertRequestDAO: getting auth token from " + authMgr);
-            authToken = (AuthToken) processor.authenticate(request);
+            authToken = processor.authenticate(request);
         }
 
         logger.debug("CertRequestDAO: auth token: " + authToken);
