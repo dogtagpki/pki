@@ -143,7 +143,7 @@ public class RenewalServlet extends CMSServlet {
         Date notAfter = null;
         boolean doSaveAuthToken = false;
 
-        IAuthToken authToken = authenticate(cmsReq);
+        AuthToken authToken = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
 

@@ -28,11 +28,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.KRAEngineConfig;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -121,7 +121,7 @@ public class GrantRecovery extends CMSServlet {
         KRAEngine engine = KRAEngine.getInstance();
         KRAEngineConfig cs = engine.getConfig();
 
-        IAuthToken authToken = authenticate(cmsReq);
+        AuthToken authToken = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
 

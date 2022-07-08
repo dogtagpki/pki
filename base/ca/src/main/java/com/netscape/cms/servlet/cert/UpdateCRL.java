@@ -124,7 +124,7 @@ public class UpdateCRL extends CMSServlet {
             statsSub.startTiming("crl", true /* main action */);
         }
 
-        IAuthToken authToken = authenticate(cmsReq);
+        AuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
         try {
             authzToken = authorize(mAclMethod, authToken,

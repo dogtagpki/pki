@@ -26,9 +26,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -115,7 +115,7 @@ public class GetAsyncPk12 extends CMSServlet {
         String agent = null;
         String reqID = null;
 
-        IAuthToken authToken = authenticate(cmsReq);
+        AuthToken authToken = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
 

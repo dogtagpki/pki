@@ -25,10 +25,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.template.ArgList;
@@ -80,7 +80,7 @@ public class ProfileListServlet extends ProfileServlet {
         Locale locale = getLocale(request);
 
         ArgSet args = new ArgSet();
-        IAuthToken authToken = authenticate(cmsReq);
+        AuthToken authToken = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
 

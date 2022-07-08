@@ -29,11 +29,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.event.OCSPGenerationEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
@@ -110,7 +110,7 @@ public class OCSPServlet extends CMSServlet {
             statsSub.startTiming("ocsp", true /* main action */);
         }
 
-        IAuthToken authToken = authenticate(cmsReq);
+        AuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
 
         try {

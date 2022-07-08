@@ -43,7 +43,6 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -156,7 +155,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         // for audit log
-        IAuthToken authToken = authenticate(cmsReq);
+        AuthToken authToken = authenticate(cmsReq);
         String authMgr = AuditFormat.NOAUTH;
 
         BigInteger[] serialNoArray = null;

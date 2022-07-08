@@ -45,7 +45,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -173,7 +172,7 @@ public class CMCRevReqServlet extends CMSServlet {
                     CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CMC));
         }
 
-        IAuthToken authToken = authenticate(cmsReq);
+        AuthToken authToken = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
         try {

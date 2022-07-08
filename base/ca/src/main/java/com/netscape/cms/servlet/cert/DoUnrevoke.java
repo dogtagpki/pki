@@ -37,7 +37,6 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -139,7 +138,7 @@ public class DoUnrevoke extends CMSServlet {
             serialNumber = getSerialNumbers(req);
 
             //for audit log.
-            IAuthToken authToken = authenticate(cmsReq);
+            AuthToken authToken = authenticate(cmsReq);
             String authMgr = AuditFormat.NOAUTH;
 
             if (authToken != null) {

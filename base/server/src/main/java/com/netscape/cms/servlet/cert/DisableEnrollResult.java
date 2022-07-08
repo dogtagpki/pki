@@ -24,9 +24,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -83,7 +83,7 @@ public class DisableEnrollResult extends CMSServlet {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig configStore = engine.getConfig();
 
-        IAuthToken token = authenticate(cmsReq);
+        AuthToken token = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
 

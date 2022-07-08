@@ -26,10 +26,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -92,7 +92,7 @@ public class ProfileSelectServlet extends ProfileServlet {
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
-        IAuthToken authToken = null;
+        AuthToken authToken = null;
         ArgSet args = new ArgSet();
 
         if (mAuthMgr != null) {

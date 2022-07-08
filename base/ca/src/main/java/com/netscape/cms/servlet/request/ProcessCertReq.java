@@ -431,7 +431,7 @@ public class ProcessCertReq extends CMSServlet {
 
             if (toDo != null) {
                 // for audit log
-                IAuthToken authToken = authenticate(cmsReq);
+                AuthToken authToken = authenticate(cmsReq);
                 AuthzToken authzToken = null;
 
                 try {

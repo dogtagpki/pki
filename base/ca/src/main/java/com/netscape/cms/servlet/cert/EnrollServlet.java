@@ -720,7 +720,7 @@ public class EnrollServlet extends CMSServlet {
             httpParams = cmsReq.getHttpParams();
             httpReq = cmsReq.getHttpReq();
             if (mAuthMgr != null) {
-                authToken = (AuthToken) authenticate(cmsReq);
+                authToken = authenticate(cmsReq);
             }
 
             try {

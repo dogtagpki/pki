@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.dogtagpki.server.authentication.AuthToken;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -93,7 +93,7 @@ public class GetCookie extends CMSServlet {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         logger.debug("GetCookie start");
-        IAuthToken authToken = null;
+        AuthToken authToken = null;
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();

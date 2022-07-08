@@ -158,7 +158,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         }
     }
 
-    public IAuthToken authenticate(ProfileAuthenticator authenticator,
+    public AuthToken authenticate(ProfileAuthenticator authenticator,
             HttpServletRequest request) throws EBaseException {
         String method = "ProfileSubmitCMCServlet: authenticate: ";
         AuthCredentials credentials = new AuthCredentials();

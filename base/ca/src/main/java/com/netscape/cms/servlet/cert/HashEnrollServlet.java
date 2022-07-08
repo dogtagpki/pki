@@ -336,7 +336,7 @@ public class HashEnrollServlet extends CMSServlet {
         EngineConfig configStore = engine.getConfig();
         CertificateRepository cr = engine.getCertificateRepository();
 
-        IAuthToken token = authenticate(cmsReq);
+        AuthToken token = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
 

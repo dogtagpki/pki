@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.dogtagpki.server.authentication.AuthManager;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
@@ -1339,7 +1340,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
     }
 
-    protected static void saveAuthToken(IAuthToken token, Request req) {
+    protected static void saveAuthToken(AuthToken token, Request req) {
         if (token != null && req != null)
             req.setExtData(Request.AUTH_TOKEN, token);
 
@@ -1518,19 +1519,19 @@ public abstract class CMSServlet extends HttpServlet {
         return new Locale(lang.substring(0, dash), lang.substring(dash + 1));
     }
 
-    public IAuthToken authenticate(CMSRequest req)
+    public AuthToken authenticate(CMSRequest req)
             throws EBaseException {
         return authenticate(req, mAuthMgr);
     }
 
-    public IAuthToken authenticate(HttpServletRequest httpReq)
+    public AuthToken authenticate(HttpServletRequest httpReq)
             throws EBaseException {
         return authenticate(httpReq, mAuthMgr);
     }
 
-    public IAuthToken authenticate(CMSRequest req, String authMgrName)
+    public AuthToken authenticate(CMSRequest req, String authMgrName)
             throws EBaseException {
-        IAuthToken authToken = authenticate(req.getHttpReq(),
+        AuthToken authToken = authenticate(req.getHttpReq(),
                 authMgrName);
 
         saveAuthToken(authToken, req.getRequest());
@@ -1549,7 +1550,7 @@ public abstract class CMSServlet extends HttpServlet {
      *
      * @exception EBaseException an error has occurred
      */
-    public IAuthToken authenticate(HttpServletRequest httpReq, String authMgrName)
+    public AuthToken authenticate(HttpServletRequest httpReq, String authMgrName)
             throws EBaseException {
 
         String auditSubjectID = ILogger.UNIDENTIFIED;
@@ -1621,7 +1622,7 @@ public abstract class CMSServlet extends HttpServlet {
 
             // reset the "auditAuthMgrID"
             auditAuthMgrID = authMgrName;
-            IAuthToken authToken = CMSGateway.checkAuthManager(httpReq,
+            AuthToken authToken = (AuthToken) CMSGateway.checkAuthManager(httpReq,
                     httpArgs,
                     clientCert,
                     authMgrName);

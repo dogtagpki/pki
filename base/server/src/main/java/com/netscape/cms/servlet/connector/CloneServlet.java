@@ -182,7 +182,7 @@ public class CloneServlet extends CMSServlet {
 
         String CCA_Id = null;
         String CCAUserId = null;
-        IAuthToken token = null;
+        AuthToken token = null;
 
         try {
             // cfu +++ authenticate checks both SUBJECT and Signer SUBJECT
@@ -267,7 +267,7 @@ public class CloneServlet extends CMSServlet {
     }
 
     //cfu ++change this to just check the subject and signer
-    protected IAuthToken authenticate(
+    protected AuthToken authenticate(
             X509Certificate peerCert)
             throws EBaseException {
         try {
