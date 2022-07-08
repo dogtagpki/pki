@@ -529,7 +529,7 @@ public class FlatFileAuth
      *
      */
     @Override
-    public IAuthToken authenticate(AuthCredentials authCred)
+    public AuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
         AuthToken authToken = null;
         String keyForUser = "";

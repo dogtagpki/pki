@@ -33,7 +33,6 @@ import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EAuthUserError;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.request.RequestStatus;
@@ -152,7 +151,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
      * @see org.dogtagpki.server.authentication.AuthToken
      */
     @Override
-    public IAuthToken authenticate(AuthCredentials authCred)
+    public AuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();

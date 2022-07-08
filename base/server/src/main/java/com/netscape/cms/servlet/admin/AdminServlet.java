@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthManager;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthorizationConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -323,7 +324,7 @@ public class AdminServlet extends HttpServlet {
             // create session (if we don't, identity will reject
             // the authentication).
             SessionContext sc = SessionContext.getContext();
-            IAuthToken token = null;
+            AuthToken token = null;
 
             logger.debug(CMS.getLogMessage("ADMIN_SRVLT_ABOUT_AUTH",
                     mServletID));
@@ -360,7 +361,7 @@ public class AdminServlet extends HttpServlet {
                     cred.set("uid", userid);
                     cred.set("pwd", password);
 
-                    token = auth.authenticate(cred, AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
+                    token = (AuthToken) auth.authenticate(cred, AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
                     logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_FOR_SRVLT",
                             mServletID));
                 }

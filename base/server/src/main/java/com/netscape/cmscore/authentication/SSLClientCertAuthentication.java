@@ -35,7 +35,6 @@ import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EAuthUserError;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
@@ -102,7 +101,7 @@ public class SSLClientCertAuthentication implements AuthManager {
     }
 
     @Override
-    public IAuthToken authenticate(AuthCredentials authCred)
+    public AuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
         AuthToken authToken = new AuthToken(this);

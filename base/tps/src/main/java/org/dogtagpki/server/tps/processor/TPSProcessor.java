@@ -36,6 +36,7 @@ import java.util.Set;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSession;
@@ -94,7 +95,6 @@ import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.symkey.SessionKey;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.common.Constants;
@@ -145,7 +145,7 @@ public class TPSProcessor {
     //protected TokenRecord tokenRecord;
     protected String selectedTokenType;
     protected String selectedKeySet;
-    IAuthToken authToken;
+    AuthToken authToken;
     List<String> ldapStringAttrs;
 
     protected String userid = null;
@@ -1292,7 +1292,7 @@ public class TPSProcessor {
      * @return IAuthToken information relating to the performed authentication
      *         -- plugin-specific
      */
-    public IAuthToken authenticateUser(
+    public AuthToken authenticateUser(
             String op,
             TPSAuthenticator userAuth,
             AuthCredentials userCred)

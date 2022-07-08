@@ -256,7 +256,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
      * @see org.dogtagpki.server.authentication.AuthToken
      */
     @Override
-    public IAuthToken authenticate(AuthCredentials authCred) throws EMissingCredential, EInvalidCredentials,
+    public AuthToken authenticate(AuthCredentials authCred) throws EMissingCredential, EInvalidCredentials,
             EBaseException {
         String method = "CMCUserSignedAuth: authenticate: ";
         String msg = "";

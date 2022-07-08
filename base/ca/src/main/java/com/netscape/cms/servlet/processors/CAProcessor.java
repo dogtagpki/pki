@@ -434,7 +434,7 @@ public class CAProcessor extends Processor {
 
         credentials.set("clientHost", request.getRemoteHost());
 
-        IAuthToken authToken = authenticator.authenticate(credentials);
+        AuthToken authToken = authenticator.authenticate(credentials);
         logger.debug("CAProcessor: Token: " + authToken);
 
         SessionContext sc = SessionContext.getContext();

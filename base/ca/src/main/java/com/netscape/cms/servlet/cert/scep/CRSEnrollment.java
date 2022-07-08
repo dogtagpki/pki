@@ -511,7 +511,7 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         credentials.set("clientHost", request.getRemoteHost());
-        IAuthToken authToken = authenticator.authenticate(credentials);
+        AuthToken authToken = authenticator.authenticate(credentials);
         if (authToken == null) {
             return null;
         }

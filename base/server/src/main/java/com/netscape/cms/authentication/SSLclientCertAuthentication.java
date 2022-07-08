@@ -132,7 +132,7 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
      * @see com.netscape.certsrv.usrgrp.Certificates
      */
     @Override
-    public IAuthToken authenticate(AuthCredentials authCred)
+    public AuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
         logger.debug("SSLclientCertAuthentication: start");

@@ -253,7 +253,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
      * @see org.dogtagpki.server.authentication.AuthToken
      */
     @Override
-    public IAuthToken authenticate(AuthCredentials authCred) throws EMissingCredential, EInvalidCredentials,
+    public AuthToken authenticate(AuthCredentials authCred) throws EMissingCredential, EInvalidCredentials,
             EBaseException {
         String method = "CMCAuth: authenticate: ";
         String msg = "";
@@ -969,7 +969,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
 
                         agentCred.set(AuthManager.CRED_SSL_CLIENT_CERT, x509Certs);
 
-                        AuthToken tempToken = (AuthToken) agentAuth.authenticate(agentCred);
+                        AuthToken tempToken = agentAuth.authenticate(agentCred);
                         org.mozilla.jss.netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
                         String ID = tempPrincipal.getName();
                         logger.debug(method + " Principal name = " + ID);

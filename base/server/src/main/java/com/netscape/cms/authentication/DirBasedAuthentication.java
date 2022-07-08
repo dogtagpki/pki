@@ -40,7 +40,6 @@ import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EFormSubjectDN;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -420,7 +419,7 @@ public abstract class DirBasedAuthentication
      * @see org.dogtagpki.server.authentication.AuthToken
      */
     @Override
-    public IAuthToken authenticate(AuthCredentials authCred)
+    public AuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
         String userdn = null;

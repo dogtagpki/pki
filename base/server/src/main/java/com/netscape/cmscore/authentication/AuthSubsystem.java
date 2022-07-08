@@ -351,7 +351,7 @@ public class AuthSubsystem implements ISubsystem {
         if (authMgrInst == null) {
             throw new EAuthMgrNotFound(CMS.getUserMessage("CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", authMgrInstName));
         }
-        return (authMgrInst.authenticate(authCred));
+        return authMgrInst.authenticate(authCred);
     }
 
     /**

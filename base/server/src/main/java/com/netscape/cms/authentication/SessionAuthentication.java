@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 import org.dogtagpki.server.authentication.AuthManagerConfig;
+import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -88,15 +89,14 @@ public class SessionAuthentication
      * @throws EMissingCredential if no auth token or no session
      */
     @Override
-    public IAuthToken authenticate(AuthCredentials authCred)
+    public AuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential {
         SessionContext context = SessionContext.getExistingContext();
 
         if (context == null)
             throw new EMissingCredential("SessionAuthentication: no session");
 
-        IAuthToken authToken = (IAuthToken)
-            context.get(SessionContext.AUTH_TOKEN);
+        AuthToken authToken = (AuthToken) context.get(SessionContext.AUTH_TOKEN);
 
         if (authToken == null)
             throw new EMissingCredential("SessionAuthentication: no auth token");

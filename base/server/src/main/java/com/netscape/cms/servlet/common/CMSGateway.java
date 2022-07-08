@@ -200,7 +200,7 @@ public class CMSGateway {
         AuthToken authToken = null;
 
         try {
-            authToken = (AuthToken) authMgr.authenticate(creds);
+            authToken = authMgr.authenticate(creds);
         } catch (EBaseException e) {
             throw e;
         } catch (Exception e) {

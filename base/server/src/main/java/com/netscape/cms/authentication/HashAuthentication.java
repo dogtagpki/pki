@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.cmscore.apps.CMS;
@@ -207,7 +206,7 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
      * @exception EBaseException If an internal error occurs.
      */
     @Override
-    public IAuthToken authenticate(AuthCredentials authCreds)
+    public AuthToken authenticate(AuthCredentials authCreds)
             throws EBaseException {
         AuthToken token = new AuthToken(this);
         String fingerprint = (String) authCreds.get(CRED_FINGERPRINT);

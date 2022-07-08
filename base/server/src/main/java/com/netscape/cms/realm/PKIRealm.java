@@ -66,7 +66,7 @@ public class PKIRealm extends RealmBase {
             creds.set(IPasswdUserDBAuthentication.CRED_UID, username);
             creds.set(IPasswdUserDBAuthentication.CRED_PWD, password);
 
-            AuthToken authToken = (AuthToken) authMgr.authenticate(creds); // throws exception if authentication fails
+            AuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
             authToken.set(SessionContext.AUTH_MANAGER_ID, AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
             auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
 
@@ -133,7 +133,7 @@ public class PKIRealm extends RealmBase {
             AuthCredentials creds = new AuthCredentials();
             creds.set(CertUserDBAuthentication.CRED_CERT, certImpls);
 
-            AuthToken authToken = (AuthToken) authMgr.authenticate(creds); // throws exception if authentication fails
+            AuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
             authToken.set(SessionContext.AUTH_MANAGER_ID,AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
             String username = authToken.getInString(CertUserDBAuthentication.TOKEN_USERID);
