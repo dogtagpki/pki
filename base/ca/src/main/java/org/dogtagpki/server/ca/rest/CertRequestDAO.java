@@ -28,11 +28,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriInfo;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.AuthCredentials;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
@@ -238,7 +238,7 @@ public class CertRequestDAO extends CMSRequestDAO {
 
         RequestProcessor processor = new RequestProcessor("caProfileProcess", locale);
 
-        IAuthToken authToken = null;
+        AuthToken authToken = null;
 
         Principal principal = request.getUserPrincipal();
         if (principal instanceof PKIPrincipal) {
@@ -249,7 +249,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         String authMgr = processor.getAuthenticationManager();
         if (authToken == null && authMgr != null) {
             logger.debug("CertRequestDAO: getting auth token from " + authMgr);
-            authToken = processor.authenticate(request);
+            authToken = (AuthToken) processor.authenticate(request);
         }
 
         logger.debug("CertRequestDAO: auth token: " + authToken);

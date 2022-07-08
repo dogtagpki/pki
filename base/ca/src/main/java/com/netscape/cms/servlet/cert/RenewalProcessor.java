@@ -31,6 +31,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
@@ -304,7 +305,7 @@ public class RenewalProcessor extends CertProcessor {
                     renewProfileId.equals("caManualRenewal")
                     && principal instanceof PKIPrincipal
                 ) {
-                    IAuthToken latentToken = ((PKIPrincipal) principal).getAuthToken();
+                    AuthToken latentToken = ((PKIPrincipal) principal).getAuthToken();
                     AuthzToken authzToken = authorize(
                         "DirAclAuthz", latentToken, "certServer.ca.certrequests", "execute");
                     if (authzToken != null) {

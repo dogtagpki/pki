@@ -183,7 +183,7 @@ public class PKIRealm extends RealmBase {
         logger.info("PKIRealm: Getting principal for " + username);
 
         try {
-            return getPrincipal(username, (IAuthToken)null);
+            return getPrincipal(username, (AuthToken) null);
 
         } catch (Exception e) {
             logger.warn("Unable to get principal for " + username + ": " + e.getMessage());
@@ -191,12 +191,12 @@ public class PKIRealm extends RealmBase {
         }
     }
 
-    protected Principal getPrincipal(String username, IAuthToken authToken) throws Exception {
+    protected Principal getPrincipal(String username, AuthToken authToken) throws Exception {
         User user = getUser(username);
         return getPrincipal(user, authToken);
     }
 
-    protected Principal getPrincipal(User user, IAuthToken authToken) throws EUsrGrpException {
+    protected Principal getPrincipal(User user, AuthToken authToken) throws EUsrGrpException {
         List<String> roles = getRoles(user);
         return new PKIPrincipal(user, null, roles, authToken);
     }

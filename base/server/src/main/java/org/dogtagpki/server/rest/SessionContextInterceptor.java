@@ -30,10 +30,10 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.catalina.realm.GenericPrincipal;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.jboss.resteasy.core.ResourceMethodInvoker;
 
 import com.netscape.certsrv.authentication.ExternalAuthToken;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.cms.realm.PKIPrincipal;
@@ -83,7 +83,7 @@ public class SessionContextInterceptor implements ContainerRequestFilter {
 
         logger.debug("SessionContextInterceptor: principal: " + principal.getName());
 
-        IAuthToken authToken = null;
+        AuthToken authToken = null;
 
         if (principal instanceof PKIPrincipal)
             authToken = ((PKIPrincipal) principal).getAuthToken();

@@ -33,10 +33,10 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.kra.KRAEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.BadRequestException;
@@ -830,10 +830,10 @@ public class KeyService extends SubsystemService implements KeyResource {
         }
     }
 
-    private IAuthToken getAuthToken() {
+    private AuthToken getAuthToken() {
         Principal principal = servletRequest.getUserPrincipal();
         PKIPrincipal pkiprincipal = (PKIPrincipal) principal;
-        IAuthToken authToken = pkiprincipal.getAuthToken();
+        AuthToken authToken = pkiprincipal.getAuthToken();
         return authToken;
     }
 

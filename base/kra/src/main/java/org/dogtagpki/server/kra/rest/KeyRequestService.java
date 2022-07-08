@@ -28,9 +28,9 @@ import java.util.Map;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.crypto.SymmetricKey;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.BadRequestException;
@@ -519,10 +519,10 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
         }
     }
 
-    private IAuthToken getAuthToken() {
+    private AuthToken getAuthToken() {
         Principal principal = servletRequest.getUserPrincipal();
         PKIPrincipal pkiprincipal = (PKIPrincipal) principal;
-        IAuthToken authToken = pkiprincipal.getAuthToken();
+        AuthToken authToken = pkiprincipal.getAuthToken();
         return authToken;
     }
 
