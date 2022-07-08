@@ -496,7 +496,7 @@ public class CRSEnrollment extends HttpServlet {
         return allowed;
     }
 
-    public IAuthToken authenticate(AuthCredentials credentials, ProfileAuthenticator authenticator,
+    public AuthToken authenticate(AuthCredentials credentials, ProfileAuthenticator authenticator,
             HttpServletRequest request) throws EBaseException {
 
         // build credential
@@ -779,7 +779,7 @@ public class CRSEnrollment extends HttpServlet {
                 throw new ServletException("Authenticator not found.");
             }
             AuthCredentials credentials = new AuthCredentials();
-            IAuthToken authToken = null;
+            AuthToken authToken = null;
             // for ssl authentication; pass in servlet for retrieving
             // ssl client certificates
             SessionContext context = SessionContext.getContext();
@@ -1708,7 +1708,7 @@ public class CRSEnrollment extends HttpServlet {
                 // authenticator not installed correctly
             }
 
-            IAuthToken authToken = null;
+            AuthToken authToken = null;
 
             // for ssl authentication; pass in servlet for retrieving
             // ssl client certificates
