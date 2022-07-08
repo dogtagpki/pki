@@ -25,6 +25,7 @@ import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthManagerProxy;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
@@ -34,7 +35,6 @@ import com.netscape.certsrv.authentication.EAuthMgrNotFound;
 import com.netscape.certsrv.authentication.EAuthMgrPluginNotFound;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cms.authentication.CMCAuth;
@@ -334,7 +334,7 @@ public class AuthSubsystem implements ISubsystem {
      * @exception EAuthMgrNotFound The auth manager is not found.
      * @exception EBaseException If an internal error occurred.
      */
-    public IAuthToken authenticate(
+    public AuthToken authenticate(
             AuthCredentials authCred, String authMgrInstName)
             throws EMissingCredential, EInvalidCredentials,
             EAuthMgrNotFound, EBaseException {

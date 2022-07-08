@@ -1552,7 +1552,7 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         try {
-            token = (AuthToken) mAuthSubsystem.authenticate(authCreds, mAuthManagerName);
+            token = mAuthSubsystem.authenticate(authCreds, mAuthManagerName);
             authCreds.delete(AUTH_PASSWORD);
             // if we got here, the authenticate call must not have thrown
             // an exception

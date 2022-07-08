@@ -284,7 +284,7 @@ public class CloneServlet extends CMSServlet {
                     new X509Certificate[] { cert }
                     );
 
-            IAuthToken token = mAuthSubsystem.authenticate(creds, AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
+            AuthToken token = mAuthSubsystem.authenticate(creds, AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
             return token;
         } catch (CertificateException e) {
