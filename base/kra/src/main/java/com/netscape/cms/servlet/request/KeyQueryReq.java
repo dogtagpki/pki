@@ -21,7 +21,8 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import com.netscape.certsrv.authentication.IAuthToken;
+import org.dogtagpki.server.authentication.AuthToken;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -54,7 +55,7 @@ public class KeyQueryReq extends QueryReq {
     }
 
     @Override
-    public void validateAuthToken(HttpServletRequest request, IAuthToken authToken) throws EBaseException {
+    public void validateAuthToken(HttpServletRequest request, AuthToken authToken) throws EBaseException {
         String realm = request.getParameter(REALM);
         mAuthz.checkRealm(realm, authToken, null, mAuthzResourceName, "list");
     }

@@ -32,7 +32,6 @@ import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.KRAEngineConfig;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
@@ -196,7 +195,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
      */
     private synchronized void process(IArgBlock header, String publicKeyData,
             BigInteger seq, HttpServletRequest req,
-            Locale locale, IAuthToken authToken) throws EAuthzException {
+            Locale locale, AuthToken authToken) throws EAuthzException {
 
         KRAEngine engine = KRAEngine.getInstance();
         KRAEngineConfig cs = engine.getConfig();

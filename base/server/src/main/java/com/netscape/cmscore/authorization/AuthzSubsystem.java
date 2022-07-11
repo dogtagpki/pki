@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthorizationConfig;
 import org.dogtagpki.server.authorization.AuthzManagerConfig;
 import org.dogtagpki.server.authorization.AuthzManagerProxy;
@@ -488,7 +489,7 @@ public class AuthzSubsystem implements ISubsystem {
      * @param operation
      * @throws EBaseException if any error occurs during authentication.
      */
-    public void checkRealm(String realm, IAuthToken authToken, String owner, String resource, String operation)
+    public void checkRealm(String realm, AuthToken authToken, String owner, String resource, String operation)
             throws EBaseException {
         // if no realm entry, SUCCESS by default
         if (realm == null) return;

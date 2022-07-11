@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
@@ -188,7 +187,7 @@ public class QueryReq extends CMSServlet {
         return filter;
     }
 
-    public void validateAuthToken(HttpServletRequest request, IAuthToken authToken) throws EBaseException {
+    public void validateAuthToken(HttpServletRequest request, AuthToken authToken) throws EBaseException {
     }
 
     public String getFilter(HttpServletRequest request) {

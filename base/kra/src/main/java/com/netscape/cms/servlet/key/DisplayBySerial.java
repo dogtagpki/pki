@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
@@ -185,7 +184,7 @@ public class DisplayBySerial extends CMSServlet {
      * @throws EAuthzException
      */
     private void process(IArgBlock header, BigInteger seq,
-            HttpServletRequest req, Locale locale, IAuthToken authToken) throws EAuthzException {
+            HttpServletRequest req, Locale locale, AuthToken authToken) throws EAuthzException {
         try {
             header.addStringValue(OUT_OP,
                     req.getParameter(OUT_OP));

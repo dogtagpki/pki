@@ -32,6 +32,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
@@ -39,7 +40,6 @@ import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
@@ -161,7 +161,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @return info for specific request
      * @throws EBaseException
      */
-    public KeyRequestInfo getRequest(RequestId id, UriInfo uriInfo, IAuthToken authToken) throws EBaseException {
+    public KeyRequestInfo getRequest(RequestId id, UriInfo uriInfo, AuthToken authToken) throws EBaseException {
         Request request = requestRepository.readRequest(id);
         if (request == null) {
             return null;
@@ -242,7 +242,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
     }
 
     public Request createRecoveryRequest(KeyRecoveryRequest data, UriInfo uriInfo, String requestor,
-            IAuthToken authToken, boolean ephemeral) throws EBaseException{
+            AuthToken authToken, boolean ephemeral) throws EBaseException{
         if (data == null) {
             throw new BadRequestException("Invalid request.");
         }
@@ -355,7 +355,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @throws EBaseException
      */
     public KeyRequestResponse submitRequest(KeyRecoveryRequest data, UriInfo uriInfo, String requestor,
-            IAuthToken authToken)
+            AuthToken authToken)
             throws EBaseException {
         Request request = createRecoveryRequest(data, uriInfo, requestor, authToken, false);
         setTransientData(data, request);
@@ -365,7 +365,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
     }
 
     public KeyRequestResponse submitAsyncKeyRecoveryRequest(KeyRecoveryRequest data, UriInfo uriInfo,
-            String requestor, IAuthToken authToken) throws EBaseException {
+            String requestor, AuthToken authToken) throws EBaseException {
         if (data == null) {
             throw new BadRequestException("Invalid request.");
         }
@@ -563,7 +563,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         return createKeyRequestResponse(request, uriInfo);
     }
 
-    public void approveRequest(RequestId id, String requestor, IAuthToken authToken)
+    public void approveRequest(RequestId id, String requestor, AuthToken authToken)
             throws EBaseException {
         Request request = requestRepository.readRequest(id);
         authz.checkRealm(request.getRealm(), authToken,
@@ -573,7 +573,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         service.addAgentAsyncKeyRecovery(id.toString(), requestor);
     }
 
-    public void rejectRequest(RequestId id, IAuthToken authToken) throws EBaseException {
+    public void rejectRequest(RequestId id, AuthToken authToken) throws EBaseException {
         Request request = requestRepository.readRequest(id);
         String realm = request.getRealm();
         authz.checkRealm(realm, authToken,
@@ -583,7 +583,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         requestRepository.updateRequest(request);
     }
 
-    public void cancelRequest(RequestId id, IAuthToken authToken) throws EBaseException {
+    public void cancelRequest(RequestId id, AuthToken authToken) throws EBaseException {
         Request request = requestRepository.readRequest(id);
         String realm = request.getRealm();
         authz.checkRealm(realm, authToken,
