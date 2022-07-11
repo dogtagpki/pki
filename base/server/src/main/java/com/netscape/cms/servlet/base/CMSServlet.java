@@ -1657,7 +1657,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
     }
 
-    public AuthzToken authorize(String authzMgrName, String resource, IAuthToken authToken,
+    public AuthzToken authorize(String authzMgrName, String resource, AuthToken authToken,
             String exp) throws EBaseException {
         AuthzToken authzToken = null;
 
@@ -1730,7 +1730,7 @@ public abstract class CMSServlet extends HttpServlet {
      * @exception EBaseException an error has occurred
      * @return the authorization token
      */
-    public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
+    public AuthzToken authorize(String authzMgrName, AuthToken authToken,
             String resource, String operation)
             throws EBaseException {
 

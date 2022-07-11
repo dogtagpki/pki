@@ -55,7 +55,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -1497,7 +1496,7 @@ public class ProcessCertReq extends CMSServlet {
                 !grantCMAgent && !grantRMAgent && !grantDRMAgent) {
             return 0;
         } else {
-            IAuthToken authToken = getAuthToken(req);
+            AuthToken authToken = getAuthToken(req);
             AuthzToken authzToken = null;
             String resourceName = "certServer." + mAuthority.getId() + ".group";
 

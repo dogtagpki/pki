@@ -421,7 +421,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
         // before creating the request, authenticate the request
 
-        IAuthToken authToken = null;
+        AuthToken authToken = null;
 
         // for ssl authentication; pass in servlet for retrieving
         // ssl client certificates

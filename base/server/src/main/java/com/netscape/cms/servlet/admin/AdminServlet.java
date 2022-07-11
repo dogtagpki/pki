@@ -361,7 +361,7 @@ public class AdminServlet extends HttpServlet {
                     cred.set("uid", userid);
                     cred.set("pwd", password);
 
-                    token = (AuthToken) auth.authenticate(cred, AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
+                    token = auth.authenticate(cred, AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
                     logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_FOR_SRVLT",
                             mServletID));
                 }
@@ -815,7 +815,7 @@ public class AdminServlet extends HttpServlet {
     /**
      * authorize a user based on its authentication credentials.
      */
-    public boolean authorize(IAuthToken token) throws EBaseException {
+    public boolean authorize(AuthToken token) throws EBaseException {
         String mGroupNames[] = { "Administrators" };
         boolean mAnd = true;
 
