@@ -127,6 +127,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} lib/jaxrs-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JBOSS_LOGGING_JAR} lib/jboss-logging.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} lib/jss.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_SYMKEY_JAR} lib/jss-symkey.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} lib/ldapjdk.jar
     COMMAND ln -sf ${P11_KIT_TRUST} lib/p11-kit-trust.so
     COMMAND ln -sf /usr/share/java/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-certsrv.jar

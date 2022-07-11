@@ -139,8 +139,8 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} common/lib/jaxb-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} common/lib/jaxrs-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JBOSS_LOGGING_JAR} common/lib/jboss-logging.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_SYMKEY_JAR} common/lib/jss-symkey.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} common/lib/jss.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_SYMKEY_JAR} common/lib/jss-symkey.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} common/lib/ldapjdk.jar
     COMMAND ln -sf /usr/share/java/pki/pki-cmsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-cmsutil.jar
     COMMAND ln -sf /usr/share/java/pki/pki-tomcat.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-tomcat.jar
