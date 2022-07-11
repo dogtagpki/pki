@@ -361,7 +361,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
                     boolean checkSignerInfo = cs.getBoolean("cmc.signerInfo.verify", true);
                     if (checkSignerInfo) {
                         // selfSigned will be set in verifySignerInfo if applicable
-                        IAuthToken userToken = verifySignerInfo(auditContext, authToken, cmcFullReq);
+                        AuthToken userToken = verifySignerInfo(auditContext, authToken, cmcFullReq);
                         if (userToken == null) {
                             msg = "userToken null; verifySignerInfo failure";
                             logger.error(method + msg);
@@ -954,7 +954,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
      * In case "b", the resulting authToke would not contain the attribute
      * IAuthManager.CRED_CMC_SIGNING_CERT
      */
-    protected IAuthToken verifySignerInfo(
+    protected AuthToken verifySignerInfo(
             SessionContext auditContext, // to capture info in case of failure
             AuthToken authToken,
             SignedData cmcFullReq)
@@ -1187,7 +1187,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
                     selfSigned = true;
                     selfsign_digest = digest;
 
-                    IAuthToken tempToken = new AuthToken(null);
+                    AuthToken tempToken = new AuthToken(null);
                     authToken.set(AuthManager.CRED_CMC_SELF_SIGNED, "true");
                     s.close();
                     return tempToken;
