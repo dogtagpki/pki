@@ -20,8 +20,9 @@ package org.dogtagpki.server.authorization;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.dogtagpki.server.authentication.AuthToken;
+
 import com.netscape.certsrv.acls.EACLsException;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
@@ -88,10 +89,10 @@ public interface IAuthzManager {
      * @exception EAuthzInternalError if an internal error occurred.
      * @exception EAuthzAccessDenied if access denied
      */
-    public AuthzToken authorize(IAuthToken authToken, String resource, String operation)
+    public AuthzToken authorize(AuthToken authToken, String resource, String operation)
             throws EAuthzInternalError, EAuthzAccessDenied;
 
-    public AuthzToken authorize(IAuthToken authToken, String expression)
+    public AuthzToken authorize(AuthToken authToken, String expression)
             throws EAuthzInternalError, EAuthzAccessDenied;
 
     /**

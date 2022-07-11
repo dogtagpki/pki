@@ -22,6 +22,7 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthorizationConfig;
 import org.dogtagpki.server.authorization.AuthzManagerConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
@@ -828,7 +829,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      * @return authzToken
      */
     @Override
-    public AuthzToken authorize(IAuthToken authToken, String resource, String operation)
+    public AuthzToken authorize(AuthToken authToken, String resource, String operation)
             throws EAuthzInternalError, EAuthzAccessDenied {
         try {
             checkPermission(authToken, resource, operation);
@@ -849,7 +850,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     }
 
     @Override
-    public AuthzToken authorize(IAuthToken authToken, String expression)
+    public AuthzToken authorize(AuthToken authToken, String expression)
             throws EAuthzAccessDenied {
         if (evaluateACLs(authToken, expression)) {
             return (new AuthzToken(this));

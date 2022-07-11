@@ -226,7 +226,7 @@ public class AuthzSubsystem implements ISubsystem {
      * @return a authorization token.
      */
     public AuthzToken authorize(
-            String authzMgrInstName, IAuthToken authToken,
+            String authzMgrInstName, AuthToken authToken,
             String resource, String operation, String realm)
             throws EAuthzMgrNotFound, EBaseException {
 
@@ -250,13 +250,13 @@ public class AuthzSubsystem implements ISubsystem {
         return (authzMgrInst.authorize(authToken, resource, operation));
     }
 
-    public AuthzToken authorize(String authzMgrName, IAuthToken authToken, String resource, String operation)
+    public AuthzToken authorize(String authzMgrName, AuthToken authToken, String resource, String operation)
             throws EBaseException {
         return authorize(authzMgrName, authToken, resource, operation, null);
     }
 
     public AuthzToken authorize(
-            String authzMgrInstName, IAuthToken authToken, String exp)
+            String authzMgrInstName, AuthToken authToken, String exp)
             throws EAuthzMgrNotFound, EBaseException {
 
         AuthzManagerProxy proxy = mAuthzMgrInsts.get(authzMgrInstName);

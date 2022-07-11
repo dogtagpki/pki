@@ -21,6 +21,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzManagerConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.authorization.IAuthzManager;
@@ -93,7 +94,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
     }
 
     @Override
-    public AuthzToken authorize(IAuthToken authToken, String resource, String operation)
+    public AuthzToken authorize(AuthToken authToken, String resource, String operation)
             throws EAuthzInternalError, EAuthzAccessDenied {
         String user = authToken.getInString(IAuthToken.USER_ID);
         if (user == null) {
@@ -120,7 +121,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
     }
 
     @Override
-    public AuthzToken authorize(IAuthToken authToken, String expression)
+    public AuthzToken authorize(AuthToken authToken, String expression)
             throws EAuthzInternalError, EAuthzAccessDenied {
         return authorize(authToken, null, null);
     }

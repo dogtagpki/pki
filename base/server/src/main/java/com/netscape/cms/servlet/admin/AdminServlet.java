@@ -43,7 +43,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -554,7 +553,7 @@ public class AdminServlet extends HttpServlet {
 
         // use session context to get auth token for now
         SessionContext sc = SessionContext.getContext();
-        IAuthToken authToken = (IAuthToken) sc.get(SessionContext.AUTH_TOKEN);
+        AuthToken authToken = (AuthToken) sc.get(SessionContext.AUTH_TOKEN);
 
         AuthzToken authzTok = null;
 
