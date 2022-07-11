@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ISSLClientCertProvider;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -359,7 +358,7 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
     }
 
     @Override
-    public void populate(IAuthToken token, Request request)
+    public void populate(AuthToken token, Request request)
             throws EProfileException {
         request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                 token.getInString(TOKEN_USERDN));

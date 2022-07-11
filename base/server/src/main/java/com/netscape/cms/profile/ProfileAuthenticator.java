@@ -22,8 +22,8 @@ import java.util.Locale;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
+import org.dogtagpki.server.authentication.AuthToken;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.base.ConfigStore;
@@ -66,7 +66,7 @@ public interface ProfileAuthenticator extends AuthManager {
      * @param request request
      * @exception EProfileException failed to populate
      */
-    public void populate(IAuthToken token, Request request)
+    public void populate(AuthToken token, Request request)
             throws EProfileException;
 
     /**

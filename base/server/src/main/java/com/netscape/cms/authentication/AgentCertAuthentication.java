@@ -336,7 +336,7 @@ public class AgentCertAuthentication implements ProfileAuthenticator {
     }
 
     @Override
-    public void populate(IAuthToken token, Request request)
+    public void populate(AuthToken token, Request request)
             throws EProfileException {
     }
 }

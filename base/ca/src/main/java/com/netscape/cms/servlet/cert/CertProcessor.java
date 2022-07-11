@@ -334,7 +334,7 @@ public class CertProcessor extends CAProcessor {
 
     protected void populateRequests(CertEnrollmentRequest data, boolean isRenewal,
             Locale locale, Date origNotAfter, String origSubjectDN, Request origReq, String profileId,
-            Profile profile, Map<String, String> ctx, ProfileAuthenticator authenticator, IAuthToken authToken,
+            Profile profile, Map<String, String> ctx, ProfileAuthenticator authenticator, AuthToken authToken,
             Request[] reqs) throws Exception {
 
         for (Request req : reqs) {

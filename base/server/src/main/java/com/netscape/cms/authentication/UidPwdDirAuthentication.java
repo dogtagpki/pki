@@ -365,7 +365,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
     }
 
     @Override
-    public void populate(IAuthToken token, Request request)
+    public void populate(AuthToken token, Request request)
             throws EProfileException {
         request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                 token.getInString(USER_DN));

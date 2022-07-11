@@ -27,7 +27,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.property.IDescriptor;
@@ -178,6 +177,6 @@ public class SessionAuthentication
     }
 
     @Override
-    public void populate(IAuthToken token, Request request) {
+    public void populate(AuthToken token, Request request) {
     }
 }

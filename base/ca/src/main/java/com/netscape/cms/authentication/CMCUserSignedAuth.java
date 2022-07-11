@@ -1281,7 +1281,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
     }
 
     @Override
-    public void populate(IAuthToken token, Request request)
+    public void populate(AuthToken token, Request request)
             throws EProfileException {
         String method = "CMCUserSignedAuth: populate: ";
         String authenticatedDN = token.getInString(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT);

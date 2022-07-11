@@ -31,7 +31,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -456,7 +455,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
     }
 
     @Override
-    public void populate(IAuthToken token, Request request)
+    public void populate(AuthToken token, Request request)
             throws EProfileException {
         request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                 token.getInString(USER_DN));
