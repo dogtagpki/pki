@@ -38,6 +38,7 @@ import javax.servlet.annotation.WebListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.legacy.ca.CAPolicy;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
@@ -53,7 +54,6 @@ import com.netscape.ca.CRLIssuingPointConfig;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.ca.KeyRetriever;
 import com.netscape.ca.KeyRetrieverRunner;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -1002,7 +1002,7 @@ public class CAEngine extends CMSEngine {
      */
     public CertificateAuthority createCA(
             CertificateAuthority parentCA,
-            IAuthToken authToken,
+            AuthToken authToken,
             String subjectDN,
             String description)
             throws Exception {
@@ -1102,7 +1102,7 @@ public class CAEngine extends CMSEngine {
      */
     public CertificateAuthority createCA(
             AuthorityID parentAID,
-            IAuthToken authToken,
+            AuthToken authToken,
             String subjectDN,
             String description)
             throws Exception {

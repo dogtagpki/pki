@@ -27,9 +27,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -118,7 +118,7 @@ public class EnrollmentProcessor extends CertProcessor {
             HttpServletRequest request,
             AuthorityID aid,
             AuthCredentials credentials,
-            IAuthToken authToken)
+            AuthToken authToken)
         throws Exception {
 
         try {

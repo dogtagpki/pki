@@ -30,13 +30,13 @@ import java.util.Map;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.authority.AuthorityResource;
 import com.netscape.certsrv.base.BadRequestDataException;
@@ -260,8 +260,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         if (data.getDescription() != null)
             auditParams.put("description", data.getDescription());
 
-        IAuthToken authToken = (IAuthToken)
-            SessionContext.getContext().get(SessionContext.AUTH_TOKEN);
+        AuthToken authToken = (AuthToken) SessionContext.getContext().get(SessionContext.AUTH_TOKEN);
 
         try {
             CAEngine engine = CAEngine.getInstance();

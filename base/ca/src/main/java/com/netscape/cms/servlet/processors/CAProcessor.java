@@ -701,7 +701,7 @@ public class CAProcessor extends Processor {
      * AUTHZ FNCTIONS (to be moved to Realm?)
      *****************************************/
 
-    public AuthzToken authorize(String authzMgrName, String resource, IAuthToken authToken,
+    public AuthzToken authorize(String authzMgrName, String resource, AuthToken authToken,
             String exp) throws EBaseException {
         AuthzToken authzToken = null;
 
@@ -774,7 +774,7 @@ public class CAProcessor extends Processor {
      * @exception EBaseException an error has occurred
      * @return the authorization token
      */
-    public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
+    public AuthzToken authorize(String authzMgrName, AuthToken authToken,
             String resource, String operation) {
 
         logger.debug("CAProcessor.authorize(" + authzMgrName + ")");
@@ -875,7 +875,7 @@ public class CAProcessor extends Processor {
         }
     }
 
-    public void authorize(String profileId, Profile profile, IAuthToken authToken) throws EBaseException {
+    public void authorize(String profileId, Profile profile, AuthToken authToken) throws EBaseException {
         if (authToken != null) {
             logger.debug("CertProcessor authToken not null");
 

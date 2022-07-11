@@ -47,6 +47,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
@@ -89,7 +90,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.cert.Extension;
 import org.mozilla.jss.pkix.primitive.Name;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
@@ -1770,7 +1770,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
 
     public X509CertImpl generateSigningCert(
             X500Name subjectX500Name,
-            IAuthToken authToken)
+            AuthToken authToken)
             throws Exception {
 
         CryptoManager cryptoManager = CryptoManager.getInstance();
