@@ -32,7 +32,6 @@ import org.mozilla.jss.netscape.security.x509.RFC822Name;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
@@ -206,7 +205,7 @@ public class SubjAltNameExt extends APolicyRule
             // Create a list of email addresses that should be added
             // to the certificate
 
-            IAuthToken tok = findAuthToken(req, null);
+            AuthToken tok = findAuthToken(req, null);
 
             if (tok == null)
                 break apply;
@@ -253,7 +252,7 @@ public class SubjAltNameExt extends APolicyRule
      * found in this Authentication token
      * @throws IOException
      */
-    protected Vector<String> getEmailList(IAuthToken tok) throws IOException {
+    protected Vector<String> getEmailList(AuthToken tok) throws IOException {
 
         Vector<String> v = new Vector<>();
 
@@ -270,8 +269,7 @@ public class SubjAltNameExt extends APolicyRule
      * Add attribute values from an LDAP attribute to a vector
      * @throws IOException
      */
-    protected void
-            addValues(IAuthToken tok, String attrName, Vector<String> v) throws IOException {
+    protected void addValues(AuthToken tok, String attrName, Vector<String> v) throws IOException {
         String attr[] = tok.getInStringArray(attrName);
 
         if (attr == null)
