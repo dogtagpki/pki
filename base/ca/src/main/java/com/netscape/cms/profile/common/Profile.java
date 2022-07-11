@@ -25,7 +25,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.netscape.certsrv.authentication.IAuthToken;
+import org.dogtagpki.server.authentication.AuthToken;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.NameValuePairs;
@@ -1354,9 +1355,9 @@ public abstract class Profile {
      * @exception EDeferException defer request
      * @exception EProfileException failed to submit
      */
-    public abstract void submit(IAuthToken token, Request request)
+    public abstract void submit(AuthToken token, Request request)
             throws EDeferException, EProfileException;
-    public abstract void submit(IAuthToken token, Request request, boolean explicitApprovalRequired)
+    public abstract void submit(AuthToken token, Request request, boolean explicitApprovalRequired)
             throws EDeferException, EProfileException;
 
     /**

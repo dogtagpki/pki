@@ -597,12 +597,12 @@ public abstract class EnrollProfile extends Profile {
      * request from the end-entity page.
      */
     @Override
-    public void submit(IAuthToken token, Request request)
+    public void submit(AuthToken token, Request request)
             throws EDeferException, EProfileException {
         submit(token, request, false);
     }
     @Override
-    public void submit(IAuthToken token, Request request, boolean explicitApprovalRequired)
+    public void submit(AuthToken token, Request request, boolean explicitApprovalRequired)
             throws EDeferException, EProfileException {
         // Request Submission Logic:
         //

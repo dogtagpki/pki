@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -218,7 +219,7 @@ public class CertProcessor extends CAProcessor {
         return null;
     }
 
-    protected String submitRequests(Locale locale, Profile profile, IAuthToken authToken, Request[] reqs) {
+    protected String submitRequests(Locale locale, Profile profile, AuthToken authToken, Request[] reqs) {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
         String errorCode = null;
