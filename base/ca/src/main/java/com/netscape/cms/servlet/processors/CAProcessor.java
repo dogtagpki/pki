@@ -538,7 +538,7 @@ public class CAProcessor extends Processor {
         return authenticate(httpReq, authMgr);
     }
 
-    public void saveAuthToken(IAuthToken token, Request request) {
+    public void saveAuthToken(AuthToken token, Request request) {
 
         logger.info("CAProcessor: saving authentication token into request:");
         request.setExtData(Request.AUTH_TOKEN, token);

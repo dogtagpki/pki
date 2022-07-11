@@ -25,6 +25,7 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
@@ -33,7 +34,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
@@ -280,7 +280,7 @@ public class NSCertTypeExt extends APolicyRule
 
         // must be agent approved or authenticated for allowing extensions
         // which is always the case if we get to this point.
-        IAuthToken token = req.getExtDataInAuthToken(Request.AUTH_TOKEN);
+        AuthToken token = req.getExtDataInAuthToken(Request.AUTH_TOKEN);
 
         if (!agentApproved(req) && token == null) {
             // don't know where this came from.

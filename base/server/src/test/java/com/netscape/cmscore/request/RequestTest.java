@@ -19,7 +19,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.test.CMSBaseTestCase;
@@ -557,7 +556,7 @@ public class RequestTest extends CMSBaseTestCase {
 
         assertTrue(request.setExtData("key", token));
 
-        IAuthToken retval = request.getExtDataInAuthToken("key");
+        AuthToken retval = request.getExtDataInAuthToken("key");
         assertNotNull(retval);
 
         assertEquals(token.getInString("key1"), retval.getInString("key1"));

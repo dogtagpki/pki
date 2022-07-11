@@ -51,7 +51,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authentication.EInvalidCredentials;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -229,7 +228,7 @@ public class ConnectorServlet extends CMSServlet {
 
         String RA_Id = null;
         String raUserId = null;
-        IAuthToken token = null;
+        AuthToken token = null;
 
         try {
             token = authenticate(request);
@@ -418,7 +417,7 @@ public class ConnectorServlet extends CMSServlet {
      * @return PKI message
      */
     protected IPKIMessage processRequest(
-            String source, String sourceUserId, IPKIMessage msg, IAuthToken token)
+            String source, String sourceUserId, IPKIMessage msg, AuthToken token)
             throws EBaseException {
 
         String method = "ConnectorServlet: processRequest: ";

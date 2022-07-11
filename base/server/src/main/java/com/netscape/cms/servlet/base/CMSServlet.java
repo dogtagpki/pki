@@ -1368,7 +1368,7 @@ public abstract class CMSServlet extends HttpServlet {
         } // if
     }
 
-    protected IAuthToken getAuthToken(Request req) {
+    protected AuthToken getAuthToken(Request req) {
         return req.getExtDataInAuthToken(Request.AUTH_TOKEN);
     }
 

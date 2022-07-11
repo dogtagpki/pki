@@ -30,6 +30,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
@@ -50,7 +51,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IPrettyPrintFormat;
@@ -214,7 +214,7 @@ public class CertReqParser extends ReqParser {
                     }
                 } // show all auth token stored in request.
                 else if (name.equalsIgnoreCase(Request.AUTH_TOKEN)) {
-                    IAuthToken auth_token = req.getExtDataInAuthToken(name);
+                    AuthToken auth_token = req.getExtDataInAuthToken(name);
                     Enumeration<String> elms = auth_token.getElements();
                     int counter = 0;
 
@@ -798,7 +798,7 @@ public class CertReqParser extends ReqParser {
                     }
                 } // show all auth token stored in request.
                 else if (name.equalsIgnoreCase(Request.AUTH_TOKEN)) {
-                    IAuthToken auth_token = req.getExtDataInAuthToken(name);
+                    AuthToken auth_token = req.getExtDataInAuthToken(name);
                     Enumeration<String> elms = auth_token.getElements();
                     int counter = 0;
 

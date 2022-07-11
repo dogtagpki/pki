@@ -24,6 +24,7 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
@@ -243,9 +244,7 @@ public class SubjAltNameExt extends APolicyRule
      * Find a particular authentication token by manager name.
      * If the token is not present return null
      */
-    protected IAuthToken
-            findAuthToken(Request req, String authMgrName) {
-
+    protected AuthToken findAuthToken(Request req, String authMgrName) {
         return req.getExtDataInAuthToken(Request.AUTH_TOKEN);
     }
 

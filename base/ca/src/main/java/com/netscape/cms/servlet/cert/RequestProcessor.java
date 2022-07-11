@@ -25,6 +25,7 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -78,7 +79,7 @@ public class RequestProcessor extends CertProcessor {
         CertReviewResponse data = CertReviewResponseFactory.create(
                 cmsReq, profile, authority.noncesEnabled(), locale);
 
-        IAuthToken authToken = null;
+        AuthToken authToken = null;
 
         if (authMgr != null) {
             logger.debug("RequestProcessor: getting auth token from " + authMgr);
@@ -90,7 +91,7 @@ public class RequestProcessor extends CertProcessor {
         return data;
     }
 
-    public void processRequest(HttpServletRequest request, IAuthToken authToken, CertReviewResponse data, Request req, String op)
+    public void processRequest(HttpServletRequest request, AuthToken authToken, CertReviewResponse data, Request req, String op)
             throws EBaseException {
         try {
             startTiming("approval");

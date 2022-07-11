@@ -39,7 +39,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -300,7 +299,7 @@ public class CloneServlet extends CMSServlet {
     }
 
     protected IPKIMessage processRequest(
-            String source, String sourceUserId, IPKIMessage msg, IAuthToken token)
+            String source, String sourceUserId, IPKIMessage msg, AuthToken token)
             throws EBaseException {
         IPKIMessage replymsg = null;
         CMSEngine engine = CMS.getCMSEngine();

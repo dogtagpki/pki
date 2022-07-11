@@ -23,8 +23,8 @@ import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.server.authentication.AuthToken;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -74,7 +74,7 @@ public class ManualAuthentication extends APolicyRule
      */
     @Override
     public PolicyResult apply(Request req) {
-        IAuthToken authToken = req.getExtDataInAuthToken(Request.AUTH_TOKEN);
+        AuthToken authToken = req.getExtDataInAuthToken(Request.AUTH_TOKEN);
 
         if (authToken == null)
             return deferred(req);

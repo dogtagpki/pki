@@ -7,13 +7,13 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.IAttrSet;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -311,12 +311,12 @@ public class RequestDefaultStub extends Request {
     }
 
     @Override
-    public boolean setExtData(String key, IAuthToken data) {
+    public boolean setExtData(String key, AuthToken data) {
         return false;
     }
 
     @Override
-    public IAuthToken getExtDataInAuthToken(String key) {
+    public AuthToken getExtDataInAuthToken(String key) {
         return null;
     }
 
