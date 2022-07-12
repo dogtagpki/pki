@@ -22,10 +22,16 @@ import java.security.KeyPair;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
+import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.util.logging.PKILogger.Level;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.pkcs11.PK11PrivKey;
 
@@ -48,17 +54,17 @@ public class NSSKeyCreateCLI extends CommandCLI {
 
     @Override
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...] [nickname]", options);
     }
 
     @Override
     public void createOptions() {
 
-        Option option = new Option(null, "key-type", true, "Key type: RSA (default), EC");
+        Option option = new Option(null, "key-type", true, "Key type: RSA (default), EC, AES");
         option.setArgName("type");
         options.addOption(option);
 
-        option = new Option(null, "key-size", true, "RSA key size (default: 2048)");
+        option = new Option(null, "key-size", true, "Key size (RSA default: 2048, AES default: 256)");
         option.setArgName("size");
         options.addOption(option);
 
@@ -78,8 +84,23 @@ public class NSSKeyCreateCLI extends CommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(Level.INFO);
+        }
+
+
+        String[] cmdArgs = cmd.getArgs();
+
+        String nickname = null;
+        if (cmdArgs.length >= 1) {
+            nickname = cmdArgs[0];
+        }
+
         String keyType = cmd.getOptionValue("key-type", "RSA");
-        String keySize = cmd.getOptionValue("key-size", "2048");
+        String keySize = cmd.getOptionValue("key-size");
         boolean keyWrap = cmd.hasOption("key-wrap");
         String curve = cmd.getOptionValue("curve", "nistp256");
         boolean sslECDH = cmd.hasOption("ssl-ecdh");
@@ -92,40 +113,69 @@ public class NSSKeyCreateCLI extends CommandCLI {
         String tokenName = getConfig().getTokenName();
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
-        KeyPair keyPair;
+        KeyInfo keyInfo = new KeyInfo();
+
+        logger.info("Creating " + keyType + " in token " + tokenName);
 
         if ("RSA".equalsIgnoreCase(keyType)) {
 
+            if (keySize == null) keySize = "2048";
             Usage[] usages = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
             Usage[] usagesMask = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES_MASK : null;
 
-            keyPair = nssdb.createRSAKeyPair(
+            KeyPair keyPair = nssdb.createRSAKeyPair(
                     token,
                     Integer.parseInt(keySize),
                     usages,
                     usagesMask);
+
+            PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
+
+            String hexKeyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
+            keyInfo.setKeyId(new KeyId(hexKeyID));
+            keyInfo.setType(privateKey.getType().toString());
+            keyInfo.setAlgorithm(privateKey.getAlgorithm());
 
         } else if ("EC".equalsIgnoreCase(keyType)) {
 
             Usage[] usages = null;
             Usage[] usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
 
-            keyPair = nssdb.createECKeyPair(
+            KeyPair keyPair = nssdb.createECKeyPair(
                     token,
                     curve,
                     usages,
                     usagesMask);
 
+            PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
+
+            String hexKeyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
+            keyInfo.setKeyId(new KeyId(hexKeyID));
+            keyInfo.setType(privateKey.getType().toString());
+            keyInfo.setAlgorithm(privateKey.getAlgorithm());
+
+        } else if ("AES".equalsIgnoreCase(keyType)) {
+
+            if (keySize == null) keySize = "256";
+
+            if (nickname == null) {
+                throw new CLIException("Missing key nickname");
+            }
+
+            KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.AES);
+            kg.initialize(Integer.parseInt(keySize));
+            kg.temporaryKeys(false);
+
+            SymmetricKey symmetricKey = kg.generate();
+            symmetricKey.setNickName(nickname);
+
+            keyInfo.setNickname(nickname);
+            keyInfo.setType(symmetricKey.getType().toString());
+            keyInfo.setAlgorithm(symmetricKey.getAlgorithm());
+
         } else {
             throw new Exception("Unsupported key type: " + keyType);
         }
-
-        PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
-        String hexKeyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
-
-        KeyInfo keyInfo = new KeyInfo();
-        keyInfo.setKeyId(new KeyId(hexKeyID));
-        keyInfo.setAlgorithm(privateKey.getAlgorithm());
 
         String outputFormat = cmd.getOptionValue("output-format", "text");
 

@@ -478,6 +478,62 @@ jobs:
           diff sslserver_key_id new_sslserver_key_id
 
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
+  pki-nss-aes-test:
+    name: Testing PKI NSS CLI with AES
+    needs: [init, build]
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Check pki nss-key-create
+        run: |
+          docker exec pki pki nss-key-create --key-type AES test | tee output
+
+          echo "Nickname: test" > expected
+          echo "Type: AES" >> expected
+          echo "Algorithm: AES" >> expected
+
+          sed -n 's/^\s*\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+          # verify with tkstool
+          docker exec pki tkstool -L -d /root/.dogtag/nssdb | tee output
+          echo "test" > expected
+          sed -n 's/^\s*<.\+>\s\+\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check pki nss-key-find
+        run: |
+          docker exec pki pki nss-key-find | tee output
+
+          echo "Nickname: test" > expected
+          echo "Type: AES" >> expected
+          echo "Algorithm: AES" >> expected
+
+          sed -n 's/^\s*\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+  # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-hsm-test:
     name: Testing PKI NSS CLI with HSM
     needs: [init, build]

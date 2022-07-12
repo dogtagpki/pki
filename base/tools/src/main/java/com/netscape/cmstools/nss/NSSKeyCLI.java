@@ -24,7 +24,16 @@ public class NSSKeyCLI extends CLI {
     public static void printKeyInfo(KeyInfo keyInfo) throws Exception {
 
         KeyId keyID = keyInfo.getKeyId();
-        System.out.println("  Key ID: " + keyID.toHexString());
+        if (keyID != null) {
+            System.out.println("  Key ID: " + keyID.toHexString());
+        }
+
+        String nickname = keyInfo.getNickname();
+        if (nickname != null) {
+            System.out.println("  Nickname: " + nickname);
+        }
+
+        System.out.println("  Type: " + keyInfo.getType());
         System.out.println("  Algorithm: " + keyInfo.getAlgorithm());
     }
 }
