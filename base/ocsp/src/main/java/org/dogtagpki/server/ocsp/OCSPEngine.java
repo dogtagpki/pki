@@ -18,8 +18,6 @@
 
 package org.dogtagpki.server.ocsp;
 
-import javax.servlet.annotation.WebListener;
-
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -28,10 +26,9 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.ocsp.OCSPAuthority;
 
-@WebListener
 public class OCSPEngine extends CMSEngine {
 
-    public OCSPEngine() throws Exception {
+    public OCSPEngine() {
         super("OCSP");
     }
 

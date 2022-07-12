@@ -29,9 +29,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -73,8 +70,7 @@ import com.netscape.cms.tomcat.ProxyRealm;
 /**
  * @author Endi S. Dewata
  */
-@WebListener
-public class ACMEEngine implements ServletContextListener {
+public class ACMEEngine {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEEngine.class);
 
@@ -1091,36 +1087,5 @@ public class ACMEEngine implements ServletContextListener {
         }
 
         return identifiers;
-    }
-
-    @Override
-    public void contextInitialized(ServletContextEvent event) {
-
-        String path = event.getServletContext().getContextPath();
-        if ("".equals(path)) {
-            id = "ROOT";
-        } else {
-            id = path.substring(1);
-        }
-
-        try {
-            start();
-
-        } catch (Exception e) {
-            logger.error("Unable to start ACME engine: " + e.getMessage(), e);
-            throw new RuntimeException("Unable to start ACME engine: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent event) {
-
-        try {
-            stop();
-
-        } catch (Exception e) {
-            logger.error("Unable to stop ACME engine: " + e.getMessage(), e);
-            throw new RuntimeException("Unable to stop ACME engine: " + e.getMessage(), e);
-        }
     }
 }
