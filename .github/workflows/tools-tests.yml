@@ -169,7 +169,7 @@ jobs:
           diff actual expected
 
           docker exec pki pki nss-key-find --nickname ca_signing | tee output
-          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
@@ -223,7 +223,7 @@ jobs:
           diff actual expected
 
           docker exec pki pki nss-key-find --nickname sslserver | tee output
-          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       - name: Delete SSL server cert
@@ -282,7 +282,7 @@ jobs:
           diff sslserver_key_id new_sslserver_key_id
 
           docker exec pki pki nss-key-find --nickname new_sslserver | tee output
-          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
@@ -360,7 +360,7 @@ jobs:
           diff actual expected
 
           docker exec pki pki nss-key-find --nickname ca_signing | tee output
-          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
@@ -414,7 +414,7 @@ jobs:
           diff actual expected
 
           docker exec pki pki nss-key-find --nickname sslserver | tee output
-          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       - name: Delete SSL server cert
@@ -468,7 +468,7 @@ jobs:
           diff actual expected
 
           docker exec pki pki nss-key-find --nickname new_sslserver | tee output
-          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       - name: Verify key ID
@@ -505,16 +505,9 @@ jobs:
         env:
           HOSTNAME: pki.example.com
 
-      - name: Check pki nss-key-create
+      - name: Create AES key
         run: |
           docker exec pki pki nss-key-create --key-type AES test | tee output
-
-          echo "Nickname: test" > expected
-          echo "Type: AES" >> expected
-          echo "Algorithm: AES" >> expected
-
-          sed -n 's/^\s*\(.*\)$/\1/p' output > actual
-          diff expected actual
 
           # verify with tkstool
           docker exec pki tkstool -L -d /root/.dogtag/nssdb | tee output
@@ -522,15 +515,13 @@ jobs:
           sed -n 's/^\s*<.\+>\s\+\(\S\+\)\s*$/\1/p' output > actual
           diff expected actual
 
-      - name: Check pki nss-key-find
+      - name: Verify key type
         run: |
+          echo aes > expected
+
           docker exec pki pki nss-key-find | tee output
 
-          echo "Nickname: test" > expected
-          echo "Type: AES" >> expected
-          echo "Algorithm: AES" >> expected
-
-          sed -n 's/^\s*\(.*\)$/\1/p' output > actual
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff expected actual
 
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
@@ -660,7 +651,7 @@ jobs:
               -f $SHARED/password.conf \
               nss-key-find \
               --nickname HSM:ca_signing | tee output
-          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
@@ -749,7 +740,7 @@ jobs:
               -f $SHARED/password.conf \
               nss-key-find \
               --nickname HSM:sslserver | tee output
-          sed -n 's/\s*Algorithm:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       - name: Remove HSM token
