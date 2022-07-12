@@ -24,14 +24,20 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.util.logging.PKILogger.Level;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.pkcs11.PK11SymKey;
+import org.mozilla.jss.symkey.SessionKey;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyInfo;
@@ -70,12 +76,20 @@ public class NSSKeyFindCLI extends CommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(Level.INFO);
+        }
+
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         String nickname = cmd.getOptionValue("nickname");
 
         List<PrivateKey> privateKeys;
+        List<SymmetricKey> symmetricKeys;
 
         if (nickname != null) {
             CryptoManager cm = CryptoManager.getInstance();
@@ -89,25 +103,49 @@ public class NSSKeyFindCLI extends CommandCLI {
                 }
             }
 
+            symmetricKeys = new ArrayList<>();
+
         } else {
             String tokenName = getConfig().getTokenName();
             CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
             CryptoStore cryptoStore = token.getCryptoStore();
+
             privateKeys = Arrays.asList(cryptoStore.getPrivateKeys());
+            logger.info("Private keys: " + privateKeys);
+
+            symmetricKeys = new ArrayList<>();
+            String nicknames = SessionKey.ListSymmetricKeys(tokenName);
+            logger.info("Symmetric keys: " + nicknames);
+
+            for (String n : nicknames.split(",")) {
+                if (StringUtils.isEmpty(n)) continue;
+                PK11SymKey symmetricKey = SessionKey.GetSymKeyByName(tokenName, n);
+                symmetricKeys.add(symmetricKey);
+            }
         }
 
         KeyInfoCollection keyInfoCollection = new KeyInfoCollection();
-        keyInfoCollection.setTotal(privateKeys.size());
 
         for (PrivateKey privateKey : privateKeys) {
             KeyInfo keyInfo = new KeyInfo();
 
             String hexKeyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
             keyInfo.setKeyId(new KeyId(hexKeyID));
-
+            keyInfo.setType(privateKey.getType().toString());
             keyInfo.setAlgorithm(privateKey.getAlgorithm());
             keyInfoCollection.addEntry(keyInfo);
         }
+
+        for (SymmetricKey symmetricKey : symmetricKeys) {
+            KeyInfo keyInfo = new KeyInfo();
+
+            keyInfo.setNickname(symmetricKey.getNickName());
+            keyInfo.setType(symmetricKey.getType().toString());
+            keyInfo.setAlgorithm(symmetricKey.getAlgorithm());
+            keyInfoCollection.addEntry(keyInfo);
+        }
+
+        keyInfoCollection.setTotal(keyInfoCollection.getEntries().size());
 
         String outputFormat = cmd.getOptionValue("output-format", "text");
 

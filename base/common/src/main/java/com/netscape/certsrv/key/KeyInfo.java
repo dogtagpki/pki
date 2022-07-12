@@ -41,8 +41,9 @@ public class KeyInfo implements JSONSerializer {
 
     protected String clientKeyID;
 
+    protected String nickname;
     protected String status;
-
+    protected String type;
     protected String algorithm;
 
     protected Integer size;
@@ -95,12 +96,28 @@ public class KeyInfo implements JSONSerializer {
         this.clientKeyID = clientKeyID;
     }
 
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
     public String getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getAlgorithm() {
@@ -170,11 +187,13 @@ public class KeyInfo implements JSONSerializer {
         result = prime * result + ((clientKeyID == null) ? 0 : clientKeyID.hashCode());
         result = prime * result + ((keyId == null) ? 0 : keyId.hashCode());
         result = prime * result + ((keyURL == null) ? 0 : keyURL.hashCode());
+        result = prime * result + ((nickname == null) ? 0 : nickname.hashCode());
         result = prime * result + ((ownerName == null) ? 0 : ownerName.hashCode());
         result = prime * result + ((publicKey == null) ? 0 : publicKey.hashCode());
         result = prime * result + ((realm == null) ? 0 : realm.hashCode());
         result = prime * result + ((size == null) ? 0 : size.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
     }
 
@@ -207,6 +226,11 @@ public class KeyInfo implements JSONSerializer {
                 return false;
         } else if (!keyURL.equals(other.keyURL))
             return false;
+        if (nickname == null) {
+            if (other.nickname != null)
+                return false;
+        } else if (!nickname.equals(other.nickname))
+            return false;
         if (ownerName == null) {
             if (other.ownerName != null)
                 return false;
@@ -231,6 +255,11 @@ public class KeyInfo implements JSONSerializer {
             if (other.status != null)
                 return false;
         } else if (!status.equals(other.status))
+            return false;
+        if (type == null) {
+            if (other.type != null)
+                return false;
+        } else if (!type.equals(other.type))
             return false;
         return true;
     }
