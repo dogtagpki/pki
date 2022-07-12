@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.ExternalAuthToken;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
@@ -353,8 +352,8 @@ public class CertProcessor extends CAProcessor {
 
                 // if RA agent, auto-assign the request
                 String raGroupName = "Registration Manager Agents";
-                if (raGroupName.equals(authToken.getInString(IAuthToken.GROUP))) {
-                    String uid = authToken.getInString(IAuthToken.UID);
+                if (raGroupName.equals(authToken.getInString(AuthToken.GROUP))) {
+                    String uid = authToken.getInString(AuthToken.UID);
                     if (uid == null)
                         uid = "";
                     logger.debug("CertProcessor: request from RA: " + uid);

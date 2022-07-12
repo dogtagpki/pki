@@ -97,7 +97,6 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
@@ -518,7 +517,7 @@ public class CRSEnrollment extends HttpServlet {
         SessionContext sc = SessionContext.getContext();
         if (sc != null) {
             sc.put(SessionContext.AUTH_MANAGER_ID, authenticator.getName());
-            String userid = authToken.getInString(IAuthToken.USER_ID);
+            String userid = authToken.getInString(AuthToken.USER_ID);
             if (userid != null) {
                 sc.put(SessionContext.USER_ID, userid);
             }

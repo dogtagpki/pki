@@ -28,7 +28,6 @@ import org.dogtagpki.server.authorization.IAuthzManager;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.acls.EACLsException;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
@@ -96,7 +95,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
     @Override
     public AuthzToken authorize(AuthToken authToken, String resource, String operation)
             throws EAuthzInternalError, EAuthzAccessDenied {
-        String user = authToken.getInString(IAuthToken.USER_ID);
+        String user = authToken.getInString(AuthToken.USER_ID);
         if (user == null) {
             throw new EAuthzAccessDenied("No userid provided");
         }

@@ -42,7 +42,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EAuthException;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -440,7 +439,7 @@ public class CAProcessor extends Processor {
         SessionContext sc = SessionContext.getContext();
         if (sc != null) {
             sc.put(SessionContext.AUTH_MANAGER_ID, authenticator.getName());
-            String userid = authToken.getInString(IAuthToken.USER_ID);
+            String userid = authToken.getInString(AuthToken.USER_ID);
             if (userid != null) {
                 sc.put(SessionContext.USER_ID, userid);
             }
@@ -649,7 +648,7 @@ public class CAProcessor extends Processor {
                 return null;
             }
 
-            String userid = authToken.getInString(IAuthToken.USER_ID);
+            String userid = authToken.getInString(AuthToken.USER_ID);
             logger.debug("CAProcessor: user ID: " + userid);
 
             if (userid != null) {

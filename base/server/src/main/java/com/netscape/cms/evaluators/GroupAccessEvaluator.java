@@ -22,7 +22,6 @@ import java.util.Arrays;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
@@ -113,9 +112,9 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
             // should define "uid" at a common place
             String uid = null;
 
-            uid = authToken.getInString(IAuthToken.USER_ID);
+            uid = authToken.getInString(AuthToken.USER_ID);
             if (uid == null) {
-                uid = authToken.getInString(IAuthToken.UID);
+                uid = authToken.getInString(AuthToken.UID);
                 if (uid == null) {
                     logger.warn("GroupAccessEvaluator: " + CMS.getLogMessage("EVALUTOR_UID_NULL"));
                     return false;
@@ -123,7 +122,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
             }
             logger.debug("GroupAccessEvaluator: evaluate: uid=" + uid + " value=" + value);
 
-            String[] groups = authToken.getInStringArray(IAuthToken.GROUPS);
+            String[] groups = authToken.getInStringArray(AuthToken.GROUPS);
             if (groups != null) {
                 boolean matched = Arrays.asList(groups).contains(Utils.stripQuotes(value));
                 if (op.equals("="))

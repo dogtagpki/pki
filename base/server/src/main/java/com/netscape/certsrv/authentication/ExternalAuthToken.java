@@ -52,10 +52,10 @@ public class ExternalAuthToken extends AuthToken {
     @Override
     public Enumeration<String> getElements() {
         ArrayList<String> keys = new ArrayList<>();
-        keys.add(GROUPS);
-        keys.add(TOKEN_AUTHMGR_INST_NAME);
-        keys.add(UID);
-        keys.add(USER_ID);
+        keys.add(AuthToken.GROUPS);
+        keys.add(AuthToken.TOKEN_AUTHMGR_INST_NAME);
+        keys.add(AuthToken.UID);
+        keys.add(AuthToken.USER_ID);
         return Collections.enumeration(keys);
     }
 
@@ -73,9 +73,9 @@ public class ExternalAuthToken extends AuthToken {
     public String getInString(String k) {
         if (k == null)
             return null;
-        if (k.equals(USER_ID) || k.equals(UID))
+        if (k.equals(AuthToken.USER_ID) || k.equals(AuthToken.UID))
             return principal.getName();
-        if (k.equals(TOKEN_AUTHMGR_INST_NAME))
+        if (k.equals(AuthToken.TOKEN_AUTHMGR_INST_NAME))
             return "external";
         return null;
     }
@@ -129,7 +129,7 @@ public class ExternalAuthToken extends AuthToken {
     public String[] getInStringArray(String k) {
         if (k == null)
             return null;
-        if (k.equals(GROUPS))
+        if (k.equals(AuthToken.GROUPS))
             return principal.getRoles();
         return null;
     }

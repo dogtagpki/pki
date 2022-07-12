@@ -40,7 +40,6 @@ import org.jboss.resteasy.spi.Failure;
 
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.authentication.ExternalAuthToken;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.cms.realm.PKIPrincipal;
 
@@ -154,7 +153,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
                 throw new ForbiddenException("Missing authentication token.");
             }
 
-            String authManager = authToken.getInString(IAuthToken.TOKEN_AUTHMGR_INST_NAME);
+            String authManager = authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
 
             logger.debug("AuthMethodInterceptor: authentication manager: " + authManager);
 

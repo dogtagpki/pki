@@ -31,7 +31,6 @@ import org.dogtagpki.server.authorization.AuthzManagersConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.authorization.IAuthzManager;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzMgrPlugin;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
@@ -495,7 +494,7 @@ public class AuthzSubsystem implements ISubsystem {
         if (realm == null) return;
 
         // if record owner == requester, SUCCESS
-        if ((owner != null) && owner.equals(authToken.getInString(IAuthToken.USER_ID))) return;
+        if ((owner != null) && owner.equals(authToken.getInString(AuthToken.USER_ID))) return;
 
         String mgrName = getAuthzManagerNameByRealm(realm);
 

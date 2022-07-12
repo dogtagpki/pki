@@ -50,7 +50,6 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.symkey.SessionKey;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -2418,7 +2417,7 @@ public class TokenServlet extends CMSServlet {
         AuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
 
-        mCurrentUID = (String) authToken.get(IAuthToken.UID) ;
+        mCurrentUID = (String) authToken.get(AuthToken.UID) ;
 
         try {
             authzToken = authorize(mAclMethod, authToken,

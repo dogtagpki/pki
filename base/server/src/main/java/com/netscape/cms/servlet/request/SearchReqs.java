@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -243,7 +242,7 @@ public class SearchReqs extends CMSServlet {
                 newfilter = filter;
             } else {
                 if (owner.equals("self")) {
-                    String self_uid = token.getInString(IAuthToken.USER_ID);
+                    String self_uid = token.getInString(AuthToken.USER_ID);
                     requestowner_filter = "(requestowner=" + self_uid + ")";
                 } else {
                     String uid = req.getParameter("uid");

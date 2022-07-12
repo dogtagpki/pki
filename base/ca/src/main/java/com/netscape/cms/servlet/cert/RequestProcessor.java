@@ -31,7 +31,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
@@ -231,7 +230,7 @@ public class RequestProcessor extends CertProcessor {
         // unassigned owner
         if (owner == null || owner.length() == 0)
             return true;
-        String uid = token.getInString(IAuthToken.USER_ID);
+        String uid = token.getInString(AuthToken.USER_ID);
         if (uid.equals(owner))
             return true;
 

@@ -32,7 +32,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ISSLClientCertProvider;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -230,11 +229,11 @@ public class AgentCertAuthentication implements ProfileAuthenticator {
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHORIZATION_ERROR"));
             }
         }
-        authToken.set(IAuthToken.USER, user.getUserDN());
-        authToken.set(IAuthToken.USER_DN, user.getUserDN());
-        authToken.set(IAuthToken.USER_ID, user.getUserID());
-        authToken.set(IAuthToken.UID, user.getUserID());
-        authToken.set(IAuthToken.GROUP, groupname);
+        authToken.set(AuthToken.USER, user.getUserDN());
+        authToken.set(AuthToken.USER_DN, user.getUserDN());
+        authToken.set(AuthToken.USER_ID, user.getUserID());
+        authToken.set(AuthToken.UID, user.getUserID());
+        authToken.set(AuthToken.GROUP, groupname);
         authToken.set(CRED_CERT, certs);
 
         logger.info("AgentCertAuthentication: authenticated " + user.getUserDN());

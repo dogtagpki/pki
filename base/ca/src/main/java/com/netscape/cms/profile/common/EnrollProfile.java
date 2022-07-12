@@ -112,7 +112,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -283,10 +282,10 @@ public abstract class EnrollProfile extends Profile {
             cmc_msgs = parseCMC(locale, cert_request, donePOI);
             SessionContext sessionContext = SessionContext.getContext();
             String authenticatedSubject =
-                    (String) sessionContext.get(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
+                    (String) sessionContext.get(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
 
             if (authenticatedSubject != null) {
-                ctx.put(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, authenticatedSubject);
+                ctx.put(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, authenticatedSubject);
             }
 
             if (cmc_msgs == null) {
@@ -1917,12 +1916,12 @@ public abstract class EnrollProfile extends Profile {
                 // subjectdn from SharedSecret ldap auth
                 // set in context and authToken to be used by profile
                 // default and constraints plugins
-                authToken.set(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT,
-                        authToken.getInString(IAuthToken.TOKEN_CERT_SUBJECT));
-                authToken.set(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT,
-                        authToken.getInString(IAuthToken.TOKEN_CERT_SUBJECT));
-                sessionContext.put(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT,
-                        authToken.getInString(IAuthToken.TOKEN_CERT_SUBJECT));
+                authToken.set(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT,
+                        authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT));
+                authToken.set(AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT,
+                        authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT));
+                sessionContext.put(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT,
+                        authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT));
 
                 auditMessage = CMS.getLogMessage(
                         AuditEvent.CMC_PROOF_OF_IDENTIFICATION,

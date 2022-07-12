@@ -42,7 +42,6 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -169,7 +168,7 @@ public class AddCRLServlet extends CMSServlet {
             if (auditSubjectID.equals(ILogger.NONROLEUSER) ||
                     auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
                 if (authToken != null) {
-                    String uid = authToken.getInString(IAuthToken.USER_ID);
+                    String uid = authToken.getInString(AuthToken.USER_ID);
                     if (uid != null) {
                         logger.debug("AddCRLServlet: auditSubjectID set to " + uid);
                         auditSubjectID = uid;

@@ -25,9 +25,9 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -58,7 +58,7 @@ public class ExternalProcessConstraint extends EnrollConstraint {
     static {
         envVars.put("DOGTAG_CERT_REQUEST", CertReqInput.VAL_CERT_REQUEST);
         envVars.put("DOGTAG_USER",
-            Request.AUTH_TOKEN_PREFIX + "." + IAuthToken.USER_ID);
+            Request.AUTH_TOKEN_PREFIX + "." + AuthToken.USER_ID);
         envVars.put("DOGTAG_PROFILE_ID", Request.PROFILE_ID);
         envVars.put("DOGTAG_AUTHORITY_ID", Request.AUTHORITY_ID);
         envVars.put("DOGTAG_USER_DATA", Request.USER_DATA);

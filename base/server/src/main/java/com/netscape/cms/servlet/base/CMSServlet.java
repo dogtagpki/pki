@@ -63,7 +63,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -1629,7 +1628,7 @@ public abstract class CMSServlet extends HttpServlet {
             if (authToken == null) {
                 return null;
             }
-            String userid = authToken.getInString(IAuthToken.USER_ID);
+            String userid = authToken.getInString(AuthToken.USER_ID);
 
             logger.debug("CMSServlet: userid=" + userid);
 

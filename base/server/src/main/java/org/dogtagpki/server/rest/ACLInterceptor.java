@@ -39,7 +39,6 @@ import org.jboss.resteasy.spi.Failure;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.ExternalAuthToken;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.EBaseException;
@@ -189,7 +188,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             throw new ForbiddenException("No authorization token present.");
         }
         if (authToken != null)
-            auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
+            auditSubjectID = authToken.getInString(AuthToken.USER_ID);
 
         // If still not available, it's unprotected, allow request.
         if (!authzRequired) {

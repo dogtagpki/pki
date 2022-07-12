@@ -32,7 +32,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.client.PKIClient;
@@ -197,8 +196,8 @@ public class TokenAuthentication implements ProfileAuthenticator {
                 String gid = parser.getValue("gid");
                 String[] groups = {gid};
 
-                authToken.set(IAuthToken.UID, uid);
-                authToken.set(IAuthToken.GROUPS, groups);
+                authToken.set(AuthToken.UID, uid);
+                authToken.set(AuthToken.GROUPS, groups);
 
                 if (context != null) {
                     logger.debug("SessionContext.USER_ID " + uid + " SessionContext.GROUP_ID " + gid);

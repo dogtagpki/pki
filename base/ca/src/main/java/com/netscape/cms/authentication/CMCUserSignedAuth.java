@@ -89,7 +89,6 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.SessionContext;
@@ -385,12 +384,12 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
                                     //logger.debug(method + "setting auditSignerInfo to uid:" + uid.trim());
                                     //auditSignerInfo = uid.trim();
                                     auditSubjectID = uid.trim();
-                                    authToken.set(IAuthToken.USER_ID, auditSubjectID);
+                                    authToken.set(AuthToken.USER_ID, auditSubjectID);
                                 } else if (userid != null && !userid.equals(ILogger.UNIDENTIFIED)) {
                                     //logger.debug(method + "setting auditSignerInfo to userid:" + userid);
                                     //auditSignerInfo = userid.trim();
                                     auditSubjectID = userid.trim();
-                                    authToken.set(IAuthToken.USER_ID, auditSubjectID);
+                                    authToken.set(AuthToken.USER_ID, auditSubjectID);
                                 }
                             }
                         }
@@ -1166,7 +1165,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
                         org.mozilla.jss.netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
                         String ID = tempPrincipal.getName(); //tempToken.get("userid");
                         logger.debug(method + " Principal name = " + ID);
-                        authToken.set(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, ID);
+                        authToken.set(AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, ID);
 
                         BigInteger certSerial = x509Certs[0].getSerialNumber();
                         logger.debug(method + " verified cert serial=" + certSerial.toString());
@@ -1284,7 +1283,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
     public void populate(AuthToken token, Request request)
             throws EProfileException {
         String method = "CMCUserSignedAuth: populate: ";
-        String authenticatedDN = token.getInString(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT);
+        String authenticatedDN = token.getInString(AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT);
         if (authenticatedDN != null) {
             request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                     authenticatedDN);

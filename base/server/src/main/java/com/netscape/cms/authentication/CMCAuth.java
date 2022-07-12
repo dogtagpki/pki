@@ -82,7 +82,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.SessionContext;
@@ -372,10 +371,10 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
                 if (uid != null && !uid.equals(ILogger.UNIDENTIFIED)) {
                     auditSignerInfo = uid.trim();
                     auditSubjectID = uid.trim();
-                    authToken.set(IAuthToken.USER_ID, auditSubjectID);
+                    authToken.set(AuthToken.USER_ID, auditSubjectID);
                 } else if (userid != null && !userid.equals(ILogger.UNIDENTIFIED)) {
                     auditSubjectID = userid.trim();
-                    authToken.set(IAuthToken.USER_ID, auditSubjectID);
+                    authToken.set(AuthToken.USER_ID, auditSubjectID);
                 }
 
                 EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
@@ -973,7 +972,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
                         org.mozilla.jss.netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
                         String ID = tempPrincipal.getName();
                         logger.debug(method + " Principal name = " + ID);
-                        authToken.set(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, ID);
+                        authToken.set(AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, ID);
 
                         BigInteger agentCertSerial = x509Certs[0].getSerialNumber();
                         authToken.set(AuthManager.CRED_SSL_CLIENT_CERT, agentCertSerial.toString());
@@ -1062,7 +1061,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
     public void populate(AuthToken token, Request request)
             throws EProfileException {
         request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
-                token.getInString(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT));
+                token.getInString(AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT));
     }
 
     @Override

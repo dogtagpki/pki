@@ -15,7 +15,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
@@ -68,7 +67,7 @@ public class PKIRealm extends RealmBase {
 
             AuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
             authToken.set(SessionContext.AUTH_MANAGER_ID, AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
-            auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
+            auditSubjectID = authToken.getInString(AuthToken.USER_ID);
 
             logger.info("PKIRealm: User " + username + " authenticated");
 
@@ -138,7 +137,7 @@ public class PKIRealm extends RealmBase {
 
             String username = authToken.getInString(CertUserDBAuthentication.TOKEN_USERID);
             // reset it to the one authenticated with authManager
-            auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
+            auditSubjectID = authToken.getInString(AuthToken.USER_ID);
 
             logger.info("PKIRealm: User " + username + " authenticated");
 

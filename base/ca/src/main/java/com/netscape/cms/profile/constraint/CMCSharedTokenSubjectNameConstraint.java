@@ -19,11 +19,11 @@ package com.netscape.cms.profile.constraint;
 
 import java.util.Locale;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.def.AuthTokenSubjectNameDefault;
@@ -84,7 +84,7 @@ public class CMCSharedTokenSubjectNameConstraint extends EnrollConstraint {
                 throw new Exception(msg);
             }
 
-            authTokenSharedTokenSN = request.getExtDataInString(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
+            authTokenSharedTokenSN = request.getExtDataInString(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
             if (authTokenSharedTokenSN == null) {
                 msg = method + "authTokenSharedTokenSN null";
                 logger.error(msg);

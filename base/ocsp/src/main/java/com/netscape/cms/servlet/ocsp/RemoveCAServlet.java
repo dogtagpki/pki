@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.OCSPRemoveCARequestEvent;
@@ -131,7 +130,7 @@ public class RemoveCAServlet extends CMSServlet {
 
         if (auditSubjectID.equals(ILogger.NONROLEUSER) ||
                 auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
-            String uid = authToken.getInString(IAuthToken.USER_ID);
+            String uid = authToken.getInString(AuthToken.USER_ID);
             if (uid != null) {
                 logger.debug("RemoveCAServlet: auditSubjectID set to " + uid);
                 auditSubjectID = uid;

@@ -28,7 +28,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -231,7 +230,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
             if (attribute != null) {
                 logger.debug("UidPwdDirAuthentication: Authenticate: Found memberOf attribute");
                 String[] groups = attribute.getStringValueArray();
-                token.set(IAuthToken.GROUPS, groups);
+                token.set(AuthToken.GROUPS, groups);
 
             } else if (mGroupsEnable) {
                 logger.debug("UidPwdDirAuthentication: Authenticate: memberOf attribute not found.");
@@ -239,13 +238,13 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
                 groups = listGroups(conn, uid, userdn);
                 if (groups != null) {
                     String[] groupsArray = new String[groups.size()];
-                    token.set(IAuthToken.GROUPS, groups.toArray(groupsArray));
+                    token.set(AuthToken.GROUPS, groups.toArray(groupsArray));
                 }
             }
 
             // set uid in the token.
-            token.set(IAuthToken.UID, uid);
-            token.set(IAuthToken.USER_ID, uid);
+            token.set(AuthToken.UID, uid);
+            token.set(AuthToken.USER_ID, uid);
 
             return userdn;
 

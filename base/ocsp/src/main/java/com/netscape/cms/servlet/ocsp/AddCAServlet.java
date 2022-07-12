@@ -32,7 +32,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.util.Cert;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.OCSPAddCARequestEvent;
@@ -143,7 +142,7 @@ public class AddCAServlet extends CMSServlet {
 
         if (auditSubjectID.equals(ILogger.NONROLEUSER) ||
                 auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
-            String uid = authToken.getInString(IAuthToken.USER_ID);
+            String uid = authToken.getInString(AuthToken.USER_ID);
             if (uid != null) {
                 logger.debug("AddCAServlet: auditSubjectID set to " + uid);
                 auditSubjectID = uid;

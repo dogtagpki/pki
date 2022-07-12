@@ -53,7 +53,6 @@ import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -192,7 +191,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             authToken = authenticator.authenticate(credentials);
             if (sc != null) {
                 sc.put(SessionContext.AUTH_MANAGER_ID, authMgrID);
-                auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
+                auditSubjectID = authToken.getInString(AuthToken.USER_ID);
                 if (auditSubjectID != null) {
                     logger.debug(method + "setting auditSubjectID in SessionContext:" +
                             auditSubjectID);
@@ -439,7 +438,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 authToken = authenticate(authenticator, request);
                 // authentication success
                 if (authToken != null) {
-                    auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
+                    auditSubjectID = authToken.getInString(AuthToken.USER_ID);
                     context.put(SessionContext.AUTH_TOKEN, authToken);
                 }
             } catch (EBaseException e) {
@@ -529,12 +528,12 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             ctx.put(AuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
         }
 
-        String tmpSharedTokenAuthenticatedCertSubject = ctx.get(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
+        String tmpSharedTokenAuthenticatedCertSubject = ctx.get(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
         if (tmpSharedTokenAuthenticatedCertSubject != null) {
             // unlikely to happen, but do this just in case
             logger.debug("ProfileSubmitCMCServlet: found existing TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT in ctx for CMCUserSignedAuth:" + tmpSharedTokenAuthenticatedCertSubject);
             logger.debug("ProfileSubmitCMCServlet: null it out");
-            ctx.put(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, "");
+            ctx.put(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, "");
         }
 
         String errorCode = null;
@@ -743,18 +742,18 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                      reqs[k].setExtData(AuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
                  }
 
-                tmpSharedTokenAuthenticatedCertSubject = reqs[k].getExtDataInString(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
+                tmpSharedTokenAuthenticatedCertSubject = reqs[k].getExtDataInString(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
                 if (tmpSharedTokenAuthenticatedCertSubject != null) {
                     // unlikely to happen, but do this just in case
                     logger.debug("ProfileSubmitCMCServlet: found existing TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT in request for CMCUserSignedAuth:" + tmpSharedTokenAuthenticatedCertSubject);
                     logger.debug("ProfileSubmitCMCServlet: null it out");
-                    reqs[k].setExtData(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, "");
+                    reqs[k].setExtData(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, "");
                 }
                 // put Shared Token authToken in request
-                String st_sbj = ctx.get(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
+                String st_sbj = ctx.get(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
                 if (st_sbj != null) {
                     logger.debug("ProfileSubmitCMCServlet: setting IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT in req for CMCUserSignedAuth");
-                    reqs[k].setExtData(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, st_sbj);
+                    reqs[k].setExtData(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, st_sbj);
                 }
                 if (tmpSharedTokenAuthenticatedCertSubject != null) {
                     logger.debug("ProfileSubmitCMCServlet: setting CRED_CMC_SIGNING_CERT in request for CMCUserSignedAuth");
