@@ -80,7 +80,7 @@ public class ACMEEngine implements ServletContextListener {
 
     public static ACMEEngine INSTANCE;
 
-    private String name;
+    private String id;
 
     private ACMEEngineConfig config;
     private ACMEPolicy policy;
@@ -118,12 +118,12 @@ public class ACMEEngine implements ServletContextListener {
         INSTANCE = this;
     }
 
-    public String getName() {
-        return name;
+    public String getID() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setID(String id) {
+        this.id = id;
     }
 
     /**
@@ -448,7 +448,7 @@ public class ACMEEngine implements ServletContextListener {
         realm.setConfig(realmConfig);
         realm.init();
 
-        ProxyRealm.registerRealm(name, new RealmBase() {
+        ProxyRealm.registerRealm(id, new RealmBase() {
             @Override
             public Principal getPrincipal(String username) {
                 return null;
@@ -487,7 +487,7 @@ public class ACMEEngine implements ServletContextListener {
 
         String catalinaBase = System.getProperty("catalina.base");
         String serverConfDir = catalinaBase + File.separator + "conf";
-        String acmeConfDir = serverConfDir + File.separator + name;
+        String acmeConfDir = serverConfDir + File.separator + id;
 
         logger.info("ACME configuration directory: " + acmeConfDir);
         loadConfig(acmeConfDir + File.separator + "engine.conf");
@@ -1098,9 +1098,9 @@ public class ACMEEngine implements ServletContextListener {
 
         String path = event.getServletContext().getContextPath();
         if ("".equals(path)) {
-            name = "ROOT";
+            id = "ROOT";
         } else {
-            name = path.substring(1);
+            id = path.substring(1);
         }
 
         try {
