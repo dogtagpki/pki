@@ -18,17 +18,14 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
-import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
+import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
-import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
-import com.netscape.cmscore.ldapconn.LdapAuthInfo;
-import com.netscape.cmscore.ldapconn.LdapBoundConnection;
-import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
-import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
@@ -83,45 +80,27 @@ public class CACertRemoveCLI extends CommandCLI {
         EngineConfig cs = new EngineConfig(storage);
         cs.load();
 
-        LDAPConfig ldapConfig = cs.getInternalDBConfig();
-        String baseDN = ldapConfig.getBaseDN();
+        DatabaseConfig dbConfig = cs.getDatabaseConfig();
+        LDAPConfig ldapConfig = dbConfig.getLDAPConfig();
+        ldapConfig.putInteger("minConns", 1);
+
+        PKISocketConfig socketConfig = cs.getSocketConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
         IPasswordStore passwordStore = IPasswordStore.create(psc);
 
-        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
-        LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
-
-        LdapConnInfo connInfo = new LdapConnInfo(connConfig);
-
-        LdapAuthInfo authInfo = new LdapAuthInfo();
-        authInfo.setPasswordStore(passwordStore);
-        authInfo.init(
-                authConfig,
-                connInfo.getHost(),
-                connInfo.getPort(),
-                connInfo.getSecure());
-
-        PKISocketConfig socketConfig = cs.getSocketConfig();
-
-        PKISocketFactory socketFactory;
-        if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-            socketFactory = new PKISocketFactory(authInfo.getClientCertNickname());
-        } else {
-            socketFactory = new PKISocketFactory(connInfo.getSecure());
-        }
-        socketFactory.init(socketConfig);
-
-        LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
+        DBSubsystem dbSubsystem = new DBSubsystem();
+        dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
         try {
-            String dn = "cn=" + certID.toBigInteger() + ",ou=certificateRepository,ou=ca," + baseDN;
-            logger.info("Removing " + dn);
+            CertificateRepository certificateRepository = new CertificateRepository(dbSubsystem);
+            certificateRepository.init();
 
-            conn.delete(dn);
+            logger.info("Removing cert record " + certID);
+            certificateRepository.deleteCertificateRecord(certID.toBigInteger());
 
         } finally {
-            conn.disconnect();
+            dbSubsystem.shutdown();
         }
     }
 }
