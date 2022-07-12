@@ -186,6 +186,22 @@ public class CMSEngine implements ServletContextListener {
         logger.info("Creating " + name + " engine");
     }
 
+    public String getID() {
+        return id;
+    }
+
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public PluginRegistry getPluginRegistry() {
         return pluginRegistry;
     }
