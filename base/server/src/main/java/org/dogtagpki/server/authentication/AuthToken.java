@@ -35,7 +35,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.usrgrp.Certificates;
 
@@ -50,7 +49,7 @@ import com.netscape.certsrv.usrgrp.Certificates;
  *
  * @version $Revision$, $Date$
  */
-public class AuthToken implements IAuthToken {
+public class AuthToken {
 
     /**
      * Constant for userid.
