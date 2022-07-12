@@ -34,8 +34,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.servlet.annotation.WebListener;
-
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.server.authentication.AuthToken;
@@ -105,7 +103,6 @@ import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
 
-@WebListener
 public class CAEngine extends CMSEngine {
 
     protected CertificateRepository certificateRepository;
@@ -168,7 +165,7 @@ public class CAEngine extends CMSEngine {
     protected boolean foundHostCA;
     protected AuthorityMonitor authorityMonitor;
 
-    public CAEngine() throws Exception {
+    public CAEngine() {
         super("CA");
     }
 

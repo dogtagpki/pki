@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.lang3.StringUtils;
@@ -60,9 +58,7 @@ import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.realm.PKIRealm;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cms.tomcat.ProxyRealm;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.authentication.VerifiedCerts;
@@ -105,7 +101,7 @@ import com.netscape.cmsutil.util.NuxwdogUtil;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 
-public class CMSEngine implements ServletContextListener {
+public class CMSEngine {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
 
@@ -178,12 +174,13 @@ public class CMSEngine implements ServletContextListener {
     private static final int PW_CANNOT_CONNECT = 3;
     private static final int PW_MAX_ATTEMPTS = 3;
 
-
     public CMSEngine(String name) {
         this.id = name.toLowerCase();
         this.name = name;
 
         logger.info("Creating " + name + " engine");
+
+        CMS.setCMSEngine(this);
     }
 
     public String getID() {
@@ -1720,40 +1717,5 @@ public class CMSEngine implements ServletContextListener {
                 logger.warn("debugSleep: sleep out:" + e.toString());
             }
         }
-    }
-
-    @Override
-    public void contextInitialized(ServletContextEvent event) {
-
-        logger.info("CMSEngine: Servlet context initialized");
-
-        String path = event.getServletContext().getContextPath();
-        if ("".equals(path)) {
-            id = "ROOT";
-        } else {
-            id = path.substring(1);
-        }
-
-        CMS.setCMSEngine(this);
-
-        try {
-            start();
-
-        } catch (Exception e) {
-            logger.error("Unable to start " + name + " engine: " + e.getMessage(), e);
-            shutdown();
-            throw new RuntimeException("Unable to start " + name + " engine: " + e.getMessage(), e);
-        }
-
-        // Register realm for this subsystem
-        ProxyRealm.registerRealm(id, new PKIRealm());
-    }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent event) {
-
-        logger.info("CMSEngine: Servlet context destroyed");
-
-        shutdown();
     }
 }
