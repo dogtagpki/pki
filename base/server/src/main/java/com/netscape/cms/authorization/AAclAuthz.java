@@ -31,7 +31,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.EACLsException;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
@@ -500,7 +499,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      * @param perm permission requested
      * @exception EACLsException access permission denied
      */
-    public synchronized void checkPermission(IAuthToken authToken, String name,
+    public synchronized void checkPermission(AuthToken authToken, String name,
             String perm)
             throws EACLsException {
 
@@ -532,7 +531,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     }
 
     protected boolean checkAllowEntries(
-            IAuthToken authToken,
+            AuthToken authToken,
             Iterable<String> nodes,
             String perm) {
         for (ACLEntry entry : getEntries(ACLEntry.Type.ALLOW, nodes, perm)) {
@@ -546,7 +545,7 @@ public abstract class AAclAuthz implements IAuthzManager {
 
     /** throw EACLsException if a deny entry is matched */
     protected void checkDenyEntries(
-            IAuthToken authToken,
+            AuthToken authToken,
             Iterable<String> nodes,
             String perm)
             throws EACLsException {
@@ -590,7 +589,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      * example:
      * group="Administrators" || group="Operators"
      */
-    private boolean evaluateExpressions(IAuthToken authToken, String s) {
+    private boolean evaluateExpressions(AuthToken authToken, String s) {
         // XXX - just handle "||" (or) among multiple expressions for now
         // XXX - could use some optimization ... later
         logger.debug("evaluating expressions: " + s);
@@ -678,7 +677,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     /**
      * Resolves the given expression.
      */
-    private boolean evaluateExpression(IAuthToken authToken, String expression) {
+    private boolean evaluateExpression(AuthToken authToken, String expression) {
         String op = getOp(expression);
         String type = "";
         String value = "";
@@ -873,7 +872,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         }
     }
 
-    public boolean evaluateACLs(IAuthToken authToken, String exp) {
+    public boolean evaluateACLs(AuthToken authToken, String exp) {
         return evaluateExpressions(authToken, exp);
     }
 }

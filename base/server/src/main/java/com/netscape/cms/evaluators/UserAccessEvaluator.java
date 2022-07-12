@@ -17,9 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.evaluators;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.cmscore.apps.CMS;
@@ -94,7 +94,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
      * @return true if AuthToken uid is same as value, false otherwise
      */
     @Override
-    public boolean evaluate(IAuthToken authToken, String type, String op, String value) {
+    public boolean evaluate(AuthToken authToken, String type, String op, String value) {
 
         if (type.equals(mType)) {
             String s = Utils.stripQuotes(value);

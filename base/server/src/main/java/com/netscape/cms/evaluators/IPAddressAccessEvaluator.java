@@ -17,9 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.evaluators;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.cmscore.apps.CMS;
@@ -88,7 +88,7 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
      * @param value the ipaddress
      */
     @Override
-    public boolean evaluate(IAuthToken authToken, String type, String op, String value) {
+    public boolean evaluate(AuthToken authToken, String type, String op, String value) {
 
         return evaluate(type, op, value);
     }

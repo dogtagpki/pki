@@ -19,6 +19,7 @@ package com.netscape.cms.evaluators;
 
 import java.util.Arrays;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -106,7 +107,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
      *         false otherwise
      */
     @Override
-    public boolean evaluate(IAuthToken authToken, String type, String op, String value) {
+    public boolean evaluate(AuthToken authToken, String type, String op, String value) {
 
         if (type.equals(mType)) {
             // should define "uid" at a common place

@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.evaluators;
 
-import com.netscape.certsrv.authentication.IAuthToken;
+import org.dogtagpki.server.authentication.AuthToken;
 
 /**
  * A class represents an evaluator. An evaluator is used to
@@ -78,7 +78,7 @@ public interface IAccessEvaluator {
      *            of the group.
      * @return true if the evaluation expression is matched; false otherwise.
      */
-    public boolean evaluate(IAuthToken authToken, String type, String op, String value);
+    public boolean evaluate(AuthToken authToken, String type, String op, String value);
 
     /**
      * Get the supported operators for this evaluator
