@@ -1146,8 +1146,6 @@ public class CMSEngine implements ServletContextListener {
         String path = subsystemConfDir + File.separator + "CS.cfg";
         loadConfig(path);
 
-        CMS.setCMSEngine(this);
-
         initDebug();
         initPasswordStore();
         initSubsystemListeners();
@@ -1177,9 +1175,6 @@ public class CMSEngine implements ServletContextListener {
         configureExcludedLdapAttrs();
 
         initSecurityDomain();
-
-        // Register realm for this subsystem
-        ProxyRealm.registerRealm(id, new PKIRealm());
 
         ready = true;
         isStarted = true;
@@ -1739,6 +1734,8 @@ public class CMSEngine implements ServletContextListener {
             id = path.substring(1);
         }
 
+        CMS.setCMSEngine(this);
+
         try {
             start();
 
@@ -1747,6 +1744,9 @@ public class CMSEngine implements ServletContextListener {
             shutdown();
             throw new RuntimeException("Unable to start " + name + " engine: " + e.getMessage(), e);
         }
+
+        // Register realm for this subsystem
+        ProxyRealm.registerRealm(id, new PKIRealm());
     }
 
     @Override
