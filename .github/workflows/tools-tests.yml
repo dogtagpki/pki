@@ -122,11 +122,30 @@ jobs:
         env:
           HOSTNAME: pki.example.com
 
+      - name: Create RSA key
+        run: |
+          docker exec pki pki nss-key-create --key-type RSA | tee output
+
+          # get key ID
+          sed -n 's/^\s*Key ID:\s*\(\S\+\)\s*$/\1/p' output > ca_signing_key_id
+
+      - name: Verify key type
+        run: |
+          echo rsa > expected
+
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+.*$/\1/p' output > actual
+          diff actual expected
+
+          docker exec pki pki nss-key-find | tee output
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          diff actual expected
+
       # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
-      - name: Create CA signing cert request with new RSA key
+      - name: Create CA signing cert request with existing RSA key
         run: |
           docker exec pki pki nss-cert-request \
-              --key-type RSA \
+              --key-id $(cat ca_signing_key_id) \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
@@ -158,18 +177,6 @@ jobs:
 
           docker exec pki pki nss-cert-show ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
-          diff actual expected
-
-      - name: Verify key type
-        run: |
-          echo rsa > expected
-
-          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
-          sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:ca_signing$/\1/p' output > actual
-          diff actual expected
-
-          docker exec pki pki nss-key-find --nickname ca_signing | tee output
-          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
@@ -313,11 +320,30 @@ jobs:
         env:
           HOSTNAME: pki.example.com
 
+      - name: Create EC key
+        run: |
+          docker exec pki pki nss-key-create --key-type EC | tee output
+
+          # get key ID
+          sed -n 's/^\s*Key ID:\s*\(\S\+\)\s*$/\1/p' output > ca_signing_key_id
+
+      - name: Verify key type
+        run: |
+          echo ec > expected
+
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+.*$/\1/p' output > actual
+          diff actual expected
+
+          docker exec pki pki nss-key-find | tee output
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          diff actual expected
+
       # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
-      - name: Create CA signing cert request with new EC key
+      - name: Create CA signing cert request with existing EC key
         run: |
           docker exec pki pki nss-cert-request \
-              --key-type EC \
+              --key-id $(cat ca_signing_key_id) \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
@@ -349,18 +375,6 @@ jobs:
 
           docker exec pki pki nss-cert-show ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
-          diff actual expected
-
-      - name: Verify key type
-        run: |
-          echo ec > expected
-
-          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
-          sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:ca_signing$/\1/p' output > actual
-          diff actual expected
-
-          docker exec pki pki nss-key-find --nickname ca_signing | tee output
-          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
@@ -562,15 +576,44 @@ jobs:
               --free
           docker exec pki softhsm2-util --show-slots
 
-      # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
-      - name: Generate CA signing cert request with key in HSM
-        run: |
+          # create password.conf
           echo "internal=" > password.conf
           echo "hardware-HSM=Secret.123" >> password.conf
+
+      - name: Create key in HSM
+        run: |
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-key-create | tee output
+
+          # get key ID
+          sed -n 's/^\s*Key ID:\s*\(\S\+\)\s*$/\1/p' output > ca_signing_key_id
+
+      - name: Verify key in HSM
+        run: |
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-key-find | tee output
+
+          sed -n 's/\s*Key ID:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          diff ca_signing_key_id actual
+
+          # verify key not in internal token
+          docker exec pki pki nss-key-find | tee output
+          echo "" > expected
+          sed -n 's/\s*Key ID:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          diff expected actual
+
+      # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
+      - name: Generate CA signing cert request with existing key in HSM
+        run: |
           docker exec pki pki \
               --token HSM \
               -f $SHARED/password.conf \
               nss-cert-request \
+              --key-id $(cat ca_signing_key_id) \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
