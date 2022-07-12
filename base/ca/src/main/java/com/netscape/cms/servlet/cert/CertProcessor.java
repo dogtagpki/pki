@@ -127,7 +127,7 @@ public class CertProcessor extends CAProcessor {
     }
 
     private static void setAuthTokenIntoRequest(
-            Request req, IAuthToken authToken) {
+            Request req, AuthToken authToken) {
         Enumeration<String> tokenNames = authToken.getElements();
         while (tokenNames.hasMoreElements()) {
             String tokenName = tokenNames.nextElement();

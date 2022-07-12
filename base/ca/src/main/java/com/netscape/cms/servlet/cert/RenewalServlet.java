@@ -40,7 +40,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -460,7 +459,7 @@ public class RenewalServlet extends CMSServlet {
      * get cert to renew from auth manager
      */
     private BigInteger getCertFromAuthMgr(
-            IAuthToken authToken, X509Certificate[] certContainer)
+            AuthToken authToken, X509Certificate[] certContainer)
             throws EBaseException {
         X509CertImpl cert =
                 authToken.getInCert(AuthToken.TOKEN_CERT);

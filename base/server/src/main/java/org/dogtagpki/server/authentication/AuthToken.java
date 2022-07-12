@@ -36,6 +36,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.usrgrp.Certificates;
 
 /**
@@ -74,12 +75,24 @@ public class AuthToken implements IAuthToken {
         set(TOKEN_AUTHTIME, new Date());
     }
 
-    @Override
+    /**
+     * Gets an attribute value.
+     *
+     * @param name the name of the attribute to return.
+     * @exception EBaseException on attribute handling errors.
+     * @return the attribute value
+     */
     public Object get(String attrName) {
         return mAttrs.get(attrName);
     }
 
-    @Override
+    /**
+     * Gets an attribute value.
+     *
+     * @param name the name of the attribute to return.
+     * @exception EBaseException on attribute handling errors.
+     * @return the attribute value
+     */
     public String getInString(String attrName) {
         return (String) mAttrs.get(attrName);
     }
@@ -113,12 +126,23 @@ public class AuthToken implements IAuthToken {
      *
      * @return Enumeration of all attribute names in this AuthToken.
      */
-    @Override
     public Enumeration<String> getElements() {
         return (mAttrs.keys());
     }
 
-    @Override
+    /************
+     * Helpers for non-string sets and gets.
+     * These are needed because AuthToken is stored in Request (which can
+     * only store string values
+     */
+
+    /**
+     * Retrieves the byte array value for name. The value should have been
+     * previously stored as a byte array (it will be CMS.AtoB decoded).
+     *
+     * @param name The attribute name.
+     * @return The byte array or null on error.
+     */
     public byte[] getInByteArray(String name) {
         String value = getInString(name);
         if (value == null) {
@@ -141,7 +165,12 @@ public class AuthToken implements IAuthToken {
         return set(name, Utils.base64encode(value, true));
     }
 
-    @Override
+    /**
+     * Retrieves the Integer value for name.
+     *
+     * @param name The attribute name.
+     * @return The Integer or null on error.
+     */
     public Integer getInInteger(String name) {
         String strVal = getInString(name);
         if (strVal == null) {
@@ -168,7 +197,12 @@ public class AuthToken implements IAuthToken {
         return set(name, value.toString());
     }
 
-    @Override
+    /**
+     * Retrieves the BigInteger array value for name.
+     *
+     * @param name The attribute name.
+     * @return The value or null on error.
+     */
     public BigInteger[] getInBigIntegerArray(String name) {
         String value = getInString(name);
         if (value == null) {
@@ -210,7 +244,12 @@ public class AuthToken implements IAuthToken {
         return set(name, buffer.toString());
     }
 
-    @Override
+    /**
+     * Retrieves the Date value for name.
+     *
+     * @param name The attribute name.
+     * @return The value or null on error.
+     */
     public Date getInDate(String name) {
         String value = getInString(name);
         if (value == null) {
@@ -237,7 +276,12 @@ public class AuthToken implements IAuthToken {
         return set(name, String.valueOf(value.getTime()));
     }
 
-    @Override
+    /**
+     * Retrieves the String array value for name.
+     *
+     * @param name The attribute name.
+     * @return The value or null on error.
+     */
     public String[] getInStringArray(String name) {
         String[] stringValues;
 
@@ -282,7 +326,12 @@ public class AuthToken implements IAuthToken {
         }
     }
 
-    @Override
+    /**
+     * Retrieves the X509CertImpl value for name.
+     *
+     * @param name The attribute name.
+     * @return The value or null on error.
+     */
     public X509CertImpl getInCert(String name) {
         byte[] data = getInByteArray(name);
         if (data == null) {
@@ -315,7 +364,13 @@ public class AuthToken implements IAuthToken {
         return set(name, out.toByteArray());
     }
 
-    @Override
+    /**
+     * Retrieves the CertificateExtensions value for name.
+     *
+     * @param name The attribute name.
+     * @return The value.
+     * @throws IOException
+     */
     public CertificateExtensions getInCertExts(String name) throws IOException {
         CertificateExtensions exts = null;
         byte[] data = getInByteArray(name);

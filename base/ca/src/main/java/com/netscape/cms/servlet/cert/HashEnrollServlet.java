@@ -65,7 +65,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -768,7 +767,7 @@ public class HashEnrollServlet extends CMSServlet {
      * requests not authenticated will need to be approved by an agent.
      */
     protected void fillCertInfoFromAuthToken(
-            X509CertInfo certInfo, IAuthToken authToken)
+            X509CertInfo certInfo, AuthToken authToken)
             throws EBaseException {
         // override subject, validity and extensions from auth token
         // CA determines algorithm, version and issuer.
@@ -845,7 +844,7 @@ public class HashEnrollServlet extends CMSServlet {
     }
 
     protected X509CertInfo[] fillCRMF(
-            String crmf, IAuthToken authToken, IArgBlock httpParams, Request req)
+            String crmf, AuthToken authToken, IArgBlock httpParams, Request req)
             throws EBaseException {
         try {
             byte[] crmfBlob = Utils.base64decode(crmf);

@@ -223,7 +223,7 @@ public class SearchReqs extends CMSServlet {
      * Process the key search.
      */
     private void process(CMSTemplateParams argSet, IArgBlock header,
-            String filter, IAuthToken token,
+            String filter, AuthToken token,
             int maxResults, int timeLimit,
             HttpServletRequest req, HttpServletResponse resp,
             Locale locale)

@@ -37,7 +37,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -492,7 +491,7 @@ public class FlatFileAuth
      *
      */
 
-    private IAuthToken doAuthentication(Hashtable<String, String> user, AuthCredentials authCred)
+    private AuthToken doAuthentication(Hashtable<String, String> user, AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
         AuthToken authToken = new AuthToken(this);
 
@@ -555,7 +554,7 @@ public class FlatFileAuth
 
         try {
             if (user != null) {
-                authToken = (AuthToken) doAuthentication(user, authCred);
+                authToken = doAuthentication(user, authCred);
             } else {
                 logger.warn("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_USER_NOT_FOUND"));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));

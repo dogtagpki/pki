@@ -213,7 +213,7 @@ public class RequestProcessor extends CertProcessor {
         }
     }
 
-    private boolean grantPermission(Request req, IAuthToken token) {
+    private boolean grantPermission(Request req, AuthToken token) {
 
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();

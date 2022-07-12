@@ -43,7 +43,6 @@ import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -541,7 +540,7 @@ public class UpdateCRL extends CMSServlet {
             // for audit log
             SessionContext sContext = SessionContext.getContext();
             String agentId = (String) sContext.get(SessionContext.USER_ID);
-            IAuthToken authToken = (IAuthToken) sContext.get(SessionContext.AUTH_TOKEN);
+            AuthToken authToken = (AuthToken) sContext.get(SessionContext.AUTH_TOKEN);
             String authMgr = AuditFormat.NOAUTH;
 
             if (authToken != null) {

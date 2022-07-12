@@ -358,7 +358,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
                 String userid = "defUser";
                 String uid = "defUser";
                 if (checkSignerInfo) {
-                    IAuthToken agentToken = verifySignerInfo(auditContext, authToken, cmcFullReq);
+                    AuthToken agentToken = verifySignerInfo(auditContext, authToken, cmcFullReq);
                     if (agentToken == null) {
                         logger.error(method + "agentToken null");
                         throw new EBaseException("CMCAuth: agent verifySignerInfo failure");
@@ -776,7 +776,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
         return s;
     }
 
-    protected IAuthToken verifySignerInfo(
+    protected AuthToken verifySignerInfo(
             SessionContext auditContext,
             AuthToken authToken,
             SignedData cmcFullReq) throws EBaseException {

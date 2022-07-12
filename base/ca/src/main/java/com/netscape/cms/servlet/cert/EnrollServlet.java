@@ -49,7 +49,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -539,7 +538,7 @@ public class EnrollServlet extends CMSServlet {
 
     }
 
-    private boolean handleEnrollAuditLog(Request req, CMSRequest cmsReq, String authMgr, IAuthToken authToken,
+    private boolean handleEnrollAuditLog(Request req, CMSRequest cmsReq, String authMgr, AuthToken authToken,
             X509CertInfo certInfo, long startTime)
             throws EBaseException {
         //for audit log

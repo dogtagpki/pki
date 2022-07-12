@@ -38,7 +38,6 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -330,7 +329,7 @@ public class RevocationServlet extends CMSServlet {
      * get cert to revoke from auth manager
      */
     private BigInteger getCertFromAuthMgr(
-            IAuthToken authToken, X509Certificate[] certContainer)
+            AuthToken authToken, X509Certificate[] certContainer)
             throws EBaseException {
         X509CertImpl cert =
                 authToken.getInCert(AuthToken.TOKEN_CERT);

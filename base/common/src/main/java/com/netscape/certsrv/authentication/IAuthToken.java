@@ -17,16 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authentication;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Date;
-import java.util.Enumeration;
-
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-
-import com.netscape.certsrv.base.EBaseException;
-
 /**
  * AuthToken interface.
  */
@@ -80,94 +70,4 @@ public interface IAuthToken {
      * Time of authentication as a java.util.Date
      */
     public static final String TOKEN_AUTHTIME = "authTime";
-
-    /**
-     * Gets an attribute value.
-     *
-     * @param name the name of the attribute to return.
-     * @exception EBaseException on attribute handling errors.
-     * @return the attribute value
-     */
-    public Object get(String name);
-
-    /**
-     * Gets an attribute value.
-     *
-     * @param name the name of the attribute to return.
-     * @exception EBaseException on attribute handling errors.
-     * @return the attribute value
-     */
-    public String getInString(String name);
-
-    /**
-     * Returns an enumeration of the names of the attributes existing within
-     * this AttrSet.
-     *
-     * @return an enumeration of the attribute names.
-     */
-    public Enumeration<String> getElements();
-
-    /************
-     * Helpers for non-string sets and gets.
-     * These are needed because AuthToken is stored in Request (which can
-     * only store string values
-     */
-
-    /**
-     * Retrieves the byte array value for name. The value should have been
-     * previously stored as a byte array (it will be CMS.AtoB decoded).
-     *
-     * @param name The attribute name.
-     * @return The byte array or null on error.
-     */
-    public byte[] getInByteArray(String name);
-
-    /**
-     * Retrieves the Integer value for name.
-     *
-     * @param name The attribute name.
-     * @return The Integer or null on error.
-     */
-    public Integer getInInteger(String name);
-
-    /**
-     * Retrieves the BigInteger array value for name.
-     *
-     * @param name The attribute name.
-     * @return The value or null on error.
-     */
-    public BigInteger[] getInBigIntegerArray(String name);
-
-    /**
-     * Retrieves the Date value for name.
-     *
-     * @param name The attribute name.
-     * @return The value or null on error.
-     */
-    public Date getInDate(String name);
-
-    /**
-     * Retrieves the String array value for name.
-     *
-     * @param name The attribute name.
-     * @return The value or null on error.
-     */
-    public String[] getInStringArray(String name);
-
-    /**
-     * Retrieves the X509CertImpl value for name.
-     *
-     * @param name The attribute name.
-     * @return The value or null on error.
-     */
-    public X509CertImpl getInCert(String name);
-
-    /**
-     * Retrieves the CertificateExtensions value for name.
-     *
-     * @param name The attribute name.
-     * @return The value.
-     * @throws IOException
-     */
-    public CertificateExtensions getInCertExts(String name) throws IOException;
 }
