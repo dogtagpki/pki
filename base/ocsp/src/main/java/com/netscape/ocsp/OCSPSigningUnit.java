@@ -29,9 +29,9 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -49,11 +49,11 @@ public final class OCSPSigningUnit extends SigningUnit {
 
     @Override
     public void updateConfig(String nickname, String tokenname) {
-        mConfig.putString(PROP_CERT_NICKNAME, nickname);
-        mConfig.putString(PROP_TOKEN_NAME, tokenname);
+        mConfig.setCertNickname(nickname);
+        mConfig.setTokenName(tokenname);
     }
 
-    public void init(ConfigStore config) throws EBaseException {
+    public void init(SigningUnitConfig config) throws EBaseException {
 
         logger.debug("OCSPSigningUnit.init(" + config.getName() + ")");
 
@@ -64,9 +64,9 @@ public final class OCSPSigningUnit extends SigningUnit {
         try {
             mManager = CryptoManager.getInstance();
 
-            mNickname = config.getString(PROP_CERT_NICKNAME);
+            mNickname = config.getCertNickname();
 
-            tokenname = config.getString(PROP_TOKEN_NAME);
+            tokenname = config.getTokenName();
             mToken = CryptoUtil.getKeyStorageToken(tokenname);
             if (!CryptoUtil.isInternalToken(tokenname)) {
                 mNickname = tokenname + ":" + mNickname;
@@ -89,7 +89,7 @@ public final class OCSPSigningUnit extends SigningUnit {
             mPubk = mCert.getPublicKey();
 
             // get def alg and check if def sign alg is valid for token.
-            mDefSigningAlgname = config.getString(PROP_DEFAULT_SIGNALG);
+            mDefSigningAlgname = config.getDefaultSigningAlgorithm();
             mDefSigningAlgorithm = checkSigningAlgorithmFromName(mDefSigningAlgname);
             logger.debug("SigningUnit: signing algorithm: " + mDefSigningAlgorithm);
 

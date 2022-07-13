@@ -41,7 +41,6 @@ public interface IOCSPAuthority extends ISubsystem {
 
     public final static String PROP_DEF_STORE_ID = "storeId";
     public final static String PROP_STORE = "store";
-    public final static String PROP_SIGNING_SUBSTORE = "signing";
     public static final String PROP_NICKNAME = "certNickname";
     public final static String PROP_NEW_NICKNAME = "newNickname";
 
