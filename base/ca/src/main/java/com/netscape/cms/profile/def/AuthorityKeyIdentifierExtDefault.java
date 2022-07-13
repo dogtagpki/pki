@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Locale;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
@@ -184,36 +183,42 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
 
         AuthorityKeyIdentifierExtension ext;
         try {
-            ext = createExtension(ca, info);
+            String localKey = getConfig("localKey");
+            KeyIdentifier kid = null;
+
+            if (localKey != null && localKey.equals("true")) {
+                kid = getKeyIdentifier(info);
+
+            } else {
+                kid = getCAKeyIdentifier(ca.getCACert());
+            }
+
+            ext = createExtension(kid);
+
         } catch (EBaseException e) {
             throw new EProfileException(e);
         }
+
         if (ext == null) {
             throw new EProfileException(
                 "Could not instantiate AuthorityKeyIdentifier extension.");
         }
+
         addExtension(PKIXExtensions.AuthorityKey_Id.toString(), ext, info);
     }
 
-    public AuthorityKeyIdentifierExtension createExtension(
-            ICertificateAuthority ca, X509CertInfo info) throws EBaseException {
-        KeyIdentifier kid = null;
-        String localKey = getConfig("localKey");
-        if (localKey != null && localKey.equals("true")) {
-            kid = getKeyIdentifier(info);
-        } else {
-            kid = getCAKeyIdentifier(ca.getCACert());
-        }
+    public AuthorityKeyIdentifierExtension createExtension(KeyIdentifier kid) throws EBaseException {
 
         if (kid == null)
             return null;
-        AuthorityKeyIdentifierExtension ext = null;
 
+        AuthorityKeyIdentifierExtension ext = null;
         try {
             ext = new AuthorityKeyIdentifierExtension(false, kid, null, null);
         } catch (IOException e) {
             logger.warn("AuthorityKeyIdentifierExtDefault: createExtension " + e.getMessage(), e);
         }
+
         return ext;
     }
 }
