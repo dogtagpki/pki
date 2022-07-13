@@ -601,9 +601,10 @@ jobs:
           diff ca_signing_key_id actual
 
           # verify key not in internal token
-          docker exec pki pki nss-key-find | tee output
-          echo "" > expected
-          sed -n 's/\s*Key ID:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          docker exec pki pki \
+              -f $SHARED/password.conf \
+              nss-key-find | tee actual
+          echo -n "" > expected
           diff expected actual
 
       # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
@@ -661,6 +662,7 @@ jobs:
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
+          # verify key not in internal token
           docker exec pki pki \
               -f $SHARED/password.conf \
               nss-key-find \
@@ -750,6 +752,7 @@ jobs:
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
+          # verify key not in internal token
           docker exec pki pki \
               -f $SHARED/password.conf \
               nss-key-find \
