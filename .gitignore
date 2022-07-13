@@ -10,5 +10,5 @@ __pycache__
 node_modules/
 tests/artifacts/
 tests/tests.retry
-base/util/test/PKICertImport/dbs
+base/tools/test/PKICertImport/dbs
 target/
