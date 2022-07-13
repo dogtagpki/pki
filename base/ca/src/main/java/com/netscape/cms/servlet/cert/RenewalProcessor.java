@@ -288,7 +288,7 @@ public class RenewalProcessor extends CertProcessor {
                  * But as a special case to ensure Lightweight CA (LWCA)
                  * renewal works, if there is a latent user in the HTTP
                  * request, we use that user (i.e. set authToken to the
-                 * principal's IAuthToken) if and only if:
+                 * principal's AuthToken) if and only if:
                  *
                  * - The renewal profile is caManualRenewal (LWCA renewal
                  *   is hardcoded to use this profile); AND

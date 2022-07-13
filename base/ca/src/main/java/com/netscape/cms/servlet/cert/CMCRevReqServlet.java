@@ -186,7 +186,7 @@ public class CMCRevReqServlet extends CMSServlet {
             return;
         }
 
-        //IAuthToken authToken = getAuthToken(cmsReq);
+        //AuthToken authToken = getAuthToken(cmsReq);
         //Object subject = authToken.get(CMCAuth.TOKEN_CERT_SERIAL);
         //Object uid = authToken.get("uid");
         //===========================

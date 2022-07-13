@@ -1289,7 +1289,7 @@ public class TPSProcessor {
      * @param op "enrollment", "format", or "pinReset" //TODO: for tokendb activity log
      * @param userAuth the authenticator
      * @param userCred IAuthCredentials obtained from a successful requestUserId call
-     * @return IAuthToken information relating to the performed authentication
+     * @return AuthToken information relating to the performed authentication
      *         -- plugin-specific
      */
     public AuthToken authenticateUser(
@@ -1874,7 +1874,7 @@ public class TPSProcessor {
      * - parse the multi-valued attributes
      * @returns ExternalRegAttrs
      */
-    ExternalRegAttrs processExternalRegAttrs(/*IAuthToken authToken,*/String authId) throws NumberFormatException, EBaseException {
+    ExternalRegAttrs processExternalRegAttrs(/*AuthToken authToken,*/String authId) throws NumberFormatException, EBaseException {
         String method = "processExternalRegAttrs";
         String configName;
         List<String> attributesToProcess = null;

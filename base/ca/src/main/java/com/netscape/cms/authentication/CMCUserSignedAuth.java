@@ -1287,7 +1287,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
         if (authenticatedDN != null) {
             request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                     authenticatedDN);
-            logger.debug(method + "IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT is: "+
+            logger.debug(method + "AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT is: "+
                     authenticatedDN);
         } else {
             logger.warn(method + "AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT is null; self-signed?");

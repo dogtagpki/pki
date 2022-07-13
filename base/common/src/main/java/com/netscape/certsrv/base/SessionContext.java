@@ -45,7 +45,7 @@ public class SessionContext extends Hashtable<Object, Object> {
     /**
      * Authentication token in the current thread.
      */
-    public static final String AUTH_TOKEN = "AuthToken"; // IAuthToken
+    public static final String AUTH_TOKEN = "AuthToken"; // AuthToken
 
     /**
      * ID of the authentication manager in the current thread.

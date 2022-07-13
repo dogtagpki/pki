@@ -752,7 +752,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 // put Shared Token authToken in request
                 String st_sbj = ctx.get(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
                 if (st_sbj != null) {
-                    logger.debug("ProfileSubmitCMCServlet: setting IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT in req for CMCUserSignedAuth");
+                    logger.debug("ProfileSubmitCMCServlet: setting AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT in req for CMCUserSignedAuth");
                     reqs[k].setExtData(AuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, st_sbj);
                 }
                 if (tmpSharedTokenAuthenticatedCertSubject != null) {

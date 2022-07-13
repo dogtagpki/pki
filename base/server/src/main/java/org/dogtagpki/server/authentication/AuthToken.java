@@ -130,7 +130,7 @@ public class AuthToken {
     /**
      * Gets an attribute value.
      *
-     * @param name the name of the attribute to return.
+     * @param attrName the name of the attribute to return.
      * @exception EBaseException on attribute handling errors.
      * @return the attribute value
      */
@@ -141,7 +141,7 @@ public class AuthToken {
     /**
      * Gets an attribute value.
      *
-     * @param name the name of the attribute to return.
+     * @param attrName the name of the attribute to return.
      * @exception EBaseException on attribute handling errors.
      * @return the attribute value
      */

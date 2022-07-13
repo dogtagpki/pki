@@ -252,11 +252,11 @@ public class SharedSecret extends DirBasedAuthentication
     }
 
     /**
-     * getSharedToken(String identification, IAuthToken authToken) provides
+     * getSharedToken(String identification, AuthToken authToken) provides
      *  support for id_cmc_identification shared secret based enrollment
      *
      * @param identification maps to the uid in user's ldap record
-     * @param authToken the IAuthToken that will be filled with the DN
+     * @param authToken the AuthToken that will be filled with the DN
      *        in user's ldap record
      *
      * Note: caller should clear the memory for the returned token
@@ -265,7 +265,7 @@ public class SharedSecret extends DirBasedAuthentication
     @Override
     public char[] getSharedToken(String identification, AuthToken authToken)
             throws EBaseException {
-        String method = "SharedSecret.getSharedToken(String identification, IAuthToken authToken): ";
+        String method = "SharedSecret.getSharedToken(String identification, AuthToken authToken): ";
         String msg = "";
         logger.debug(method + "begins.");
 
