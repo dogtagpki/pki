@@ -153,3 +153,36 @@ install(
         GROUP_EXECUTE GROUP_READ
         WORLD_EXECUTE WORLD_READ
 )
+
+install(
+    FILES
+        src/main/shell/PKICertImport.bash
+    DESTINATION
+        ${BIN_INSTALL_DIR}
+    RENAME
+        PKICertImport
+    PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE
+)
+
+if(WITH_TESTS)
+    install(
+        FILES
+            src/test/shell/test_PKICertImport.bash
+        DESTINATION
+            ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/tests/util/bin
+        PERMISSIONS
+            OWNER_READ OWNER_WRITE OWNER_EXECUTE
+            GROUP_READ GROUP_EXECUTE
+            WORLD_READ WORLD_EXECUTE
+    )
+
+    install(
+        DIRECTORY
+            src/test/resources/certs/
+        DESTINATION
+            ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/tests/util/resources/certs
+    )
+endif(WITH_TESTS)
