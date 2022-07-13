@@ -39,6 +39,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.util.Base64OutputStream;
 
@@ -47,8 +49,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 
 import netscape.ldap.LDAPConnection;
@@ -214,8 +214,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     @Override
     public void init(ConfigStore config) {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         mConfig = config;
         String dir = null;

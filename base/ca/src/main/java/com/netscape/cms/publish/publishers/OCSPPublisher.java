@@ -31,6 +31,8 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.dogtagpki.server.PKIClientSocketListener;
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -38,8 +40,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.http.HttpRequest;
@@ -150,14 +150,14 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<>();
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig config = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         String nickname = "";
         // get subsystem cert nickname as default for client auth
         try {
-            nickname = config.getString("ca.subsystem.nickname", "");
-            String tokenname = config.getString("ca.subsystem.tokenname", "");
+            nickname = cs.getString("ca.subsystem.nickname", "");
+            String tokenname = cs.getString("ca.subsystem.tokenname", "");
             if (!CryptoUtil.isInternalToken(tokenname))
                 nickname = tokenname + ":" + nickname;
         } catch (Exception e) {

@@ -25,6 +25,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.ca.CAEngine;
+
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
@@ -35,7 +37,6 @@ import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 
@@ -84,7 +85,7 @@ public class RegistryAdminServlet extends AdminServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         registry = engine.getPluginRegistry();
     }
 

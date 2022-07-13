@@ -17,13 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldap;
 
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -67,8 +67,8 @@ public class LdapConnModule implements ILdapConnModule {
 
         logger.debug("LdapConnModule: init begins");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
         IPasswordStore passwordStore = engine.getPasswordStore();
