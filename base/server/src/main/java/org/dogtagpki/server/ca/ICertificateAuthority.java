@@ -91,10 +91,7 @@ public interface ICertificateAuthority extends ISubsystem {
     public final static String PROP_ISSUER_NAME = "name";
     public final static String PROP_CA_NAMES = "CAs";
 
-    public final static String PROP_SIGNING_SUBSTORE = "signing";
     public final static String PROP_ENABLE_OCSP = "ocsp";
-    public final static String PROP_OCSP_SIGNING_SUBSTORE = "ocsp_signing";
-    public final static String PROP_CRL_SIGNING_SUBSTORE = "crl_signing";
     public final static String PROP_ID = "id";
 
     /**

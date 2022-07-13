@@ -49,6 +49,7 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.csadmin.BootstrapProfile;
@@ -237,7 +238,7 @@ public class CAInstallerService extends SystemConfigService {
             } else { // certType == local
 
                 CAConfig caConfig = engineConfig.getCAConfig();
-                ConfigStore caSigningCfg = caConfig.getSubStore("signing", ConfigStore.class);
+                SigningUnitConfig caSigningCfg = caConfig.getSigningUnitConfig();
 
                 // create CA signing unit
                 CASigningUnit signingUnit = new CASigningUnit();

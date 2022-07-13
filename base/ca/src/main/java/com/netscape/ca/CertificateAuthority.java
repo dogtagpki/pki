@@ -112,6 +112,7 @@ import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
 import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -1149,7 +1150,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
 
         logger.info("CertificateAuthority: Initializing cert signing unit");
 
-        ConfigStore caSigningCfg = mConfig.getSubStore(PROP_SIGNING_SUBSTORE, ConfigStore.class);
+        SigningUnitConfig caSigningCfg = mConfig.getSigningUnitConfig();
 
         mSigningUnit = new CASigningUnit();
         mSigningUnit.init(caSigningCfg, mNickname);
@@ -1195,7 +1196,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
 
         logger.info("CertificateAuthority: Initializing CRL signing unit");
 
-        ConfigStore crlSigningConfig = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE, ConfigStore.class);
+        SigningUnitConfig crlSigningConfig = mConfig.getCRLSigningUnitConfig();
 
         if (hostCA && crlSigningConfig != null && crlSigningConfig.size() > 0) {
             mCRLSigningUnit = new CASigningUnit();
@@ -1223,7 +1224,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
 
         logger.info("CertificateAuthority: Initializing OCSP signing unit");
 
-        ConfigStore ocspSigningConfig = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE, ConfigStore.class);
+        SigningUnitConfig ocspSigningConfig = mConfig.getOCSPSigningUnitConfig();
 
         if (hostCA && ocspSigningConfig != null && ocspSigningConfig.size() > 0) {
             mOCSPSigningUnit = new CASigningUnit();

@@ -35,9 +35,9 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
+import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -55,11 +55,11 @@ public final class CASigningUnit extends SigningUnit {
 
     @Override
     public void updateConfig(String nickname, String tokenname) {
-        mConfig.putString(PROP_CA_CERT_NICKNAME, nickname);
-        mConfig.putString(PROP_TOKEN_NAME, tokenname);
+        mConfig.setCACertNickname(nickname);
+        mConfig.setTokenName(tokenname);
     }
 
-    public void init(ConfigStore config, String nickname) throws EBaseException {
+    public void init(SigningUnitConfig config, String nickname) throws EBaseException {
 
         logger.debug("CASigningUnit.init(" + config.getName() + ", " + nickname + ")");
 
@@ -71,15 +71,15 @@ public final class CASigningUnit extends SigningUnit {
 
             if (nickname == null) {
                 try {
-                    mNickname = mConfig.getString(PROP_CERT_NICKNAME);
+                    mNickname = mConfig.getCertNickname();
                 } catch (EPropertyNotFound e) {
-                    mNickname = mConfig.getString(PROP_CA_CERT_NICKNAME);
+                    mNickname = mConfig.getCACertNickname();
                 }
             } else {
                 mNickname = nickname;
             }
 
-            tokenname = config.getString(PROP_TOKEN_NAME);
+            tokenname = config.getTokenName();
             mToken = CryptoUtil.getKeyStorageToken(tokenname);
             if (!CryptoUtil.isInternalToken(tokenname)) {
                 mNickname = tokenname + ":" + mNickname;
@@ -112,7 +112,7 @@ public final class CASigningUnit extends SigningUnit {
             mPubk = mCert.getPublicKey();
 
             // get def alg and check if def sign alg is valid for token.
-            mDefSigningAlgname = config.getString(PROP_DEFAULT_SIGNALG);
+            mDefSigningAlgname = config.getDefaultSigningAlgorithm();
             mDefSigningAlgorithm = checkSigningAlgorithmFromName(mDefSigningAlgname);
             logger.debug("SigningUnit: signing algorithm: " + mDefSigningAlgorithm);
 
@@ -177,7 +177,7 @@ public final class CASigningUnit extends SigningUnit {
 
         logger.info("CASigningUnit: Signing Certificate");
 
-        boolean testSignatureFailure = mConfig.getBoolean("testSignatureFailure", false);
+        boolean testSignatureFailure = mConfig.getTestSignatureFailure();
         if (testSignatureFailure) {
             throw new SignatureException("SignatureException forced for testing");
         }

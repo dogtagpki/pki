@@ -57,6 +57,7 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.ocsp.IOCSPStore;
 import com.netscape.certsrv.security.SigningUnit;
+import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -309,8 +310,10 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
 
         logger.info("OCSPAuthority: Initializing OCSP signing unit");
 
+        SigningUnitConfig ocspSigningConfig = mConfig.getSigningUnitConfig();
+
         mSigningUnit = new OCSPSigningUnit();
-        mSigningUnit.init(mConfig.getSubStore(PROP_SIGNING_SUBSTORE, ConfigStore.class));
+        mSigningUnit.init(ocspSigningConfig);
 
         getOCSPSigningAlgorithms();
     }

@@ -38,7 +38,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * A class represents the signing unit which is
@@ -49,21 +48,6 @@ import com.netscape.cmscore.base.ConfigStore;
 public abstract class SigningUnit {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SigningUnit.class);
-
-    public static final String PROP_DEFAULT_SIGNALG = "defaultSigningAlgorithm";
-
-    /**
-     * @deprecated The cacertnickname has been replaced with certnickname.
-     *
-     * TODO: Remove cacertnickname property from existing instances with
-     * an upgrade script.
-     */
-    @Deprecated
-    public static final String PROP_CA_CERT_NICKNAME = "cacertnickname";
-    public static final String PROP_CERT_NICKNAME = "certnickname";
-
-    public static final String PROP_TOKEN_NAME = "tokenname";
-    public static final String PROP_NEW_NICKNAME = "newNickname";
 
     protected CryptoManager mManager;
     protected CryptoToken mToken;
@@ -76,7 +60,7 @@ public abstract class SigningUnit {
     protected String mNickname;
 
     protected boolean mInited;
-    protected ConfigStore mConfig;
+    protected SigningUnitConfig mConfig;
 
     protected String mDefSigningAlgname;
     protected SignatureAlgorithm mDefSigningAlgorithm;
@@ -95,7 +79,7 @@ public abstract class SigningUnit {
      * @exception EBaseException failed to get new nickname
      */
     public String getNewNickName() throws EBaseException {
-        return mConfig.getString(PROP_NEW_NICKNAME, "");
+        return mConfig.getNewNickname();
     }
 
     /**
@@ -104,7 +88,7 @@ public abstract class SigningUnit {
      * @param name nickname
      */
     public void setNewNickName(String name) {
-        mConfig.putString(PROP_NEW_NICKNAME, name);
+        mConfig.setNewNickname(name);
     }
 
     /**
@@ -192,7 +176,7 @@ public abstract class SigningUnit {
      * @exception EBaseException failed to set default signing algorithm
      */
     public void setDefaultAlgorithm(String algorithm) throws EBaseException {
-        mConfig.putString(PROP_DEFAULT_SIGNALG, algorithm);
+        mConfig.setDefaultSigningAlgorithm(algorithm);
         mDefSigningAlgname = algorithm;
         logger.info("Default signing algorithm is set to " + algorithm);
     }
@@ -228,7 +212,7 @@ public abstract class SigningUnit {
      * @exception EBaseException failed to retrieve name
      */
     public String getTokenName() throws EBaseException {
-        return mConfig.getString(PROP_TOKEN_NAME);
+        return mConfig.getTokenName();
     }
 
     /**
