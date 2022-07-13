@@ -20,7 +20,6 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
@@ -67,9 +66,8 @@ public abstract class CAEnrollDefault extends EnrollDefault {
         return null;
     }
 
-    public KeyIdentifier getCAKeyIdentifier(ICertificateAuthority ca) throws EBaseException {
+    public KeyIdentifier getCAKeyIdentifier(X509CertImpl caCert) throws EBaseException {
         String method = "CAEnrollDefault: getCAKeyIdentifier: ";
-        X509CertImpl caCert = ca.getCACert();
         if (caCert == null) {
             // during configuration, we dont have the CA certificate
             return null;

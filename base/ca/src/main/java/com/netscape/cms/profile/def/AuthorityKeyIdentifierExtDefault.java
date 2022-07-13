@@ -202,7 +202,7 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
         if (localKey != null && localKey.equals("true")) {
             kid = getKeyIdentifier(info);
         } else {
-            kid = getCAKeyIdentifier(ca);
+            kid = getCAKeyIdentifier(ca.getCACert());
         }
 
         if (kid == null)
