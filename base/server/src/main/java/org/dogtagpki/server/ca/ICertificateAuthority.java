@@ -386,11 +386,6 @@ public interface ICertificateAuthority extends ISubsystem {
         throws EBaseException;
 
     /**
-     * get Issuance Protection Public Key
-     */
-    public java.security.PublicKey getIssuanceProtPubKey();
-
-    /**
      * get Issuance Protection Private Key
      */
     public org.mozilla.jss.crypto.PrivateKey getIssuanceProtPrivKey();

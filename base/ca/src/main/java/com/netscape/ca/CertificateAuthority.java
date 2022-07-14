@@ -382,12 +382,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     @Override
-    public PublicKey getIssuanceProtPubKey() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getIssuanceProtectionPublicKey();
-    }
-
-    @Override
     public PrivateKey getIssuanceProtPrivKey() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getIssuanceProtectionPrivateKey();
