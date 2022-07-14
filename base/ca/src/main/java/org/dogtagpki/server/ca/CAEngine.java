@@ -334,6 +334,9 @@ public class CAEngine extends CMSEngine {
         return crlIssuingPoints.remove(id);
     }
 
+    /**
+     * Get Issuance Protection Certificate
+     */
     public org.mozilla.jss.crypto.X509Certificate getIssuanceProtectionCert() {
         return issuanceProtectionCert;
     }

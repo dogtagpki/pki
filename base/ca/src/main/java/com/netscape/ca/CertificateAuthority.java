@@ -393,12 +393,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         return engine.getIssuanceProtectionPrivateKey();
     }
 
-    @Override
-    public X509Certificate getIssuanceProtCert() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getIssuanceProtectionCert();
-    }
-
     private void checkForNewerCert() throws EBaseException {
 
         logger.info("CertificateAuthority: Checking for newer CA cert");

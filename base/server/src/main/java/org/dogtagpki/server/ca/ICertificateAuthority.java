@@ -394,9 +394,4 @@ public interface ICertificateAuthority extends ISubsystem {
      * get Issuance Protection Private Key
      */
     public org.mozilla.jss.crypto.PrivateKey getIssuanceProtPrivKey();
-
-    /**
-     * get Issuance Protection Certificate
-     */
-    public org.mozilla.jss.crypto.X509Certificate getIssuanceProtCert();
 }
