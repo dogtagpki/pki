@@ -107,7 +107,7 @@ public class RevocationServlet extends CMSServlet {
                 mFormPath = "/" + TPL_FILE;
 
             if (mAuthority instanceof ICertificateAuthority) {
-                if (((ICertificateAuthority) mAuthority).noncesEnabled()) {
+                if (engine.getEnableNonces()) {
                     mRandom = jssSubsystem.getRandomNumberGenerator();
                 }
             }
@@ -210,7 +210,7 @@ public class RevocationServlet extends CMSServlet {
 
         if (mAuthority instanceof ICertificateAuthority) {
 
-            if (certAuthority.noncesEnabled()) {
+            if (engine.getEnableNonces()) {
                 // generate nonce
                 long n = mRandom.nextLong();
                 // store nonce in session

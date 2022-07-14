@@ -94,7 +94,7 @@ public class ReasonToRevoke extends CMSServlet {
             mCertDB = engine.getCertificateRepository();
         }
 
-        if (mCA != null && mCA.noncesEnabled()) {
+        if (mCA != null && engine.getEnableNonces()) {
             mRandom = jssSubsystem.getRandomNumberGenerator();
         }
 
@@ -224,6 +224,8 @@ public class ReasonToRevoke extends CMSServlet {
             Locale locale)
             throws EBaseException {
 
+        CAEngine engine = CAEngine.getInstance();
+
         header.addStringValue("revokeAll", revokeAll);
         header.addIntegerValue("totalRecordCount", totalRecordCount);
 
@@ -257,7 +259,7 @@ public class ReasonToRevoke extends CMSServlet {
 
                 if (xcert != null)
 
-                    if (mCA != null && mCA.noncesEnabled()) {
+                    if (mCA != null && engine.getEnableNonces()) {
                         // generate nonce
                         long n = mRandom.nextLong();
                         // store nonce in session
@@ -287,7 +289,7 @@ public class ReasonToRevoke extends CMSServlet {
 
             header.addIntegerValue("verifiedRecordCount", count);
 
-            if (mCA != null && mCA.noncesEnabled()) {
+            if (mCA != null && engine.getEnableNonces()) {
                 // return serial numbers and nonces to client
                 header.addStringValue("nonce", StringUtils.join(noncesList.toArray(), ","));
             }

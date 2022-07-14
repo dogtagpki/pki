@@ -393,7 +393,7 @@ public class DoRevoke extends CMSServlet {
         if (mAuthority instanceof ICertificateAuthority) {
             processor.setAuthority(certAuthority);
 
-            if (certAuthority.noncesEnabled()) {
+            if (engine.getEnableNonces()) {
                 String nonces = req.getParameter("nonce");
                 if (nonces == null) {
                     throw new ForbiddenException("Missing nonce.");
@@ -438,7 +438,7 @@ public class DoRevoke extends CMSServlet {
 
                     try {
                         if (mAuthority instanceof ICertificateAuthority &&
-                            certAuthority.noncesEnabled() &&
+                            engine.getEnableNonces() &&
                             !processor.isMemberOfSubsystemGroup(clientCert)) {
                             // validate nonce for each certificate
                             Long nonce = nonceMap.get(targetRecord.getSerialNumber());

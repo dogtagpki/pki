@@ -77,7 +77,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         queue = engine.getRequestQueue();
 
         ca = engine.getCA();
-        if (ca.noncesEnabled()) {
+        if (engine.getEnableNonces()) {
             JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             random = jssSubsystem.getRandomNumberGenerator();
         }
@@ -157,10 +157,12 @@ public class CertRequestDAO extends CMSRequestDAO {
         }
 
         String profileId = request.getExtDataInString(Request.PROFILE_ID);
+
+        CAEngine engine = CAEngine.getInstance();
         Profile profile = ps.getProfile(profileId);
         CertReviewResponse info = CertReviewResponseFactory.create(request, profile, uriInfo, locale);
 
-        if (ca.noncesEnabled()) {
+        if (engine.getEnableNonces()) {
             // generate nonce
             long n = random.nextLong();
             logger.info("CertRequestDAO: Nonce: " + n);

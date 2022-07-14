@@ -105,7 +105,7 @@ public class CertService extends PKIService implements CertResource {
 
         authority = engine.getCA();
 
-        if (authority.noncesEnabled()) {
+        if (engine.getEnableNonces()) {
             random = jssSubsystem.getRandomNumberGenerator();
         }
 
@@ -182,6 +182,8 @@ public class CertService extends PKIService implements CertResource {
             return unrevokeCert(id);
         }
 
+        CAEngine engine = CAEngine.getInstance();
+
         String caIssuerDN = null;
         X500Name caX500DN = null;
         RevocationProcessor processor;
@@ -256,7 +258,7 @@ public class CertService extends PKIService implements CertResource {
                 }
             }
 
-            if (authority.noncesEnabled() &&
+            if (engine.getEnableNonces() &&
                 !processor.isMemberOfSubsystemGroup(clientCert)) {
                 processor.validateNonce(servletRequest, "cert-revoke", id.toBigInteger(), request.getNonce());
 
@@ -573,7 +575,7 @@ public class CertService extends PKIService implements CertResource {
 
         certData.setStatus(record.getStatus());
 
-        if (authority.noncesEnabled() && generateNonce) {
+        if (engine.getEnableNonces() && generateNonce) {
             // generate nonce
             long n = random.nextLong();
             // store nonce in session

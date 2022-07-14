@@ -92,7 +92,7 @@ public class ProfileReviewServlet extends ProfileServlet {
         if (mAuthorityId != null)
             authority = (ICertificateAuthority) engine.getSubsystem(mAuthorityId);
 
-        if (authority != null && authority.noncesEnabled()) {
+        if (authority != null && engine.getEnableNonces()) {
             mRandom = jssSubsystem.getRandomNumberGenerator();
         }
     }
@@ -250,7 +250,7 @@ public class ProfileReviewServlet extends ProfileServlet {
             }
         }
 
-        if (authority != null && authority.noncesEnabled()) {
+        if (authority != null && engine.getEnableNonces()) {
             long n = mRandom.nextLong();
             Map<Object, Long> nonces = authority.getNonces(request, "cert-request");
             nonces.put(req.getRequestId().toBigInteger(), n);

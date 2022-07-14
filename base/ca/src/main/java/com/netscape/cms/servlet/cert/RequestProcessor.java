@@ -72,11 +72,12 @@ public class RequestProcessor extends CertProcessor {
 
         HttpServletRequest request = cmsReq.getHttpReq();
         Request ireq = cmsReq.getRequest();
-
         String profileId = ireq.getExtDataInString(Request.PROFILE_ID);
+
+        CAEngine engine = CAEngine.getInstance();
         Profile profile = ps.getProfile(profileId);
         CertReviewResponse data = CertReviewResponseFactory.create(
-                cmsReq, profile, authority.noncesEnabled(), locale);
+                cmsReq, profile, engine.getEnableNonces(), locale);
 
         AuthToken authToken = null;
 
@@ -106,7 +107,8 @@ public class RequestProcessor extends CertProcessor {
                 throw new EAuthzException(CMS.getUserMessage(locale, "CMS_AUTHORIZATION_ERROR"));
             }
 
-            if (authority.noncesEnabled()) {
+            CAEngine engine = CAEngine.getInstance();
+            if (engine.getEnableNonces()) {
                 Object id = data.getRequestId().toBigInteger();
 
                 String requestNonce = data.getNonce();

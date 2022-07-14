@@ -343,12 +343,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     @Override
-    public boolean noncesEnabled() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getEnableNonces();
-    }
-
-    @Override
     public Map<Object, Long> getNonces(HttpServletRequest request, String name) {
 
         // Create a new session or use an existing one.
