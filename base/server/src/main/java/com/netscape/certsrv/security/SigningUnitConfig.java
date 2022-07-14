@@ -6,9 +6,11 @@
 package com.netscape.certsrv.security;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class SigningUnitConfig extends ConfigStore {
 
@@ -64,6 +66,27 @@ public class SigningUnitConfig extends ConfigStore {
 
     public void setTokenName(String tokenName) {
         putString("tokenname", tokenName);
+    }
+
+    public String getFullName() throws EBaseException {
+
+        String nickname;
+        try {
+            nickname = getCertNickname();
+        } catch (EPropertyNotFound e) {
+            nickname = getCACertNickname();
+        }
+
+        String tokenName = getTokenName();
+
+        String fullName;
+        if (CryptoUtil.isInternalToken(tokenName)) {
+            fullName = nickname;
+        } else {
+            fullName = tokenName + ":" + nickname;
+        }
+
+        return fullName;
     }
 
     public boolean getTestSignatureFailure() throws EBaseException {
