@@ -57,6 +57,11 @@ public class AuthorityClient extends Client {
         return client.getEntity(response, AuthorityData.class);
     }
 
+    public String getChainPEM(String caIDString) throws Exception {
+        Response response = proxy.getChainPEM(caIDString);
+        return client.getEntity(response, String.class);
+    }
+
     public AuthorityData createCA(AuthorityData data) throws Exception {
         Response response = proxy.createCA(data);
         return client.getEntity(response, AuthorityData.class);
