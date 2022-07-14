@@ -33,6 +33,7 @@ import java.util.ResourceBundle;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
@@ -55,7 +56,6 @@ import com.netscape.certsrv.user.UserResource;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.usrgrp.User;
 
 import netscape.ldap.LDAPException;
@@ -72,7 +72,7 @@ public class TokenService extends SubsystemService implements TokenResource {
                     throws Exception {
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig config = engine.getConfig();
+        TPSEngineConfig config = engine.getConfig();
 
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 

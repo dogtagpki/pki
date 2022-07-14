@@ -22,7 +22,6 @@ import org.dogtagpki.tps.main.TPSException;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.cmscore.apps.EngineConfig;
 
 /*
  * TPSTokenPolicy - handles token enrollment related policies
@@ -69,7 +68,7 @@ public class TPSTokenPolicy {
 
     public String getDefaultPolicySetString() {
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig configStore = engine.getConfig();
+        TPSEngineConfig configStore = engine.getConfig();
         String configName = "tokendb.defaultPolicy";
         String policySetString;
         try {

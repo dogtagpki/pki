@@ -1,8 +1,7 @@
 package org.dogtagpki.server.tps.mapping;
 
+import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.tps.main.TPSException;
-
-import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * This class implements the base TPS mapping filter Resolver instance
@@ -10,7 +9,7 @@ import com.netscape.cmscore.apps.EngineConfig;
  * @author cfu
  */
 public abstract class BaseMappingResolver {
-    protected EngineConfig configStore;
+    protected TPSEngineConfig configStore;
     protected String instanceName = "";
     protected String prefix = "";
 

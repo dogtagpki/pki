@@ -19,6 +19,7 @@ package org.dogtagpki.server.tps.channel;
 
 import java.io.IOException;
 
+import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.processor.TPSProcessor;
 import org.dogtagpki.tps.apdu.APDU;
@@ -54,7 +55,6 @@ import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.pkcs11.PKCS11Constants;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.EngineConfig;
 
 public class SecureChannel {
 
@@ -327,7 +327,7 @@ public class SecureChannel {
         }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig configStore = engine.getConfig();
+        TPSEngineConfig configStore = engine.getConfig();
 
         final String keyCapabilities = "keyCapabilities";
 

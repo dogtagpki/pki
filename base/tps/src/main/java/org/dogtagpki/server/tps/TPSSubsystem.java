@@ -48,8 +48,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.tps.token.TokenStatus;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
@@ -61,7 +59,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 public class TPSSubsystem implements IAuthority {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSSubsystem.class);
 
     public final static String ID = "tps";
 
@@ -382,7 +380,7 @@ public class TPSSubsystem implements IAuthority {
             ObjectNotFoundException, TokenException {
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        TPSEngineConfig cs = engine.getConfig();
         String nickname = cs.getString("tps.subsystem.nickname", "");
         String tokenname = cs.getString("tps.subsystem.tokenname", "");
         if (!CryptoUtil.isInternalToken(tokenname))

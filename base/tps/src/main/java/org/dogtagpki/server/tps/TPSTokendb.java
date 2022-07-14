@@ -40,7 +40,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.tps.token.TokenStatus;
-import com.netscape.cmscore.apps.EngineConfig;
 
 /*
  * TPSTokendb class offers a collection of tokendb management convenience routines
@@ -273,7 +272,7 @@ public class TPSTokendb {
 	//Contrive a very difficult to reproduce testing scenario
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
 	try {
-	    EngineConfig configStore = engine.getConfig();
+	    TPSEngineConfig configStore = engine.getConfig();
             // get conn ID
             String config = "op.enroll." + "testAddCertsToDBFailure";
             testAddCertsFailure = configStore.getBoolean(config,false);
@@ -627,7 +626,7 @@ public class TPSTokendb {
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         try {
 
-            EngineConfig configStore = engine.getConfig();
+            TPSEngineConfig configStore = engine.getConfig();
 
             // get conn ID
             String config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() + ".ca.conn";
@@ -695,7 +694,7 @@ public class TPSTokendb {
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         try {
-            EngineConfig configStore = engine.getConfig();
+            TPSEngineConfig configStore = engine.getConfig();
 
             // get conn ID
             String config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() + ".ca.conn";
@@ -752,7 +751,7 @@ public class TPSTokendb {
         String method = "TPSTokendb.checkShouldRevoke:";
         String msg = "";
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig configStore = engine.getConfig();
+        TPSEngineConfig configStore = engine.getConfig();
 
         if (cert == null) {
             throw new TPSException("Missing token certificate");

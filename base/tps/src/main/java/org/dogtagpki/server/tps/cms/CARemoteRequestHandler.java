@@ -25,6 +25,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
+import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.tps.main.TPSBuffer;
@@ -38,7 +39,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -104,7 +104,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             tokenType = "";
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig conf = engine.getConfig();
+        TPSEngineConfig conf = engine.getConfig();
         String profileId =
                 conf.getString(TPSEngine.OP_ENROLL_PREFIX + "." +
                         tokenType + ".keyGen." +
@@ -415,7 +415,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig conf = engine.getConfig();
+        TPSEngineConfig conf = engine.getConfig();
 
         String profileId =
                 conf.getString(TPSEngine.OP_ENROLL_PREFIX + "." +
@@ -788,7 +788,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig conf = engine.getConfig();
+        TPSEngineConfig conf = engine.getConfig();
 
         /*
          * first, see if ca Subject Key Identifier (SKI) is in

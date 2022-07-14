@@ -23,9 +23,9 @@ import java.util.Hashtable;
 
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
+import org.dogtagpki.server.tps.TPSEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
@@ -82,7 +82,7 @@ public class AuthenticationManager
     public void initAuthInstances() throws EBaseException {
         logger.debug("AuthenticationManager: initAuthInstances(): begins.");
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig conf = engine.getConfig();
+        TPSEngineConfig conf = engine.getConfig();
         AuthenticationConfig authConfig = conf.getAuthenticationConfig();
 
         AuthManagersConfig authInstSubstore = authConfig.getAuthManagersConfig();

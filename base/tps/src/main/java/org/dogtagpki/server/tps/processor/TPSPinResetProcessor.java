@@ -19,6 +19,7 @@ package org.dogtagpki.server.tps.processor;
 
 import java.io.IOException;
 
+import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.TPSTokenPolicy;
@@ -37,7 +38,6 @@ import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.event.TokenPinResetEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
-import com.netscape.cmscore.apps.EngineConfig;
 
 public class TPSPinResetProcessor extends TPSProcessor {
 
@@ -51,7 +51,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
     @Override
     public void process(BeginOpMsg beginMsg) throws TPSException, IOException {
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig configStore = engine.getConfig();
+        TPSEngineConfig configStore = engine.getConfig();
 
         // Use this only for testing, not for normal operation.
         String configName = "op.pinReset.testNoBeginMsg";
@@ -135,7 +135,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
             logger.debug(method + " isExternalReg: ON");
 
             // Get authId for external reg attributes (e.g. "ldap1")
-            EngineConfig configStore = engine.getConfig();
+            TPSEngineConfig configStore = engine.getConfig();
             String configName = "externalReg.authId";
             String authId;
             try {
@@ -339,7 +339,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
         statusUpdate(100, "PROGRESS_PIN_RESET_COMPLETE");
         logMsg = "update token during pin reset";
 
-        EngineConfig configStore = engine.getConfig();
+        TPSEngineConfig configStore = engine.getConfig();
 
         // Use this only for testing, not for normal operation.
         String configName = "op.pinReset.testUpdateDBFailure";

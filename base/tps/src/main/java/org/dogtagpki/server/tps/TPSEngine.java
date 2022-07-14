@@ -20,7 +20,6 @@ package org.dogtagpki.server.tps;
 
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 
 public class TPSEngine extends CMSEngine {
@@ -34,7 +33,7 @@ public class TPSEngine extends CMSEngine {
     }
 
     @Override
-    public EngineConfig createConfig(ConfigStorage storage) throws Exception {
+    public TPSEngineConfig createConfig(ConfigStorage storage) throws Exception {
         return new TPSEngineConfig(storage);
     }
 

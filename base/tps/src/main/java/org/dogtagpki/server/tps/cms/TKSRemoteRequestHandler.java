@@ -21,13 +21,13 @@ package org.dogtagpki.server.tps.cms;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
+import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
 
@@ -112,7 +112,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig conf = engine.getConfig();
+        TPSEngineConfig conf = engine.getConfig();
 
         boolean serverKeygen = false;
 
@@ -262,7 +262,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig conf = engine.getConfig();
+        TPSEngineConfig conf = engine.getConfig();
 
         boolean serverKeygen = false;
 
@@ -448,7 +448,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig conf = engine.getConfig();
+        TPSEngineConfig conf = engine.getConfig();
 
         boolean serverKeygen = false;
 
@@ -589,7 +589,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig conf = engine.getConfig();
+        TPSEngineConfig conf = engine.getConfig();
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
@@ -761,7 +761,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        EngineConfig conf = engine.getConfig();
+        TPSEngineConfig conf = engine.getConfig();
 
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
