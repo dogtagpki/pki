@@ -59,6 +59,10 @@ public class CAPolicy implements IPolicy {
     public CAPolicy() {
     }
 
+    /**
+     * Retrieves the policy processor of this certificate authority.
+     * @return CA's policy processor
+     */
     public IPolicyProcessor getPolicyProcessor() {
         return mPolicies;
     }

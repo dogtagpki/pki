@@ -21,7 +21,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
@@ -105,12 +104,6 @@ public interface ICertificateAuthority extends ISubsystem {
      * @return CA's certificate repository
      */
     public CertificateRepository getCertificateRepository();
-
-    /**
-     * Retrieves the policy processor of this certificate authority.
-     * @return CA's policy processor
-     */
-    public IPolicyProcessor getPolicyProcessor();
 
     public Map<Object, Long> getNonces(HttpServletRequest request, String name);
 

@@ -76,7 +76,7 @@ public class CAPolicyAdminServlet extends PolicyAdminServlet {
             throw new ServletException(authority + " does not have policy processor");
         }
 
-        mProcessor = ca.getPolicyProcessor();
+        mProcessor = engine.getCAPolicy().getPolicyProcessor();
 
         String policyStatus = ICertificateAuthority.ID + ".Policy." + IPolicyProcessor.PROP_ENABLE;
 

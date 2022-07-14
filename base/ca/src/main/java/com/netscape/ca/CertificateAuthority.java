@@ -46,7 +46,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
@@ -328,12 +327,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         CRLIssuingPoint masterCRLIssuingPoint = (CRLIssuingPoint) engine.getMasterCRLIssuingPoint();
         if (masterCRLIssuingPoint == null) return;
         masterCRLIssuingPoint.publishCRL();
-    }
-
-    @Override
-    public IPolicyProcessor getPolicyProcessor() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getCAPolicy().getPolicyProcessor();
     }
 
     @Override
