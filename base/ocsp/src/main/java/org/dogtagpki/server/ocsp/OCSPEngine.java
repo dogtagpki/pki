@@ -21,7 +21,6 @@ package org.dogtagpki.server.ocsp;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.ocsp.OCSPAuthority;
@@ -37,7 +36,7 @@ public class OCSPEngine extends CMSEngine {
     }
 
     @Override
-    public EngineConfig createConfig(ConfigStorage storage) throws Exception {
+    public OCSPEngineConfig createConfig(ConfigStorage storage) throws Exception {
         return new OCSPEngineConfig(storage);
     }
 
