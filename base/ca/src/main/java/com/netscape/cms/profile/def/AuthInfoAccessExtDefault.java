@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -37,6 +38,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -431,10 +433,44 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
         addExtension(ext.getExtensionId().toString(), ext, info);
     }
 
-    public AuthInfoAccessExtension createExtension() {
+    public String getBuiltinOCSPPort() throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        if (engine != null) {
+            // if running inside server, use the port provided by the engine
+            return engine.getEENonSSLPort();
+        }
+
+        // if running outside of server, use the proxy port if available
+        String port = engineConfig.getString("proxy.unsecurePort", null);
+        if (port != null) {
+            return port;
+        }
+
+        // otherwise, get the port from server.xml
+        String instanceRoot = engineConfig.getInstanceDir();
+        String path = instanceRoot + File.separator + "conf" + File.separator + "server.xml";
+
+        ServerXml serverXml = ServerXml.load(path);
+        return serverXml.getUnsecurePort();
+    }
+
+    public String getDefaultOCSPURL() throws Exception {
+
+        // return the URL specified in ca.defaultOcspUri if available
+        String url = engineConfig.getString("ca.defaultOcspUri", null);
+        if (url != null) {
+            return url;
+        }
+
+        // otherwise, return the URL of the built-in OCSP responder
+        String hostname = engineConfig.getHostname();
+        String port = getBuiltinOCSPPort();
+
+        return "http://" + hostname + ":" + port + "/ca/ocsp";
+    }
+
+    public AuthInfoAccessExtension createExtension() {
 
         AuthInfoAccessExtension ext = null;
         int num = getNumAds();
@@ -455,12 +491,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
 
                     if (location == null || location.equals("")) {
                         if (method.equals("1.3.6.1.5.5.7.48.1")) {
-                            String hostname = cs.getHostname();
-                            String port = engine.getEENonSSLPort();
-                            String uri = "";
-                            if (hostname != null && port != null)
-                                uri = "http://" + hostname + ":" + port + "/ca/ocsp";
-                            location = cs.getString("ca.defaultOcspUri", uri);
+                            location = getDefaultOCSPURL();
                         }
                     }
 
