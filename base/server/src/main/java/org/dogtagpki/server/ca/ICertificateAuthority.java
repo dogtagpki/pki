@@ -230,13 +230,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public void updateCRLNow() throws EBaseException;
 
     /**
-     * Publishes the CRL immediately for MasterCRL issuing point if it exists.
-     *
-     * @exception EBaseException failed to publish CRL
-     */
-    public void publishCRLNow() throws EBaseException;
-
-    /**
      * Retrieves the signing unit that manages the CA signing key for
      * signing certificates.
      *

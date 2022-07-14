@@ -322,14 +322,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     @Override
-    public void publishCRLNow() throws EBaseException {
-        CAEngine engine = CAEngine.getInstance();
-        CRLIssuingPoint masterCRLIssuingPoint = (CRLIssuingPoint) engine.getMasterCRLIssuingPoint();
-        if (masterCRLIssuingPoint == null) return;
-        masterCRLIssuingPoint.publishCRL();
-    }
-
-    @Override
     public Map<Object, Long> getNonces(HttpServletRequest request, String name) {
 
         // Create a new session or use an existing one.

@@ -3167,9 +3167,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     /**
-     * publish CRL. called from updateCRLNow() and init().
+     * Publishes the CRL immediately.
+     *
+     * @exception EBaseException failed to publish CRL
      */
-
     public void publishCRL()
             throws EBaseException {
         publishCRL(null);

@@ -31,6 +31,7 @@ import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -967,7 +968,10 @@ public class PublisherAdminServlet extends AdminServlet {
                 // publish crl
                 try {
                     logger.debug("PublisherAdminServlet: about to update CRL");
-                    ca.publishCRLNow();
+                    CRLIssuingPoint masterCRLIssuingPoint = (CRLIssuingPoint) engine.getMasterCRLIssuingPoint();
+                    if (masterCRLIssuingPoint != null) {
+                        masterCRLIssuingPoint.publishCRL();
+                    }
                     logger.debug(CMS.getLogMessage("ADMIN_SRVLT_PUB_CRL"));
                     params.put("publishCRL",
                             "CRL is published.");
