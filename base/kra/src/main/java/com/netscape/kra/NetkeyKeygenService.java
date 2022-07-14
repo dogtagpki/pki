@@ -28,6 +28,7 @@ import java.security.KeyPair;
 import java.security.SecureRandom;
 
 import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -61,7 +62,6 @@ import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.Request;
@@ -170,7 +170,7 @@ public class NetkeyKeygenService implements IService {
 
         IVParameterSpec algParam = new IVParameterSpec(iv);
 
-        EngineConfig configStore = engine.getConfig();
+        KRAEngineConfig configStore = engine.getConfig();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 
         boolean useOAEPKeyWrap = configStore.getBoolean("keyWrap.useOAEP",false);

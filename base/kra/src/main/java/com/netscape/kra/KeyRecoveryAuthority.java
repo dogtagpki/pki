@@ -77,7 +77,6 @@ import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
@@ -1817,7 +1816,7 @@ public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
               extractable == true
         */
         KeyPairGenerator kpGen = token.getKeyPairGenerator(kpAlg);
-        EngineConfig config = engine.getConfig();
+        KRAEngineConfig config = engine.getConfig();
         ConfigStore kgConfig = config.getSubStore("kra.keygen", ConfigStore.class);
         boolean tp = temp;
         boolean sp = false;

@@ -28,6 +28,7 @@ import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.dogtagpki.server.kra.ProofOfArchival;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
@@ -67,7 +68,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.KeyRecord;
@@ -146,7 +146,7 @@ public class EnrollmentService implements IService {
         KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        EngineConfig config = null;
+        KRAEngineConfig config = null;
         Boolean allowEncDecrypt_archival = false;
 
         try {

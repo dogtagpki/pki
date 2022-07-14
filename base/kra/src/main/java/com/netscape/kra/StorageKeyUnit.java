@@ -34,6 +34,7 @@ import javax.crypto.BadPaddingException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -68,7 +69,6 @@ import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -239,7 +239,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         mConfig = config;
         mKeySplitting = keySplitting;
 
-        EngineConfig kraCfg = null;
+        KRAEngineConfig kraCfg = null;
         kraCfg  = engine.getConfig();
 
         useOAEPKeyWrap = kraCfg.getBoolean("keyWrap.useOAEP",false);

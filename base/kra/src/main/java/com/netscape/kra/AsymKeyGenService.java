@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 
 import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
@@ -37,7 +38,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.Request;
@@ -74,7 +74,7 @@ public class AsymKeyGenService implements IService {
     public boolean serviceRequest(Request request) throws EBaseException {
         String method = "AsymKeyGenService:serviceRequest: ";
         KRAEngine engine = KRAEngine.getInstance();
-        EngineConfig configStore = engine.getConfig();
+        KRAEngineConfig configStore = engine.getConfig();
 
         String owner = request.getExtDataInString(Request.ATTR_REQUEST_OWNER);
         String auditSubjectID = owner;

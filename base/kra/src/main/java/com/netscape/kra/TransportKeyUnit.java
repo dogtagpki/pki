@@ -20,6 +20,7 @@ package com.netscape.kra;
 import java.security.PublicKey;
 
 import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -39,7 +40,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -109,7 +109,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
 
 
             KRAEngine engine = KRAEngine.getInstance();
-            EngineConfig kraCfg = null;
+            KRAEngineConfig kraCfg = null;
             kraCfg  = engine.getConfig();
 
             boolean useOAEPKeyWrap = kraCfg.getBoolean("keyWrap.useOAEP",false);

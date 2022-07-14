@@ -28,6 +28,7 @@ import java.security.SecureRandom;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
@@ -60,7 +61,6 @@ import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.Request;
@@ -197,7 +197,7 @@ public class TokenKeyRecoveryService implements IService {
         KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        EngineConfig config = null;
+        KRAEngineConfig config = null;
         Boolean allowEncDecrypt_recovery = false;
         boolean useOAEPKeyWrap = false;
         try {

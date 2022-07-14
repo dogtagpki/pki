@@ -21,7 +21,6 @@ package org.dogtagpki.server.kra;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.KeyRequestRepository;
@@ -38,7 +37,7 @@ public class KRAEngine extends CMSEngine {
     }
 
     @Override
-    public EngineConfig createConfig(ConfigStorage storage) throws Exception {
+    public KRAEngineConfig createConfig(ConfigStorage storage) throws Exception {
         return new KRAEngineConfig(storage);
     }
 

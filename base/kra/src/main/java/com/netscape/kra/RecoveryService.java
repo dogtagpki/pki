@@ -30,6 +30,7 @@ import java.util.Hashtable;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -68,7 +69,6 @@ import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.Request;
@@ -137,7 +137,7 @@ public class RecoveryService implements IService {
     public boolean serviceRequest(Request request) throws EBaseException {
 
         CryptoManager cm = null;
-        EngineConfig config = null;
+        KRAEngineConfig config = null;
         String tokName = "";
         CryptoToken ct = null;
         Boolean allowEncDecrypt_recovery = false;

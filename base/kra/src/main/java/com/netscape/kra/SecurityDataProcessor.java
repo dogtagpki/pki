@@ -12,6 +12,7 @@ import java.util.Hashtable;
 import javax.crypto.spec.RC2ParameterSpec;
 
 import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.dogtagpki.server.kra.rest.KeyRequestService;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
@@ -46,7 +47,6 @@ import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.Request;
@@ -107,7 +107,7 @@ public class SecurityDataProcessor {
         KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        EngineConfig config = null;
+        KRAEngineConfig config = null;
 
         try {
             config = engine.getConfig();
@@ -376,7 +376,7 @@ public class SecurityDataProcessor {
         KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        EngineConfig config = null;
+        KRAEngineConfig config = null;
 
         try {
             config = engine.getConfig();
