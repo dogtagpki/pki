@@ -1,6 +1,5 @@
 package org.dogtagpki.est;
 
-import java.security.cert.X509Certificate;
 import java.util.Optional;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -13,9 +12,9 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
  */
 public abstract class ESTBackend {
 
-    void start() { }
+    void start() throws Throwable { }
 
-    void stop() { }
+    void stop() throws Throwable { }
 
     ESTBackendConfig config;
 
