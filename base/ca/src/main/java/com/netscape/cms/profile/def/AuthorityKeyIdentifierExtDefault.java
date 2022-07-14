@@ -20,15 +20,13 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
-import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
@@ -169,18 +167,6 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
     public void populate(Request request, X509CertInfo info)
             throws EProfileException {
 
-        CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
-
-        String aidString = request.getExtDataInString(
-                Request.AUTHORITY_ID);
-
-        if (aidString != null)
-            ca = engine.getCA(new AuthorityID(aidString));
-
-        if (ca == null)
-            throw new EProfileException("Could not reach requested CA");
-
         AuthorityKeyIdentifierExtension ext;
         try {
             String localKey = getConfig("localKey");
@@ -190,12 +176,14 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
                 kid = getKeyIdentifier(info);
 
             } else {
-                kid = getCAKeyIdentifier(ca.getCACert());
+                String authorityID = request.getExtDataInString(Request.AUTHORITY_ID);
+                X509CertImpl signingCert = getSigningCert(authorityID);
+                kid = getCAKeyIdentifier(signingCert);
             }
 
             ext = createExtension(kid);
 
-        } catch (EBaseException e) {
+        } catch (Exception e) {
             throw new EProfileException(e);
         }
 
