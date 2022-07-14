@@ -18,6 +18,7 @@
 package com.netscape.cms.profile.def;
 
 import java.io.IOException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -26,6 +27,13 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.CAConfig;
+import org.dogtagpki.server.ca.CAEngine;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.NotInitializedException;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.extensions.KerberosName;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
@@ -44,15 +52,20 @@ import org.mozilla.jss.netscape.security.x509.OtherName;
 import org.mozilla.jss.netscape.security.x509.RFC822Name;
 import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CASigningUnit;
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IAttrSet;
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.pattern.Pattern;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -827,5 +840,63 @@ public abstract class EnrollDefault extends PolicyDefault {
             attrSet = request.asIAttrSet();
         }
         return p.substitute2("request", attrSet);
+    }
+
+    public X509CertImpl getSigningCert() throws
+        EBaseException,
+        NotInitializedException,
+        TokenException,
+        CertificateException {
+
+        return getSigningCert(null);
+    }
+
+    public X509CertImpl getSigningCert(String authorityID) throws
+        EBaseException,
+        NotInitializedException,
+        TokenException,
+        CertificateException {
+
+        CAEngine engine = CAEngine.getInstance();
+
+        if (engine != null) {
+
+            // if running inside server, get signing cert from signing unit object
+
+            CertificateAuthority ca;
+
+            if (authorityID == null) {
+                ca = engine.getCA();
+            } else {
+                ca = engine.getCA(new AuthorityID(authorityID));
+            }
+
+            if (ca == null) {
+                throw new EProfileException("Could not reach requested CA");
+            }
+
+            CASigningUnit signingUnit = ca.getSigningUnit();
+
+            if (signingUnit == null) {
+                return null;
+            }
+
+            return signingUnit.getCertImpl();
+        }
+
+        // if running outside of server, get signing cert from signing unit config
+
+        CAConfig caConfig = engineConfig.getCAConfig();
+        SigningUnitConfig signingUnitConfig = caConfig.getSigningUnitConfig();
+        String fullName = signingUnitConfig.getFullName();
+
+        try {
+            CryptoManager cm = CryptoManager.getInstance();
+            X509Certificate cert = cm.findCertByNickname(fullName);
+            return new X509CertImpl(cert.getEncoded());
+
+        } catch (ObjectNotFoundException e) {
+            return null;
+        }
     }
 }

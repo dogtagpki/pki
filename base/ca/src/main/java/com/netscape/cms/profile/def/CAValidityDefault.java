@@ -18,35 +18,23 @@
 package com.netscape.cms.profile.def;
 
 import java.io.IOException;
-import java.security.cert.CertificateException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.dogtagpki.server.ca.CAConfig;
-import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.NotInitializedException;
-import org.mozilla.jss.crypto.ObjectNotFoundException;
-import org.mozilla.jss.crypto.TokenException;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.ca.CASigningUnit;
-import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -87,44 +75,6 @@ public class CAValidityDefault extends EnrollDefault {
     @Override
     public void init(CAEngineConfig engineConfig, ConfigStore config) throws EProfileException {
         super.init(engineConfig, config);
-    }
-
-    public X509CertImpl getSigningCert() throws
-            EBaseException,
-            NotInitializedException,
-            TokenException,
-            CertificateException {
-
-        CAEngine engine = CAEngine.getInstance();
-
-        if (engine != null) {
-
-            // if running inside server, get signing cert from signing unit object
-
-            CertificateAuthority ca = engine.getCA();
-            CASigningUnit signingUnit = ca.getSigningUnit();
-
-            if (signingUnit == null) {
-                return null;
-            }
-
-            return signingUnit.getCertImpl();
-        }
-
-        // if running outside of server, get signing cert from signing unit config
-
-        CAConfig caConfig = engineConfig.getCAConfig();
-        SigningUnitConfig signingUnitConfig = caConfig.getSigningUnitConfig();
-        String fullName = signingUnitConfig.getFullName();
-
-        try {
-            CryptoManager cm = CryptoManager.getInstance();
-            X509Certificate cert = cm.findCertByNickname(fullName);
-            return new X509CertImpl(cert.getEncoded());
-
-        } catch (ObjectNotFoundException e) {
-            return null;
-        }
     }
 
     @Override
