@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.x509.CRLDistributionPoint;
 import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
@@ -36,7 +37,6 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -77,7 +77,7 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
     }
 
     @Override
-    public void init(EngineConfig engineConfig, ConfigStore config) throws EProfileException {
+    public void init(CAEngineConfig engineConfig, ConfigStore config) throws EProfileException {
         super.init(engineConfig, config);
         refreshConfigAndValueNames();
     }

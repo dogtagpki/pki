@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
@@ -36,7 +37,6 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -92,7 +92,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
     }
 
     @Override
-    public void init(EngineConfig engineConfig, ConfigStore config) throws EProfileException {
+    public void init(CAEngineConfig engineConfig, ConfigStore config) throws EProfileException {
         super.init(engineConfig, config);
         refreshConfigAndValueNames();
     }

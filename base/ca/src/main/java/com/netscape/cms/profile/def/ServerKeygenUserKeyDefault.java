@@ -25,6 +25,7 @@ import java.util.Vector;
 
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -47,7 +48,6 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -88,7 +88,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
     }
 
     @Override
-    public void init(EngineConfig engineConfig, ConfigStore config) throws EProfileException {
+    public void init(CAEngineConfig engineConfig, ConfigStore config) throws EProfileException {
         super.init(engineConfig, config);
     }
 

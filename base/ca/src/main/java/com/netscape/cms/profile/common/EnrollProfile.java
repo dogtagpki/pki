@@ -128,7 +128,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.request.Request;
@@ -1300,7 +1299,7 @@ public abstract class EnrollProfile extends Profile {
             return null;
         }
 
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
 
         CertificateAuthority authority = getAuthority();
         PrivateKey issuanceProtPrivKey = authority.getIssuanceProtPrivKey();

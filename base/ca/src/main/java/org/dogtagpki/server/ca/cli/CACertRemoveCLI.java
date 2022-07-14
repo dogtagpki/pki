@@ -11,6 +11,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.Level;
 import org.slf4j.Logger;
@@ -19,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -77,7 +77,7 @@ public class CACertRemoveCLI extends CommandCLI {
 
         logger.info("Loading " + configFile);
         ConfigStorage storage = new FileConfigStorage(configFile);
-        EngineConfig cs = new EngineConfig(storage);
+        CAEngineConfig cs = new CAEngineConfig(storage);
         cs.load();
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();

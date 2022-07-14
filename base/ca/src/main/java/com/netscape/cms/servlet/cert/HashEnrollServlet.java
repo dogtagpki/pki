@@ -41,6 +41,7 @@ import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
@@ -77,7 +78,6 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
@@ -190,7 +190,7 @@ public class HashEnrollServlet extends CMSServlet {
         }
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig configStore = engine.getConfig();
+        CAEngineConfig configStore = engine.getConfig();
 
         String val = configStore.getString("hashDirEnrollment.name");
         AuthSubsystem authSS = engine.getAuthSubsystem();
@@ -332,7 +332,7 @@ public class HashEnrollServlet extends CMSServlet {
         saveHttpHeaders(httpReq, req);
         saveHttpParams(httpParams, req);
 
-        EngineConfig configStore = engine.getConfig();
+        CAEngineConfig configStore = engine.getConfig();
         CertificateRepository cr = engine.getCertificateRepository();
 
         AuthToken token = authenticate(cmsReq);

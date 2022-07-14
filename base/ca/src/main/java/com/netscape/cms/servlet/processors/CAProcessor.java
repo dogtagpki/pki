@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
@@ -60,7 +61,6 @@ import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
@@ -146,7 +146,7 @@ public class CAProcessor extends Processor {
         super(id, locale);
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig config = engine.getConfig();
+        CAEngineConfig config = engine.getConfig();
 
         authority = engine.getCA();
         authz = engine.getAuthzSubsystem();

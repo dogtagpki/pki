@@ -26,6 +26,7 @@ import java.util.Hashtable;
 
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
 import com.netscape.ca.CertificateAuthority;
@@ -41,7 +42,6 @@ import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.notification.EmailFormProcessor;
@@ -112,7 +112,7 @@ public class CertificateRevokedListener implements IRequestListener {
     @Override
     public void init(ISubsystem sub, ConfigStore config) throws EListenersException, EPropertyNotFound, EBaseException {
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
         mSubsystem = (CertificateAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 

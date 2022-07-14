@@ -26,13 +26,13 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -106,7 +106,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         logger.debug("CrossCertPairSubsystem: initializing");
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
 
         try {
             mConfig = config;

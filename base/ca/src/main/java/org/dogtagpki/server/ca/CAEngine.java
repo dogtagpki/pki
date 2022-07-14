@@ -65,7 +65,6 @@ import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
@@ -174,7 +173,7 @@ public class CAEngine extends CMSEngine {
     }
 
     @Override
-    public EngineConfig createConfig(ConfigStorage storage) throws Exception {
+    public CAEngineConfig createConfig(ConfigStorage storage) throws Exception {
         return new CAEngineConfig(storage);
     }
 

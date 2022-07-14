@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -39,7 +40,6 @@ import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -285,7 +285,7 @@ public class RenewalNotificationJob
     @Override
     public void run() {
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
         try {
             // for forming renewal URL at template
             mHttpHost = cs.getHostname();

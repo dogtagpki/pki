@@ -26,6 +26,7 @@ import java.util.Vector;
 
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICMSCRLExtension;
 import org.dogtagpki.server.ca.ICMSCRLExtensions;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
@@ -51,7 +52,6 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 
 public class CMSCRLExtensions implements ICMSCRLExtensions {
@@ -199,7 +199,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         mCRLExtConfig = config.getSubStore(PROP_EXTENSION, ConfigStore.class);
         mCRLIssuingPoint = crlIssuingPoint;
 
-        EngineConfig mFileConfig = engine.getConfig();
+        CAEngineConfig mFileConfig = engine.getConfig();
 
         ConfigStore crlExtConfig = mFileConfig;
         StringTokenizer st = new StringTokenizer(mCRLExtConfig.getName(), ".");

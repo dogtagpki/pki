@@ -26,6 +26,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -41,7 +42,6 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.updater.ProfileUpdater;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.Request;
@@ -95,7 +95,7 @@ public abstract class Profile {
     public static final String PROP_NO_CONSTRAINT = "noConstraintImpl";
     public static final String PROP_GENERIC_EXT_DEFAULT = "genericExtDefaultImpl";
 
-    protected EngineConfig engineConfig;
+    protected CAEngineConfig engineConfig;
     protected ConfigStore mConfig;
     protected PluginRegistry registry;
 
@@ -234,7 +234,7 @@ public abstract class Profile {
      * @exception EBaseException failed to initialize
      */
     public void init(
-            EngineConfig engineConfig,
+            CAEngineConfig engineConfig,
             PluginRegistry registry,
             ConfigStore profileConfig
             ) throws EBaseException {

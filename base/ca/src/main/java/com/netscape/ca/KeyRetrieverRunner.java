@@ -21,6 +21,7 @@ import java.security.PublicKey;
 import java.util.Collection;
 
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -30,7 +31,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class KeyRetrieverRunner implements Runnable {
@@ -52,7 +52,7 @@ public class KeyRetrieverRunner implements Runnable {
         this.hosts = certificateAuthority.getAuthorityKeyHosts();
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
         try {
             this.useOAEPKeyWrap = cs.getBoolean("keyWrap.useOAEP",false);
         } catch (EBaseException e1) {
@@ -95,7 +95,7 @@ public class KeyRetrieverRunner implements Runnable {
     private boolean _run() {
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
 
         KeyRetriever.Result krr = null;
         try {

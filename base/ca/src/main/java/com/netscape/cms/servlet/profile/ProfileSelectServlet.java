@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -46,7 +47,6 @@ import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.RequestQueue;
 
@@ -90,7 +90,7 @@ public class ProfileSelectServlet extends ProfileServlet {
         Locale locale = getLocale(request);
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
 
         AuthToken authToken = null;
         ArgSet args = new ArgSet();

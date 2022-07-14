@@ -37,6 +37,7 @@ import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -69,7 +70,6 @@ import com.netscape.cms.servlet.processors.KeyGenProcessor;
 import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
@@ -181,7 +181,7 @@ public class EnrollServlet extends CMSServlet {
             logger.debug("EnrollServlet: In Enroll Servlet init!");
 
             CAEngine engine = CAEngine.getInstance();
-            EngineConfig configStore = engine.getConfig();
+            CAEngineConfig configStore = engine.getConfig();
 
             try {
                 String PKI_Subsystem = configStore.getString("subsystem.0.id",
@@ -691,7 +691,7 @@ public class EnrollServlet extends CMSServlet {
             throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig configStore = engine.getConfig();
+        CAEngineConfig configStore = engine.getConfig();
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();

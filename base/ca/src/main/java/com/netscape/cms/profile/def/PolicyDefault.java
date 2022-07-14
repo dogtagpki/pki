@@ -20,11 +20,12 @@ package com.netscape.cms.profile.def;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import org.dogtagpki.server.ca.CAEngineConfig;
+
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -51,7 +52,7 @@ import com.netscape.cmscore.request.Request;
  */
 public abstract class PolicyDefault implements IConfigTemplate {
 
-    protected EngineConfig engineConfig;
+    protected CAEngineConfig engineConfig;
     protected ConfigStore mConfig;
 
     /**
@@ -61,7 +62,7 @@ public abstract class PolicyDefault implements IConfigTemplate {
      * @param config configuration store for this default
      * @exception EProfileException failed to initialize
      */
-    public void init(EngineConfig engineConfig, ConfigStore config) throws EProfileException {
+    public void init(CAEngineConfig engineConfig, ConfigStore config) throws EProfileException {
         this.engineConfig = engineConfig;
         this.mConfig = config;
     }

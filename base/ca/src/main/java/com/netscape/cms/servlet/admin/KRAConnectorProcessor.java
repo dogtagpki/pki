@@ -22,6 +22,7 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.ca.CAService;
 import com.netscape.certsrv.base.BadRequestException;
@@ -32,7 +33,6 @@ import com.netscape.certsrv.connector.Connector;
 import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.processors.CAProcessor;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -71,7 +71,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         }
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
 
         String host = cs.getString(PREFIX + ".host");
         logger.info("KRAConnectorProcessor: KRA connector host: " + host);
@@ -168,7 +168,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAEngine engine = CAEngine.getInstance();
         CAService caService = engine.getCAService();
 
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
         Connector kraConnector = caService.getConnector(cs.getSubStore(PREFIX, ConfigStore.class));
         caService.setKRAConnector(kraConnector);
 
@@ -192,7 +192,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         logger.info("KRAConnectorProcessor: - transport nickname: " + info.getTransportCertNickname());
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
 
         String newHost = info.getHost();
         String newPort = info.getPort();
@@ -251,7 +251,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         }
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
 
         KRAConnectorInfo info = new KRAConnectorInfo();
         info.setHost(cs.getString(PREFIX + ".host"));
@@ -267,7 +267,7 @@ public class KRAConnectorProcessor extends CAProcessor {
 
     public void addHost(String newHost, String newPort) throws EPropertyNotFound, EBaseException {
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
 
         if ((newHost == null) || (newPort == null)) {
             logger.error("KRAConnectorProcessor: Missing KRA connector host, port, or transport certificate");

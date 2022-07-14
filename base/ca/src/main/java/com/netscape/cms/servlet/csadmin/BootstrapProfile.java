@@ -21,10 +21,10 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.cms.profile.def.EnrollDefault;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -32,7 +32,7 @@ public class BootstrapProfile {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BootstrapProfile.class);
 
-    EngineConfig engineConfig;
+    CAEngineConfig engineConfig;
 
     private Vector<EnrollDefault> mDefaults = new Vector<>();
     private String mName = null;
@@ -41,7 +41,7 @@ public class BootstrapProfile {
     private String mProfileIDMapping = null;
     private String mProfileSetIDMapping = null;
 
-    public BootstrapProfile(EngineConfig engineConfig, ConfigStore config) throws Exception {
+    public BootstrapProfile(CAEngineConfig engineConfig, ConfigStore config) throws Exception {
 
         this.engineConfig = engineConfig;
 

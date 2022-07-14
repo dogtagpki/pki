@@ -42,6 +42,7 @@ import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -101,7 +102,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -262,7 +262,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
         logger.debug(method + "begins");
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
 
         String auditSubjectID = getAuditSubjectID();
         String auditReqType = ILogger.UNIDENTIFIED;
@@ -963,7 +963,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
         logger.debug(method + "begins");
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
 
         EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
         OBJECT_IDENTIFIER id = ci.getContentType();

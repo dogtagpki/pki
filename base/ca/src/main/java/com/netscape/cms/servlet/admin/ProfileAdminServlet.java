@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -48,7 +49,6 @@ import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
@@ -2400,7 +2400,7 @@ public class ProfileAdminServlet extends AdminServlet {
             throws ServletException, IOException {
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();

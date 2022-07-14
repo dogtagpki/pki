@@ -33,6 +33,7 @@ import java.util.Vector;
 
 import org.dogtagpki.ct.CTEngine;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
@@ -82,7 +83,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.LocalConnector;
@@ -235,7 +235,7 @@ public class CAService implements IService {
     public Connector getConnector(ConfigStore config) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
 
         Connector connector = null;
 

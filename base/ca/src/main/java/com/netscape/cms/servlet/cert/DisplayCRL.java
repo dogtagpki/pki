@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
@@ -47,7 +48,6 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.CrlPrettyPrint;
@@ -174,7 +174,7 @@ public class DisplayCRL extends CMSServlet {
                          String crlIssuingPointId,
                          Locale locale) {
         CAEngine engine = CAEngine.getInstance();
-        EngineConfig cs = engine.getConfig();
+        CAEngineConfig cs = engine.getConfig();
         CRLRepository crlRepository = engine.getCRLRepository();
 
         ICRLIssuingPoint crlIP = null;
