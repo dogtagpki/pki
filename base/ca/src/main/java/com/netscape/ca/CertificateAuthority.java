@@ -310,17 +310,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         mId = id;
     }
 
-    /**
-     * updates the Master CRL now
-     */
-    @Override
-    public void updateCRLNow() throws EBaseException {
-        CAEngine engine = CAEngine.getInstance();
-        CRLIssuingPoint masterCRLIssuingPoint = (CRLIssuingPoint) engine.getMasterCRLIssuingPoint();
-        if (masterCRLIssuingPoint == null) return;
-        masterCRLIssuingPoint.updateCRLNow();
-    }
-
     @Override
     public Map<Object, Long> getNonces(HttpServletRequest request, String name) {
 

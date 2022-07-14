@@ -223,13 +223,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public X509CertImpl getCACert() throws EBaseException;
 
     /**
-     * Updates the CRL immediately for MasterCRL issuing point if it exists.
-     *
-     * @exception EBaseException failed to create or publish CRL
-     */
-    public void updateCRLNow() throws EBaseException;
-
-    /**
      * Retrieves the signing unit that manages the CA signing key for
      * signing certificates.
      *

@@ -2614,7 +2614,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     /**
-     * updates CRL and publishes it now
+     * Updates the CRL immediately.
+     *
+     * @exception EBaseException failed to create or publish CRL
      */
     @Override
     public void updateCRLNow()
