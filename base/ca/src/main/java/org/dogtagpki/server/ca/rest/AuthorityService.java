@@ -165,11 +165,13 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
         logger.info("AuthorityService: getting cert for authority " + aidString);
 
-        AuthorityID aid;
-        try {
-            aid = new AuthorityID(aidString);
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Bad AuthorityID: " + aidString);
+        AuthorityID aid = null;
+        if (!AuthorityResource.HOST_AUTHORITY.equals(aidString)) {
+            try {
+                aid = new AuthorityID(aidString);
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("Bad AuthorityID: " + aidString);
+            }
         }
 
         CAEngine engine = CAEngine.getInstance();
@@ -202,11 +204,13 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
         logger.info("AuthorityService: getting cert chain for authority " + aidString);
 
-        AuthorityID aid;
-        try {
-            aid = new AuthorityID(aidString);
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Bad AuthorityID: " + aidString);
+        AuthorityID aid = null;
+        if (!AuthorityResource.HOST_AUTHORITY.equals(aidString)) {
+            try {
+                aid = new AuthorityID(aidString);
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("Bad AuthorityID: " + aidString);
+            }
         }
 
         CAEngine engine = CAEngine.getInstance();
