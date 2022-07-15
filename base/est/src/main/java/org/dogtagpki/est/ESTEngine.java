@@ -4,17 +4,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Properties;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
-
 /**
  * Engine that manages the EST backend(s) according to configuration.
  *
  * @author Fraser Tweedale
  */
-@WebListener
-public class ESTEngine implements ServletContextListener {
+public class ESTEngine {
 
     private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ESTEngine.class);
 
@@ -57,26 +52,6 @@ public class ESTEngine implements ServletContextListener {
         }
 
         logger.info("EST engine stopped");
-    }
-
-    @Override
-    public void contextInitialized(ServletContextEvent event) {
-        try {
-            start(event.getServletContext().getContextPath());
-        } catch (Throwable e) {
-            logger.error("Unable to start EST engine: " + e.getMessage(), e);
-            throw new RuntimeException("Unable to start EST engine: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent event) {
-        try {
-            stop();
-        } catch (Throwable e) {
-            logger.error("Unable to stop EST engine: " + e.getMessage(), e);
-            throw new RuntimeException("Unable to stop EST engine: " + e.getMessage(), e);
-        }
     }
 
     private void initBackend(String filename) throws Throwable {
