@@ -750,6 +750,12 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
         echo "    $WORK_DIR/base/javadoc/javadoc/pki"
     fi
 
+    if [ "$WITH_CONSOLE" = true ] ; then
+        echo "- Console:"
+        echo "    $WORK_DIR/dist/pki-console.jar"
+        echo "    $WORK_DIR/base/console/bin/pkiconsole"
+    fi
+
     echo
     echo "To install the build: $0 install"
     echo "To create RPM packages: $0 rpm"

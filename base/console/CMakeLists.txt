@@ -1,7 +1,5 @@
 project(console NONE)
 
-add_subdirectory(templates)
-
 # build console classes
 javac(pki-console-classes
     DEPENDS
@@ -41,6 +39,23 @@ jar(pki-console-jar
         ${CMAKE_CURRENT_SOURCE_DIR}
     FILES
         com/netscape/admin/certsrv/images/*.gif
+)
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/bin/pkiconsole
+    ${CMAKE_CURRENT_BINARY_DIR}/bin/pkiconsole
+    COPYONLY
+)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/bin/pkiconsole
+    DESTINATION
+        ${BIN_INSTALL_DIR}
+    PERMISSIONS
+        OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
 )
 
 install(
