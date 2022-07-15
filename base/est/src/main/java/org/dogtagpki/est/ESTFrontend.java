@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.security.cert.X509Certificate;
 import java.util.Optional;
 
 import javax.ws.rs.Consumes;
@@ -53,15 +54,8 @@ public class ESTFrontend {
         return cacerts(Optional.of(label));
     }
 
-    private Response cacerts(Optional<String> label) {
-        CertificateChain chain;
-        try {
-            chain = getBackend().cacerts(label);
-        } catch (Throwable e) {
-            logger.error("ESTFrontend.cacerts: caught exception", e);
-            throw new RuntimeException("Internal error executing /cacerts method", e);
-        }
-
+    private Response cacerts(Optional<String> label) throws PKIException {
+        CertificateChain chain = getBackend().cacerts(label);
         if (chain == null) {
             throw new ResourceNotFoundException(
                 "Certificate chain for CA not available");
@@ -81,7 +75,7 @@ public class ESTFrontend {
     @Path("simpleenroll")
     @Consumes("application/pkcs10")
     @Produces("application/pkcs7-mime")
-    public Response simpleenroll(byte[] data) throws Throwable {
+    public Response simpleenroll(byte[] data) throws PKIException {
         logger.debug("ESTFrontend.simpleenroll: processing request");
         PKCS10 csr;
         try {
@@ -107,24 +101,20 @@ public class ESTFrontend {
         // Define separate interface(s) for these, such that failures may result
         // in 401 or 403 response, without complicating the issuer backend interface.
 
-        ESTEnrollResult result = getBackend().simpleenroll(Optional.empty(), csr);
+        X509Certificate cert = getBackend().simpleenroll(Optional.empty(), csr);
 
-        if (result.isSuccess()) {
-            // Build a CertificateChain with a single certificate.  This is a
-            // convenient way to produce the certs-only CMC Simple PKI response
-            // i.e. a PKCS #7 SignedData object with no signature and a single
-            // certificate.
-            CertificateChain chain = new CertificateChain(result.getCertificate());
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                chain.encode(out);
-            } catch (IOException e) {
-                throw new PKIException("Error encoding certificate chain", e);
-            }
-            return Response.ok(Base64.encodeBase64(out.toByteArray(), true /* wrap output */)).build();
-        } else {
-            throw result.getError();
+        // Build a CertificateChain with a single certificate.  This is a
+        // convenient way to produce the certs-only CMC Simple PKI response
+        // i.e. a PKCS #7 SignedData object with no signature and a single
+        // certificate.
+        CertificateChain chain = new CertificateChain(cert);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            chain.encode(out);
+        } catch (IOException e) {
+            throw new PKIException("Error encoding certificate chain", e);
         }
+        return Response.ok(Base64.encodeBase64(out.toByteArray(), true /* wrap output */)).build();
     }
 
     @POST
