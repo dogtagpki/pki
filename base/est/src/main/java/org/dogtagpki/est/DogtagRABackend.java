@@ -14,6 +14,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityResource;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -78,7 +79,7 @@ public class DogtagRABackend extends ESTBackend {
     }
 
     @Override
-    public CertificateChain cacerts(Optional<String> label) throws Throwable {
+    public CertificateChain cacerts(Optional<String> label) throws PKIException {
         try (PKIClient pkiClient = new PKIClient(clientConfig)) {
             AuthorityClient authorityClient = new AuthorityClient(pkiClient, "ca");
 
@@ -92,17 +93,22 @@ public class DogtagRABackend extends ESTBackend {
                 return null;  // will result in 404
             }
             return new CertificateChain(certs);
+        } catch (PKIException e) {
+            throw e; // re-raise
+        } catch (Throwable e) {
+            // unexpected; wrap in PKIException, which will result in 500
+            throw new PKIException("Internal error in /cacerts: " + e, e);
         }
     }
 
     @Override
-    public ESTEnrollResult simpleenroll(Optional<String> label, PKCS10 csr) {
-        return ESTEnrollResult.failure(new ServiceUnavailableException("not implemented"));
+    public X509Certificate simpleenroll(Optional<String> label, PKCS10 csr) {
+        throw new ServiceUnavailableException("not implemented");
     }
 
     @Override
-    public ESTEnrollResult simplereenroll(Optional<String> label, PKCS10 csr) {
-        return ESTEnrollResult.failure(new ServiceUnavailableException("not implemented)"));
+    public X509Certificate simplereenroll(Optional<String> label, PKCS10 csr) {
+        throw new ServiceUnavailableException("not implemented");
     }
 
 }
