@@ -825,6 +825,7 @@ pkgs=base\
     --unit-dir=%{_unitdir} \
     --python=%{python_executable} \
     --with-pkgs=$pkgs \
+    %{?with_console:--with-console} \
     %{!?with_test:--without-test} \
     dist
 

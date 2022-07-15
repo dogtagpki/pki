@@ -849,10 +849,6 @@ if [ "$WITHOUT_TEST" = true ] ; then
     OPTIONS+=(--without test)
 fi
 
-if [ "$WITH_CONSOLE" = true ] ; then
-    OPTIONS+=(--with console)
-fi
-
 if [ "$DEBUG" = true ] ; then
     echo "rpmbuild -bs ${OPTIONS[@]} $SPEC_FILE"
 fi
