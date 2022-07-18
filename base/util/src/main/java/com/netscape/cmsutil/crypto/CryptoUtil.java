@@ -58,6 +58,8 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
@@ -1813,8 +1815,16 @@ public class CryptoUtil {
     /**
      * Converts NSS key ID from a signed, variable-length hexadecimal number
      * into a 20 byte array, which will be identical to the original byte array.
+     *
+     * @throws DecoderException
      */
-    public static byte[] decodeKeyID(String id) {
+    public static byte[] decodeKeyID(String id) throws DecoderException {
+
+        if (id.startsWith("0x")) {
+            id = id.substring(2);
+            if (id.length() % 2 == 1) id = "0" + id;
+            return Hex.decodeHex(id);
+        }
 
         BigInteger value = new BigInteger(id, 16);
         byte[] array = value.toByteArray();
