@@ -1,0 +1,10 @@
+dn: uid=testuser,ou=people,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectclass: organizationalPerson
+objectclass: inetorgperson
+uid: testuser
+cn: Test User
+sn: User
+givenName: Test
+userPassword: Secret.123
