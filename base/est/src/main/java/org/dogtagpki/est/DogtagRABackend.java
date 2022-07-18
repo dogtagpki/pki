@@ -11,12 +11,26 @@ import javax.ws.rs.ServiceUnavailableException;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityResource;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.ca.CACertClient;
+import com.netscape.certsrv.ca.CAClient;
+import com.netscape.certsrv.cert.CertData;
+import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.cert.CertRequestInfo;
+import com.netscape.certsrv.cert.CertRequestInfos;
+import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.profile.ProfileAttribute;
+import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestStatus;
 
 /**
  * EST backend that acts as RA for a Dogtag CA subsystem
@@ -28,6 +42,8 @@ public class DogtagRABackend extends ESTBackend {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DogtagRABackend.class);
 
     private ClientConfig clientConfig = new ClientConfig();
+
+    private String profile;
 
     @Override
     public void start() throws Throwable {
@@ -76,6 +92,14 @@ public class DogtagRABackend extends ESTBackend {
         if (password != null) {
             clientConfig.setPassword(password);
         }
+
+        // Read profile id.  This may be a temporary behaviour.  Eventually,
+        // the EST request authorization interface should output the enrollment
+        // profile to be used.
+        profile = config.getParameter("profile");
+        if (profile == null) {
+            throw new RuntimeException("DogtagRABackend: 'password' property missing");
+        }
     }
 
     @Override
@@ -102,13 +126,100 @@ public class DogtagRABackend extends ESTBackend {
     }
 
     @Override
-    public X509Certificate simpleenroll(Optional<String> label, PKCS10 csr) {
-        throw new ServiceUnavailableException("not implemented");
+    public X509Certificate simpleenroll(Optional<String> label, PKCS10 csr) throws PKIException {
+        return issueCertificate(csr);
     }
 
     @Override
-    public X509Certificate simplereenroll(Optional<String> label, PKCS10 csr) {
-        throw new ServiceUnavailableException("not implemented");
+    public X509Certificate simplereenroll(Optional<String> label, PKCS10 csr) throws PKIException {
+        return issueCertificate(csr);
+    }
+
+    private X509Certificate issueCertificate(PKCS10 pkcs10) throws PKIException {
+        logger.info("Issuing certificate");
+
+        try (PKIClient pkiClient = new PKIClient(clientConfig)) {
+            CAClient caClient = new CAClient(pkiClient);
+
+            // Here the agent credentials are stored in the ClientConfig and will
+            // be sent to the CA automatically if any of the methods being called
+            // requires REST authentication. However, the methods being called
+            // depend on the cert profile being used.
+            //
+            // If the profile has an authenticator, the request can be completed
+            // with the following methods:
+            // - CACertClient.getEnrollmentTemplate()
+            // - CACertClient.enrollRequest()
+            //
+            // The above methods do not require REST authentication, but the
+            // profile still requires authentication, so the credentials must be
+            // provided either through the request itself (i.e. using profile
+            // authentication) or by calling CAClient.login() (i.e. using REST
+            // authentication).
+            //
+            // If the profile does not have an authenticator, the request must
+            // be reviewed and approved with the following additional methods:
+            // - CACertClient.reviewRequest()
+            // - CACertClient.approveRequest()
+            //
+            // The above methods do require REST authentication so in this case
+            // it's not actually necessary to call CAClient.login(). However, to
+            // support both types of profiles the CAClient.login() needs to be
+            // called explicitly.
+            caClient.login();
+
+            CACertClient certClient = new CACertClient(caClient);
+            CertEnrollmentRequest certEnrollmentRequest = certClient.getEnrollmentTemplate(profile);
+
+            for (ProfileInput input : certEnrollmentRequest.getInputs()) {
+                ProfileAttribute typeAttr = input.getAttribute("cert_request_type");
+                if (typeAttr != null) {
+                    typeAttr.setValue("pkcs10");
+                }
+
+                ProfileAttribute csrAttr = input.getAttribute("cert_request");
+                if (csrAttr != null) {
+                    csrAttr.setValue(Utils.base64encodeSingleLine(pkcs10.toByteArray()));
+                }
+            }
+
+            logger.info("Request:\n" + certEnrollmentRequest);
+            CertRequestInfos infos = certClient.enrollRequest(certEnrollmentRequest, null, null);
+
+            logger.info("Responses:");
+            CertRequestInfo info = infos.getEntries().iterator().next();
+
+            RequestId requestId = info.getRequestId();
+            logger.info("- Request ID: " + requestId.toHexString());
+            logger.info("  Type: " + info.getRequestType());
+            logger.info("  Request Status: " + info.getRequestStatus());
+            logger.info("  Operation Result: " + info.getOperationResult());
+
+            String error = info.getErrorMessage();
+            if (error != null) {
+                throw new PKIException("Unable to generate certificate: " + error);
+            }
+
+            CertId id = null;
+            if (info.getRequestStatus() == RequestStatus.COMPLETE) {
+                id = info.getCertId();
+            } else {
+                CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
+                certClient.approveRequest(requestId, reviewInfo);
+                info = certClient.getRequest(requestId);
+                id = info.getCertId();
+            }
+
+            logger.info("Serial number: " + id.toHexString());
+            CertData certData = certClient.getCert(id);
+            String certPem = certData.getEncoded();
+            return Cert.mapCert(certPem);
+        } catch (PKIException e) {
+            throw e; // re-raise
+        } catch (Throwable e) {
+            // unexpected; wrap in PKIException, which will result in 500
+            throw new PKIException("Internal error in /cacerts: " + e, e);
+        }
     }
 
 }
