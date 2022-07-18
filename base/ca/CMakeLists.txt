@@ -79,6 +79,13 @@ set(PKI_CA_JAR ${CMAKE_BINARY_DIR}/dist/pki-ca.jar CACHE INTERNAL "pki-ca jar fi
 # install directories
 install(
     DIRECTORY
+        auth/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/ca/auth/
+)
+
+install(
+    DIRECTORY
         shared/
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}

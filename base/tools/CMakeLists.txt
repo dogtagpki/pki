@@ -133,6 +133,13 @@ add_custom_command(
 )
 
 install(
+    DIRECTORY
+        examples/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/tools/examples/
+)
+
+install(
     FILES
         ${CMAKE_CURRENT_BINARY_DIR}/DRMTool.1.gz
     DESTINATION
