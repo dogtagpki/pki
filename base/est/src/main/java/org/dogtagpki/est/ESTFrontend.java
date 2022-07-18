@@ -112,7 +112,8 @@ public class ESTFrontend {
         try {
             chain.encode(out);
         } catch (IOException e) {
-            throw new PKIException("Error encoding certificate chain", e);
+            logger.error("Error encoding certificate chain: " + e, e);
+            throw new PKIException("Error encoding certificate chain: " + e, e);
         }
         return Response.ok(Base64.encodeBase64(out.toByteArray(), true /* wrap output */)).build();
     }
