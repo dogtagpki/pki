@@ -38,7 +38,7 @@ var TOKEN_REUSE_MESSAGE = "When reusing a token that was previously " +
 var TokenModel = Model.extend({
     urlRoot: "/tps/rest/tokens",
     parseResponse: function(response) {
-        var respModifyTimestamp = (response.modifyTimestamp == null) ? undefined : new Date(response.modifyTimestamp)
+        var respModifyTimestamp = (response.ModifyTimestamp == null) ? undefined : new Date(response.ModifyTimestamp)
         return {
             id: response.id,
             tokenID: response.TokenID,
@@ -49,7 +49,7 @@ var TokenModel = Model.extend({
             appletID: response.AppletID,
             keyInfo: response.KeyInfo,
             policy: response.Policy,
-            createTimestamp: new Date(response.createTimestamp),
+            createTimestamp: new Date(response.CreateTimestamp),
             modifyTimestamp: respModifyTimestamp
         };
     },
