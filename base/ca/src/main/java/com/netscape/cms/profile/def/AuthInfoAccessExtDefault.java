@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.extensions.AccessDescription;
@@ -443,7 +444,8 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
 
         // if running outside of server, use the proxy port if available
         String port = engineConfig.getString("proxy.unsecurePort", null);
-        if (port != null) {
+        if (!StringUtils.isEmpty(port)) {
+            logger.debug("AuthInfoAccessExtDefault: proxy.unsecurePort: " + port);
             return port;
         }
 
@@ -452,7 +454,10 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
         String path = instanceRoot + File.separator + "conf" + File.separator + "server.xml";
 
         ServerXml serverXml = ServerXml.load(path);
-        return serverXml.getUnsecurePort();
+        port = serverXml.getUnsecurePort();
+        logger.debug("AuthInfoAccessExtDefault: server.xml port: " + port);
+
+        return port;
     }
 
     public String getDefaultOCSPURL() throws Exception {
@@ -460,6 +465,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
         // return the URL specified in ca.defaultOcspUri if available
         String url = engineConfig.getString("ca.defaultOcspUri", null);
         if (url != null) {
+            logger.debug("AuthInfoAccessExtDefault: ca.defaultOcspUri: " + url);
             return url;
         }
 
@@ -498,6 +504,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                     String s = locationType + ":" + location;
                     GeneralNameInterface gn = parseGeneralName(s);
                     if (gn != null) {
+                        logger.info("AuthInfoAccessExtDefault: Adding " + s);
                         ext.addAccessDescription(new ObjectIdentifier(method),
                                 new GeneralName(gn));
                     }
