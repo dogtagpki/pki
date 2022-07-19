@@ -66,12 +66,6 @@ public class CAEnrollProfile extends EnrollProfile {
     }
 
     @Override
-    public CertificateAuthority getAuthority() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getCA();
-    }
-
-    @Override
     public X500Name getIssuerName() {
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();

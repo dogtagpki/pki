@@ -217,8 +217,6 @@ public abstract class EnrollProfile extends Profile {
         super();
     }
 
-    public abstract CertificateAuthority getAuthority();
-
     /**
      * Creates request.
      */
@@ -342,6 +340,9 @@ public abstract class EnrollProfile extends Profile {
         // default plugins that store stuff
         X509CertInfo info = new X509CertInfo();
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority authority = engine.getCA();
+
         // retrieve issuer name
         X500Name issuerName = getIssuerName();
 
@@ -360,7 +361,7 @@ public abstract class EnrollProfile extends Profile {
                     new CertificateVersion(CertificateVersion.V3));
             info.set(X509CertInfo.SERIAL_NUMBER,
                     new CertificateSerialNumber(new BigInteger("0")));
-            CertificateAuthority authority = getAuthority();
+
             if (authority.getIssuerObj() == null) {
                 logger.debug("EnrollProfile: setDefaultCertInfo: authority.getIssuerObj() is null, creating new CertificateIssuerName");
                 info.set(X509CertInfo.ISSUER,
@@ -490,7 +491,7 @@ public abstract class EnrollProfile extends Profile {
         byte[] challenge = new byte[64];
         random.nextBytes(challenge);
 
-        CertificateAuthority authority = getAuthority();
+        CertificateAuthority authority = engine.getCA();
         PublicKey issuanceProtPubKey = engine.getIssuanceProtectionPublicKey();
         if (issuanceProtPubKey == null) {
             msg = method + "issuanceProtPubKey null";
@@ -1301,7 +1302,7 @@ public abstract class EnrollProfile extends Profile {
 
         CAEngineConfig cs = engine.getConfig();
 
-        CertificateAuthority authority = getAuthority();
+        CertificateAuthority authority = engine.getCA();
         PrivateKey issuanceProtPrivKey = authority.getIssuanceProtPrivKey();
         if (issuanceProtPrivKey == null) {
             msg = method + "issuanceProtPrivKey null";
