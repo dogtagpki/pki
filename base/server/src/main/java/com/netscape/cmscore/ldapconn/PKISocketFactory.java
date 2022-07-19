@@ -37,6 +37,7 @@ import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
@@ -56,6 +57,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     private boolean mClientAuth;
     private boolean keepAlive;
     PKIClientSocketListener sockListener = null;
+    private String mClientCiphers = null;
 
     /*
      * Per Bugzilla 1585722, the parameter "external" was introduced
@@ -96,6 +98,15 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
                     config = engine.getConfig().getSocketConfig();
                 }
                 keepAlive = config.isKeepAlive();
+		try {
+                    mClientCiphers = config.getClientCiphers();
+                } catch (Exception econf) {
+                    // handled below
+                }
+                if ((mClientCiphers != null) && !mClientCiphers.trim().isEmpty())
+                    log("tcp.clientCiphers: " + mClientCiphers);
+                else
+                    log("tcp.clientCiphers: not found");
             } else {
                 keepAlive = true;
             }
@@ -138,6 +149,34 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         s.enableV2CompatibleHello(false);
 
         s.addSocketListener(sockListener);
+
+        /*
+         * about ciphers
+         * # for RSA, in CS.cfg
+         * tcp.clientCiphers=TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+         *
+         * # for ECC, in CS.cfg
+         * tcp.clientCiphers=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+         */
+
+        if (mClientCiphers != null && !mClientCiphers.trim().isEmpty())
+            CryptoUtil.setClientCiphers(s, mClientCiphers);
+            /*
+        else { // if tcp.clientCiphers in CS.cfg not set, take default
+             * debug default ciphers
+            int ciphers[] = s.getImplementedCipherSuites();
+            if (ciphers == null)
+                log(method + "hmm... no ciphers returned from getImplementedCipherSuites");
+            for (int cipher : ciphers) {
+                boolean enabled = SSLSocket.getCipherPreferenceDefault(cipher);
+                String cipherString = "0x" + Integer.toHexString(cipher);
+                if (enabled) {
+                    log (method + "cipher " + cipherString + " enabled by default");
+                } else
+                    log (method + "cipher " + cipherString + " NOT enabled by default");
+            }
+        }
+            */
 
         SSLHandshakeCompletedListener listener = null;
 
