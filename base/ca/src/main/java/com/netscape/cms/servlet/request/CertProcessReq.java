@@ -103,7 +103,7 @@ public class CertProcessReq extends ProcessReq {
             header.addStringValue("caSigningAlgorithm", signingAlgorithm);
         }
 
-        header.addLongValue("defaultValidityLength", ca.getDefaultValidity() / 1000);
+        header.addLongValue("defaultValidityLength", engine.getDefaultCertValidity() / 1000);
 
         X509CertImpl caCert = ca.getCACert();
         if (caCert != null) {

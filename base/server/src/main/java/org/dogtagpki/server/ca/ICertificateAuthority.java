@@ -166,13 +166,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public String[] getCASigningAlgorithms();
 
     /**
-     * Retrieves the default validity period.
-     *
-     * @return the default validity length in days
-     */
-    public long getDefaultValidity();
-
-    /**
      * Adds CRL issuing point with the given identifier and description.
      *
      * @param crlSubStore sub-store with all CRL issuing points

@@ -496,12 +496,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     @Override
-    public long getDefaultValidity() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getDefaultCertValidity();
-    }
-
-    @Override
     public SignatureAlgorithm getDefaultSignatureAlgorithm() {
         return mSigningUnit.getDefaultSignatureAlgorithm();
     }
