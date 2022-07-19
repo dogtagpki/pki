@@ -76,14 +76,68 @@ public class ESTFrontend {
     @Consumes("application/pkcs10")
     @Produces("application/pkcs7-mime")
     public Response simpleenroll(byte[] data) throws PKIException {
-        logger.debug("ESTFrontend.simpleenroll: processing request");
-        PKCS10 csr;
+        logger.debug("ESTFrontend.simpleenroll: processing request (no label)");
+        return enroll(Optional.empty(), data);
+    }
+
+    @POST
+    @Path("{label}/simpleenroll")
+    @Consumes("application/pkcs10")
+    @Produces("application/pkcs7-mime")
+    public Response simpleenroll(@PathParam("label") String label, byte[] data) {
+        logger.debug("ESTFrontend.simpleenroll: processing request (label: " + label + ")");
+        return enroll(Optional.of(label), data);
+    }
+
+    @POST
+    @Path("simplereenroll")
+    @Consumes("application/pkcs10")
+    @Produces("application/pkcs7-mime")
+    public Response simplereenroll(byte[] data) {
+        logger.debug("ESTFrontend.simplereenroll: processing request (no label)");
+        return reenroll(Optional.empty(), data);
+    }
+
+    @POST
+    @Path("{label}/simplereenroll")
+    @Consumes("application/pkcs10")
+    @Produces("application/pkcs7-mime")
+    public Response simplereenroll(@PathParam("label") String label, byte[] data) {
+        logger.debug("ESTFrontend.simplereenroll: processing request (label: " + label + ")");
+        return reenroll(Optional.of(label), data);
+    }
+
+    private Response enroll(Optional<String> label, byte[] data) throws PKIException {
+        PKCS10 csr = parseCSR(data);
+
+        // TODO authn, authz.
+        // Define separate interface(s) for these, such that failures may result
+        // in 401 or 403 response, without complicating the issuer backend interface.
+
+        X509Certificate cert = getBackend().simpleenroll(label, csr);
+        return certResponse(cert);
+    }
+
+    private Response reenroll(Optional<String> label, byte[] data) throws PKIException {
+        PKCS10 csr = parseCSR(data);
+
+        // TODO authn, authz.
+        // Define separate interface(s) for these, such that failures may result
+        // in 401 or 403 response, without complicating the issuer backend interface.
+
+        X509Certificate cert = getBackend().simplereenroll(label, csr);
+        return certResponse(cert);
+    }
+
+    /** Parse a PKCS10 CSR
+     */
+    private static PKCS10 parseCSR(byte[] data) throws PKIException {
         try {
             // Base64.decodeBase64 ignores non-base64 bytes.
             // Decoding will not fail, but if the request body is
             // not valid base64, it won't decode to a valid CSR, so
             // CSR parsing will fail and we will still return 400.
-            csr = new PKCS10(Base64.decodeBase64(data));
+            return new PKCS10(Base64.decodeBase64(data));
         } catch (
                 IOException | IllegalArgumentException
                 | SignatureException | NoSuchAlgorithmException e) {
@@ -96,13 +150,11 @@ public class ESTFrontend {
             // Other kinds of errors to be treated as server error
             throw new PKIException("Internal server error decoding CSR: "+ e, e);
         }
+    }
 
-        // TODO authn, authz.
-        // Define separate interface(s) for these, such that failures may result
-        // in 401 or 403 response, without complicating the issuer backend interface.
-
-        X509Certificate cert = getBackend().simpleenroll(Optional.empty(), csr);
-
+    /** Build a response containing the issued certificate
+     */
+    private static Response certResponse(X509Certificate cert) throws PKIException {
         // Build a CertificateChain with a single certificate.  This is a
         // convenient way to produce the certs-only CMC Simple PKI response
         // i.e. a PKCS #7 SignedData object with no signature and a single
@@ -116,36 +168,6 @@ public class ESTFrontend {
             throw new PKIException("Error encoding certificate chain: " + e, e);
         }
         return Response.ok(Base64.encodeBase64(out.toByteArray(), true /* wrap output */)).build();
-    }
-
-    @POST
-    @Path("{label}/simpleenroll")
-    @Consumes("application/pkcs10")
-    @Produces("application/pkcs7-mime")
-    public Response simpleenroll(@PathParam("label") String label, String data) {
-        ResponseBuilder builder = Response.ok();
-        builder.entity("TODO we got the data for label <" + label + ">: " + data);
-        return builder.build();
-    }
-
-    @POST
-    @Path("simplereenroll")
-    @Consumes("application/pkcs10")
-    @Produces("application/pkcs7-mime")
-    public Response simplereenroll(String data) {
-        ResponseBuilder builder = Response.ok();
-        builder.entity("TODO we got the data: " + data);
-        return builder.build();
-    }
-
-    @POST
-    @Path("{label}/simplereenroll")
-    @Consumes("application/pkcs10")
-    @Produces("application/pkcs7-mime")
-    public Response simplereenroll(@PathParam("label") String label, String data) {
-        ResponseBuilder builder = Response.ok();
-        builder.entity("TODO we got the data for label <" + label + ">: " + data);
-        return builder.build();
     }
 
 }
