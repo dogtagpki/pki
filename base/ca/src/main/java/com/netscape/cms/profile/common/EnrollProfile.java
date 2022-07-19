@@ -327,8 +327,6 @@ public abstract class EnrollProfile extends Profile {
         return result;
     }
 
-    public abstract X500Name getIssuerName();
-
     /**
      * Set Default X509CertInfo in the request.
      *
@@ -344,7 +342,7 @@ public abstract class EnrollProfile extends Profile {
         CertificateAuthority authority = engine.getCA();
 
         // retrieve issuer name
-        X500Name issuerName = getIssuerName();
+        X500Name issuerName = authority.getX500Name();
 
         byte[] dummykey = new byte[] {
                 48, 92, 48, 13, 6, 9, 42, -122, 72, -122, -9, 13, 1, 1, 1, 5,

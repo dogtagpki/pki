@@ -32,7 +32,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 
 import com.netscape.ca.CAService;
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -63,13 +62,6 @@ public class CAEnrollProfile extends EnrollProfile {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAEnrollProfile.class);
 
     public CAEnrollProfile() {
-    }
-
-    @Override
-    public X500Name getIssuerName() {
-        CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
-        return ca.getX500Name();
     }
 
     /**
