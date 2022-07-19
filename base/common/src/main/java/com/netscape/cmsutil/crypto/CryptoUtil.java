@@ -748,28 +748,50 @@ public class CryptoUtil {
     }
 
     public static void setClientCiphers(String list) throws SocketException {
+          setClientCiphers(null, list);
+    }
+    public static void setClientCiphers(SSLSocket soc, String list) throws SocketException {
+        String method = "CryptoUtil.setClientCiphers:";
+        if (soc == null)
+            logger.debug(method + "begins");
+        else
+            logger.debug(method + "on soc begins");
 
         if (list == null) {
+            logger.debug(method + "no cipher list in call; using default");
             // use default
-            setDefaultSSLCiphers();
+            if (soc == null)
+                setDefaultSSLCiphers();
             return;
         }
 
+        logger.debug(method + "cipher list in call; processing...");
         String ciphers[] = list.split(",");
         if (ciphers.length == 0)
             return;
 
-        unsetSSLCiphers();
+        if (soc == null)
+            unsetSSLCiphers();
+        else
+            unsetSSLCiphers(soc);
 
         for (String cipher : ciphers) {
-            setSSLCipher(cipher, true);
+            try {
+                if (soc == null)
+                    setSSLCipher(cipher, true);
+                else
+                    setSSLCipher(soc, cipher, true);
+            } catch (Exception e) {
+                logger.debug(method + cipher + " failed to be set: " + e.toString());
+            }
         }
+        logger.debug(method + "ends");
     }
 
     public static void setSSLCiphers(String ciphers) throws SocketException {
-
-        if (ciphers == null)
-            return;
+        String method = "CryptoUtil.setSSLCiphers:";
+        logger.debug(method + "begins");
+        if (ciphers == null) return;
 
         StringTokenizer st = new StringTokenizer(ciphers);
 
@@ -784,10 +806,25 @@ public class CryptoUtil {
 
             setSSLCipher(cipher, enabled);
         }
+        logger.debug(method + "ends");
+    }
+
+    public static void setSSLCipher(SSLSocket soc, String name, boolean enabled) throws SocketException {
+        logger.debug("CryptoUtil.setSSLCipher on soc: setting cipher:" + name);
+        int cipherID;
+        if (name.toLowerCase().startsWith("0x")) {
+            cipherID = Integer.parseInt(name.substring(2), 16);
+
+        } else {
+            SSLCipher cipher = SSLCipher.valueOf(name);
+            cipherID = cipher.getID();
+        }
+
+        soc.setCipherPreference(cipherID, enabled);
     }
 
     public static void setSSLCipher(String name, boolean enabled) throws SocketException {
-
+        logger.debug("CryptoUtil.setSSLCipher: setting cipher:" + name);
         int cipherID;
         if (name.toLowerCase().startsWith("0x")) {
             cipherID = Integer.parseInt(name.substring(2), 16);
@@ -801,7 +838,7 @@ public class CryptoUtil {
     }
 
     public static void setDefaultSSLCiphers() throws SocketException {
-
+        logger.debug("CryptoUtil.setDefaultSSLCiphers");
         int ciphers[] = SSLSocket.getImplementedCipherSuites();
         if (ciphers == null)
             return;
@@ -838,13 +875,22 @@ public class CryptoUtil {
      * unset all implemented cipehrs; for enforcing strict list of ciphers
      */
     public static void unsetSSLCiphers() throws SocketException {
-
+        logger.debug("CryptoUtil.unsetSSLCiphers");
         int cipherIDs[] = SSLSocket.getImplementedCipherSuites();
         if (cipherIDs == null)
             return;
 
         for (int cipherID : cipherIDs) {
             SSLSocket.setCipherPreferenceDefault(cipherID, false);
+        }
+    }
+    public static void unsetSSLCiphers(SSLSocket soc) throws SocketException {
+        logger.debug("CryptoUtil.unsetSSLCiphers on soc");
+        int cipherIDs[] = soc.getImplementedCipherSuites();
+        if (cipherIDs == null) return;
+
+        for (int cipherID : cipherIDs) {
+            soc.setCipherPreference(cipherID, false);
         }
     }
 

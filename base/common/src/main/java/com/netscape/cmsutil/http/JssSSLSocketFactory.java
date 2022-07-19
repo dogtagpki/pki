@@ -18,6 +18,7 @@
 package com.netscape.cmsutil.http;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -54,8 +55,7 @@ public class JssSSLSocketFactory implements ISocketFactory {
         if (certNickname != null)
             mClientAuthCertNickname = certNickname;
 
-        if (ciphers != null)
-            mClientCiphers = ciphers;
+        mClientCiphers = ciphers;
     }
 
     @Override
@@ -73,13 +73,20 @@ public class JssSSLSocketFactory implements ISocketFactory {
 
         try {
             /*
-             * let inherit tls range and cipher settings
-             * unless it's overwritten by config
+             * Let it inherit default settings
+             * unless it's overwritten by config in respective CS.cfg:
+             *
+             * CA->KRA: ca.connector.KRA.clientCiphers
+             * TPS->KRA/CA/TKS: tps.connector.<ca|kra|tks id>.clientCiphers
              */
-            if (mClientCiphers != null)
-                CryptoUtil.setClientCiphers(mClientCiphers);
             s = new SSLSocket(host, port, null, 0, certApprovalCallback,
                     clientCertCallback);
+
+            Socket js = new Socket(InetAddress.getByName(host), port);
+            s = new SSLSocket(js, host,
+                    certApprovalCallback,
+                    clientCertCallback);
+
             s.setUseClientMode(true);
             s.setSoTimeout(timeout);
 
@@ -89,6 +96,9 @@ public class JssSSLSocketFactory implements ISocketFactory {
             s.addHandshakeCompletedListener(listener);
             if (this.sockListener != null)
                 s.addSocketListener(this.sockListener);
+
+            if (mClientCiphers != null && !mClientCiphers.trim().isEmpty())
+                CryptoUtil.setClientCiphers(s, mClientCiphers);
 
             if (mClientAuthCertNickname != null) {
                 // 052799 setClientCertNickname does not
