@@ -21,12 +21,14 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import getopt
+import inspect
 import io
 import logging
 import os
 import shutil
 import sys
 import tempfile
+import textwrap
 
 import pki.cli
 import pki.server
@@ -66,6 +68,7 @@ class CACertCLI(pki.cli.CLI):
         super().__init__('cert', 'CA certificates management commands')
 
         self.add_module(CACertFindCLI())
+        self.add_module(CACertCreateCLI())
         self.add_module(CACertImportCLI())
         self.add_module(CACertRemoveCLI())
         self.add_module(CACertChainCLI())
@@ -132,6 +135,144 @@ class CACertFindCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem.find_certs()
+
+
+class CACertCreateCLI(pki.cli.CLI):
+    '''
+    Create certificate from certificate request in CA
+    '''
+
+    help = '''\
+        Usage: pki-server ca-cert-create [OPTIONS]
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --request <ID>                 Request ID
+              --profile <ID>                 Profile ID
+              --type <type>                  Certificate type: selfsign (default), local
+              --key-id <ID>                  Key ID
+              --key-token <name>             Key token
+              --key-algorithm <name>         Key algorithm (default: SHA256withRSA)
+              --signing-algorithm <name>     Signing algorithm (default: SHA256withRSA)
+              --serial <serial>              Certificate serial number
+              --format <format>              Certificate format: PEM (default), DER
+              --cert <path>                  Certificate path
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''
+
+    def __init__(self):
+        super().__init__('create', inspect.cleandoc(self.__class__.__doc__))
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help))
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'request=', 'profile=', 'type=',
+                'key-id=', 'key-token=', 'key-algorithm=',
+                'signing-algorithm=',
+                'serial=', 'format=', 'cert=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        request_id = None
+        profile_id = None
+        cert_type = None
+        key_id = None
+        key_token = None
+        key_algorithm = None
+        signing_algorithm = None
+        serial = None
+        cert_format = None
+        cert_path = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--request':
+                request_id = a
+
+            elif o == '--profile':
+                profile_id = a
+
+            elif o == '--type':
+                cert_type = a
+
+            elif o == '--key-id':
+                key_id = a
+
+            elif o == '--key-token':
+                key_token = a
+
+            elif o == '--key-algorithm':
+                key_algorithm = a
+
+            elif o == '--signing-algorithm':
+                signing_algorithm = a
+
+            elif o == '--serial':
+                serial = a
+
+            elif o == '--format':
+                cert_format = a
+
+            elif o == '--cert':
+                cert_path = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('ca')
+        if not subsystem:
+            logger.error('No CA subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        cert_data = subsystem.create_cert(
+            request_id=request_id,
+            profile_id=profile_id,
+            cert_type=cert_type,
+            key_token=key_token,
+            key_id=key_id,
+            key_algorithm=key_algorithm,
+            signing_algorithm=signing_algorithm,
+            serial=serial,
+            cert_format=cert_format)
+
+        if cert_path:
+            with open(cert_path, 'wb') as f:
+                f.write(cert_data)
+
+        else:
+            sys.stdout.buffer.write(cert_data)
 
 
 class CACertImportCLI(pki.cli.CLI):

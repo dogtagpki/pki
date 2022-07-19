@@ -1748,6 +1748,65 @@ class CASubsystem(PKISubsystem):
 
         self.run(cmd, as_current_user=as_current_user)
 
+    def create_cert(
+            self,
+            request_id=None,
+            profile_id=None,
+            cert_type=None,
+            key_id=None,
+            key_token=None,
+            key_algorithm=None,
+            signing_algorithm=None,
+            serial=None,
+            cert_format=None):
+
+        tmpdir = tempfile.mkdtemp()
+
+        try:
+            cmd = ['ca-cert-create']
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            if request_id:
+                cmd.extend(['--request', request_id])
+
+            if profile_id:
+                cmd.extend(['--profile', profile_id])
+
+            if cert_type:
+                cmd.extend(['--type', cert_type])
+
+            if key_id:
+                cmd.extend(['--key-id', key_id])
+
+            if key_token:
+                cmd.extend(['--key-token', key_token])
+
+            if key_algorithm:
+                cmd.extend(['--key-algorithm', key_algorithm])
+
+            if signing_algorithm:
+                cmd.extend(['--signing-algorithm', signing_algorithm])
+
+            if serial:
+                cmd.extend(['--serial', serial])
+
+            if cert_format:
+                cmd.extend(['--format', cert_format])
+
+            result = self.run(
+                cmd,
+                capture_output=True)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
+        return result.stdout
+
     def import_cert(
             self,
             cert_data=None,

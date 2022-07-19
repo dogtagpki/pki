@@ -1349,7 +1349,7 @@ class PKIDeployer:
             self.mdict['pki_server_database_path'],
             pki.server.DEFAULT_DIR_MODE)
 
-    def create_cert(self, tag, request):
+    def create_cert(self, subsystem, tag, request):
 
         # get a new cert ID from the server
         logger.info('Creating cert ID for %s cert', tag)
@@ -1357,9 +1357,18 @@ class PKIDeployer:
         logger.info('- cert ID: %s', request.systemCert.certID)
 
         logger.info('Creating %s cert', tag)
-        response = self.client.createCert(request)
+        cert_data = subsystem.create_cert(
+            request_id=request.systemCert.requestID,
+            profile_id=request.systemCert.profile,
+            cert_type=request.systemCert.type,
+            key_id=request.systemCert.keyID,
+            key_token=request.systemCert.token,
+            key_algorithm=request.systemCert.keyAlgorithm,
+            signing_algorithm=request.systemCert.signingAlgorithm,
+            serial=request.systemCert.certID,
+            cert_format='DER')
 
-        return response['cert']
+        return base64.b64encode(cert_data).decode('ascii')
 
     def import_cert(self, subsystem, tag, request, cert_data):
 
@@ -1485,7 +1494,7 @@ class PKIDeployer:
 
             self.import_cert_request(subsystem, tag, request)
 
-            system_cert['data'] = self.create_cert(tag, request)
+            system_cert['data'] = self.create_cert(subsystem, tag, request)
             self.import_cert(subsystem, tag, request, system_cert['data'])
 
         cert_pem = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem').encode()
@@ -1882,7 +1891,7 @@ class PKIDeployer:
 
         self.import_cert_request(subsystem, 'admin', request)
 
-        cert_data = self.create_cert('admin', request)
+        cert_data = self.create_cert(subsystem, 'admin', request)
         self.import_cert(subsystem, 'admin', request, cert_data)
 
         cert_pem = pki.nssdb.convert_cert(cert_data, 'base64', 'pem').encode()
