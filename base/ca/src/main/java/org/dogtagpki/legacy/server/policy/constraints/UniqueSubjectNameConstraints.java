@@ -24,6 +24,7 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -144,6 +145,9 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      */
     @Override
     public PolicyResult apply(Request req) {
+
+        CAEngine engine = CAEngine.getInstance();
+
         if (!mPreAgentApprovalChecking) {
             // post agent approval checking
             if (!agentApproved(req))
@@ -178,7 +182,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
                 String filter = "x509Cert.subject=" + certSubjectName;
                 // subject name is indexed, so we only use subject name
                 // in the filter
-                Enumeration<CertRecord> matched = mCA.getCertificateRepository().findCertRecords(filter);
+                Enumeration<CertRecord> matched = engine.getCertificateRepository().findCertRecords(filter);
 
                 while (matched.hasMoreElements()) {
                     CertRecord rec = matched.nextElement();

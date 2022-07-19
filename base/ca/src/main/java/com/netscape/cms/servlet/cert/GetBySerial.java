@@ -113,7 +113,8 @@ public class GetBySerial extends CMSServlet {
      */
     protected CertRecord getCertRecord(BigInteger serialNo) {
 
-        CertificateRepository certdb = ((CertificateAuthority) mAuthority).getCertificateRepository();
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certdb = engine.getCertificateRepository();
 
         if (certdb == null) {
             logger.error(CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));

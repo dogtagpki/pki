@@ -42,7 +42,6 @@ import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
@@ -775,10 +774,9 @@ public abstract class EnrollProfile extends Profile {
 
         // for CMCUserSignedAuth, the signing user is the subject of
         // the new cert
-        ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         try {
             BigInteger serialNo = new BigInteger(certSerial);
-            userCert = authority.getCertificateRepository().getX509Certificate(serialNo);
+            userCert = engine.getCertificateRepository().getX509Certificate(serialNo);
         } catch (NumberFormatException e) {
             msg = method + e.getMessage();
             logger.error(msg, e);

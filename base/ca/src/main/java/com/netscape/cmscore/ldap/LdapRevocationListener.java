@@ -23,7 +23,6 @@ import java.security.cert.Certificate;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
@@ -87,21 +86,15 @@ public class LdapRevocationListener implements IRequestListener {
                 // We need the enrollment request to sort out predicate
                 BigInteger serial = cert.getSerialNumber();
                 CertRecord certRecord = null;
-                CertificateAuthority auth = processor.getAuthority();
+                CertificateRepository certdb = engine.getCertificateRepository();
 
-                if (auth == null) {
-                    logger.warn("LdapRevocationListener: Trying to get a cert from non cert authority");
+                if (certdb == null) {
+                    logger.warn("LdapRevocationListener: Missing cert database");
                 } else {
-                    CertificateRepository certdb = auth.getCertificateRepository();
-
-                    if (certdb == null) {
-                        logger.warn("LdapRevocationListener: Missing cert database for " + auth);
-                    } else {
-                        try {
-                            certRecord = certdb.readCertificateRecord(serial);
-                        } catch (EBaseException e) {
-                            logger.warn(CMS.getLogMessage("CMSCORE_LDAP_GET_CERT_RECORD", serial.toString(16), e.toString()), e);
-                        }
+                    try {
+                        certRecord = certdb.readCertificateRecord(serial);
+                    } catch (EBaseException e) {
+                        logger.warn(CMS.getLogMessage("CMSCORE_LDAP_GET_CERT_RECORD", serial.toString(16), e.toString()), e);
                     }
                 }
 

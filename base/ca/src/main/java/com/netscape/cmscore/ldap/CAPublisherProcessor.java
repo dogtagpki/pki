@@ -150,7 +150,8 @@ public class CAPublisherProcessor extends PublisherProcessor {
     public void setPublishedFlag(BigInteger serialNo, boolean published) {
 
         try {
-            CertificateRepository certdb = ca.getCertificateRepository();
+            CAEngine engine = CAEngine.getInstance();
+            CertificateRepository certdb = engine.getCertificateRepository();
             CertRecord certRec = certdb.readCertificateRecord(serialNo);
             MetaInfo metaInfo = certRec.getMetaInfo();
 
