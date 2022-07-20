@@ -570,9 +570,12 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
 
     /**
      * Adds CRL issuing point with the given identifier and description.
+     *
+     * @param crlSubStore sub-store with all CRL issuing points
+     * @param id CRL issuing point id
+     * @param description CRL issuing point description
+     * @return true if CRL issuing point was successfully added
      */
-    @Override
-    @SuppressWarnings("unchecked")
     public boolean addCRLIssuingPoint(ConfigStore crlSubStore, String id,
                                       boolean enable, String description) {
 
@@ -720,8 +723,10 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
 
     /**
      * Deletes CRL issuing point with the given identifier.
+     *
+     * @param crlSubStore sub-store with all CRL issuing points
+     * @param id CRL issuing point id
      */
-    @Override
     public void deleteCRLIssuingPoint(ConfigStore crlSubStore, String id) {
 
         CAEngine engine = CAEngine.getInstance();

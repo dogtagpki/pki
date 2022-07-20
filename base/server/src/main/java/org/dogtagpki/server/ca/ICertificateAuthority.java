@@ -35,7 +35,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.security.SigningUnit;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
@@ -163,25 +162,6 @@ public interface ICertificateAuthority extends ISubsystem {
      * @return the supported signing algorithms of this CA
      */
     public String[] getCASigningAlgorithms();
-
-    /**
-     * Adds CRL issuing point with the given identifier and description.
-     *
-     * @param crlSubStore sub-store with all CRL issuing points
-     * @param id CRL issuing point id
-     * @param description CRL issuing point description
-     * @return true if CRL issuing point was successfully added
-     */
-    public boolean addCRLIssuingPoint(ConfigStore crlSubStore, String id,
-                                      boolean enable, String description);
-
-    /**
-     * Deletes CRL issuing point with the given identifier.
-     *
-     * @param crlSubStore sub-store with all CRL issuing points
-     * @param id CRL issuing point id
-     */
-    public void deleteCRLIssuingPoint(ConfigStore crlSubStore, String id);
 
     /**
      * Retrieves the CA certificate chain.
