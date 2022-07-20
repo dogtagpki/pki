@@ -989,8 +989,8 @@ jobs:
           path: |
             /tmp/artifacts/pki
 
-  ca-file-crl-test:
-    name: Testing CA with file-based CRL publishing
+  crl-file-test:
+    name: Testing file-based CRL publishing
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -1049,16 +1049,13 @@ jobs:
       - name: Configure file-based CRL publishing
         run: |
           # create CRL folder
-          docker exec pki mkdir -p /var/lib/pki/pki-tomcat/ca/crl
-          docker exec pki chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/ca/crl
-
-          # enable CRL publishing
-          docker exec pki pki-server ca-config-set ca.publish.enable true
+          docker exec pki mkdir -p /var/lib/pki/pki-tomcat/crl
+          docker exec pki chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/crl
 
           # configure file-based CRL publisher
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.pluginName FileBasedPublisher
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.crlLinkExt bin
-          docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.directory /var/lib/pki/pki-tomcat/ca/crl
+          docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.directory /var/lib/pki/pki-tomcat/crl
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.latestCrlLink true
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.timeStamp LocalTime
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.zipCRLs false
@@ -1073,6 +1070,9 @@ jobs:
           docker exec pki pki-server ca-config-set ca.publish.rule.instance.FileCrlRule.predicate ""
           docker exec pki pki-server ca-config-set ca.publish.rule.instance.FileCrlRule.publisher FileBasedPublisher
           docker exec pki pki-server ca-config-set ca.publish.rule.instance.FileCrlRule.type crl
+
+          # enable CRL publishing
+          docker exec pki pki-server ca-config-set ca.publish.enable true
 
           # set buffer size to 0 so that revocation will take effect immediately
           docker exec pki pki-server ca-config-set auths.revocationChecking.bufferSize 0
@@ -1129,7 +1129,7 @@ jobs:
       - name: Check initial CRL
         run: |
           # check CRL files
-          docker exec pki find /var/lib/pki/pki-tomcat/ca/crl -name "MasterCRL-*" | tee output
+          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*" | tee output
 
           # there should be no CRL files
           cat output | wc -l > actual
@@ -1141,7 +1141,7 @@ jobs:
           docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-revoke.sh
 
           # check CRL files
-          docker exec pki find /var/lib/pki/pki-tomcat/ca/crl -name "MasterCRL-*" | tee output
+          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*" | tee output
 
           # there should be one CRL file
           cat output | wc -l > actual
@@ -1150,7 +1150,7 @@ jobs:
 
           # check the latest CRL
           docker exec pki openssl crl \
-              -in /var/lib/pki/pki-tomcat/ca/crl/MasterCRL.bin \
+              -in /var/lib/pki/pki-tomcat/crl/MasterCRL.bin \
               -inform DER \
               -text \
               -noout | tee output
@@ -1165,7 +1165,7 @@ jobs:
           docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-unrevoke.sh
 
           # check CRL files
-          docker exec pki find /var/lib/pki/pki-tomcat/ca/crl -name "MasterCRL-*" | tee output
+          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*" | tee output
 
           # there should be two CRL files
           cat output | wc -l > actual
@@ -1174,7 +1174,7 @@ jobs:
 
           # check the latest CRL
           docker exec pki openssl crl \
-              -in /var/lib/pki/pki-tomcat/ca/crl/MasterCRL.bin \
+              -in /var/lib/pki/pki-tomcat/crl/MasterCRL.bin \
               -inform DER \
               -text \
               -noout | tee output
@@ -1198,7 +1198,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-file-crl-${{ matrix.os }}
+          name: crl-file-${{ matrix.os }}
           path: |
             /tmp/artifacts/pki
 
