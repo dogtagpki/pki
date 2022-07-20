@@ -523,7 +523,7 @@ public class CAEngine extends CMSEngine {
             String id = ipIDs.nextElement();
             logger.info("CAEngine: - " + id);
 
-            CRLIssuingPointConfig ipConfig = crlConfig.getSubStore(id, CRLIssuingPointConfig.class);
+            CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);
             String className = ipConfig.getClassName();
             Class<CRLIssuingPoint> clazz = (Class<CRLIssuingPoint>) Class.forName(className);
 

@@ -37,6 +37,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.ca.CRLConfig;
 import com.netscape.ca.CRLIssuingPoint;
+import com.netscape.ca.CRLIssuingPointConfig;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -747,11 +748,12 @@ public class CAAdminServlet extends AdminServlet {
                         ip.setDescription(desc);
                         ip.enableCRLIssuingPoint(enable);
                     }
-                    ConfigStore c = crlConfig.getSubStore(ipId, ConfigStore.class);
 
-                    if (c != null) {
-                        c.putString(Constants.PR_DESCRIPTION, desc);
-                        c.putString(Constants.PR_ENABLED,
+                    CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(ipId);
+
+                    if (ipConfig != null) {
+                        ipConfig.putString(Constants.PR_DESCRIPTION, desc);
+                        ipConfig.putString(Constants.PR_ENABLED,
                                 (enable) ? Constants.TRUE : Constants.FALSE);
                     }
                     done = true;
@@ -1005,8 +1007,8 @@ public class CAAdminServlet extends AdminServlet {
 
             CAConfig caConfig = mCA.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
-            ConfigStore crlSubStore = crlConfig.getSubStore(ipId, ConfigStore.class);
-            ConfigStore crlExtsSubStore = crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
+            CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(ipId);
+            ConfigStore crlExtsSubStore = ipConfig.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
 
             String id = req.getParameter(Constants.RS_ID);
 
@@ -1099,8 +1101,8 @@ public class CAAdminServlet extends AdminServlet {
 
         CAConfig caConfig = mCA.getConfigStore();
         CRLConfig crlConfig = caConfig.getCRLConfig();
-        ConfigStore crlSubStore = crlConfig.getSubStore(id, ConfigStore.class);
-        ConfigStore crlExtsSubStore = crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
+        CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);
+        ConfigStore crlExtsSubStore = ipConfig.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
 
         if (crlExtsSubStore != null) {
             Enumeration<String> enumExts = crlExtsSubStore.getSubStoreNames();
@@ -1221,7 +1223,7 @@ public class CAAdminServlet extends AdminServlet {
             //Save New Settings to the config file
             CAConfig caConfig = mCA.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
-            ConfigStore crlSubStore = crlConfig.getSubStore(id, ConfigStore.class);
+            CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);
 
             //set reset of the parameters
             Enumeration<String> e = req.getParameterNames();
@@ -1240,7 +1242,7 @@ public class CAAdminServlet extends AdminServlet {
                 String value = req.getParameter(name);
 
                 params.put(name, value);
-                crlSubStore.putString(name, value);
+                ipConfig.putString(name, value);
             }
             boolean noRestart = ip.updateConfig(params);
 
@@ -1310,7 +1312,7 @@ public class CAAdminServlet extends AdminServlet {
         }
         CAConfig caConfig = mCA.getConfigStore();
         CRLConfig crlConfig = caConfig.getCRLConfig();
-        ConfigStore crlSubStore = crlConfig.getSubStore(id, ConfigStore.class);
+        CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);
 
         Enumeration<String> e = req.getParameterNames();
 
@@ -1325,7 +1327,7 @@ public class CAAdminServlet extends AdminServlet {
                 continue;
             if (name.equals(Constants.PR_ENABLE))
                 continue;
-            params.put(name, crlSubStore.getString(name, ""));
+            params.put(name, ipConfig.getString(name, ""));
         }
 
         getSigningAlgConfig(params);

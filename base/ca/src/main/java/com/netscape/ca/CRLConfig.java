@@ -21,4 +21,11 @@ public class CRLConfig extends ConfigStore {
     public CRLConfig(String name, SimpleProperties source) {
         super(name, source);
     }
+
+    /**
+     * Returns ca.crl.<name>.* parameters.
+     */
+    public CRLIssuingPointConfig getCRLIssuingPointConfig(String name) {
+        return getSubStore(name, CRLIssuingPointConfig.class);
+    }
 }

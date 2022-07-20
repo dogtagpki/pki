@@ -582,133 +582,133 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         CAEngine engine = CAEngine.getInstance();
 
         crlConfig.makeSubStore(id);
-        CRLIssuingPointConfig c = crlConfig.getSubStore(id, CRLIssuingPointConfig.class);
+        CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);
 
-        if (c != null) {
-            c.setAllowExtensions(true);
-            c.setAlwaysUpdate(false);
-            c.setAutoUpdateInterval(240);
-            c.setCACertsOnly(false);
-            c.setCacheUpdateInterval(15);
-            c.setClassName("com.netscape.ca.CRLIssuingPoint");
-            c.setDailyUpdates("3:45");
-            c.setDescription(description);
-            c.setEnable(enable);
-            c.setEnableCRLCache(true);
-            c.setEnableCRLUpdates(true);
-            c.setEnableCacheTesting(false);
-            c.setEnableCacheRecovery(true);
-            c.setEnableDailyUpdates(false);
-            c.setEnableUpdateInterval(true);
-            c.setExtendedNextUpdate(true);
-            c.setIncludeExpiredCerts(false);
-            c.setMinUpdateInterval(0);
-            c.setNextUpdateGracePeriod(0);
-            c.setPublishOnStart(false);
-            c.setSaveMemory(false);
-            c.setSigningAlgorithm("SHA256withRSA");
-            c.setUpdateSchema(1);
+        if (ipConfig != null) {
+            ipConfig.setAllowExtensions(true);
+            ipConfig.setAlwaysUpdate(false);
+            ipConfig.setAutoUpdateInterval(240);
+            ipConfig.setCACertsOnly(false);
+            ipConfig.setCacheUpdateInterval(15);
+            ipConfig.setClassName("com.netscape.ca.CRLIssuingPoint");
+            ipConfig.setDailyUpdates("3:45");
+            ipConfig.setDescription(description);
+            ipConfig.setEnable(enable);
+            ipConfig.setEnableCRLCache(true);
+            ipConfig.setEnableCRLUpdates(true);
+            ipConfig.setEnableCacheTesting(false);
+            ipConfig.setEnableCacheRecovery(true);
+            ipConfig.setEnableDailyUpdates(false);
+            ipConfig.setEnableUpdateInterval(true);
+            ipConfig.setExtendedNextUpdate(true);
+            ipConfig.setIncludeExpiredCerts(false);
+            ipConfig.setMinUpdateInterval(0);
+            ipConfig.setNextUpdateGracePeriod(0);
+            ipConfig.setPublishOnStart(false);
+            ipConfig.setSaveMemory(false);
+            ipConfig.setSigningAlgorithm("SHA256withRSA");
+            ipConfig.setUpdateSchema(1);
 
             // crl extensions
             // AuthorityInformationAccess
-            c.putString("extension.AuthorityInformationAccess.enable", "false");
-            c.putString("extension.AuthorityInformationAccess.critical", "false");
-            c.putString("extension.AuthorityInformationAccess.type", "CRLExtension");
-            c.putString("extension.AuthorityInformationAccess.class",
+            ipConfig.putString("extension.AuthorityInformationAccess.enable", "false");
+            ipConfig.putString("extension.AuthorityInformationAccess.critical", "false");
+            ipConfig.putString("extension.AuthorityInformationAccess.type", "CRLExtension");
+            ipConfig.putString("extension.AuthorityInformationAccess.class",
                     "com.netscape.cms.crl.CMSAuthInfoAccessExtension");
-            c.putString("extension.AuthorityInformationAccess.numberOfAccessDescriptions", "1");
-            c.putString("extension.AuthorityInformationAccess.accessMethod0", "caIssuers");
-            c.putString("extension.AuthorityInformationAccess.accessLocationType0", "URI");
-            c.putString("extension.AuthorityInformationAccess.accessLocation0", "");
+            ipConfig.putString("extension.AuthorityInformationAccess.numberOfAccessDescriptions", "1");
+            ipConfig.putString("extension.AuthorityInformationAccess.accessMethod0", "caIssuers");
+            ipConfig.putString("extension.AuthorityInformationAccess.accessLocationType0", "URI");
+            ipConfig.putString("extension.AuthorityInformationAccess.accessLocation0", "");
             // AuthorityKeyIdentifier
-            c.putString("extension.AuthorityKeyIdentifier.enable", "false");
-            c.putString("extension.AuthorityKeyIdentifier.critical", "false");
-            c.putString("extension.AuthorityKeyIdentifier.type", "CRLExtension");
-            c.putString("extension.AuthorityKeyIdentifier.class",
+            ipConfig.putString("extension.AuthorityKeyIdentifier.enable", "false");
+            ipConfig.putString("extension.AuthorityKeyIdentifier.critical", "false");
+            ipConfig.putString("extension.AuthorityKeyIdentifier.type", "CRLExtension");
+            ipConfig.putString("extension.AuthorityKeyIdentifier.class",
                     "com.netscape.cms.crl.CMSAuthorityKeyIdentifierExtension");
             // IssuerAlternativeName
-            c.putString("extension.IssuerAlternativeName.enable", "false");
-            c.putString("extension.IssuerAlternativeName.critical", "false");
-            c.putString("extension.IssuerAlternativeName.type", "CRLExtension");
-            c.putString("extension.IssuerAlternativeName.class",
+            ipConfig.putString("extension.IssuerAlternativeName.enable", "false");
+            ipConfig.putString("extension.IssuerAlternativeName.critical", "false");
+            ipConfig.putString("extension.IssuerAlternativeName.type", "CRLExtension");
+            ipConfig.putString("extension.IssuerAlternativeName.class",
                     "com.netscape.cms.crl.CMSIssuerAlternativeNameExtension");
-            c.putString("extension.IssuerAlternativeName.numNames", "0");
-            c.putString("extension.IssuerAlternativeName.nameType0", "");
-            c.putString("extension.IssuerAlternativeName.name0", "");
+            ipConfig.putString("extension.IssuerAlternativeName.numNames", "0");
+            ipConfig.putString("extension.IssuerAlternativeName.nameType0", "");
+            ipConfig.putString("extension.IssuerAlternativeName.name0", "");
             // CRLNumber
-            c.putString("extension.CRLNumber.enable", "true");
-            c.putString("extension.CRLNumber.critical", "false");
-            c.putString("extension.CRLNumber.type", "CRLExtension");
-            c.putString("extension.CRLNumber.class",
+            ipConfig.putString("extension.CRLNumber.enable", "true");
+            ipConfig.putString("extension.CRLNumber.critical", "false");
+            ipConfig.putString("extension.CRLNumber.type", "CRLExtension");
+            ipConfig.putString("extension.CRLNumber.class",
                     "com.netscape.cms.crl.CMSCRLNumberExtension");
             // DeltaCRLIndicator
-            c.putString("extension.DeltaCRLIndicator.enable", "false");
-            c.putString("extension.DeltaCRLIndicator.critical", "true");
-            c.putString("extension.DeltaCRLIndicator.type", "CRLExtension");
-            c.putString("extension.DeltaCRLIndicator.class",
+            ipConfig.putString("extension.DeltaCRLIndicator.enable", "false");
+            ipConfig.putString("extension.DeltaCRLIndicator.critical", "true");
+            ipConfig.putString("extension.DeltaCRLIndicator.type", "CRLExtension");
+            ipConfig.putString("extension.DeltaCRLIndicator.class",
                     "com.netscape.cms.crl.CMSDeltaCRLIndicatorExtension");
             // IssuingDistributionPoint
-            c.putString("extension.IssuingDistributionPoint.enable", "false");
-            c.putString("extension.IssuingDistributionPoint.critical", "true");
-            c.putString("extension.IssuingDistributionPoint.type", "CRLExtension");
-            c.putString("extension.IssuingDistributionPoint.class",
+            ipConfig.putString("extension.IssuingDistributionPoint.enable", "false");
+            ipConfig.putString("extension.IssuingDistributionPoint.critical", "true");
+            ipConfig.putString("extension.IssuingDistributionPoint.type", "CRLExtension");
+            ipConfig.putString("extension.IssuingDistributionPoint.class",
                     "com.netscape.cms.crl.CMSIssuingDistributionPointExtension");
-            c.putString("extension.IssuingDistributionPoint.pointType", "");
-            c.putString("extension.IssuingDistributionPoint.pointName", "");
-            c.putString("extension.IssuingDistributionPoint.onlyContainsUserCerts", "false");
-            c.putString("extension.IssuingDistributionPoint.onlyContainsCACerts", "false");
-            c.putString("extension.IssuingDistributionPoint.onlySomeReasons", "");
+            ipConfig.putString("extension.IssuingDistributionPoint.pointType", "");
+            ipConfig.putString("extension.IssuingDistributionPoint.pointName", "");
+            ipConfig.putString("extension.IssuingDistributionPoint.onlyContainsUserCerts", "false");
+            ipConfig.putString("extension.IssuingDistributionPoint.onlyContainsCACerts", "false");
+            ipConfig.putString("extension.IssuingDistributionPoint.onlySomeReasons", "");
             //"keyCompromise,cACompromise,affiliationChanged,superseded,cessationOfOperation,certificateHold");
-            c.putString("extension.IssuingDistributionPoint.indirectCRL", "false");
+            ipConfig.putString("extension.IssuingDistributionPoint.indirectCRL", "false");
             // CRLReason
-            c.putString("extension.CRLReason.enable", "true");
-            c.putString("extension.CRLReason.critical", "false");
-            c.putString("extension.CRLReason.type", "CRLEntryExtension");
-            c.putString("extension.CRLReason.class",
+            ipConfig.putString("extension.CRLReason.enable", "true");
+            ipConfig.putString("extension.CRLReason.critical", "false");
+            ipConfig.putString("extension.CRLReason.type", "CRLEntryExtension");
+            ipConfig.putString("extension.CRLReason.class",
                     "com.netscape.cms.crl.CMSCRLReasonExtension");
             // HoldInstruction - removed by RFC 5280
-            // c.putString("extension.HoldInstruction.enable", "false");
-            // c.putString("extension.HoldInstruction.critical", "false");
-            // c.putString("extension.HoldInstruction.type", "CRLEntryExtension");
-            // c.putString("extension.HoldInstruction.class",
+            // ipConfig.putString("extension.HoldInstruction.enable", "false");
+            // ipConfig.putString("extension.HoldInstruction.critical", "false");
+            // ipConfig.putString("extension.HoldInstruction.type", "CRLEntryExtension");
+            // ipConfig.putString("extension.HoldInstruction.class",
             //     "com.netscape.cms.crl.CMSHoldInstructionExtension");
-            // c.putString("extension.HoldInstruction.instruction", "none");
+            // ipConfig.putString("extension.HoldInstruction.instruction", "none");
             // InvalidityDate
-            c.putString("extension.InvalidityDate.enable", "true");
-            c.putString("extension.InvalidityDate.critical", "false");
-            c.putString("extension.InvalidityDate.type", "CRLEntryExtension");
-            c.putString("extension.InvalidityDate.class",
+            ipConfig.putString("extension.InvalidityDate.enable", "true");
+            ipConfig.putString("extension.InvalidityDate.critical", "false");
+            ipConfig.putString("extension.InvalidityDate.type", "CRLEntryExtension");
+            ipConfig.putString("extension.InvalidityDate.class",
                     "com.netscape.cms.crl.CMSInvalidityDateExtension");
             // CertificateIssuer
             /*
-             c.putString("extension.CertificateIssuer.enable", "false");
-             c.putString("extension.CertificateIssuer.critical", "true");
-             c.putString("extension.CertificateIssuer.type", "CRLEntryExtension");
-             c.putString("extension.CertificateIssuer.class",
-             "com.netscape.cms.crl.CMSCertificateIssuerExtension");
-             c.putString("extension.CertificateIssuer.numNames", "0");
-             c.putString("extension.CertificateIssuer.nameType0", "");
-             c.putString("extension.CertificateIssuer.name0", "");
+             ipConfig.putString("extension.CertificateIssuer.enable", "false");
+             ipConfig.putString("extension.CertificateIssuer.critical", "true");
+             ipConfig.putString("extension.CertificateIssuer.type", "CRLEntryExtension");
+             ipConfig.putString("extension.CertificateIssuer.class",
+                 "com.netscape.cms.crl.CMSCertificateIssuerExtension");
+             ipConfig.putString("extension.CertificateIssuer.numNames", "0");
+             ipConfig.putString("extension.CertificateIssuer.nameType0", "");
+             ipConfig.putString("extension.CertificateIssuer.name0", "");
              */
             // FreshestCRL
-            c.putString("extension.FreshestCRL.enable", "false");
-            c.putString("extension.FreshestCRL.critical", "false");
-            c.putString("extension.FreshestCRL.type", "CRLExtension");
-            c.putString("extension.FreshestCRL.class",
+            ipConfig.putString("extension.FreshestCRL.enable", "false");
+            ipConfig.putString("extension.FreshestCRL.critical", "false");
+            ipConfig.putString("extension.FreshestCRL.type", "CRLExtension");
+            ipConfig.putString("extension.FreshestCRL.class",
                     "com.netscape.cms.crl.CMSFreshestCRLExtension");
-            c.putString("extension.FreshestCRL.numPoints", "0");
-            c.putString("extension.FreshestCRL.pointType0", "");
-            c.putString("extension.FreshestCRL.pointName0", "");
+            ipConfig.putString("extension.FreshestCRL.numPoints", "0");
+            ipConfig.putString("extension.FreshestCRL.pointType0", "");
+            ipConfig.putString("extension.FreshestCRL.pointName0", "");
 
             String issuingPointClassName = null;
             Class<CRLIssuingPoint> issuingPointClass = null;
             CRLIssuingPoint issuingPoint = null;
 
             try {
-                issuingPointClassName = c.getClassName();
+                issuingPointClassName = ipConfig.getClassName();
                 issuingPointClass = (Class<CRLIssuingPoint>) Class.forName(issuingPointClassName);
                 issuingPoint = issuingPointClass.getDeclaredConstructor().newInstance();
-                issuingPoint.init(this, id, c);
+                issuingPoint.init(this, id, ipConfig);
 
                 engine.addCRLIssuingPoint(id, issuingPoint);
 

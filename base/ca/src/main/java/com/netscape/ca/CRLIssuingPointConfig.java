@@ -12,6 +12,9 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
+/**
+ * Provides ca.crl.<name>.* parameters.
+ */
 public class CRLIssuingPointConfig extends ConfigStore {
 
     public CRLIssuingPointConfig(ConfigStorage storage) {

@@ -1083,10 +1083,10 @@ public class CRLIssuingPoint implements Runnable {
 
             CAConfig caConfig = mCA.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
-            ConfigStore ipStore = crlConfig.getSubStore(mId, ConfigStore.class);
+            CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(mId);
 
             try {
-                BigInteger startingCrlNumberBig = ipStore.getBigInteger(PROP_CRL_STARTING_NUMBER, BigInteger.ZERO);
+                BigInteger startingCrlNumberBig = ipConfig.getBigInteger(PROP_CRL_STARTING_NUMBER, BigInteger.ZERO);
                 logger.debug("CRLIssuingPoint: startingCrlNumber: " + startingCrlNumberBig);
 
                 // Check for bogus negative value
@@ -1388,8 +1388,8 @@ public class CRLIssuingPoint implements Runnable {
                         if (onlyContainsCACerts != mCACertsOnly) {
                             CAConfig caConfig = mCA.getConfigStore();
                             CRLConfig crlConfig = caConfig.getCRLConfig();
-                            ConfigStore crlSubStore = crlConfig.getSubStore(mId, ConfigStore.class);
-                            ConfigStore crlExtsSubStore = crlSubStore.getSubStore(CertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
+                            CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(mId);
+                            ConfigStore crlExtsSubStore = ipConfig.getSubStore(CertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
                             crlExtsSubStore = crlExtsSubStore.getSubStore(IssuingDistributionPointExtension.NAME, ConfigStore.class);
 
                             if (crlExtsSubStore != null) {

@@ -664,11 +664,11 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                     //Commit to this CRL IssuingPoint's config store
                     CAConfig caConfig = ca.getConfigStore();
                     CRLConfig crlConfig = caConfig.getCRLConfig();
-                    ConfigStore crlsSubStore = crlConfig.getSubStore(ipId, ConfigStore.class);
+                    CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(ipId);
 
                     try {
-                        crlsSubStore.putString(Constants.PR_CA_CERTS_ONLY, newValue);
-                        crlsSubStore.commit(true);
+                        ipConfig.putString(Constants.PR_CA_CERTS_ONLY, newValue);
+                        ipConfig.commit(true);
 
                     } catch (EBaseException e) {
                         logger.warn(CMS.getLogMessage("CMSCORE_CA_CRLEXTS_SAVE_CONF", e.toString()), e);
