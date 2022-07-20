@@ -589,8 +589,8 @@ public class CRLIssuingPoint implements Runnable {
      * @param config configuration of this CRL issuing point.
      * @exception EBaseException if initialization failed
      */
-    public void init(ISubsystem ca, String id, ConfigStore config) throws EBaseException {
-        mCA = (CertificateAuthority) ca;
+    public void init(CertificateAuthority ca, String id, CRLIssuingPointConfig config) throws EBaseException {
+        mCA = ca;
         mId = id;
 
         if (mId.equals(CertificateAuthority.PROP_MASTER_CRL)) {
@@ -605,7 +605,7 @@ public class CRLIssuingPoint implements Runnable {
             mCrlPublishError = Request.CRL_PUBLISH_ERROR + "_" + mId;
         }
 
-        mConfigStore = (CRLIssuingPointConfig) config;
+        mConfigStore = config;
 
         CAConfig caConfig = mCA.getConfigStore();
         CRLConfig crlConfig = caConfig.getCRLConfig();
