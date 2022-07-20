@@ -23,10 +23,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.rest.SystemConfigService;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
@@ -113,32 +111,6 @@ public class CAInstallerService extends SystemConfigService {
 
         } catch (Throwable e) {
             logger.error("Unable to create cert ID: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    @POST
-    @Path("initSubsystem")
-    public void initSubsystem(CertificateSetupRequest request) throws Exception {
-
-        logger.info("CAInstallerService: Initializing subsystem");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            CAEngine engine = CAEngine.getInstance();
-            CAEngineConfig engineConfig = engine.getConfig();
-
-            CertificateAuthority ca = engine.getCA();
-            ca.setConfig(engineConfig.getCAConfig());
-            ca.initCertSigningUnit();
-
-        } catch (Throwable e) {
-            logger.error("Unable to initialize subsystem: " + e.getMessage(), e);
             throw e;
         }
     }

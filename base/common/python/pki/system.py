@@ -361,7 +361,6 @@ class SystemConfigClient(object):
 
         self.create_request_id_url = '/rest/installer/createRequestID'
         self.create_cert_id_url = '/rest/installer/createCertID'
-        self.init_subsystem_url = '/rest/installer/initSubsystem'
 
         if connection.subsystem is None:
 
@@ -370,7 +369,6 @@ class SystemConfigClient(object):
 
             self.create_request_id_url = '/' + subsystem + self.create_request_id_url
             self.create_cert_id_url = '/' + subsystem + self.create_cert_id_url
-            self.init_subsystem_url = '/' + subsystem + self.init_subsystem_url
 
     def createRequestID(self, request):
         """
@@ -409,21 +407,6 @@ class SystemConfigClient(object):
             headers)
 
         return response.json()
-
-    def initSubsystem(self, request):
-        """
-        Initialize subsystem.
-
-        :param request: Certificate setup request
-        :type request: CertificateSetupRequest
-        """
-        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
-        headers = {'Content-type': 'application/json'}
-
-        self.connection.post(
-            self.init_subsystem_url,
-            data,
-            headers)
 
 
 class SystemStatusClient(object):

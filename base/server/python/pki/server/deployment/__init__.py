@@ -1565,15 +1565,6 @@ class PKIDeployer:
 
             self.setup_system_cert(nssdb, subsystem, tag, system_cert, request)
 
-            if subsystem.type == 'CA' and tag == 'signing':
-
-                logger.info('Initializing CA')
-
-                request = pki.system.CertificateSetupRequest()
-                request.pin = self.mdict['pki_one_time_pin']
-
-                self.client.initSubsystem(request)
-
         logger.info('Setting up trust flags')
 
         if subsystem.type == 'CA':
