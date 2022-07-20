@@ -23,9 +23,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.certsrv.base.EBaseException;
 
 import netscape.ldap.LDAPAttributeSet;
@@ -119,7 +119,7 @@ public class RetrieveModificationsTask implements Runnable {
             return;
         }
 
-        for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
+        for (CRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
 
             if (ip == null) {
                 continue;

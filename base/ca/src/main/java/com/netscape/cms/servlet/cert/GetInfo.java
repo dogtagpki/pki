@@ -32,10 +32,10 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -257,7 +257,7 @@ public class GetInfo extends CMSServlet {
                 }
 
             } else {
-                for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
+                for (CRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
                     if (ip.isCRLIssuingPointEnabled()) {
                         if (crlIssuingPoints.length() > 0)
                             crlIssuingPoints += "+";
@@ -289,9 +289,9 @@ public class GetInfo extends CMSServlet {
 
                         if (recentChanges.length() > 0)
                             recentChanges += "+";
-                        if (ip.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_PUBLISHING_STARTED) {
+                        if (ip.isCRLUpdateInProgress() == CRLIssuingPoint.CRL_PUBLISHING_STARTED) {
                             recentChanges += "Publishing CRL #" + ip.getCRLNumber();
-                        } else if (ip.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_UPDATE_STARTED) {
+                        } else if (ip.isCRLUpdateInProgress() == CRLIssuingPoint.CRL_UPDATE_STARTED) {
                             recentChanges += "Creating CRL #" + ip.getNextCRLNumber();
                         } else { // ip.CRL_UPDATE_DONE
                             recentChanges += ip.getNumberOfRecentlyRevokedCerts() + ", " +
@@ -333,7 +333,7 @@ public class GetInfo extends CMSServlet {
 
             header.addStringValue("masterCRLIssuingPoint", CertificateAuthority.PROP_MASTER_CRL);
 
-            ICRLIssuingPoint ip0 = engine.getCRLIssuingPoint(CertificateAuthority.PROP_MASTER_CRL);
+            CRLIssuingPoint ip0 = engine.getCRLIssuingPoint(CertificateAuthority.PROP_MASTER_CRL);
 
             if (ip0 != null) {
                 header.addStringValue("defaultAlgorithm", ip0.getSigningAlgorithm());

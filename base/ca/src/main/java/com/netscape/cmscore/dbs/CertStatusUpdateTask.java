@@ -26,8 +26,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 
@@ -208,7 +208,7 @@ public class CertStatusUpdateTask implements Runnable {
         for (int i = 0; i < list.size(); i++) {
             BigInteger serialNumber = list.elementAt(i);
 
-            for (ICRLIssuingPoint issuingPoint : engine.getCRLIssuingPoints()) {
+            for (CRLIssuingPoint issuingPoint : engine.getCRLIssuingPoints()) {
                 issuingPoint.addExpiredCert(serialNumber);
             }
         }

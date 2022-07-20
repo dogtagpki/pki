@@ -32,11 +32,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.dogtagpki.server.connector.IRemoteRequest;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -362,7 +362,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                 }
 
                 // let known update and publish status of all crls.
-                for (ICRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
+                for (CRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
                     String crlId = crl.getId();
 
                     if (crlId.equals(CertificateAuthority.PROP_MASTER_CRL))

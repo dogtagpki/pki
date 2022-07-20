@@ -31,11 +31,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -168,7 +168,7 @@ public class GetCRL extends CMSServlet {
 
         CRLIssuingPointRecord crlRecord = null;
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
-        ICRLIssuingPoint crlIP = null;
+        CRLIssuingPoint crlIP = null;
         if (ca != null)
             crlIP = engine.getCRLIssuingPoint(crlId);
 

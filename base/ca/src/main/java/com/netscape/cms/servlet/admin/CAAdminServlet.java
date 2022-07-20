@@ -32,10 +32,10 @@ import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICMSCRLExtensions;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -448,7 +448,7 @@ public class CAAdminServlet extends AdminServlet {
 
         CAEngine engine = CAEngine.getInstance();
 
-        for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
+        for (CRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
             if (ip != null) {
                 String ipId = ip.getId();
 
@@ -470,7 +470,7 @@ public class CAAdminServlet extends AdminServlet {
         String id = req.getParameter(Constants.RS_ID);
 
         if (id != null && id.length() > 0) {
-            ICRLIssuingPoint ip = engine.getCRLIssuingPoint(id);
+            CRLIssuingPoint ip = engine.getCRLIssuingPoint(id);
 
             if (ip != null) {
 
@@ -740,7 +740,7 @@ public class CAAdminServlet extends AdminServlet {
                 String name = crlNames.nextElement();
 
                 if (ipId.equals(name)) {
-                    ICRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
+                    CRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
 
                     if (ip != null) {
                         ip.setDescription(desc);
@@ -953,7 +953,7 @@ public class CAAdminServlet extends AdminServlet {
             ipId = ICertificateAuthority.PROP_MASTER_CRL;
         }
 
-        ICRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
+        CRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
         ICMSCRLExtensions crlExts = ip.getCRLExtensions();
         String id = req.getParameter(Constants.RS_ID);
 
@@ -999,7 +999,7 @@ public class CAAdminServlet extends AdminServlet {
                 ipId = ICertificateAuthority.PROP_MASTER_CRL;
             }
 
-            ICRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
+            CRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
             ICMSCRLExtensions crlExts = ip.getCRLExtensions();
 
             CAConfig config = mCA.getConfigStore();
@@ -1148,16 +1148,16 @@ public class CAAdminServlet extends AdminServlet {
         String name = null;
 
         CAEngine engine = CAEngine.getInstance();
-        Enumeration<ICRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
+        Enumeration<CRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
 
         if (ips.hasMoreElements()) {
-            ICRLIssuingPoint ip = ips.nextElement();
+            CRLIssuingPoint ip = ips.nextElement();
             if (ip != null) {
                 ipId = ip.getId();
             }
         }
         if (ipId != null) {
-            ICRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
+            CRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
             ICMSCRLExtensions crlExts = ip.getCRLExtensions();
             name = crlExts.getClassPath(implName);
         }
@@ -1215,7 +1215,7 @@ public class CAAdminServlet extends AdminServlet {
                     id.equals(Constants.RS_ID_CONFIG)) {
                 id = ICertificateAuthority.PROP_MASTER_CRL;
             }
-            ICRLIssuingPoint ip = engine.getCRLIssuingPoint(id);
+            CRLIssuingPoint ip = engine.getCRLIssuingPoint(id);
 
             //Save New Settings to the config file
             CAConfig config = mCA.getConfigStore();

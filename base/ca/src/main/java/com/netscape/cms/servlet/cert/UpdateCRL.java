@@ -35,13 +35,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
 import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -252,7 +252,7 @@ public class UpdateCRL extends CMSServlet {
         return entryExts;
     }
 
-    private void addInfo(CMSTemplateParams argSet, ICRLIssuingPoint crlIssuingPoint, long cacheUpdate) {
+    private void addInfo(CMSTemplateParams argSet, CRLIssuingPoint crlIssuingPoint, long cacheUpdate) {
         ArgBlock rarg = new ArgBlock();
 
         rarg.addLongValue("cacheUpdate", cacheUpdate);
@@ -315,9 +315,9 @@ public class UpdateCRL extends CMSServlet {
                     "UpdateCRL:process : customFutureThisUpdate value is either not present or an illegal value, treating as null. ");
         }
         if (crlIssuingPointId != null) {
-            Enumeration<ICRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
+            Enumeration<CRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
             while (ips.hasMoreElements()) {
-                ICRLIssuingPoint ip = ips.nextElement();
+                CRLIssuingPoint ip = ips.nextElement();
 
                 if (crlIssuingPointId.equals(ip.getId())) {
                     break;
@@ -331,7 +331,7 @@ public class UpdateCRL extends CMSServlet {
             crlIssuingPointId = CertificateAuthority.PROP_MASTER_CRL;
         }
 
-        ICRLIssuingPoint crlIssuingPoint = engine.getCRLIssuingPoint(crlIssuingPointId);
+        CRLIssuingPoint crlIssuingPoint = engine.getCRLIssuingPoint(crlIssuingPointId);
         header.addStringValue("crlIssuingPoint", crlIssuingPointId);
         CAPublisherProcessor lpm = engine.getPublisherProcessor();
 
@@ -356,7 +356,7 @@ public class UpdateCRL extends CMSServlet {
 
         if (clearCache != null && clearCache.equals("true") &&
                 crlIssuingPoint.isCRLGenerationEnabled() &&
-                crlIssuingPoint.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_UPDATE_DONE &&
+                crlIssuingPoint.isCRLUpdateInProgress() == CRLIssuingPoint.CRL_UPDATE_DONE &&
                 crlIssuingPoint.isCRLIssuingPointInitialized()) {
 
             logger.debug("UpdateCRL: clearing CRL cache");
@@ -365,7 +365,7 @@ public class UpdateCRL extends CMSServlet {
 
         if (!(waitForUpdate != null && waitForUpdate.equals("true") &&
                 crlIssuingPoint.isCRLGenerationEnabled() &&
-                crlIssuingPoint.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_UPDATE_DONE &&
+                crlIssuingPoint.isCRLUpdateInProgress() == CRLIssuingPoint.CRL_UPDATE_DONE &&
                 crlIssuingPoint.isCRLIssuingPointInitialized())) {
 
             if (!crlIssuingPoint.isCRLIssuingPointInitialized()) {
@@ -374,7 +374,7 @@ public class UpdateCRL extends CMSServlet {
                 header.addStringValue("crlUpdate", "notInitialized");
 
             } else if (crlIssuingPoint.isCRLUpdateInProgress()
-                       != ICRLIssuingPoint.CRL_UPDATE_DONE ||
+                       != CRLIssuingPoint.CRL_UPDATE_DONE ||
                        crlIssuingPoint.isManualUpdateSet()) {
 
                 logger.debug("UpdateCRL: CRL update in progress");

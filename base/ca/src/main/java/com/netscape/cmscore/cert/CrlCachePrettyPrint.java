@@ -24,12 +24,12 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 
 /**
@@ -51,14 +51,14 @@ public class CrlCachePrettyPrint implements ICRLPrettyPrint {
     /*==========================================================
      * variables
      *==========================================================*/
-    private ICRLIssuingPoint mIP = null;
+    private CRLIssuingPoint mIP = null;
     private PrettyPrintFormat pp = null;
 
     /*==========================================================
      * constructors
      *==========================================================*/
 
-    public CrlCachePrettyPrint(ICRLIssuingPoint ip) {
+    public CrlCachePrettyPrint(CRLIssuingPoint ip) {
         mIP = ip;
         pp = new PrettyPrintFormat(":");
     }

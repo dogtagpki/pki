@@ -21,11 +21,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 
 import org.dogtagpki.server.ca.ICMSCRLExtension;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
@@ -65,7 +65,7 @@ public class CMSDeltaCRLIndicatorExtension
     @Override
     public Extension getCRLExtension(ConfigStore config, Object ip, boolean critical) {
         DeltaCRLIndicatorExtension deltaCRLIndicatorExt = null;
-        ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
+        CRLIssuingPoint crlIssuingPoint = (CRLIssuingPoint) ip;
 
         try {
             deltaCRLIndicatorExt = new DeltaCRLIndicatorExtension(

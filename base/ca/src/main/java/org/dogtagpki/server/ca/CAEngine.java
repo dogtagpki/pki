@@ -129,7 +129,7 @@ public class CAEngine extends CMSEngine {
     protected CRLPublisher crlPublisher;
     protected CAPublisherProcessor publisherProcessor;
 
-    protected Map<String, ICRLIssuingPoint> crlIssuingPoints = new HashMap<>();
+    protected Map<String, CRLIssuingPoint> crlIssuingPoints = new HashMap<>();
 
     // for CMC shared secret operations
     protected org.mozilla.jss.crypto.X509Certificate issuanceProtectionCert;
@@ -306,11 +306,11 @@ public class CAEngine extends CMSEngine {
         return publisherProcessor;
     }
 
-    public Collection<ICRLIssuingPoint> getCRLIssuingPoints() {
+    public Collection<CRLIssuingPoint> getCRLIssuingPoints() {
         return crlIssuingPoints.values();
     }
 
-    public ICRLIssuingPoint getMasterCRLIssuingPoint() {
+    public CRLIssuingPoint getMasterCRLIssuingPoint() {
         return crlIssuingPoints.get(ICertificateAuthority.PROP_MASTER_CRL);
     }
 
@@ -321,15 +321,15 @@ public class CAEngine extends CMSEngine {
      * @param id string id of the CRL issuing point
      * @return CRL issuing point
      */
-    public ICRLIssuingPoint getCRLIssuingPoint(String id) {
+    public CRLIssuingPoint getCRLIssuingPoint(String id) {
         return crlIssuingPoints.get(id);
     }
 
-    public void addCRLIssuingPoint(String id, ICRLIssuingPoint crlIssuingPoint) {
+    public void addCRLIssuingPoint(String id, CRLIssuingPoint crlIssuingPoint) {
         crlIssuingPoints.put(id, crlIssuingPoint);
     }
 
-    public ICRLIssuingPoint removeCRLIssuingPoint(String id) {
+    public CRLIssuingPoint removeCRLIssuingPoint(String id) {
         return crlIssuingPoints.remove(id);
     }
 
@@ -1693,12 +1693,12 @@ public class CAEngine extends CMSEngine {
 
         super.shutdownSubsystems();
 
-        for (ICRLIssuingPoint crlIssuingPoint : crlIssuingPoints.values()) {
+        for (CRLIssuingPoint crlIssuingPoint : crlIssuingPoints.values()) {
             crlIssuingPoint.shutdown();
         }
         crlIssuingPoints.clear();
 
-        CRLIssuingPoint masterCRLIssuingPoint = (CRLIssuingPoint) getMasterCRLIssuingPoint();
+        CRLIssuingPoint masterCRLIssuingPoint = getMasterCRLIssuingPoint();
 
         if (masterCRLIssuingPoint != null) {
             masterCRLIssuingPoint.shutdown();

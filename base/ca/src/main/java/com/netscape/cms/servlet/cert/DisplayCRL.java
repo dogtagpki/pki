@@ -35,10 +35,10 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
@@ -177,7 +177,7 @@ public class DisplayCRL extends CMSServlet {
         CAEngineConfig cs = engine.getConfig();
         CRLRepository crlRepository = engine.getCRLRepository();
 
-        ICRLIssuingPoint crlIP = null;
+        CRLIssuingPoint crlIP = null;
         X509CRLImpl crl = null;
         boolean clonedCA = false;
         boolean isCRLCacheEnabled = false;
@@ -215,9 +215,9 @@ public class DisplayCRL extends CMSServlet {
             }
         } else {
             if (crlIssuingPointId != null) {
-                Enumeration<ICRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
+                Enumeration<CRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
                 while (ips.hasMoreElements()) {
-                    ICRLIssuingPoint ip = ips.nextElement();
+                    CRLIssuingPoint ip = ips.nextElement();
 
                     if (crlIssuingPointId.equals(ip.getId())) {
                         crlIP = ip;

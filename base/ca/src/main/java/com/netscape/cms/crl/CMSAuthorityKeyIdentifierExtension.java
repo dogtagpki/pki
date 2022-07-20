@@ -22,7 +22,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 
 import org.dogtagpki.server.ca.ICMSCRLExtension;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -35,6 +34,7 @@ import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
@@ -78,7 +78,7 @@ public class CMSAuthorityKeyIdentifierExtension
     @Override
     public Extension getCRLExtension(ConfigStore config, Object ip, boolean critical) {
         AuthorityKeyIdentifierExtension authKeyIdExt = null;
-        ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
+        CRLIssuingPoint crlIssuingPoint = (CRLIssuingPoint) ip;
 
         try {
             KeyIdentifier keyId = null;

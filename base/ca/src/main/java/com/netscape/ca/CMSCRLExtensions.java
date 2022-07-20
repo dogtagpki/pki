@@ -29,7 +29,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICMSCRLExtension;
 import org.dogtagpki.server.ca.ICMSCRLExtensions;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
@@ -66,7 +65,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     public static final String PROP_CRL_EXT = "CRLExtension";
     public static final String PROP_CRL_ENTRY_EXT = "CRLEntryExtension";
 
-    private ICRLIssuingPoint mCRLIssuingPoint = null;
+    private CRLIssuingPoint mCRLIssuingPoint;
 
     @SuppressWarnings("unused")
     private CRLIssuingPointConfig mConfig;
@@ -191,7 +190,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     /**
      * Constructs a CRL extensions for CRL issuing point.
      */
-    public CMSCRLExtensions(ICRLIssuingPoint crlIssuingPoint, CRLIssuingPointConfig config) {
+    public CMSCRLExtensions(CRLIssuingPoint crlIssuingPoint, CRLIssuingPointConfig config) {
         boolean modifiedConfig = false;
 
         CAEngine engine = CAEngine.getInstance();
@@ -572,7 +571,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
         String ipId = nvp.get("id");
 
-        ICRLIssuingPoint ip = null;
+        CRLIssuingPoint ip = null;
         if (ipId != null && ca != null) {
             ip = engine.getCRLIssuingPoint(ipId);
         }

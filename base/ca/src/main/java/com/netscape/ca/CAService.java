@@ -34,7 +34,6 @@ import java.util.Vector;
 import org.dogtagpki.ct.CTEngine;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.util.BigInt;
@@ -1108,7 +1107,7 @@ public class CAService implements IService {
 
             // inform all CRLIssuingPoints about revoked certificate
 
-            for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
+            for (CRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
                 if (ip != null) {
                     boolean b = true;
 
@@ -1197,7 +1196,7 @@ public class CAService implements IService {
 
                 // inform all CRLIssuingPoints about unrevoked certificate
 
-                for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
+                for (CRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
                     if (ip != null) {
                         boolean b = true;
 
@@ -2115,7 +2114,7 @@ class serviceCert4Crl implements IServant {
 
                 // inform all CRLIssuingPoints about revoked certificate
 
-                for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
+                for (CRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
                     // form RevokedCertImpl
                     RevokedCertImpl rci =
                             new RevokedCertImpl(revokedCertRecs[i].getSerialNumber(),
@@ -2177,7 +2176,7 @@ class serviceUnCert4Crl implements IServant {
 
                 // inform all CRLIssuingPoints about unrevoked certificate
 
-                for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
+                for (CRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
                     if (ip != null) {
                         ip.addUnrevokedCert(oldSerialNo[i]);
                     }

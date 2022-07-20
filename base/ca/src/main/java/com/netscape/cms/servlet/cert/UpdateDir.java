@@ -34,11 +34,11 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -228,12 +228,12 @@ public class UpdateDir extends CMSServlet {
     private void updateCRLIssuingPoint(
             IArgBlock header,
             String crlIssuingPointId,
-            ICRLIssuingPoint crlIssuingPoint,
+            CRLIssuingPoint crlIssuingPoint,
             Locale locale) {
         SessionContext sc = SessionContext.getContext();
 
-        sc.put(ICRLIssuingPoint.SC_ISSUING_POINT_ID, crlIssuingPointId);
-        sc.put(ICRLIssuingPoint.SC_IS_DELTA_CRL, "false");
+        sc.put(CRLIssuingPoint.SC_ISSUING_POINT_ID, crlIssuingPointId);
+        sc.put(CRLIssuingPoint.SC_IS_DELTA_CRL, "false");
         CRLIssuingPointRecord crlRecord = null;
 
         try {
@@ -287,7 +287,7 @@ public class UpdateDir extends CMSServlet {
                 }
             }
 
-            sc.put(ICRLIssuingPoint.SC_IS_DELTA_CRL, "true");
+            sc.put(CRLIssuingPoint.SC_IS_DELTA_CRL, "true");
             // handle delta CRL if any
             byte[] deltaCrlBytes = crlRecord.getDeltaCRL();
 
@@ -345,9 +345,9 @@ public class UpdateDir extends CMSServlet {
                 updateValue[UPDATE_CRL].equalsIgnoreCase("yes"))) {
             // check if received issuing point ID is known to the server
             if (crlIssuingPointId != null) {
-                Enumeration<ICRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
+                Enumeration<CRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
                 while (ips.hasMoreElements()) {
-                    ICRLIssuingPoint ip = ips.nextElement();
+                    CRLIssuingPoint ip = ips.nextElement();
 
                     if (crlIssuingPointId.equals(ip.getId())) {
                         break;
@@ -368,15 +368,15 @@ public class UpdateDir extends CMSServlet {
                         }
                     }
                 } else {
-                    Enumeration<ICRLIssuingPoint> oips = Collections.enumeration(engine.getCRLIssuingPoints());
+                    Enumeration<CRLIssuingPoint> oips = Collections.enumeration(engine.getCRLIssuingPoints());
                     while (oips.hasMoreElements()) {
-                        ICRLIssuingPoint oip = oips.nextElement();
+                        CRLIssuingPoint oip = oips.nextElement();
 
                         updateCRLIssuingPoint(header, oip.getId(), oip, locale);
                     }
                 }
             } else {
-                ICRLIssuingPoint crlIssuingPoint = engine.getCRLIssuingPoint(crlIssuingPointId);
+                CRLIssuingPoint crlIssuingPoint = engine.getCRLIssuingPoint(crlIssuingPointId);
 
                 updateCRLIssuingPoint(header, crlIssuingPointId,
                         crlIssuingPoint, locale);

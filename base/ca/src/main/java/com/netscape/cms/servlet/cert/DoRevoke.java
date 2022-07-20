@@ -36,11 +36,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
@@ -542,7 +542,7 @@ public class DoRevoke extends CMSServlet {
 
                 if (mAuthority instanceof ICertificateAuthority) {
                     // let known update and publish status of all crls.
-                    for (ICRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
+                    for (CRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
                         String crlId = crl.getId();
 
                         if (crlId.equals(CertificateAuthority.PROP_MASTER_CRL))
