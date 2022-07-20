@@ -11,6 +11,7 @@ import javax.ws.rs.ServiceUnavailableException;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 
@@ -126,16 +127,16 @@ public class DogtagRABackend extends ESTBackend {
     }
 
     @Override
-    public X509Certificate simpleenroll(Optional<String> label, PKCS10 csr) throws PKIException {
+    public X509CertImpl simpleenroll(Optional<String> label, PKCS10 csr) throws PKIException {
         return issueCertificate(csr);
     }
 
     @Override
-    public X509Certificate simplereenroll(Optional<String> label, PKCS10 csr) throws PKIException {
+    public X509CertImpl simplereenroll(Optional<String> label, PKCS10 csr) throws PKIException {
         return issueCertificate(csr);
     }
 
-    private X509Certificate issueCertificate(PKCS10 pkcs10) throws PKIException {
+    private X509CertImpl issueCertificate(PKCS10 pkcs10) throws PKIException {
         logger.info("Issuing certificate");
 
         try (PKIClient pkiClient = new PKIClient(clientConfig)) {
