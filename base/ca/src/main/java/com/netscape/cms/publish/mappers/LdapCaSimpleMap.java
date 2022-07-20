@@ -324,7 +324,10 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         }
 
         try {
-            return mPattern.formDN(req, subjectDN, certExt);
+            String dn = mPattern.formDN(req, subjectDN, certExt);
+            logger.info("LdapCaSimpleMap: to " + dn);
+
+            return dn;
 
         } catch (ELdapException e) {
             String message = CMS.getLogMessage("PUBLISH_CANT_FORM_DN", req == null ? "" : req.getRequestId(), e);
