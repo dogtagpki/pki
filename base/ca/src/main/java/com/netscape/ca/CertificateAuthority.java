@@ -127,7 +127,6 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -570,18 +569,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     /**
-     * Retrieves replica repository.
-     * <P>
-     *
-     * @return replica repository
-     */
-    @Override
-    public ReplicaIDRepository getReplicaRepository() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getReplicaIDRepository();
-    }
-
-    /**
      * Adds CRL issuing point with the given identifier and description.
      */
     @Override
@@ -738,7 +725,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     public void deleteCRLIssuingPoint(ConfigStore crlSubStore, String id) {
 
         CAEngine engine = CAEngine.getInstance();
-        CRLIssuingPoint ip = (CRLIssuingPoint) engine.removeCRLIssuingPoint(id);
+        CRLIssuingPoint ip = engine.removeCRLIssuingPoint(id);
 
         if (ip != null) {
             ip.shutdown();
@@ -1608,7 +1595,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
             } catch (EBaseException e) {
             }
 
-            CRLIssuingPoint point = (CRLIssuingPoint) engine.getCRLIssuingPoint(issuingPointId);
+            CRLIssuingPoint point = engine.getCRLIssuingPoint(issuingPointId);
 
             /* set nextUpdate to the nextUpdate time of the CRL */
             GeneralizedTime nextUpdate = null;

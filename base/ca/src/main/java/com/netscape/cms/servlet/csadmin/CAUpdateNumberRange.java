@@ -19,7 +19,6 @@ package com.netscape.cms.servlet.csadmin;
 
 import org.dogtagpki.server.ca.CAEngine;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.dbs.Repository;
 
@@ -29,7 +28,6 @@ public class CAUpdateNumberRange extends UpdateNumberRange {
     public Repository getRepository(String type) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
 
         if (type.equals("request")) {
             return engine.getCertRequestRepository();
@@ -38,7 +36,7 @@ public class CAUpdateNumberRange extends UpdateNumberRange {
             return engine.getCertificateRepository();
 
         } else if (type.equals("replicaId")) {
-            return ca.getReplicaRepository();
+            return engine.getReplicaIDRepository();
         }
 
         throw new EBaseException("Unsupported repository: " + type);

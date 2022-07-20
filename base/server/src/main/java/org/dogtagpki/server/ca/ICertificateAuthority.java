@@ -37,7 +37,6 @@ import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.dbs.ReplicaIDRepository;
 
 /**
  * An interface represents a Certificate Authority that is
@@ -183,13 +182,6 @@ public interface ICertificateAuthority extends ISubsystem {
      * @param id CRL issuing point id
      */
     public void deleteCRLIssuingPoint(ConfigStore crlSubStore, String id);
-
-    /**
-     * Retrieves the Replica ID repository.
-     *
-     * @return CA's Replica ID repository
-     */
-    public ReplicaIDRepository getReplicaRepository();
 
     /**
      * Retrieves the CA certificate chain.
