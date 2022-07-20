@@ -47,6 +47,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.ca.AuthorityMonitor;
 import com.netscape.ca.CANotify;
 import com.netscape.ca.CAService;
+import com.netscape.ca.CRLConfig;
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CRLIssuingPointConfig;
 import com.netscape.ca.CertificateAuthority;
@@ -500,8 +501,7 @@ public class CAEngine extends CMSEngine {
 
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
-
-        ConfigStore crlConfig = caConfig.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+        CRLConfig crlConfig = caConfig.getCRLConfig();
 
         if (crlConfig == null || crlConfig.size() <= 0) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL"));

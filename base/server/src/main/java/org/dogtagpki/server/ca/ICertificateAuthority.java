@@ -70,7 +70,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public static final String PROP_ENABLE_ADMIN_ENROLL =
             "enableAdminEnroll";
 
-    public final static String PROP_CRL_SUBSTORE = "crl";
     // make this public so agent gateway can access for now.
     public final static String PROP_CRL_PAGE_SIZE = "pageSize";
     public final static String PROP_MASTER_CRL = "MasterCRL";

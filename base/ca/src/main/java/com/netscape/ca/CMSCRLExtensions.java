@@ -663,8 +663,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 if (modifiedCRLConfig == true) {
                     //Commit to this CRL IssuingPoint's config store
                     CAConfig caConfig = ca.getConfigStore();
-                    ConfigStore crlsSubStore = caConfig.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
-                    crlsSubStore = crlsSubStore.getSubStore(ipId, ConfigStore.class);
+                    CRLConfig crlConfig = caConfig.getCRLConfig();
+                    ConfigStore crlsSubStore = crlConfig.getSubStore(ipId, ConfigStore.class);
 
                     try {
                         crlsSubStore.putString(Constants.PR_CA_CERTS_ONLY, newValue);

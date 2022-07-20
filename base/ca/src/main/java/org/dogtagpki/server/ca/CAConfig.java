@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.server.ca;
 
+import com.netscape.ca.CRLConfig;
 import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
@@ -47,5 +48,12 @@ public class CAConfig extends ConfigStore {
      */
     public SigningUnitConfig getCRLSigningUnitConfig() {
         return getSubStore("crl_signing", SigningUnitConfig.class);
+    }
+
+    /**
+     * Returns ca.crl.* parameters.
+     */
+    public CRLConfig getCRLConfig() {
+        return getSubStore("crl", CRLConfig.class);
     }
 }

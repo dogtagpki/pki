@@ -571,18 +571,18 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     /**
      * Adds CRL issuing point with the given identifier and description.
      *
-     * @param crlSubStore sub-store with all CRL issuing points
+     * @param crlConfig sub-store with all CRL issuing points
      * @param id CRL issuing point id
      * @param description CRL issuing point description
      * @return true if CRL issuing point was successfully added
      */
-    public boolean addCRLIssuingPoint(ConfigStore crlSubStore, String id,
+    public boolean addCRLIssuingPoint(CRLConfig crlConfig, String id,
                                       boolean enable, String description) {
 
         CAEngine engine = CAEngine.getInstance();
 
-        crlSubStore.makeSubStore(id);
-        CRLIssuingPointConfig c = crlSubStore.getSubStore(id, CRLIssuingPointConfig.class);
+        crlConfig.makeSubStore(id);
+        CRLIssuingPointConfig c = crlConfig.getSubStore(id, CRLIssuingPointConfig.class);
 
         if (c != null) {
             c.setAllowExtensions(true);
@@ -714,7 +714,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
 
             } catch (Exception e) {
                 logger.error("CertificateAuthority: " + e.getMessage(), e);
-                crlSubStore.removeSubStore(id);
+                crlConfig.removeSubStore(id);
                 return false;
             }
         }
@@ -724,10 +724,10 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     /**
      * Deletes CRL issuing point with the given identifier.
      *
-     * @param crlSubStore sub-store with all CRL issuing points
+     * @param crlConfig sub-store with all CRL issuing points
      * @param id CRL issuing point id
      */
-    public void deleteCRLIssuingPoint(ConfigStore crlSubStore, String id) {
+    public void deleteCRLIssuingPoint(CRLConfig crlConfig, String id) {
 
         CAEngine engine = CAEngine.getInstance();
         CRLIssuingPoint ip = engine.removeCRLIssuingPoint(id);
@@ -735,7 +735,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         if (ip != null) {
             ip.shutdown();
             ip = null;
-            crlSubStore.removeSubStore(id);
+            crlConfig.removeSubStore(id);
             try {
                 engine.getCRLRepository().deleteCRLIssuingPointRecord(id);
             } catch (EBaseException e) {

@@ -608,8 +608,8 @@ public class CRLIssuingPoint implements Runnable {
         mConfigStore = (CRLIssuingPointConfig) config;
 
         CAConfig caConfig = mCA.getConfigStore();
-        ConfigStore crlSubStore = caConfig.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
-        mPageSize = crlSubStore.getInteger(CertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
+        CRLConfig crlConfig = caConfig.getCRLConfig();
+        mPageSize = crlConfig.getInteger(CertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
         logger.debug("CRL Page Size: " + mPageSize);
 
         mCountMod = mConfigStore.getCountMod();
@@ -1082,7 +1082,7 @@ public class CRLIssuingPoint implements Runnable {
             logger.info("CRLIssuingPoint: creating new CRL issuing point: " + mId);
 
             CAConfig caConfig = mCA.getConfigStore();
-            ConfigStore crlConfig = caConfig.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
+            CRLConfig crlConfig = caConfig.getCRLConfig();
             ConfigStore ipStore = crlConfig.getSubStore(mId, ConfigStore.class);
 
             try {
@@ -1386,9 +1386,9 @@ public class CRLIssuingPoint implements Runnable {
                     if (issuingDistributionPoint != null && params.size() > 1) {
                         boolean onlyContainsCACerts = issuingDistributionPoint.getOnlyContainsCACerts();
                         if (onlyContainsCACerts != mCACertsOnly) {
-                            CAConfig config = mCA.getConfigStore();
-                            ConfigStore crlsSubStore = config.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE, ConfigStore.class);
-                            ConfigStore crlSubStore = crlsSubStore.getSubStore(mId, ConfigStore.class);
+                            CAConfig caConfig = mCA.getConfigStore();
+                            CRLConfig crlConfig = caConfig.getCRLConfig();
+                            ConfigStore crlSubStore = crlConfig.getSubStore(mId, ConfigStore.class);
                             ConfigStore crlExtsSubStore = crlSubStore.getSubStore(CertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
                             crlExtsSubStore = crlExtsSubStore.getSubStore(IssuingDistributionPointExtension.NAME, ConfigStore.class);
 
