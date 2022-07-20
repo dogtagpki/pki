@@ -63,7 +63,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
 
     /* required credentials */
     public static final String CRED_CERT_SERIAL = AuthManager.CRED_CERT_SERIAL_TO_REVOKE;
-    public static final String CRED_CHALLENGE = "challengePhrase";
+    public static final String CRED_CHALLENGE = Request.CHALLENGE_PHRASE;
     protected String[] mRequiredCreds = { CRED_CERT_SERIAL, CRED_CHALLENGE };
 
     /* config parameters to pass to console (none) */
@@ -77,12 +77,6 @@ public class ChallengePhraseAuthentication implements AuthManager {
     private AuthManagerConfig mConfig;
 
     private MessageDigest mSHADigest = null;
-
-    // request attributes hacks
-    public static final String CHALLENGE_PHRASE = CRED_CHALLENGE;
-    public static final String SUBJECTNAME = "subjectName";
-    public static final String SERIALNUMBER = "serialNumber";
-    public static final String SERIALNOARRAY = "serialNoArray";
 
     public ChallengePhraseAuthentication() {
     }
@@ -261,10 +255,10 @@ public class ChallengePhraseAuthentication implements AuthManager {
 
             if (queue != null) {
                 Request checkChallengeReq = requestRepository.createRequest(Request.REVOCATION_CHECK_CHALLENGE_REQUEST);
-                checkChallengeReq.setExtData(CHALLENGE_PHRASE, challenge);
+                checkChallengeReq.setExtData(Request.CHALLENGE_PHRASE, challenge);
                 // pass just serial number instead of whole cert
                 if (serialNum != null)
-                    checkChallengeReq.setExtData(SERIALNUMBER, serialNum);
+                    checkChallengeReq.setExtData(Request.SERIALNUMBER, serialNum);
                 queue.processRequest(checkChallengeReq);
                 // check request status...
                 RequestStatus status = checkChallengeReq.getRequestStatus();

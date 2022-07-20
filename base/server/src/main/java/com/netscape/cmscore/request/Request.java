@@ -120,6 +120,12 @@ public class Request {
     public static final String REMOTE_REQID = "remoteReqID";
     public static final String CERT_STATUS = "certStatus";
 
+    // ChallengePhraseAuthentication
+    public static final String CHALLENGE_PHRASE = "challengePhrase";
+    public static final String SUBJECTNAME = "subjectName";
+    public static final String SERIALNUMBER = "serialNumber";
+    public static final String SERIALNOARRAY = "serialNoArray";
+
     // enrollment request attributes (from http request)
     public static final String CERT_TYPE = "certType";
     public static final String CRMF_REQID = "crmfReqId";
