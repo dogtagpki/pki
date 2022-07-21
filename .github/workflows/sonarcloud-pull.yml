@@ -92,9 +92,9 @@ jobs:
 
       - name: Rebase to master
         run: |
-          git remote add jss https://github.com/dogtagpki/pki.git
-          git fetch jss
-          git rebase jss/master
+          git remote add pki https://github.com/dogtagpki/pki.git
+          git fetch pki
+          git rebase pki/master
 
       - name: Install dependencies
         run: |
