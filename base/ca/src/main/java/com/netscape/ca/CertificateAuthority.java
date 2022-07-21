@@ -262,12 +262,17 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         this.mNickname = signingKeyNickname;
     }
 
-    @Override
+    /**
+     * Return whether this CA is the host authority (not a
+     * lightweight authority).
+     */
     public boolean isHostAuthority() {
         return hostCA;
     }
 
-    @Override
+    /**
+     * Throw an exception if CA is not ready to perform signing operations.
+     */
     public void ensureReady()
             throws ECAException {
         if (!authorityEnabled)
@@ -280,12 +285,16 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         }
     }
 
-    @Override
+    /**
+     * Return whether CA is ready to perform signing operations.
+     */
     public boolean isReady() {
         return hasKeys;
     }
 
-    @Override
+    /**
+     * Return whether CA is enabled.
+     */
     public boolean getAuthorityEnabled() {
         return authorityEnabled;
     }
@@ -1667,7 +1676,9 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
             null /* nextUpdate */);
     }
 
-    @Override
+    /**
+     * Get the AuthorityID of this CA.
+     */
     public AuthorityID getAuthorityID() {
         return authorityID;
     }
@@ -1676,12 +1687,16 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         authorityID = aid;
     }
 
-    @Override
+    /**
+     * Get the AuthorityID of this CA's parent CA, if available.
+     */
     public AuthorityID getAuthorityParentID() {
         return authorityParentID;
     }
 
-    @Override
+    /**
+     * Return CA description.  May be null.
+     */
     public String getAuthorityDescription() {
         return authorityDescription;
     }
@@ -1786,7 +1801,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     /**
      * Renew certificate of this CA.
      */
-    @Override
     public void renewAuthority(HttpServletRequest httpReq) throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
@@ -1838,7 +1852,9 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         checkForNewerCert();
     }
 
-    @Override
+    /**
+     * Delete this lightweight CA.
+     */
     public synchronized void deleteAuthority(HttpServletRequest httpReq)
             throws EBaseException {
         if (hostCA)

@@ -32,8 +32,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.ca.AuthorityID;
-import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.dbs.CertificateRepository;
 
@@ -298,53 +296,6 @@ public interface ICertificateAuthority extends ISubsystem {
 
     public CertificateIssuerName getIssuerObj();
     public CertificateSubjectName getSubjectObj();
-
-    /**
-     * Return whether this CA is the host authority (not a
-     * lightweight authority).
-     */
-    public boolean isHostAuthority();
-
-    /**
-     * Get the AuthorityID of this CA.
-     */
-    public AuthorityID getAuthorityID();
-
-    /**
-     * Get the AuthorityID of this CA's parent CA, if available.
-     */
-    public AuthorityID getAuthorityParentID();
-
-    /**
-     * Return whether CA is enabled.
-     */
-    public boolean getAuthorityEnabled();
-
-    /**
-     * Return whether CA is ready to perform signing operations.
-     */
-    public boolean isReady();
-
-    /**
-     * Throw an exception if CA is not ready to perform signing operations.
-     */
-    public void ensureReady() throws ECAException;
-
-    /**
-     * Return CA description.  May be null.
-     */
-    public String getAuthorityDescription();
-
-    /**
-     * Renew certificate of CA.
-     */
-    public void renewAuthority(HttpServletRequest httpReq) throws Exception;
-
-    /**
-     * Delete this lightweight CA.
-     */
-    public void deleteAuthority(HttpServletRequest httpReq)
-        throws EBaseException;
 
     /**
      * get Issuance Protection Private Key
