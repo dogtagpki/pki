@@ -25,13 +25,10 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
@@ -120,30 +117,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public X509CertImpl getCACert() throws EBaseException;
 
     /**
-     * Retrieves the signing unit that manages the CA signing key for
-     * signing certificates.
-     *
-     * @return the CA signing unit for certificates
-     */
-    public SigningUnit getSigningUnit();
-
-    /**
-     * Retrieves the signing unit that manages the CA signing key for
-     * signing CRL.
-     *
-     * @return the CA signing unit for CRLs
-     */
-    public SigningUnit getCRLSigningUnit();
-
-    /**
-     * Retrieves the signing unit that manages the CA signing key for
-     * signing OCSP response.
-     *
-     * @return the CA signing unit for OCSP responses
-     */
-    public SigningUnit getOCSPSigningUnit();
-
-    /**
      * Sets the maximium path length in the basic constraint extension.
      *
      * @param num the maximium path length
@@ -172,34 +145,12 @@ public interface ICertificateAuthority extends ISubsystem {
     public X500Name getCRLX500Name();
 
     /**
-     * Signs the given CRL with the specific algorithm.
-     *
-     * @param crl CRL to be signed
-     * @param algname algorithm used for signing
-     * @return signed CRL
-     * @exception EBaseException failed to sign CRL
-     */
-    public X509CRLImpl sign(X509CRLImpl crl, String algname)
-            throws EBaseException;
-
-    /**
      * Logs a message to this certificate authority.
      *
      * @param level logging level
      * @param msg logged message
      */
     public void log(int level, String msg);
-
-    /**
-     * Signs a X.509 certificate template.
-     *
-     * @param certInfo X.509 certificate template
-     * @param algname algorithm used for signing
-     * @return signed certificate
-     * @exception EBaseException failed to sign certificate
-     */
-    public X509CertImpl sign(X509CertInfo certInfo, String algname)
-            throws EBaseException;
 
     public CertificateIssuerName getIssuerObj();
     public CertificateSubjectName getSubjectObj();

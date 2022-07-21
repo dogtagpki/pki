@@ -830,22 +830,31 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     /**
-     * Returns default signing unit used by this CA
-     * <P>
+     * Retrieves the signing unit that manages the CA signing key for
+     * signing certificates.
      *
-     * @return request identifier
+     * @return the CA signing unit for certificates
      */
-    @Override
     public CASigningUnit getSigningUnit() {
         return mSigningUnit;
     }
 
-    @Override
+    /**
+     * Retrieves the signing unit that manages the CA signing key for
+     * signing CRL.
+     *
+     * @return the CA signing unit for CRLs
+     */
     public CASigningUnit getCRLSigningUnit() {
         return mCRLSigningUnit;
     }
 
-    @Override
+    /**
+     * Retrieves the signing unit that manages the CA signing key for
+     * signing OCSP response.
+     *
+     * @return the CA signing unit for OCSP responses
+     */
     public CASigningUnit getOCSPSigningUnit() {
         return mOCSPSigningUnit;
     }
@@ -859,16 +868,14 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
      * Signs CRL using the specified signature algorithm.
      * If no algorithm is specified the CA's default signing algorithm
      * is used.
-     * <P>
      *
      * @param crl the CRL to be signed.
      * @param algname the algorithm name to use. This is a JCA name such
      *            as MD5withRSA, etc. If set to null the default signing algorithm
      *            is used.
-     *
      * @return the signed CRL
+     * @exception EBaseException failed to sign CRL
      */
-    @Override
     public X509CRLImpl sign(X509CRLImpl crl, String algname)
             throws EBaseException {
 
@@ -949,15 +956,14 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     /**
      * Signs the given certificate info using specified signing algorithm
      * If no algorithm is specified the CA's default algorithm is used.
-     * <P>
      *
      * @param certInfo the certificate info to be signed.
      * @param algname the signing algorithm to use. These are names defined
      *            in JCA, such as MD5withRSA, etc. If null the CA's default
      *            signing algorithm will be used.
      * @return signed certificate
+     * @exception EBaseException failed to sign certificate
      */
-    @Override
     public X509CertImpl sign(X509CertInfo certInfo, String algname)
             throws EBaseException {
 
