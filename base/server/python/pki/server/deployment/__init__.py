@@ -889,6 +889,7 @@ class PKIDeployer:
                 '-d', subsystem.instance.nssdb_dir,
                 '-f', subsystem.instance.password_conf,
                 '-U', ca_url,
+                '--ignore-banner',
                 'ca-cert-request-submit',
                 '--request-type', request_type,
                 '--csr-file', csr_file,
