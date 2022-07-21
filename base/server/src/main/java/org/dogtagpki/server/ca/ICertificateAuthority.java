@@ -17,10 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -90,8 +86,6 @@ public interface ICertificateAuthority extends ISubsystem {
      */
     public CertificateRepository getCertificateRepository();
 
-    public Map<Object, Long> getNonces(HttpServletRequest request, String name);
-
     /**
      * Retrieves the CA certificate chain.
      *
@@ -112,21 +106,6 @@ public interface ICertificateAuthority extends ISubsystem {
      * @return the CA certificate
      */
     public X509CertImpl getCACert() throws EBaseException;
-
-    /**
-     * Is this a clone CA?
-     *
-     * @return true if this is a clone CA
-     */
-    public boolean isClone();
-
-    /**
-     * Logs a message to this certificate authority.
-     *
-     * @param level logging level
-     * @param msg logged message
-     */
-    public void log(int level, String msg);
 
     /**
      * get Issuance Protection Private Key

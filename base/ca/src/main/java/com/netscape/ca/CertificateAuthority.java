@@ -319,7 +319,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         mId = id;
     }
 
-    @Override
     public Map<Object, Long> getNonces(HttpServletRequest request, String name) {
 
         // Create a new session or use an existing one.
@@ -465,9 +464,10 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     /**
-     * check if the ca is a clone.
+     * Is this a clone CA?
+     *
+     * @return true if this is a clone CA
      */
-    @Override
     public boolean isClone() {
         if (CAService.mCLAConnector != null)
             return true;
@@ -1093,12 +1093,11 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     /**
-     * logs a message in the CA area.
+     * Logs a message to this certificate authority.
      *
      * @param level the debug level.
      * @param msg the message to debug.
      */
-    @Override
     public void log(int level, String msg) {
     }
 
