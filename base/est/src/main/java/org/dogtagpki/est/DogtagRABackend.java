@@ -133,7 +133,11 @@ public class DogtagRABackend extends ESTBackend {
 
     @Override
     public X509CertImpl simplereenroll(Optional<String> label, PKCS10 csr) throws PKIException {
-        return issueCertificate(csr);
+        /* At the moment, simplereenroll does the same thing as simpleenroll.
+         * These are separate methods in case some backends need different or
+         * additional behaviour for re-enroll (e.g. revoking previous certificates).
+         */
+        return simpleenroll(label, csr);
     }
 
     private X509CertImpl issueCertificate(PKCS10 pkcs10) throws PKIException {
