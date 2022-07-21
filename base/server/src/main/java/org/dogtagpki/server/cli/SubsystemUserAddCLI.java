@@ -60,7 +60,7 @@ public class SubsystemUserAddCLI extends SubsystemCLI {
         option.setArgName("phone");
         options.addOption(option);
 
-        option = new Option(null, "type", true, "Type");
+        option = new Option(null, "type", true, "Type: userType, agentType, adminType, subsystemType");
         option.setArgName("type");
         options.addOption(option);
 

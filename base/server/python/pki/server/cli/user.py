@@ -34,28 +34,38 @@ class UserCLI(pki.cli.CLI):
 
 
 class UserAddCLI(pki.cli.CLI):
+    '''
+    Add {subsystem} user
+    '''
+
+    help = '''\
+        Usage: pki-server {subsystem}-user-add [OPTIONS] <user ID>
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --full-name <full name>        Full name
+              --email <email>                Email
+              --password <password>          Password
+              --password-file <path>         Password file
+              --phone <phone>                Phone
+              --type <type>                  Type: userType, agentType, adminType, subsystemType
+              --state <state>                State
+              --tps-profiles <profiles>      Comma-separated TPS profiles
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''
 
     def __init__(self, parent):
-        super().__init__('add', 'Add %s user' % parent.parent.name.upper())
+        super().__init__(
+            'add',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.name.upper()))
 
         self.parent = parent
 
     def print_help(self):
-        print('Usage: pki-server %s-user-add [OPTIONS] <user ID>' % self.parent.parent.name)
-        print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --full-name <full name>        Full name')
-        print('      --email <email>                Email')
-        print('      --password <password>          Password')
-        print('      --password-file <path>         Password file')
-        print('      --phone <phone>                Phone')
-        print('      --type <type>                  Type')
-        print('      --state <state>                State')
-        print('      --tps-profiles <profiles>      Comma-separated TPS profiles')
-        print('  -v, --verbose                      Run in verbose mode.')
-        print('      --debug                        Run in debug mode.')
-        print('      --help                         Show help message.')
-        print()
+        print(textwrap.dedent(self.__class__.help).format(
+            subsystem=self.parent.parent.name))
 
     def execute(self, argv):
         try:
