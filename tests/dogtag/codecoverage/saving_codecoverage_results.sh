@@ -32,7 +32,7 @@ backupCodeCoverageResults()
 {
 	local codecoverage_results_base=$1
 	local wiki_archive_location=""
-	if [-n $codecoverage_results_base ]; then
+	if [[ -n $codecoverage_results_base ]]; then
 		rlLog "$codecoverage_results_base is not a valid directory"
 		return 1
 	else
@@ -60,7 +60,7 @@ backupCodeCoverageResults()
 			if [ -x $ARCHIVELOCATIONSCPKNOWNHOSTS ]; then
 				export ARCHIVELOCATIONSCPKNOWNHOSTS="$QALIBDIR/known_hosts_archivehost"
 			fi
-			if [ -x $ARCHIVERIDENTITYPUBLICKEY]; then
+			if [ -x $ARCHIVERIDENTITYPUBLICKEY ]; then
 				export ARCHIVERIDENTITYPUBLICKEY="$QALIBDIR/id_rsa-host-beaker_archive.pub"
 			fi
 			if [ -x $ARCHIVERUSERUID ]; then

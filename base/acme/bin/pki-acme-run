@@ -19,8 +19,9 @@ then
     > /var/lib/tomcats/pki/conf/acme/metadata.conf
 
     # import metadata configuration parameters
-    for filename in $(ls /var/lib/tomcats/pki/conf/acme/metadata)
+    for filename in /var/lib/tomcats/pki/conf/acme/metadata/*
     do
+        [ -e "$filename" ] || break
         value=$(cat /var/lib/tomcats/pki/conf/acme/metadata/$filename)
         echo "$filename=$value" >> /var/lib/tomcats/pki/conf/acme/metadata.conf
     done
@@ -40,8 +41,9 @@ then
     > /var/lib/tomcats/pki/conf/acme/database.conf
 
     # import database configuration parameters
-    for filename in $(ls /var/lib/tomcats/pki/conf/acme/database)
+    for filename in /var/lib/tomcats/pki/conf/acme/database/*
     do
+        [ -e "$filename" ] || break
         value=$(cat /var/lib/tomcats/pki/conf/acme/database/$filename)
         echo "$filename=$value" >> /var/lib/tomcats/pki/conf/acme/database.conf
     done
@@ -61,8 +63,9 @@ then
     > /var/lib/tomcats/pki/conf/acme/issuer.conf
 
     # import issuer configuration parameters
-    for filename in $(ls /var/lib/tomcats/pki/conf/acme/issuer)
+    for filename in /var/lib/tomcats/pki/conf/acme/issuer/*
     do
+        [ -e "$filename" ] || break
         value=$(cat /var/lib/tomcats/pki/conf/acme/issuer/$filename)
         echo "$filename=$value" >> /var/lib/tomcats/pki/conf/acme/issuer.conf
     done
@@ -82,8 +85,9 @@ then
     > /var/lib/tomcats/pki/conf/acme/realm.conf
 
     # import realm configuration parameters
-    for filename in $(ls /var/lib/tomcats/pki/conf/acme/realm)
+    for filename in /var/lib/tomcats/pki/conf/acme/realm/*
     do
+        [ -e "$filename" ] || break
         value=$(cat /var/lib/tomcats/pki/conf/acme/realm/$filename)
         echo "$filename=$value" >> /var/lib/tomcats/pki/conf/acme/realm.conf
     done

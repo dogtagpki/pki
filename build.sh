@@ -221,7 +221,7 @@ generate_rpm_spec() {
     fi
 
     # hard-code packages to build
-    for package in ${PKGS_TO_SKIP[@]}
+    for package in "${PKGS_TO_SKIP[@]}"
     do
         # convert bcond_without into bcond_with to skip the package by default
         sed -i "s/^%bcond_without *\($package\)\$/%bcond_with \1/g" "$SPEC_FILE"
@@ -376,7 +376,7 @@ if [ "$WITH_PKGS" != "" ] ; then
     PKGS_TO_BUILD=( $(echo $WITH_PKGS | sed 's/ *, */ /g') )
     PKGS_TO_SKIP=()
 
-    for package in ${ALL_PKGS[@]}
+    for package in "${ALL_PKGS[@]}"
     do
         # if package is not in PKGS_TO_BUILD, skip
         if [[ ! " ${PKGS_TO_BUILD[*]} " =~ " $package " ]]; then
@@ -388,7 +388,7 @@ else
     PKGS_TO_SKIP=( $(echo $WITHOUT_PKGS | sed 's/ *, */ /g') )
     PKGS_TO_BUILD=()
 
-    for package in ${ALL_PKGS[@]}
+    for package in "${ALL_PKGS[@]}"
     do
         # if package is not in PKGS_TO_SKIP, build
         if [[ ! " ${PKGS_TO_SKIP[*]} " =~ " $package " ]]; then
@@ -661,13 +661,13 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     OPTIONS+=(-DSYSTEMD_LIB_INSTALL_DIR=$UNIT_DIR)
 
-    for package in ${PKGS_TO_SKIP[@]}
+    for package in "${PKGS_TO_SKIP[@]}"
     do
         package=${package^^}
         OPTIONS+=(-DWITH_$package:BOOL=OFF)
     done
 
-    for package in ${PKGS_TO_BUILD[@]}
+    for package in "${PKGS_TO_BUILD[@]}"
     do
         package=${package^^}
         OPTIONS+=(-DWITH_$package:BOOL=ON)
@@ -856,7 +856,7 @@ if [ "$WITHOUT_TEST" = true ] ; then
 fi
 
 if [ "$DEBUG" = true ] ; then
-    echo "rpmbuild -bs ${OPTIONS[@]} $SPEC_FILE"
+    echo "rpmbuild -bs " + "${OPTIONS[@]}" + " $SPEC_FILE"
 fi
 
 # build SRPM with user-provided options
@@ -891,7 +891,7 @@ fi
 OPTIONS+=(--define "_topdir ${WORK_DIR}")
 
 if [ "$DEBUG" = true ] ; then
-    echo "rpmbuild --rebuild ${OPTIONS[@]} $SRPM"
+    echo "rpmbuild --rebuild " + "${OPTIONS[@]}" + " $SRPM"
 fi
 
 # rebuild RPM with hard-coded options in SRPM

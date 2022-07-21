@@ -136,7 +136,7 @@ if test -n "$needCA" ; then
 # 6. Generate the self-signed certificate:
     echo "Creating self-signed CA certificate"
     echo "CA Certificate Serial No [1] :"
-    if [ ! -z $certNo -a $certNo!="" ]; then
+    if [ ! -z $certNo -a $certNo != "" ]; then
 	   CAserialNo=$certNo
     fi
 # note - the basic constraints flag (-2) is required to generate a real CA cert
@@ -159,7 +159,7 @@ if test -n "$needServerCert" ; then
     echo Note: If you do not want to use this hostname, edit this script to change myhost to the
     echo real hostname you want to use
     echo "Server-Cert Certificate Serial No [2]:"
-    if [ ! -z $serverCert -a $serverCert!="" ]; then
+    if [ ! -z $serverCert -a $serverCert != "" ]; then
 	    ServerCertSerialNo=$serverCert
     fi
     certutil -S $prefixarg -n "Server-Cert" -s "cn=$myhost,ou=389 Directory Server" -c "CA certificate" -t "u,u,u" -m $ServerCertSerialNo -v 120 -d $secdir -z $secdir/noise.txt -f $secdir/pwdfile.txt
@@ -170,7 +170,7 @@ if test -n "$needASCert" ; then
     echo Creating the admin server certificate
     echo "Admin Server Certificate Serial No [3]:"
 
-    if [ ! -z $admincert -a $admincert!="" ]; then
+    if [ ! -z $admincert -a $admincert != "" ]; then
 	    ServerAdminServerCertNo=$admincert
     fi
     certutil -S $prefixarg -n "server-cert" -s "cn=$myhost,ou=389 Administration Server" -c "CA certificate" -t "u,u,u" -m $ServerAdminServerCertNo -v 120 -d $secdir -z $secdir/noise.txt -f $secdir/pwdfile.txt
