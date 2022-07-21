@@ -263,37 +263,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public X509CertImpl sign(X509CertInfo certInfo, String algname)
             throws EBaseException;
 
-    /**
-     * Returns the in-memory count of the processed OCSP requests.
-     *
-     * @return number of processed OCSP requests in memory
-     */
-    public long getNumOCSPRequest();
-
-    /**
-     * Returns the in-memory time (in mini-second) of
-     * the processed time for OCSP requests.
-     *
-     * @return processed times for OCSP requests
-     */
-    public long getOCSPRequestTotalTime();
-
-    /**
-     * Returns the in-memory time (in mini-second) of
-     * the signing time for OCSP requests.
-     *
-     * @return processed times for OCSP requests
-     */
-    public long getOCSPTotalSignTime();
-
-    /**
-     * Returns the total data signed
-     * for OCSP requests.
-     *
-     * @return processed times for OCSP requests
-     */
-    public long getOCSPTotalData();
-
     public CertificateIssuerName getIssuerObj();
     public CertificateSubjectName getSubjectObj();
 

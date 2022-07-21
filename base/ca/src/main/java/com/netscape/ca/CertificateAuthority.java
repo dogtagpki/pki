@@ -1281,22 +1281,41 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         return OFFICIAL_NAME;
     }
 
-    @Override
+    /**
+     * Returns the in-memory count of the processed OCSP requests.
+     *
+     * @return number of processed OCSP requests in memory
+     */
     public long getNumOCSPRequest() {
         return mNumOCSPRequest;
     }
 
-    @Override
+    /**
+     * Returns the in-memory time (in mini-second) of
+     * the processed time for OCSP requests.
+     *
+     * @return processed times for OCSP requests
+     */
     public long getOCSPRequestTotalTime() {
         return mTotalTime;
     }
 
-    @Override
+    /**
+     * Returns the total data signed
+     * for OCSP requests.
+     *
+     * @return processed times for OCSP requests
+     */
     public long getOCSPTotalData() {
         return mTotalData;
     }
 
-    @Override
+    /**
+     * Returns the in-memory time (in mini-second) of
+     * the signing time for OCSP requests.
+     *
+     * @return processed times for OCSP requests
+     */
     public long getOCSPTotalSignTime() {
         return mSignTime;
     }
