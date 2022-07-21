@@ -102,7 +102,7 @@ run_rhcs_install_packages() {
 			rlLog "Setup for codecoverage"
 			yum -y install jacoco wget objectweb-asm4 screen
                         rpm -qa | grep jacoco
-                        if [ $? -eq 0];
+                        if [ $? -eq 0 ];
                         then
                                 rlLog "Jacoco packages installed"
                         else

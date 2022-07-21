@@ -1,3 +1,4 @@
+#!/bin/sh
 ### CA Params -- used by QUICKINSTALL and all topologies ######
 ROOTCA_OCSP_SIGNING_KEY_TYPE=rsa      
 ROOTCA_OCSP_SIGNING_KEY_SIZE=2048   

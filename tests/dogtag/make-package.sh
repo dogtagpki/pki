@@ -4,7 +4,7 @@
 if [ $# -lt 1 ];
 then
   echo "Usage: ./make-package.sh unique_identifier [--use-different-folders]"
-  exit -1
+  exit 1
 fi
 
 ### Store the actual Makefile checked in SVN
