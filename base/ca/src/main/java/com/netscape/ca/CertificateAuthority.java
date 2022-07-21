@@ -503,17 +503,30 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         mConfig = config;
     }
 
-    @Override
+    /**
+     * Retrieves the default signature algorithm of this certificate authority.
+     *
+     * @return the default signature algorithm of this CA
+     */
     public SignatureAlgorithm getDefaultSignatureAlgorithm() {
         return mSigningUnit.getDefaultSignatureAlgorithm();
     }
 
-    @Override
+    /**
+     * Retrieves the default signing algorithm of this certificate authority.
+     *
+     * @return the default signing algorithm of this CA
+     */
     public String getDefaultAlgorithm() {
         return mSigningUnit.getDefaultAlgorithm();
     }
 
-    @Override
+    /**
+     * Sets the default signing algorithm of this certificate authority.
+     *
+     * @param algorithm new default signing algorithm
+     * @exception EBaseException failed to set the default signing algorithm
+     */
     public void setDefaultAlgorithm(String algorithm) throws EBaseException {
         mSigningUnit.setDefaultAlgorithm(algorithm);
     }
@@ -1122,7 +1135,11 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         return mSigningUnit.getCert();
     }
 
-    @Override
+    /**
+     * Retrieves the supported signing algorithms of this certificate authority.
+     *
+     * @return the supported signing algorithms of this CA
+     */
     public String[] getCASigningAlgorithms() {
 
         if (mCASigningAlgorithms != null)

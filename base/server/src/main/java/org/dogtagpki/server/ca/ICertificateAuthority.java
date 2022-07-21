@@ -21,7 +21,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -98,35 +97,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public CertificateRepository getCertificateRepository();
 
     public Map<Object, Long> getNonces(HttpServletRequest request, String name);
-
-    /**
-     * Retrieves the default signature algorithm of this certificate authority.
-     *
-     * @return the default signature algorithm of this CA
-     */
-    public SignatureAlgorithm getDefaultSignatureAlgorithm();
-
-    /**
-     * Retrieves the default signing algorithm of this certificate authority.
-     *
-     * @return the default signing algorithm of this CA
-     */
-    public String getDefaultAlgorithm();
-
-    /**
-     * Sets the default signing algorithm of this certificate authority.
-     *
-     * @param algorithm new default signing algorithm
-     * @exception EBaseException failed to set the default signing algorithm
-     */
-    public void setDefaultAlgorithm(String algorithm) throws EBaseException;
-
-    /**
-     * Retrieves the supported signing algorithms of this certificate authority.
-     *
-     * @return the supported signing algorithms of this CA
-     */
-    public String[] getCASigningAlgorithms();
 
     /**
      * Retrieves the CA certificate chain.
