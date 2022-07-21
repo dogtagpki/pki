@@ -1,7 +1,7 @@
 name: Sonarcloud-Pull
 on:
   workflow_run:
-    workflows: ["Sonarcloud"]
+    workflows: ["Code Analysis"]
     types:
       - completed
 

@@ -1,4 +1,4 @@
-name: Sonarcloud
+name: Code Analysis
 on: [push, pull_request]
 
 jobs:
@@ -63,3 +63,13 @@ jobs:
         with:
           name: pr
           path: pr/
+
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          severity: error
