@@ -8,6 +8,7 @@ package org.dogtagpki.server.ca.cli;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.Date;
 
@@ -27,6 +28,7 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -49,7 +51,9 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -138,10 +142,6 @@ public class CACertCreateCLI extends CommandCLI {
         }
 
         String serial = cmd.getOptionValue("serial");
-        if (serial == null) {
-            throw new CLIException("Missing serial number");
-        }
-
         String certType = cmd.getOptionValue("type", "selfsign");
 
         String tokenName = cmd.getOptionValue("key-token");
@@ -149,7 +149,6 @@ public class CACertCreateCLI extends CommandCLI {
 
         String signingAlgorithm = cmd.getOptionValue("signing-algorithm", "SHA256withRSA");
 
-        CertId certID = new CertId(serial);
         String certFormat = cmd.getOptionValue("format", "PEM");
         String certPath = cmd.getOptionValue("cert");
 
@@ -280,13 +279,29 @@ public class CACertCreateCLI extends CommandCLI {
 
             logger.info("Issuer: " + issuerName);
 
+            CertificateRepository certificateRepository = new CertificateRepository(dbSubsystem);
+            certificateRepository.init();
+
+            BigInteger serialNumber;
+
+            if (serial == null) {
+                if (certificateRepository.getIDGenerator() != Repository.RANDOM) {
+                    throw new CLIException("Unable to generate random certificate ID");
+                }
+                serialNumber = certificateRepository.getNextSerialNumber();
+
+            } else {
+                serialNumber = new CertId(serial).toBigInteger();
+            }
+            logger.info("Cert ID: 0x" + Utils.HexEncode(serialNumber.toByteArray()));
+
             CertificateIssuerName certIssuerName = new CertificateIssuerName(issuerName);
             CertificateExtensions extensions = new CertificateExtensions();
 
             Date date = new Date();
             X509CertInfo certInfo = CryptoUtil.createX509CertInfo(
                     x509key,
-                    certID.toBigInteger(),
+                    serialNumber,
                     certIssuerName,
                     subjectName,
                     date,
