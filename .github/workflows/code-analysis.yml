@@ -73,4 +73,3 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           severity: error
-          ignore_paths: legacy
