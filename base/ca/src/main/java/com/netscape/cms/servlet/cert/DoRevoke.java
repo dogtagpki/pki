@@ -36,7 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -100,7 +99,7 @@ public class DoRevoke extends CMSServlet {
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
-        if (mAuthority instanceof ICertificateAuthority) {
+        if (mAuthority instanceof CertificateAuthority) {
             mCertDB = engine.getCertificateRepository();
         }
         mPublisherProcessor = engine.getPublisherProcessor();
@@ -390,8 +389,8 @@ public class DoRevoke extends CMSServlet {
         Hashtable<BigInteger, Long> nonceMap = new Hashtable<>();
         X509Certificate clientCert = getSSLClientCertificate(req);
 
-        if (mAuthority instanceof ICertificateAuthority) {
-            processor.setAuthority(certAuthority);
+        if (mAuthority instanceof CertificateAuthority) {
+            processor.setAuthority((CertificateAuthority) certAuthority);
 
             if (engine.getEnableNonces()) {
                 String nonces = req.getParameter("nonce");
@@ -412,7 +411,7 @@ public class DoRevoke extends CMSServlet {
         try {
             processor.createCRLExtension();
 
-            if (mAuthority instanceof ICertificateAuthority) {
+            if (mAuthority instanceof CertificateAuthority) {
 
                 Enumeration<CertRecord> e = mCertDB.searchCertificates(revokeAll, totalRecordCount, mTimeLimits);
 
@@ -437,7 +436,7 @@ public class DoRevoke extends CMSServlet {
                     rarg.addStringValue("serialNumber", targetCert.getSerialNumber().toString(16));
 
                     try {
-                        if (mAuthority instanceof ICertificateAuthority &&
+                        if (mAuthority instanceof CertificateAuthority &&
                             engine.getEnableNonces() &&
                             !processor.isMemberOfSubsystemGroup(clientCert)) {
                             // validate nonce for each certificate
@@ -540,7 +539,7 @@ public class DoRevoke extends CMSServlet {
                     }
                 }
 
-                if (mAuthority instanceof ICertificateAuthority) {
+                if (mAuthority instanceof CertificateAuthority) {
                     // let known update and publish status of all crls.
                     for (CRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
                         String crlId = crl.getId();

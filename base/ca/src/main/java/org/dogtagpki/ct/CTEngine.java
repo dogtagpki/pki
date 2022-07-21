@@ -21,7 +21,6 @@ import java.util.List;
 import org.apache.commons.net.ntp.TimeStamp;
 import org.dogtagpki.ct.sct.SCTProcessor;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -446,7 +445,7 @@ public class CTEngine {
     * @param logPublicKey public key of log
     * @return boolean true for verified; false for not verified
     */
-    boolean verifySCT(CTResponse response, byte[] tbsCert, String logPublicKey, ICertificateAuthority ctCA) {
+    boolean verifySCT(CTResponse response, byte[] tbsCert, String logPublicKey, CertificateAuthority ctCA) {
         String method = "CTEngine.:verifySCT: ";
         String errMsg = "";
         logger.debug(method + "begins");
@@ -622,7 +621,7 @@ public class CTEngine {
      * @param leaf cert
      * @return JSON request in String
      */
-    CTRequest createCTRequest(X509CertImpl cert, ICertificateAuthority ctCA)
+    CTRequest createCTRequest(X509CertImpl cert, CertificateAuthority ctCA)
            throws EBaseException {
         String method = "CTEngine.createCTRequest";
 

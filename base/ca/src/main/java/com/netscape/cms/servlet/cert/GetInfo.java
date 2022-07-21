@@ -32,7 +32,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 
 import com.netscape.ca.CRLIssuingPoint;
@@ -60,7 +59,7 @@ public class GetInfo extends CMSServlet {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetInfo.class);
     private static final long serialVersionUID = 1909881831730252799L;
 
-    private ICertificateAuthority mCA = null;
+    private CertificateAuthority mCA;
 
     /**
      * Constructs GetInfo servlet.
@@ -78,8 +77,8 @@ public class GetInfo extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        if (mAuthority instanceof ICertificateAuthority)
-            mCA = (ICertificateAuthority) mAuthority;
+        if (mAuthority instanceof CertificateAuthority)
+            mCA = (CertificateAuthority) mAuthority;
 
         // override success to do output our own template.
         mTemplates.remove(CMSRequest.SUCCESS);

@@ -32,7 +32,6 @@ import javax.ws.rs.core.Response;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
@@ -440,7 +439,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         }
     }
 
-    private static AuthorityData readAuthorityData(ICertificateAuthority ca)
+    private static AuthorityData readAuthorityData(CertificateAuthority ca)
             throws PKIException {
         String dn;
         try {

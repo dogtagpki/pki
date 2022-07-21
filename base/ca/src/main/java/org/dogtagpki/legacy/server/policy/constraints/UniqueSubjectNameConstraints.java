@@ -25,13 +25,13 @@ import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
@@ -72,7 +72,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
     protected static final String PROP_KEY_USAGE_EXTENSION_CHECKING =
             "enableKeyUsageExtensionChecking";
 
-    public ICertificateAuthority mCA = null;
+    public CertificateAuthority mCA;
 
     public boolean mPreAgentApprovalChecking = false;
     public boolean mKeyUsageExtensionChecking = true;
@@ -115,8 +115,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
     @Override
     public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         // get CA's public key to create authority key id.
-        ICertificateAuthority certAuthority = (ICertificateAuthority)
-                owner.getAuthority();
+        CertificateAuthority certAuthority = (CertificateAuthority) owner.getAuthority();
 
         if (certAuthority == null) {
             logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));

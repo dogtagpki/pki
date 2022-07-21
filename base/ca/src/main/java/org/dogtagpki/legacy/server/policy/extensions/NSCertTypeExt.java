@@ -26,7 +26,6 @@ import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -34,6 +33,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
@@ -125,8 +125,7 @@ public class NSCertTypeExt extends APolicyRule
         //mAllowEEOverride = config.getBoolean(PROP_EE_OVERR, false);
         mCritical = config.getBoolean(PROP_CRITICAL, false);
 
-        ICertificateAuthority certAuthority = (ICertificateAuthority)
-                owner.getAuthority();
+        CertificateAuthority certAuthority = (CertificateAuthority) owner.getAuthority();
 
         CertificateChain caChain = certAuthority.getCACertChain();
         X509Certificate caCert = null;

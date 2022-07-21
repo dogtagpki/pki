@@ -38,7 +38,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -121,7 +120,7 @@ public class EnrollServlet extends CMSServlet {
     private String mEnrollSuccessTemplate = null;
     private ICMSTemplateFiller mEnrollSuccessFiller = new ImportCertsTemplateFiller();
 
-    ICertificateAuthority mCa = null;
+    CertificateAuthority mCa;
     CertificateRepository mRepository;
 
     private boolean enforcePop = false;
@@ -416,7 +415,7 @@ public class EnrollServlet extends CMSServlet {
 
     private X509CertInfo[] handleCertAuthDual(X509CertInfo certInfo, AuthToken authToken,
             X509Certificate sslClientCert,
-            ICertificateAuthority mCa, String certBasedOldSubjectDN,
+            CertificateAuthority mCa, String certBasedOldSubjectDN,
             BigInteger certBasedOldSerialNum)
             throws EBaseException {
 

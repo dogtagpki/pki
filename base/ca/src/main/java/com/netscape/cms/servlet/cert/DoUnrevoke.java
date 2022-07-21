@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 import com.netscape.ca.CRLIssuingPoint;
@@ -91,7 +90,7 @@ public class DoUnrevoke extends CMSServlet {
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
-        if (mAuthority instanceof ICertificateAuthority) {
+        if (mAuthority instanceof CertificateAuthority) {
             mCertDB = engine.getCertificateRepository();
         }
         mPublisherProcessor = engine.getPublisherProcessor();
@@ -247,8 +246,8 @@ public class DoUnrevoke extends CMSServlet {
         processor.setRevocationReason(RevocationReason.CERTIFICATE_HOLD);
         processor.setRequestType(RevocationProcessor.OFF_HOLD);
 
-        if (mAuthority instanceof ICertificateAuthority) {
-            processor.setAuthority((ICertificateAuthority) mAuthority);
+        if (mAuthority instanceof CertificateAuthority) {
+            processor.setAuthority((CertificateAuthority) mAuthority);
         }
 
         try {

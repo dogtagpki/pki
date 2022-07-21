@@ -34,7 +34,6 @@ import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
 import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
@@ -119,7 +118,7 @@ public class CMCRevReqServlet extends CMSServlet {
         mFormPath = "/" + authorityId + "/" + TPL_FILE;
 
         mTemplates.remove(CMSRequest.SUCCESS);
-        if (mAuthority instanceof ICertificateAuthority) {
+        if (mAuthority instanceof CertificateAuthority) {
             mCertDB = engine.getCertificateRepository();
         }
 
@@ -232,7 +231,7 @@ public class CMCRevReqServlet extends CMSServlet {
         }
 
         if ((serialNoArray != null) && (serialNoArray.length > 0)) {
-            if (mAuthority instanceof ICertificateAuthority) {
+            if (mAuthority instanceof CertificateAuthority) {
                 certs = new X509CertImpl[serialNoArray.length];
 
                 for (int i = 0; i < serialNoArray.length; i++) {
@@ -392,7 +391,7 @@ public class CMCRevReqServlet extends CMSServlet {
                 entryExtn.set(invalidityDateExtn.getName(), invalidityDateExtn);
             }
 
-            if (mAuthority instanceof ICertificateAuthority) {
+            if (mAuthority instanceof CertificateAuthority) {
                 CertRecordList list = mCertDB.findCertRecordsInList(revokeAll, null, totalRecordCount);
                 Enumeration<CertRecord> e = list.getCertRecords(0, totalRecordCount - 1);
 
@@ -561,7 +560,7 @@ public class CMCRevReqServlet extends CMSServlet {
                         }
                     }
                 }
-                if (mAuthority instanceof ICertificateAuthority) {
+                if (mAuthority instanceof CertificateAuthority) {
                     // let known update and publish status of all crls.
                     for (CRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
                         String crlId = crl.getId();

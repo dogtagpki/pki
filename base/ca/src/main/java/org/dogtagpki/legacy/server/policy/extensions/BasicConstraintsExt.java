@@ -27,13 +27,13 @@ import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -104,8 +104,7 @@ public class BasicConstraintsExt extends APolicyRule
     public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
 
         // get the CA's path len to check against configured max path len.
-        ICertificateAuthority certAuthority = (ICertificateAuthority)
-                owner.getAuthority();
+        CertificateAuthority certAuthority = (CertificateAuthority) owner.getAuthority();
 
         if (certAuthority == null) {
             // should never get here.

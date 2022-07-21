@@ -34,11 +34,11 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CRLIssuingPoint;
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -93,7 +93,7 @@ public class UpdateDir extends CMSServlet {
                 "checkFlag" };
 
     private String mFormPath = null;
-    private ICertificateAuthority mCA = null;
+    private CertificateAuthority mCA;
     private CAPublisherProcessor mPublisherProcessor;
     private CRLRepository mCRLRepository;
     private boolean mClonedCA = false;
@@ -117,8 +117,8 @@ public class UpdateDir extends CMSServlet {
 
         if (mAuthority != null) {
             mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-            if (mAuthority instanceof ICertificateAuthority) {
-                mCA = (ICertificateAuthority) mAuthority;
+            if (mAuthority instanceof CertificateAuthority) {
+                mCA = (CertificateAuthority) mAuthority;
                 mPublisherProcessor = engine.getPublisherProcessor();
                 mCRLRepository = engine.getCRLRepository();
             }

@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
 import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
@@ -36,6 +35,7 @@ import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -69,7 +69,7 @@ public class RevocationProcessor extends CertProcessor {
 
     long startTime;
 
-    ICertificateAuthority authority;
+    CertificateAuthority authority;
     CertificateRepository repo;
     RequestQueue requestQueue;
     CAPublisherProcessor publisherProcessor;
@@ -91,11 +91,11 @@ public class RevocationProcessor extends CertProcessor {
         super(id, locale);
     }
 
-    public ICertificateAuthority getAuthority() {
+    public CertificateAuthority getAuthority() {
         return authority;
     }
 
-    public void setAuthority(ICertificateAuthority authority) {
+    public void setAuthority(CertificateAuthority authority) {
         this.authority = authority;
 
         CAEngine engine = CAEngine.getInstance();

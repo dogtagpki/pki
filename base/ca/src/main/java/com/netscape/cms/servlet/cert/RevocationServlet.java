@@ -34,10 +34,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -106,7 +106,7 @@ public class RevocationServlet extends CMSServlet {
             if (mFormPath == null)
                 mFormPath = "/" + TPL_FILE;
 
-            if (mAuthority instanceof ICertificateAuthority) {
+            if (mAuthority instanceof CertificateAuthority) {
                 if (engine.getEnableNonces()) {
                     mRandom = jssSubsystem.getRandomNumberGenerator();
                 }
@@ -208,13 +208,13 @@ public class RevocationServlet extends CMSServlet {
         boolean noInfo = false;
         X509CertImpl[] certsToRevoke = null;
 
-        if (mAuthority instanceof ICertificateAuthority) {
+        if (mAuthority instanceof CertificateAuthority) {
 
             if (engine.getEnableNonces()) {
                 // generate nonce
                 long n = mRandom.nextLong();
                 // store nonce in session
-                Map<Object, Long> nonces = certAuthority.getNonces(cmsReq.getHttpReq(), "cert-revoke");
+                Map<Object, Long> nonces = ((CertificateAuthority) certAuthority).getNonces(cmsReq.getHttpReq(), "cert-revoke");
                 nonces.put(old_serial_no, n);
                 // return serial number and nonce to client
                 header.addStringValue("nonce", old_serial_no+":"+n);
@@ -314,7 +314,7 @@ public class RevocationServlet extends CMSServlet {
         }
 
         // get cert from db if we're cert authority.
-        if (mAuthority instanceof ICertificateAuthority) {
+        if (mAuthority instanceof CertificateAuthority) {
             cert = getX509Certificate(serialno);
             if (cert == null) {
                 logger.error(CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
@@ -338,7 +338,7 @@ public class RevocationServlet extends CMSServlet {
             logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
         }
-        if (mAuthority instanceof ICertificateAuthority &&
+        if (mAuthority instanceof CertificateAuthority &&
                 !isCertFromCA(cert)) {
             logger.error(CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));

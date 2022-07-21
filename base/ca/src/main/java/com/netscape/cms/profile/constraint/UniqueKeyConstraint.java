@@ -23,7 +23,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -31,6 +30,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
@@ -70,7 +70,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
     public static final String CONFIG_ALLOW_SAME_KEY_RENEWAL =
             "allowSameKeyRenewal";
     boolean mAllowSameKeyRenewal = false;
-    public ICertificateAuthority mCA = null;
+    public CertificateAuthority mCA;
 
     public UniqueKeyConstraint() {
         super();

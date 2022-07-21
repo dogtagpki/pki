@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
@@ -61,6 +60,7 @@ import org.mozilla.jss.pkix.cms.SignerIdentifier;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -259,7 +259,7 @@ public class CheckRequest extends CMSServlet {
         X509Certificate mCACerts[] = null;
 
         try {
-            mCACerts = ((ICertificateAuthority) mAuthority).getCACertChain().getChain();
+            mCACerts = ((CertificateAuthority) mAuthority).getCACertChain().getChain();
         } catch (Exception e) {
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_CA_CHAIN_NOT_AVAILABLE"));
@@ -474,8 +474,8 @@ public class CheckRequest extends CMSServlet {
 
                                         org.mozilla.jss.crypto.X509Certificate x509cert = null;
 
-                                        if (mAuthority instanceof ICertificateAuthority) {
-                                            x509cert = ((ICertificateAuthority) mAuthority).getCaX509Cert();
+                                        if (mAuthority instanceof CertificateAuthority) {
+                                            x509cert = ((CertificateAuthority) mAuthority).getCaX509Cert();
                                         }
                                         if (x509cert == null)
                                             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_ERROR",

@@ -22,7 +22,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 
 import org.dogtagpki.server.ca.ICMSCRLExtension;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
@@ -84,8 +83,7 @@ public class CMSAuthorityKeyIdentifierExtension
             KeyIdentifier keyId = null;
 
             try {
-                X509CertInfo info = (X509CertInfo)
-                        ((ICertificateAuthority) crlIssuingPoint.getCertificateAuthority()).getCACert().get(
+                X509CertInfo info = (X509CertInfo) crlIssuingPoint.getCertificateAuthority().getCACert().get(
                                 X509CertImpl.NAME + "." + X509CertImpl.INFO);
 
                 if (info != null) {
@@ -115,12 +113,11 @@ public class CMSAuthorityKeyIdentifierExtension
             } else {
                 GeneralNames gNames = new GeneralNames();
 
-                gNames.addElement(((ICertificateAuthority) crlIssuingPoint.getCertificateAuthority()).getX500Name());
+                gNames.addElement(crlIssuingPoint.getCertificateAuthority().getX500Name());
 
                 authKeyIdExt =
                         new AuthorityKeyIdentifierExtension(critical, null, gNames,
-                                new SerialNumber(((ICertificateAuthority) crlIssuingPoint.getCertificateAuthority())
-                                        .getCACert().getSerialNumber()));
+                                new SerialNumber(crlIssuingPoint.getCertificateAuthority().getCACert().getSerialNumber()));
             }
 
         } catch (Exception e) {

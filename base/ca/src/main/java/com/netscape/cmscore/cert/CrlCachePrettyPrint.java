@@ -24,7 +24,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
@@ -108,7 +107,7 @@ public class CrlCachePrettyPrint implements ICRLPrettyPrint {
             }
             sb.append(pp.indent(12) + resource.getString(
                       PrettyPrintResources.TOKEN_ISSUER) +
-                      ((ICertificateAuthority) (mIP.getCertificateAuthority()))
+                      mIP.getCertificateAuthority()
                               .getCRLX500Name().toString() + "\n");
             // Format thisUpdate
             String thisUpdate = dateFormater.format(mIP.getLastUpdate());

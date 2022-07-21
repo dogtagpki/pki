@@ -23,13 +23,13 @@ import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.ca.CASigningUnit;
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
@@ -53,7 +53,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubCANameConstraints.class);
 
-    public ICertificateAuthority mCA = null;
+    public CertificateAuthority mCA;
     public String mIssuerNameStr = null;
 
     public SubCANameConstraints() {
@@ -87,8 +87,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
     @Override
     public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         // get CA's public key to create authority key id.
-        ICertificateAuthority certAuthority = (ICertificateAuthority)
-                owner.getAuthority();
+        CertificateAuthority certAuthority = (CertificateAuthority) owner.getAuthority();
 
         if (certAuthority == null) {
             logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
@@ -96,7 +95,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
         }
 
         mCA = certAuthority;
-        CASigningUnit su = (CASigningUnit) mCA.getSigningUnit();
+        CASigningUnit su = mCA.getSigningUnit();
         CAEngine engine = CAEngine.getInstance();
         if (su == null || engine.isPreOpMode()) {
             logger.warn("SubCANameConstraints.init(): Abort due to missing signing unit or in pre-op mode");

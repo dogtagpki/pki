@@ -25,13 +25,13 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.PolicyResult;
@@ -102,8 +102,7 @@ public class KeyUsageExt extends APolicyRule
     public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
-        ICertificateAuthority certAuthority = (ICertificateAuthority)
-                owner.getAuthority();
+        CertificateAuthority certAuthority = (CertificateAuthority) owner.getAuthority();
 
         if (certAuthority == null) {
             logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));

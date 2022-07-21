@@ -47,7 +47,6 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.EErrorPublishCRL;
@@ -1630,7 +1629,7 @@ public class CRLIssuingPoint implements Runnable {
      *
      * @return certificate authority
      */
-    public ISubsystem getCertificateAuthority() {
+    public CertificateAuthority getCertificateAuthority() {
         return mCA;
     }
 

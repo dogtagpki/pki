@@ -31,11 +31,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.ca.CRLIssuingPoint;
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -116,7 +116,7 @@ public class GetCRL extends CMSServlet {
         // Construct an ArgBlock
         IArgBlock args = cmsReq.getHttpParams();
 
-        if (!(mAuthority instanceof ICertificateAuthority)) {
+        if (!(mAuthority instanceof CertificateAuthority)) {
             logger.error(CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
@@ -167,7 +167,7 @@ public class GetCRL extends CMSServlet {
         CRLRepository crlRepository = engine.getCRLRepository();
 
         CRLIssuingPointRecord crlRecord = null;
-        ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
+        CertificateAuthority ca = (CertificateAuthority) mAuthority;
         CRLIssuingPoint crlIP = null;
         if (ca != null)
             crlIP = engine.getCRLIssuingPoint(crlId);

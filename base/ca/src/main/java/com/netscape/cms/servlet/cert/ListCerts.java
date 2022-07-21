@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
@@ -44,6 +43,7 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -103,8 +103,8 @@ public class ListCerts extends CMSServlet {
         // override success to render own template.
         mTemplates.remove(CMSRequest.SUCCESS);
 
-        if (mAuthority instanceof ICertificateAuthority) {
-            ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
+        if (mAuthority instanceof CertificateAuthority) {
+            CertificateAuthority ca = (CertificateAuthority) mAuthority;
 
             mCertDB = engine.getCertificateRepository();
             mAuthName = ca.getX500Name();
@@ -280,8 +280,8 @@ public class ListCerts extends CMSServlet {
 
             revokeAll = req.getParameter("revokeAll");
 
-            if (mAuthority instanceof ICertificateAuthority) {
-                X509CertImpl caCert = ((ICertificateAuthority) mAuthority).getSigningUnit().getCertImpl();
+            if (mAuthority instanceof CertificateAuthority) {
+                X509CertImpl caCert = ((CertificateAuthority) mAuthority).getSigningUnit().getCertImpl();
 
                 //if (isCertFromCA(caCert))
                 header.addStringValue("caSerialNumber",

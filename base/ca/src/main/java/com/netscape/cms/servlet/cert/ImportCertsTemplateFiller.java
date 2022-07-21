@@ -30,7 +30,6 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -46,6 +45,7 @@ import org.mozilla.jss.pkix.cmmf.CertResponse;
 import org.mozilla.jss.pkix.cmmf.CertifiedKeyPair;
 import org.mozilla.jss.pkix.cmmf.PKIStatusInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -163,7 +163,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
 
         // CA chain.
         CertificateChain cachain =
-                ((ICertificateAuthority) authority).getCACertChain();
+                ((CertificateAuthority) authority).getCACertChain();
         X509Certificate[] cacerts = cachain.getChain();
 
         String replyTo = httpParams.getValueAsString("replyTo", null);

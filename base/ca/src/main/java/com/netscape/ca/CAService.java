@@ -34,7 +34,6 @@ import java.util.Vector;
 import org.dogtagpki.ct.CTEngine;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.util.BigInt;
 import org.mozilla.jss.netscape.security.util.DerValue;
@@ -1591,7 +1590,7 @@ class getCertStatus implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(getCertStatus.class);
 
-    private ICertificateAuthority mCA;
+    private CertificateAuthority mCA;
     private CAService mService;
 
     public getCertStatus(CAService service) {
@@ -1934,7 +1933,7 @@ class serviceGetCAChain implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceGetCAChain.class);
 
-    private ICertificateAuthority mCA;
+    private CertificateAuthority mCA;
     private CAService mService;
 
     public serviceGetCAChain(CAService service) {

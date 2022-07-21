@@ -27,8 +27,8 @@ import java.util.Enumeration;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -79,7 +79,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     protected ConfigStore mConfig;
     protected LdapBoundConnFactory mLdapConnFactory = null;
     protected String mBaseDN = null;
-    protected ICertificateAuthority mCa = null;
+    protected CertificateAuthority mCa;
     protected CAPublisherProcessor mPublisherProcessor;
 
     private String mId = ID;

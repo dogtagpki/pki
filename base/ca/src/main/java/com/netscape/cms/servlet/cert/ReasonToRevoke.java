@@ -34,9 +34,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -67,7 +67,7 @@ public class ReasonToRevoke extends CMSServlet {
 
     private CertificateRepository mCertDB;
     private String mFormPath = null;
-    private ICertificateAuthority mCA = null;
+    private CertificateAuthority mCA;
     private SecureRandom mRandom = null;
     private int mTimeLimits = 30; /* in seconds */
 
@@ -89,8 +89,8 @@ public class ReasonToRevoke extends CMSServlet {
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        if (mAuthority instanceof ICertificateAuthority) {
-            mCA = (ICertificateAuthority) mAuthority;
+        if (mAuthority instanceof CertificateAuthority) {
+            mCA = (CertificateAuthority) mAuthority;
             mCertDB = engine.getCertificateRepository();
         }
 

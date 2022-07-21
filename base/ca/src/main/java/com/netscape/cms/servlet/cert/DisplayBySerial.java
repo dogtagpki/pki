@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -49,6 +48,7 @@ import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
@@ -105,12 +105,12 @@ public class DisplayBySerial extends CMSServlet {
 
         CAEngine engine = CAEngine.getInstance();
 
-        if (mAuthority instanceof ICertificateAuthority) {
+        if (mAuthority instanceof CertificateAuthority) {
             mCertDB = engine.getCertificateRepository();
         }
 
         try {
-            mCACerts = ((ICertificateAuthority) mAuthority).getCACertChain().getChain();
+            mCACerts = ((CertificateAuthority) mAuthority).getCACertChain().getChain();
         } catch (Exception e) {
             logger.warn(CMS.getLogMessage("CMSGW_CA_CHAIN_NOT_AVAILABLE"), e);
         }
@@ -313,7 +313,7 @@ public class DisplayBySerial extends CMSServlet {
                 if (metaInfo != null) {
                     String rid = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
 
-                    if (rid != null && mAuthority instanceof ICertificateAuthority) {
+                    if (rid != null && mAuthority instanceof CertificateAuthority) {
                         Request r = requestRepository.readRequest(new RequestId(rid));
                         String certType = r.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
 

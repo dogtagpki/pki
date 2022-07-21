@@ -31,8 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
@@ -68,7 +68,7 @@ public class ProfileReviewServlet extends ProfileServlet {
     private static final String PROP_AUTHORITY_ID = "authorityId";
 
     private String mAuthorityId = null;
-    ICertificateAuthority authority = null;
+    CertificateAuthority authority;
     private SecureRandom mRandom = null;
 
     public ProfileReviewServlet() {
@@ -90,7 +90,7 @@ public class ProfileReviewServlet extends ProfileServlet {
         mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
 
         if (mAuthorityId != null)
-            authority = (ICertificateAuthority) engine.getSubsystem(mAuthorityId);
+            authority = (CertificateAuthority) engine.getSubsystem(mAuthorityId);
 
         if (authority != null && engine.getEnableNonces()) {
             mRandom = jssSubsystem.getRandomNumberGenerator();
