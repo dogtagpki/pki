@@ -22,9 +22,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -117,32 +114,11 @@ public interface ICertificateAuthority extends ISubsystem {
     public X509CertImpl getCACert() throws EBaseException;
 
     /**
-     * Sets the maximium path length in the basic constraint extension.
-     *
-     * @param num the maximium path length
-     */
-    public void setBasicConstraintMaxLen(int num);
-
-    /**
      * Is this a clone CA?
      *
      * @return true if this is a clone CA
      */
     public boolean isClone();
-
-    /**
-     * Retrieves the issuer name of this certificate authority.
-     *
-     * @return the issuer name of this certificate authority
-     */
-    public X500Name getX500Name();
-
-    /**
-     * Retrieves the issuer name of this certificate authority issuing point.
-     *
-     * @return the issuer name of this certificate authority issuing point
-     */
-    public X500Name getCRLX500Name();
 
     /**
      * Logs a message to this certificate authority.
@@ -151,9 +127,6 @@ public interface ICertificateAuthority extends ISubsystem {
      * @param msg logged message
      */
     public void log(int level, String msg);
-
-    public CertificateIssuerName getIssuerObj();
-    public CertificateSubjectName getSubjectObj();
 
     /**
      * get Issuance Protection Private Key

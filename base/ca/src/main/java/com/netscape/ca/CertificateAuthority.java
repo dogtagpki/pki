@@ -787,27 +787,27 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     /**
-     * Returns X500 name of the Certificate Authority
-     * <P>
+     * Retrieves the issuer name of this certificate authority.
      *
-     * @return CA name
+     * @return the issuer name of this certificate authority
      */
-    @Override
     public X500Name getX500Name() {
         return mName;
     }
 
-    @Override
     public CertificateIssuerName getIssuerObj() {
        return mIssuerObj;
     }
 
-    @Override
     public CertificateSubjectName getSubjectObj() {
        return mSubjectObj;
     }
 
-    @Override
+    /**
+     * Retrieves the issuer name of this certificate authority issuing point.
+     *
+     * @return the issuer name of this certificate authority issuing point
+     */
     public X500Name getCRLX500Name() {
         X509CertImpl crlCertImpl = mCRLSigningUnit.getCertImpl();
         return crlCertImpl.getSubjectName();
@@ -859,7 +859,11 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         return mOCSPSigningUnit;
     }
 
-    @Override
+    /**
+     * Sets the maximium path length in the basic constraint extension.
+     *
+     * @param num the maximium path length
+     */
     public void setBasicConstraintMaxLen(int num) {
         mConfig.putString("Policy.rule.BasicConstraintsExt.maxPathLen", "" + num);
     }
