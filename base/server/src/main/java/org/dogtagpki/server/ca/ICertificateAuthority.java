@@ -100,38 +100,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public Map<Object, Long> getNonces(HttpServletRequest request, String name);
 
     /**
-     * Retrieves the next available serial number.
-     *
-     * @return next available serial number
-     */
-    public String getStartSerial();
-
-    /**
-     * Sets the next available serial number.
-     *
-     * @param serial next available serial number
-     * @exception EBaseException failed to set next available serial number
-     */
-    public void setStartSerial(String serial) throws EBaseException;
-
-    /**
-     * Retrieves the last serial number that can be used for
-     * certificate issuance in this certificate authority.
-     *
-     * @return the last serial number
-     */
-    public String getMaxSerial();
-
-    /**
-     * Sets the last serial number that can be used for
-     * certificate issuance in this certificate authority.
-     *
-     * @param serial the last serial number
-     * @exception EBaseException failed to set the last serial number
-     */
-    public void setMaxSerial(String serial) throws EBaseException;
-
-    /**
      * Retrieves the default signature algorithm of this certificate authority.
      *
      * @return the default signature algorithm of this CA

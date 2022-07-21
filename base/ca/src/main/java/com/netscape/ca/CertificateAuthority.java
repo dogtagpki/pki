@@ -518,7 +518,11 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         mSigningUnit.setDefaultAlgorithm(algorithm);
     }
 
-    @Override
+    /**
+     * Retrieves the next available serial number.
+     *
+     * @return next available serial number
+     */
     public String getStartSerial() {
 
         CAEngine engine = CAEngine.getInstance();
@@ -537,14 +541,24 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         }
     }
 
-    @Override
+    /**
+     * Sets the next available serial number.
+     *
+     * @param serial next available serial number
+     * @exception EBaseException failed to set next available serial number
+     */
     public void setStartSerial(String serial) throws EBaseException {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
         certificateRepository.setTheSerialNumber(new BigInteger(serial));
     }
 
-    @Override
+    /**
+     * Retrieves the last serial number that can be used for
+     * certificate issuance in this certificate authority.
+     *
+     * @return the last serial number
+     */
     public String getMaxSerial() {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
@@ -557,7 +571,13 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         }
     }
 
-    @Override
+    /**
+     * Sets the last serial number that can be used for
+     * certificate issuance in this certificate authority.
+     *
+     * @param serial the last serial number
+     * @exception EBaseException failed to set the last serial number
+     */
     public void setMaxSerial(String serial) throws EBaseException {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
