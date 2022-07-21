@@ -90,6 +90,12 @@ jobs:
           ref: ${{ github.event.workflow_run.head_branch }}
           fetch-depth: 0
 
+      - name: Rebase to master
+        run: |
+          git remote add jss https://github.com/dogtagpki/pki.git
+          git fetch jss
+          git rebase jss/master
+
       - name: Install dependencies
         run: |
           dnf install -y dnf-plugins-core rpm-build moby-engine
