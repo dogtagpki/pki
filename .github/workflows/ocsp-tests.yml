@@ -199,8 +199,7 @@ jobs:
 
           # get cert serial number
           docker exec pki pki nss-cert-show caagent | tee output
-          sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output > cert_id
-          CERT_ID=$(cat cert_id)
+          CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
           # check cert status using OCSPClient
           docker exec pki OCSPClient \
@@ -242,8 +241,7 @@ jobs:
 
           # get cert serial number
           docker exec pki pki nss-cert-show caagent | tee output
-          sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output > cert_id
-          CERT_ID=$(cat cert_id)
+          CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
           # check cert status using OCSPClient
           docker exec pki OCSPClient \
@@ -278,8 +276,7 @@ jobs:
 
           # get cert serial number
           docker exec pki pki nss-cert-show caagent | tee output
-          sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output > cert_id
-          CERT_ID=$(cat cert_id)
+          CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
           # check cert status using OCSPClient
           docker exec pki OCSPClient \
@@ -580,41 +577,51 @@ jobs:
       - name: Issue OCSP signing cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/ocsp_signing.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caOCSPCert --csr-file ${SHARED}/ocsp_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/ocsp_signing.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat ocsp_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/ocsp_signing.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat ocsp_signing.certid` --output-file ${SHARED}/ocsp_signing.crt"
+          docker exec ca pki ca-cert-request-submit --profile caOCSPCert --csr-file ${SHARED}/ocsp_signing.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/ocsp_signing.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/ocsp_signing.crt
 
       - name: Issue subsystem cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/subsystem.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${SHARED}/subsystem.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/subsystem.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat subsystem.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/subsystem.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat subsystem.certid` --output-file ${SHARED}/subsystem.crt"
+          docker exec ca pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${SHARED}/subsystem.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/subsystem.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/subsystem.crt
 
       - name: Issue SSL server cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/sslserver.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caServerCert --csr-file ${SHARED}/sslserver.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/sslserver.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat sslserver.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/sslserver.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat sslserver.certid` --output-file ${SHARED}/sslserver.crt"
+          docker exec ca pki ca-cert-request-submit --profile caServerCert --csr-file ${SHARED}/sslserver.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/sslserver.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/sslserver.crt
 
       - name: Issue OCSP audit signing cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/ocsp_audit_signing.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${SHARED}/ocsp_audit_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/ocsp_audit_signing.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat ocsp_audit_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/ocsp_audit_signing.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat ocsp_audit_signing.certid` --output-file ${SHARED}/ocsp_audit_signing.crt"
+          docker exec ca pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${SHARED}/ocsp_audit_signing.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/ocsp_audit_signing.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/ocsp_audit_signing.crt
 
       - name: Issue OCSP admin cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/ocsp_admin.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caUserCert --csr-file ${SHARED}/ocsp_admin.csr --subject uid=ocspadmin | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/ocsp_admin.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat ocsp_admin.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/ocsp_admin.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat ocsp_admin.certid` --output-file ${SHARED}/ocsp_admin.crt"
+          docker exec ca pki ca-cert-request-submit --profile caUserCert --csr-file ${SHARED}/ocsp_admin.csr --subject uid=ocspadmin | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/ocsp_admin.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/ocsp_admin.crt
 
       - name: Install OCSP in OCSP container (step 2)
