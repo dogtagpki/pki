@@ -42,7 +42,15 @@ jobs:
           dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
 
       - name: Build PKI packages
-        run: ./build.sh --with-pkgs=base,server,tests --with-timestamp --work-dir=build rpm
+        run: ./build.sh --with-timestamp --work-dir=build rpm
+
+      - name: Upload PKI packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: |
+            build/RPMS/
+            build/SRPMS/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -1411,3 +1419,30 @@ jobs:
           docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output | sort > expected
           diff actual expected
+
+  rpminspect-test:
+    name: Run RPMInspect on RPMs
+    needs: [init, build]
+    runs-on: ubuntu-latest
+    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: |
+            build/
+
+      - name: Install RPMInspect
+        run: |
+          dnf install -y dnf-plugins-core rpm-build findutils
+          dnf copr enable -y copr.fedorainfracloud.org/dcantrell/rpminspect
+          dnf install -y rpminspect rpminspect-data-fedora
+      - name: Run RPMInspect on SRPM and RPMs
+        run: |
+          tests/bin/rpminspect.sh
