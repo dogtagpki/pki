@@ -989,6 +989,7 @@ jobs:
           path: |
             /tmp/artifacts/pki
 
+  # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-File-System
   crl-file-test:
     name: Testing file-based CRL publishing
     needs: [init, build]
@@ -1045,7 +1046,6 @@ jobs:
               -D pki_request_id_generator=random \
               -v
 
-      # https://github.com/dogtagpki/pki/wiki/Configuring-File-based-CRL-Publishing
       - name: Configure file-based CRL publishing
         run: |
           # create CRL folder
