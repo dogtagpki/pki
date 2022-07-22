@@ -38,6 +38,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.ca.CRLConfig;
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CRLIssuingPointConfig;
+import com.netscape.ca.CRLIssuingPointExtensionsConfig;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -1008,12 +1009,12 @@ public class CAAdminServlet extends AdminServlet {
             CAConfig caConfig = mCA.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
             CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(ipId);
-            ConfigStore crlExtsSubStore = ipConfig.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
+            CRLIssuingPointExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
 
             String id = req.getParameter(Constants.RS_ID);
 
             if (id != null) {
-                ConfigStore crlExtSubStore = crlExtsSubStore.getSubStore(id, ConfigStore.class);
+                ConfigStore crlExtSubStore = crlExtsConfig.getSubStore(id, ConfigStore.class);
 
                 Enumeration<String> e = req.getParameterNames();
 
@@ -1102,15 +1103,15 @@ public class CAAdminServlet extends AdminServlet {
         CAConfig caConfig = mCA.getConfigStore();
         CRLConfig crlConfig = caConfig.getCRLConfig();
         CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);
-        ConfigStore crlExtsSubStore = ipConfig.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE, ConfigStore.class);
+        CRLIssuingPointExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
 
-        if (crlExtsSubStore != null) {
-            Enumeration<String> enumExts = crlExtsSubStore.getSubStoreNames();
+        if (crlExtsConfig != null) {
+            Enumeration<String> enumExts = crlExtsConfig.getSubStoreNames();
 
             while (enumExts.hasMoreElements()) {
                 String extName = enumExts.nextElement();
                 boolean crlExtEnabled = false;
-                ConfigStore crlExtSubStore = crlExtsSubStore.getSubStore(extName, ConfigStore.class);
+                ConfigStore crlExtSubStore = crlExtsConfig.getSubStore(extName, ConfigStore.class);
                 Enumeration<String> properties = crlExtSubStore.getPropertyNames();
 
                 while (properties.hasMoreElements()) {

@@ -297,11 +297,18 @@ public class CRLIssuingPointConfig extends ConfigStore {
         putBigInteger("crlEndSerialNo", crlEndSerialNo);
     }
 
-    public boolean getAutoUpdateIntervalEffectiveAtStart()  throws EBaseException {
-        return getBoolean("autoUpdateInterval.effectiveAtStart",false);
+    public boolean getAutoUpdateIntervalEffectiveAtStart() throws EBaseException {
+        return getBoolean("autoUpdateInterval.effectiveAtStart", false);
     }
 
     public void setAutoUpdateIntervalEffectiveAtStart(Boolean updated) {
         putBoolean("autoUpdateInterval.effectiveAtStart",updated);
+    }
+
+    /**
+     * Returns ca.crl.<name>.extension.* parameters.
+     */
+    public CRLIssuingPointExtensionsConfig getExtensionsConfig() {
+        return getSubStore("extension", CRLIssuingPointExtensionsConfig.class);
     }
 }

@@ -58,7 +58,6 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSCRLExtensions.class);
 
     public static final String PROP_ENABLE = "enable";
-    public static final String PROP_EXTENSION = "extension";
     public static final String PROP_CLASS = "class";
     public static final String PROP_TYPE = "type";
     public static final String PROP_CRITICAL = "critical";
@@ -69,7 +68,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
     @SuppressWarnings("unused")
     private CRLIssuingPointConfig mConfig;
-    private ConfigStore mCRLExtConfig;
+    private CRLIssuingPointExtensionsConfig mCRLExtConfig;
 
     private Vector<String> mCRLExtensionNames = new Vector<>();
     private Vector<String> mCRLEntryExtensionNames = new Vector<>();
@@ -195,7 +194,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
         CAEngine engine = CAEngine.getInstance();
         mConfig = config;
-        mCRLExtConfig = config.getSubStore(PROP_EXTENSION, ConfigStore.class);
+        mCRLExtConfig = config.getExtensionsConfig();
         mCRLIssuingPoint = crlIssuingPoint;
 
         CAEngineConfig mFileConfig = engine.getConfig();

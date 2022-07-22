@@ -60,7 +60,6 @@ public interface ICertificateAuthority extends ISubsystem {
     // make this public so agent gateway can access for now.
     public final static String PROP_CRL_PAGE_SIZE = "pageSize";
     public final static String PROP_MASTER_CRL = "MasterCRL";
-    public final static String PROP_CRLEXT_SUBSTORE = "extension";
     public final static String PROP_ISSUING_CLASS =
             "com.netscape.cmscore.ca.CRLIssuingPoint";
     public final static String PROP_EXPIREDCERTS_CLASS =
