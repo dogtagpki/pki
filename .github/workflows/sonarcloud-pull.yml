@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       pr-number: ${{ steps.pr-artifact-script.outputs.result }}
+      pr-base: ${{ steps.pr-base-script.outputs.result }}
     steps:
       - name: 'Download PR artifact'
         uses: actions/github-script@v3.1.0
@@ -55,6 +56,17 @@ jobs:
             var pr_number = Number(fs.readFileSync('./NR'));
             return pr_number; 
 
+      - name: Retrieve the pr base
+        if: success()
+        id: pr-base-script
+        uses: actions/github-script@v3.1.0
+        with:
+          result-encoding: string
+          script: |
+            var fs = require('fs');
+            var pr_base = fs.readFileSync('./BaseBranch');
+            return pr_base;
+
   init:
     name: Initializing workflow
     runs-on: ubuntu-latest
@@ -77,12 +89,16 @@ jobs:
           tests/bin/init-workflow.sh
   build:
     name: Building PKI
-    needs: init
+    needs: [init, retrieve-pr]
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     steps:
+      - name: Install git
+        run: |
+          dnf install -y git
+
       - name: Clone repository
         uses: actions/checkout@v2
         with:
@@ -92,9 +108,11 @@ jobs:
 
       - name: Rebase to master
         run: |
-          git remote add pki https://github.com/dogtagpki/pki.git
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "GitHub Workflow Action"
+          git remote add pki ${{ github.event.repository.clone_url }} 
           git fetch pki
-          git rebase pki/master
+          git rebase pki/${{ needs.retrieve-pr.outputs.pr-base }}
 
       - name: Install dependencies
         run: |
@@ -150,6 +168,13 @@ jobs:
           repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_branch }}
           fetch-depth: 0
+
+      - name: Rebase to master
+        run: |
+          git config user.name "GitHub Workflow Action"
+          git remote add pki ${{ github.event.repository.clone_url }} 
+          git fetch pki
+          git rebase pki/${{ needs.retrieve-pr.outputs.pr-base }}
 
       - name: Set up PKI container
         run: |
