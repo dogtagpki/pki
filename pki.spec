@@ -34,9 +34,8 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 
 # md2man isn't available on i686. Additionally, we aren't generally multi-lib
 # compatible (https://fedoraproject.org/wiki/Packaging:Java)
-# so dropping i686 everywhere but RHEL-8 (which we've already shipped) seems
-# safest.
-%if ! 0%{?rhel} || 0%{?rhel} > 8
+# md2man has now also been dropped in RHEL 8 so exlcude from RHEL 8+
+%if ! 0%{?rhel} || 0%{?rhel} >= 8
 ExcludeArch: i686
 %endif
 
