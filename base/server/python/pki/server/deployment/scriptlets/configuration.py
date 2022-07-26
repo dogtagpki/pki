@@ -590,6 +590,34 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem.import_profiles(
                 input_folder='/usr/share/pki/ca/profiles/ca')
 
+        # Check whether the server uses any legacy ID generator.
+
+        using_legacy_id_generator = False
+
+        if subsystem.type in ['CA', 'KRA']:
+
+            request_id_generator = subsystem.config.get('dbs.request.id.generator', 'legacy')
+            logger.info('Request ID generator: %s', request_id_generator)
+
+            if request_id_generator == 'legacy':
+                using_legacy_id_generator = True
+
+        if subsystem.type == 'CA':
+
+            cert_id_generator = subsystem.config.get('dbs.cert.id.generator', 'legacy')
+            logger.info('Certificate ID generator: %s', cert_id_generator)
+
+            if cert_id_generator == 'legacy':
+                using_legacy_id_generator = True
+
+        elif subsystem.type == 'KRA':
+
+            key_id_generator = subsystem.config.get('dbs.key.id.generator', 'legacy')
+            logger.info('Key ID generator: %s', key_id_generator)
+
+            if key_id_generator == 'legacy':
+                using_legacy_id_generator = True
+
         # Optionally prepare to enable a java debugger
         # (e. g. - 'eclipse'):
         if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
@@ -605,25 +633,28 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Enabling %s subsystem', subsystem.type)
             subsystem.enable()
 
-            logger.info('Creating temporary SSL server cert')
-            deployer.create_temp_sslserver_cert(instance)
+            if using_legacy_id_generator:
+                logger.info('Creating temporary SSL server cert')
+                deployer.create_temp_sslserver_cert(instance)
 
-            logger.info('Starting PKI server')
-            instance.start(
-                wait=True,
-                max_wait=deployer.startup_timeout,
-                timeout=deployer.request_timeout)
+                logger.info('Starting PKI server')
+                instance.start(
+                    wait=True,
+                    max_wait=deployer.startup_timeout,
+                    timeout=deployer.request_timeout)
 
         elif tomcat_instance_subsystems > 1:
 
-            logger.info('Starting %s subsystem', subsystem.type)
-            subsystem.enable(
-                wait=True,
-                max_wait=deployer.startup_timeout,
-                timeout=deployer.request_timeout)
+            if using_legacy_id_generator:
+                logger.info('Starting %s subsystem', subsystem.type)
+                subsystem.enable(
+                    wait=True,
+                    max_wait=deployer.startup_timeout,
+                    timeout=deployer.request_timeout)
 
-        logger.info('Waiting for %s subsystem', subsystem.type)
-        subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
+        if using_legacy_id_generator:
+            logger.info('Waiting for %s subsystem', subsystem.type)
+            subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
 
         # Optionally wait for debugger to attach (e. g. - 'eclipse'):
         if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
@@ -718,10 +749,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if tomcat_instance_subsystems == 1:
 
-            # If temp SSL server cert was created and there's a new perm cert,
-            # replace it with the perm cert.
-            if deployer.temp_sslserver_cert_created and system_certs['sslserver']['data']:
-
+            if using_legacy_id_generator:
                 logger.info('Stopping PKI server')
                 instance.stop(
                     wait=True,
@@ -754,11 +782,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         elif config.str2bool(deployer.mdict['pki_restart_configured_instance']):
 
-            logger.info('Stopping %s subsystem', subsystem.type)
-            subsystem.disable(
-                wait=True,
-                max_wait=deployer.startup_timeout,
-                timeout=deployer.request_timeout)
+            if using_legacy_id_generator:
+                logger.info('Stopping %s subsystem', subsystem.type)
+                subsystem.disable(
+                    wait=True,
+                    max_wait=deployer.startup_timeout,
+                    timeout=deployer.request_timeout)
 
             logger.info('Starting %s subsystem', subsystem.type)
             subsystem.enable(
