@@ -53,10 +53,11 @@ jobs:
     name: Sonar cloud PR fork analyses deferring
     runs-on: ubuntu-latest
     steps:
-      - name: Save PR number
+      - name: Save PR information
         run: |
           mkdir -p ./pr
           echo ${{ github.event.number }} > ./pr/NR
+          echo ${{ github.event.pull_request.base.ref }} > ./pr/BaseBranch
 
       - name: Upload pr as artifact
         uses: actions/upload-artifact@v2
