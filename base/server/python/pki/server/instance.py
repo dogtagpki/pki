@@ -511,10 +511,24 @@ class PKIInstance(pki.server.PKIServer):
         # If not available, load SSL server cert nickname from serverCertNick.conf
         # TODO: Remove serverCertNick.conf
 
-        server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
+        logger.info('Getting serverCertNickFile from server.xml')
 
-        if not os.path.exists(server_cert_nick_conf):
+        document = etree.parse(self.server_xml, parser)
+        server = document.getroot()
+
+        connector = server.find('Service/Connector[@secure=\'true\']')
+
+        if connector is None:
+            # no secure Connector -> no nickname
             return None
+
+        server_cert_nick_conf = connector.get('serverCertNickFile')
+
+        if server_cert_nick_conf is None:
+            # no serverCertNick.conf -> no nickname
+            return None
+
+        logger.info('Loading %s', server_cert_nick_conf)
 
         with open(server_cert_nick_conf, encoding='utf-8') as f:
             return f.readline().strip()
@@ -532,11 +546,29 @@ class PKIInstance(pki.server.PKIServer):
         # TODO: Remove serverCertNick.conf
 
         server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
+        logger.info('Updating %s', server_cert_nick_conf)
+
         with open(server_cert_nick_conf, 'w', encoding='utf-8') as f:
             f.write(fullname + '\n')
 
         os.chown(server_cert_nick_conf, self.uid, self.gid)
         os.chmod(server_cert_nick_conf, pki.server.DEFAULT_FILE_MODE)
+
+        logger.info('Updating serverCertNickFile in server.xml')
+
+        document = etree.parse(self.server_xml, parser)
+        server = document.getroot()
+
+        connector = server.find('Service/Connector[@secure=\'true\']')
+
+        if connector is None:
+            # no secure Connector -> ignore
+            return
+
+        connector.set('serverCertNickFile', server_cert_nick_conf)
+
+        with open(self.server_xml, 'wb') as f:
+            document.write(f, pretty_print=True, encoding='utf-8')
 
     def banner_installed(self):
         return os.path.exists(self.banner_file)

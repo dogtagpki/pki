@@ -303,8 +303,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             nssdb.close()
 
-        deployer.create_temp_sslserver_cert(instance)
-
         server_config = instance.get_server_config()
         unsecurePort = server_config.get_unsecure_port()
         securePort = server_config.get_secure_port()
@@ -605,6 +603,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             logger.info('Enabling %s subsystem', subsystem.type)
             subsystem.enable()
+
+            logger.info('Creating temporary SSL server cert')
+            deployer.create_temp_sslserver_cert(instance)
 
             logger.info('Starting PKI server')
             instance.start(

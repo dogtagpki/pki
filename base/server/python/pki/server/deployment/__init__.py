@@ -1196,11 +1196,6 @@ class PKIDeployer:
 
     def create_temp_sslserver_cert(self, instance):
 
-        self.temp_sslserver_cert_created = False
-
-        if len(self.instance.tomcat_instance_subsystems()) > 1:
-            return
-
         hostname = self.mdict['pki_hostname']
 
         token = self.mdict['pki_self_signed_token']

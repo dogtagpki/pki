@@ -126,7 +126,6 @@
                ocspMinCacheEntryDuration="7200"
                ocspMaxCacheEntryDuration="14400"
                ocspTimeout="10"
-               serverCertNickFile="[PKI_INSTANCE_PATH]/conf/serverCertNick.conf"
                passwordFile="[PKI_INSTANCE_PATH]/conf/password.conf"
                passwordClass="org.apache.tomcat.util.net.jss.PlainPasswordFile"
                certdbDir="[PKI_INSTANCE_PATH]/alias">
