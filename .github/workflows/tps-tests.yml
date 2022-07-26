@@ -3,71 +3,16 @@ name: TPS Tests
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initializing workflow
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.init.outputs.matrix }}
-      repo: ${{ steps.init.outputs.repo }}
-      db-image: ${{ steps.init.outputs.db-image }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Initialize workflow
-        id: init
-        env:
-          BASE64_MATRIX: ${{ secrets.BASE64_MATRIX }}
-          BASE64_REPO: ${{ secrets.BASE64_REPO }}
-          BASE64_DATABASE: ${{ secrets.BASE64_DATABASE }}
-        run: |
-          tests/bin/init-workflow.sh
-
-  # docs/development/Building_PKI.md
-  build:
-    name: Building PKI
-    needs: init
-    runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Install dependencies
-        run: |
-          dnf install -y dnf-plugins-core rpm-build moby-engine
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
-
-      - name: Build PKI packages
-        run: ./build.sh --with-pkgs=base,server,ca,kra,tks,tps --with-timestamp --work-dir=build rpm
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build runner image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          build-args: |
-            OS_VERSION=${{ matrix.os }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
-          tags: pki-runner
-          target: pki-runner
-          outputs: type=docker,dest=pki-tps-runner.tar
-
-      - name: Store runner image
-        uses: actions/cache@v3
-        with:
-          key: pki-tps-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tps-runner.tar
+  call-build-workflow:
+    uses: ./.github/workflows/build.yml
+    with:
+      key_container: tps
+    secrets: inherit
 
   # docs/installation/tps/Installing_TPS.md
   tps-test:
     name: Testing TPS
-    needs: [init, build]
+    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
@@ -273,7 +218,7 @@ jobs:
 
   tps-separate-test:
     name: Testing TPS on separate instance
-    needs: [init, build]
+    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
@@ -540,7 +485,7 @@ jobs:
 
   tps-external-certs-test:
     name: Testing TPS with external certificates
-    needs: [init, build]
+    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
@@ -868,7 +813,7 @@ jobs:
   # then installs DS clone, CA clone, KRA clone, TKS clone, and TPS clone in the secondary containers.
   tps-clone-test:
     name: Testing TPS clone
-    needs: [init, build]
+    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
